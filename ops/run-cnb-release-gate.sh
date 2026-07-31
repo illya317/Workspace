@@ -11,6 +11,7 @@ ACTION="${RELEASE_ACTION:-deploy}"
 RUNTIME="${RELEASE_VALIDATION_RUNTIME:-cnb}"
 CLASSIFICATION_FILE="${RELEASE_CLASSIFICATION_FILE:-$PWD/.cache/release-check/affected-classification.json}"
 RECEIPT_FILE="${CNB_RELEASE_GATE_RECEIPT_FILE:-$PWD/.cache/release-check/cnb-release-gate.json}"
+SOURCE_RESULT_FILE="${RELEASE_SOURCE_RESULT_FILE:-$PWD/.cache/release-check/affected-source-result.json}"
 
 case "$ACTION" in
   validate|deploy) ;;
@@ -66,12 +67,30 @@ SQL
   done
 }
 
+database_status=0
 if [ "$needs_database" = "true" ] && [ "$RUNTIME" = "cnb" ]; then
   echo "==> 启动受影响 PostgreSQL/E2E 所需的一次性数据库"
+  set +e
   start_disposable_postgresql
+  database_status=$?
+  set -e
+  if [ "$database_status" != "0" ]; then
+    echo "[错误] 一次性 PostgreSQL 前置失败；独立源码检查继续，数据库依赖链将在汇总中失败或 blocked" >&2
+  fi
 fi
 
 echo "==> 按 Git base/head 与依赖闭包运行一次源码验证"
+rm -f "$SOURCE_RESULT_FILE"
+set +e
 env -u RELEASE_TIMING_FILE -u RELEASE_TIMING_RELEASE_ID \
-  node scripts/ci/run-affected-validation.mjs --classification "$CLASSIFICATION_FILE" --phase source
-echo "==> 源码验证通过；制品构建与必要的选中 E2E 在下一阶段完成"
+  RELEASE_DATABASE_START_STATUS="$database_status" \
+  node scripts/ci/run-affected-validation.mjs \
+    --classification "$CLASSIFICATION_FILE" --phase source --result-file "$SOURCE_RESULT_FILE"
+source_status=$?
+set -e
+[ -f "$SOURCE_RESULT_FILE" ] || { echo "[错误] 源码验证未生成完整结果；拒绝继续" >&2; exit "${source_status:-1}"; }
+if [ "$source_status" = "0" ] && [ "$database_status" = "0" ]; then
+  echo "==> 源码验证通过；制品构建与必要的选中 E2E 在下一阶段完成"
+else
+  echo "==> 源码验证已收集失败；仍进入 artifact 阶段收集独立 build/E2E 结果，最终不会生成发布回执"
+fi

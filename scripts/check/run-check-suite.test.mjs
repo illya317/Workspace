@@ -65,6 +65,25 @@ test("aggregate suite mode runs every independent task and summarizes all blocki
   assert.match(output.join(""), /2 blocking failure\(s\)/);
   assert.match(output.join(""), /Fix the complete list above/);
 });
+test("release environment enables aggregate suite mode without a caller-only option", () => {
+  const calls = [];
+  const output = [];
+  const status = runCheckSuites(["contracts"], {
+    env: { ...process.env, CHECK_SUITE_COLLECT_FAILURES: "1" },
+    createTaskCache: () => ({ read() { return null; }, write() {} }),
+    spawn: () => {
+      calls.push(calls.length + 1);
+      return { status: calls.length === 1 || calls.length === 3 ? 8 : 0 };
+    },
+    stdout: { write(value) { output.push(value); } },
+    stderr: { write(value) { output.push(value); } },
+  });
+
+  assert.equal(status, 8);
+  assert.equal(calls.length, resolveCheckPlan(["contracts"]).tasks.length);
+  assert.match(output.join(""), /2 blocking failure\(s\)/);
+});
+
 
 test("suite runner skips reusable tasks and preserves cached warning semantics", () => {
   const calls = [];

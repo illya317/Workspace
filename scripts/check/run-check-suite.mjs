@@ -264,7 +264,7 @@ export function runCheckSuites(
     now = () => performance.now(),
     stdout = process.stdout,
     stderr = process.stderr,
-    collectFailures = false,
+    collectFailures = env.CHECK_SUITE_COLLECT_FAILURES === "1",
   } = {},
 ) {
   let plan = resolveCheckPlan(suiteNames);
