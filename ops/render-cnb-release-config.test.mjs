@@ -43,3 +43,15 @@ test("validate rendering skips server prerequisites but keeps the governed deplo
   assert.equal(pipeline.env.RELEASE_VALIDATION_BASE_SHA, validationBaseSha);
   assert.deepEqual(Object.keys(pipeline.stages.at(-1)).sort(), ["name", "script"]);
 });
+
+test("build rendering keeps only artifact work and removes server prerequisites", () => {
+  const rendered = renderCnbReleaseConfig(canonical, {
+    releaseAction: "build",
+    validationBaseSha,
+  });
+  const pipeline = validateCnbReleaseConfig(rendered, { releaseAction: "build", validationBaseSha });
+  assert.equal(pipeline.env.RELEASE_ACTION, "build");
+  assert.deepEqual(Object.keys(pipeline.stages.at(-1)).sort(), ["name", "script"]);
+  assert.match(pipeline.stages.find((stage) => stage.name === "build-release-target").script, /build-cnb-release-target/);
+  assert.match(pipeline.stages.find((stage) => stage.name === "release-gate").script, /run-cnb-release-gate/);
+});

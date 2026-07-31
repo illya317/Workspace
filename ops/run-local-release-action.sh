@@ -6,8 +6,8 @@ ACTION="${1:-}"
 METADATA_FILE="${2:-}"
 
 case "$ACTION" in
-  validate|deploy) ;;
-  *) echo "用法: run-local-release-action.sh validate|deploy METADATA_FILE" >&2; exit 2 ;;
+  validate|build|deploy) ;;
+  *) echo "用法: run-local-release-action.sh validate|build|deploy METADATA_FILE" >&2; exit 2 ;;
 esac
 : "${RELEASE_SOURCE_DIR:?RELEASE_SOURCE_DIR is required}"
 : "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}"
@@ -19,6 +19,7 @@ esac
 
 mkdir -p "$RELEASE_SOURCE_DIR/.local-release-worktrees"
 persistent_check_result_cache="$RELEASE_SOURCE_DIR/.cache/release-check-results"
+persistent_evidence_root="$RELEASE_SOURCE_DIR/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
 temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.local-release-worktrees/action.XXXXXX")"
 injection_worktree="$temporary_root/release-injection"
 cleanup() {
@@ -36,6 +37,9 @@ const target = metadata.deployment?.target;
 process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'shadow'}\n`);
 NODE
 )"
+node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
+  --metadata "$METADATA_FILE" --action "$ACTION" --executor local \
+  --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" >/dev/null
 deploy_unit_id="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deploy_unit_mode="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
 
@@ -56,9 +60,9 @@ GIT_AUTHOR_DATE="$source_commit_date" GIT_COMMITTER_DATE="$source_commit_date" \
   git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=release@workspace.local \
   commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
 
-if [ "$ACTION" = "validate" ]; then
+if [ "$ACTION" != "deploy" ]; then
   export CI=1
-  mkdir -p "$persistent_check_result_cache" "$injection_worktree/.cache"
+  mkdir -p "$persistent_check_result_cache" "$persistent_evidence_root" "$injection_worktree/.cache"
   if [ -e "$injection_worktree/.cache/check-results" ] || [ -L "$injection_worktree/.cache/check-results" ]; then
     echo "[错误] 临时 release worktree 的 check-results 路径必须为空" >&2
     exit 1
@@ -90,14 +94,23 @@ export RELEASE_VALIDATION_RUNTIME=local
 export RELEASE_SOURCE_SHA RELEASE_SOURCE_TREE RELEASE_CONTENT_DIGEST RELEASE_VALIDATION_BASE_SHA
 export DEPLOY_UNIT_ID="$deploy_unit_id" DEPLOY_UNIT_MODE="$deploy_unit_mode"
 export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_SOURCE_DIR/.cache/release-artifacts"
+export RELEASE_EVIDENCE_ROOT="$persistent_evidence_root"
+export RELEASE_SOURCE_VALIDATION_RECEIPT_FILE="$persistent_evidence_root/source-validation.json"
 export EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-${CNB_REPO:-}}"
 export RELEASE_SOURCE_BRANCH="${RELEASE_BRANCH:-release}"
 
 cd "$injection_worktree"
-bash ./ops/run-cnb-release-stage.sh release.gate -- bash ./ops/run-cnb-release-gate.sh
-bash ./ops/run-cnb-release-stage.sh artifact.build -- bash ./ops/build-cnb-release-target.sh
-if [ "$ACTION" = "validate" ]; then
-  echo "==> 本地 validate 完成；制品已冻结到 $CNB_RELEASE_ARTIFACT_CACHE_ROOT"
-  exit 0
-fi
-bash ./ops/run-cnb-release-stage.sh server.deploy -- bash ./ops/deploy-cnb-release-target.sh
+case "$ACTION" in
+  validate)
+    bash ./ops/run-cnb-release-stage.sh release.gate -- bash ./ops/run-cnb-release-gate.sh
+    echo "==> 本地 validate 完成；源码验证回执已冻结"
+    ;;
+  build)
+    bash ./ops/run-cnb-release-stage.sh artifact.build -- bash ./ops/build-cnb-release-target.sh
+    echo "==> 本地 build 完成；制品已冻结到 $CNB_RELEASE_ARTIFACT_CACHE_ROOT"
+    ;;
+  deploy)
+    bash ./ops/run-cnb-release-stage.sh artifact.restore -- bash ./ops/build-cnb-release-target.sh
+    bash ./ops/run-cnb-release-stage.sh server.deploy -- bash ./ops/deploy-cnb-release-target.sh
+    ;;
+esac

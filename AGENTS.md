@@ -61,7 +61,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **本地检查内存硬上限 8GB**：本机受治理 typecheck、build、lint 和其他 Node 检查的 old-space 上限不得超过 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量；各入口必须使用 package script 声明的受治理上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
-18. **发布验证与部署必须分离**：`ops/publish.sh prepare` 只冻结 release tree 和私有配置；随后用 `publish.sh validate`（CNB）或 `publish.sh validate --local` 对生产 Git base 到候选 head 的改动项目及依赖闭包验证一次并生成 immutable artifact。`publish.sh deploy` / `--direct` 只能消费同一 validation base、source SHA、tree SHA 和 artifact digest 的结果，禁止重新运行源码门禁或现场重建。部署阶段仅保留生产身份/顺序、migration 区间、锁、备份、传输 digest、健康检查、原子切换和回滚。除用户显式要求外，不得增加其他门禁或自动升级全量检查。
-19. **正式门禁必须一次报全再集中修复**：CI/发布的独立检查必须聚合执行并汇总全部失败；依赖链只在前置失败时显式标记 blocked。第一次正式 validate 失败后停止全量重跑，先审计完整检查图和全部环境前置，集中修完并逐项验证，最后只再运行一次正式 validate。禁止“全量一次、修一项、再全量”的发布循环。
+18. **发布阶段必须单向且互相独立**：`ops/publish.sh prepare` 创建不可变 Release Plan，冻结 release tree、私有配置摘要、standard/fast 模式、目标和各阶段 local/CNB 执行器；`validate` 只运行一次源码门禁或记录 `skipped_by_fast`，`build` 只编译并冻结一次 artifact，`deploy` 只消费同一 Plan 的验证状态和 artifact。成功、失败、取消或快速跳过都是不可重开的终态；部署阶段禁止重新运行源码门禁或现场重建，仅保留生产身份/顺序、migration 区间、锁、备份、传输 digest、健康检查、原子切换和回滚。
+19. **正式门禁必须一次报全再集中修复**：CI/发布的独立检查必须聚合执行并汇总全部失败；依赖链只在前置失败时显式标记 blocked。第一次正式 validate 或 build 失败后停止全量重跑，先审计完整检查图和全部环境前置，集中修完并逐项验证，再显式 `prepare --new-plan`；成功证据按精确内容复用。禁止“全量一次、修一项、再全量”的发布循环。
 
 检查命令按 `docs/engineering/checks.md` 选择并串行执行。多 agent 任务由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

@@ -26,7 +26,7 @@ function run(command, paths) {
       STANDALONE_ARTIFACT_PATH: paths.artifact,
       STANDALONE_MANIFEST_PATH: paths.manifest,
       STANDALONE_DEPLOY_GRAPH_PATH: paths.graph,
-      CNB_RELEASE_GATE_RECEIPT_FILE: paths.receipt,
+      CNB_RELEASE_ARTIFACT_RECEIPT_FILE: paths.receipt,
     },
   });
 }
@@ -67,16 +67,15 @@ test("CNB artifact cache restores only exact candidate content and verified byte
       inputs: { deployGraphSha256: graphDigest },
     })}\n`);
     writeFileSync(paths.receipt, `${JSON.stringify({
-      schemaVersion: 3,
-      kind: "workspace-release-validation",
-      status: "passed",
-      command: "ops/publish.sh validate",
+      schemaVersion: 1,
+      kind: "workspace-release-artifact",
+      status: "built",
+      command: "ops/publish.sh build",
       runner: "local",
       treeId: sourceTree,
       contentDigest,
-      scope: "full-repository",
+      targetId: "monolith",
       checks: [
-        "full-source-ci-once",
         "artifact-compile-once",
         "artifact-content-identity",
       ],

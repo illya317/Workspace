@@ -251,7 +251,7 @@ if (genesis) {
 }
 const validation = metadata.validation;
 if (!validation
-  || !['validate', 'deploy'].includes(validation.action)
+  || !['validate', 'build', 'deploy'].includes(validation.action)
   || !/^[0-9a-f]{40}$/.test(validation.baseSha ?? '')
   || Object.keys(validation).sort().join(',') !== 'action,baseSha') {
   throw new Error('release validation metadata is invalid');
@@ -266,6 +266,9 @@ deployment_target_kind="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deployment_target_unit="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
 deployment_target_mode="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
 release_action="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
+node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
+  --metadata "$METADATA_FILE" --action "$release_action" --executor cnb \
+  --source "$canonical_sha" --tree "$canonical_tree" --content "$canonical_content" >/dev/null
 validation_base_sha="$(printf '%s\n' "$metadata_values" | sed -n '5p')"
 bootstrap_baseline="$(printf '%s\n' "$metadata_values" | sed -n '6p')"
 bootstrap_legacy_commit="$(printf '%s\n' "$metadata_values" | sed -n '7p')"

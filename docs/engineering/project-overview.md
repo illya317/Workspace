@@ -2,9 +2,9 @@
 
 ```yaml
 docKind: engineering-project-overview
-docVersion: 2026-07-27.1
-lastVerifiedCommit: 45985ed4
-lastVerifiedDate: 2026-07-27
+docVersion: 2026-08-01.1
+lastVerifiedCommit: 2c53dcd
+lastVerifiedDate: 2026-08-01
 packageVersion: 0.1.2
 ownerRole: Coordinator / Architecture
 sourceOfTruth:
@@ -217,8 +217,11 @@ Company-specific facts such as identity, company names/codes, management systems
 | Validate all generated Next app mirrors | `npm run deploy:apps:check` |
 | Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
 | Full local CI authority | `npm run check:ci` |
-| Prepare one exact-tree production candidate locally | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare` |
-| Deploy only a prepared candidate through CNB | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
+| Create one immutable production Plan; all stages default local | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare` |
+| Run source validation once, or consume a fast skip | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh validate` |
+| Build the sealed target artifact once | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh build` |
+| Deploy only the Plan's validation state and artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
+| Inspect the monotonic Plan progress | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh status` |
 | Strict historical debt patrol | `npm run check:hygiene` |
 | Non-blocking hygiene signal | `npm run check:hygiene:warn` |
 

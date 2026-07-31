@@ -22,6 +22,11 @@
       "allowedDependencies": []
     },
     {
+      "name": "release-plan",
+      "include": ["ops/release/plan/"],
+      "allowedDependencies": []
+    },
+    {
       "name": "release-validation",
       "include": ["ops/release/validation/"],
       "allowedDependencies": ["release-candidate", "release-contracts", "release-diagnostics"]

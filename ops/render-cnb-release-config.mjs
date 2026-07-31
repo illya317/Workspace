@@ -29,7 +29,7 @@ export function renderCnbReleaseConfig(source, {
   pipeline.env.DEPLOY_UNIT_MODE = deployUnitMode;
   pipeline.env.RELEASE_ACTION = releaseAction;
   pipeline.env.RELEASE_VALIDATION_BASE_SHA = validationBaseSha;
-  if (releaseAction === "validate") {
+  if (["validate", "build"].includes(releaseAction)) {
     const deployStage = pipeline.stages.find((stage) => stage.name === "deploy-to-server");
     deployStage.script = "bash ./ops/run-cnb-release-stage.sh server.deploy -- bash ./ops/deploy-cnb-release-target.sh";
     delete deployStage.imports;

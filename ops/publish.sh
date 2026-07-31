@@ -14,27 +14,30 @@ usage() {
   cat <<'EOF'
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish.sh push
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh validate [--local] [部署目标或回执修复选项]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare [--fast REASON] [--cnb-from validate|build|deploy]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh prepare [--executor STAGE=local|cnb] [--new-plan]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh validate
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh build
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [--direct] [CNB 部署选项]
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|validate|deploy|status
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh status [--json]
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh database-replace prepare|validate|build|deploy|status
   OPS_ENV_FILE=/path/to/ops/.env publish.sh data upload|verify|status --id RELEASE_ID
   OPS_ENV_FILE=/path/to/ops/.env publish.sh timing pause|resume|status
 
 模式:
   push           只推送当前已提交候选；共享工作区的未提交内容不参与
-  prepare        冻结 release tree 并校验私有配置，生成 CNB 候选回执；不在本机编译
-  validate       对候选内容运行一次全量源码 CI 与一次制品编译并冻结制品
-  deploy         仅消费同一 content/tree 的已验证制品；可走 CNB 或 --direct
+  prepare        冻结候选、私有配置摘要、发布模式、目标和执行器；默认全部 local
+  validate       只运行一次全量源码 CI；成功、失败或快速跳过后均不可在同一 Plan 重开
+  build          只编译并冻结一次目标 artifact；不重新运行 validate
+  deploy         只消费同一 Plan 的验证状态和 artifact；不现场验证或编译
+  status         显示当前 Plan 的单向进度表
   data           校验并上传私有数据发布源；上传只进入受控暂存区，不执行数据库写入
   timing         在处理 main 前暂停 Ops 计时；恢复 release 工作时继续累计
 
-一次性历史修复:
-  validate/deploy 可传 --recover-local-receipt-base SHA。仅当生产 schema-v3 local 回执把
-  injection SHA 误记为 source，且该基线 migration 集合与生产回执完全一致时接受。
-
 说明:
+  --fast 必须记录原因；它把 validate 明确记为 skipped_by_fast，但 build 与生产安全切换仍必需。
+  --cnb-from 从指定阶段起使用 CNB，且不允许从 CNB 回到 local；默认不走 CNB。
+  完成的阶段直接复用回执。失败阶段也是终态，复盘后须显式 prepare --new-plan。
   main 只提供候选提交，Full 与单模块发布都只在 release worktree 执行。
 EOF
 }
@@ -99,28 +102,151 @@ validate_local_release_inputs() {
   )
 }
 
+capture_release_configuration_identity() {
+  WORKSPACE_CONFIG_DIR="${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}"
+  : "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
+  local tenant_root="$WORKSPACE_CONFIG_DIR/config/tenant"
+  [ -d "$tenant_root" ] || { echo "[错误] 租户配置目录不存在: $tenant_root"; exit 1; }
+  RELEASE_CONFIGURATION_DIGEST="$(node - "$tenant_root" <<'NODE'
+const { createHash } = require('node:crypto');
+const { lstatSync, readFileSync, readlinkSync, readdirSync } = require('node:fs');
+const path = require('node:path');
+const root = path.resolve(process.argv[2]);
+const hash = createHash('sha256');
+function walk(directory) {
+  for (const name of readdirSync(directory).sort()) {
+    const absolute = path.join(directory, name);
+    const relative = path.relative(root, absolute).split(path.sep).join('/');
+    const stat = lstatSync(absolute);
+    if (stat.isDirectory()) {
+      hash.update(`dir\0${relative}\0`);
+      walk(absolute);
+    } else if (stat.isSymbolicLink()) {
+      hash.update(`link\0${relative}\0${readlinkSync(absolute)}\0`);
+    } else if (stat.isFile()) {
+      hash.update(`file\0${relative}\0`);
+      hash.update(readFileSync(absolute));
+      hash.update('\0');
+    } else throw new Error(`unsupported tenant configuration entry: ${relative}`);
+  }
+}
+walk(root);
+process.stdout.write(hash.digest('hex'));
+NODE
+)"
+  export RELEASE_CONFIGURATION_DIGEST
+}
+
 case "${1:-}" in
   prepare)
     shift
-    [ "$#" = "0" ] || { echo "[错误] prepare 不接受额外参数"; exit 2; }
+    release_mode=standard
+    fast_reason=""
+    prepare_executor=local
+    validate_executor=local
+    build_executor=local
+    deploy_executor=local
+    target_kind=monolith
+    target_unit=""
+    target_mode=""
+    new_plan=0
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --fast) shift; fast_reason="${1:-}"; release_mode=fast ;;
+        --standard) release_mode=standard; fast_reason="" ;;
+        --new-plan) new_plan=1 ;;
+        --cnb-from)
+          shift
+          case "${1:-}" in
+            validate) validate_executor=cnb; build_executor=cnb; deploy_executor=cnb ;;
+            build) build_executor=cnb; deploy_executor=cnb ;;
+            deploy) deploy_executor=cnb ;;
+            *) echo "[错误] --cnb-from 只能是 validate、build 或 deploy"; exit 2 ;;
+          esac
+          ;;
+        --executor)
+          shift
+          assignment="${1:-}"
+          stage="${assignment%%=*}"
+          executor="${assignment#*=}"
+          [ "$stage" != "$assignment" ] && { [ "$executor" = local ] || [ "$executor" = cnb ]; } \
+            || { echo "[错误] --executor 格式必须是 STAGE=local|cnb"; exit 2; }
+          case "$stage" in
+            prepare) prepare_executor="$executor" ;;
+            validate) validate_executor="$executor" ;;
+            build) build_executor="$executor" ;;
+            deploy) deploy_executor="$executor" ;;
+            *) echo "[错误] 未知发布阶段: $stage"; exit 2 ;;
+          esac
+          ;;
+        --deploy-unit|--shadow-unit)
+          option="$1"; shift; target_unit="${1:-}"
+          printf '%s' "$target_unit" | grep -Eq '^[a-z][a-z0-9-]*$' \
+            || { echo "[错误] 单元 ID 无效: $target_unit"; exit 2; }
+          target_kind=unit
+          [ "$option" = "--deploy-unit" ] && target_mode=activate || target_mode=shadow
+          ;;
+        *) echo "[错误] prepare 未知参数: $1"; exit 2 ;;
+      esac
+      shift
+    done
+    [ "$release_mode" != fast ] || [ -n "$fast_reason" ] \
+      || { echo "[错误] --fast 必须提供可审计原因"; exit 2; }
     prepare_release_worktree
-    validate_local_release_inputs
+    capture_release_configuration_identity
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
+    RELEASE_PLAN_ROOT="${RELEASE_PLAN_ROOT:-$RELEASE_WORKTREE/.cache/release-plans}"
+    candidate_receipt_valid=0
     if node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null 2>&1; then
-      echo "==> 复用当前 tree 的 CNB 候选回执；本机未运行编译或 E2E。"
-      exit 0
+      candidate_receipt_valid=1
     fi
-    rm -f "$RELEASE_CANDIDATE_RECEIPT_FILE"
-    mkdir -p "$(dirname "$RELEASE_CANDIDATE_RECEIPT_FILE")"
-    node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-create \
-      --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
-      --output "$RELEASE_CANDIDATE_RECEIPT_FILE"
+    prior_snapshot=""
+    if [ "$candidate_receipt_valid" = 1 ] \
+      && prior_snapshot="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" snapshot --root "$RELEASE_PLAN_ROOT" 2>/dev/null)" \
+      && node -e 'const s=JSON.parse(process.argv[1]); const [sha,tree,content,config]=process.argv.slice(2); if(s.stages.prepare!=="succeeded" || s.plan.source.commitSha!==sha || s.plan.source.treeId!==tree || s.plan.source.contentDigest!==content || s.plan.configurationDigest!==config) process.exit(1)' \
+        "$prior_snapshot" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$RELEASE_CONFIGURATION_DIGEST"; then
+      echo "==> 复用既有 Plan 的 prepare 验证；候选与私有配置摘要均未变化。"
+    else
+      validate_local_release_inputs
+      rm -f "$RELEASE_CANDIDATE_RECEIPT_FILE"
+      mkdir -p "$(dirname "$RELEASE_CANDIDATE_RECEIPT_FILE")"
+      node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-create \
+        --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
+        --output "$RELEASE_CANDIDATE_RECEIPT_FILE"
+    fi
     node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null
-    echo "==> prepare 完成：候选与私有配置已冻结；下一步选择 validate --local 或 CNB validate。"
+    executors_json="{\"prepare\":\"$prepare_executor\",\"validate\":\"$validate_executor\",\"build\":\"$build_executor\",\"deploy\":\"$deploy_executor\"}"
+    if [ "$target_kind" = unit ]; then
+      target_json="{\"kind\":\"unit\",\"unitId\":\"$target_unit\",\"mode\":\"$target_mode\"}"
+    else
+      target_json='{"kind":"monolith"}'
+    fi
+    plan_args=(
+      create --root "$RELEASE_PLAN_ROOT"
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST"
+      --configuration "$RELEASE_CONFIGURATION_DIGEST" --mode "$release_mode"
+      --executors "$executors_json" --target "$target_json"
+    )
+    [ "$release_mode" != fast ] || plan_args+=(--fast-reason "$fast_reason")
+    [ "$new_plan" = 0 ] || plan_args+=(--new-plan)
+    plan_result="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" "${plan_args[@]}")"
+    plan_id="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).planId)' "$plan_result")"
+    echo "==> prepare 完成：Plan $plan_id 已冻结；默认顺序 validate -> build -> deploy。"
+    node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" status --root "$RELEASE_PLAN_ROOT"
+    exit 0
+    ;;
+  status)
+    shift
+    initialize_release_worktree
+    RELEASE_PLAN_ROOT="${RELEASE_PLAN_ROOT:-$RELEASE_WORKTREE/.cache/release-plans}"
+    status_args=(status --root "$RELEASE_PLAN_ROOT")
+    [ "${1:-}" != "--json" ] || { status_args+=(--json); shift; }
+    [ "$#" = 0 ] || { echo "[错误] status 只接受 --json"; exit 2; }
+    node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" "${status_args[@]}"
     exit 0
     ;;
   data)
@@ -148,26 +274,68 @@ case "${1:-}" in
 esac
 
 case "${1:-}" in
-  deploy|validate)
+  validate|build|deploy)
     release_action="$1"
     shift
     load_prepared_release_worktree
-    validate_local_release_inputs
+    capture_release_configuration_identity
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
     if ! node "$RELEASE_SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
       --content "$RELEASE_CONTENT_DIGEST" --tree "$RELEASE_SOURCE_TREE" \
       --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
-      echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
+      echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入发布阶段。" >&2
       echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
       exit 1
     fi
     export RELEASE_CANDIDATE_RECEIPT_FILE
+    RELEASE_PLAN_ROOT="${RELEASE_PLAN_ROOT:-$RELEASE_WORKTREE/.cache/release-plans}"
+    export RELEASE_PLAN_ROOT
+    plan_snapshot="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" snapshot --root "$RELEASE_PLAN_ROOT")"
+    stage_executor="$(node -e 'const s=JSON.parse(process.argv[1]); process.stdout.write(s.plan.executors[process.argv[2]])' "$plan_snapshot" "$release_action")"
+    planned_target_args=()
+    target_values="$(node -e 'const s=JSON.parse(process.argv[1]); const t=s.plan.target; process.stdout.write(`${t.kind}\n${t.unitId ?? ""}\n${t.mode ?? ""}\n`)' "$plan_snapshot")"
+    target_kind="$(printf '%s\n' "$target_values" | sed -n '1p')"
+    target_unit="$(printf '%s\n' "$target_values" | sed -n '2p')"
+    target_mode="$(printf '%s\n' "$target_values" | sed -n '3p')"
+    if [ "$target_kind" = unit ]; then
+      [ "$target_mode" = activate ] && planned_target_args=(--deploy-unit "$target_unit") \
+        || planned_target_args=(--shadow-unit "$target_unit")
+    fi
+    requested_executor=""
+    case "${1:-}" in
+      --local|--direct) requested_executor=local; shift ;;
+      --cnb) requested_executor=cnb; shift ;;
+    esac
+    [ -z "$requested_executor" ] || [ "$requested_executor" = "$stage_executor" ] \
+      || { echo "[错误] $release_action 已封存为 ${stage_executor}，不能临时改执行器"; exit 2; }
+    begin_result="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" begin \
+      --root "$RELEASE_PLAN_ROOT" --stage "$release_action" --executor "$stage_executor" \
+      --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" \
+      --configuration "$RELEASE_CONFIGURATION_DIGEST")"
+    stage_action="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).action)' "$begin_result")"
+    if [ "$stage_action" = reuse ]; then
+      echo "==> $release_action 已是终态；直接复用，不执行任何旧环节。"
+      node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" status --root "$RELEASE_PLAN_ROOT"
+      exit 0
+    fi
+    stage_active=1
+    finish_release_stage_on_exit() {
+      local exit_code=$?
+      if [ "$stage_active" = 1 ] && [ "$exit_code" -ne 0 ]; then
+        local terminal=failed
+        case "$exit_code" in 130|143) terminal=cancelled ;; esac
+        node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" finish \
+          --root "$RELEASE_PLAN_ROOT" --stage "$release_action" --status "$terminal" \
+          --evidence "{\"kind\":\"stage-command\",\"exitCode\":$exit_code}" >/dev/null \
+          || echo "[严重] 无法记录 $release_action 终态；必须人工审计进度账本" >&2
+      fi
+      return "$exit_code"
+    }
+    trap finish_release_stage_on_exit EXIT
     RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$RELEASE_WORKTREE/.cache/release-process-timing.json}"
     deploy_args=(--release-action "$release_action")
-    if [ "$release_action" = "validate" ] && [ "${1:-}" = "--local" ]; then
-      deploy_args+=(--direct)
-      shift
-    fi
+    [ "$stage_executor" != local ] || deploy_args+=(--direct)
+    deploy_args+=("${planned_target_args[@]}")
     deploy_args+=("$@")
     candidate_sha="$RELEASE_SOURCE_SHA"
     if [ -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
@@ -182,7 +350,15 @@ case "${1:-}" in
       const session = JSON.parse(process.argv[1]);
       console.log(`==> release 流程计时：第 ${session.releaseAttemptCount} 次尝试，完整累计 ${session.releaseProcessSeconds}s`);
     ' "$release_session"
-    exec "$RELEASE_SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
+    "$RELEASE_SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
+    node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" finish \
+      --root "$RELEASE_PLAN_ROOT" --stage "$release_action" --status succeeded \
+      --evidence "{\"kind\":\"stage-command\",\"executor\":\"$stage_executor\"}" >/dev/null
+    stage_active=0
+    trap - EXIT
+    echo "==> $release_action 已完成并封存；以后只复用，不回头。"
+    node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" status --root "$RELEASE_PLAN_ROOT"
+    exit 0
     ;;
 esac
 
@@ -205,7 +381,7 @@ with_github_proxy() {
 case "${1:-}" in
   push) shift ;;
   -h|--help) usage; exit 0 ;;
-  *) echo "[错误] 请指定模式: push、prepare、validate 或 deploy"; usage; exit 1 ;;
+  *) echo "[错误] 请指定模式: push、prepare、validate、build、deploy 或 status"; usage; exit 1 ;;
 esac
 [ "$#" = "0" ] || { echo "[错误] push 不接受额外参数"; exit 1; }
 

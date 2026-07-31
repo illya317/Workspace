@@ -7,23 +7,24 @@ values, and thin wrappers that load `.env` before executing these tracked script
 second source of release logic. Tenant-specific CNB imports, server paths, and health target live in
 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml`.
 
-`ops/publish.sh validate` freezes one base/head-scoped verified artifact. `ops/publish.sh deploy` is the public Full and single-unit command that only consumes it. `publish-cnb.sh`,
+`ops/publish.sh prepare` creates an immutable, append-only Release Plan. The Plan seals standard/fast mode, source identity, tenant-config digest, deploy target, and the local/CNB executor for every stage. `validate` runs source CI once (or is terminally skipped by fast mode), `build` creates the artifact once, and `deploy` only consumes those results. `publish-cnb.sh`,
 `release-to-cnb.sh`, and `deploy.sh` are internal stages covered by the publish/runtime contract
 tests; their separate names do not represent alternative release paths. Profile/Fleet commands are
 trusted pipeline internals rather than local alternatives to this operator entry.
 
-Production release requires an exact-tree candidate receipt, then one CNB or local validation. GitHub
+Production release requires an exact-tree candidate receipt, then the sealed local or CNB stages. GitHub
 PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
 Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`; it validates
-private configuration but does not compile locally. `validate` compares the production Git base with
-the candidate head, checks the affected owners plus dependency consumers, and freezes the selected
-target artifact. `deploy` only verifies and consumes that same artifact, even if `main` advances.
+private configuration but does not run source CI or compile. `validate` checks the affected owners plus
+dependency consumers; `build` freezes the selected target artifact. `deploy` only verifies and consumes
+that same artifact, even if `main` advances. All stages default to local; `prepare --cnb-from validate|build`
+seals a one-way handoff to CNB. Deploy-only CNB handoff is reserved until an artifact capsule adapter exists.
 
-`validate` is the final acceptance run, not an iterative failure-discovery loop. After its first
-failure, stop formal reruns and expand the complete affected check graph. Audit every environment
-prerequisite and run all independent leaves in aggregate diagnostic mode; dependency chains report
-their blocked descendants. Fix the complete result set, verify those leaves, and then run one final
-`validate`. Repeating a full validation after each individual fix is prohibited.
+Every stage is terminal after success, failure, cancellation, or fast skip. Completed evidence is reused;
+a failed stage is never reopened. Audit the complete failure set, fix and verify with targeted commands,
+then explicitly create `prepare --new-plan`. Repeating full validation or build after each individual fix
+inside one Plan is prohibited. Fast mode requires `prepare --fast "reason"`; it skips source CI only and
+retains artifact and production safety checks.
 
 Repository-owned runtime dependency contracts:
 
@@ -63,7 +64,10 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
 # After reviewing the receipt, trigger the same CNB release path with the bound dump.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace validate
 
-# Consume the already validated Full artifact and apply the bound dump.
+# Build and freeze the Full artifact exactly once.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace build
+
+# Consume the validation state and built artifact, then apply the bound dump.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
 
 # Read-only local receipt status.

@@ -110,8 +110,8 @@ export function validateCnbReleaseConfig(source, options = {}) {
   if (deployUnitMode !== "shadow" && deployUnitMode !== "activate") {
     throw new Error("CNB publish supports only shadow or activate unit deployment");
   }
-  if (releaseAction && !["validate", "deploy"].includes(releaseAction)) {
-    throw new Error("release action must be validate or deploy");
+  if (releaseAction && !["validate", "build", "deploy"].includes(releaseAction)) {
+    throw new Error("release action must be validate, build, or deploy");
   }
   if (releaseAction && !/^[0-9a-f]{40}$/.test(validationBaseSha)) {
     throw new Error("rendered release config requires a full validation base SHA");
@@ -167,8 +167,8 @@ export function validateCnbReleaseConfig(source, options = {}) {
   requireExactStringMap(releaseGate.env, REQUIRED_BUILD_ENV, "release-gate.env");
   requireExactKeys(buildStandalone, ["name", "env", "script"], "deploy-prod stage build-release-target");
   requireExactStringMap(buildStandalone.env, REQUIRED_BUILD_ENV, "build-release-target.env");
-  if (releaseAction === "validate") {
-    requireExactKeys(deployToServer, ["name", "script"], "deploy-prod validate stage deploy-to-server");
+  if (["validate", "build"].includes(releaseAction)) {
+    requireExactKeys(deployToServer, ["name", "script"], `deploy-prod ${releaseAction} stage deploy-to-server`);
   } else {
     requireExactKeys(deployToServer, ["name", "imports", "env", "script"], "deploy-prod stage deploy-to-server");
     const deployImports = requireStringArray(deployToServer.imports, "deploy-to-server.imports");
@@ -189,7 +189,7 @@ export function validateCnbReleaseConfig(source, options = {}) {
   }
   for (const name of REQUIRED_STAGE_NAMES) {
     const stage = pipeline.stages.find((candidate) => candidate.name === name);
-    const expectedScript = name === "deploy-to-server" && releaseAction === "validate"
+    const expectedScript = name === "deploy-to-server" && ["validate", "build"].includes(releaseAction)
       ? REQUIRED_STAGE_SCRIPTS[name].split("\n").at(-1)
       : REQUIRED_STAGE_SCRIPTS[name];
     requireExactScript(stage.script, expectedScript, `deploy-prod stage ${name}`);

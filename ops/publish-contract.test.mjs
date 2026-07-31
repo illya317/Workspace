@@ -36,25 +36,31 @@ test("shell variables next to non-ASCII punctuation use explicit braces", () => 
   }
 });
 
-test("prepare freezes a candidate and deploy has one CNB-gated production path", () => {
+test("prepare seals one monotonic plan and every later stage uses the same dispatcher", () => {
   const dispatch = publish.indexOf('case "${1:-}" in');
   const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
   assert.match(publish, /prepare\)[\s\S]*?release-gate-receipt\.mjs" candidate-create/);
   assert.doesNotMatch(publish.slice(publish.indexOf("  prepare)"), publish.indexOf("  data)")), /npm run check:ci|build:next|test:e2e/);
-  assert.match(publish, /deploy\|validate\)[\s\S]*?release-gate-receipt\.mjs" candidate-verify[\s\S]*?exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
-  assert.doesNotMatch(publish.slice(publish.indexOf("deploy|validate)")), /upload-data-release\.sh/);
+  assert.match(publish, /validate\|build\|deploy\)[\s\S]*?release-gate-receipt\.mjs" candidate-verify/);
+  assert.match(publish, /release\/plan\/release-plan\.mjs" begin/);
+  assert.match(publish, /release\/plan\/release-plan\.mjs" finish/);
+  assert.match(publish, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh" "\$\{deploy_args\[@\]\}"/);
+  assert.doesNotMatch(publish.slice(publish.indexOf("validate|build|deploy)")), /upload-data-release\.sh/);
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
   assert.equal(existsSync(new URL("./hotfix-remote-build.sh", import.meta.url)), false);
   assert.match(publish, /deploy_args=\(--release-action "\$release_action"\)/);
+  assert.match(publish, /validate_executor=local[\s\S]*?build_executor=local[\s\S]*?deploy_executor=local/);
+  assert.match(publish, /--cnb-from[\s\S]*?validate\)[\s\S]*?validate_executor=cnb; build_executor=cnb; deploy_executor=cnb/);
+  assert.match(publish, /--fast[\s\S]*?release_mode=fast/);
 });
 
 test("prepare alone promotes main into the dedicated release worktree by fast-forward only", () => {
   const promote = publish.indexOf('"$SCRIPT_DIR/promote-release-branch.sh" promote');
   const prepareFunction = publish.indexOf("prepare_release_worktree() {");
   assert.ok(prepareFunction >= 0 && prepareFunction < promote);
-  const deploy = publish.slice(publish.indexOf("  deploy|validate)"));
+  const deploy = publish.slice(publish.indexOf("  validate|build|deploy)"));
   assert.match(deploy, /load_prepared_release_worktree/);
   assert.doesNotMatch(deploy, /prepare_release_worktree/);
   assert.match(promoteRelease, /promote\|verify/);
@@ -148,33 +154,35 @@ test("legacy local receipt recovery is explicit, migration-bound, and one-shot",
   assert.match(deploy, /DEPLOYED_CNB_INJECTION_SHA" != "\$RELEASE_RECEIPT_RECOVERY_SOURCE/);
 });
 
-test("validation runs once and CNB or direct deploy only consumes its immutable artifact", () => {
+test("validation and build are independent one-shot stages and deploy only consumes evidence", () => {
   assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
   assert.match(runCnbReleaseGate, /validation_args=\([\s\S]*?--content "\$RELEASE_CONTENT_DIGEST"/);
   assert.match(runCnbReleaseGate, /full-source-validation\.mjs "\$\{validation_args\[@\]\}"/);
-  assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
+  assert.match(runCnbReleaseGate, /ACTION" != "validate"[\s\S]*?exit 0/);
+  assert.doesNotMatch(runCnbReleaseGate, /build-standalone-artifact|build-deploy-unit-artifact/);
   assert.match(runLocalReleaseAction, /\.local-release-worktrees/);
-  assert.match(runLocalReleaseAction, /ACTION" = "validate"[\s\S]*?export CI=1/);
+  assert.match(runLocalReleaseAction, /ACTION" != "deploy"[\s\S]*?export CI=1/);
   assert.match(runLocalReleaseAction, /persistent_check_result_cache="\$RELEASE_SOURCE_DIR\/\.cache\/release-check-results"/);
   assert.match(runLocalReleaseAction, /source_commit_date="\$\(git -C "\$RELEASE_SOURCE_DIR" show -s --format=%cI "\$RELEASE_SOURCE_SHA"\)"/);
   assert.match(runLocalReleaseAction, /GIT_AUTHOR_DATE="\$source_commit_date" GIT_COMMITTER_DATE="\$source_commit_date"/);
-  assert.match(runLocalReleaseAction, /mkdir -p "\$persistent_check_result_cache" "\$injection_worktree\/\.cache"/);
+  assert.match(runLocalReleaseAction, /mkdir -p "\$persistent_check_result_cache" "\$persistent_evidence_root" "\$injection_worktree\/\.cache"/);
   assert.match(runLocalReleaseAction, /ln -s "\$persistent_check_result_cache" "\$injection_worktree\/\.cache\/check-results"/);
   assert.match(runLocalReleaseAction, /\[ ! -L "\$RELEASE_SOURCE_DIR\/node_modules" \]/);
   assert.match(runLocalReleaseAction, /stat -c %d/);
   assert.match(runLocalReleaseAction, /cp -al "\$RELEASE_SOURCE_DIR\/node_modules\/\."/);
   assert.doesNotMatch(runLocalReleaseAction, /ln -s "\$RELEASE_SOURCE_DIR\/node_modules"/);
   assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));
-  assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs cnb-create/);
+  assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs artifact-create/);
   assert.match(buildCnbReleaseTarget, /cnb-release-artifact-cache\.sh restore/);
-  assert.match(deployCnbReleaseTarget, /release-gate-receipt\.mjs cnb-verify/);
+  assert.match(deployCnbReleaseTarget, /release-gate-receipt\.mjs artifact-verify/);
   assert.doesNotMatch(installCnbReleaseDependencies, /cnb-release-artifact-cache\.sh restore/);
   assert.doesNotMatch(buildStandaloneArtifact, /\.cnb-release-gate\.json/);
   assert.doesNotMatch(buildDeployUnitArtifact, /\.cnb-release-gate\.json/);
-  assert.match(publish.slice(publish.indexOf("  deploy|validate)")), /exec "\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
+  assert.match(publish.slice(publish.indexOf("  validate|build|deploy)")), /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.match(publishCnb, /release-gate-receipt\.mjs" candidate-verify/);
   assert.match(publishCnb, /run-local-release-action\.sh/);
-  assert.match(publishCnb, /CNB validate 完成/);
+  assert.match(publishCnb, /CNB \$RELEASE_ACTION 完成/);
+  assert.match(publishCnb, /snapshot-contract\.mjs/);
   assert.match(installCnbReleaseDependencies, /RELEASE_ACTION:-deploy\}" = "deploy"[\s\S]*?跳过 npm ci/);
   assert.match(buildStandaloneArtifact, /workspace-deploy-graph\.json[\s\S]*?deployGraphSha256/);
   assert.match(deploy, /RELEASE_DEPLOY_GRAPH_FILE[\s\S]*?graph-assert/);
@@ -232,6 +240,7 @@ test("database replacement is a separately selected Full deployment mode bound t
   assert.match(publish, /database-replace\)[\s\S]*?publish-database-replacement\.sh/);
   assert.match(publishDatabaseReplacement, /publish\.sh" prepare[\s\S]*?prepare-database-replacement\.sh/);
   assert.match(publishDatabaseReplacement, /validate\)[\s\S]*?publish\.sh" validate/);
+  assert.match(publishDatabaseReplacement, /build\)[\s\S]*?publish\.sh" build/);
   assert.match(
     publishDatabaseReplacement,
     /publish\.sh" deploy[\s\S]*?--database-replacement-receipt/,

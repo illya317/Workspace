@@ -17,6 +17,13 @@ function addHashPart(hash, label, value) {
   hash.update("\0");
 }
 
+function semanticNodeOptions(value) {
+  return String(value ?? "")
+    .replace(/(?:^|\s)--max[-_]old[-_]space[-_]size(?:=\S+|\s+\S+)/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
+}
+
 function taskKey(task, snapshotKey, env, runtime) {
   const hash = crypto.createHash("sha256");
   addHashPart(hash, "version", CACHE_VERSION);
@@ -26,6 +33,7 @@ function taskKey(task, snapshotKey, env, runtime) {
   addHashPart(hash, "args", JSON.stringify(task.args));
   addHashPart(hash, "severity", task.severity ?? "blocking");
   addHashPart(hash, "runtime", JSON.stringify(runtime));
+  addHashPart(hash, "node-options", semanticNodeOptions(env.NODE_OPTIONS));
   return hash.digest("hex");
 }
 

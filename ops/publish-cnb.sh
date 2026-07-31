@@ -17,9 +17,6 @@ CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-re
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
 : "${CNB_REPO:?CNB_REPO not set in $OPS_ENV_FILE}"
-: "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
-: "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
-: "${HEALTHCHECK_URL:?HEALTHCHECK_URL not set in $OPS_ENV_FILE}"
 : "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
 
 BOOTSTRAP_PRODUCTION_BASE=""
@@ -71,7 +68,7 @@ usage() {
   --database-replacement-receipt FILE
                       Full monolith 使用已冻结的整库替换 receipt
   --print-command
-  --release-action validate|deploy
+  --release-action validate|build|deploy
   --direct            使用本地验证缓存直接部署；不触发 CNB
   --recover-local-receipt-base SHA
                       一次性修复把临时 injection 误记为 source 的旧 local 回执
@@ -246,9 +243,14 @@ while [ "$#" -gt 0 ]; do
 done
 
 case "$RELEASE_ACTION" in
-  validate|deploy) ;;
-  *) echo "[错误] --release-action 只能是 validate 或 deploy"; exit 2 ;;
+  validate|build|deploy) ;;
+  *) echo "[错误] --release-action 只能是 validate、build 或 deploy"; exit 2 ;;
 esac
+if [ "$RELEASE_ACTION" = "deploy" ]; then
+  : "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
+  : "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
+  : "${HEALTHCHECK_URL:?HEALTHCHECK_URL not set in $OPS_ENV_FILE}"
+fi
 [ "$DIRECT_RELEASE" = "0" ] || [ "$PRINT_COMMAND_ONLY" = "0" ] || {
   echo "[错误] --direct 不能与 --print-command 同时使用"; exit 2;
 }
@@ -330,9 +332,6 @@ SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.
 SOURCE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
 RELEASE_CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/release-candidate.json}"
 [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
-node "$SCRIPT_DIR/validate-cnb-release-config.mjs" "$CNB_REAL_CNB_YML"
-OPS_ENV_FILE="$OPS_ENV_FILE" WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" \
-  "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
 if ! node "$SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
   --content "$SOURCE_CONTENT_DIGEST" --tree "$SOURCE_TREE" \
   --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
@@ -395,11 +394,11 @@ if [ -n "$GENESIS_PRODUCTION_BASE" ]; then
 fi
 
 TMP_DIR="$(mktemp -d)"
-if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   prepare_server_read_key
 fi
 
-if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
+if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   echo "==> 部署前读取生产 canonical 回执与恢复状态..."
   production_state="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
     "if [ -e '$REMOTE_DIR/.workspace/database-replacement-in-progress.json' ]; then printf 'database-replacement:'; node -e 'const s=require(process.argv[1]); if (s.kind!==\"workspace-database-replacement-state\" || ![\"prepared\",\"applied\"].includes(s.status) || !/^[0-9a-f]{40}$/.test(s.source?.commitSha??\"\")) process.exit(1); process.stdout.write(s.source.commitSha)' '$REMOTE_DIR/.workspace/database-replacement-in-progress.json'; elif [ -e '$REMOTE_DIR/.workspace/maintenance-deploy' ]; then printf 'maintenance:'; sed -n 's/^sourceSha=//p' '$REMOTE_DIR/.workspace/maintenance-deploy'; elif [ -e '$REMOTE_DIR/.workspace/production-bootstrap-in-progress.json' ]; then printf bootstrap; elif [ -f '$REMOTE_DIR/.workspace/deployed-release.json' ]; then printf ready; else printf missing; fi")"
@@ -459,7 +458,9 @@ if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   ' "$PREFLIGHT_RESULT_FILE"
 fi
 
-if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
+if [ "$RELEASE_ACTION" != "deploy" ]; then
+  RELEASE_VALIDATION_BASE_SHA="$SOURCE_SHA"
+elif [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   RELEASE_VALIDATION_BASE_SHA="$BOOTSTRAP_PRODUCTION_BASE"
 elif [ -n "${PREFLIGHT_RESULT_FILE:-}" ] && [ -f "$PREFLIGHT_RESULT_FILE" ]; then
   RELEASE_VALIDATION_BASE_SHA="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.production.validationBaseSha ?? r.production.deployedSha)' "$PREFLIGHT_RESULT_FILE")"
@@ -478,9 +479,9 @@ git merge-base --is-ancestor "$RELEASE_VALIDATION_BASE_SHA" "$SOURCE_SHA" || {
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-echo "==> 已验证 prepare 回执；$RELEASE_ACTION 固定执行一次全量源码 CI 与一次 artifact 编译。"
+echo "==> 已验证 prepare 回执；本次只执行 ${RELEASE_ACTION}，已完成环节不会重跑。"
 
-if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
   TENANT_SYNC_STARTED_EPOCH_SECONDS="$(date +%s)"
   OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$SOURCE_SHA"
@@ -492,6 +493,13 @@ RELEASE_PROCESS_SECONDS="$(node -e 'process.stdout.write(String(JSON.parse(proce
 RELEASE_ATTEMPT_COUNT="$(node -e 'process.stdout.write(String(JSON.parse(process.argv[1]).releaseAttemptCount))' "$release_process_snapshot")"
 RELEASE_PROCESS_STARTED_AT="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).releaseProcessStartedAt)' "$release_process_snapshot")"
 echo "==> release 流程准备完成：累计 $(format_duration "$RELEASE_PROCESS_SECONDS")，${RELEASE_ATTEMPT_COUNT} 次尝试（main 处理与 CI 已排除）"
+
+: "${RELEASE_PLAN_ROOT:?RELEASE_PLAN_ROOT is required}"
+RELEASE_PLAN_SNAPSHOT_FILE="$TMP_DIR/release-plan-snapshot.json"
+node "$SCRIPT_DIR/release/plan/release-plan.mjs" snapshot --root "$RELEASE_PLAN_ROOT" > "$RELEASE_PLAN_SNAPSHOT_FILE"
+node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
+  --file "$RELEASE_PLAN_SNAPSHOT_FILE" --action "$RELEASE_ACTION" --executor "$RELEASE_TRANSPORT" \
+  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --content "$SOURCE_CONTENT_DIGEST" >/dev/null
 
 METADATA_FILE="$TMP_DIR/cnb-release.json"
 RESULT_FILE="$TMP_DIR/cnb-trigger.json"
@@ -569,6 +577,7 @@ GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUN
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
 RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_CANDIDATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+RELEASE_PLAN_SNAPSHOT_FILE="$RELEASE_PLAN_SNAPSHOT_FILE" \
 PRODUCTION_PREFLIGHT_FILE="${PREFLIGHT_RESULT_FILE:-}" \
 DATABASE_REPLACEMENT_RECEIPT_FILE="$DATABASE_REPLACEMENT_RECEIPT_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
@@ -576,6 +585,7 @@ RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEA
 RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
 const fs = require('node:fs');
 const releaseCandidate = JSON.parse(fs.readFileSync(process.env.RELEASE_CANDIDATE_RECEIPT_FILE, 'utf8'));
+const releasePlan = JSON.parse(fs.readFileSync(process.env.RELEASE_PLAN_SNAPSHOT_FILE, 'utf8'));
 const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
 if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
   throw new Error('publish start epoch is invalid');
@@ -596,6 +606,7 @@ const metadata = {
     contentDigest: process.env.SOURCE_CONTENT_DIGEST,
   },
   transport: { kind: process.env.RELEASE_TRANSPORT },
+  releasePlan,
   releaseCandidate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   validation: { action: process.env.RELEASE_ACTION, baseSha: process.env.RELEASE_VALIDATION_BASE_SHA },
@@ -658,13 +669,13 @@ if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_SOURCE_DIR="$SOURCE_DIR" CNB_REAL_CNB_YML="$CNB_REAL_CNB_YML" \
   CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
   bash "$SCRIPT_DIR/run-local-release-action.sh" "$RELEASE_ACTION" "$METADATA_FILE"
-  [ "$RELEASE_ACTION" = "validate" ] || complete_release_process_session
+  [ "$RELEASE_ACTION" != "deploy" ] || complete_release_process_session
   exit 0
 fi
 
 release_args=(--metadata "$METADATA_FILE" --result-file "$RESULT_FILE")
 [ "$PRINT_COMMAND_ONLY" = "0" ] || release_args+=(--print-command)
-if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 正式部署计时开始: $PUBLISH_STARTED_AT"
 fi
 RELEASE_TRIGGER_STARTED_EPOCH_SECONDS="$(date +%s)"
@@ -684,8 +695,8 @@ while true; do
     cnb_state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
     [ "$cnb_state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
   fi
-  if [ "$RELEASE_ACTION" = "validate" ] && [ "$cnb_state" = "success" ]; then
-    echo "==> CNB validate 完成：$SOURCE_SHA ($CNB_SN)；生产未变更"
+  if [ "$RELEASE_ACTION" != "deploy" ] && [ "$cnb_state" = "success" ]; then
+    echo "==> CNB $RELEASE_ACTION 完成：$SOURCE_SHA ($CNB_SN)；生产未变更"
     exit 0
   fi
   if [ -n "$DEPLOY_UNIT_ID" ]; then

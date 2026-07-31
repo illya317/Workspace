@@ -10,7 +10,7 @@ SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse 'HEAD^{tree}')}"
 CONTENT_DIGEST="${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}"
 CACHE_ROOT="${CNB_RELEASE_ARTIFACT_CACHE_ROOT:-.cache/release-artifacts}"
 HIT_MARKER="${CNB_RELEASE_ARTIFACT_HIT_MARKER:-.cache/release-artifact-cache-hit}"
-RECEIPT_FILE="${CNB_RELEASE_GATE_RECEIPT_FILE:-$PWD/.cache/release-check/cnb-release-gate.json}"
+RECEIPT_FILE="${CNB_RELEASE_ARTIFACT_RECEIPT_FILE:-$PWD/.cache/release-check/release-artifact.json}"
 
 [[ "$SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache source tree 无效" >&2; exit 2; }
 [[ "$CONTENT_DIGEST" =~ ^[0-9a-f]{64}$ ]] || { echo "[错误] artifact cache content digest 无效" >&2; exit 2; }
@@ -46,7 +46,7 @@ NODE
 
 restore_cache() {
   rm -f "$HIT_MARKER"
-  local cached_receipt="$CACHE_DIR/release-validation.json"
+  local cached_receipt="$CACHE_DIR/release-artifact.json"
   [ -f "$cached_receipt" ] || { echo "==> CNB artifact cache miss: $TARGET_ID ${SOURCE_TREE:0:12}"; return 1; }
   if [ -z "$UNIT_ID" ]; then
     local artifact="$CACHE_DIR/workspace-standalone.tgz"
@@ -96,8 +96,9 @@ NODE
   fi
   mkdir -p "$(dirname "$RECEIPT_FILE")"
   cp "$cached_receipt" "$RECEIPT_FILE"
-  node ops/release-gate-receipt.mjs cnb-verify \
-    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" --file "$RECEIPT_FILE" >/dev/null
+  node ops/release-gate-receipt.mjs artifact-verify \
+    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" \
+    --target "$TARGET_ID" --file "$RECEIPT_FILE" >/dev/null
   printf '%s\n' "$TARGET_ID:$CONTENT_DIGEST:$SOURCE_TREE" > "$HIT_MARKER"
   chmod 600 "$HIT_MARKER"
   echo "==> CNB artifact cache hit: $TARGET_ID ${SOURCE_TREE:0:12}"
@@ -108,9 +109,10 @@ store_cache() {
   mkdir -p "$(dirname "$temporary")"
   rm -rf "$temporary"
   mkdir -m 700 "$temporary"
-  node ops/release-gate-receipt.mjs cnb-verify \
-    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" --file "$RECEIPT_FILE" >/dev/null
-  cp "$RECEIPT_FILE" "$temporary/release-validation.json"
+  node ops/release-gate-receipt.mjs artifact-verify \
+    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" \
+    --target "$TARGET_ID" --file "$RECEIPT_FILE" >/dev/null
+  cp "$RECEIPT_FILE" "$temporary/release-artifact.json"
   if [ -z "$UNIT_ID" ]; then
     local artifact="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
     local manifest="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"

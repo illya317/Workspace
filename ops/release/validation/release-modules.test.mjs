@@ -6,10 +6,12 @@ import test from "node:test";
 
 import { captureCandidateIdentity } from "../candidate/identity.mjs";
 import {
+  createArtifactReceipt,
   createCandidateReceipt,
-  createValidationReceipt,
+  createSourceValidationReceipt,
+  validateArtifactReceipt,
   validateCandidateReceipt,
-  validateValidationReceipt,
+  validateSourceValidationReceipt,
 } from "../contracts/release-receipt.mjs";
 import { diagnoseSlowRelease } from "../diagnostics/slow-flow.mjs";
 import { runFullSourceValidation } from "./full-source-validation.mjs";
@@ -24,11 +26,14 @@ test("candidate identity is content based and ignores commit metadata", () => {
 test("release receipts bind candidate content without a commit or base SHA gate", () => {
   const identity = captureCandidateIdentity({ repositoryRoot: process.cwd(), revision: "HEAD" });
   const candidate = createCandidateReceipt(identity);
-  const validation = createValidationReceipt({ ...identity, runner: "local" });
+  const validation = createSourceValidationReceipt({ ...identity, runner: "local" });
+  const artifact = createArtifactReceipt({ ...identity, targetId: "monolith", runner: "local" });
   assert.equal(validateCandidateReceipt(candidate, identity), candidate);
-  assert.equal(validateValidationReceipt(validation, identity), validation);
+  assert.equal(validateSourceValidationReceipt(validation, identity), validation);
+  assert.equal(validateArtifactReceipt(artifact, { ...identity, targetId: "monolith" }), artifact);
   assert.equal(Object.hasOwn(candidate, "sourceSha"), false);
   assert.equal(Object.hasOwn(validation, "baseSha"), false);
+  assert.equal(Object.hasOwn(artifact, "baseSha"), false);
 });
 
 test("full source validation reuses success and blocks accidental repeated failure", () => {

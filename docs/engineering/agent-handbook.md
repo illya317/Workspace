@@ -7,7 +7,7 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 按远端 base/head 的改动 owner 与依赖闭包负责 PR/合并质量；生产在本地或 CNB 对相同 affected scope 验证并构建一次，部署只消费该 canonical artifact
+- **CI/CD**: GitHub Actions 负责 PR/合并质量；生产 Release Plan 封存 standard/fast 模式、目标和 local/CNB 执行器，源码验证与构建各至多一次，部署只消费 canonical artifact
 
 ## 2. 部署与运行态同步
 
@@ -17,7 +17,7 @@
 - 不把 `cnb/main` 当发布源码入口。正式发布时，底层脚本在当前已提交 source 的 child commit 中只注入由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 产生的 `.cnb.yml` 与发布元数据，然后触发 `cnb-release` 的 `api_trigger_manual`；仓库内 `ops/cnb-release.yml` 只保留通用形状。
 - 生产维护尽量在本地完成代码、migration、文档和检查。`publish.sh deploy` 是唯一生产发布入口；不要在服务器 `current` 上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
 - 生产发布必须先 commit 且工作区干净；GitHub PR/CI 可以继续用于协作质量，但 `deploy` 不调用 GitHub API、Actions、Release 或 GitHub token。
-- `publish.sh validate`（或 `validate --local`）按生产 base 与候选 head 运行受影响依赖闭包检查、构建一次并冻结 artifact；`publish.sh deploy`（或 `deploy --direct`）只复验并消费相同 base/source/tree 的 artifact。
+- `publish.sh prepare` 创建不可变 Plan；`validate` 只做一次源码门禁，`build` 只做一次 artifact 构建，`deploy` 只消费相同 base/source/tree 的 artifact。阶段终态不重开，失败后用 `prepare --new-plan`；所有阶段默认 local，可在 prepare 时封存单向 CNB 分界。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
@@ -35,14 +35,20 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
 
 生产发布流程：
 
-1. 确认当前 HEAD 是要发布的已提交版本、分支为 `main` 且工作区干净，然后运行私有发布入口；deploy 不要求或查询 GitHub 状态：
+1. 确认当前 HEAD 是要发布的已提交版本、分支为 `main` 且工作区干净，创建 Plan。默认 standard 且全 local；紧急发布用 `--fast "原因"`，从某阶段进入 CNB 用 `--cnb-from validate|build`：
 
 ```bash
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh prepare
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh validate
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh build
 OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 ```
 
-2. `publish.sh validate` 以生产 deployed source 为 base，只校验候选 head 的受影响 owner 与依赖消费者，构建并缓存不可变 artifact；修复会改变 source/tree，必须重新 validate。
-3. `publish.sh deploy` 复用该 artifact 触发 CNB；`deploy --direct` 可直接消费本地 validate 缓存。两者都不再运行源码门禁或构建。成功后复验 schema-v3 `deployed-release.json` 的 runtime/canonical source、CNB/artifact、PM2、health 与版本。
+2. standard Plan 的 `validate` 以生产 deployed source 为 base，只校验候选 head 的受影响 owner 与依赖消费者；fast Plan 把该阶段记录为 `skipped_by_fast`。`build` 独立构建并缓存不可变 artifact。
+3. `publish.sh deploy` 只复用 Plan 的 source validation 状态和 artifact，不运行源码门禁或构建。成功后复验 schema-v3 `deployed-release.json` 的 runtime/canonical source、CNB/artifact、PM2、health 与版本。
+4. 成功、fast skip、失败和取消都是不可重开的终态。失败后集中诊断和修复，再显式 `prepare --new-plan`；不要在原 Plan 内反复运行全量 CI/build。
+
+`--cnb-from deploy` 是未来 artifact capsule handoff 的保留分支；当前显式拒绝，绝不通过在 CNB 重建来伪装 deploy-only handoff。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 

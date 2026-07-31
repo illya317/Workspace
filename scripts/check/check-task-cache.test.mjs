@@ -65,6 +65,11 @@ test("environment, command, and snapshot changes cannot reuse a receipt", (t) =>
     env: { ...env, NODE_OPTIONS: "--conditions=other" },
     runtime: { node: "fixture" },
   }).read(task), null);
+  assert.equal(createCheckTaskCache({
+    cwd,
+    env: { ...env, NODE_OPTIONS: "--max-old-space-size=4096" },
+    runtime: { node: "fixture" },
+  }).read(task)?.status, "passed");
   assert.equal(cache.read({ ...task, args: ["other.js"] }), null);
   assert.equal(createCheckTaskCache({
     cwd,

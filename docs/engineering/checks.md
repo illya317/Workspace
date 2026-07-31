@@ -160,7 +160,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 GitHub Actions 不再做风险分类，只运行 changed-files 轻量检查。具体 Node/type/E2E 由 Agent 根据本次改动和依赖选择；没有任何 C 级别能自动把普通反馈升级成全库工作。
 
-生产发布不等待 GitHub 作为质量回执。`ops/publish.sh prepare` 冻结已提交 tree 和内容摘要；`validate` 对该内容运行一次全量源码 CI、编译一次目标 artifact，并按内容摘要缓存。`deploy` 只恢复和复验该 artifact，随后进入 migration、锁、备份、健康、切换和回滚等生产安全检查。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
+生产发布不等待 GitHub 作为质量回执。`ops/publish.sh prepare` 创建不可变 Plan 并冻结 tree、内容、模式、目标和 local/CNB 执行器；`validate` 最多运行一次全量源码 CI，`build` 最多编译一次目标 artifact，`deploy` 只恢复和复验该 artifact。fast Plan 可把 validate 终态记为 `skipped_by_fast`，但不跳过 build、artifact identity 或 migration、锁、备份、健康、切换和回滚等生产安全检查。任一终态不重开，失败后显式创建新 Plan。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
 ### scalability contract 与真实容量
 

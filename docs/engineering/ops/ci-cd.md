@@ -14,14 +14,21 @@
 生产发布只有一个固定证明：
 
 ```text
-prepare frozen committed tree
-  -> validate: full source CI once
-  -> compile target artifact once
-  -> content-addressed validation receipt
-  -> deploy immutable artifact
+prepare: freeze Plan / candidate / mode / target / executors
+  -> validate: full source CI once, or skipped_by_fast
+  -> build: compile the sealed target artifact once
+  -> deploy: consume the immutable artifact only
 ```
 
-`validate` 不读取风险等级、不按文件数升级、不重复构建。源码 CI 与编译是两个独立阶段，同一轮汇总失败；前置失败不得触发自动全量重跑。Agent 先检查完整失败清单并集中修复，日常诊断只跑针对性命令；新的候选内容在真正部署前再取得一次完整证明。
+`prepare` 创建 append-only Release Plan，并一次封存 source/tree/content digest、租户配置 digest、standard/fast 模式、部署目标以及每个阶段的 local/CNB 执行器。默认全部走 local；可在 prepare 时用 `--cnb-from validate|build` 或逐项 `--executor stage=local|cnb` 选择单调的 local -> CNB 边界。Plan 创建后不得改模式、目标或执行器，也不得从 CNB 回到 local。
+
+每个阶段只有 `pending -> running -> succeeded|failed|cancelled|skipped_by_fast`。终态不得重开：成功证据直接复用，失败或取消也不允许在同一 Plan 内重跑；修复或重新决策后必须显式 `prepare --new-plan`。新 Plan 若 source/tree/content/config 完全相同，可复用旧 Plan 的 prepare 证据，不重新做候选准备。
+
+standard 模式中，`validate` 只运行一次 full source CI，`build` 只编译一次目标 artifact；两者不互相补跑。`deploy` 只消费二者的终态证据。fast 模式必须记录原因，把 `validate` 固定为 `skipped_by_fast`，但仍强制一次 build、artifact identity/digest、生产锁、备份、migration、健康检查、原子切换和回执；它不是绕过生产安全边界的入口。
+
+CNB 配置中的容器准备、依赖准备是 runner 基础设施，不是业务阶段。只有本次 action 对应的发布脚本会产生业务证据，其余固定 stage 明确 no-op。当前支持从 validate 或 build 进入 CNB；`--cnb-from deploy` 预留给未来的跨平台 artifact capsule handoff，在该适配器完成前显式拒绝，避免 CNB 在 deploy 阶段偷偷重建。
+
+`validate` 不读取风险等级、不按文件数升级，也不编译。源码 CI 与编译是两个独立阶段，前置失败不得触发自动全量重跑。Agent 先检查完整失败清单并集中修复，日常诊断只跑针对性命令；新的候选内容在真正部署前必须进入新 Plan。
 
 ## 候选隔离
 
@@ -49,7 +56,7 @@ prepare frozen committed tree
 
 ## 失败处理
 
-正式 `validate` 必须保存完整的 `passed / failed / blocked` 结果。源码 CI 和 artifact compile 可独立执行；任一失败都不生成可部署回执。
+正式 `validate` 必须保存完整的 `passed / failed / blocked` 结果，`build` 保存独立 artifact 结果；任一失败都不生成可部署状态，而且本 Plan 随即终止。
 
 失败后：
 
@@ -57,7 +64,7 @@ prepare frozen committed tree
 2. 一次性检查环境、依赖、数据库前置和目标 build 的全部已知问题。
 3. 集中修改。
 4. 用 Agent 声明的轻量命令验证修改点和依赖。
-5. 只有最终冻结候选进入部署时，才执行它的一次正式 `validate`。
+5. 显式创建新 Plan；不得重开原 Plan 的失败阶段，也不得自动循环全量 CI 或 build。
 
 禁止把正式全量门禁当作逐错发现器，禁止自动“全量 -> 修一个 -> 全量”的循环。
 
@@ -102,11 +109,28 @@ npm run check:changed
 # 冻结候选，不编译
 OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare
 
-# 一次正式完整验证并冻结 artifact
+# 一次正式源码验证
 OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh validate
 
-# 只消费已验证 artifact
+# 一次正式构建
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh build
+
+# 只消费已构建 artifact
 OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh deploy
+
+# 快速发布：明确跳过源码质量门禁，仍须 build + deploy
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --fast "线上故障紧急恢复"
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh build
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh deploy
+
+# 从 validate 开始全部交给 CNB；未指定时所有阶段默认 local
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --cnb-from validate
+
+# 查看只增不改的 Plan 进度和证据
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh status
+
+# 失败/取消或改变决策后创建新 Plan
+OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --new-plan
 
 # 运维模块、依赖和体量监管
 npm run source-code-analysis:check

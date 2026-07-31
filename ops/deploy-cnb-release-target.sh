@@ -7,16 +7,17 @@ cd "$PROJECT_ROOT"
 UNIT_ID="${DEPLOY_UNIT_ID:-}"
 MODE="${DEPLOY_UNIT_MODE:-shadow}"
 ACTION="${RELEASE_ACTION:-deploy}"
-CNB_RELEASE_GATE_RECEIPT_FILE="${CNB_RELEASE_GATE_RECEIPT_FILE:-$PWD/.cache/release-check/cnb-release-gate.json}"
-if [ "$ACTION" = "validate" ]; then
-  echo "==> validate-only：制品已生成并缓存，不连接生产服务器"
+CNB_RELEASE_ARTIFACT_RECEIPT_FILE="${CNB_RELEASE_ARTIFACT_RECEIPT_FILE:-$PWD/.cache/release-check/release-artifact.json}"
+TARGET_ID="${UNIT_ID:-monolith}"
+if [ "$ACTION" != "deploy" ]; then
+  case "$ACTION" in validate|build) ;; *) echo "[错误] RELEASE_ACTION 无效" >&2; exit 2 ;; esac
+  echo "==> $ACTION 不连接生产服务器"
   exit 0
 fi
-[ "$ACTION" = "deploy" ] || { echo "[错误] RELEASE_ACTION 只能是 validate 或 deploy" >&2; exit 2; }
-node ops/release-gate-receipt.mjs cnb-verify \
+node ops/release-gate-receipt.mjs artifact-verify \
   --content "${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}" \
   --tree "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}" \
-  --file "$CNB_RELEASE_GATE_RECEIPT_FILE"
+  --target "$TARGET_ID" --file "$CNB_RELEASE_ARTIFACT_RECEIPT_FILE"
 if [ -z "$UNIT_ID" ]; then
   export RELEASE_DEPLOY_GRAPH_FILE="${STANDALONE_DEPLOY_GRAPH_PATH:-$PWD/.cache/release-check/deploy-graph.json}"
   exec bash ./ops/deploy.sh

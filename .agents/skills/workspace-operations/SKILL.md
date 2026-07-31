@@ -30,9 +30,9 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
-- 生产维护遵循提交优先：`prepare` 冻结精确 Git tree；`validate`（CNB）或 `validate --local` 对生产 base 到候选 head 的改动项目及依赖闭包验证一次并冻结目标 artifact；`deploy` 或 `deploy --direct` 只消费同一 base/source/tree/digest。修复后 source/tree 变化，必须重新 prepare/validate。
+- 生产维护遵循提交优先和不可变 Plan：`prepare` 冻结精确 Git tree、私有配置摘要、模式、目标和各阶段执行器；`validate` 只运行一次源码门禁或记录 fast skip；`build` 独立冻结目标 artifact；`deploy` 只消费同一 Plan 的验证状态和 base/source/tree/digest。阶段终态不重开，修复后显式创建新 Plan，并按精确内容复用已有成功回执。
 - 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
-- 正式门禁不是逐错调试器。第一次 `validate` 失败后必须停止正式全量重跑，展开 classifier 选中的完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只允许再跑一次最终 `validate`。禁止“全量门禁 -> 修一个 -> 全量门禁”的循环。本地正式门禁必须确定性生成 injection commit，并把成功检查回执持久化在 release worktree 的 `.cache/release-check-results`；临时 injection worktree 不得拥有或清理这份缓存，只有 source tree、命令、运行时与受治理环境全部一致时才能复用。
+- 正式门禁不是逐错调试器。第一次 `validate` 或 `build` 失败后必须停止正式全量重跑，展开完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只能显式创建新 Plan；禁止在原 Plan 内重开阶段或“全量门禁 -> 修一个 -> 全量门禁”。本地正式门禁必须确定性生成 injection commit，并把成功检查回执持久化在 release worktree 的 `.cache/release-check-results`；临时 injection worktree不得拥有或清理这份缓存，只有 source tree、命令、运行时与受治理环境全部一致时才能复用。
 
 ## 禁止
 
@@ -50,7 +50,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 生产发布
 
-- Full 与单 unit 的 operator 顺序是 `prepare -> validate -> deploy`。validate 可在 CNB 或本地运行；deploy 可经 CNB 或 `--direct`，但目标（Full/unit 与 shadow/activate）、validation base、source/tree 和 artifact digest 必须完全一致。任何 deploy cache miss 都是阻断，不允许现场构建。Profile/Fleet 仍只经受信发布流水线调用。
+- Full 与单 unit 的 operator 顺序是 `prepare -> validate -> build -> deploy`。除当前只支持 local 的 prepare 外，各阶段可在 Plan 创建时选择 local 或 CNB；执行器只能从 local 单向进入 CNB。目标（Full/unit 与 shadow/activate）、validation base、source/tree 和 artifact digest 必须完全一致。任何 deploy cache miss 都是阻断，不允许现场构建。Profile/Fleet 仍只经受信发布流水线调用。
 - CNB 按 release metadata 构建目标 Linux artifact：Full 为 canonical monolith standalone，单 unit 为 graph/contract 约束的独立制品。已验证 artifact 交给统一部署器按目标执行或复验 control-plane，再完成不可变 release 目录、原子切换、健康检查和失败回滚；服务器不从源码重建生产 artifact。
 - Full 成功切流必须生成并原子提交一个无 `activeUnits`、无独立路由的 Gateway generation，让全部公网模块统一回落到本次 monolith；不得保留上一次单 unit/Profile 的公开 override。后续单 unit/Profile 部署再显式建立新的 override。
 - `deployed-release.json` 只记录 CNB runtime/canonical source、artifact 与 deployment 证据。候选必须是当前部署 source 的后代；同 source 为 no-op，回退或分叉直接阻断。
@@ -59,4 +59,4 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 验证
 
-远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行 `check:ci` 或其他全量补充门禁。CI 与正式发布的复合检查必须聚合报告同轮全部独立失败；串行依赖项必须显式报告 blocked，不能静默跳过。正式发布按“完整诊断收敛 -> `prepare -> validate -> deploy`”执行；`validate` 是最终验收，不是逐错发现循环，部署阶段只做生产安全检查。Profile/Fleet 只经受信内部入口运行。
+远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行 `check:ci` 或其他全量补充门禁。CI 与正式发布的复合检查必须聚合报告同轮全部独立失败；串行依赖项必须显式报告 blocked，不能静默跳过。正式发布按“完整诊断收敛 -> `prepare -> validate -> build -> deploy`”执行；`validate` 和 `build` 各自只执行一次，部署阶段只做生产安全检查。Profile/Fleet 只经受信内部入口运行。

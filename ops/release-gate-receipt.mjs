@@ -4,18 +4,22 @@ import { pathToFileURL } from "node:url";
 
 import {
   atomicWriteReceipt,
+  createArtifactReceipt,
   createCandidateReceipt,
-  createValidationReceipt,
+  createSourceValidationReceipt,
   readReceipt,
+  validateArtifactReceipt,
   validateCandidateReceipt,
-  validateValidationReceipt,
+  validateSourceValidationReceipt,
 } from "./release/contracts/release-receipt.mjs";
 
 export {
+  createArtifactReceipt as createReleaseArtifactReceipt,
   createCandidateReceipt as createReleaseCandidateReceipt,
-  createValidationReceipt as createCnbReleaseGateReceipt,
+  createSourceValidationReceipt as createReleaseSourceValidationReceipt,
+  validateArtifactReceipt as validateReleaseArtifactReceipt,
   validateCandidateReceipt as validateReleaseCandidateReceipt,
-  validateValidationReceipt as validateCnbReleaseGateReceipt,
+  validateSourceValidationReceipt as validateReleaseSourceValidationReceipt,
 };
 
 function parseArguments(argv) {
@@ -45,17 +49,31 @@ export function main(argv = process.argv.slice(2)) {
     if (!options.file) throw new Error("candidate-verify requires --file");
     return validateCandidateReceipt(readReceipt(options.file), identity);
   }
-  if (options.mode === "cnb-create") {
-    if (!options.output) throw new Error("cnb-create requires --output");
-    const receipt = createValidationReceipt({ ...identity, runner: options.runner ?? "cnb" });
+  if (options.mode === "source-create") {
+    if (!options.output) throw new Error("source-create requires --output");
+    const receipt = createSourceValidationReceipt({ ...identity, runner: options.runner ?? "cnb" });
     atomicWriteReceipt(options.output, receipt);
     return receipt;
   }
-  if (options.mode === "cnb-verify") {
-    if (!options.file) throw new Error("cnb-verify requires --file");
-    return validateValidationReceipt(readReceipt(options.file), identity);
+  if (options.mode === "source-verify") {
+    if (!options.file) throw new Error("source-verify requires --file");
+    return validateSourceValidationReceipt(readReceipt(options.file), identity);
   }
-  throw new Error("usage: release-gate-receipt.mjs candidate-create|candidate-verify|cnb-create|cnb-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local]");
+  if (options.mode === "artifact-create") {
+    if (!options.output) throw new Error("artifact-create requires --output");
+    const receipt = createArtifactReceipt({
+      ...identity,
+      targetId: options.target ?? "monolith",
+      runner: options.runner ?? "cnb",
+    });
+    atomicWriteReceipt(options.output, receipt);
+    return receipt;
+  }
+  if (options.mode === "artifact-verify") {
+    if (!options.file) throw new Error("artifact-verify requires --file");
+    return validateArtifactReceipt(readReceipt(options.file), { ...identity, targetId: options.target ?? "monolith" });
+  }
+  throw new Error("usage: release-gate-receipt.mjs candidate-create|candidate-verify|source-create|source-verify|artifact-create|artifact-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local] [--target ID]");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

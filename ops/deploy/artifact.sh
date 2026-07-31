@@ -226,6 +226,9 @@ NODE
     RELEASE_DATABASE_REPLACEMENT_PREPARED_AT="$(printf '%s\n' "$metadata_values" | sed -n '23p')"
   fi
   RELEASE_TRANSPORT="$(printf '%s\n' "$metadata_values" | sed -n '24p')"
+  node ops/release/plan/snapshot-contract.mjs \
+    --metadata "$RELEASE_METADATA_FILE" --action deploy --executor "$RELEASE_TRANSPORT" \
+    --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" >/dev/null
   RELEASE_RECEIPT_RECOVERY_BASE="$(printf '%s\n' "$metadata_values" | sed -n '25p')"
   if [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
     RELEASE_RECEIPT_RECOVERY_SOURCE="$(printf '%s\n' "$metadata_values" | sed -n '26p')"

@@ -8,8 +8,10 @@ export const CANDIDATE_CHECKS = [
   "tenant-config-dry-run",
   "tenant-permission-docs",
 ];
-export const VALIDATION_CHECKS = [
+export const SOURCE_VALIDATION_CHECKS = [
   "full-source-ci-once",
+];
+export const ARTIFACT_CHECKS = [
   "artifact-compile-once",
   "artifact-content-identity",
 ];
@@ -61,34 +63,72 @@ export function validateCandidateReceipt(receipt, identity) {
   return receipt;
 }
 
-export function createValidationReceipt({
+function requireRunner(runner) {
+  if (!new Set(["cnb", "local"]).has(runner)) throw new Error("release runner must be cnb or local");
+  return runner;
+}
+
+export function createSourceValidationReceipt({
   treeId,
   contentDigest,
   runner = "cnb",
   completedAt = new Date().toISOString(),
 }) {
-  if (!new Set(["cnb", "local"]).has(runner)) throw new Error("validation runner must be cnb or local");
   return {
-    schemaVersion: 3,
-    kind: "workspace-release-validation",
+    schemaVersion: 1,
+    kind: "workspace-source-validation",
     status: "passed",
     command: "ops/publish.sh validate",
-    runner,
+    runner: requireRunner(runner),
     treeId: requireTree(treeId),
     contentDigest: requireContent(contentDigest),
     scope: "full-repository",
-    checks: VALIDATION_CHECKS,
+    checks: SOURCE_VALIDATION_CHECKS,
     completedAt: requireTime(completedAt),
   };
 }
 
-export function validateValidationReceipt(receipt, identity) {
+export function validateSourceValidationReceipt(receipt, identity) {
   requireIdentity(receipt, identity);
-  if (receipt.schemaVersion !== 3 || receipt.kind !== "workspace-release-validation"
+  if (receipt.schemaVersion !== 1 || receipt.kind !== "workspace-source-validation"
     || receipt.status !== "passed" || receipt.command !== "ops/publish.sh validate"
     || !new Set(["cnb", "local"]).has(receipt.runner) || receipt.scope !== "full-repository"
-    || JSON.stringify(receipt.checks) !== JSON.stringify(VALIDATION_CHECKS)) {
-    throw new Error("release validation receipt contract is invalid");
+    || JSON.stringify(receipt.checks) !== JSON.stringify(SOURCE_VALIDATION_CHECKS)) {
+    throw new Error("source validation receipt contract is invalid");
+  }
+  return receipt;
+}
+
+export function createArtifactReceipt({
+  treeId,
+  contentDigest,
+  targetId = "monolith",
+  runner = "cnb",
+  completedAt = new Date().toISOString(),
+}) {
+  if (!/^(monolith|[a-z][a-z0-9-]*)$/.test(targetId)) throw new Error("artifact target id is invalid");
+  return {
+    schemaVersion: 1,
+    kind: "workspace-release-artifact",
+    status: "built",
+    command: "ops/publish.sh build",
+    runner: requireRunner(runner),
+    treeId: requireTree(treeId),
+    contentDigest: requireContent(contentDigest),
+    targetId,
+    checks: ARTIFACT_CHECKS,
+    completedAt: requireTime(completedAt),
+  };
+}
+
+export function validateArtifactReceipt(receipt, identity) {
+  requireIdentity(receipt, identity);
+  if (receipt.schemaVersion !== 1 || receipt.kind !== "workspace-release-artifact"
+    || receipt.status !== "built" || receipt.command !== "ops/publish.sh build"
+    || !new Set(["cnb", "local"]).has(receipt.runner)
+    || receipt.targetId !== (identity.targetId ?? "monolith")
+    || JSON.stringify(receipt.checks) !== JSON.stringify(ARTIFACT_CHECKS)) {
+    throw new Error("release artifact receipt contract is invalid");
   }
   return receipt;
 }
