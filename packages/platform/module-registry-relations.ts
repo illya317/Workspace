@@ -1,5 +1,26 @@
 import type { RelationRegistrationContract as RelationRegistration } from "./relation-registration-contract";
 
+const WORK_PROJECT_NOTIFICATION_HISTORY_RELATION = {
+  scope: "work",
+  usage: "governance",
+  semantics: "snapshot",
+  target: "project",
+  targetLabel: "所属项目",
+  nullable: false,
+  lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" },
+  adapterKey: "work.project.notification-governance-history",
+  permission: { resourceKey: "work.projects", action: "entry" },
+} as const;
+
+const WORK_PROJECT_NOTIFICATION_AUDIT_RELATION = {
+  scope: "work",
+  usage: "governance",
+  semantics: "snapshot",
+  lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" },
+  exemptionReason: "项目通知规则、版本、发布意图、信号和评估是同域不可变审计事实；引用生命周期由 Work 通知事务和数据库 Restrict 约束共同维护，不开放 Relation Catalog 独立变更。",
+  permission: { resourceKey: "work.projects", action: "entry" },
+} as const;
+
 export const WORK_RELATION_REGISTRATIONS = [
   { key: "work.plan.items", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkItem", field: "planId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "confirm_cascade", targetRestore: "auto_cascade_owned", sourceRelationChange: "retain" }, configurableLifecycle: { targetDelete: ["block", "confirm_cascade", "auto_cascade_owned"], targetArchive: ["block", "confirm_cascade", "auto_cascade_owned"], targetRestore: ["block", "confirm_cascade", "auto_cascade_owned"] }, adapterKey: "work.plan.items", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.plan.kpi-assignments", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkKpiAssignment", field: "workPlanId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, configurableLifecycle: { targetDelete: ["block", "confirm_cascade", "auto_cascade_owned"] }, adapterKey: "work.plan.kpi-assignments", permission: { resourceKey: "work.tasks", action: "entry" } },
@@ -33,6 +54,28 @@ export const WORK_RELATION_REGISTRATIONS = [
   { key: "work.projects.dependency.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanDependency", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.baseline.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanBaseline", field: "projectId" }, target: "project", targetLabel: "所属项目", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.work-assignee.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectWorkAssignee", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { ...WORK_PROJECT_NOTIFICATION_HISTORY_RELATION, key: "work.projects.notification-rule.project", source: { entity: "ProjectNotificationRule", field: "projectId" } },
+  { ...WORK_PROJECT_NOTIFICATION_HISTORY_RELATION, key: "work.projects.notification-evaluation.project", source: { entity: "ProjectNotificationEvaluation", field: "projectId" } },
+  { ...WORK_PROJECT_NOTIFICATION_HISTORY_RELATION, key: "work.projects.notification-publication-intent.project", source: { entity: "ProjectNotificationPublicationIntent", field: "projectId" } },
+  { ...WORK_PROJECT_NOTIFICATION_HISTORY_RELATION, key: "work.projects.notification-signal.project", source: { entity: "ProjectNotificationSignal", field: "projectId" } },
+  { ...WORK_PROJECT_NOTIFICATION_HISTORY_RELATION, key: "work.projects.notification-redrive.project", source: { entity: "ProjectNotificationSignalRedriveEvent", field: "projectId" } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-evaluation.publication", source: { entity: "ProjectNotificationEvaluation", field: "publicationId" }, target: "notificationPublication", nullable: true },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-evaluation.rule", source: { entity: "ProjectNotificationEvaluation", field: "ruleId" }, target: "projectNotificationRule", nullable: false, physical: { sourceModel: "ProjectNotificationEvaluation", sourceFields: ["ruleId", "projectId"], targetModel: "ProjectNotificationRule", targetFields: ["id", "projectId"] } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-evaluation.rule-revision", source: { entity: "ProjectNotificationEvaluation", field: "ruleRevision" }, target: "projectNotificationRuleRevision", nullable: false, physical: { sourceModel: "ProjectNotificationEvaluation", sourceFields: ["ruleId", "ruleRevision"], targetModel: "ProjectNotificationRuleRevision", targetFields: ["ruleId", "revision"] } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-publication-intent.publication", source: { entity: "ProjectNotificationPublicationIntent", field: "publicationId" }, target: "notificationPublication", nullable: true },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-publication-intent.rule", source: { entity: "ProjectNotificationPublicationIntent", field: "ruleId" }, target: "projectNotificationRule", nullable: false, physical: { sourceModel: "ProjectNotificationPublicationIntent", sourceFields: ["ruleId", "projectId"], targetModel: "ProjectNotificationRule", targetFields: ["id", "projectId"] } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-publication-intent.rule-revision", source: { entity: "ProjectNotificationPublicationIntent", field: "ruleRevision" }, target: "projectNotificationRuleRevision", nullable: false, physical: { sourceModel: "ProjectNotificationPublicationIntent", sourceFields: ["ruleId", "ruleRevision"], targetModel: "ProjectNotificationRuleRevision", targetFields: ["ruleId", "revision"] } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule.created-by", source: { entity: "ProjectNotificationRule", field: "createdByUserId" }, target: "user", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule.updated-by", source: { entity: "ProjectNotificationRule", field: "updatedByUserId" }, target: "user", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule.published-by", source: { entity: "ProjectNotificationRule", field: "publishedByUserId" }, target: "user", nullable: true },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule.archived-by", source: { entity: "ProjectNotificationRule", field: "archivedByUserId" }, target: "user", nullable: true },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule-lifecycle.actor", source: { entity: "ProjectNotificationRuleLifecycleEvent", field: "actorUserId" }, target: "user", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule-lifecycle.revision", source: { entity: "ProjectNotificationRuleLifecycleEvent", field: "revision" }, target: "projectNotificationRuleRevision", nullable: false, physical: { sourceModel: "ProjectNotificationRuleLifecycleEvent", sourceFields: ["ruleId", "revision"], targetModel: "ProjectNotificationRuleRevision", targetFields: ["ruleId", "revision"] } },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule-revision.created-by", source: { entity: "ProjectNotificationRuleRevision", field: "createdByUserId" }, target: "user", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-rule-revision.rule", source: { entity: "ProjectNotificationRuleRevision", field: "ruleId" }, target: "projectNotificationRule", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-redrive.actor", source: { entity: "ProjectNotificationSignalRedriveEvent", field: "actorUserId" }, target: "user", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-redrive.source-signal", source: { entity: "ProjectNotificationSignalRedriveEvent", field: "sourceSignalRecordId" }, target: "projectNotificationSignal", nullable: false },
+  { ...WORK_PROJECT_NOTIFICATION_AUDIT_RELATION, key: "work.projects.notification-redrive.child-signal", source: { entity: "ProjectNotificationSignalRedriveEvent", field: "redriveSignalRecordId" }, target: "projectNotificationSignal", nullable: false },
   { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.collaboration", scope: "work", source: { entity: "Any", field: "collaborationId" }, target: "departmentCollaboration", targetLabel: "部门协作", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.responsibility-node.revision", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "PositionResponsibilityNode", field: "positionDescriptionRevisionId" }, target: "positionDescriptionRevision", targetLabel: "岗位说明书版本", nullable: false, lifecycle: { targetDelete: "exempt_with_reason", targetArchive: "exempt_with_reason", targetRestore: "exempt_with_reason", sourceRelationChange: "exempt_with_reason" }, exemptionReason: "职责节点是 HR 岗位说明书版本的只读投影；跨模块生命周期由 HR 管理，数据库 Restrict 负责保护已引用版本。", permission: { resourceKey: "work.tasks", action: "entry" } },

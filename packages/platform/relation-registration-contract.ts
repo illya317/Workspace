@@ -4,8 +4,9 @@ export type RelationTargetKind =
   | "company" | "department" | "employee" | "employeePosition" | "employeeProject"
   | "financeAccount" | "financeAssetCategory" | "financeGroupAccount" | "financeVoucherItem"
   | "financeConsolidationEntrySource" | "investmentEnterpriseProfile" | "meeting" | "meetingActionCandidate" | "meetingDecision"
-  | "party" | "position" | "positionDescription" | "positionDescriptionRevision"
-  | "positionResponsibilityNode" | "project" | "projectMembershipChange" | "projectPlanPhase"
+  | "notificationPublication" | "party" | "position" | "positionDescription" | "positionDescriptionRevision"
+  | "positionResponsibilityNode" | "project" | "projectMembershipChange" | "projectNotificationRule"
+  | "projectNotificationRuleRevision" | "projectNotificationSignal" | "projectPlanPhase"
   | "user" | "departmentCollaboration" | "workItem" | "workKpiAssignment" | "workPlan" | "workOkrCycle";
 
 export type RelationPolicyPreset = "block" | "confirm_unlink" | "confirm_cascade" | "confirm_unlink_or_cascade" | "auto_cascade_owned" | "retain" | "exempt_with_reason";

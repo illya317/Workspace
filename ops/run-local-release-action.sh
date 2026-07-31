@@ -16,8 +16,8 @@ esac
 : "${CNB_REAL_CNB_YML:?CNB_REAL_CNB_YML is required}"
 [ -f "$METADATA_FILE" ] || { echo "[错误] release metadata 不存在: $METADATA_FILE" >&2; exit 1; }
 
-mkdir -p "$RELEASE_SOURCE_DIR/.cache/local-release-worktrees"
-temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.cache/local-release-worktrees/action.XXXXXX")"
+mkdir -p "$RELEASE_SOURCE_DIR/.local-release-worktrees"
+temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.local-release-worktrees/action.XXXXXX")"
 injection_worktree="$temporary_root/release-injection"
 cleanup() {
   local exit_code=$?
@@ -56,9 +56,9 @@ if [ "$ACTION" = "validate" ]; then
   export CI=1
   if [ -d "$RELEASE_SOURCE_DIR/node_modules" ]; then
     mkdir "$injection_worktree/node_modules"
-    if ! cp -al "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"; then
-      rm -rf "$injection_worktree/node_modules"
-      mkdir "$injection_worktree/node_modules"
+    if [ "$(stat -c %d "$RELEASE_SOURCE_DIR/node_modules")" = "$(stat -c %d "$injection_worktree/node_modules")" ]; then
+      cp -al "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
+    else
       cp -a "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
     fi
   else

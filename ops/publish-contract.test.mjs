@@ -146,8 +146,9 @@ test("validation runs once and CNB or direct deploy only consumes its immutable 
   assert.doesNotMatch(publish, /npm run check:ci|npm run test:e2e|local-release-gate\.sh/);
   assert.match(runCnbReleaseGate, /classify-risk\.mjs[\s\S]*?--base "\$RELEASE_VALIDATION_BASE_SHA"[\s\S]*?run-affected-validation\.mjs/);
   assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
-  assert.match(runLocalReleaseAction, /\.cache\/local-release-worktrees/);
+  assert.match(runLocalReleaseAction, /\.local-release-worktrees/);
   assert.match(runLocalReleaseAction, /ACTION" = "validate"[\s\S]*?export CI=1/);
+  assert.match(runLocalReleaseAction, /stat -c %d/);
   assert.match(runLocalReleaseAction, /cp -al "\$RELEASE_SOURCE_DIR\/node_modules\/\."/);
   assert.doesNotMatch(runLocalReleaseAction, /ln -s "\$RELEASE_SOURCE_DIR\/node_modules"/);
   assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));

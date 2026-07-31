@@ -26,10 +26,17 @@ test("notification publishing registries keep ingress permissions explicit", () 
     findOpenApiEndpoint("POST", "/api/open/v1/notifications/publications")?.endpoint.scopeKey,
     "workspace.notifications.publications.write",
   );
-  const duplicateInternalRoutes = registeredModuleDefinitions
+  const openIngressRoutes = registeredModuleDefinitions
     .flatMap((definition) => "apiRoutes" in definition ? definition.apiRoutes : [])
     .filter((route) => route?.pathPrefix.startsWith("/api/open/v1/notifications") === true);
-  assert.deepEqual(duplicateInternalRoutes, []);
+  assert.deepEqual(openIngressRoutes?.map((route) => ({
+    method: route?.method,
+    pathPrefix: route?.pathPrefix,
+    access: route?.access,
+  })), [
+    { method: "GET", pathPrefix: "/api/open/v1/notifications/definitions", access: "public" },
+    { method: "POST", pathPrefix: "/api/open/v1/notifications/publications", access: "public" },
+  ]);
 
   const publication = resolvePermissionApiActionPolicy({
     method: "POST",

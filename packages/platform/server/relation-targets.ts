@@ -112,6 +112,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: ({ keyword }) => searchFkMeetingDecisions(keyword),
     resolve: resolveFkMeetingDecision,
   },
+  notificationPublication: {
+    target: { entity: "NotificationPublication", label: "通知发布事实" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   party: {
     target: { entity: "Party", label: "主体" },
     search: ({ keyword }) => searchFkParties(keyword),
@@ -144,6 +149,21 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
   },
   projectMembershipChange: {
     target: { entity: "ProjectMembershipChange", label: "项目成员命令" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationRule: {
+    target: { entity: "ProjectNotificationRule", label: "项目通知规则" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationRuleRevision: {
+    target: { entity: "ProjectNotificationRuleRevision", label: "项目通知规则版本" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationSignal: {
+    target: { entity: "ProjectNotificationSignal", label: "项目通知信号" },
     search: async () => [],
     resolve: async () => null,
   },

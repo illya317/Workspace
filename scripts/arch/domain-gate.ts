@@ -7,10 +7,9 @@ import { checkModules } from "./modules";
 import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
 import { checkSplitPriority } from "./split-priority";
+import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
 
-export type DomainGateCheck = [name: string, run: () => boolean | Promise<boolean>];
-
-export const domainGateChecks: DomainGateCheck[] = [
+export const domainGateChecks: AggregateGateCheck[] = [
   ["scan", scan],
   ["deps", checkDeps],
   ["modules", checkModules],
@@ -22,27 +21,8 @@ export const domainGateChecks: DomainGateCheck[] = [
   ["auth", checkAuth],
 ];
 
-export async function domainGate(checks: DomainGateCheck[] = domainGateChecks) {
-  const failed: string[] = [];
-  for (const [name, run] of checks) {
-    let ok = false;
-    try {
-      ok = await run();
-    } catch (error) {
-      console.error(`Domain gate ${name} threw:`, error instanceof Error ? error.message : error);
-    }
-    if (!ok) {
-      console.error("❌ DOMAIN GATE FAILED:", name);
-      failed.push(name);
-    }
-  }
-
-  if (failed.length > 0) {
-    console.error(`❌ DOMAIN GATE COMPLETE: ${failed.length} failure(s): ${failed.join(", ")}`);
-    return false;
-  }
-  console.log("✅ DOMAIN GATE PASSED");
-  return true;
+export function domainGate(checks: AggregateGateCheck[] = domainGateChecks) {
+  return runAggregateGate({ checks, displayName: "Domain", logName: "DOMAIN" });
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
