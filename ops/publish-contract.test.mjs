@@ -148,6 +148,11 @@ test("validation runs once and CNB or direct deploy only consumes its immutable 
   assert.match(runCnbReleaseGate, /ACTION" = "deploy"[\s\S]*?cnb-release-artifact-cache\.sh restore[\s\S]*?exit 0/);
   assert.match(runLocalReleaseAction, /\.local-release-worktrees/);
   assert.match(runLocalReleaseAction, /ACTION" = "validate"[\s\S]*?export CI=1/);
+  assert.match(runLocalReleaseAction, /persistent_check_result_cache="\$RELEASE_SOURCE_DIR\/\.cache\/release-check-results"/);
+  assert.match(runLocalReleaseAction, /source_commit_date="\$\(git -C "\$RELEASE_SOURCE_DIR" show -s --format=%cI "\$RELEASE_SOURCE_SHA"\)"/);
+  assert.match(runLocalReleaseAction, /GIT_AUTHOR_DATE="\$source_commit_date" GIT_COMMITTER_DATE="\$source_commit_date"/);
+  assert.match(runLocalReleaseAction, /mkdir -p "\$persistent_check_result_cache" "\$injection_worktree\/\.cache"/);
+  assert.match(runLocalReleaseAction, /ln -s "\$persistent_check_result_cache" "\$injection_worktree\/\.cache\/check-results"/);
   assert.match(runLocalReleaseAction, /\[ ! -L "\$RELEASE_SOURCE_DIR\/node_modules" \]/);
   assert.match(runLocalReleaseAction, /stat -c %d/);
   assert.match(runLocalReleaseAction, /cp -al "\$RELEASE_SOURCE_DIR\/node_modules\/\."/);

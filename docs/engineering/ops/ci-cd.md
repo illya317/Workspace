@@ -16,7 +16,7 @@
 - 严格依赖链不得制造级联噪声。`migration -> seed -> PostgreSQL integration`、`build -> E2E -> artifact receipt` 等链在前置失败后，把未执行项明确记为 `blocked by <step>`；其他独立 lane 仍继续。
 - 第一次正式 `validate` 失败后立即停止正式全量重跑。Operations 必须展开本次 classification 的完整 DAG，并一次性检查：私有租户配置及可移植路径、Node 内存策略、一次性 `*_ci`/`*_test`/`*_e2e` 数据库、`DATABASE_URL`/`DIRECT_URL`/`SHADOW_DATABASE_URL` 同库约束、TLS 模式、全部 migration、resource seed、PostgreSQL 容量测试、目标 build、Playwright 生命周期和 artifact/receipt 前置。
 - 诊断阶段按 lane 执行聚合检查，保存完整失败与 blocked 清单；集中修改全部已知问题后，逐项验证对应 lane。只有完整清单归零，才重新 `prepare` 并运行一次最终正式 `validate`。
-- 禁止把正式全量门禁当作逐错发现器，禁止“跑全量、只修首错、再跑全量”。相同 source/tree/config 的成功项应复用精确输入缓存；缓存不可用时也不能用重复全量代替完整诊断。
+- 禁止把正式全量门禁当作逐错发现器，禁止“跑全量、只修首错、再跑全量”。本地正式 `validate` 的 injection commit 必须由 source SHA、注入文件和 source commit 时间确定性生成；成功检查回执必须保存到 release worktree 生命周期之外的 `.cache/release-check-results`，不得随临时 injection worktree 清理。相同 source/tree/命令/运行时/受治理环境的重试复用精确输入缓存，任一输入变化则缓存失效。缓存不可用时也不能用重复全量代替完整诊断。
 - `validate` 成功后才允许 `deploy`。部署仍只消费冻结 artifact，不得为省时间绕过最终门禁、降低检查范围或把诊断数据库换成开发/生产库。
 
 标准状态汇总至少包含：`passed`、`failed`、`blocked` 三类，列出命令/步骤、退出状态和依赖原因。进程被信号终止、环境无法建立或结果缺失一律计为失败，不得标记为 blocked 或跳过。

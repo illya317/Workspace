@@ -84,7 +84,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，是 CI/发布验证的默认权威入口；`typecheck:full` 仅用于显式全量诊断。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `4096 MiB`。
+`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，是 CI/发布验证的默认权威入口；`typecheck:full` 仅用于显式全量诊断。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
 
 根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。CI/发布 validate 先运行 `typecheck:affected`；若该 lane 被选择，artifact builder 使用 `build:next:after-typecheck` 跳过 Next 重复遍历，unit builder 也不再重复相同 scopes。未选择 type lane 的纯文档/展示 artifact build 保留 Next 自身检查。
 
@@ -145,7 +145,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再强制生成并校验源码分析 snapshot，然后执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 必须把非空 snapshot 复制到实际 `server.js` 入口旁，否则 artifact 组装失败；运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再强制生成并校验源码分析 snapshot，然后执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `8192 MiB` Node old-space，与开发应用容器 `10 GiB` 上限保留运行时余量；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 必须把非空 snapshot 复制到实际 `server.js` 入口旁，否则 artifact 组装失败；运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
 
 ### tests
 

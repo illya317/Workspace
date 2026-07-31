@@ -59,7 +59,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 13. **先确认运行环境**：宿主项目入口声明的远端开发、容器、端口和生产边界优先。直接本地 checkout 才统一使用 `npm run dev` 的 3000 单实例；不得把外部映射端口误当成本地 dev 端口。需要端口连续性时按宿主规则取得并释放 `dev:guard` 租约。
 14. **并发服从宿主模式，重检查始终串行**：是否启动 subagent 服从当前 system / collaboration mode。无论是否允许多 agent，都不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server；发现已有同类进程时等待或复用。
 15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
-16. **本地检查内存硬上限 8GB**：本机受治理 typecheck 的 Node old-space 上限不得超过 `8192 MiB`；build、lint 和其他命令保留各自 package script 的更低上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
+16. **本地检查内存硬上限 8GB**：本机受治理 typecheck、build、lint 和其他 Node 检查的 old-space 上限不得超过 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量；各入口必须使用 package script 声明的受治理上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
 18. **发布验证与部署必须分离**：`ops/publish.sh prepare` 只冻结 release tree 和私有配置；随后用 `publish.sh validate`（CNB）或 `publish.sh validate --local` 对生产 Git base 到候选 head 的改动项目及依赖闭包验证一次并生成 immutable artifact。`publish.sh deploy` / `--direct` 只能消费同一 validation base、source SHA、tree SHA 和 artifact digest 的结果，禁止重新运行源码门禁或现场重建。部署阶段仅保留生产身份/顺序、migration 区间、锁、备份、传输 digest、健康检查、原子切换和回滚。除用户显式要求外，不得增加其他门禁或自动升级全量检查。
 19. **正式门禁必须一次报全再集中修复**：CI/发布的独立检查必须聚合执行并汇总全部失败；依赖链只在前置失败时显式标记 blocked。第一次正式 validate 失败后停止全量重跑，先审计完整检查图和全部环境前置，集中修完并逐项验证，最后只再运行一次正式 validate。禁止“全量一次、修一项、再全量”的发布循环。

@@ -17,6 +17,7 @@ esac
 [ -f "$METADATA_FILE" ] || { echo "[错误] release metadata 不存在: $METADATA_FILE" >&2; exit 1; }
 
 mkdir -p "$RELEASE_SOURCE_DIR/.local-release-worktrees"
+persistent_check_result_cache="$RELEASE_SOURCE_DIR/.cache/release-check-results"
 temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.local-release-worktrees/action.XXXXXX")"
 injection_worktree="$temporary_root/release-injection"
 cleanup() {
@@ -49,11 +50,19 @@ node "$SCRIPT_DIR/render-cnb-release-config.mjs" "${render_args[@]}"
 cp "$METADATA_FILE" "$injection_worktree/.cnb-release.json"
 chmod 600 "$injection_worktree/.cnb.yml" "$injection_worktree/.cnb-release.json"
 git -C "$injection_worktree" add -f .cnb.yml .cnb-release.json
-git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=release@workspace.local \
+source_commit_date="$(git -C "$RELEASE_SOURCE_DIR" show -s --format=%cI "$RELEASE_SOURCE_SHA")"
+GIT_AUTHOR_DATE="$source_commit_date" GIT_COMMITTER_DATE="$source_commit_date" \
+  git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=release@workspace.local \
   commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
 
 if [ "$ACTION" = "validate" ]; then
   export CI=1
+  mkdir -p "$persistent_check_result_cache" "$injection_worktree/.cache"
+  if [ -e "$injection_worktree/.cache/check-results" ] || [ -L "$injection_worktree/.cache/check-results" ]; then
+    echo "[错误] 临时 release worktree 的 check-results 路径必须为空" >&2
+    exit 1
+  fi
+  ln -s "$persistent_check_result_cache" "$injection_worktree/.cache/check-results"
   if [ -d "$RELEASE_SOURCE_DIR/node_modules" ]; then
     mkdir "$injection_worktree/node_modules"
     if [ ! -L "$RELEASE_SOURCE_DIR/node_modules" ] && \
