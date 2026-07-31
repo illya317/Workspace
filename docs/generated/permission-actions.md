@@ -644,7 +644,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | Action | 通用含义 | 直接动作 / 流程资格 | 配置与继承 | 自动包含 |
 |---|---|---|---|---|
 | `settings.notifications.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry` |
-| `settings.notifications.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建通知发布（`settings.notifications.publication.create`；POST /api/modules/settings/notifications/publications） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `settings.notifications.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建通知发布（`settings.notifications.publication.create`；POST /api/modules/settings/notifications/publications、POST /api/modules/settings/notifications/group-publications） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `settings.notifications.apiUse`<br>API 调用 | 通过集成 API 使用该资源能力；默认不自动包含业务读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `settings.notifications.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 | `settings.notifications.configure`<br>配置 | 修改规则、流程或系统配置；默认不自动包含业务数据读写。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
