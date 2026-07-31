@@ -325,17 +325,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
   const policyColumns: DataSurfaceColumnSpec<NotificationGroupPolicyRow>[] = [
     { key: "label", label: "策略", cell: (row) => ({ kind: "stack", items: [{ kind: "text", value: row.label, emphasis: "medium" }, { kind: "text", value: row.key, tone: "muted", font: "mono" }] }) },
     { key: "schedule", label: "计划", cell: (row) => groupPolicyScheduleLabel(row.schedule) },
-    {
-      key: "notification",
-      label: "通知内容",
-      width: "wide",
-      cell: (row) => {
-        const definition = notificationDefinitions.find((item) => item.key === row.definitionKey);
-        return definition
-          ? { kind: "stack", items: [{ kind: "text", value: definition.label, emphasis: "medium" }, { kind: "text", value: definition.titleTemplate, tone: "muted" }, { kind: "text", value: definition.bodyTemplate, tone: "muted", wrap: "wrap" }] }
-          : { kind: "text", value: "通知定义未找到", tone: "muted" };
-      },
-    },
     { key: "agent", label: "Agent", cell: (row) => row.weeklyAgentBinding?.label ?? "未绑定" },
     { key: "status", label: "状态", cell: (row) => ({ kind: "badge", label: row.enabled ? "启用" : "停用", tone: row.enabled ? "green" : "slate" }) },
     { key: "delivery", label: "最近投递", cell: (row) => ({ kind: "badge", ...groupPolicyDeliveryView(row) }) },
@@ -358,6 +347,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     })),
   });
 
+  const editingDefinition = editingPolicy ? notificationDefinitions.find((item) => item.key === editingPolicy.definitionKey) ?? null : null;
   const editPolicyPanel = editingPolicy ? createPanelSection("group-policy-edit-panel", {
     title: "3 编辑每群策略",
     sections: [createFieldsSection("group-policy-edit-fields", policyFields, {
@@ -367,6 +357,13 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
         { key: "cancel", action: "reset", label: "取消编辑", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => setEditingPolicy(null) },
         { key: "save", action: "save", label: "保存策略", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => void persistPolicy(editingPolicy) },
       ],
+    }), createFieldsSection("group-policy-notification-content", [
+      { kind: "readonly", key: "notification-label", label: "通知名称", value: editingDefinition?.label ?? "未找到已发布定义", span: "wide" },
+      { kind: "readonly", key: "notification-title", label: "标题模板", value: editingDefinition?.titleTemplate ?? "未找到已发布定义", span: "wide" },
+      { kind: "readonly", key: "notification-body", label: "正文模板", value: editingDefinition?.bodyTemplate ?? "未找到已发布定义", span: "wide" },
+    ], {
+      header: { title: "通知内容", description: "内容来自当前已发布的通知定义。" },
+      layout: { columns: 1, density: "compact" },
     })],
   }) : null;
 
