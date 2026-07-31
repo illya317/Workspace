@@ -1,8 +1,7 @@
 import "server-only";
 
 import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
-import { readFileSync } from "node:fs";
-import { isAbsolute, resolve } from "node:path";
+import { isAbsolute } from "node:path";
 
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
@@ -39,8 +38,10 @@ function readRequestHmacKey() {
     throw new SqlSettingOperationQueueError("SQL 操作请求签名不可用");
   }
   try {
-    const keyPath = resolve(/*turbopackIgnore: true*/ filePath);
-    const key = readFileSync(keyPath, "utf8").trim();
+    // This secret is mounted only when the server starts. Resolve the builtin
+    // at runtime so the standalone tracer does not treat the mount as a build input.
+    const runtimeFs = process.getBuiltinModule("node:fs");
+    const key = runtimeFs.readFileSync(filePath, "utf8").trim();
     if (!/^[a-f0-9]{64}$/.test(key)) {
       throw new Error("invalid key format");
     }
