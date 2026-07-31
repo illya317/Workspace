@@ -624,6 +624,8 @@ export const ModelName = {
   NotificationChannelEndpoint: 'NotificationChannelEndpoint',
   NotificationDeliveryAttempt: 'NotificationDeliveryAttempt',
   NotificationDeliveryWorkerRequest: 'NotificationDeliveryWorkerRequest',
+  NotificationManagedGroup: 'NotificationManagedGroup',
+  NotificationGroupPolicy: 'NotificationGroupPolicy',
   NotificationSubscription: 'NotificationSubscription',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
@@ -708,7 +710,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "investmentEnterpriseProfile" | "investmentEnterpriseMeeting" | "investmentEnterpriseDiligenceItem" | "investmentEnterpriseContract" | "investmentEnterpriseMonitoringRecord" | "investmentEnterpriseDocumentLink" | "investorShareholderProfile" | "investorDueDiligenceRecord" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCategory" | "financeAssetCategoryPolicy" | "financeAssetCard" | "financeAssetAcquisitionEvidence" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeAssetImpairmentAssessment" | "financeAssetImpairmentAllocation" | "financeAssetDisposal" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot" | "financeCloseEvent" | "financeCloseWorkpaper" | "financeCloseWorkpaperEvent" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeCompanyCurrencyPolicy" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementVoucherExclusion" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeTaxFiling" | "financeTaxPayment" | "financeTaxPaymentAllocation" | "financeTaxReconciliationSnapshot" | "financeTaxType" | "financeTaxRegistration" | "financeTaxWorkpaper" | "financeTaxAccrualLine" | "financeBankReconciliation" | "financeBankReconciliationItem" | "financeInterestWorkpaper" | "financeInterestWorkpaperLine" | "financeInterestVoucherLink" | "financeCurrency" | "financeBankAccount" | "financeLoan" | "financeLoanRateTerm" | "financeLoanPrincipalEvent" | "company" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "editHistory" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employment" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "department" | "position" | "eDP" | "positionReportOverride" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryContentEmbedding" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "newsReaction" | "notificationDefinition" | "notificationDefinitionRevision" | "notificationDefinitionLifecycleEvent" | "notificationPublication" | "notificationDelivery" | "notificationChannelEndpoint" | "notificationDeliveryAttempt" | "notificationDeliveryWorkerRequest" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "employeePartyIdentityLink" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "relationPolicyConfig" | "relationPolicyRevision" | "businessCodeSequence" | "businessCodeRule" | "businessCodeAllocation" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "projectNotificationRule" | "projectNotificationRuleRevision" | "projectNotificationEvaluation" | "projectNotificationRuleLifecycleEvent" | "projectNotificationPublicationIntent" | "projectNotificationSignal" | "projectNotificationSignalRedriveEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
+    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "investmentEnterpriseProfile" | "investmentEnterpriseMeeting" | "investmentEnterpriseDiligenceItem" | "investmentEnterpriseContract" | "investmentEnterpriseMonitoringRecord" | "investmentEnterpriseDocumentLink" | "investorShareholderProfile" | "investorDueDiligenceRecord" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCategory" | "financeAssetCategoryPolicy" | "financeAssetCard" | "financeAssetAcquisitionEvidence" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeAssetImpairmentAssessment" | "financeAssetImpairmentAllocation" | "financeAssetDisposal" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot" | "financeCloseEvent" | "financeCloseWorkpaper" | "financeCloseWorkpaperEvent" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeCompanyCurrencyPolicy" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementVoucherExclusion" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeTaxFiling" | "financeTaxPayment" | "financeTaxPaymentAllocation" | "financeTaxReconciliationSnapshot" | "financeTaxType" | "financeTaxRegistration" | "financeTaxWorkpaper" | "financeTaxAccrualLine" | "financeBankReconciliation" | "financeBankReconciliationItem" | "financeInterestWorkpaper" | "financeInterestWorkpaperLine" | "financeInterestVoucherLink" | "financeCurrency" | "financeBankAccount" | "financeLoan" | "financeLoanRateTerm" | "financeLoanPrincipalEvent" | "company" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "editHistory" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employment" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "department" | "position" | "eDP" | "positionReportOverride" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryContentEmbedding" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "newsReaction" | "notificationDefinition" | "notificationDefinitionRevision" | "notificationDefinitionLifecycleEvent" | "notificationPublication" | "notificationDelivery" | "notificationChannelEndpoint" | "notificationDeliveryAttempt" | "notificationDeliveryWorkerRequest" | "notificationManagedGroup" | "notificationGroupPolicy" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "employeePartyIdentityLink" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "relationPolicyConfig" | "relationPolicyRevision" | "businessCodeSequence" | "businessCodeRule" | "businessCodeAllocation" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "projectNotificationRule" | "projectNotificationRuleRevision" | "projectNotificationEvaluation" | "projectNotificationRuleLifecycleEvent" | "projectNotificationPublicationIntent" | "projectNotificationSignal" | "projectNotificationSignalRedriveEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -18472,6 +18474,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    NotificationManagedGroup: {
+      payload: Prisma.$NotificationManagedGroupPayload<ExtArgs>
+      fields: Prisma.NotificationManagedGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationManagedGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationManagedGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationManagedGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationManagedGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationManagedGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationManagedGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationManagedGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationManagedGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationManagedGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        update: {
+          args: Prisma.NotificationManagedGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationManagedGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationManagedGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationManagedGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationManagedGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationManagedGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationManagedGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotificationManagedGroup>
+        }
+        groupBy: {
+          args: Prisma.NotificationManagedGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationManagedGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationManagedGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationManagedGroupCountAggregateOutputType> | number
+        }
+      }
+    }
+    NotificationGroupPolicy: {
+      payload: Prisma.$NotificationGroupPolicyPayload<ExtArgs>
+      fields: Prisma.NotificationGroupPolicyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.NotificationGroupPolicyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.NotificationGroupPolicyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        findFirst: {
+          args: Prisma.NotificationGroupPolicyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.NotificationGroupPolicyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        findMany: {
+          args: Prisma.NotificationGroupPolicyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>[]
+        }
+        create: {
+          args: Prisma.NotificationGroupPolicyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        createMany: {
+          args: Prisma.NotificationGroupPolicyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.NotificationGroupPolicyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>[]
+        }
+        delete: {
+          args: Prisma.NotificationGroupPolicyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        update: {
+          args: Prisma.NotificationGroupPolicyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        deleteMany: {
+          args: Prisma.NotificationGroupPolicyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.NotificationGroupPolicyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.NotificationGroupPolicyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>[]
+        }
+        upsert: {
+          args: Prisma.NotificationGroupPolicyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$NotificationGroupPolicyPayload>
+        }
+        aggregate: {
+          args: Prisma.NotificationGroupPolicyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateNotificationGroupPolicy>
+        }
+        groupBy: {
+          args: Prisma.NotificationGroupPolicyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationGroupPolicyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.NotificationGroupPolicyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.NotificationGroupPolicyCountAggregateOutputType> | number
+        }
+      }
+    }
     NotificationSubscription: {
       payload: Prisma.$NotificationSubscriptionPayload<ExtArgs>
       fields: Prisma.NotificationSubscriptionFieldRefs
@@ -28808,6 +28958,49 @@ export const NotificationDeliveryWorkerRequestScalarFieldEnum = {
 export type NotificationDeliveryWorkerRequestScalarFieldEnum = (typeof NotificationDeliveryWorkerRequestScalarFieldEnum)[keyof typeof NotificationDeliveryWorkerRequestScalarFieldEnum]
 
 
+export const NotificationManagedGroupScalarFieldEnum = {
+  id: 'id',
+  groupKey: 'groupKey',
+  provider: 'provider',
+  providerConversationRef: 'providerConversationRef',
+  displayName: 'displayName',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  ownerPositionId: 'ownerPositionId',
+  verificationStatus: 'verificationStatus',
+  discoveredAt: 'discoveredAt',
+  lastSeenAt: 'lastSeenAt',
+  lastVerifiedAt: 'lastVerifiedAt',
+  claimedAt: 'claimedAt',
+  claimedByUserId: 'claimedByUserId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationManagedGroupScalarFieldEnum = (typeof NotificationManagedGroupScalarFieldEnum)[keyof typeof NotificationManagedGroupScalarFieldEnum]
+
+
+export const NotificationGroupPolicyScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  groupId: 'groupId',
+  definitionKey: 'definitionKey',
+  label: 'label',
+  dataScopeJson: 'dataScopeJson',
+  scheduleJson: 'scheduleJson',
+  weeklyAgentKey: 'weeklyAgentKey',
+  enabled: 'enabled',
+  version: 'version',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationGroupPolicyScalarFieldEnum = (typeof NotificationGroupPolicyScalarFieldEnum)[keyof typeof NotificationGroupPolicyScalarFieldEnum]
+
+
 export const NotificationSubscriptionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
@@ -30624,6 +30817,8 @@ export type GlobalOmitConfig = {
   notificationChannelEndpoint?: Prisma.NotificationChannelEndpointOmit
   notificationDeliveryAttempt?: Prisma.NotificationDeliveryAttemptOmit
   notificationDeliveryWorkerRequest?: Prisma.NotificationDeliveryWorkerRequestOmit
+  notificationManagedGroup?: Prisma.NotificationManagedGroupOmit
+  notificationGroupPolicy?: Prisma.NotificationGroupPolicyOmit
   notificationSubscription?: Prisma.NotificationSubscriptionOmit
   openApiClient?: Prisma.OpenApiClientOmit
   openApiResource?: Prisma.OpenApiResourceOmit

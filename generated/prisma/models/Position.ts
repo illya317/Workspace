@@ -317,6 +317,7 @@ export type PositionWhereInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionListRelationFilter
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionListRelationFilter
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupListRelationFilter
 }
 
 export type PositionOrderByWithRelationInput = {
@@ -350,6 +351,7 @@ export type PositionOrderByWithRelationInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionOrderByRelationAggregateInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionOrderByRelationAggregateInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionOrderByRelationAggregateInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupOrderByRelationAggregateInput
 }
 
 export type PositionWhereUniqueInput = Prisma.AtLeast<{
@@ -386,6 +388,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   effectiveReportees?: Prisma.PositionEffectiveVersionListRelationFilter
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionListRelationFilter
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupListRelationFilter
 }, "id" | "positionDescriptionId">
 
 export type PositionOrderByWithAggregationInput = {
@@ -455,6 +458,7 @@ export type PositionCreateInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateInput = {
@@ -485,6 +489,7 @@ export type PositionUncheckedCreateInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUpdateInput = {
@@ -514,6 +519,7 @@ export type PositionUpdateInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateInput = {
@@ -544,6 +550,7 @@ export type PositionUncheckedUpdateInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateManyInput = {
@@ -988,6 +995,22 @@ export type PositionUpdateOneWithoutReportedReportOverridesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutReportedReportOverridesInput, Prisma.PositionUpdateWithoutReportedReportOverridesInput>, Prisma.PositionUncheckedUpdateWithoutReportedReportOverridesInput>
 }
 
+export type PositionCreateNestedOneWithoutOwnedNotificationManagedGroupsInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedCreateWithoutOwnedNotificationManagedGroupsInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutOwnedNotificationManagedGroupsInput
+  connect?: Prisma.PositionWhereUniqueInput
+}
+
+export type PositionUpdateOneWithoutOwnedNotificationManagedGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedCreateWithoutOwnedNotificationManagedGroupsInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutOwnedNotificationManagedGroupsInput
+  upsert?: Prisma.PositionUpsertWithoutOwnedNotificationManagedGroupsInput
+  disconnect?: Prisma.PositionWhereInput | boolean
+  delete?: Prisma.PositionWhereInput | boolean
+  connect?: Prisma.PositionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUpdateWithoutOwnedNotificationManagedGroupsInput>, Prisma.PositionUncheckedUpdateWithoutOwnedNotificationManagedGroupsInput>
+}
+
 export type PositionCreateNestedOneWithoutCollaborationPositionsInput = {
   create?: Prisma.XOR<Prisma.PositionCreateWithoutCollaborationPositionsInput, Prisma.PositionUncheckedCreateWithoutCollaborationPositionsInput>
   connectOrCreate?: Prisma.PositionCreateOrConnectWithoutCollaborationPositionsInput
@@ -1044,6 +1067,7 @@ export type PositionCreateWithoutResourceActionGrantsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutResourceActionGrantsInput = {
@@ -1073,6 +1097,7 @@ export type PositionUncheckedCreateWithoutResourceActionGrantsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutResourceActionGrantsInput = {
@@ -1117,6 +1142,7 @@ export type PositionUpdateWithoutResourceActionGrantsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutResourceActionGrantsInput = {
@@ -1146,6 +1172,7 @@ export type PositionUncheckedUpdateWithoutResourceActionGrantsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutFinanceWorkshopReportsInput = {
@@ -1174,6 +1201,7 @@ export type PositionCreateWithoutFinanceWorkshopReportsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutFinanceWorkshopReportsInput = {
@@ -1203,6 +1231,7 @@ export type PositionUncheckedCreateWithoutFinanceWorkshopReportsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutFinanceWorkshopReportsInput = {
@@ -1247,6 +1276,7 @@ export type PositionUpdateWithoutFinanceWorkshopReportsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
@@ -1276,6 +1306,7 @@ export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutPositionDescriptionInput = {
@@ -1304,6 +1335,7 @@ export type PositionCreateWithoutPositionDescriptionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
@@ -1333,6 +1365,7 @@ export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutPositionDescriptionInput = {
@@ -1406,6 +1439,7 @@ export type PositionCreateWithoutEffectiveManagedDepartmentsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutPositionInput
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEffectiveManagedDepartmentsInput = {
@@ -1435,6 +1469,7 @@ export type PositionUncheckedCreateWithoutEffectiveManagedDepartmentsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutPositionInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEffectiveManagedDepartmentsInput = {
@@ -1479,6 +1514,7 @@ export type PositionUpdateWithoutEffectiveManagedDepartmentsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutPositionNestedInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEffectiveManagedDepartmentsInput = {
@@ -1508,6 +1544,7 @@ export type PositionUncheckedUpdateWithoutEffectiveManagedDepartmentsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutPositionNestedInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutEffectiveVersionsInput = {
@@ -1536,6 +1573,7 @@ export type PositionCreateWithoutEffectiveVersionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEffectiveVersionsInput = {
@@ -1565,6 +1603,7 @@ export type PositionUncheckedCreateWithoutEffectiveVersionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEffectiveVersionsInput = {
@@ -1598,6 +1637,7 @@ export type PositionCreateWithoutEffectiveReporteesInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEffectiveReporteesInput = {
@@ -1627,6 +1667,7 @@ export type PositionUncheckedCreateWithoutEffectiveReporteesInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEffectiveReporteesInput = {
@@ -1671,6 +1712,7 @@ export type PositionUpdateWithoutEffectiveVersionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEffectiveVersionsInput = {
@@ -1700,6 +1742,7 @@ export type PositionUncheckedUpdateWithoutEffectiveVersionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUpsertWithoutEffectiveReporteesInput = {
@@ -1739,6 +1782,7 @@ export type PositionUpdateWithoutEffectiveReporteesInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEffectiveReporteesInput = {
@@ -1768,6 +1812,7 @@ export type PositionUncheckedUpdateWithoutEffectiveReporteesInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutEffectiveOverrideReportsInput = {
@@ -1796,6 +1841,7 @@ export type PositionCreateWithoutEffectiveOverrideReportsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutPositionInput
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEffectiveOverrideReportsInput = {
@@ -1825,6 +1871,7 @@ export type PositionUncheckedCreateWithoutEffectiveOverrideReportsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutPositionInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEffectiveOverrideReportsInput = {
@@ -1869,6 +1916,7 @@ export type PositionUpdateWithoutEffectiveOverrideReportsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutPositionNestedInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEffectiveOverrideReportsInput = {
@@ -1898,6 +1946,7 @@ export type PositionUncheckedUpdateWithoutEffectiveOverrideReportsInput = {
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutPositionNestedInput
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutManagedDepartmentsInput = {
@@ -1926,6 +1975,7 @@ export type PositionCreateWithoutManagedDepartmentsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -1955,6 +2005,7 @@ export type PositionUncheckedCreateWithoutManagedDepartmentsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -1988,6 +2039,7 @@ export type PositionCreateWithoutDepartmentInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutDepartmentInput = {
@@ -2017,6 +2069,7 @@ export type PositionUncheckedCreateWithoutDepartmentInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutDepartmentInput = {
@@ -2066,6 +2119,7 @@ export type PositionUpdateWithoutManagedDepartmentsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -2095,6 +2149,7 @@ export type PositionUncheckedUpdateWithoutManagedDepartmentsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -2139,6 +2194,7 @@ export type PositionCreateWithoutDirectReportPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutDirectReportPositionsInput = {
@@ -2168,6 +2224,7 @@ export type PositionUncheckedCreateWithoutDirectReportPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutDirectReportPositionsInput = {
@@ -2201,6 +2258,7 @@ export type PositionCreateWithoutReportToPositionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutReportToPositionInput = {
@@ -2230,6 +2288,7 @@ export type PositionUncheckedCreateWithoutReportToPositionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutReportToPositionInput = {
@@ -2279,6 +2338,7 @@ export type PositionUpdateWithoutDirectReportPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutDirectReportPositionsInput = {
@@ -2308,6 +2368,7 @@ export type PositionUncheckedUpdateWithoutDirectReportPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUpsertWithWhereUniqueWithoutReportToPositionInput = {
@@ -2352,6 +2413,7 @@ export type PositionCreateWithoutEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEdpsInput = {
@@ -2381,6 +2443,7 @@ export type PositionUncheckedCreateWithoutEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEdpsInput = {
@@ -2414,6 +2477,7 @@ export type PositionCreateWithoutReportedEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutReportedEdpsInput = {
@@ -2443,6 +2507,7 @@ export type PositionUncheckedCreateWithoutReportedEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutReportedEdpsInput = {
@@ -2487,6 +2552,7 @@ export type PositionUpdateWithoutEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEdpsInput = {
@@ -2516,6 +2582,7 @@ export type PositionUncheckedUpdateWithoutEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUpsertWithoutReportedEdpsInput = {
@@ -2555,6 +2622,7 @@ export type PositionUpdateWithoutReportedEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutReportedEdpsInput = {
@@ -2584,6 +2652,7 @@ export type PositionUncheckedUpdateWithoutReportedEdpsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutReportOverridesInput = {
@@ -2612,6 +2681,7 @@ export type PositionCreateWithoutReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutReportOverridesInput = {
@@ -2641,6 +2711,7 @@ export type PositionUncheckedCreateWithoutReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutReportOverridesInput = {
@@ -2674,6 +2745,7 @@ export type PositionCreateWithoutReportedReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutReportedReportOverridesInput = {
@@ -2703,6 +2775,7 @@ export type PositionUncheckedCreateWithoutReportedReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutReportedReportOverridesInput = {
@@ -2747,6 +2820,7 @@ export type PositionUpdateWithoutReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutReportOverridesInput = {
@@ -2776,6 +2850,7 @@ export type PositionUncheckedUpdateWithoutReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUpsertWithoutReportedReportOverridesInput = {
@@ -2815,6 +2890,7 @@ export type PositionUpdateWithoutReportedReportOverridesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutReportedReportOverridesInput = {
@@ -2838,6 +2914,141 @@ export type PositionUncheckedUpdateWithoutReportedReportOverridesInput = {
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
   reportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutPositionNestedInput
+  collaborationPositions?: Prisma.DepartmentCollaborationPositionUncheckedUpdateManyWithoutPositionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedPositionNestedInput
+  effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutPositionNestedInput
+  effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
+  effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
+}
+
+export type PositionCreateWithoutOwnedNotificationManagedGroupsInput = {
+  code: string
+  alias?: string | null
+  name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPCreateNestedManyWithoutPositionInput
+  reportedEdps?: Prisma.EDPCreateNestedManyWithoutReportToPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutPositionInput
+  positionDescription?: Prisma.PositionDescriptionCreateNestedOneWithoutPositionsInput
+  reportToPosition?: Prisma.PositionCreateNestedOneWithoutDirectReportPositionsInput
+  directReportPositions?: Prisma.PositionCreateNestedManyWithoutReportToPositionInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
+  reportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutPositionInput
+  reportedReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutReportToPositionInput
+  collaborationPositions?: Prisma.DepartmentCollaborationPositionCreateNestedManyWithoutPositionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutLockedPositionInput
+  effectiveVersions?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutPositionInput
+  effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
+  effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+}
+
+export type PositionUncheckedCreateWithoutOwnedNotificationManagedGroupsInput = {
+  id?: number
+  code: string
+  alias?: string | null
+  name: string
+  departmentId?: number | null
+  positionDescriptionId?: number | null
+  reportToPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
+  reportedEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportToPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
+  directReportPositions?: Prisma.PositionUncheckedCreateNestedManyWithoutReportToPositionInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
+  reportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutPositionInput
+  reportedReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutReportToPositionInput
+  collaborationPositions?: Prisma.DepartmentCollaborationPositionUncheckedCreateNestedManyWithoutPositionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedPositionInput
+  effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutPositionInput
+  effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
+  effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+}
+
+export type PositionCreateOrConnectWithoutOwnedNotificationManagedGroupsInput = {
+  where: Prisma.PositionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionCreateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedCreateWithoutOwnedNotificationManagedGroupsInput>
+}
+
+export type PositionUpsertWithoutOwnedNotificationManagedGroupsInput = {
+  update: Prisma.XOR<Prisma.PositionUpdateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedUpdateWithoutOwnedNotificationManagedGroupsInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedCreateWithoutOwnedNotificationManagedGroupsInput>
+  where?: Prisma.PositionWhereInput
+}
+
+export type PositionUpdateToOneWithWhereWithoutOwnedNotificationManagedGroupsInput = {
+  where?: Prisma.PositionWhereInput
+  data: Prisma.XOR<Prisma.PositionUpdateWithoutOwnedNotificationManagedGroupsInput, Prisma.PositionUncheckedUpdateWithoutOwnedNotificationManagedGroupsInput>
+}
+
+export type PositionUpdateWithoutOwnedNotificationManagedGroupsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUpdateManyWithoutPositionNestedInput
+  reportedEdps?: Prisma.EDPUpdateManyWithoutReportToPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutPositionNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneWithoutPositionsNestedInput
+  reportToPosition?: Prisma.PositionUpdateOneWithoutDirectReportPositionsNestedInput
+  directReportPositions?: Prisma.PositionUpdateManyWithoutReportToPositionNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
+  reportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutPositionNestedInput
+  reportedReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutReportToPositionNestedInput
+  collaborationPositions?: Prisma.DepartmentCollaborationPositionUpdateManyWithoutPositionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutLockedPositionNestedInput
+  effectiveVersions?: Prisma.PositionEffectiveVersionUpdateManyWithoutPositionNestedInput
+  effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
+  effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+}
+
+export type PositionUncheckedUpdateWithoutOwnedNotificationManagedGroupsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reportToPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
+  reportedEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportToPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
+  directReportPositions?: Prisma.PositionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
+  reportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutPositionNestedInput
+  reportedReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutReportToPositionNestedInput
   collaborationPositions?: Prisma.DepartmentCollaborationPositionUncheckedUpdateManyWithoutPositionNestedInput
   workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedPositionNestedInput
   effectiveVersions?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutPositionNestedInput
@@ -2872,6 +3083,7 @@ export type PositionCreateWithoutCollaborationPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutCollaborationPositionsInput = {
@@ -2901,6 +3113,7 @@ export type PositionUncheckedCreateWithoutCollaborationPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutCollaborationPositionsInput = {
@@ -2945,6 +3158,7 @@ export type PositionUpdateWithoutCollaborationPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutCollaborationPositionsInput = {
@@ -2974,6 +3188,7 @@ export type PositionUncheckedUpdateWithoutCollaborationPositionsInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateWithoutWorkResponsibilityReferencesInput = {
@@ -3002,6 +3217,7 @@ export type PositionCreateWithoutWorkResponsibilityReferencesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionUncheckedCreateWithoutWorkResponsibilityReferencesInput = {
@@ -3031,6 +3247,7 @@ export type PositionUncheckedCreateWithoutWorkResponsibilityReferencesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedCreateNestedManyWithoutManagerPositionInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutReportToPositionInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedCreateNestedManyWithoutOwnerPositionInput
 }
 
 export type PositionCreateOrConnectWithoutWorkResponsibilityReferencesInput = {
@@ -3075,6 +3292,7 @@ export type PositionUpdateWithoutWorkResponsibilityReferencesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutWorkResponsibilityReferencesInput = {
@@ -3104,6 +3322,7 @@ export type PositionUncheckedUpdateWithoutWorkResponsibilityReferencesInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionCreateManyPositionDescriptionInput = {
@@ -3147,6 +3366,7 @@ export type PositionUpdateWithoutPositionDescriptionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
@@ -3176,6 +3396,7 @@ export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateManyWithoutPositionDescriptionInput = {
@@ -3234,6 +3455,7 @@ export type PositionUpdateWithoutDepartmentInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutDepartmentInput = {
@@ -3263,6 +3485,7 @@ export type PositionUncheckedUpdateWithoutDepartmentInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateManyWithoutDepartmentInput = {
@@ -3321,6 +3544,7 @@ export type PositionUpdateWithoutReportToPositionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutReportToPositionInput = {
@@ -3350,6 +3574,7 @@ export type PositionUncheckedUpdateWithoutReportToPositionInput = {
   effectiveReportees?: Prisma.PositionEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
   effectiveManagedDepartments?: Prisma.DepartmentEffectiveVersionUncheckedUpdateManyWithoutManagerPositionNestedInput
   effectiveOverrideReports?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutReportToPositionNestedInput
+  ownedNotificationManagedGroups?: Prisma.NotificationManagedGroupUncheckedUpdateManyWithoutOwnerPositionNestedInput
 }
 
 export type PositionUncheckedUpdateManyWithoutReportToPositionInput = {
@@ -3387,6 +3612,7 @@ export type PositionCountOutputType = {
   effectiveReportees: number
   effectiveManagedDepartments: number
   effectiveOverrideReports: number
+  ownedNotificationManagedGroups: number
 }
 
 export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3404,6 +3630,7 @@ export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   effectiveReportees?: boolean | PositionCountOutputTypeCountEffectiveReporteesArgs
   effectiveManagedDepartments?: boolean | PositionCountOutputTypeCountEffectiveManagedDepartmentsArgs
   effectiveOverrideReports?: boolean | PositionCountOutputTypeCountEffectiveOverrideReportsArgs
+  ownedNotificationManagedGroups?: boolean | PositionCountOutputTypeCountOwnedNotificationManagedGroupsArgs
 }
 
 /**
@@ -3514,6 +3741,13 @@ export type PositionCountOutputTypeCountEffectiveOverrideReportsArgs<ExtArgs ext
   where?: Prisma.PositionReportOverrideEffectiveVersionWhereInput
 }
 
+/**
+ * PositionCountOutputType without action
+ */
+export type PositionCountOutputTypeCountOwnedNotificationManagedGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.NotificationManagedGroupWhereInput
+}
+
 
 export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3546,6 +3780,7 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   effectiveReportees?: boolean | Prisma.Position$effectiveReporteesArgs<ExtArgs>
   effectiveManagedDepartments?: boolean | Prisma.Position$effectiveManagedDepartmentsArgs<ExtArgs>
   effectiveOverrideReports?: boolean | Prisma.Position$effectiveOverrideReportsArgs<ExtArgs>
+  ownedNotificationManagedGroups?: boolean | Prisma.Position$ownedNotificationManagedGroupsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["position"]>
 
@@ -3622,6 +3857,7 @@ export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   effectiveReportees?: boolean | Prisma.Position$effectiveReporteesArgs<ExtArgs>
   effectiveManagedDepartments?: boolean | Prisma.Position$effectiveManagedDepartmentsArgs<ExtArgs>
   effectiveOverrideReports?: boolean | Prisma.Position$effectiveOverrideReportsArgs<ExtArgs>
+  ownedNotificationManagedGroups?: boolean | Prisma.Position$ownedNotificationManagedGroupsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PositionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3655,6 +3891,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     effectiveReportees: Prisma.$PositionEffectiveVersionPayload<ExtArgs>[]
     effectiveManagedDepartments: Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>[]
     effectiveOverrideReports: Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>[]
+    ownedNotificationManagedGroups: Prisma.$NotificationManagedGroupPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -4081,6 +4318,7 @@ export interface Prisma__PositionClient<T, Null = never, ExtArgs extends runtime
   effectiveReportees<T extends Prisma.Position$effectiveReporteesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$effectiveReporteesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   effectiveManagedDepartments<T extends Prisma.Position$effectiveManagedDepartmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$effectiveManagedDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   effectiveOverrideReports<T extends Prisma.Position$effectiveOverrideReportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$effectiveOverrideReportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownedNotificationManagedGroups<T extends Prisma.Position$ownedNotificationManagedGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$ownedNotificationManagedGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationManagedGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4914,6 +5152,30 @@ export type Position$effectiveOverrideReportsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum | Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum[]
+}
+
+/**
+ * Position.ownedNotificationManagedGroups
+ */
+export type Position$ownedNotificationManagedGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the NotificationManagedGroup
+   */
+  select?: Prisma.NotificationManagedGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the NotificationManagedGroup
+   */
+  omit?: Prisma.NotificationManagedGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.NotificationManagedGroupInclude<ExtArgs> | null
+  where?: Prisma.NotificationManagedGroupWhereInput
+  orderBy?: Prisma.NotificationManagedGroupOrderByWithRelationInput | Prisma.NotificationManagedGroupOrderByWithRelationInput[]
+  cursor?: Prisma.NotificationManagedGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.NotificationManagedGroupScalarFieldEnum | Prisma.NotificationManagedGroupScalarFieldEnum[]
 }
 
 /**

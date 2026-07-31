@@ -291,6 +291,8 @@ export const ModelName = {
   NotificationChannelEndpoint: 'NotificationChannelEndpoint',
   NotificationDeliveryAttempt: 'NotificationDeliveryAttempt',
   NotificationDeliveryWorkerRequest: 'NotificationDeliveryWorkerRequest',
+  NotificationManagedGroup: 'NotificationManagedGroup',
+  NotificationGroupPolicy: 'NotificationGroupPolicy',
   NotificationSubscription: 'NotificationSubscription',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
@@ -5567,6 +5569,49 @@ export const NotificationDeliveryWorkerRequestScalarFieldEnum = {
 } as const
 
 export type NotificationDeliveryWorkerRequestScalarFieldEnum = (typeof NotificationDeliveryWorkerRequestScalarFieldEnum)[keyof typeof NotificationDeliveryWorkerRequestScalarFieldEnum]
+
+
+export const NotificationManagedGroupScalarFieldEnum = {
+  id: 'id',
+  groupKey: 'groupKey',
+  provider: 'provider',
+  providerConversationRef: 'providerConversationRef',
+  displayName: 'displayName',
+  status: 'status',
+  ownerUserId: 'ownerUserId',
+  ownerPositionId: 'ownerPositionId',
+  verificationStatus: 'verificationStatus',
+  discoveredAt: 'discoveredAt',
+  lastSeenAt: 'lastSeenAt',
+  lastVerifiedAt: 'lastVerifiedAt',
+  claimedAt: 'claimedAt',
+  claimedByUserId: 'claimedByUserId',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationManagedGroupScalarFieldEnum = (typeof NotificationManagedGroupScalarFieldEnum)[keyof typeof NotificationManagedGroupScalarFieldEnum]
+
+
+export const NotificationGroupPolicyScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  groupId: 'groupId',
+  definitionKey: 'definitionKey',
+  label: 'label',
+  dataScopeJson: 'dataScopeJson',
+  scheduleJson: 'scheduleJson',
+  weeklyAgentKey: 'weeklyAgentKey',
+  enabled: 'enabled',
+  version: 'version',
+  createdByUserId: 'createdByUserId',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationGroupPolicyScalarFieldEnum = (typeof NotificationGroupPolicyScalarFieldEnum)[keyof typeof NotificationGroupPolicyScalarFieldEnum]
 
 
 export const NotificationSubscriptionScalarFieldEnum = {

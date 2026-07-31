@@ -1257,6 +1257,16 @@ export type NotificationDeliveryAttempt = Prisma.NotificationDeliveryAttemptMode
  */
 export type NotificationDeliveryWorkerRequest = Prisma.NotificationDeliveryWorkerRequestModel
 /**
+ * Model NotificationManagedGroup
+ * 企业微信群目录；providerConversationRef 仅供服务端投递，任何控制台 DTO 都不得返回。
+ */
+export type NotificationManagedGroup = Prisma.NotificationManagedGroupModel
+/**
+ * Model NotificationGroupPolicy
+ * 每个受管群的发送条件；策略只引用稳定 groupKey 对应的目录记录。
+ */
+export type NotificationGroupPolicy = Prisma.NotificationGroupPolicyModel
+/**
  * Model NotificationSubscription
  * 个人通知订阅覆盖（事实表，来源于用户本人或其确认后的 Agent 设置）
  */
