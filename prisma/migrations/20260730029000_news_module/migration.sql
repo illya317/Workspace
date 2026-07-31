@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 CREATE TABLE "NewsReaction" (
   "id" SERIAL NOT NULL,
   "userId" INTEGER NOT NULL,

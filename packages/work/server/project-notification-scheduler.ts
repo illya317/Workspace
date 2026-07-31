@@ -12,6 +12,7 @@ import {
   drainProjectNotificationSignals,
   runScheduledProjectNotificationEvaluations,
 } from "./project-notification-signals";
+import { runScheduledWeeklyReportGroupNotifications } from "./weekly-report-group-notifications";
 
 const PROJECT_NOTIFICATION_DAILY_AT = "00:10";
 const PROJECT_NOTIFICATION_RETRY_INTERVAL_MS = 60_000;
@@ -67,8 +68,20 @@ async function runProjectNotificationDrain() {
   schedulerState.__workspaceProjectNotificationRunning = true;
   try {
     const result = await drainProjectNotificationSignals();
+    const weeklyReportGroups = await runScheduledWeeklyReportGroupNotifications();
     if (result.claimed > 0 || result.failed > 0) {
       console.log(JSON.stringify({ event: "project_notification_drain_completed", ...result }));
+    }
+    if (
+      weeklyReportGroups.enqueued > 0
+      || weeklyReportGroups.replayed > 0
+      || weeklyReportGroups.skippedHoliday > 0
+      || weeklyReportGroups.failed > 0
+    ) {
+      console.log(JSON.stringify({
+        event: "weekly_report_group_notification_scan_completed",
+        ...weeklyReportGroups,
+      }));
     }
   } catch (error) {
     console.error(JSON.stringify({

@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 CREATE TABLE "RelationPolicyConfig" (
     "policyKey" TEXT NOT NULL,
     "settingsJson" JSONB NOT NULL,

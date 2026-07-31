@@ -283,6 +283,27 @@ export async function publishNotificationToManagedGroup(
   idempotencyKey: string,
 ) {
   if (!await notificationPermission(userId, "create")) return serviceError("无权限", 403);
+  return publishNotificationToManagedGroupCore(input, idempotencyKey, null);
+}
+
+export async function publishWeeklyReportNotificationToManagedGroup(
+  policyId: string,
+  message: string,
+  idempotencyKey: string,
+) {
+  const input = notificationGroupPublicationSchema.safeParse({
+    policyId,
+    variables: { message },
+  });
+  if (!input.success) return serviceError(input.error.issues[0]?.message ?? "周报群发请求无效", 400);
+  return publishNotificationToManagedGroupCore(input.data, idempotencyKey, "work.weekly-report");
+}
+
+async function publishNotificationToManagedGroupCore(
+  input: z.infer<typeof notificationGroupPublicationSchema>,
+  idempotencyKey: string,
+  requiredWeeklyAgentKey: "work.weekly-report" | null,
+) {
   const normalizedIdempotencyKey = idempotencyKey.trim();
   if (!normalizedIdempotencyKey || normalizedIdempotencyKey.length > 240) {
     return serviceError("Idempotency-Key 无效", 400);
@@ -306,6 +327,9 @@ export async function publishNotificationToManagedGroup(
   `);
   const policy = rows[0];
   if (!policy) return serviceError("群发策略不存在", 404);
+  if (requiredWeeklyAgentKey && policy.weeklyAgentKey !== requiredWeeklyAgentKey) {
+    return serviceError("群发策略未绑定周报 Agent", 409);
+  }
   if (!policy.enabled || policy.groupStatus !== "active" || policy.verificationStatus !== "verified") {
     return serviceError("群或群发策略未启用并验证", 409);
   }
@@ -346,17 +370,25 @@ export async function publishNotificationToManagedGroup(
         providerConversationRef: string;
         groupStatus: string;
         verificationStatus: string;
+        weeklyAgentKey: string | null;
       }>>(Prisma.sql`
         SELECT
           policy."enabled", group_row."groupKey", group_row."providerConversationRef",
-          group_row."status" AS "groupStatus", group_row."verificationStatus"
+          group_row."status" AS "groupStatus", group_row."verificationStatus",
+          policy."weeklyAgentKey"
         FROM "NotificationGroupPolicy" AS policy
         INNER JOIN "NotificationManagedGroup" AS group_row ON group_row."id" = policy."groupId"
         WHERE policy."id" = ${policy.id}
         FOR SHARE OF policy, group_row
       `);
       const live = liveRows[0];
-      if (!live || !live.enabled || live.groupStatus !== "active" || live.verificationStatus !== "verified") {
+      if (
+        !live
+        || !live.enabled
+        || live.groupStatus !== "active"
+        || live.verificationStatus !== "verified"
+        || (requiredWeeklyAgentKey && live.weeklyAgentKey !== requiredWeeklyAgentKey)
+      ) {
         throw new GroupPublicationIssue("policy-disabled");
       }
       const endpoint = await ensureWecomNotificationEndpoint(tx);

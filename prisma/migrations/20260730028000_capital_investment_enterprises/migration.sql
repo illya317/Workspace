@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 CREATE TABLE "InvestmentEnterpriseProfile" (
     "id" SERIAL NOT NULL,
     "profileUid" TEXT NOT NULL,

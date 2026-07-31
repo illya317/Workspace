@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 CREATE TABLE "NotificationManagedGroup" (
   "id" SERIAL NOT NULL,
   "groupKey" TEXT NOT NULL,

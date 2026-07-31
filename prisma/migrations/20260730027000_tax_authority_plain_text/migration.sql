@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 ALTER TABLE "FinanceTaxRegistration"
   ADD COLUMN "authorityName" TEXT;
 
