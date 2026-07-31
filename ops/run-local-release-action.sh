@@ -34,7 +34,10 @@ metadata_values="$(node - "$METADATA_FILE" <<'NODE'
 const metadata = JSON.parse(require('node:fs').readFileSync(process.argv[2], 'utf8'));
 if (metadata.transport?.kind !== 'local') throw new Error('local release metadata must declare local transport');
 const target = metadata.deployment?.target;
-process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'shadow'}\n`);
+const plan = metadata.releasePlan?.plan;
+if (!/^plan-[A-Za-z0-9-]+$/.test(plan?.planId ?? '')) throw new Error('release metadata must contain a Plan id');
+if (!['standard', 'fast'].includes(plan?.mode)) throw new Error('release metadata must contain a Plan mode');
+process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'shadow'}\n${plan.planId}\n${plan.mode}\n`);
 NODE
 )"
 node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
@@ -42,6 +45,8 @@ node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
   --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" >/dev/null
 deploy_unit_id="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deploy_unit_mode="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
+release_plan_id="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
+release_plan_mode="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
 
 git -C "$RELEASE_SOURCE_DIR" worktree add --detach "$injection_worktree" "$RELEASE_SOURCE_SHA" >/dev/null
 render_args=(
@@ -61,6 +66,12 @@ GIT_AUTHOR_DATE="$source_commit_date" GIT_COMMITTER_DATE="$source_commit_date" \
   commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
 
 if [ "$ACTION" != "deploy" ]; then
+  : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE is required for local validate/build}"
+  [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE" >&2; exit 1; }
+  set -a
+  # shellcheck source=/dev/null
+  source "$RELEASE_CI_ENV_FILE"
+  set +a
   export CI=1
   mkdir -p "$persistent_check_result_cache" "$persistent_evidence_root" "$injection_worktree/.cache"
   if [ -e "$injection_worktree/.cache/check-results" ] || [ -L "$injection_worktree/.cache/check-results" ]; then
@@ -97,6 +108,10 @@ export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_SOURCE_DIR/.cache/release-artif
 export RELEASE_EVIDENCE_ROOT="$persistent_evidence_root"
 export RELEASE_SOURCE_VALIDATION_RECEIPT_FILE="$persistent_evidence_root/source-validation.json"
 export EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-${CNB_REPO:-}}"
+export RELEASE_SOURCE_RESULT_FILE="$persistent_evidence_root/full-source-result-$release_plan_id.json"
+export CHECK_TASK_GRAPH_FILE="$RELEASE_SOURCE_DIR/.cache/release-task-graphs/$release_plan_id.json"
+export CHECK_SOURCE_PLAN_ID="$release_plan_id"
+export CHECK_RELEASE_MODE="$release_plan_mode"
 export RELEASE_SOURCE_BRANCH="${RELEASE_BRANCH:-release}"
 
 cd "$injection_worktree"

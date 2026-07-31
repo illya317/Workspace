@@ -61,8 +61,8 @@ function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>
 }
 
 function printOperationsDiagnostics(
-  moduleViolations: Awaited<ReturnType<typeof analyzeOperationsModules>>["violations"],
-  sizeViolations: Awaited<ReturnType<typeof analyzeOperationsSize>>["violations"],
+  moduleViolations: Readonly<Awaited<ReturnType<typeof analyzeOperationsModules>>["violations"]>,
+  sizeViolations: Readonly<Awaited<ReturnType<typeof analyzeOperationsSize>>["violations"]>,
 ) {
   for (const item of moduleViolations) {
     console.error(`[source-code-analysis] 运维模块治理(${item.kind}): ${item.path} -> ${item.detail}`);

@@ -1,0 +1,28 @@
+export const DOMAIN_GATE_CHECK_NAMES = [
+  "scan",
+  "deps",
+  "modules",
+  "open-api",
+  "app-route-hierarchy",
+  "split-priority",
+  "domain-validation",
+  "finance-workbook-formulas",
+  "auth",
+];
+
+export const UI_GATE_CHECK_NAMES = [
+  "create-surface-entry",
+  "field-layout-debt",
+  "form-surface-actions",
+  "feedback-api",
+  "input-surface-adoption",
+  "page-surface-directory",
+  "page-surface-adoption",
+  "surface-raw-content",
+  "surface-declare-boundaries",
+  "ui-helper-purity",
+  "body-command-renderer",
+  "action-runtime-ui",
+  "core-ui-guard",
+  "core-ui-registry",
+];

@@ -18,9 +18,20 @@ node ops/release-gate-receipt.mjs artifact-verify \
   --content "${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}" \
   --tree "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}" \
   --target "$TARGET_ID" --file "$CNB_RELEASE_ARTIFACT_RECEIPT_FILE"
+pin_production_artifact() {
+  if ! node ops/cache/cache-prune.mjs pin \
+    --root "${RELEASE_SOURCE_DIR:-$PROJECT_ROOT}" \
+    --target "$TARGET_ID" \
+    --content "$RELEASE_CONTENT_DIGEST"; then
+    echo "[警告] 生产部署已成功，但 artifact pin 写入失败；禁止在修复 pin 前清理 release cache。" >&2
+  fi
+}
+
 if [ -z "$UNIT_ID" ]; then
   export RELEASE_DEPLOY_GRAPH_FILE="${STANDALONE_DEPLOY_GRAPH_PATH:-$PWD/.cache/release-check/deploy-graph.json}"
-  exec bash ./ops/deploy.sh
+  bash ./ops/deploy.sh
+  pin_production_artifact
+  exit 0
 fi
 if [[ ! "$UNIT_ID" =~ ^[a-z][a-z0-9-]*$ ]]; then
   echo "[错误] DEPLOY_UNIT_ID 无效: $UNIT_ID" >&2
@@ -32,4 +43,5 @@ case "$MODE" in
 esac
 
 export DEPLOY_UNIT_TRUSTED_BUILD=1
-exec bash ./ops/deploy-unit.sh deploy "$UNIT_ID" "$MODE"
+bash ./ops/deploy-unit.sh deploy "$UNIT_ID" "$MODE"
+[ "$MODE" != "activate" ] || pin_production_artifact

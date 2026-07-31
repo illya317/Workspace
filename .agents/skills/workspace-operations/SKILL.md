@@ -30,9 +30,11 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
-- 生产维护遵循提交优先和不可变 Plan：`prepare` 冻结精确 Git tree、私有配置摘要、模式、目标和各阶段执行器；`validate` 只运行一次源码门禁或记录 fast skip；`build` 独立冻结目标 artifact；`deploy` 只消费同一 Plan 的验证状态和 base/source/tree/digest。阶段终态不重开，修复后显式创建新 Plan，并按精确内容复用已有成功回执。
-- 多 agent 共用 main 时，pre-commit 的快照和缓存键只绑定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算，不拒绝提交，也不使已通过缓存失效。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
-- 正式门禁不是逐错调试器。第一次 `validate` 或 `build` 失败后必须停止正式全量重跑，展开完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只能显式创建新 Plan；禁止在原 Plan 内重开阶段或“全量门禁 -> 修一个 -> 全量门禁”。本地正式门禁必须确定性生成 injection commit，并把成功检查回执持久化在 release worktree 的 `.cache/release-check-results`；临时 injection worktree不得拥有或清理这份缓存，只有 source tree、命令、运行时与受治理环境全部一致时才能复用。
+- 生产维护遵循提交优先和不可变 Plan：`prepare` 冻结精确 Git tree、私有配置摘要、模式、目标和各阶段执行器；`validate` 只运行一次源码门禁，fast 也必须先冻结全任务 skip/blocked 图再记录 skip；`build` 独立冻结目标 artifact；`deploy` 只消费同一 Plan 的验证状态和 base/source/tree/digest。阶段终态不重开，修复后显式创建新 Plan，并按精确内容复用已有成功回执。
+- Plan 绑定完整候选；验证回执只绑定单个任务的实际输入、命令和运行时。每次 validate 在执行任何任务前冻结 `reused / pending / blocked / skipped_by_fast` 任务图；Node 按稳定 shard、TypeScript 按 project 与引用闭包、Domain/UI 按 detector 产生 v2 回执。只有完整 input/command/runtime digest 一致的 passed 或显式 reusable warning 可跨 Plan 复用，failed/cancelled/skipped 永不复用。
+- 多 agent 共用 main 时，pre-commit 候选快照只用于锁定 `HEAD + staged index + 检查环境` 并拒绝执行中漂移，不产生整仓成功回执；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
+- 缓存策略只以版本化的 `ops/cache-policy.json` 为权威默认值；`release-private/ops.env` 只能收紧容量、水位和保留期。统一执行器负责 task receipt、compiler cache、失败诊断、runtime temporary 和 artifact；当前生产与一个 rollback artifact 必须 pin，构建达到 stop-build 水位前先 prune，仍超限才阻断。
+- 正式门禁不是逐错调试器。第一次 `validate` 或 `build` 失败后必须停止正式全量重跑，展开完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只能显式创建新 Plan；禁止在原 Plan 内重开阶段或“全量门禁 -> 修一个 -> 全量门禁”。本地正式门禁必须确定性生成 injection commit，并把成功检查回执持久化在 release worktree 的 `.cache/release-check-results`；临时 injection worktree不得拥有或清理这份缓存，只有任务实际输入、命令和运行时摘要完全一致时才能复用。
 
 ## 禁止
 

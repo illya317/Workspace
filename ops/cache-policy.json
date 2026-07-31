@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "totalMaxBytes": 12884901888,
+  "diskHighWatermarkPercent": 75,
+  "diskStopBuildPercent": 85,
+  "classes": {
+    "validation-receipt": {
+      "roots": [
+        ".cache/check-results",
+        ".cache/release-check-results",
+        ".cache/release-task-graphs"
+      ],
+      "retentionDays": 30,
+      "scope": "task-input",
+      "eviction": "lru"
+    },
+    "compiler-cache": {
+      "roots": [
+        ".next/cache",
+        ".cache/next-units",
+        ".cache/types",
+        ".cache/tsbuild",
+        ".cache/release-check/playwright"
+      ],
+      "retentionDays": 7,
+      "eviction": "lru"
+    },
+    "failed-diagnostics": {
+      "roots": [
+        ".cache/release-artifacts/evidence"
+      ],
+      "retentionHours": 72,
+      "eviction": "lru"
+    },
+    "runtime-temporary": {
+      "roots": [
+        ".cache/runtime-tmp",
+        ".local-release-worktrees"
+      ],
+      "retentionHours": 6,
+      "eviction": "lru"
+    },
+    "deployed-artifact": {
+      "roots": [
+        ".cache/release-artifacts"
+      ],
+      "pin": "production-and-rollback"
+    },
+    "undeployed-artifact": {
+      "roots": [
+        ".cache/release-artifacts"
+      ],
+      "retentionHours": 48,
+      "eviction": "lru"
+    }
+  }
+}

@@ -241,6 +241,7 @@ export function createReleasePlan({
   target = { kind: "monolith" },
   executors = Object.fromEntries(RELEASE_STAGES.map((stage) => [stage, "local"])),
   forceNew = false,
+  deferFastValidation = false,
   now = () => new Date().toISOString(),
   uuid = () => randomUUID(),
 }) {
@@ -281,7 +282,7 @@ export function createReleasePlan({
   atomicWrite(files.plan, `${JSON.stringify(plan, null, 2)}\n`);
   atomicWrite(files.events, "");
   appendEvent(root, plan, { stage: "prepare", status: "succeeded", evidence: { configurationDigest }, now });
-  if (mode === "fast") {
+  if (mode === "fast" && !deferFastValidation) {
     appendEvent(root, plan, { stage: "validate", status: "skipped_by_fast", evidence: { reason: fastReason }, now });
   }
   atomicWrite(locations(root).current, `${JSON.stringify({
@@ -290,6 +291,25 @@ export function createReleasePlan({
     planId: plan.planId,
   }, null, 2)}\n`);
   return { plan, reused: false };
+}
+
+export function skipFastValidation({ root, evidence = {}, now = () => new Date().toISOString() }) {
+  const plan = readCurrentPlan(root);
+  if (plan.mode !== "fast") throw new Error("only a fast Plan can skip validation");
+  const ledger = readEvents(root, plan);
+  const state = ledger.states.validate.status;
+  if (state === "skipped_by_fast") return { action: "reuse", plan, ledger };
+  if (state !== "pending") throw new Error(`fast validation cannot be skipped from ${state}`);
+  if (!/^[0-9a-f]{64}$/.test(evidence.taskGraphDigest ?? "")) {
+    throw new Error("fast validation skip requires a frozen task graph digest");
+  }
+  appendEvent(root, plan, {
+    stage: "validate",
+    status: "skipped_by_fast",
+    evidence: { ...evidence, reason: plan.fastReason },
+    now,
+  });
+  return { action: "skip", plan, ledger: readEvents(root, plan) };
 }
 
 export function assertPlanIdentity(plan, expected = {}) {
@@ -362,7 +382,9 @@ function options(argv) {
   const result = { command };
   for (let index = 0; index < rest.length; index += 1) {
     const key = rest[index];
-    if (key === "--new-plan" || key === "--json") result[key.slice(2).replaceAll("-", "_")] = true;
+    if (["--new-plan", "--json", "--defer-fast-validation"].includes(key)) {
+      result[key.slice(2).replaceAll("-", "_")] = true;
+    }
     else if (key?.startsWith("--")) {
       const value = rest[++index];
       if (value === undefined || value.startsWith("--")) throw new Error(`${key} is missing a value`);
@@ -385,8 +407,17 @@ export function main(argv = process.argv.slice(2)) {
       target: JSON.parse(input.target ?? '{"kind":"monolith"}'),
       executors: JSON.parse(input.executors ?? '{}'),
       forceNew: input.new_plan ?? false,
+      deferFastValidation: input.defer_fast_validation ?? false,
     });
     process.stdout.write(`${JSON.stringify({ planId: result.plan.planId, reused: result.reused })}\n`);
+    return result;
+  }
+  if (input.command === "skip-fast-validation") {
+    const result = skipFastValidation({
+      root: input.root,
+      evidence: JSON.parse(input.evidence ?? "{}"),
+    });
+    process.stdout.write(`${JSON.stringify({ action: result.action, planId: result.plan.planId })}\n`);
     return result;
   }
   if (input.command === "begin") {
@@ -428,7 +459,7 @@ export function main(argv = process.argv.slice(2)) {
     }
     return snapshot;
   }
-  throw new Error("usage: release-plan.mjs create|begin|finish|status|snapshot --root DIR ...");
+  throw new Error("usage: release-plan.mjs create|skip-fast-validation|begin|finish|status|snapshot --root DIR ...");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

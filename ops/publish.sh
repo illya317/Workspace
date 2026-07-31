@@ -48,6 +48,7 @@ initialize_release_worktree() {
   RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
   : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
   [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
+  export RELEASE_CI_ENV_FILE
 
   release_env_target="$RELEASE_WORKTREE/.env"
   if [ -L "$release_env_target" ]; then
@@ -100,6 +101,70 @@ validate_local_release_inputs() {
     cd "$RELEASE_WORKTREE"
     WORKSPACE_CONFIG_DIR="$WORKSPACE_CONFIG_DIR" npm run docs:permission-actions:check
   )
+}
+
+validate_release_ci_environment() {
+  (
+    set -a
+    # shellcheck source=/dev/null
+    source "$RELEASE_CI_ENV_FILE"
+    set +a
+    cd "$RELEASE_WORKTREE"
+    CI=1 node scripts/check/check-env.js
+  )
+}
+
+validate_local_deploy_credentials() {
+  if [ -n "${KEY_CONTENT:-}" ]; then
+    return 0
+  fi
+  if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
+    return 0
+  fi
+  if [ -n "${KEY:-}" ]; then
+    echo "[错误] local deploy 凭据文件不存在: $KEY" >&2
+  else
+    echo "[错误] local deploy 必须在 prepare 前配置 KEY 或 KEY_CONTENT" >&2
+  fi
+  return 1
+}
+
+freeze_fast_validation_task_graph() {
+  local plan_id="$1"
+  local graph_file="$RELEASE_WORKTREE/.cache/release-task-graphs/$plan_id.json"
+  mkdir -p "$(dirname "$graph_file")"
+  (
+    set -a
+    # shellcheck source=/dev/null
+    source "$RELEASE_CI_ENV_FILE"
+    set +a
+    cd "$RELEASE_WORKTREE"
+    CI=1 \
+      CHECK_SOURCE_PLAN_ID="$plan_id" \
+      CHECK_RELEASE_MODE=fast \
+      CHECK_TASK_GRAPH_FILE="$graph_file" \
+      node scripts/check/with-check-lock.js -- node scripts/check/run-check-suite.mjs release-source
+  )
+  fast_graph_digest="$(node - "$graph_file" "$plan_id" <<'NODE'
+const fs = require('node:fs');
+const [file, planId] = process.argv.slice(2);
+const graph = JSON.parse(fs.readFileSync(file, 'utf8'));
+if (graph.kind !== 'workspace-check-task-graph' || graph.mode !== 'fast' || graph.sourcePlanId !== planId) {
+  throw new Error('fast validation task graph identity is invalid');
+}
+if (!Array.isArray(graph.tasks) || graph.tasks.some((task) => !['skipped_by_fast', 'blocked'].includes(task.status))) {
+  throw new Error('fast validation task graph contains executable task states');
+}
+if (!/^[0-9a-f]{64}$/.test(graph.graphDigest ?? '')) throw new Error('fast validation task graph digest is invalid');
+process.stdout.write(graph.graphDigest);
+NODE
+)"
+  fast_skip_evidence="$(node -e '
+    const [taskGraphFile, taskGraphDigest] = process.argv.slice(1);
+    process.stdout.write(JSON.stringify({ taskGraphFile, taskGraphDigest }));
+  ' ".cache/release-task-graphs/$plan_id.json" "$fast_graph_digest")"
+  node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" skip-fast-validation \
+    --root "$RELEASE_PLAN_ROOT" --evidence "$fast_skip_evidence" >/dev/null
 }
 
 capture_release_configuration_identity() {
@@ -192,7 +257,12 @@ case "${1:-}" in
     done
     [ "$release_mode" != fast ] || [ -n "$fast_reason" ] \
       || { echo "[错误] --fast 必须提供可审计原因"; exit 2; }
+    [ "$deploy_executor" != local ] || validate_local_deploy_credentials
     prepare_release_worktree
+    if [ "$validate_executor" = local ] || [ "$build_executor" = local ]; then
+      validate_release_ci_environment
+    fi
+    node "$RELEASE_SCRIPT_DIR/cache/cache-prune.mjs" prune --root "$RELEASE_WORKTREE"
     capture_release_configuration_identity
     RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-candidate.json"
     RELEASE_PLAN_ROOT="${RELEASE_PLAN_ROOT:-$RELEASE_WORKTREE/.cache/release-plans}"
@@ -231,10 +301,24 @@ case "${1:-}" in
       --configuration "$RELEASE_CONFIGURATION_DIGEST" --mode "$release_mode"
       --executors "$executors_json" --target "$target_json"
     )
-    [ "$release_mode" != fast ] || plan_args+=(--fast-reason "$fast_reason")
+    [ "$release_mode" != fast ] || plan_args+=(--fast-reason "$fast_reason" --defer-fast-validation)
     [ "$new_plan" = 0 ] || plan_args+=(--new-plan)
     plan_result="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" "${plan_args[@]}")"
     plan_id="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).planId)' "$plan_result")"
+    if [ "$release_mode" = fast ]; then
+      if ! freeze_fast_validation_task_graph "$plan_id"; then
+        fast_begin="$(node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" begin \
+          --root "$RELEASE_PLAN_ROOT" --stage validate --executor "$validate_executor")"
+        fast_action="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).action)' "$fast_begin")"
+        if [ "$fast_action" = run ]; then
+          node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" finish \
+            --root "$RELEASE_PLAN_ROOT" --stage validate --status failed \
+            --evidence '{"kind":"fast-task-graph","error":"freeze-failed"}' >/dev/null
+        fi
+        echo "[错误] 快速发布任务图冻结失败；该 Plan 的 validate 已终止，必须创建新 Plan" >&2
+        exit 1
+      fi
+    fi
     echo "==> prepare 完成：Plan $plan_id 已冻结；默认顺序 validate -> build -> deploy。"
     node "$RELEASE_SCRIPT_DIR/release/plan/release-plan.mjs" status --root "$RELEASE_PLAN_ROOT"
     exit 0

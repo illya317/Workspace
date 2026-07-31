@@ -8,6 +8,7 @@ import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
 import { checkSplitPriority } from "./split-priority";
 import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
+import { DOMAIN_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 
 export const domainGateChecks: AggregateGateCheck[] = [
   ["scan", scan],
@@ -25,6 +26,16 @@ export function domainGate(checks: AggregateGateCheck[] = domainGateChecks) {
   return runAggregateGate({ checks, displayName: "Domain", logName: "DOMAIN" });
 }
 
+export function selectDomainGateChecks(name?: string) {
+  if (!name) return domainGateChecks;
+  if (!DOMAIN_GATE_CHECK_NAMES.includes(name)) throw new Error(`unknown Domain detector: ${name}`);
+  return domainGateChecks.filter(([candidate]) => candidate === name);
+}
+
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
-  domainGate().then((ok) => process.exit(ok ? 0 : 1));
+  const checkIndex = process.argv.indexOf("--check");
+  const selected = checkIndex < 0 ? undefined : process.argv[checkIndex + 1];
+  domainGate(selectDomainGateChecks(selected))
+    .then((ok) => process.exit(ok ? 0 : 1))
+    .catch((error) => { console.error(error instanceof Error ? error.message : String(error)); process.exit(2); });
 }

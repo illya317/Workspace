@@ -24,11 +24,15 @@ prepare: freeze Plan / candidate / mode / target / executors
 
 每个阶段只有 `pending -> running -> succeeded|failed|cancelled|skipped_by_fast`。终态不得重开：成功证据直接复用，失败或取消也不允许在同一 Plan 内重跑；修复或重新决策后必须显式 `prepare --new-plan`。新 Plan 若 source/tree/content/config 完全相同，可复用旧 Plan 的 prepare 证据，不重新做候选准备。
 
-standard 模式中，`validate` 只运行一次 full source CI，`build` 只编译一次目标 artifact；两者不互相补跑。`deploy` 只消费二者的终态证据。fast 模式必须记录原因，把 `validate` 固定为 `skipped_by_fast`，但仍强制一次 build、artifact identity/digest、生产锁、备份、migration、健康检查、原子切换和回执；它不是绕过生产安全边界的入口。
+standard 模式中，`validate` 只运行一次 full source CI，`build` 只编译一次目标 artifact；两者不互相补跑。`deploy` 只消费二者的终态证据。fast 模式必须记录原因，先冻结一份所有可计算任务均为 `skipped_by_fast`、输入不可计算项保持 `blocked` 的审计图，再把 Plan 的 `validate` 固定为 `skipped_by_fast`；它仍强制一次 build、artifact identity/digest、生产锁、备份、migration、健康检查、原子切换和回执，不是绕过生产安全边界的入口。
 
 CNB 配置中的容器准备、依赖准备是 runner 基础设施，不是业务阶段。只有本次 action 对应的发布脚本会产生业务证据，其余固定 stage 明确 no-op。当前支持从 validate 或 build 进入 CNB；`--cnb-from deploy` 预留给未来的跨平台 artifact capsule handoff，在该适配器完成前显式拒绝，避免 CNB 在 deploy 阶段偷偷重建。
 
-`validate` 不读取风险等级、不按文件数升级，也不编译。源码 CI 与编译是两个独立阶段，前置失败不得触发自动全量重跑。Agent 先检查完整失败清单并集中修复，日常诊断只跑针对性命令；新的候选内容在真正部署前必须进入新 Plan。
+`validate` 不读取风险等级、不按文件数升级，也不编译。开始执行检查前必须先冻结完整任务图；图中每项只能是 `reused`、`pending`、`blocked` 或 `skipped_by_fast`，冻结后不得临时扩大、缩小或回头重跑。源码 CI 与编译是两个独立阶段，前置失败不得触发自动全量重跑。Agent 先检查完整失败清单并集中修复，日常诊断只跑针对性命令；新的候选内容在真正部署前必须进入新 Plan。
+
+Plan 绑定完整候选，任务回执不绑定 Plan 或整仓 snapshot，而是绑定 `taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest`。Node tests 按稳定 shard、TypeScript 按 tsconfig project 及其引用闭包、Domain/UI gate 按 detector 生成回执；全量证明由历史输入完全一致的成功回执与本次新通过回执共同组成。failed、cancelled、skipped 和未声明可复用的 warning 永不进入回执库。
+
+Node 版本、lockfile、检查 runner、tsconfig 基础配置或 Prisma 版本等全局基础输入变化时，相关任务 input/command/runtime digest 必须变化。Prisma 回执绑定 schema、migration、配置和数据库连接类别，不因同类别连接的凭据轮换无谓失效；Environment 回执仍绑定所选环境变量键和值的哈希。
 
 ## 候选隔离
 
@@ -36,11 +40,15 @@ CNB 配置中的容器准备、依赖准备是 runner 基础设施，不是业�
 - `push`、`prepare`、`validate` 和 `deploy` 不读取共享工作区的 unstaged、staged 或 untracked 内容。
 - release worktree 自身仍须干净，因为它是冻结候选而不是协作区。
 - commit SHA 只保留为审计来源和迁移历史定位，不再作为源码检查缓存、artifact cache 或 runtime build id 的命中条件。
-- 候选 identity 是 `Git tree + SHA-256 content digest`；相同内容即使提交元数据不同，也复用同一验证与 artifact。
+- 候选 identity 是 `Git tree + SHA-256 content digest`；相同内容即使提交元数据不同，也可复用同一 artifact。源码验证是否复用只看每项任务的实际输入回执，新的 Plan 仍生成自己的冻结任务图和汇总证明。
 
 ## 缓存契约
 
-- 日常检查 key 由 HEAD tree、exact staged diff、受治理环境和任务命令组成；unstaged、untracked、PATH、Node 内存参数以及 base/head commit SHA 不使缓存失效。
+- `ops/cache-policy.json` 是唯一版本化缓存策略源，统一声明总容量、磁盘 high/stop-build 水位以及各缓存类的 retention/eviction/pin。`ops/cache/cache-policy.mjs` 负责校验与只收紧私有覆盖，`ops/cache/cache-prune.mjs` 负责 prune、build space guard 和 artifact pin。
+- 验证回执存储为 `.cache/check-results/<task-key>/<input-digest>.json`；本地 Release 将该路径映射到 release worktree 的持久缓存，CNB 使用独立 read-write volume。读取成功回执会更新 LRU 时间，但不改变签名内容。
+- validation receipt 保留 30 天，compiler cache 7 天，失败诊断 72 小时，runtime temporary 6 小时，未部署 artifact 48 小时；当前生产和一个 rollback artifact 不参与 LRU 驱逐。具体默认值以策略文件为准。
+- 私有环境只允许用 `CACHE_POLICY_*` 把容量、水位或保留期调得更严；尝试延长保留期、提高容量/水位、关闭清理或更改 pin 规则必须失败。
+- 每个检查任务的 key 由它声明的文件/环境实际输入、命令契约和运行时组成；不存在整仓 command receipt。unstaged、untracked、PATH、base/head commit SHA 或无关文件不使回执失效。
 - committed scope 只包含 HEAD tree；共享 index 和工作区状态完全忽略。
 - artifact cache 以 `target/contentDigest` 寻址，并复验 tree、content digest、artifact digest、lockfile、migration set 和 deploy graph。
 - 环境建立失败或缓存 miss 只是需要执行本次工作，不得诱发另一轮相同全量检查。

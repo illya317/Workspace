@@ -34,11 +34,11 @@ const SOURCE_LABEL: Record<string, string> = {
 const STATUS_VIEW: Record<string, {
   label: string;
   tone: "muted" | "info" | "success" | "warning" | "danger";
-  messageTone: "muted" | "info" | "success" | "warning" | "danger";
+  messageTone: "default" | "muted" | "success" | "warning" | "danger";
 }> = {
   all: { label: "全部状态", tone: "muted", messageTone: "muted" },
   pending: { label: "等待执行", tone: "warning", messageTone: "warning" },
-  running: { label: "执行中", tone: "info", messageTone: "info" },
+  running: { label: "执行中", tone: "info", messageTone: "default" },
   succeeded: { label: "已完成", tone: "success", messageTone: "success" },
   failed: { label: "失败", tone: "danger", messageTone: "danger" },
   attention: { label: "待核对", tone: "warning", messageTone: "warning" },
@@ -173,7 +173,7 @@ export function useOperationsRecordsTab({ enabled, showToast }: UseOperationsRec
     body = createPageBody([createStatusSection("operations-records-empty", { kind: "empty", content: "当前筛选范围暂无运维记录" })]);
   } else {
     const list = createListSection("operations-records-list", {
-      presentation: "cards",
+      presentation: "list",
       density: "compact",
       empty: { content: "暂无运维记录", compact: true },
       items: data.records.map((record) => {

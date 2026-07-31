@@ -10,6 +10,7 @@ import {
   finishReleaseStage,
   readCurrentPlan,
   releasePlanSnapshot,
+  skipFastValidation,
 } from "./release-plan.mjs";
 import { validateReleasePlanSnapshot } from "./snapshot-contract.mjs";
 
@@ -74,6 +75,28 @@ test("fast plan records validation as an explicit terminal skip but still requir
   beginReleaseStage({ root, stage: "build" });
   finishReleaseStage({ root, stage: "build", status: "succeeded" });
   assert.equal(beginReleaseStage({ root, stage: "deploy" }).action, "run");
+});
+
+test("fast validation can be deferred until its skipped task graph is frozen", (t) => {
+  const root = fixture(t);
+  createReleasePlan({
+    root,
+    source,
+    configurationDigest,
+    mode: "fast",
+    fastReason: "restore customer access immediately",
+    executors: localExecutors,
+    deferFastValidation: true,
+  });
+  assert.equal(releasePlanSnapshot(root).stages.validate, "pending");
+  assert.throws(() => skipFastValidation({ root }), /task graph digest/);
+  const skipped = skipFastValidation({
+    root,
+    evidence: { taskGraphDigest: "e".repeat(64), taskGraphFile: ".cache/release-task-graphs/plan.json" },
+  });
+  assert.equal(skipped.action, "skip");
+  assert.equal(releasePlanSnapshot(root).stages.validate, "skipped_by_fast");
+  assert.equal(skipFastValidation({ root }).action, "reuse");
 });
 
 test("failed stage is terminal and a new plan is explicit", (t) => {

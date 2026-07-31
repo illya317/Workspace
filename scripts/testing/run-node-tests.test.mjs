@@ -6,7 +6,9 @@ import test from "node:test";
 
 import {
   discoverNodeTests,
+  groupNodeTestsByShard,
   main,
+  nodeTestShardKey,
   selectAffectedNodeTests,
   selectNodeTests,
 } from "./run-node-tests.mjs";
@@ -67,6 +69,15 @@ test("discovers ops tests recursively and classifies them as tooling determinist
     assert.deepEqual(selectNodeTests(allTests, "work-plan-governance"), [
       "packages/work/server/domain/work-plan-governance-validation.test.ts",
       "packages/work/ui/works/WorkReportPeriods.test.ts",
+    ]);
+    assert.equal(nodeTestShardKey("packages/work/value.test.ts"), "package.work");
+    assert.deepEqual(selectNodeTests(allTests, "shard", { shard: "ops" }), [
+      "ops/build-standalone-artifact.test.mjs",
+      "ops/nested/check.test.js",
+    ]);
+    assert.deepEqual(groupNodeTestsByShard(allTests).find((item) => item.key === "scripts.check")?.files, [
+      "scripts/check/action-contract-runtime.test.ts",
+      "scripts/check/tool.test.cjs",
     ]);
     assert.throws(() => selectNodeTests(allTests, "unknown"), /Unknown node test suite/);
   } finally {
