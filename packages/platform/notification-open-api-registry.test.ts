@@ -14,8 +14,8 @@ test("notification publishing registries keep ingress permissions explicit", () 
   assert.equal(notificationRegistration?.consoleTab, "notifications");
   assert.equal(
     registeredModuleDefinitions
-      .flatMap((definition) => "routes" in definition ? definition.routes ?? [] : [])
-      .some((route) => typeof route === "string" && route.startsWith("/settings/api/")),
+      .some((definition) => "routes" in definition && (definition.routes ?? [])
+        .some((route) => typeof route === "string" && route.startsWith("/settings/api/"))),
     false,
   );
   assert.equal(

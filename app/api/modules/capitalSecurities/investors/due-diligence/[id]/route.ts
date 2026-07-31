@@ -21,7 +21,7 @@ export const PATCH = createCommandRoute({
   paramsError: "无效ID",
   buildCommand: ({ params, body, user, request }) => {
     const expectedVersion = readRequestExpectedVersion(request);
-    return expectedVersion === null
+    return expectedVersion === undefined
       ? failCommand("缺少记录版本，请刷新后重试", 428)
       : okCommand({
           userId: user.userId,
@@ -39,7 +39,7 @@ export const DELETE = createCommandRoute({
   paramsError: "无效ID",
   buildCommand: ({ params, user, request }) => {
     const expectedVersion = readRequestExpectedVersion(request);
-    return expectedVersion === null
+    return expectedVersion === undefined
       ? failCommand("缺少记录版本，请刷新后重试", 428)
       : okCommand({ userId: user.userId, id: params.id, expectedVersion });
   },

@@ -32,11 +32,17 @@ const actionContractTests = new Set([
 ]);
 
 const clientReactTests = new Set([
+  "packages/capital-securities/ui/market-intelligence-stock-sections.test.ts",
+  "packages/core/showcase/core-ui-declaration-outline.test.tsx",
+  "packages/core/ui/internal/body/body-surface-page-create-placement.test.ts",
   "packages/core/ui/internal/data/DataSurface.display.test.tsx",
   "packages/core/ui/internal/data/DataTable.disclosure.test.tsx",
   "packages/core/ui/internal/form/FormStyles.test.ts",
+  "packages/core/ui/internal/input/input-surface-textarea.test.ts",
   "packages/finance/ui/assets/asset-location.test.ts",
   "packages/finance/ui/tax/tax-ui-sections.test.ts",
+  "packages/platform/ui/category-item-detail-workspace.test.ts",
+  "packages/settings/ui/admin/tabs/DatabaseRelationsTabPolicyModel.test.ts",
   "packages/settings/ui/admin/tabs/SourceCodeAnalysisSection.test.ts",
   "packages/settings/ui/settings/NotificationPublishingWorkbench.test.ts",
 ]);

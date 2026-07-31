@@ -8,6 +8,7 @@ import type {
   InvestorShareholderProfileRecord,
   ShareholderPosition,
 } from "../types";
+import { formatPercent, formatWanYuan } from "./investor-relationships-ui";
 
 export type InvestorShareholderProfileDraft = Omit<InvestorShareholderProfileRecord, "id" | "issuerCompanyId" | "shareholderPartyId" | "version"> & {
   id?: number;

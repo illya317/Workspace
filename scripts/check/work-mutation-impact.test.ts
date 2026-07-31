@@ -122,13 +122,9 @@ test("WorkPlan restore blocks when an item from the archive batch no longer exis
 
 test("Project delete separates owned technical rows from blocking Work references", async () => {
   const context = fakeContext(({ where }) => "linkedProjectId" in where ? [item(6)] : []);
-  (context.tx.employeeProject.findMany as unknown as (
+  (context.tx.projectEnablingDepartment.findMany as unknown as (
     input: { where: Record<string, unknown> },
-  ) => Promise<Array<{ id: number }>>) = async ({ where }) => (
-    "supersedesId" in where || "createdByChangeId" in where || "terminalChangeId" in where
-      ? []
-      : [{ id: 31 }]
-  );
+  ) => Promise<Array<{ id: number }>>) = async () => [{ id: 31 }];
   const impact = await engine().plan({
     context,
     actorKey: "user:7",
@@ -204,6 +200,11 @@ function fakeContext(
     scopeType: "personal",
     scopeId: "7",
     tx: {
+      projectNotificationRule: { findFirst: async () => null },
+      projectNotificationEvaluation: { findFirst: async () => null },
+      projectNotificationSignal: { findFirst: async () => null },
+      $queryRaw: async () => [],
+      relationPolicyConfig: { findMany: async () => [] },
       workItem: { findMany: async (input: { where: Record<string, unknown> }) => findItems(input) },
       workKrEvidence: { findMany: async (input: { where: Record<string, unknown> }) => findEvidence(input) },
       workPlan: { findMany: async () => [] },

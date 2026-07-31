@@ -12,6 +12,7 @@ const TABLE_OWNER_RULES: readonly DatabaseTableOwnerRule[] = [
   { resourceKey: "settings.account", matches: (name) => name === "Notification" || name === "NotificationSubscription" },
   { resourceKey: "settings.admin", matches: (name) => startsWithAny(name, ["Approval", "Workflow", "Permission", "UserResource", "PositionResource", "DepartmentResource"]) || name === "User" || name === "Resource" },
   { resourceKey: "settings.governance", matches: (name) => startsWithAny(name, ["DataQuality", "MutationImpact", "BusinessCode", "RelationPolicy"]) || name === "SystemConfig" || name === "LoginAttempt" },
+  { resourceKey: "settings.notifications", matches: (name) => name.startsWith("Notification") && name !== "Notification" && name !== "NotificationSubscription" },
   { resourceKey: "agent", matches: (name) => name.startsWith("Agent") },
 
   { resourceKey: "administration.erpDiligence", matches: (name) => name.startsWith("ErpDueDiligence") },
@@ -37,6 +38,7 @@ const TABLE_OWNER_RULES: readonly DatabaseTableOwnerRule[] = [
   { resourceKey: "production.qc", matches: (name) => name.startsWith("ProductionQc") },
   { resourceKey: "production.products", matches: (name) => name.startsWith("Product") },
   { resourceKey: "library.basicInfo", matches: (name) => startsWithAny(name, ["Library", "DueDiligence"]) },
+  { resourceKey: "news", matches: (name) => name.startsWith("News") },
   { resourceKey: "work.projects", matches: (name) => name.startsWith("Project") || name === "EmployeeProject" },
   { resourceKey: "work.meetings", matches: (name) => name.startsWith("Meeting") },
   { resourceKey: "work.tasks", matches: (name) => startsWithAny(name, ["Work", "DepartmentCollaboration", "DepartmentWork", "PositionResponsibility"]) },

@@ -29,10 +29,16 @@ type CloseReplayEvent = {
   requestFingerprint: string | null;
   run: { id: number; companyId: number; periodId: number };
 };
+type FinanceCloseHistoricalFacts = {
+  sourceClosed: boolean | null;
+  _count: { balances: number };
+  vouchers: Array<{ id: number }>;
+} | null;
 export type FinanceCloseServiceDependencies = {
   transaction<T>(operation: (tx: CloseTransactionClient) => Promise<T>): Promise<T>;
   findEvent(idempotencyKey: string): Promise<CloseReplayEvent | null>;
   loadWorkspace(scope: ResolvedFinanceCloseScope): Promise<FinanceCloseWorkspaceDto>;
+  loadHistoricalFacts(periodId: number): Promise<FinanceCloseHistoricalFacts>;
 };
 export type RefreshFinanceCloseRuntime = {
   inventoryClosingContract?: InventoryClosingContract;
@@ -112,6 +118,14 @@ const defaultDependencies: FinanceCloseServiceDependencies = {
     },
   }),
   loadWorkspace: loadFinanceCloseWorkspace,
+  loadHistoricalFacts: (periodId) => prisma.financePeriod.findUnique({
+    where: { id: periodId },
+    select: {
+      sourceClosed: true,
+      _count: { select: { balances: true } },
+      vouchers: { where: { status: "posted" }, select: { id: true }, orderBy: { id: "asc" } },
+    },
+  }),
 };
 
 export function listFinanceCloseWorkspace(scope: ResolvedFinanceCloseScope) {
@@ -187,14 +201,7 @@ export async function refreshFinanceClose(
 
   // Contributor inspection is deliberately complete before the transaction begins.
   const inspections = await inspectFinanceCloseContributors(command, registry);
-  const historicalFacts = await prisma.financePeriod.findUnique({
-    where: { id: command.periodId },
-    select: {
-      sourceClosed: true,
-      _count: { select: { balances: true } },
-      vouchers: { where: { status: "posted" }, select: { id: true }, orderBy: { id: "asc" } },
-    },
-  });
+  const historicalFacts = await deps.loadHistoricalFacts(command.periodId);
   const governedInspections = applyHistoricalCutoverEvidencePolicy(inspections, {
     enabled: command.year === 2026 && command.month === 6 && historicalFacts?.sourceClosed === true
       && historicalFacts._count.balances > 0 && historicalFacts.vouchers.length > 0,

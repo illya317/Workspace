@@ -253,6 +253,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     files: ["work-report-periods.ts"],
     prefixes: [
       "server/report-", "server/work-report-", "server/workspace-analysis-", "server/domain/work-report-",
+      "server/weekly-report-",
       "server/domain/work-reporting-",
     ],
   }),

@@ -27,6 +27,7 @@ import { SerializableTransactionConflictError } from "@workspace/platform/server
 export const WORK_MUTATION_IMPACT_POLICY_REVISION = "work-mutation-impact-v2";
 
 const WORK_VIRTUAL_IMPACT_POLICIES = new Map<string, MutationImpactPolicy>([
+  ["work.project.notification-governance-history", "block"],
   ["work.plan.restore-provenance", "block"],
   ["work.plan.restore-stale-items", "block"],
   ["work.plan.incomplete-items", "block"],

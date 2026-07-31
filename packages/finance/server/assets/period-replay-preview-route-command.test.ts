@@ -27,11 +27,11 @@ test("schema and route command produce a pure replay preview", () => {
     }],
   });
   assert.equal(parsed.success, true);
-  if (!parsed.success) throw new Error(parsed.error.message);
+  if (!parsed.success) throw new Error("schema rejected valid replay fixture");
 
   const built = buildFinanceAssetPeriodReplayPreviewRouteCommand(parsed.data);
   assert.equal(built.ok, true);
-  if (!built.ok) throw new Error(built.issue.message);
+  if (!built.ok) throw new Error("route command rejected valid replay fixture");
   assert.equal(built.data.companyCode, "01");
   assert.equal(built.data.rows[0]?.openingImpairmentAmount, 0);
   assert.equal(built.data.rows[0]?.depreciationStartDate, null);

@@ -352,7 +352,7 @@ export function canSaveInterest(draft: InterestWorkpaperDraft) {
       && Boolean(line.accrualFrom && line.accrualThrough)
       && line.principalBasis >= 0
       && line.annualRate >= 0
-      && line.dayCount > 0
+      && (line.dayCount ?? 0) > 0
     ))
     && draft.voucherLinks.every((link) => link.voucherItemId > 0 && link.amount > 0);
 }

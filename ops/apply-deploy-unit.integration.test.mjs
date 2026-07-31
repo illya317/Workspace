@@ -332,6 +332,7 @@ function commandEnvironment(files, extraEnvironment = {}) {
     WECHAT_BOT_ID: "test-bot",
     WECHAT_BOT_SECRET: "test-secret",
     WECOM_WORKER_BRIDGE_SECRET: "test-worker-bridge-secret-at-least-32-characters",
+    WORKSPACE_PUBLIC_ORIGIN: "https://workspace.example.test",
     DEPLOY_EVENT_FILE: path.join(files.root, "deploy-event.json"),
     DEPLOY_PACKAGE_VERSION: "0.1.2",
     ...extraEnvironment,

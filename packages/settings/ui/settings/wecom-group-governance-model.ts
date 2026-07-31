@@ -134,8 +134,8 @@ export function groupPolicyDeliveryView(policy: NotificationGroupPolicyRow) {
   if (
     policy.lastFailure
     && (!policy.lastDelivery?.createdAt || policy.lastFailure.failedAt >= policy.lastDelivery.createdAt)
-  ) return { label: "最近失败", tone: "danger" as const };
-  if (!policy.lastDelivery) return { label: "尚未投递", tone: "muted" as const };
-  if (policy.lastDelivery.status === "delivered") return { label: "最近成功", tone: "success" as const };
-  return { label: policy.lastDelivery.status ?? "处理中", tone: "warning" as const };
+  ) return { label: "最近失败", tone: "red" as const };
+  if (!policy.lastDelivery) return { label: "尚未投递", tone: "slate" as const };
+  if (policy.lastDelivery.status === "delivered") return { label: "最近成功", tone: "green" as const };
+  return { label: policy.lastDelivery.status ?? "处理中", tone: "amber" as const };
 }

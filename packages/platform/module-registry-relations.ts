@@ -1,4 +1,4 @@
-import type { RelationRegistration } from "./server/relation-targets";
+import type { RelationRegistrationContract as RelationRegistration } from "./relation-registration-contract";
 
 export const WORK_RELATION_REGISTRATIONS = [
   { key: "work.plan.items", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkItem", field: "planId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "confirm_cascade", targetRestore: "auto_cascade_owned", sourceRelationChange: "retain" }, configurableLifecycle: { targetDelete: ["block", "confirm_cascade", "auto_cascade_owned"], targetArchive: ["block", "confirm_cascade", "auto_cascade_owned"], targetRestore: ["block", "confirm_cascade", "auto_cascade_owned"] }, adapterKey: "work.plan.items", permission: { resourceKey: "work.tasks", action: "entry" } },

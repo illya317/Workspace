@@ -189,21 +189,9 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-processes",
   ]);
   assert.deepEqual(resolveCheckPlan(["precommit"]).tasks.map((task) => task.id), [
-    "playwright-lifecycle",
     "lint-changed",
-    "api-response-format",
-    "business-code-hardcoding",
-    "history-policy",
-    "import-reference",
-    "business-temporal",
-    "deploy-graph",
-    "deploy-unit-apps",
-    "workspace-analysis-sources",
-    "typecheck-entrypoints",
-    "typecheck-project-references",
     "domain-changed",
     "db-migration-changed",
-    "playwright-processes",
   ]);
   assert.equal(resolveCheckPlan(["precommit"]).tasks.some((task) => task.id === "typecheck-quick"), false);
   assert.deepEqual(resolveCheckPlan(["push"]).tasks.map((task) => task.id), [

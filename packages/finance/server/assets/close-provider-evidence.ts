@@ -126,7 +126,7 @@ export type AssetImpairmentFact = {
 };
 
 export type AssetMovementCloseFacts = {
-  period: { id: number; sourceClosed?: boolean } | null;
+  period: { id: number; sourceClosed?: boolean | null } | null;
   cards: AssetCloseCard[];
   policies: AssetPolicyFact[];
   applicabilityEstablished: boolean;

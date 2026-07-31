@@ -281,7 +281,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     },
     ...(policyDraft.scopeType !== "workspace" ? [{
       key: "scope-ids", label: "范围对象", required: true, span: "wide" as const,
-      spec: { valueType: "array" as const, control: "choice" as const, multiple: true, options: { source: "static" as const, items: scopeOptions.map((option) => ({ value: option.id, label: option.label })) } },
+      spec: { valueType: "array" as const, control: "choice" as const, multiple: true, options: { source: "static" as const, items: scopeOptions.map((option) => ({ value: String(option.id), label: option.label })) } },
       value: policyDraft.scopeIds,
       onChange: (value: unknown) => setPolicyDraft((current) => ({ ...current, scopeIds: Array.isArray(value) ? value.map(String) : [] })),
     }] : []),
@@ -293,8 +293,8 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     },
     ...(policyDraft.scheduleMode === "weekly" ? [{
       key: "weekday", label: "星期",
-      spec: { valueType: "number" as const, control: "choice" as const, options: { source: "static" as const, items: [1, 2, 3, 4, 5, 6, 7].map((value) => ({ value, label: `周${"一二三四五六日"[value - 1]}` })) } },
-      value: policyDraft.weekday,
+      spec: { valueType: "string" as const, control: "choice" as const, options: { source: "static" as const, items: [1, 2, 3, 4, 5, 6, 7].map((value) => ({ value: String(value), label: `周${"一二三四五六日"[value - 1]}` })) } },
+      value: String(policyDraft.weekday),
       onChange: (value: unknown) => setPolicyDraft((current) => ({ ...current, weekday: Number(value) })),
     }, {
       key: "time", label: "时间",

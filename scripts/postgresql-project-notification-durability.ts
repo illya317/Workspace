@@ -25,12 +25,14 @@ import {
   evaluatePersistedProjectNotificationSignal,
 } from "@workspace/work/server/project-notification-evaluator";
 import {
-  createStoredProjectNotificationSnapshot,
-  ProjectNotificationSignalProcessingError,
-  projectNotificationSignalFingerprint,
   type ClaimedProjectNotificationSignal,
   type StoredProjectNotificationSnapshot,
 } from "@workspace/work/server/project-notification-signal-contract";
+import {
+  createStoredProjectNotificationSnapshot,
+  ProjectNotificationSignalProcessingError,
+  projectNotificationSignalFingerprint,
+} from "@workspace/work/server/project-notification-signal-runtime";
 import {
   drainProjectNotificationSignals,
   enqueueProjectNotificationSignal,
@@ -217,7 +219,7 @@ async function prepareSourceScenario(
     idempotencyKey,
     usernames: [fixture.recipientUsername],
     variables: { project_name: fixture.project.name },
-    deliveryChannels: ["workspace"] as const,
+    deliveryChannels: ["workspace"] as Array<"workspace" | "wecom">,
   };
   const intent = await prisma.$transaction((tx) => (
     createProjectNotificationPublicationIntent(tx, {

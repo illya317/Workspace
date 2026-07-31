@@ -17,6 +17,6 @@ export const POST = createCommandRoute({
   bodyParser: "formData",
   bodySchema: uploadSchema,
   bodyError: "上传资料参数无效",
-  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, ...body }),
+  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, ...body, notes: body.notes ?? null }),
   action: uploadInvestmentEnterpriseDocument,
 });

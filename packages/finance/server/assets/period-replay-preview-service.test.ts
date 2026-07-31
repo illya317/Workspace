@@ -30,7 +30,7 @@ function row(
 function preview(rows: FinanceAssetPeriodReplayPreviewRowInput[]) {
   const command = buildFinanceAssetPeriodReplayPreviewCommand({ companyCode: "01", year: 2026, month: 6, rows });
   assert.equal(command.ok, true);
-  if (!command.ok) throw new Error(command.issue.message);
+  if (!command.ok) throw new Error("preview command rejected valid replay fixture");
   return previewFinanceAssetPeriodReplay(command.data);
 }
 

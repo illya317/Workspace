@@ -24,11 +24,11 @@ test("uses compact mobile sections and keeps dense tables desktop-only", () => {
   const news = byKey.get("stock-news");
   assert.equal(financial?.body.kind, "section");
   assert.equal(news?.body.kind, "section");
-  if (financial?.body.kind === "section") {
+  if (financial?.body.kind === "section" && financial.body.layout !== "split") {
     assert.equal(financial.body.sections?.find((section) => section.key === "financial-metrics")?.visibility, "desktop");
     assert.equal(financial.body.sections?.find((section) => section.key === "financial-mobile")?.visibility, "mobile");
   }
-  if (news?.body.kind === "section") {
+  if (news?.body.kind === "section" && news.body.layout !== "split") {
     assert.equal(news.body.sections?.find((section) => section.key === "stock-news-mobile")?.visibility, "mobile");
     assert.equal(news.body.sections?.find((section) => section.key === "stock-news-table")?.visibility, "desktop");
   }

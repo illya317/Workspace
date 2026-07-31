@@ -38,7 +38,7 @@ function state(unit, active, previous = null) {
   };
 }
 
-test("the 12-unit fleet switches one private L1 and rolls it back without moving other routes", () => {
+test("the 13-unit fleet switches one private L1 and rolls it back without moving other routes", () => {
   const graph = JSON.parse(execFileSync(process.execPath, [
     "--conditions=react-server",
     "--import", "tsx",
@@ -74,7 +74,7 @@ test("the 12-unit fleet switches one private L1 and rolls it back without moving
     generatedAt: "2026-07-25T02:00:00.000Z",
   });
   const promotedMap = JSON.parse(readFileSync(path.join(outputRoot, "generations", promoted.generationId, "route-map.json"), "utf8"));
-  assert.equal(promotedMap.activeUnits.length, 12);
+  assert.equal(promotedMap.activeUnits.length, 13);
   assert.equal(promotedMap.activeUnits.find((unit) => unit.unitId === "finance").port, 3301);
   assert.ok(promotedMap.activeUnits.filter((unit) => unit.unitId !== "finance").every((unit) => unit.slot === "blue"));
 

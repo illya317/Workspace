@@ -173,7 +173,6 @@ export default function NewsWorkspaceClient() {
         })] : []),
         createPanelSection("briefing-detail", {
           title: selectedItem.title,
-          description: selectedItem.source,
           actions: [
             {
               key: "like",
@@ -201,6 +200,7 @@ export default function NewsWorkspaceClient() {
           sections: [
             createMessageSection("briefing-meta", {
               content: [
+                selectedItem.source,
                 itemKindLabel(selectedItem),
                 `生成于 ${formatDateTime(workspace.briefing.generatedAt)}`,
                 selectedItem.score === null ? "" : `热度 ${selectedItem.score}`,

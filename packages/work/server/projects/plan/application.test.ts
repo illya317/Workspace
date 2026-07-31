@@ -51,8 +51,17 @@ mock.module("@workspace/platform/server/history", {
 mock.module("@workspace/platform/completion-date-policy", { namedExports: { validateCompletionSchedule: () => null } } as never);
 mock.module("@workspace/platform/server/business-date", { namedExports: { workspaceBusinessDate: () => "2026-07-30" } } as never);
 mock.module("../../project-access-temporal", { namedExports: { projectMemberHasActiveEmploymentOnDate: () => true } } as never);
+mock.module("../../project-notification-signals", {
+  namedExports: {
+    bestEffortDrainProjectNotificationSignals: async () => undefined,
+    enqueueProjectNotificationSignal: async () => undefined,
+    PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT: {},
+  },
+} as never);
+
 mock.module("@workspace/platform/server/prisma", {
   namedExports: {
+    Prisma: { sql: () => ({}) },
     prisma: {
       projectPlanPhase: {
         create: async (input: Record<string, unknown>) => {

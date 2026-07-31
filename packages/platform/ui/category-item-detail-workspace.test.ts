@@ -34,7 +34,8 @@ test("category item detail workspace keeps category, direct items, and detail in
   assert.equal(body.layout, "split");
   assert.equal(body.master.label, "分类");
   assert.deepEqual(body.desktop?.ratio, [1, 2]);
-  assert.deepEqual(body.detail.sections?.map((section) => section.key), ["direct-items", "detail"]);
+  assert.equal(body.detail.kind, "section");
+  if (body.detail.kind === "section" && body.detail.layout !== "split") assert.deepEqual(body.detail.sections?.map((section) => section.key), ["direct-items", "detail"]);
 });
 
 test("direct item section owns the standard empty state", () => {
@@ -48,6 +49,7 @@ test("direct item section owns the standard empty state", () => {
 
   assert.equal(section.header?.title, "直属项");
   assert.equal(section.body.kind, "section");
+  if (section.body.kind !== "section" || section.body.layout === "split") throw new Error("expected nested section body");
   assert.equal(section.body.sections?.[0]?.body.kind, "section");
   assert.equal(section.body.sections?.[0]?.body.empty?.content, "暂无直属项");
 });

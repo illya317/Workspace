@@ -387,7 +387,7 @@ function formatSignedWanYuan(value: number) {
   return `${value > 0 ? "+" : "−"}${amount}`;
 }
 
-function formatPercent(value: number | null) {
+export function formatPercent(value: number | null) {
   if (value === null) return "待核实";
   return `${(value * 100).toFixed(2)}%`;
 }

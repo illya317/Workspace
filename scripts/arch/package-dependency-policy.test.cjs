@@ -25,7 +25,7 @@ function mutablePolicy() {
 
 test("package dependency policy covers every workspace package and fails closed", () => {
   assert.equal(assertWorkspacePackageCoverage(REPOSITORY_ROOT), true);
-  assert.equal(PACKAGE_NAMES.length, 14);
+  assert.equal(PACKAGE_NAMES.length, 15);
 
   const unknownTier = mutablePolicy();
   unknownTier.packages.find((definition) => definition.name === "work").tier = "unknown";

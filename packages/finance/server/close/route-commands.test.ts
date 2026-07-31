@@ -12,6 +12,7 @@ const refreshCalls: Array<{
 
 mock.module("./service", {
   namedExports: {
+    completeFinanceClose: async () => ({ ok: true }),
     listFinanceCloseWorkspace: async () => ({ marker: "workspace" }),
     openFinanceClose: async () => ({ ok: true }),
     refreshFinanceClose: async (command: RefreshFinanceCloseCommand, runtime?: RefreshFinanceCloseRuntime) => {

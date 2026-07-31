@@ -31,14 +31,16 @@ test("collapsed display totals preserve all detailed role lines", () => {
 test("display groups follow the default dependency direction without merging backend roles", () => {
   assert.deepEqual(SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.map((group) => group.key), [
     "entry",
-    "business",
+    "application",
     "adapter",
+    "domain",
     "contract",
     "assurance",
   ]);
   const entry = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) => group.key === "entry");
   assert.deepEqual(entry?.roles.map((role) => SOURCE_CODE_ANALYSIS_ROLE_LABELS[role]), [
     "组合壳",
+    "公共出口",
     "UI",
     "输入",
   ]);

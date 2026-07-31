@@ -51,6 +51,7 @@ function uniqueRaceDependencies(event: ReplayEvent): FinanceCloseServiceDependen
     transaction: async () => { throw Object.assign(new Error("unique conflict"), { code: "P2002" }); },
     findEvent: async () => event,
     loadWorkspace: async () => workspace,
+    loadHistoricalFacts: async () => null,
   } as FinanceCloseServiceDependencies;
 }
 
@@ -104,6 +105,7 @@ test("non-unique close persistence errors are not converted into idempotency con
     transaction: async () => { throw new Error("database unavailable"); },
     findEvent: async () => { eventReads += 1; return null; },
     loadWorkspace: async () => workspace,
+    loadHistoricalFacts: async () => null,
   } as FinanceCloseServiceDependencies;
 
   await assert.rejects(openFinanceClose(openCommand, deps), /database unavailable/u);
@@ -131,6 +133,7 @@ test("completion atomically claims the run, closes the period and appends an eve
     transaction: async (operation: (client: typeof tx) => Promise<unknown>) => operation(tx),
     findEvent: async () => null,
     loadWorkspace: async () => workspace,
+    loadHistoricalFacts: async () => null,
   } as unknown as FinanceCloseServiceDependencies;
 
   const result = await completeFinanceClose(completeCommand, deps);
@@ -156,6 +159,7 @@ test("completion fails closed when any catalog task is not ready", async () => {
     transaction: async (operation: (client: typeof tx) => Promise<unknown>) => operation(tx),
     findEvent: async () => null,
     loadWorkspace: async () => workspace,
+    loadHistoricalFacts: async () => null,
   } as unknown as FinanceCloseServiceDependencies;
 
   const result = await completeFinanceClose(completeCommand, deps);

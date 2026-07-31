@@ -46,7 +46,7 @@ test("a shared Core change fans out to every unit in the selected profile", () =
   const rollout = resolveDeploymentProfileRollout("full", ["packages/core/ui/PageSurface.tsx"]);
   assert.deepEqual(rollout.targetUnitIds, [
     "administration", "assistant", "capital-securities", "docs", "external", "finance", "hr",
-    "inventory", "library", "production", "work", "workspace-shell",
+    "inventory", "library", "news", "production", "work", "workspace-shell",
   ]);
   assert.equal(rollout.fullProfileFanout, true);
 });
