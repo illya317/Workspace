@@ -325,7 +325,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     { key: "agent", label: "Agent", cell: (row) => row.weeklyAgentBinding?.label ?? "未绑定" },
     { key: "status", label: "状态", cell: (row) => ({ kind: "badge", label: row.enabled ? "启用" : "停用", tone: row.enabled ? "green" : "slate" }) },
     { key: "delivery", label: "最近投递", cell: (row) => ({ kind: "badge", ...groupPolicyDeliveryView(row) }) },
-    { key: "action", label: "操作", cell: (row) => ({ kind: "action", action: { key: `edit-${row.id}`, label: "编辑", disabled: !canConfigure, onClick: () => editPolicy(row) } }) },
   ];
 
   const groupList = createListSection("managed-group-list", {
@@ -384,7 +383,17 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
           kind: "table", rows: selectedPolicies, columns: policyColumns,
           visibleColumns: policyColumns.map((column) => column.key),
           emptyText: selectedGroupReady ? "该群尚未配置发送策略" : "完成认领、验证并启用群后才能配置策略",
-          rowKey: (row) => row.id, presentation: { density: "compact" },
+          rowKey: (row) => row.id,
+          rowActions: canConfigure ? (row) => [{
+            key: `edit-${row.id}`,
+            label: "编辑",
+            kind: "edit" as const,
+            disabled: busy === `policy-${row.id}`,
+            onClick: () => editPolicy(row),
+          }] : undefined,
+          actionsColumn: canConfigure ? { label: "操作" } : undefined,
+          presentation: { density: "compact" },
+          scroll: { x: true },
         }),
       ],
     }),
