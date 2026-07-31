@@ -319,8 +319,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
 
   const policyColumns: DataSurfaceColumnSpec<NotificationGroupPolicyRow>[] = [
     { key: "label", label: "策略", cell: (row) => ({ kind: "stack", items: [{ kind: "text", value: row.label, emphasis: "medium" }, { kind: "text", value: row.key, tone: "muted", font: "mono" }] }) },
-    { key: "definition", label: "通知定义", cell: (row) => ({ kind: "text", value: row.definitionKey, font: "mono" }) },
-    { key: "scope", label: "数据范围", cell: (row) => row.dataScope.label },
     { key: "schedule", label: "计划", cell: (row) => groupPolicyScheduleLabel(row.schedule) },
     { key: "agent", label: "Agent", cell: (row) => row.weeklyAgentBinding?.label ?? "未绑定" },
     { key: "status", label: "状态", cell: (row) => ({ kind: "badge", label: row.enabled ? "启用" : "停用", tone: row.enabled ? "green" : "slate" }) },
