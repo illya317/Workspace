@@ -39,7 +39,7 @@ function readRequestHmacKey() {
     throw new SqlSettingOperationQueueError("SQL 操作请求签名不可用");
   }
   try {
-    const keyPath = resolve(/* turbopackIgnore: true */ filePath);
+    const keyPath = resolve(/*turbopackIgnore: true*/ filePath);
     const key = readFileSync(keyPath, "utf8").trim();
     if (!/^[a-f0-9]{64}$/.test(key)) {
       throw new Error("invalid key format");
