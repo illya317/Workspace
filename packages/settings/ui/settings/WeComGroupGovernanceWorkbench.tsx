@@ -7,7 +7,6 @@ import {
   createMessageSection,
   createPageBody,
   createPageDataSection,
-  createPageModalSection,
   createPanelSection,
   type BodySurfaceSectionSpec,
   type BodySurfaceSplitSectionProps,
@@ -32,10 +31,11 @@ import {
   type NotificationGroupSchedule,
   type WeComGroupGovernanceResponse,
 } from "./wecom-group-governance-model";
-
+import type { NotificationDefinitionWorkbenchRow } from "./notification-publishing-workbench-model";
 const GROUP_CONSOLE_ROUTE = "/api/settings/api/open/group-notifications";
 const MANAGED_GROUP_ROUTE = "/api/settings/api/open/managed-groups";
 const GROUP_POLICY_ROUTE = "/api/settings/api/open/group-policies";
+const NOTIFICATION_DEFINITIONS_ROUTE = "/api/settings/api/open/notification-definitions";
 
 type PolicyDraft = {
   key: string;
@@ -69,6 +69,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
 } {
   const { error: showError, success: showSuccess } = useFeedback();
   const [data, setData] = useState<WeComGroupGovernanceResponse | null>(null);
+  const [notificationDefinitions, setNotificationDefinitions] = useState<NotificationDefinitionWorkbenchRow[]>([]);
   const [selectedGroupKey, setSelectedGroupKey] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -85,8 +86,12 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     if (!enabled) return;
     setLoading(true);
     try {
-      const next = await requestJson<WeComGroupGovernanceResponse>(GROUP_CONSOLE_ROUTE);
+      const [next, definitionData] = await Promise.all([
+        requestJson<WeComGroupGovernanceResponse>(GROUP_CONSOLE_ROUTE),
+        requestJson<{ definitions: NotificationDefinitionWorkbenchRow[] }>(NOTIFICATION_DEFINITIONS_ROUTE),
+      ]);
       setData(next);
+      setNotificationDefinitions(definitionData.definitions);
       setSelectedGroupKey((current) => {
         const candidate = preferredGroupKey ?? current;
         return next.managedGroups.some((group) => group.groupKey === candidate)
@@ -320,6 +325,17 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
   const policyColumns: DataSurfaceColumnSpec<NotificationGroupPolicyRow>[] = [
     { key: "label", label: "策略", cell: (row) => ({ kind: "stack", items: [{ kind: "text", value: row.label, emphasis: "medium" }, { kind: "text", value: row.key, tone: "muted", font: "mono" }] }) },
     { key: "schedule", label: "计划", cell: (row) => groupPolicyScheduleLabel(row.schedule) },
+    {
+      key: "notification",
+      label: "通知内容",
+      width: "wide",
+      cell: (row) => {
+        const definition = notificationDefinitions.find((item) => item.key === row.definitionKey);
+        return definition
+          ? { kind: "stack", items: [{ kind: "text", value: definition.label, emphasis: "medium" }, { kind: "text", value: definition.titleTemplate, tone: "muted" }, { kind: "text", value: definition.bodyTemplate, tone: "muted", wrap: "wrap" }] }
+          : { kind: "text", value: "通知定义未找到", tone: "muted" };
+      },
+    },
     { key: "agent", label: "Agent", cell: (row) => row.weeklyAgentBinding?.label ?? "未绑定" },
     { key: "status", label: "状态", cell: (row) => ({ kind: "badge", label: row.enabled ? "启用" : "停用", tone: row.enabled ? "green" : "slate" }) },
     { key: "delivery", label: "最近投递", cell: (row) => ({ kind: "badge", ...groupPolicyDeliveryView(row) }) },
@@ -338,7 +354,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
         { key: "verification", ...managedGroupVerificationView(group.verificationStatus) },
       ],
       tone: group.groupKey === selectedGroupKey ? "success" : group.status === "suspended" ? "muted" : "default",
-      onClick: () => { setSelectedGroupKey(group.groupKey); setMobileDetailActive(true); },
+      onClick: () => { setSelectedGroupKey(group.groupKey); setClaimGroup(null); setEditingPolicy(null); setMobileDetailActive(true); },
     })),
   });
 
@@ -411,43 +427,44 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     })] : []),
   ] : [createMessageSection("managed-group-empty", { tone: "muted", content: "先从左侧受管群目录选择一个匿名群，再完成认领、命名和验证。" })];
 
-  const claimModal = claimGroup ? createPageModalSection("managed-group-claim-modal", {
-    open: true,
+  const claimPanel = claimGroup ? createPanelSection("managed-group-claim-panel", {
     title: "2 认领并命名企业微信群",
-    size: "md",
-    onClose: () => setClaimGroup(null),
     sections: [createFieldsSection("managed-group-claim-fields", [
       { key: "display-name", label: "群名称", required: true, spec: { valueType: "string", control: "text" }, value: claimName, onChange: (value: unknown) => setClaimName(String(value ?? "")) },
       { key: "owner-user", label: "负责人", spec: { valueType: "string", control: "choice", options: { source: "static", items: (data?.ownerUserOptions ?? []).map((option) => ({ value: String(option.id), label: option.label })) } }, value: claimOwnerUserId, onChange: (value: unknown) => setClaimOwnerUserId(String(value ?? "")) },
       { key: "owner-position", label: "负责岗位", spec: { valueType: "string", control: "choice", options: { source: "static", items: (data?.ownerPositionOptions ?? []).map((option) => ({ value: String(option.id), label: option.label })) } }, value: claimOwnerPositionId, onChange: (value: unknown) => setClaimOwnerPositionId(String(value ?? "")) },
     ], {
       layout: { columns: 1, density: "compact" },
-      actions: [{ key: "save", action: "save", label: "保存认领", disabled: busy === "claim" || !claimName.trim() || (!claimOwnerUserId && !claimOwnerPositionId), onClick: () => void claimSelectedGroup() }],
+      actions: [
+        { key: "cancel", action: "reset", label: "取消", disabled: busy === "claim", onClick: () => setClaimGroup(null) },
+        { key: "save", action: "save", label: "保存认领", disabled: busy === "claim" || !claimName.trim() || (!claimOwnerUserId && !claimOwnerPositionId), onClick: () => void claimSelectedGroup() },
+      ],
     })],
   }) : null;
 
-  const editPolicyModal = editingPolicy ? createPageModalSection("group-policy-edit-modal", {
-    open: true,
+  const editPolicyPanel = editingPolicy ? createPanelSection("group-policy-edit-panel", {
     title: "3 编辑每群策略",
-    size: "lg",
-    onClose: () => setEditingPolicy(null),
     sections: [createFieldsSection("group-policy-edit-fields", policyFields, {
+      header: { title: editingPolicy.label || "编辑群发策略", description: `版本 ${editingPolicy.version}` },
       layout: { columns: 2, density: "compact" },
-      actions: [{ key: "save", action: "save", label: "保存策略", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => void persistPolicy(editingPolicy) }],
+      actions: [
+        { key: "cancel", action: "reset", label: "取消编辑", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => setEditingPolicy(null) },
+        { key: "save", action: "save", label: "保存策略", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => void persistPolicy(editingPolicy) },
+      ],
     })],
   }) : null;
 
   const create: PageSurfaceCreateSpec | undefined = canConfigure ? {
     id: "group-policy-create",
-    presentation: "modal",
+    presentation: "block",
     title: "3 新增每群策略",
     open: createPolicyOpen,
     canCreate: true,
     disabled: !policyCreateReady || busy !== null,
-    content: { kind: "form", form: { items: policyFields, layout: { columns: 2, density: "compact" } } },
+    content: { kind: "sections", sections: [{ key: "group-policy-create-fields", title: "策略设置", items: policyFields, layout: { columns: 2, density: "compact" } }] },
     submission: { action: "save", disabled: !policyCreateReady || !policyDraft.key.trim() || !policyDraft.label.trim() || !policyDraft.definitionKey, execute: () => persistPolicy(null) },
     feedback: { saved: "群发策略已创建", error: "创建群发策略失败" },
-    onOpenChange: (open) => { setCreatePolicyOpen(open); if (open) setPolicyDraft(EMPTY_POLICY_DRAFT); },
+    onOpenChange: (open) => { setCreatePolicyOpen(open); if (open) { setEditingPolicy(null); setPolicyDraft(EMPTY_POLICY_DRAFT); } },
     onCancel: () => { setCreatePolicyOpen(false); setPolicyDraft(EMPTY_POLICY_DRAFT); },
   } : undefined;
 
@@ -473,8 +490,8 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
       detail: createPageBody([
         governancePath,
         ...detailSections,
-        ...(claimModal ? [claimModal] : []),
-        ...(editPolicyModal ? [editPolicyModal] : []),
+        ...(claimPanel ? [claimPanel] : []),
+        ...(editPolicyPanel ? [editPolicyPanel] : []),
       ]),
       desktop: { ratio: [3, 7] },
       mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
