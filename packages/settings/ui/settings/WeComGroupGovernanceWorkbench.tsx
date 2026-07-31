@@ -358,6 +358,18 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     })),
   });
 
+  const editPolicyPanel = editingPolicy ? createPanelSection("group-policy-edit-panel", {
+    title: "3 编辑每群策略",
+    sections: [createFieldsSection("group-policy-edit-fields", policyFields, {
+      header: { title: editingPolicy.label || "编辑群发策略", description: `版本 ${editingPolicy.version}` },
+      layout: { columns: 2, density: "compact" },
+      actions: [
+        { key: "cancel", action: "reset", label: "取消编辑", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => setEditingPolicy(null) },
+        { key: "save", action: "save", label: "保存策略", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => void persistPolicy(editingPolicy) },
+      ],
+    })],
+  }) : null;
+
   const detailSections: BodySurfaceSectionSpec[] = selectedGroup ? [
     createPanelSection("managed-group-summary", {
       title: `2 认领、命名与验证 · ${selectedGroup.displayName || "匿名群"}`,
@@ -394,6 +406,10 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
           content: "先在“通知定义”页签发布至少一个定义，再创建该群的发送策略。",
         })] : []),
         createPageDataSection("managed-group-policy-table", {
+        ...(canConfigure && selectedPolicies.length > 0 ? [createMessageSection("managed-group-policy-edit-hint", {
+          tone: "muted",
+          content: "点击每行右侧的铅笔按钮，编辑面板会在表格下方展开。",
+        })] : []),
           kind: "table", rows: selectedPolicies, columns: policyColumns,
           visibleColumns: policyColumns.map((column) => column.key),
           emptyText: selectedGroupReady ? "该群尚未配置发送策略" : "完成认领、验证并启用群后才能配置策略",
@@ -409,6 +425,7 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
           presentation: { density: "compact" },
           scroll: { x: true },
         }),
+        ...(editPolicyPanel ? [editPolicyPanel] : []),
       ],
     }),
     ...(data?.canAudit ? [createPanelSection("managed-group-deliveries", {
@@ -426,7 +443,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
       })],
     })] : []),
   ] : [createMessageSection("managed-group-empty", { tone: "muted", content: "先从左侧受管群目录选择一个匿名群，再完成认领、命名和验证。" })];
-
   const claimPanel = claimGroup ? createPanelSection("managed-group-claim-panel", {
     title: "2 认领并命名企业微信群",
     sections: [createFieldsSection("managed-group-claim-fields", [
@@ -441,19 +457,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
       ],
     })],
   }) : null;
-
-  const editPolicyPanel = editingPolicy ? createPanelSection("group-policy-edit-panel", {
-    title: "3 编辑每群策略",
-    sections: [createFieldsSection("group-policy-edit-fields", policyFields, {
-      header: { title: editingPolicy.label || "编辑群发策略", description: `版本 ${editingPolicy.version}` },
-      layout: { columns: 2, density: "compact" },
-      actions: [
-        { key: "cancel", action: "reset", label: "取消编辑", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => setEditingPolicy(null) },
-        { key: "save", action: "save", label: "保存策略", disabled: busy === `policy-${editingPolicy.id}`, onClick: () => void persistPolicy(editingPolicy) },
-      ],
-    })],
-  }) : null;
-
   const create: PageSurfaceCreateSpec | undefined = canConfigure ? {
     id: "group-policy-create",
     presentation: "block",
@@ -467,7 +470,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
     onOpenChange: (open) => { setCreatePolicyOpen(open); if (open) { setEditingPolicy(null); setPolicyDraft(EMPTY_POLICY_DRAFT); } },
     onCancel: () => { setCreatePolicyOpen(false); setPolicyDraft(EMPTY_POLICY_DRAFT); },
   } : undefined;
-
   const governancePath = createPanelSection("managed-group-governance-path", {
     title: "企业微信群发治理主路径",
     sections: [
@@ -482,7 +484,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
       }),
     ],
   });
-
   return {
     create,
     body: createMasterDetailBody({
@@ -491,7 +492,6 @@ export function useWeComGroupGovernanceWorkbench({ enabled }: { enabled: boolean
         governancePath,
         ...detailSections,
         ...(claimPanel ? [claimPanel] : []),
-        ...(editPolicyPanel ? [editPolicyPanel] : []),
       ]),
       desktop: { ratio: [3, 7] },
       mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
