@@ -4,9 +4,37 @@ import test from "node:test";
 import {
   notificationChannelHealthView,
   notificationDefinitionLifecycleActionView,
+  notificationDefinitionDraftChanged,
   notificationDeliveryCountLabel,
   notificationPublicationStatusView,
+  toNotificationDefinitionDraft,
 } from "./notification-publishing-workbench-model";
+
+const definition = {
+  id: 1,
+  key: "custom.operations.reminder",
+  label: "提醒",
+  description: null,
+  status: "active" as const,
+  revision: 2,
+  publishedRevision: 1,
+  version: 3,
+  hasDraft: true,
+  titleTemplate: "标题 {{name}}",
+  bodyTemplate: "正文 {{name}}",
+  hrefTemplate: null,
+  responseMode: "read" as const,
+  isImportant: false,
+  allowUserApi: true,
+  allowProjectMonitoring: false,
+  allowedOpenApiClientIds: [2, 1],
+};
+
+test("notification definition shows Save only for unsaved editor changes", () => {
+  const draft = toNotificationDefinitionDraft(definition);
+  assert.equal(notificationDefinitionDraftChanged(definition, { ...draft, allowedOpenApiClientIds: [1, 2] }), false);
+  assert.equal(notificationDefinitionDraftChanged(definition, { ...draft, titleTemplate: "已修改" }), true);
+});
 
 test("notificationPublicationStatusView exposes Chinese delivery states and risk tones", () => {
   assert.deepEqual(notificationPublicationStatusView("committed"), { label: "已提交", tone: "slate" });

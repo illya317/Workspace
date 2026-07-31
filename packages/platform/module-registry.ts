@@ -139,6 +139,7 @@ export const registeredModuleDefinitions = [
     ],
     apiRoutes: [
       ...HR_RUNTIME_REGISTRY_FRAGMENT.apiRoutes,
+      { method: "GET", pathPrefix: "/api/open/v1/hr/generated/roster", access: "public", notes: "Open API client credentials and the hr.generated.roster.read scope are enforced by withOpenApiScope; no browser session is required." },
       { method: "POST", pathPrefix: "/api/modules/hr/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
     ],
   },
@@ -453,6 +454,8 @@ export const registeredModuleDefinitions = [
     ],
     apiRoutes: [
       { method: "GET", pathPrefix: "/api/settings/version", access: "public", notes: "Public build/version metadata; returns no user or business-resource data." },
+      { method: "GET", pathPrefix: "/api/open/v1/notifications/definitions", access: "public", notes: "Open API client credentials and the notification definitions read scope are enforced by withOpenApiScope; no browser session is required." },
+      { method: "POST", pathPrefix: "/api/open/v1/notifications/publications", access: "public", notes: "Open API client credentials and the notification publication write scope are enforced by withOpenApiScope; publication remains idempotent and source-bound." },
       { method: "GET", pathPrefix: "/api/settings/account/api-key", access: "protected", migrationNote: "Legacy settings account API key URL; migrate to /api/modules/settings/account/api-access/key." },
       { method: "POST", pathPrefix: "/api/settings/account/api-key", access: "protected", migrationNote: "Legacy settings account API key URL; migrate to /api/modules/settings/account/api-access/key." },
       { method: "GET", pathPrefix: "/api/settings/account", access: "protected", migrationNote: "Legacy settings account URL; migrate to /api/modules/settings/account.", notes: "Current-session self-service account APIs; all logged-in users receive default settings.account entry access." },

@@ -37,7 +37,16 @@ export function selectedCommands(classification, phase, { deployUnitId = "" } = 
   }
 
   const commands = [];
-  if (classification.runStatic) {
+  const runsFullSourceSuite = classification.riskClass === "C3";
+  if (runsFullSourceSuite) {
+    commands.push(["node", [
+      "scripts/check/with-check-lock.js",
+      "--",
+      "node",
+      "scripts/check/run-check-suite.mjs",
+      "release-source",
+    ]]);
+  } else if (classification.runStatic) {
     if (classification.riskClass === "C0") commands.push(["node", ["scripts/check/check-architecture-docs.js"]]);
     else {
       commands.push(["npm", ["run", "db:generate"]]);
@@ -46,10 +55,10 @@ export function selectedCommands(classification, phase, { deployUnitId = "" } = 
       commands.push(["npm", ["run", "db:migration:changed"]]);
     }
   }
-  if (classification.runNode) commands.push(["npm", ["run", "test:node:affected"]]);
-  if (classification.runType) commands.push(["npm", ["run", "typecheck:affected"]]);
+  if (!runsFullSourceSuite && classification.runNode) commands.push(["npm", ["run", "test:node:affected"]]);
+  if (!runsFullSourceSuite && classification.runType) commands.push(["npm", ["run", "typecheck:affected"]]);
   if (classification.runPostgresql) {
-    commands.push(["npm", ["run", "check:data"]]);
+    if (!runsFullSourceSuite) commands.push(["npm", ["run", "check:data"]]);
     commands.push(["npx", ["prisma", "migrate", "deploy", "--schema=./prisma"]]);
     commands.push(["npm", ["run", "db:seed:resources"]]);
     commands.push(["npm", ["run", "test:integration:postgresql"]]);

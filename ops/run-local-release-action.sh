@@ -16,7 +16,8 @@ esac
 : "${CNB_REAL_CNB_YML:?CNB_REAL_CNB_YML is required}"
 [ -f "$METADATA_FILE" ] || { echo "[错误] release metadata 不存在: $METADATA_FILE" >&2; exit 1; }
 
-temporary_root="$(mktemp -d)"
+mkdir -p "$RELEASE_SOURCE_DIR/.cache/local-release-worktrees"
+temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.cache/local-release-worktrees/action.XXXXXX")"
 injection_worktree="$temporary_root/release-injection"
 cleanup() {
   local exit_code=$?
@@ -52,13 +53,20 @@ git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=releas
   commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
 
 if [ "$ACTION" = "validate" ]; then
+  export CI=1
   if [ -d "$RELEASE_SOURCE_DIR/node_modules" ]; then
-    ln -s "$RELEASE_SOURCE_DIR/node_modules" "$injection_worktree/node_modules"
+    mkdir "$injection_worktree/node_modules"
+    if ! cp -al "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"; then
+      rm -rf "$injection_worktree/node_modules"
+      mkdir "$injection_worktree/node_modules"
+      cp -a "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
+    fi
   else
     (cd "$injection_worktree" && npm ci --no-audit --fund=false --loglevel=error)
   fi
   if [ -e "$RELEASE_SOURCE_DIR/.env" ] && [ ! -e "$injection_worktree/.env" ]; then
-    ln -s "$(realpath "$RELEASE_SOURCE_DIR/.env")" "$injection_worktree/.env"
+    cp "$RELEASE_SOURCE_DIR/.env" "$injection_worktree/.env"
+    chmod 600 "$injection_worktree/.env"
   fi
 fi
 if [ "$ACTION" = "deploy" ] && [ -z "${KEY_CONTENT:-}" ] && [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then

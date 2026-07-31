@@ -20,6 +20,7 @@ import { useNotificationPublishingAuditSections } from "./notification-publishin
 import {
   EMPTY_NOTIFICATION_DEFINITION_DRAFT,
   extractNotificationVariableKeys,
+  notificationDefinitionDraftChanged,
   notificationDefinitionState,
   notificationPublicationCurlExample,
   renderNotificationTemplatePreview,
@@ -68,6 +69,7 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
   const selected = data?.definitions.find((item) => item.key === selectedKey) ?? null;
   const canConfigure = Boolean(data?.canConfigure);
   const fieldsDisabled = !canConfigure || selected?.status === "archived";
+  const draftChanged = selected ? notificationDefinitionDraftChanged(selected, draft) : true;
   const variableKeys = useMemo(
     () => extractNotificationVariableKeys(draft.titleTemplate, draft.bodyTemplate, draft.hrefTemplate),
     [draft.bodyTemplate, draft.hrefTemplate, draft.titleTemplate],
@@ -247,8 +249,9 @@ export function useNotificationPublishingWorkbench({ enabled }: { enabled: boole
       createFieldsSection("notification-definition-fields", fields, {
         layout: { columns: 2, density: "compact" },
         actions: [
-          { key: "save", action: "save", label: busy === "save" ? "保存中…" : "保存草稿", disabled: fieldsDisabled || busy !== null, onClick: () => void save() },
-          { key: "publish", action: "submit" as const, label: "发布", disabled: !canConfigure || busy !== null || selected.status === "archived" || selected.publishedRevision === selected.revision, onClick: () => void transition("publish") },
+          ...(draftChanged
+            ? [{ key: "save", action: "save" as const, label: busy === "save" ? "保存中…" : "保存草稿", disabled: fieldsDisabled || busy !== null, onClick: () => void save() }]
+            : [{ key: "publish", action: "submit" as const, label: "发布", disabled: !canConfigure || busy !== null || selected.status === "archived" || selected.publishedRevision === selected.revision, onClick: () => void transition("publish") }]),
           { key: "archive", action: "archive" as const, label: "归档", disabled: !canConfigure || busy !== null || selected.status === "archived", onClick: () => void transition("archive") },
         ],
       }),

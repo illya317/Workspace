@@ -16,11 +16,12 @@ export function checkModules() {
     ["Architecture governance docs", "node", ["scripts/check/check-architecture-governance.js"]],
   ];
 
+  let passed = true;
   for (const [label, command, args] of checks) {
-    if (!runCommand(label, command, args)) return false;
+    if (!runCommand(label, command, args)) passed = false;
   }
 
-  return true;
+  return passed;
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === __filename) {

@@ -16,6 +16,11 @@ const { hasModuleHomePage, hasRouteAccessGate } = require("./module-page-gate-de
 const APP_DIR = path.join(ROOT, "app");
 const VALID_PAGE_ACCESS = new Set(["resource", "adminManage", "authenticated", "public"]);
 const CUSTOM_L1_HOME_MODULES = new Set(["agent", "work"]);
+const MODULES_WITH_REGISTERED_CHILDREN = new Set(
+  collectModuleDefs()
+    .filter((moduleDef) => moduleDef.parentKey)
+    .map((moduleDef) => moduleDef.parentKey),
+);
 
 function normalizeRoute(route) {
   return route.replace(/\/+/g, "/").replace(/\/$/g, "") || "/";
@@ -263,7 +268,8 @@ for (const pagePath of walkPages(APP_DIR)) {
       .map((filePath) => readText(filePath));
     const hasModuleHome = texts.some((text) => hasModuleHomePage(text, contract.moduleKey));
     const hasDefaultRedirect = hasRegisteredChildRedirect(texts, contract.route, byRoute);
-    const allowsCustomHome = CUSTOM_L1_HOME_MODULES.has(contract.moduleKey);
+    const allowsCustomHome = CUSTOM_L1_HOME_MODULES.has(contract.moduleKey)
+      || !MODULES_WITH_REGISTERED_CHILDREN.has(contract.moduleKey);
     if (!allowsCustomHome && !hasModuleHome && !hasDefaultRedirect) {
       violations.push({
         filePath: pagePath,

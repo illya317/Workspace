@@ -57,6 +57,16 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "lookupFragment",
     description: "该接口只返回股权主体候选项；完整主体和持股事实由治理及股权数据源提供。",
   },
+  "/api/modules/capitalSecurities/investments": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "投资企业工作区混合档案、会议、尽调、合同、监控和资料关联；稳定标量事实由已登记的投资与治理来源承载。",
+  },
+  "/api/modules/capitalSecurities/market-intelligence": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "市场情报快照混合外部实时行情、缓存状态和订阅请求结果，不是完整且稳定的分页经营事实。",
+  },
   "/api/modules/external/related-parties/candidates": {
     disposition: "excluded",
     reason: "lookupFragment",
@@ -119,6 +129,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "workflowControl",
     description: "关账底稿的编制、复核和版本状态用于关账工作流控制；其引用的凭证及业务事实由原 owner 数据源承载。",
   },
+  "/api/modules/finance/ledger/balances/cutover-replay": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "余额切换重放是受控迁移预览和维护诊断，不是持续经营分析数据集。",
+  },
   "/api/modules/finance/tax": {
     disposition: "excluded",
     reason: "unstableComposite",
@@ -133,6 +148,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "derived",
     sourceKeys: ["hr.employees", "hr.employments", "hr.contracts", "hr.edps", "hr.departments", "hr.companies"],
     reason: "旧花名册矩阵是员工、雇佣、合同和岗位关系的兼容展示。",
+  },
+  "/api/modules/news": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "资讯工作区混合外部实时简报、可用性状态和当前用户偏好；尚无可声明完整性的稳定分页读模型。",
   },
   "/api/modules/hr/roster/generated/preview": {
     disposition: "derived",
@@ -214,6 +234,21 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "derived",
     sourceKeys: ["work.reports", "work.report-items", "work.plans", "work.items"],
     reason: "单空间汇报草稿中的已保存汇报、事项及候选工作事实可由已登记来源组合；可编辑状态、治理策略和 actionRuntime 属于控制面。",
+  },
+  "/api/modules/settings/notifications/definitions": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "当前调用方可见的已发布通知定义目录用于配置发现和发布控制，不是经营事实数据集。",
+  },
+  "/api/modules/work/projects/[id]/notification-rules": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "项目通知规则及队列健康状态属于自动化编排控制面；项目经营事实由原项目数据源承载。",
+  },
+  "/api/modules/work/projects/[id]/notification-rules/[ruleId]/evaluations": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "通知规则评估记录用于规则运行审计、重试与排障，不是项目经营事实的权威读模型。",
   },
 };
 
@@ -301,6 +336,8 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/account/spaces": "controlPlane",
   "/api/settings/account/spaces/[targetType]/[targetId]/permissions": "controlPlane",
   "/api/settings/governance/database-schema": "controlPlane",
+  "/api/settings/governance/relation-policies": "controlPlane",
+  "/api/settings/governance/sql-settings": "controlPlane",
   "/api/settings/governance/modules": "controlPlane",
   "/api/settings/admin/permission-grant-ledger": "controlPlane",
   "/api/settings/admin/permission-grants": "controlPlane",
@@ -312,6 +349,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/admin/workflow-policies": "controlPlane",
   "/api/settings/api/open/clients": "controlPlane",
   "/api/settings/api/open/group-notifications": "controlPlane",
+  "/api/settings/api/open/notification-definitions": "controlPlane",
   "/api/settings/api/open/overview": "controlPlane",
 };
 

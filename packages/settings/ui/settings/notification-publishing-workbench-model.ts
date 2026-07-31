@@ -140,6 +140,30 @@ export function toNotificationDefinitionDraft(
   };
 }
 
+export function notificationDefinitionDraftChanged(
+  item: NotificationDefinitionWorkbenchRow,
+  draft: NotificationDefinitionDraft,
+) {
+  const persisted = toNotificationDefinitionDraft(item);
+  const scalarKeys = [
+    "key",
+    "label",
+    "description",
+    "titleTemplate",
+    "bodyTemplate",
+    "hrefTemplate",
+    "responseMode",
+    "isImportant",
+    "allowUserApi",
+    "allowProjectMonitoring",
+  ] as const;
+  if (scalarKeys.some((key) => persisted[key] !== draft[key])) return true;
+  const persistedClients = [...persisted.allowedOpenApiClientIds].sort((left, right) => left - right);
+  const draftClients = [...draft.allowedOpenApiClientIds].sort((left, right) => left - right);
+  return persistedClients.length !== draftClients.length
+    || persistedClients.some((clientId, index) => clientId !== draftClients[index]);
+}
+
 export function extractNotificationVariableKeys(...templates: string[]) {
   const keys = new Set<string>();
   for (const template of templates) {

@@ -45,6 +45,35 @@ function itemKindLabel(item: NewsItem) {
   return item.kind === "featured" ? "精选" : "快讯";
 }
 
+function NewsLoadingSurface({
+  loading,
+  loadError,
+  onReload,
+}: {
+  loading: boolean;
+  loadError: string;
+  onReload: () => void;
+}) {
+  return (
+    <PageSurface
+      kind="standard"
+      toolbar={{
+        items: [{
+          kind: "action-group",
+          key: "news-load-actions",
+          actions: [{ key: "refresh", kind: "refresh", label: "重新加载", disabled: loading, onClick: onReload }],
+        }],
+      }}
+      body={createPageBody([
+        createStatusSection("news-load-status", {
+          kind: loadError ? "error" : "loading",
+          content: loadError || "正在加载资讯…",
+        }),
+      ])}
+    />
+  );
+}
+
 export default function NewsWorkspaceClient() {
   const { error: showError, success: showSuccess } = useFeedback();
   const [newsFilter, setNewsFilter] = useState<NewsFilter>("featured");
@@ -121,24 +150,7 @@ export default function NewsWorkspaceClient() {
   }
 
   if (!workspace) {
-    return (
-      <PageSurface
-        kind="standard"
-        toolbar={{
-          items: [{
-            kind: "action-group",
-            key: "news-load-actions",
-            actions: [{ key: "refresh", kind: "refresh", label: "重新加载", disabled: loading, onClick: () => void loadWorkspace() }],
-          }],
-        }}
-        body={createPageBody([
-          createStatusSection("news-load-status", {
-            kind: loadError ? "error" : "loading",
-            content: loadError || "正在加载资讯…",
-          }),
-        ])}
-      />
-    );
+    return <NewsLoadingSurface loading={loading} loadError={loadError} onReload={() => void loadWorkspace()} />;
   }
 
   const filteredItems = workspace.briefing.items.filter((item) => newsFilter === "all" || item.kind === newsFilter);

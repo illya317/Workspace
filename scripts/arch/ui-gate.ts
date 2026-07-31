@@ -13,9 +13,9 @@ import { checkSurfaceDeclareBoundaries } from "./surface-boundaries";
 import { checkUiHelperPurityWarnings } from "./ui-helper-purity";
 import { checkActionRuntimeUi } from "./action-runtime-ui";
 
-type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
+export type UiGateCheck = [name: string, run: () => boolean | Promise<boolean>];
 
-export const uiGateChecks: GateCheck[] = [
+export const uiGateChecks: UiGateCheck[] = [
   ["create-surface-entry", checkCreateSurfaceEntries],
   ["field-layout-debt", checkFieldLayoutDebt],
   ["form-surface-actions", checkFormSurfaceActions],
@@ -32,15 +32,25 @@ export const uiGateChecks: GateCheck[] = [
   ["core-ui-registry", checkCoreUiRegistry],
 ];
 
-export async function uiGate() {
-  for (const [name, run] of uiGateChecks) {
-    const ok = await run();
+export async function uiGate(checks: UiGateCheck[] = uiGateChecks) {
+  const failed: string[] = [];
+  for (const [name, run] of checks) {
+    let ok = false;
+    try {
+      ok = await run();
+    } catch (error) {
+      console.error(`UI gate ${name} threw:`, error instanceof Error ? error.message : error);
+    }
     if (!ok) {
       console.error("❌ UI GATE FAILED:", name);
-      return false;
+      failed.push(name);
     }
   }
 
+  if (failed.length > 0) {
+    console.error(`❌ UI GATE COMPLETE: ${failed.length} failure(s): ${failed.join(", ")}`);
+    return false;
+  }
   console.log("✅ UI GATE PASSED");
   return true;
 }

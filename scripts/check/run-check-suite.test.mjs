@@ -40,10 +40,24 @@ test("suite runner executes each resolved task once and stops on the first failu
     },
     stdout: { write() {} },
     stderr: { write() {} },
+    env: { ...process.env, CHECK_SUITE_COLLECT_FAILURES: "0" },
   });
 
   assert.equal(status, 9);
   assert.equal(calls.length, 2);
+});
+
+test("release source suite is the complete CI gate without duplicate artifact build or E2E cleanup", () => {
+  const staticIds = resolveCheckPlan(["release-static"]).tasks.map((task) => task.id);
+  const sourceIds = resolveCheckPlan(["release-source"]).tasks.map((task) => task.id);
+  const ciIds = resolveCheckPlan(["ci"]).tasks.map((task) => task.id);
+
+  assert.deepEqual(ciIds, [...sourceIds, "build-next", "playwright-processes"]);
+  assert.deepEqual(sourceIds, [...staticIds, "test-node", "typecheck-full"]);
+  assert.ok(sourceIds.includes("docs-action-contracts"));
+  assert.ok(sourceIds.includes("lint-full"));
+  assert.ok(sourceIds.includes("test-node"));
+  assert.ok(sourceIds.includes("typecheck-full"));
 });
 
 test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {

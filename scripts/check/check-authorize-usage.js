@@ -30,6 +30,13 @@ const API_ACCESS_IMPORTS = [
 ];
 const API_ROUTE_HELPER_IMPORT = "@workspace/platform/server/api-route";
 const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
+const TRUSTED_AUTHENTICATED_HANDLER_IMPORTS = new Map([
+  ["@workspace/platform/server/notification-delivery-worker-api", new Set([
+    "handleWecomNotificationClaimRequest",
+    "handleWecomNotificationHeartbeatRequest",
+    "handleWecomNotificationDeliveryResultRequest",
+  ])],
+]);
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -77,6 +84,20 @@ function hasApiRouteHelperGate(code) {
     hasNamedImport(code, "createWorkspaceAnalysisSourceRpcHandler", ["@workspace/platform/server/workspace-analysis-source-rpc"]) &&
     /\bcreateWorkspaceAnalysisSourceRpcHandler\s*\(/.test(code)
   ) || usesVerifiedApiRouteFactory(code);
+}
+
+function hasTrustedAuthenticatedHandler(code) {
+  for (const [source, names] of TRUSTED_AUTHENTICATED_HANDLER_IMPORTS) {
+    for (const name of names) {
+      if (
+        hasNamedImport(code, name, [source])
+        && new RegExp(`(?:=|\\breturn)\\s*${name}\\b|\\b${name}\\s*\\(`).test(code)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 function walk(dir, files = []) {
@@ -142,7 +163,8 @@ for (const file of walk(API_ROOT)) {
     const hasAuthGate = /\bauthorize\s*\(/.test(code) ||
       /\bwith(?:Auth|[A-Z][A-Za-z]*(?:Access|Write|Delete|Manage))\s*\(/.test(code) ||
       hasApiAccessGate(code) ||
-      hasApiRouteHelperGate(code);
+      hasApiRouteHelperGate(code) ||
+      hasTrustedAuthenticatedHandler(code);
     const usesLegacyGate = /\bauthenticate\s*\(/.test(code) ||
       /\bgetCurrentUser\s*\(/.test(code) ||
       /\brequireCurrentUser\s*\(/.test(code);

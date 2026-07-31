@@ -6,6 +6,7 @@ import {
 } from "@workspace/core/ui";
 import type { InvestorRelationshipView } from "../types";
 
+/** @ui-structural-declaration */
 export function createInvestorCaptableSections({
   data,
   asOf,

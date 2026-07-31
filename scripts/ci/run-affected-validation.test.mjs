@@ -36,6 +36,30 @@ test("documentation-only validation does not install or run code gates", () => {
   ]);
 });
 
+test("C3 validation runs the complete source CI once and leaves artifact build to the artifact phase", () => {
+  const commands = selectedCommands({
+    riskClass: "C3",
+    runStatic: true,
+    runNode: true,
+    runType: true,
+    runPostgresql: true,
+    runE2e: true,
+  }, "source");
+
+  assert.deepEqual(commands, [
+    ["node", [
+      "scripts/check/with-check-lock.js",
+      "--",
+      "node",
+      "scripts/check/run-check-suite.mjs",
+      "release-source",
+    ]],
+    ["npx", ["prisma", "migrate", "deploy", "--schema=./prisma"]],
+    ["npm", ["run", "db:seed:resources"]],
+    ["npm", ["run", "test:integration:postgresql"]],
+  ]);
+});
+
 test("affected validation reports every independent failure and blocks only dependent followers", () => {
   const classification = {
     riskClass: "C2",

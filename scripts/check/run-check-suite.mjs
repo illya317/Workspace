@@ -136,7 +136,7 @@ const SUITES = {
   ],
   quick: ["env", "@changed"],
   push: ["@blockers", "@changed", "test-node"],
-  ci: [
+  "release-static": [
     "playwright-lifecycle",
     "@blockers",
     "env",
@@ -145,10 +145,12 @@ const SUITES = {
     "@data",
     "db-generate",
     "lint-full",
-    "test-node",
-    "typecheck-full",
-    "build-next",
     "@hygiene-warning",
+  ],
+  "release-source": ["@release-static", "test-node", "typecheck-full"],
+  ci: [
+    "@release-source",
+    "build-next",
     "playwright-processes",
   ],
 };

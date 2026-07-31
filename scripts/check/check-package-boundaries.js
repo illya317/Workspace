@@ -80,6 +80,10 @@ function stripComments(text) {
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
+function stripQuotedStringLiterals(text) {
+  return text.replace(/(["'])(?:\\.|(?!\1)[^\\\r\n])*\1/g, '""');
+}
+
 function referencedApiModuleOwners(text) {
   const owners = new Set();
   const pattern = /\/api\/modules\/([A-Za-z][A-Za-z0-9_-]*)/g;
@@ -105,10 +109,12 @@ const UI_PRIMITIVE_RULES = [
   },
   {
     pattern: /\bwindow\.confirm\s*\(/,
+    ignoreQuotedStrings: true,
     reason: "packages must use @workspace/core/ui useFeedback instead of window.confirm",
   },
   {
     pattern: /\b(?:window\.)?alert\s*\(/,
+    ignoreQuotedStrings: true,
     reason: "packages must use a shared toast/error surface instead of browser alert",
   },
   {
@@ -221,7 +227,8 @@ for (const packageName of PACKAGE_NAMES) {
     }
 
     for (const rule of UI_PRIMITIVE_RULES) {
-      if (rule.pattern.test(code)) {
+      const scanText = rule.ignoreQuotedStrings ? stripQuotedStringLiterals(code) : code;
+      if (rule.pattern.test(scanText)) {
         violations.push({
           file: path.relative(ROOT, file).replace(/\\/g, "/"),
           specifier: "native UI primitive",
@@ -251,7 +258,8 @@ for (const packageName of PACKAGE_NAMES) {
 for (const file of walk(path.join(ROOT, "app"))) {
   const code = stripComments(fs.readFileSync(file, "utf8"));
   for (const rule of UI_PRIMITIVE_RULES) {
-    if (rule.pattern.test(code)) {
+    const scanText = rule.ignoreQuotedStrings ? stripQuotedStringLiterals(code) : code;
+    if (rule.pattern.test(scanText)) {
       violations.push({
         file: path.relative(ROOT, file).replace(/\\/g, "/"),
         specifier: "native UI primitive",

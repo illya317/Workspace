@@ -189,6 +189,8 @@
     "./server/with-auth": "./server/with-auth.ts",
     "./server/wecom-agent-bridge-auth": "./server/wecom-agent-bridge-auth.ts",
     "./server/wecom-notification-worker-auth": "./server/wecom-notification-worker-auth.ts",
+    "./server/wecom-group-notifications": "./server/wecom-group-notifications.ts",
+    "./server/wecom-group-notification-scheduler-api": "./server/wecom-group-notification-scheduler-api.ts",
     "./server/wecom-artifacts": "./server/wecom-artifacts.ts",
     "./server/workflow-admin-access": "./server/workflow-admin-access.ts",
     "./server/workflow-ledger": "./server/workflow-ledger.ts",

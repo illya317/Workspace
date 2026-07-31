@@ -8,9 +8,9 @@ import { checkOpenApi } from "./open-api";
 import { scan } from "./scan";
 import { checkSplitPriority } from "./split-priority";
 
-type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
+export type DomainGateCheck = [name: string, run: () => boolean | Promise<boolean>];
 
-export const domainGateChecks: GateCheck[] = [
+export const domainGateChecks: DomainGateCheck[] = [
   ["scan", scan],
   ["deps", checkDeps],
   ["modules", checkModules],
@@ -22,15 +22,25 @@ export const domainGateChecks: GateCheck[] = [
   ["auth", checkAuth],
 ];
 
-export async function domainGate() {
-  for (const [name, run] of domainGateChecks) {
-    const ok = await run();
+export async function domainGate(checks: DomainGateCheck[] = domainGateChecks) {
+  const failed: string[] = [];
+  for (const [name, run] of checks) {
+    let ok = false;
+    try {
+      ok = await run();
+    } catch (error) {
+      console.error(`Domain gate ${name} threw:`, error instanceof Error ? error.message : error);
+    }
     if (!ok) {
       console.error("❌ DOMAIN GATE FAILED:", name);
-      return false;
+      failed.push(name);
     }
   }
 
+  if (failed.length > 0) {
+    console.error(`❌ DOMAIN GATE COMPLETE: ${failed.length} failure(s): ${failed.join(", ")}`);
+    return false;
+  }
   console.log("✅ DOMAIN GATE PASSED");
   return true;
 }

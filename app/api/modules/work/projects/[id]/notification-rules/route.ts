@@ -1,5 +1,4 @@
-import { z } from "zod";
-
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
@@ -9,10 +8,8 @@ import {
   listProjectNotificationRules,
 } from "@workspace/work/server";
 
-const paramsSchema = z.object({ id: z.coerce.number().int().positive() }).strict();
-
 export const GET = createCommandRoute({
-  paramsSchema,
+  paramsSchema: routeIdParamsSchema,
   paramsError: "项目 ID 无效",
   buildCommand: ({ params, user }) => okCommand({
     userId: user.userId,
@@ -22,7 +19,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  paramsSchema,
+  paramsSchema: routeIdParamsSchema,
   paramsError: "项目 ID 无效",
   bodySchema: projectNotificationRuleCreateRequestSchema,
   bodyError: "项目通知规则无效",

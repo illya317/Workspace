@@ -76,7 +76,7 @@ const REGISTERED_L2_API_BASES = new Set(
 );
 const REGISTERED_L1_ONLY_API_BASES = new Set(
   collectApiContracts()
-    .filter((contract) => contract.source === "apiGuards")
+    .filter((contract) => ["apiGuards", "apiResourceGuards"].includes(contract.source))
     .map((contract) => contract.pathPrefix)
     .filter((prefix) => {
       const parts = prefix.split("/").filter(Boolean);
