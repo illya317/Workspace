@@ -109,6 +109,8 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 成功任务进入持久回执库；failed、cancelled 和未声明可复用的 warning 不进入。修复后再次运行 `ci` 时，精确输入未变化的任务直接复用，只执行失效任务。因此第一次可能是 100%，第二次接近变更闭包，后续继续缩小，而不是每轮重跑全量。
 
+每次 `ci` 无论成功或失败，都会在 gitignored `.cache/release-attempts` 写入一份 run-scoped immutable attempt receipt，并为八个 lane 保留 `0600` 日志、耗时、证据摘要和稳定故障指纹。后续同责任 lane 通过时，回执记录修复 commit；已关闭指纹再次出现会以 P1 和退出码 `42` 阻止 Ready。字段、巡检命令和敏感信息边界见 [Release CI attempt receipts](./release-ci-attempts.md)。
+
 Controller Ready 采用相同的精确复用原则，但不把 application source 误算为 ops qualification 输入：application-only 新 Ready 只使 binding 失效，控制面 qualification 仍按 `controlDigest + commandDigest + runtimeDigest` 复用。只有这三个输入之一变化才重跑完整 ops shard；新的 binding 始终重新绑定当前 `readySource` 和完整 controller provenance。
 
 derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。

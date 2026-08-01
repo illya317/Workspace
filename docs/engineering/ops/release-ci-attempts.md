@@ -38,10 +38,10 @@ The CI entrypoint sources `ops/release/attempts/ci-attempt-shell.sh`, calls `rel
 
 ## Blocker fingerprint and patrol
 
-A failed lane stores only a stable error code, integer exit code, and this fingerprint input:
+A failed lane stores a stable error code, integer exit code, and the digest of its normalized lane log. The fingerprint input is:
 
 ```text
-lane + NUL + commandDigest + NUL + errorCode + NUL + exitCode
+lane + NUL + commandDigest + NUL + errorCode + NUL + exitCode + NUL + normalizedMessageDigest
 ```
 
 A later `passed` or `reused` result resolves an earlier fingerprint only when target, target mode, lane, and command digest all match. The successful receipt records the failed run ID, fixing run ID, and fixing commit. If a resolved fingerprint appears again, finalization still writes the failing receipt and exits `42` as a P1 recurrence.
@@ -57,7 +57,15 @@ Exit `0` means no resolved fingerprint recurred. Exit `42` means at least one P1
 
 ## Sensitive-data boundary
 
-Attempt receipts never contain command output, exception messages, environment variables, request headers, tokens, or secret-bearing command lines. Callers supply a stable command ID and a slug error code, not a raw command or log excerpt. Evidence contains only a repository-relative file path, SHA-256 digest, kind, and byte size. Detailed logs remain in their existing access-controlled location.
+Attempt receipts never contain command output, exception messages, environment variables, request headers, tokens, or secret-bearing command lines. Callers supply a stable command ID and a slug error code, not a raw command or log excerpt. Evidence contains only a repository-relative file path, SHA-256 digest, kind, and byte size.
+
+Each captured lane mirrors output to the operator console and writes a mode-`0600` run-scoped log beside the receipt:
+
+```text
+.cache/release-attempts/<target>/<target-mode>/<run-id>.<lane>.log
+```
+
+Only the log path and SHA-256 are stored as receipt evidence. Before fingerprinting, volatile timestamps, PIDs, ports, temporary paths, and source identifiers are normalized; different failures with the same exit code therefore remain distinct, while the same failure across new runs keeps one stable fingerprint.
 
 ## Fast verification
 
@@ -65,7 +73,9 @@ The attempt contract is covered without a build, database, or network dependency
 
 ```bash
 node --test ops/release/attempts/ci-attempt.test.mjs
+node --test ops/release/readiness/artifact-static-acceptance.test.mjs
+node --test ops/publish-contract.test.mjs
 bash -n ops/release/attempts/ci-attempt-shell.sh
 ```
 
-The tests cover immutable success/failure receipts, lane timing and evidence digests, blocked lanes, secret-field rejection, exact blocker resolution, unrelated target/command separation, recurrence P1, and the shell `EXIT` trap.
+The tests cover immutable success/failure receipts, lane timing and evidence digests, blocked lanes, secret-field rejection, exact blocker resolution, same-exit-code failure separation, recurrence P1, real archive static acceptance, all eight published lane boundaries, and the shell `EXIT` trap.
