@@ -30,6 +30,9 @@ test("shell app owns shell/auth/settings routes but not business routes", () => 
   assert.equal(references.includes("../../packages/library"), false);
   const nextConfig = generated.find((file) => file.path.endsWith("/next.config.ts"));
   assert.match(nextConfig?.content ?? "", /ignoreBuildErrors: true/);
+  assert.match(nextConfig?.content ?? "", /const turbopackRoot = resolveDeployUnitTurbopackRoot\(repositoryRoot\)/);
+  assert.match(nextConfig?.content ?? "", /outputFileTracingRoot: repositoryRoot/);
+  assert.match(nextConfig?.content ?? "", /turbopack: \{ root: turbopackRoot \}/);
 });
 
 test("business app owns its pages and APIs plus common runtime probes", () => {

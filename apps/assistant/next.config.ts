@@ -3,7 +3,10 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import type { NextConfig } from "next";
 
+import { resolveDeployUnitTurbopackRoot } from "../../scripts/deploy/deploy-unit-turbopack-root";
+
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
+const turbopackRoot = resolveDeployUnitTurbopackRoot(repositoryRoot);
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 
 function localBuildVersion() {
@@ -54,7 +57,7 @@ const nextConfig: NextConfig = {
       : []),
   ],
   outputFileTracingRoot: repositoryRoot,
-  turbopack: { root: repositoryRoot },
+  turbopack: { root: turbopackRoot },
   generateBuildId: async () => buildVersion,
   async headers() {
     return [{

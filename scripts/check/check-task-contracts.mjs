@@ -13,7 +13,7 @@ const contracts = {
   "core-ui-contracts": { roots: ["scripts", "packages/core/ui", "packages", "app"], files: ["docs/generated/core-ui-surface-contracts.json"] },
   "data-release": { roots: ["ops/data-release", "scripts/data-release", "prisma/migrations"] },
   "deploy-graph": { roots: ["ops", "apps", "packages/platform", "packages/core"], files: ["package.json"] },
-  "deploy-unit-apps": { roots: ["ops", "apps", "packages"], files: ["package.json"] },
+  "deploy-unit-apps": { roots: ["app", "apps", "ops", "packages", "scripts/deploy"], files: ["package.json"] },
   "db-generate": { kind: "prisma", roots: ["prisma", "generated/prisma", "scripts/check"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },
   "db-migration-changed": { kind: "prisma", roots: ["prisma", "scripts/check", "scripts/ci"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },
   "db-migration-check": { kind: "prisma", roots: ["prisma", "scripts/check", "scripts/ci"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },

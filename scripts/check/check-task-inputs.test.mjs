@@ -5,6 +5,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
 
+import { createCheckTaskCache } from "./check-task-cache.mjs";
 import { captureCheckTaskInput } from "./check-task-inputs.mjs";
 
 function run(cwd, command, args) {
@@ -99,4 +100,44 @@ test("Prisma receipts bind connection category without invalidating on credentia
   });
   assert.equal(first.inputDigest, credentialRotated.inputDigest);
   assert.notEqual(first.inputDigest, categoryChanged.inputDigest);
+});
+
+test("deploy-unit-apps receipt becomes pending when canonical app or generator input changes", (t) => {
+  const cwd = fixture(t);
+  const sources = {
+    "app/(modules)/news/page.tsx": "export default function Page() { return null; }\n",
+    "apps/news/app/page.tsx": "export { default } from '../../../../app/(modules)/news/page';\n",
+    "ops/deploy.sh": "#!/bin/bash\n",
+    "packages/news/index.ts": "export const news = true;\n",
+    "scripts/deploy/deploy-unit-app-generator.ts": "export const generatorVersion = 1;\n",
+  };
+  for (const [file, body] of Object.entries(sources)) {
+    const target = path.join(cwd, file);
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, body);
+  }
+  run(cwd, "git", ["add", "."]);
+
+  const pendingDirectory = path.join(cwd, ".cache/check-results-pending/release-inputs");
+  fs.mkdirSync(pendingDirectory, { recursive: true });
+  const env = {
+    CHECK_LOCK: "0",
+    CHECK_CACHE_PENDING_DIR: pendingDirectory,
+    CHECK_SOURCE_RUN_ID: "ci-release-inputs",
+  };
+  const task = { id: "deploy-unit-apps", command: "npm", args: ["run", "deploy:apps:check"] };
+  createCheckTaskCache({ cwd, env }).write(task, "passed", 1);
+  fs.cpSync(pendingDirectory, path.join(cwd, ".cache/check-results"), { recursive: true });
+  assert.equal(createCheckTaskCache({ cwd, env }).freezeTaskGraph([task]).tasks[0].status, "reused");
+
+  const appFile = path.join(cwd, "app/(modules)/news/page.tsx");
+  fs.writeFileSync(appFile, "export default function ChangedPage() { return null; }\n");
+  assert.equal(createCheckTaskCache({ cwd, env }).freezeTaskGraph([task]).tasks[0].status, "pending");
+
+  fs.writeFileSync(appFile, sources["app/(modules)/news/page.tsx"]);
+  fs.writeFileSync(
+    path.join(cwd, "scripts/deploy/deploy-unit-app-generator.ts"),
+    "export const generatorVersion = 2;\n",
+  );
+  assert.equal(createCheckTaskCache({ cwd, env }).freezeTaskGraph([task]).tasks[0].status, "pending");
 });

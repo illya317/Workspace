@@ -105,13 +105,17 @@ test("deploy-unit release source suite minimizes only lint, Node tests, and type
     [
       "app/(modules)/finance",
       "app/api/modules/finance",
-      "apps/finance",
       "generated/prisma",
       "packages/core",
       "packages/finance",
       "packages/platform",
     ],
   );
+  const lintTask = unit.tasks.find((task) => task.id === "lint-unit.finance");
+  assert.equal(lintTask.args.includes("apps/finance"), false);
+  for (const requiredRoot of ["app/(modules)/finance", "app/api/modules/finance", "packages/finance"]) {
+    assert.equal(lintTask.args.includes(requiredRoot), true);
+  }
   assert.throws(
     () => resolveCheckPlan(["release-source"], { releaseTarget: "hr", deployGraph }),
     /not a deploy graph unit/,
