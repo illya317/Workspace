@@ -393,10 +393,46 @@ test -f .next/standalone/scripts/import/import-external-party-master.mjs
 test -f .next/standalone/generated/prisma/client.ts
 test ! -e .next/standalone/generated/production
 
+# A shared release worktree may use one external node_modules symlink for build speed.
+# The standalone parent already owns the complete traced/runtime closure, so the app-level
+# shortcut is neither needed at runtime nor allowed in the portable artifact.
+if [ -L "$standalone_app_dir/node_modules" ]; then
+  [ "$(realpath "$standalone_app_dir/node_modules")" = "$(realpath node_modules)" ] || {
+    echo "[错误] standalone app node_modules 指向未知位置" >&2
+    exit 1
+  }
+  rm -f "$standalone_app_dir/node_modules"
+fi
+STANDALONE_ROOT=".next/standalone" DEPENDENCY_ROOT="$(realpath node_modules)" node <<'NODE'
+const fs = require("fs");
+const path = require("path");
+
+const standaloneRoot = fs.realpathSync(process.env.STANDALONE_ROOT);
+const dependencyRoot = fs.realpathSync(process.env.DEPENDENCY_ROOT);
+const inside = (root, candidate) => {
+  const relative = path.relative(root, candidate);
+  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
+};
+function visit(directory) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isSymbolicLink()) {
+      let target;
+      try { target = fs.realpathSync(entryPath); }
+      catch { throw new Error(`standalone contains broken symlink: ${entryPath}`); }
+      if (!inside(standaloneRoot, target) && !inside(dependencyRoot, target)) {
+        throw new Error(`standalone symlink escapes governed runtime dependencies: ${entryPath} -> ${target}`);
+      }
+    } else if (entry.isDirectory()) visit(entryPath);
+  }
+}
+visit(standaloneRoot);
+NODE
+
 mkdir -p "$(dirname "$ARTIFACT_PATH")" "$(dirname "$MANIFEST_PATH")"
 rm -f "$ARTIFACT_PATH" "$MANIFEST_PATH"
 run_artifact_stage artifact.archive env COPYFILE_DISABLE=1 \
-  tar -C .next/standalone -czf "$ARTIFACT_PATH" .
+  tar --dereference -C .next/standalone -czf "$ARTIFACT_PATH" .
 artifact_sha="$(hash_file "$ARTIFACT_PATH")"
 package_lock_sha="$(hash_file package-lock.json)"
 migration_set_sha="$(node <<'NODE'

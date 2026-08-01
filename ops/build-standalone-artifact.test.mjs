@@ -15,6 +15,13 @@ test("canonical packager embeds the source code analysis snapshot beside the run
   assert.doesNotMatch(source, /source-code-analysis:snapshot:optional/);
 });
 
+test("canonical packager materializes governed dependency links into a portable artifact", () => {
+  const source = readFileSync(path.join(repositoryRoot, "ops/build-standalone-artifact.sh"), "utf8");
+  assert.match(source, /standalone_app_dir\/node_modules/);
+  assert.match(source, /standalone symlink escapes governed runtime dependencies/);
+  assert.match(source, /tar --dereference -C \.next\/standalone/);
+});
+
 test("canonical packager refuses to reuse a build whose BUILD_ID is not the candidate content digest", () => {
   const root = mkdtempSync(path.join(tmpdir(), "standalone-packager-test-"));
   try {
