@@ -37,7 +37,7 @@ Ready Artifact 绑定：
 `ops/publish.sh deploy` 只允许当前 release source、配置和目标已经存在 exact Ready Artifact。它可以：
 
 - 恢复并复验 Ready Artifact；
-- 原子安装租户配置后立即恢复 runtime traverse/read/write ACL，再验证受限 PM2 runner；
+- 原子安装租户配置后恢复 runtime traverse/read/write ACL，并在 SSH master 建立后再次恢复可能被登录策略收紧的 parent ACL，再验证受限 PM2 runner；
 - 读取当前生产状态并执行 ancestry/migration preflight；
 - 获取生产锁，创建备份并执行 migration；
 - 传输并复验 artifact，warm up candidate，原子切换；

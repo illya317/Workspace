@@ -194,6 +194,12 @@ test("hardened deploy reapplies runtime ACLs after tenant directory replacement"
   assert.match(runtimePermissionReconciler, /setfacl -Rm "u:\$RUNTIME_USER:rwX"/);
   assert.match(runtimePermissionReconciler, /runtime 用户可写只读路径/);
   assert.doesNotMatch(runtimePermissionReconciler, /chmod -R|chmod 777/);
+  assertOrdered(deployEntrypoint, [
+    "run_deploy_stage transport.connect start_ssh_master",
+    "run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions",
+    "run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2",
+  ]);
+  assert.match(deploy, /reconcile_remote_runtime_permissions\(\)[\s\S]*?sudo -n -- '\$REMOTE_DEPLOY_TOOL_DIR\/reconcile-runtime-config-permissions\.sh'/);
 });
 
 test("hardened deploy URL contract pins every database credential to its exact role, endpoint, and TLS CA", () => {

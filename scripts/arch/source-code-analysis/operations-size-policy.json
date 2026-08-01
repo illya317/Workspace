@@ -9,7 +9,7 @@
     "ops/deploy-unit-release.mjs": 622,
     "ops/deploy/atomic-cutover.sh": 1188,
     "ops/deploy/state.sh": 579,
-    "ops/deploy/transport.sh": 475,
+    "ops/deploy/transport.sh": 488,
     "ops/gateway-generation.mjs": 451,
     "ops/postgresql/dev/sql-settings-worker.sh": 1178,
     "ops/postgresql/dev/sql-settings-worker.test.mjs": 551,

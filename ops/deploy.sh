@@ -255,6 +255,7 @@ run_deploy_stage artifact.verify build_artifact
 echo "==> 验证服务器连接..."
 run_deploy_stage transport.connect start_ssh_master
 run_deploy_stage transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions
 run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2
 run_deploy_stage deploy.lock acquire_remote_deploy_lock
 run_deploy_stage deploy.tools sync_remote_deploy_tools

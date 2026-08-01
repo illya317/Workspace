@@ -356,6 +356,19 @@ PY
   "
 }
 
+reconcile_remote_runtime_permissions() {
+  if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]; then
+    return 0
+  fi
+  echo "==> SSH master 建立后恢复 production runtime ACL..."
+  ssh_cmd "
+    set -e
+    sudo -n -- test -x '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh'
+    sudo -n -- '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh' \
+      '$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime
+  "
+}
+
 start_ssh_master() {
   local attempt
   for attempt in 1 2 3 4 5; do
