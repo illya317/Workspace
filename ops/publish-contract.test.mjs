@@ -322,9 +322,7 @@ test("CNB records the full deployment attempt and keeps release-processing timin
   assert.match(publishCnb, /Ops 总耗时/);
   assert.match(publishCnb, /main 处理与 CI 已排除/);
   assert.match(publishCnb, /cnb-build-timing-summary\.mjs --input/);
-  assert.match(publishCnb, /deploy-notification\.mjs full-write/);
-  assert.match(publishCnb, /node '\$remote_tool' event-write/);
-  assert.match(publishCnb, /--release-id "\$release_id"/);
+  assert.match(publishCnb, /record_release_event succeeded 0/);
   assert.ok(
     publishCnb.indexOf("release-gate-receipt.mjs")
       < publishCnb.indexOf('DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"'),
@@ -335,12 +333,15 @@ test("CNB records the full deployment attempt and keeps release-processing timin
   );
 });
 
-test("failed or cancelled deploy attempts notify the server with duration", () => {
-  assert.match(publishCnb, /record_failed_deploy_attempt/);
+test("every release stage queues running and terminal events for Neko", () => {
+  assert.match(publishCnb, /record_release_event running 0/);
+  assert.match(publishCnb, /record_release_event succeeded 0/);
   assert.match(publishCnb, /130\|143\) status="cancelled"/);
   assert.match(publishCnb, /record-deploy-attempt\.py/);
   assert.match(recordDeployAttempt, /"status": status/);
   assert.match(recordDeployAttempt, /"durationSeconds": duration/);
+  assert.match(recordDeployAttempt, /\.finance-bot-deploy-events/);
+  assert.match(recordDeployAttempt, /release-events\.ndjson/);
   assert.doesNotMatch(deploy, /run_deploy_stage notification\.record/);
 });
 
@@ -368,10 +369,10 @@ test("CNB full reports success only after both terminal build success and exact 
   );
   assert.ok(
     publishCnb.indexOf('if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then')
-      < publishCnb.indexOf('record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION"'),
+      < publishCnb.lastIndexOf('record_release_event succeeded 0'),
   );
   assert.ok(
-    publishCnb.indexOf('record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION"')
+    publishCnb.lastIndexOf('record_release_event succeeded 0')
       < publishCnb.lastIndexOf('CNB-native 生产部署完成'),
   );
 });

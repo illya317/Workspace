@@ -46,7 +46,7 @@ TMP_DIR=""
 TMP_KEY=""
 SERVER_READ_KEY=""
 DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS=""
-DEPLOY_ATTEMPT_RECORDED=0
+RELEASE_TERMINAL_EVENT_RECORDED=0
 
 usage() {
   cat <<'EOF'
@@ -75,32 +75,29 @@ usage() {
 EOF
 }
 
-record_failed_deploy_attempt() {
-  local exit_code="$1"
-  [ "$RELEASE_ACTION" = "deploy" ] || return 0
+record_release_event() {
+  local status="$1" exit_code="${2:-0}"
   [ "$PRINT_COMMAND_ONLY" = "0" ] || return 0
-  [ "$DEPLOY_ATTEMPT_RECORDED" = "0" ] || return 0
+  [ "$status" = "running" ] || [ "$RELEASE_TERMINAL_EVENT_RECORDED" = "0" ] || return 0
   [ -n "${SERVER_READ_KEY:-}" ] && [ -f "$SERVER_READ_KEY" ] || return 0
-  [ -n "${SOURCE_SHA:-}" ] && [ -n "${DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS:-}" ] || return 0
-  local status="failed"
-  case "$exit_code" in
-    130|143) status="cancelled" ;;
-  esac
+  [ -n "${SOURCE_SHA:-}" ] && [ -n "${DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS:-}" ] \
+    && [ -n "${RELEASE_PLAN_ID:-}" ] && [ -n "${RELEASE_PROCESS_STARTED_AT:-}" ] || return 0
   local duration_seconds="$(($(date +%s) - DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS))"
   [ "$duration_seconds" -ge 0 ] || duration_seconds=0
   if ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 -" \
+    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' RELEASE_PLAN_ID='$RELEASE_PLAN_ID' RELEASE_STAGE='$RELEASE_ACTION' RELEASE_PROCESS_STARTED_AT='$RELEASE_PROCESS_STARTED_AT' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 -" \
     < "$SCRIPT_DIR/release/diagnostics/record-deploy-attempt.py"; then
-    DEPLOY_ATTEMPT_RECORDED=1
+    [ "$status" = "running" ] || RELEASE_TERMINAL_EVENT_RECORDED=1
   else
-    echo "[警告] 部署失败事件未能写入服务器；原始退出码仍为 $exit_code" >&2
+    echo "[警告] $RELEASE_ACTION/$status 事件未能写入 Neko 队列；阶段结果不受影响" >&2
   fi
 }
 
 cleanup() {
   local exit_code=$?
   if [ "$exit_code" -ne 0 ]; then
-    record_failed_deploy_attempt "$exit_code" || true
+    local status="failed"; case "$exit_code" in 130|143) status="cancelled" ;; esac
+    record_release_event "$status" "$exit_code" || true
   fi
   rm -rf "${TMP_DIR:-}"
   rm -f "${TMP_KEY:-}"
@@ -150,61 +147,6 @@ print_deploy_timing_summary() {
   echo "    Ops 合计        $(format_duration "$ops_total_seconds") (${ops_total_seconds}s)"
 }
 
-record_final_full_deploy_event() {
-  local total_seconds="$1"
-  local finished_at="$2"
-  local cnb_status_file="$3"
-  local release_id="$4"
-  local package_version
-  local event_file="$TMP_DIR/final-full-deploy-event.json"
-  local remote_notification_root="$REMOTE_DIR/.workspace/runtime/deploy-notification"
-  local remote_tool="$remote_notification_root/deploy-notification.mjs"
-  local remote_tool_tmp="$remote_notification_root/deploy-notification.tmp.mjs"
-  local remote_summary_tool="$remote_notification_root/cnb-build-timing-summary.mjs"
-  local remote_summary_tool_tmp="$remote_notification_root/cnb-build-timing-summary.tmp.mjs"
-  local remote_event="$remote_notification_root/final-full-${SOURCE_SHA}-${CNB_SN}.json"
-
-  package_version="$(node -p "require('./package.json').version")"
-  node ops/deploy-notification.mjs full-write \
-    --source-sha "$SOURCE_SHA" \
-    --release-id "$release_id" \
-    --cnb-build-sn "$CNB_SN" \
-    --cnb-status-file "$cnb_status_file" \
-    --package-version "$package_version" \
-    --duration-seconds "$total_seconds" \
-    --release-process-seconds "$RELEASE_PROCESS_SECONDS" \
-    --release-attempt-count "$RELEASE_ATTEMPT_COUNT" \
-    --release-process-started-at "$RELEASE_PROCESS_STARTED_AT" \
-    --local-preflight-seconds "$LOCAL_PREFLIGHT_DURATION_SECONDS" \
-    --tenant-sync-seconds "$TENANT_SYNC_DURATION_SECONDS" \
-    --release-trigger-seconds "$RELEASE_TRIGGER_DURATION_SECONDS" \
-    --finished-at "$finished_at" \
-    --event-file "$event_file"
-
-  ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "mkdir -p '$remote_notification_root' && chmod 700 '$remote_notification_root'"
-  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
-    ops/deploy-notification.mjs "$SERVER:$remote_tool_tmp"
-  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
-    ops/cnb-build-timing-summary.mjs "$SERVER:$remote_summary_tool_tmp"
-  rsync -az -e "ssh -i $SERVER_READ_KEY -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new" \
-    "$event_file" "$SERVER:$remote_event"
-  ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "set -e
-     chmod 600 '$remote_tool_tmp' '$remote_summary_tool_tmp' '$remote_event'
-     node --check '$remote_tool_tmp'
-     node --check '$remote_summary_tool_tmp'
-     mv '$remote_summary_tool_tmp' '$remote_summary_tool'
-     mv '$remote_tool_tmp' '$remote_tool'
-     node '$remote_tool' event-write \
-       --input '$remote_event' \
-       --event-file \"\$HOME/.finance-bot-deploy-event.json\" \
-       --history-dir '$REMOTE_DIR/.workspace/deployment-history'
-     rm -f '$remote_event'"
-  DEPLOY_ATTEMPT_RECORDED=1
-  echo "==> 最终 Full 部署事件已在 CNB terminal success 后记录。"
-}
-
 complete_release_process_session() {
   if ! node "$SCRIPT_DIR/release-process-timing.mjs" complete \
     --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null; then
@@ -246,9 +188,11 @@ case "$RELEASE_ACTION" in
   validate|build|deploy) ;;
   *) echo "[错误] --release-action 只能是 validate、build 或 deploy"; exit 2 ;;
 esac
-if [ "$RELEASE_ACTION" = "deploy" ]; then
+if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   : "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
   : "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
+fi
+if [ "$RELEASE_ACTION" = "deploy" ]; then
   : "${HEALTHCHECK_URL:?HEALTHCHECK_URL not set in $OPS_ENV_FILE}"
 fi
 [ "$DIRECT_RELEASE" = "0" ] || [ "$PRINT_COMMAND_ONLY" = "0" ] || {
@@ -394,7 +338,7 @@ if [ -n "$GENESIS_PRODUCTION_BASE" ]; then
 fi
 
 TMP_DIR="$(mktemp -d)"
-if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   prepare_server_read_key
 fi
 
@@ -497,6 +441,7 @@ echo "==> release 流程准备完成：累计 $(format_duration "$RELEASE_PROCES
 : "${RELEASE_PLAN_ROOT:?RELEASE_PLAN_ROOT is required}"
 RELEASE_PLAN_SNAPSHOT_FILE="$TMP_DIR/release-plan-snapshot.json"
 node "$SCRIPT_DIR/release/plan/release-plan.mjs" snapshot --root "$RELEASE_PLAN_ROOT" > "$RELEASE_PLAN_SNAPSHOT_FILE"
+RELEASE_PLAN_ID="$(node -e 'process.stdout.write(require(process.argv[1]).plan.planId)' "$RELEASE_PLAN_SNAPSHOT_FILE")"
 node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
   --file "$RELEASE_PLAN_SNAPSHOT_FILE" --action "$RELEASE_ACTION" --executor "$RELEASE_TRANSPORT" \
   --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --content "$SOURCE_CONTENT_DIGEST" >/dev/null
@@ -660,6 +605,7 @@ if (process.env.DATABASE_REPLACEMENT_RECEIPT_FILE) {
 }
 fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
 NODE
+record_release_event running 0
 
 if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_VALIDATION_RUNTIME=local \
@@ -669,6 +615,7 @@ if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_SOURCE_DIR="$SOURCE_DIR" CNB_REAL_CNB_YML="$CNB_REAL_CNB_YML" \
   CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
   bash "$SCRIPT_DIR/run-local-release-action.sh" "$RELEASE_ACTION" "$METADATA_FILE"
+  record_release_event succeeded 0
   [ "$RELEASE_ACTION" != "deploy" ] || complete_release_process_session
   exit 0
 fi
@@ -697,6 +644,7 @@ while true; do
   fi
   if [ "$RELEASE_ACTION" != "deploy" ] && [ "$cnb_state" = "success" ]; then
     echo "==> CNB $RELEASE_ACTION 完成：$SOURCE_SHA ($CNB_SN)；生产未变更"
+    record_release_event succeeded 0
     exit 0
   fi
   if [ -n "$DEPLOY_UNIT_ID" ]; then
@@ -727,6 +675,7 @@ NODE" 2>/dev/null || true)"
       FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
       echo "==> 正式部署计时结束: $FORMAL_DEPLOY_FINISHED_AT"
       print_deploy_timing_summary "$FORMAL_DEPLOY_DURATION" "$status_file"
+      record_release_event succeeded 0
       complete_release_process_session
       exit 0
     fi
@@ -744,7 +693,7 @@ NODE" 2>/dev/null || true)"
     FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
     FORMAL_DEPLOY_FINISHED_AT="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
-    record_final_full_deploy_event "$FORMAL_DEPLOY_DURATION" "$FORMAL_DEPLOY_FINISHED_AT" "$status_file" "$deployed_release_id"
+    record_release_event succeeded 0
     echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
     echo "==> 正式部署计时结束: $FORMAL_DEPLOY_FINISHED_AT"
     print_deploy_timing_summary "$FORMAL_DEPLOY_DURATION" "$status_file"
