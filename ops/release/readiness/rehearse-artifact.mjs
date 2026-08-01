@@ -5,11 +5,25 @@ import { createHash } from "node:crypto";
 import { once } from "node:events";
 import fs from "node:fs";
 import net from "node:net";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { inspectArchive } from "./artifact-inspection.mjs";
 import { deployUnitRuntimeVersion } from "../contracts/deploy-unit-build-identity.mjs";
+import { ensureInternalUnitIdentity } from "../../internal-unit-identity.mjs";
+
+export const DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS = [
+  "WORKSPACE_DEPLOY_UNIT_ID",
+  "WORKSPACE_DEPLOY_SLOT",
+  "WORKSPACE_DEPLOY_CURRENT_STATE_FILE",
+  "WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE",
+  "WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE",
+  "WORKSPACE_INTERNAL_REPLAY_DIRECTORY",
+  "WORKSPACE_INTERNAL_ORIGIN",
+  "PG_POOL_MAX",
+  "PG_APPLICATION_NAME",
+];
 
 const sha256File = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
@@ -75,59 +89,123 @@ async function unusedPort() {
   return port;
 }
 
-async function probe(url, validate, child, logs) {
-  const deadline = Date.now() + 90_000;
+export async function probeRuntimeEndpoint(url, validate, child, logs, controls = {}) {
+  const now = controls.now ?? (() => Date.now());
+  const fetchImpl = controls.fetchImpl ?? fetch;
+  const sleep = controls.sleep ?? ((delay) => new Promise((resolve) => setTimeout(resolve, delay)));
+  const deadline = now() + 90_000;
   let lastError = "not started";
-  while (Date.now() < deadline) {
+  let repeatedServerError = null;
+  while (now() < deadline) {
     if (child.exitCode !== null || child.signalCode !== null) {
       throw new Error(`artifact runtime exited before readiness: ${logs()}`);
     }
+    let response;
+    let text;
     try {
-      const response = await fetch(url, { signal: AbortSignal.timeout(2_000) });
-      const text = await response.text();
-      if (response.ok && validate(text)) return text;
-      lastError = `${response.status} ${text.slice(0, 300)}`;
-    } catch (error) { lastError = error instanceof Error ? error.message : String(error); }
-    await new Promise((resolve) => setTimeout(resolve, 250));
+      response = await fetchImpl(url, { signal: AbortSignal.timeout(2_000) });
+      text = await response.text();
+    } catch (error) {
+      repeatedServerError = null;
+      lastError = error instanceof Error ? error.message : String(error);
+      await sleep(250);
+      continue;
+    }
+    if (response.ok && validate(text)) return text;
+    lastError = `${response.status} ${text.slice(0, 300)}`;
+    if (response.status >= 500 && response.status <= 599) {
+      const fingerprint = `${response.status}:${text.slice(0, 300)}`;
+      repeatedServerError = repeatedServerError?.fingerprint === fingerprint
+        ? { fingerprint, count: repeatedServerError.count + 1 }
+        : { fingerprint, count: 1 };
+      if (repeatedServerError.count >= 3) {
+        throw new Error(`artifact runtime probe repeated identical 5xx at ${url}: ${lastError}; ${logs()}`);
+      }
+    } else {
+      repeatedServerError = null;
+    }
+    await sleep(250);
   }
   throw new Error(`artifact runtime probe timed out at ${url}: ${lastError}; ${logs()}`);
+}
+
+export function artifactRehearsalRuntimeEnvironment({
+  baseEnvironment = process.env,
+  identity,
+  manifest,
+  options,
+  port,
+  rehearsalRoot,
+  runtime,
+}) {
+  const environment = {
+    ...baseEnvironment,
+    CI: "1",
+    PORT: String(port),
+    PLAYWRIGHT_PORT: String(port),
+    PLAYWRIGHT_STANDALONE_ARCHIVE: options.artifact,
+    PLAYWRIGHT_STANDALONE_MANIFEST: options.manifest,
+    PLAYWRIGHT_STANDALONE_COMMIT: options.source,
+    NEXT_PUBLIC_BUILD_VERSION: runtime.version,
+    BUILD_VERSION: runtime.version,
+  };
+  for (const key of DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS) delete environment[key];
+  if (options.target === "monolith") return environment;
+  const databasePoolMax = manifest.runtime?.capacity?.databasePoolMax;
+  if (!Number.isSafeInteger(databasePoolMax) || databasePoolMax <= 0 || !identity || !rehearsalRoot) {
+    throw new Error("deploy-unit rehearsal runtime identity is incomplete");
+  }
+  const slot = "blue";
+  return {
+    ...environment,
+    WORKSPACE_DEPLOY_UNIT_ID: options.target,
+    WORKSPACE_DEPLOY_SLOT: slot,
+    WORKSPACE_DEPLOY_CURRENT_STATE_FILE: path.join(rehearsalRoot, "gateway/current/unit-states", `${options.target}.json`),
+    WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE: identity.privateKeyFile,
+    WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE: identity.trustedPublicKeysFile,
+    WORKSPACE_INTERNAL_REPLAY_DIRECTORY: identity.replayDirectory,
+    WORKSPACE_INTERNAL_ORIGIN: `http://127.0.0.1:${port}`,
+    PG_POOL_MAX: String(databasePoolMax),
+    PG_APPLICATION_NAME: `workspace-${options.target}-${slot}`,
+  };
 }
 
 async function executeRuntime(options, runtime) {
   const port = await unusedPort();
   const runner = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../scripts/testing/e2e-standalone.mjs");
-  const child = spawn(process.execPath, [runner], {
-    cwd: options.repository,
-    env: {
-      ...process.env,
-      CI: "1",
-      PORT: String(port),
-      PLAYWRIGHT_PORT: String(port),
-      PLAYWRIGHT_STANDALONE_ARCHIVE: options.artifact,
-      PLAYWRIGHT_STANDALONE_MANIFEST: options.manifest,
-      PLAYWRIGHT_STANDALONE_COMMIT: options.source,
-      NEXT_PUBLIC_BUILD_VERSION: runtime.version,
-      BUILD_VERSION: runtime.version,
-    },
-    stdio: ["ignore", "pipe", "pipe"],
-  });
+  const manifest = readJson(options.manifest);
+  const rehearsalRoot = options.target === "monolith"
+    ? null
+    : fs.mkdtempSync(path.join(os.tmpdir(), "workspace-artifact-rehearsal-"));
+  let identity = null;
+  let child = null;
   let output = "";
-  const append = (chunk) => { output = `${output}${chunk}`.slice(-16_000); };
-  child.stdout.on("data", append);
-  child.stderr.on("data", append);
   try {
+    if (rehearsalRoot) {
+      identity = ensureInternalUnitIdentity({ root: path.join(rehearsalRoot, "identity"), unitId: options.target });
+      fs.mkdirSync(path.join(rehearsalRoot, "gateway/current/unit-states"), { recursive: true, mode: 0o700 });
+    }
+    child = spawn(process.execPath, [runner], {
+      cwd: options.repository,
+      env: artifactRehearsalRuntimeEnvironment({ identity, manifest, options, port, rehearsalRoot, runtime }),
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    const append = (chunk) => { output = `${output}${chunk}`.slice(-16_000); };
+    child.stdout.on("data", append);
+    child.stderr.on("data", append);
     const origin = `http://127.0.0.1:${port}${runtime.basePath}`;
-    await probe(`${origin}${runtime.healthPath}`, (text) => {
+    await probeRuntimeEndpoint(`${origin}${runtime.healthPath}`, (text) => {
       try { const value = JSON.parse(text); return value.status === "ok" && value.version === runtime.version; }
       catch { return false; }
     }, child, () => output);
-    await probe(`${origin}${runtime.versionPath}`, (text) => {
+    await probeRuntimeEndpoint(`${origin}${runtime.versionPath}`, (text) => {
       try { return JSON.parse(text).version === runtime.version; }
       catch { return false; }
     }, child, () => output);
   } finally {
-    if (child.exitCode === null && child.signalCode === null) child.kill("SIGTERM");
-    if (child.exitCode === null && child.signalCode === null) await once(child, "exit");
+    if (child?.exitCode === null && child.signalCode === null) child.kill("SIGTERM");
+    if (child?.exitCode === null && child.signalCode === null) await once(child, "exit");
+    if (rehearsalRoot) fs.rmSync(rehearsalRoot, { recursive: true, force: true });
   }
 }
 
