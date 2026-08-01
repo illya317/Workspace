@@ -2,6 +2,8 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ops/release/attempts/ci-attempt-shell.sh
+source "$SCRIPT_DIR/release/attempts/ci-attempt-shell.sh"
 SOURCE_DIR="${RELEASE_SOURCE_DIR:?RELEASE_SOURCE_DIR is required}"
 : "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}"
 : "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}"
@@ -58,14 +60,13 @@ node "$SCRIPT_DIR/release/validation/artifact-preflight.mjs" verify \
   --target "$TARGET_ID" \
   --target-mode "$TARGET_MODE"
 
-echo "==> CI ${CI_RUN_ID}：先聚合运行全部源码检查；单项失败不终止其他独立检查"
-set +e
-bash "$SCRIPT_DIR/run-cnb-release-gate.sh"
-source_status=$?
-echo "==> CI ${CI_RUN_ID}：继续独立构建目标 artifact，以同一轮暴露构建/组装问题"
-bash "$SCRIPT_DIR/build-cnb-release-target.sh"
-artifact_status=$?
-set -e
+if [ "$DATABASE_STATUS" -eq 0 ]; then
+  release_ci_attempt_log_message database "database sandbox status=passed"
+  release_ci_attempt_lane_pass database
+else
+  release_ci_attempt_log_message database "database sandbox status=failed exit=$DATABASE_STATUS"
+  release_ci_attempt_lane_fail database database-sandbox-failed "$DATABASE_STATUS"
+fi
 
 if [ "$TARGET_ID" = monolith ]; then
   ARTIFACT_FILE="$SOURCE_DIR/.next/workspace-standalone.tgz"
@@ -76,36 +77,102 @@ else
   MANIFEST_FILE="$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/$TARGET_ID-standalone.manifest.json"
   CONTRACT_ARGS=(--contract "$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/deploy-unit-contract.json")
 fi
+
+echo "==> CI ${CI_RUN_ID}：先聚合运行全部源码检查；单项失败不终止其他独立检查"
+release_ci_attempt_lane_start source source-ci-v1
+set +e
+release_ci_attempt_capture source -- bash "$SCRIPT_DIR/run-cnb-release-gate.sh"
+source_status=$?
+set -e
+source_evidence=()
+[ ! -f "$SOURCE_RECEIPT" ] || source_evidence+=("source-receipt:$SOURCE_RECEIPT")
+[ ! -f "$SOURCE_RESULT" ] || source_evidence+=("source-result:$SOURCE_RESULT")
+[ ! -f "$TASK_GRAPH" ] || source_evidence+=("task-graph:$TASK_GRAPH")
+if [ "$source_status" -eq 0 ]; then
+  release_ci_attempt_lane_pass source "${source_evidence[@]}"
+else
+  release_ci_attempt_lane_fail source source-ci-failed "$source_status" "${source_evidence[@]}"
+fi
+
+echo "==> CI ${CI_RUN_ID}：继续独立构建目标 artifact，以同一轮暴露构建/组装问题"
+release_ci_attempt_lane_start artifact-build artifact-build-v1
+set +e
+release_ci_attempt_capture artifact-build -- bash "$SCRIPT_DIR/build-cnb-release-target.sh"
+artifact_status=$?
+set -e
+artifact_evidence=()
+[ ! -f "$ARTIFACT_RECEIPT" ] || artifact_evidence+=("artifact-receipt:$ARTIFACT_RECEIPT")
+[ ! -f "$MANIFEST_FILE" ] || artifact_evidence+=("artifact-manifest:$MANIFEST_FILE")
+if [ "$artifact_status" -eq 0 ]; then
+  release_ci_attempt_lane_pass artifact-build "${artifact_evidence[@]}"
+  release_ci_attempt_lane_start static-acceptance artifact-static-acceptance-v1
+  set +e
+  if [ "$TARGET_ID" = monolith ]; then
+    release_ci_attempt_capture static-acceptance -- \
+      node "$SCRIPT_DIR/release/readiness/artifact-static-acceptance.mjs" \
+        --artifact "$ARTIFACT_FILE" --manifest "$MANIFEST_FILE" --target "$TARGET_ID"
+  else
+    release_ci_attempt_capture static-acceptance -- \
+      node "$SCRIPT_DIR/deploy-unit-release.mjs" artifact-assert \
+        --contract "$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/deploy-unit-contract.json" \
+        --artifact "$ARTIFACT_FILE" --manifest "$MANIFEST_FILE"
+  fi
+  static_status=$?
+  set -e
+  if [ "$static_status" -eq 0 ]; then
+    release_ci_attempt_lane_pass static-acceptance "${artifact_evidence[@]}"
+  else
+    release_ci_attempt_lane_fail static-acceptance artifact-static-acceptance-failed "$static_status" "${artifact_evidence[@]}"
+  fi
+else
+  release_ci_attempt_lane_fail artifact-build artifact-build-failed "$artifact_status" "${artifact_evidence[@]}"
+  release_ci_attempt_lane_block static-acceptance artifact-static-acceptance-v1
+  static_status=2
+fi
 REHEARSAL_FILE="$EVIDENCE_ROOT/rehearsal-$TARGET_ID-$TARGET_MODE-$CI_RUN_ID-$RELEASE_CONFIGURATION_DIGEST.json"
-if [ "$artifact_status" -eq 0 ] && [ "$DATABASE_STATUS" -eq 0 ]; then
+if [ "$artifact_status" -eq 0 ] && [ "$static_status" -eq 0 ] && [ "$DATABASE_STATUS" -eq 0 ]; then
   # A database reset/migration is new runtime evidence even for identical source bytes.
   # Never let a historical receipt skip the exact archive startup in this CI invocation.
   rm -f "$REHEARSAL_FILE"
+  release_ci_attempt_lane_start rehearsal artifact-rehearsal-v1
   set +e
   runtime_database_url="$DATABASE_URL"
   unset DIRECT_URL SHADOW_DATABASE_URL
   export DATABASE_URL="$runtime_database_url"
-  node "$SCRIPT_DIR/release/readiness/rehearse-artifact.mjs" \
+  release_ci_attempt_capture rehearsal -- \
+    node "$SCRIPT_DIR/release/readiness/rehearse-artifact.mjs" \
     --repository "$SOURCE_DIR" --output "$REHEARSAL_FILE" \
     --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" \
     --configuration "$RELEASE_CONFIGURATION_DIGEST" --target "$TARGET_ID" --target-mode "$TARGET_MODE" \
     --artifact "$ARTIFACT_FILE" --manifest "$MANIFEST_FILE"
   rehearsal_status=$?
   set -e
+  if [ "$rehearsal_status" -eq 0 ]; then
+    release_ci_attempt_lane_pass rehearsal "rehearsal-receipt:$REHEARSAL_FILE"
+  else
+    rehearsal_evidence=()
+    [ ! -f "$REHEARSAL_FILE" ] || rehearsal_evidence+=("rehearsal-receipt:$REHEARSAL_FILE")
+    release_ci_attempt_lane_fail rehearsal artifact-rehearsal-failed "$rehearsal_status" "${rehearsal_evidence[@]}"
+  fi
 else
   rehearsal_status=2
+  release_ci_attempt_lane_block rehearsal artifact-rehearsal-v1
   echo "[CI] artifact 启动演练 blocked：artifact 或 CI database 未就绪" >&2
 fi
 
-if [ "$PREFLIGHT_STATUS" -ne 0 ] || [ "$DATABASE_STATUS" -ne 0 ] || [ "$source_status" -ne 0 ] || [ "$artifact_status" -ne 0 ] || [ "$rehearsal_status" -ne 0 ]; then
+if [ "$PREFLIGHT_STATUS" -ne 0 ] || [ "$DATABASE_STATUS" -ne 0 ] || [ "$source_status" -ne 0 ] || [ "$artifact_status" -ne 0 ] || [ "$static_status" -ne 0 ] || [ "$rehearsal_status" -ne 0 ]; then
+  release_ci_attempt_lane_block application-ready application-ready-v1
   echo "" >&2
-  echo "[CI 汇总] preflight=$PREFLIGHT_STATUS database=$DATABASE_STATUS source=$source_status artifact=$artifact_status rehearsal=${rehearsal_status}；未签发 Ready Artifact" >&2
+  echo "[CI 汇总] preflight=$PREFLIGHT_STATUS database=$DATABASE_STATUS source=$source_status artifact=$artifact_status static=$static_status rehearsal=${rehearsal_status}；未签发 Ready Artifact" >&2
   echo "[CI 汇总] 修复完整清单后再次运行 ci；精确输入未变化的成功任务会直接复用。" >&2
   exit 1
 fi
 
 READY_FILE="$READY_ROOT/receipts/$TARGET_ID/$TARGET_MODE/$CI_RUN_ID-$RELEASE_CONTENT_DIGEST-$RELEASE_CONFIGURATION_DIGEST.json"
-node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" create \
+release_ci_attempt_lane_start application-ready application-ready-v1
+set +e
+release_ci_attempt_capture application-ready -- \
+  node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" create \
   --root "$READY_ROOT" \
   --output "$READY_FILE" \
   --repository "$SOURCE_DIR" \
@@ -125,6 +192,15 @@ node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" create \
   --artifact-receipt "$ARTIFACT_RECEIPT" \
   --artifact-preflight "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE" \
   "${CONTRACT_ARGS[@]}"
+ready_status=$?
+set -e
+if [ "$ready_status" -ne 0 ]; then
+  ready_evidence=()
+  [ ! -f "$READY_FILE" ] || ready_evidence+=("application-ready-receipt:$READY_FILE")
+  release_ci_attempt_lane_fail application-ready application-ready-failed "$ready_status" "${ready_evidence[@]}"
+  exit "$ready_status"
+fi
+release_ci_attempt_lane_pass application-ready "application-ready-receipt:$READY_FILE"
 
 echo "==> READY: $TARGET_ID ${RELEASE_SOURCE_SHA:0:12} content=${RELEASE_CONTENT_DIGEST:0:12}"
 echo "==> deploy 现在只会消费这个 Ready Artifact，不再运行检查或构建。"

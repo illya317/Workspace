@@ -6,8 +6,12 @@ import test from "node:test";
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
 const publish = read("./publish.sh");
 const controllerReady = read("./release/control/controller-ready.mjs");
+const controllerQualification = read("./release/control/controller-qualification-cache.mjs");
 const readyArtifact = read("./release/readiness/ready-artifact.mjs");
 const runReleaseCi = read("./run-release-ci.sh");
+const ciAttempt = read("./release/attempts/ci-attempt.mjs");
+const ciAttemptShell = read("./release/attempts/ci-attempt-shell.sh");
+const artifactStaticAcceptance = read("./release/readiness/artifact-static-acceptance.mjs");
 const publishCnb = read("./publish-cnb.sh");
 const runLocalReleaseAction = read("./run-local-release-action.sh");
 const runCnbReleaseStage = read("./run-cnb-release-stage.sh");
@@ -38,6 +42,42 @@ test("Stage-2 preflight fails before database, source CI, or artifact build", ()
   assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS database=\$DATABASE_STATUS source=\$source_status artifact=\$artifact_status/);
   assert.ok(runReleaseCi.indexOf("source_status=$?") < runReleaseCi.indexOf("build-cnb-release-target.sh"));
   assert.ok(runReleaseCi.indexOf("build-cnb-release-target.sh") < runReleaseCi.indexOf("ready-artifact.mjs\" create"));
+});
+
+test("every CI exit finalizes one run-scoped immutable attempt receipt", () => {
+  const ciCase = publish.slice(publish.indexOf("  ci)"), publish.indexOf("  controller-ready)"));
+  assert.match(publish, /source "\$SCRIPT_DIR\/release\/attempts\/ci-attempt-shell\.sh"/);
+  assert.match(ciCase, /release_ci_attempt_begin "\$attempt_repository" "\$RELEASE_CI_RUN_ID" "\$target_id" "\$target_mode"/);
+  assert.ok(ciCase.indexOf("release_ci_attempt_begin") < ciCase.indexOf("prepare_release_worktree"));
+  assert.match(ciAttemptShell, /trap 'release_ci_attempt_finalize "\$\?"' EXIT/);
+  assert.match(ciAttemptShell, /\.cache\/release-attempts/);
+  assert.match(ciAttempt, /open\(file, "wx", 0o444\)/);
+  assert.match(ciAttempt, /receiptDigest: sha256|attempt\.receiptDigest = sha256/);
+  assert.match(ciAttempt, /unexpected-exit/);
+  assert.match(ciAttempt, /normalizedMessageDigest/);
+  assert.match(ciAttempt, /normalizedMessageDigest\]\.join\("\\0"\)/);
+  assert.match(ciAttempt, /RECURRENCE_EXIT_CODE = 42/);
+  assert.match(ciAttempt, /release attempt receipt digest mismatch/);
+  assert.doesNotMatch(ciAttempt, /rawOutput:|stdout:|stderr:|environment:|commandLine:/);
+});
+
+test("CI records all eight lane boundaries and deploy never creates or patrols attempts", () => {
+  const ciCase = publish.slice(publish.indexOf("  ci)"), publish.indexOf("  controller-ready)"));
+  const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  for (const lane of ["candidate-freeze", "artifact-preflight", "database"]) {
+    assert.match(ciCase, new RegExp(`release_ci_attempt_lane_(?:start|pass|fail) ${lane}`));
+  }
+  for (const lane of ["database", "source", "artifact-build", "static-acceptance", "rehearsal", "application-ready"]) {
+    assert.match(runReleaseCi, new RegExp(`release_ci_attempt_lane_(?:start|pass|fail|block) ${lane}`));
+  }
+  assert.match(runReleaseCi, /release_ci_attempt_lane_start source[\s\S]*?run-cnb-release-gate\.sh[\s\S]*?release_ci_attempt_lane_(?:pass|fail) source/);
+  assert.match(runReleaseCi, /release_ci_attempt_lane_start artifact-build[\s\S]*?build-cnb-release-target\.sh[\s\S]*?release_ci_attempt_lane_(?:pass|fail) artifact-build/);
+  assert.match(runReleaseCi, /release_ci_attempt_capture source/);
+  assert.match(runReleaseCi, /release_ci_attempt_capture artifact-build/);
+  assert.match(runReleaseCi, /artifact-static-acceptance\.mjs/);
+  assert.match(runReleaseCi, /deploy-unit-release\.mjs" artifact-assert/);
+  assert.match(artifactStaticAcceptance, /inspectArchive\(\{ artifact, manifest: parsedManifest, target \}\)/);
+  assert.doesNotMatch(deployCase, /release_ci_attempt_(?:begin|finalize|lane_|patrol)|ci-attempt\.mjs/);
 });
 
 test("Ready binds preflight, aggregate source, frozen task graph, config, and artifact", () => {
@@ -95,20 +135,24 @@ test("deploy consumes the current Ready Artifact and cannot build", () => {
   assert.match(deployTarget, /Ready Receipt 与恢复后的 artifact 完全一致/);
 });
 
-test("controller-ready tests one exact controller tuple and deploy only verifies its receipt", () => {
+test("controller-ready reuses an exact ops qualification and deploy only verifies its binding", () => {
   const controllerReadyCase = publish.slice(publish.indexOf("  controller-ready)"), publish.indexOf("  status)"));
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
   assert.match(controllerReadyCase, /controller-ready\.mjs" qualify/);
   assert.doesNotMatch(controllerReadyCase, /deploy-control-compatibility|run-node-tests|with-check-lock|--controller-source|--control-digest|--changed-files/);
-  assert.match(controllerReady, /const OPS_TEST_COMMAND = "node scripts\/check\/with-check-lock\.js -- node scripts\/testing\/run-node-tests\.mjs shard ops"/);
+  assert.match(controllerQualification, /export const CONTROLLER_OPS_ARGS = Object\.freeze\(/);
+  assert.match(controllerQualification, /"scripts\/check\/with-check-lock\.js"[\s\S]*?"scripts\/testing\/run-node-tests\.mjs"[\s\S]*?"shard"[\s\S]*?"ops"/);
+  assert.match(controllerQualification, /export const CONTROLLER_OPS_COMMAND = \["node", \.\.\.CONTROLLER_OPS_ARGS\]\.join\(" "\)/);
+  assert.match(controllerReady, /CONTROLLER_OPS_COMMAND/);
+  assert.match(controllerReady, /readReusableQualification\(cacheRoot, qualificationExpected\)/);
   assert.match(controllerReady, /function runOpsTestShard\(\{ repository \}\)/);
   assert.doesNotMatch(controllerReady, /export function runOpsTestShard|runner\s*=|await runner\(/);
   assert.match(controllerReady, /const beforeTests = controllerTuple\(verifyDeployControlCompatibility/);
-  assert.match(controllerReady, /passedOpsTestEvidence\(await runOpsTestShard\(\{ repository: path\.resolve\(repository\) \}\)\)/);
+  assert.match(controllerReady, /if \(!opsQualification\)[\s\S]*?await runOpsTestShard\(\{ repository: path\.resolve\(repository\) \}\)/);
   assert.match(controllerReady, /const afterTests = controllerTuple\(verifyDeployControlCompatibility/);
-  assert.ok(controllerReady.indexOf("beforeTests") < controllerReady.indexOf("await runOpsTestShard"));
-  assert.ok(controllerReady.indexOf("await runOpsTestShard") < controllerReady.indexOf("afterTests"));
-  assert.ok(controllerReady.indexOf("afterTests") < controllerReady.indexOf("atomicWrite(target, receipt)"));
+  assert.ok(controllerReady.indexOf("const beforeTests") < controllerReady.indexOf("const reusable = readReusableQualification"));
+  assert.ok(controllerReady.indexOf("const reusable = readReusableQualification") < controllerReady.indexOf("const afterTests"));
+  assert.ok(controllerReady.indexOf("const afterTests") < controllerReady.indexOf("atomicWrite(target, receipt)"));
   assert.match(deployCase, /controller-ready\.mjs" verify/);
   assert.match(deployCase, /"\$SCRIPT_DIR\/publish-cnb\.sh" --release-action deploy --direct/);
   assert.doesNotMatch(deployCase, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);

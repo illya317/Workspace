@@ -106,6 +106,8 @@ validate_release_inputs() {
 
 # shellcheck source=ops/release/readiness/release-inputs.sh
 source "$SCRIPT_DIR/release/readiness/release-inputs.sh"
+# shellcheck source=ops/release/attempts/ci-attempt-shell.sh
+source "$SCRIPT_DIR/release/attempts/ci-attempt-shell.sh"
 
 parse_ready_selector() {
   local command="$1" allow_json="$2"
@@ -160,24 +162,48 @@ case "${1:-}" in
       esac
       shift
     done
-    prepare_release_worktree
+    printf -v release_ci_nonce '%04x%04x' "$RANDOM" "$RANDOM"
+    RELEASE_CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-$release_ci_nonce"
+    attempt_repository="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
+    [ -n "$attempt_repository" ] || { echo "[错误] RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE" >&2; exit 1; }
+    release_ci_attempt_begin "$attempt_repository" "$RELEASE_CI_RUN_ID" "$target_id" "$target_mode"
+    release_ci_attempt_lane_start candidate-freeze candidate-freeze-v1
     set +e
-    validate_release_inputs
+    release_ci_attempt_capture candidate-freeze -- prepare_release_worktree
+    prepare_status=$?
+    set -e
+    if [ "$prepare_status" != 0 ]; then
+      release_ci_attempt_lane_fail candidate-freeze candidate-freeze-failed "$prepare_status"
+      exit "$prepare_status"
+    fi
+    set +e
+    release_ci_attempt_capture candidate-freeze -- validate_release_inputs
     inputs_status=$?
-    capture_release_configuration_identity
+    release_ci_attempt_capture candidate-freeze -- capture_release_configuration_identity
     configuration_status=$?
     set -e
     if [ "$inputs_status" != 0 ] || [ "$configuration_status" != 0 ]; then
+      if [ "$inputs_status" != 0 ]; then
+        candidate_error_code=release-inputs-invalid
+        candidate_exit_code="$inputs_status"
+      else
+        candidate_error_code=configuration-identity-invalid
+        candidate_exit_code="$configuration_status"
+      fi
+      release_ci_attempt_lane_fail candidate-freeze "$candidate_error_code" "$candidate_exit_code"
       echo "[错误] Stage-2 Artifact 预检 blocked：外部输入或配置摘要无效；未启动 DB sandbox/source CI/build" >&2
       exit 1
     fi
-    printf -v release_ci_nonce '%04x%04x' "$RANDOM" "$RANDOM"
-    RELEASE_CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_CONTENT_DIGEST:0:12}-$release_ci_nonce"
+    release_ci_attempt_bind "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$RELEASE_CONFIGURATION_DIGEST"
+    release_ci_attempt_lane_pass candidate-freeze
     release_evidence_root="$RELEASE_WORKTREE/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
     RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE="$release_evidence_root/artifact-preflight-$target_id-$target_mode-$RELEASE_CI_RUN_ID.json"
     export RELEASE_CI_RUN_ID RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE
     export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
-    node "$RELEASE_SCRIPT_DIR/release/validation/artifact-preflight.mjs" create \
+    release_ci_attempt_lane_start artifact-preflight artifact-preflight-v1
+    set +e
+    release_ci_attempt_capture artifact-preflight -- \
+      node "$RELEASE_SCRIPT_DIR/release/validation/artifact-preflight.mjs" create \
       --output "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE" \
       --repository "$RELEASE_WORKTREE" \
       --run-id "$RELEASE_CI_RUN_ID" \
@@ -187,6 +213,13 @@ case "${1:-}" in
       --configuration "$RELEASE_CONFIGURATION_DIGEST" \
       --target "$target_id" \
       --target-mode "$target_mode"
+    preflight_status=$?
+    set -e
+    if [ "$preflight_status" != 0 ]; then
+      release_ci_attempt_lane_fail artifact-preflight artifact-preflight-failed "$preflight_status"
+      exit "$preflight_status"
+    fi
+    release_ci_attempt_lane_pass artifact-preflight "preflight-receipt:$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE"
     echo "==> Stage-2 Artifact 预检通过: target=$target_id:$target_mode run=$RELEASE_CI_RUN_ID"
     export RELEASE_CI_PREFLIGHT_STATUS=0
     if [ -z "${RELEASE_CI_DATABASE_CA_FILE:-}" ]; then
@@ -200,6 +233,8 @@ case "${1:-}" in
     else
       export DEPLOY_UNIT_ID="$target_id" DEPLOY_UNIT_MODE="$target_mode"
     fi
+    release_ci_attempt_lane_start database database-sandbox-v1
+    release_ci_attempt_log_message database "database sandbox started"
     (
       set -a
       # shellcheck source=/dev/null
