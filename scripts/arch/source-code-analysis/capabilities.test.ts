@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  SOURCE_CAPABILITY_DECLARATIONS,
   capabilityGovernedModuleForPath,
   parseCapabilityOwnershipBaseline,
   sourceCapabilityDepth,
@@ -9,6 +10,7 @@ import {
   validateSourceCapabilityDeclarations,
   type SourceCapabilityDeclaration,
 } from "./capabilities";
+import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
 
 test("four governed packages assign semantic directory and root files to recursive modules", () => {
   const examples = [
@@ -158,4 +160,29 @@ test("baseline parser rejects misspelled modules, extra top-level structure, and
       work: ["packages/work/legacy.ts", "packages/work/legacy.ts"],
     },
   }), /duplicate capability baseline path/);
+});
+
+test("recursive Module Interfaces use an exact reviewed file catalog", () => {
+  const entries = Object.entries(SOURCE_CAPABILITY_INTERFACE_FILES);
+  assert.equal(entries.length, 37);
+  assert.equal(entries.flatMap(([, files]) => files).length, 359);
+
+  const declarations = new Map(SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => [
+    `${declaration.moduleKey}/${declaration.key}`,
+    declaration,
+  ]));
+  const ownedPaths = new Set<string>();
+  for (const [id, files] of entries) {
+    const declaration = declarations.get(id);
+    assert.ok(declaration, `missing declaration for ${id}`);
+    for (const relativePath of files) {
+      const fullPath = `packages/${declaration.moduleKey}/${relativePath}`;
+      assert.ok(!ownedPaths.has(fullPath), `duplicate Interface owner for ${fullPath}`);
+      ownedPaths.add(fullPath);
+      assert.ok(declaration.interface.some((rule) =>
+        rule.kind === "file" && rule.path === fullPath), `missing exact Interface ${fullPath}`);
+    }
+  }
+  assert.ok(SOURCE_CAPABILITY_DECLARATIONS.flatMap((declaration) => declaration.interface)
+    .every((rule) => rule.kind === "file"));
 });

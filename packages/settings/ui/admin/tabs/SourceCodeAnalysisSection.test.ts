@@ -336,9 +336,14 @@ test("total-code cells use a relative meter while small role values stay muted",
   });
 });
 
-test("summary shows the backend-computed invalid direction count independently of disclosure", () => {
+test("summary groups source governance into total code and three decision metrics", () => {
   const snapshot = analysisSnapshot();
   snapshot.summary.invalidDependencyDirectionCount = 3;
+  snapshot.summary.dependencyFileCycleCount = 2;
+  snapshot.summary.newUnclassifiedCapabilityFileCount = 4;
+  snapshot.summary.mixedResponsibilityFileCount = 5;
+  snapshot.summary.newCapabilityContractViolationCount = 2;
+  snapshot.summary.legacyCapabilityContractViolationCount = 8;
   const section = createSourceCodeAnalysisSection(snapshot, {
     expandedGroupKey: "entry",
     onToggleGroup: () => undefined,
@@ -348,33 +353,43 @@ test("summary shows the backend-computed invalid direction count independently o
   const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
   assert.equal(summary?.body.kind, "data");
   if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "invalid-directions")?.value, {
+  assert.deepEqual(summary.body.data.metrics.map((metric) => metric.key), [
+    "lines",
+    "dependency-structure",
+    "module-cohesion",
+    "interface-boundary",
+  ]);
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "dependency-structure")?.value, {
     kind: "text",
-    value: "3",
+    value: "方向 3 · 循环 2",
+    tone: "danger",
+    font: "mono",
+  });
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "module-cohesion")?.value, {
+    kind: "text",
+    value: "未归属 4 · 混合 5",
+    tone: "danger",
+    font: "mono",
+  });
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "interface-boundary")?.value, {
+    kind: "text",
+    value: "新增 2 · 存量 8",
     tone: "danger",
     font: "mono",
   });
 });
 
-test("summary distinguishes new recursive-boundary violations from ratcheted historical debt", () => {
+test("summary keeps historical Interface debt visible without treating it as a new violation", () => {
   const snapshot = analysisSnapshot();
-  snapshot.summary.newCapabilityContractViolationCount = 2;
   snapshot.summary.legacyCapabilityContractViolationCount = 8;
   const section = createSourceCodeAnalysisSection(snapshot);
   assert.equal(section.body.kind, "section");
   if (section.body.kind !== "section" || section.body.layout === "split") return;
   const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
-  assert.equal(summary?.body.kind, "data");
   if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "new-capability-boundary")?.value, {
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "interface-boundary")?.value, {
     kind: "text",
-    value: "2",
-    tone: "danger",
-    font: "mono",
-  });
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "legacy-capability-boundary")?.value, {
-    kind: "text",
-    value: "8",
+    value: "新增 0 · 存量 8",
     tone: "warning",
     font: "mono",
   });

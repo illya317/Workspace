@@ -1,6 +1,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
+
 export interface SourceCapabilityPathRule {
   kind: "file" | "prefix";
   path: string;
@@ -61,6 +63,7 @@ function capability(
     interfacePrefixes?: readonly string[];
   },
 ): SourceCapabilityDeclaration {
+  const registeredInterfaceFiles = SOURCE_CAPABILITY_INTERFACE_FILES[`${moduleKey}/${key}`] ?? [];
   return {
     moduleKey,
     key,
@@ -69,7 +72,7 @@ function capability(
     label,
     include: rules(moduleKey, options),
     interface: rules(moduleKey, {
-      files: options.interfaceFiles,
+      files: [...registeredInterfaceFiles, ...(options.interfaceFiles ?? [])],
       prefixes: options.interfacePrefixes,
     }),
   };
@@ -389,6 +392,20 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     prefixes: ["constants/", "types/", "import/"],
   }),
 ] as const;
+
+function validateSourceCapabilityInterfaceCatalog(
+  declarations: readonly SourceCapabilityDeclaration[],
+) {
+  const declarationIds = new Set(declarations.map((declaration) =>
+    `${declaration.moduleKey}/${declaration.key}`));
+  const unknownIds = Object.keys(SOURCE_CAPABILITY_INTERFACE_FILES)
+    .filter((id) => !declarationIds.has(id));
+  if (unknownIds.length > 0) {
+    throw new Error(`[source-code-analysis] Interface catalog has unknown modules: ${unknownIds.join(", ")}`);
+  }
+}
+
+validateSourceCapabilityInterfaceCatalog(SOURCE_CAPABILITY_DECLARATIONS);
 
 export function matchesCapabilityRule(relativePath: string, rule: SourceCapabilityPathRule) {
   return rule.kind === "file" ? relativePath === rule.path : relativePath.startsWith(rule.path);

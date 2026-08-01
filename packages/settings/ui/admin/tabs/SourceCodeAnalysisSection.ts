@@ -331,45 +331,42 @@ export function createSourceCodeAnalysisSection(
       metrics: [
         { key: "lines", label: "总代码", value: `${formatCodeVolumeInTenThousands(snapshot.summary.lines)} 万行` },
         {
-          key: "invalid-directions",
-          label: "非法方向引用",
+          key: "dependency-structure",
+          label: "依赖结构",
           value: {
             kind: "text",
-            value: snapshot.summary.invalidDependencyDirectionCount.toLocaleString("zh-CN"),
-            tone: snapshot.summary.invalidDependencyDirectionCount > 0 ? "danger" : "success",
-            font: "mono",
-          },
-        },
-        { key: "mixed", label: "未解耦混合职责", value: snapshot.summary.mixedResponsibilityFileCount },
-        { key: "cycles", label: "真实依赖循环", value: snapshot.summary.dependencyFileCycleCount ?? 0 },
-        { key: "capability-coverage", label: "模块归属覆盖", value: `${snapshot.summary.capabilityCoveragePercent}%` },
-        {
-          key: "new-capability-unknown",
-          label: "新增未归属模块",
-          value: {
-            kind: "text",
-            value: snapshot.summary.newUnclassifiedCapabilityFileCount.toLocaleString("zh-CN"),
-            tone: snapshot.summary.newUnclassifiedCapabilityFileCount > 0 ? "danger" : "success",
+            value: `方向 ${snapshot.summary.invalidDependencyDirectionCount.toLocaleString("zh-CN")} · 循环 ${(snapshot.summary.dependencyFileCycleCount ?? 0).toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.invalidDependencyDirectionCount > 0
+              || (snapshot.summary.dependencyFileCycleCount ?? 0) > 0
+              ? "danger"
+              : "success",
             font: "mono",
           },
         },
         {
-          key: "new-capability-boundary",
-          label: "新增边界绕行",
+          key: "module-cohesion",
+          label: "模块内聚",
           value: {
             kind: "text",
-            value: snapshot.summary.newCapabilityContractViolationCount.toLocaleString("zh-CN"),
-            tone: snapshot.summary.newCapabilityContractViolationCount > 0 ? "danger" : "success",
+            value: `未归属 ${snapshot.summary.newUnclassifiedCapabilityFileCount.toLocaleString("zh-CN")} · 混合 ${snapshot.summary.mixedResponsibilityFileCount.toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.newUnclassifiedCapabilityFileCount > 0
+              || snapshot.summary.mixedResponsibilityFileCount > 0
+              ? "danger"
+              : "success",
             font: "mono",
           },
         },
         {
-          key: "legacy-capability-boundary",
-          label: "历史边界债务",
+          key: "interface-boundary",
+          label: "Interface 边界",
           value: {
             kind: "text",
-            value: snapshot.summary.legacyCapabilityContractViolationCount.toLocaleString("zh-CN"),
-            tone: snapshot.summary.legacyCapabilityContractViolationCount > 0 ? "warning" : "success",
+            value: `新增 ${snapshot.summary.newCapabilityContractViolationCount.toLocaleString("zh-CN")} · 存量 ${snapshot.summary.legacyCapabilityContractViolationCount.toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.newCapabilityContractViolationCount > 0
+              ? "danger"
+              : snapshot.summary.legacyCapabilityContractViolationCount > 0
+                ? "warning"
+                : "success",
             font: "mono",
           },
         },
