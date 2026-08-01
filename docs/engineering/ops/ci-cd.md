@@ -36,7 +36,7 @@ Ready Artifact 绑定：
 
 ### Controller Ready 的责任
 
-`ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`，再由项目受锁 runner 真实执行完整 `node scripts/testing/run-node-tests.mjs shard ops`。module 把 runner 返回的 exit code、Node runtime identity 和输出 digest 规范化为带固定命令的 passed evidence，然后重新计算同一 tuple，完全一致才在当前 controller worktree 的 `.cache/release-control/controller-ready.json` 原子签发 Controller Ready。CLI 不接受外部 passed evidence，测试只在 module seam 注入 fake runner；该资格检查不访问 production。
+`ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`，再由 module 内部固定的受锁 runner 真实执行完整 `node scripts/testing/run-node-tests.mjs shard ops`。module 把 child process 返回的 exit code、Node runtime identity 和输出 digest 规范化为带固定命令的 passed evidence，然后重新计算同一 tuple，完全一致才在当前 controller worktree 的 `.cache/release-control/controller-ready.json` 原子签发 Controller Ready。`qualify` interface 与 CLI 都不接受 runner 或 passed evidence 注入；测试在临时 Git repository 中提交并运行真实的最小 child fixture，覆盖成功、非零退出和运行期间 controller 漂移。该资格检查不访问 production。
 
 Controller Ready 回执精确绑定：
 
