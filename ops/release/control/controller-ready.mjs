@@ -6,20 +6,18 @@ import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
+import {
+  CONTROLLER_OPS_ARGS,
+  CONTROLLER_OPS_COMMAND,
+  createQualificationReceipt,
+  readReusableQualification,
+  validateQualificationReceipt,
+  writeQualificationOnce,
+} from "./controller-qualification-cache.mjs";
 import { verifyDeployControlCompatibility } from "./deploy-control-compatibility.mjs";
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
-const OPS_TEST_COMMAND = "node scripts/check/with-check-lock.js -- node scripts/testing/run-node-tests.mjs shard ops";
-const OPS_TEST_ARGS = [
-  "scripts/check/with-check-lock.js",
-  "--",
-  "node",
-  "scripts/testing/run-node-tests.mjs",
-  "shard",
-  "ops",
-];
-
 const sha256 = (value) => createHash("sha256").update(value).digest("hex");
 
 function requirePattern(value, pattern, label) {
@@ -54,56 +52,43 @@ function controllerTuple(controller) {
   };
 }
 
-function runtimeIdentity(runtime) {
-  for (const key of ["nodeVersion", "platform", "arch", "executable"]) {
-    if (typeof runtime?.[key] !== "string" || runtime[key].length === 0) {
-      throw new Error(`controller-ready ops runtime ${key} is invalid`);
-    }
-  }
+function currentRuntimeIdentity() {
   return {
-    nodeVersion: runtime.nodeVersion,
-    platform: runtime.platform,
-    arch: runtime.arch,
-    executable: runtime.executable,
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    executable: process.execPath,
   };
 }
 
-function passedOpsTestEvidence(result) {
+function passedOpsTestResult(result) {
   if (!Number.isInteger(result?.exitCode)) throw new Error("controller-ready ops test exitCode is invalid");
   if (result.exitCode !== 0) {
     throw new Error(`controller-ready ops test shard failed with exit code ${result.exitCode}`);
   }
   return {
-    command: OPS_TEST_COMMAND,
-    status: "passed",
     exitCode: 0,
-    runtime: runtimeIdentity(result.runtime),
     outputDigest: requirePattern(result.outputDigest, DIGEST_PATTERN, "controller-ready ops output digest"),
     completedAt: requireCompletedAt(result.completedAt),
   };
 }
 
-function validateOpsTestEvidence(evidence) {
-  if (evidence?.command !== OPS_TEST_COMMAND || evidence?.status !== "passed" || evidence?.exitCode !== 0) {
-    throw new Error("controller-ready ops test evidence is invalid");
-  }
-  return passedOpsTestEvidence(evidence);
-}
-
-function receiptBody({ readySource, controller, opsTestEvidence, completedAt }) {
-  const evidence = validateOpsTestEvidence(opsTestEvidence);
+function receiptBody({ readySource, controller, opsQualification, completedAt }) {
+  const normalizedController = controllerTuple(controller);
+  const qualification = validateQualificationReceipt(opsQualification, {
+    controlDigest: normalizedController.controlDigest,
+    command: CONTROLLER_OPS_COMMAND,
+    runtimeIdentity: currentRuntimeIdentity(),
+  });
   const receiptCompletedAt = requireCompletedAt(completedAt);
-  if (evidence.completedAt !== receiptCompletedAt) {
-    throw new Error("controller-ready receipt and ops evidence completion times differ");
-  }
   return {
-    schemaVersion: 1,
+    schemaVersion: 2,
     kind: "workspace-controller-ready",
     status: "ready",
     command: "ops/publish.sh controller-ready",
     readySource: requirePattern(readySource, SHA_PATTERN, "Application Ready source SHA"),
-    controller: controllerTuple(controller),
-    opsTestEvidence: evidence,
+    controller: normalizedController,
+    opsQualification: qualification,
     completedAt: receiptCompletedAt,
   };
 }
@@ -149,7 +134,7 @@ export function controllerReadyReceiptFile(repository) {
 function runOpsTestShard({ repository }) {
   const outputHash = createHash("sha256");
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, OPS_TEST_ARGS, {
+    const child = spawn(process.execPath, CONTROLLER_OPS_ARGS, {
       cwd: path.resolve(repository),
       env: process.env,
       stdio: ["inherit", "pipe", "pipe"],
@@ -167,12 +152,6 @@ function runOpsTestShard({ repository }) {
     child.once("error", reject);
     child.once("close", (code) => resolve({
       exitCode: Number.isInteger(code) ? code : 1,
-      runtime: {
-        nodeVersion: process.version,
-        platform: process.platform,
-        arch: process.arch,
-        executable: process.execPath,
-      },
       outputDigest: outputHash.digest("hex"),
       completedAt: new Date().toISOString(),
     }));
@@ -190,16 +169,38 @@ export async function qualifyControllerReady({
     throw new Error("controller-ready receipt must be written in the current controller worktree cache");
   }
   const beforeTests = controllerTuple(verifyDeployControlCompatibility({ repository, readySource }));
-  const opsTestEvidence = passedOpsTestEvidence(await runOpsTestShard({ repository: path.resolve(repository) }));
+  const qualificationExpected = {
+    controlDigest: beforeTests.controlDigest,
+    command: CONTROLLER_OPS_COMMAND,
+    runtimeIdentity: currentRuntimeIdentity(),
+  };
+  const reusable = readReusableQualification(cacheRoot, qualificationExpected);
+  let opsQualification = reusable?.receipt;
+  let freshOpsTestResult;
+  if (!opsQualification) {
+    freshOpsTestResult = passedOpsTestResult(
+      await runOpsTestShard({ repository: path.resolve(repository) }),
+    );
+  }
   const afterTests = controllerTuple(verifyDeployControlCompatibility({ repository, readySource }));
   if (!sameController(beforeTests, afterTests) || !sameChangedFiles(beforeTests, afterTests)) {
     throw new Error("deploy controller changed while the ops test shard was running");
   }
+  if (!opsQualification) {
+    opsQualification = createQualificationReceipt({
+      ...qualificationExpected,
+      outputDigest: freshOpsTestResult.outputDigest,
+      completedAt: freshOpsTestResult.completedAt,
+    });
+    writeQualificationOnce(cacheRoot, opsQualification);
+    opsQualification = readReusableQualification(cacheRoot, qualificationExpected).receipt;
+  }
+  const completedAt = new Date().toISOString();
   const receipt = withReceiptDigest(receiptBody({
     readySource,
     controller: afterTests,
-    opsTestEvidence,
-    completedAt: opsTestEvidence.completedAt,
+    opsQualification,
+    completedAt,
   }));
   atomicWrite(target, receipt);
   return receipt;
@@ -228,11 +229,11 @@ export function verifyControllerReadyReceipt({
   const expected = withReceiptDigest(receiptBody({
     readySource,
     controller: current,
-    opsTestEvidence: receipt.opsTestEvidence,
+    opsQualification: receipt.opsQualification,
     completedAt: receipt.completedAt,
   }));
   if (JSON.stringify(receipt) !== JSON.stringify(expected)) {
-    throw new Error("controller-ready receipt contract or ops test evidence is invalid");
+    throw new Error("controller-ready receipt contract or ops qualification is invalid");
   }
   return receipt;
 }

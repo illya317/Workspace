@@ -23,7 +23,13 @@ if (result.error) throw result.error;
 process.exit(Number.isInteger(result.status) ? result.status : 1);
 `;
 const SUCCESSFUL_OPS_SHARD = `
+import fs from "node:fs";
 if (process.argv.slice(2).join(" ") !== "shard ops") process.exit(2);
+fs.mkdirSync(".cache", { recursive: true });
+const counterFile = ".cache/fixture-ops-shard-count";
+let count = 0;
+try { count = Number.parseInt(fs.readFileSync(counterFile, "utf8"), 10) || 0; } catch {}
+fs.writeFileSync(counterFile, String(count + 1));
 console.log("fixture ops shard passed");
 `;
 const FAILING_OPS_SHARD = `
@@ -48,6 +54,17 @@ function commit(repository, message) {
   git(repository, "add", ".");
   git(repository, "-c", "user.name=Test", "-c", "user.email=test@example.com", "commit", "-m", message);
   return git(repository, "rev-parse", "HEAD");
+}
+
+function opsShardRunCount(repository) {
+  try {
+    return Number.parseInt(
+      fs.readFileSync(path.join(repository, ".cache", "fixture-ops-shard-count"), "utf8"),
+      10,
+    );
+  } catch {
+    return 0;
+  }
 }
 
 function repositoryFixture(t, { opsShard = SUCCESSFUL_OPS_SHARD } = {}) {
@@ -78,22 +95,51 @@ test("direct qualification runs the fixed real ops shard and atomically signs it
   const receipt = await qualifyControllerReady({ repository, readySource });
 
   assert.equal(receipt.readySource, readySource);
+  assert.equal(receipt.schemaVersion, 2);
   assert.deepEqual(receipt.controller.changedFiles, ["ops/deploy.sh", "ops/release/control/controller.mjs"]);
-  assert.equal(receipt.opsTestEvidence.command, OPS_TEST_COMMAND);
-  assert.equal(receipt.opsTestEvidence.status, "passed");
-  assert.equal(receipt.opsTestEvidence.exitCode, 0);
-  assert.deepEqual(receipt.opsTestEvidence.runtime, {
+  assert.equal(receipt.opsQualification.command, OPS_TEST_COMMAND);
+  assert.equal(receipt.opsQualification.status, "passed");
+  assert.equal(receipt.opsQualification.evidence.exitCode, 0);
+  assert.deepEqual(receipt.opsQualification.runtime, {
     nodeVersion: process.version,
     platform: process.platform,
     arch: process.arch,
     executable: process.execPath,
   });
-  assert.match(receipt.opsTestEvidence.outputDigest, /^[0-9a-f]{64}$/);
-  assert.ok(Number.isFinite(Date.parse(receipt.opsTestEvidence.completedAt)));
+  assert.match(receipt.opsQualification.evidence.outputDigest, /^[0-9a-f]{64}$/);
+  assert.ok(Number.isFinite(Date.parse(receipt.opsQualification.completedAt)));
   assert.match(receipt.receiptDigest, /^[0-9a-f]{64}$/);
   assert.deepEqual(verifyControllerReady({ repository, readySource, file }), receipt);
+  assert.equal(opsShardRunCount(repository), 1);
   assert.equal(fs.statSync(file).mode & 0o777, 0o600);
   assert.equal(fs.readdirSync(path.dirname(file)).some((entry) => entry.includes(".tmp-")), false);
+});
+
+test("news-only Application Ready reuses ops qualification and a control change invalidates it", async (t) => {
+  const { repository, readySource } = repositoryFixture(t);
+  const baseline = await qualifyControllerReady({ repository, readySource });
+  assert.equal(opsShardRunCount(repository), 1);
+
+  fs.writeFileSync(path.join(repository, "app.ts"), "export const application = 'news copy';\n");
+  const newsReadySource = commit(repository, "news copy only");
+  const newsReady = await qualifyControllerReady({ repository, readySource: newsReadySource });
+  assert.equal(opsShardRunCount(repository), 1);
+  assert.equal(newsReady.controller.sourceSha, newsReadySource);
+  assert.deepEqual(newsReady.controller.changedFiles, []);
+  assert.equal(newsReady.controller.controlDigest, baseline.controller.controlDigest);
+  assert.equal(newsReady.opsQualification.receiptDigest, baseline.opsQualification.receiptDigest);
+  assert.notEqual(newsReady.receiptDigest, baseline.receiptDigest);
+  assert.deepEqual(verifyControllerReady({ repository, readySource: newsReadySource }), newsReady);
+
+  fs.writeFileSync(path.join(repository, "ops", "deploy.sh"), "#!/bin/bash\nset -eu\n");
+  commit(repository, "control plane change");
+  const changedControl = await qualifyControllerReady({ repository, readySource: newsReadySource });
+  assert.equal(opsShardRunCount(repository), 2);
+  assert.notEqual(changedControl.controller.controlDigest, newsReady.controller.controlDigest);
+  assert.notEqual(
+    changedControl.opsQualification.receiptDigest,
+    newsReady.opsQualification.receiptDigest,
+  );
 });
 
 test("a failing ops runner rejects qualification without writing a receipt", async (t) => {
@@ -188,11 +234,11 @@ test("missing, stale, drifted, and forged controller receipts fail closed", asyn
 
   await qualifyControllerReady({ repository, readySource });
   const forged = JSON.parse(fs.readFileSync(file, "utf8"));
-  forged.opsTestEvidence.exitCode = 1;
+  forged.opsQualification.evidence.exitCode = 1;
   fs.writeFileSync(file, JSON.stringify(forged));
   assert.throws(
     () => verifyControllerReady({ repository, readySource, file }),
-    /ops test evidence is invalid/,
+    /controller qualification exit code is not zero/,
   );
 
   await qualifyControllerReady({ repository, readySource });
