@@ -78,23 +78,30 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-if (metadata.schemaVersion !== 1
+const ready = metadata.releaseReady;
+const target = metadata.deployment?.target;
+const readyTargetMatches = target?.kind === 'monolith'
+  ? ready?.target?.kind === 'monolith' && ready?.target?.id === 'monolith' && ready?.target?.mode === 'activate'
+  : target?.kind === 'unit' && ready?.target?.kind === 'unit'
+    && ready?.target?.id === target.unitId && ready?.target?.mode === target.mode;
+if (metadata.schemaVersion !== 2
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
   || metadata.source?.contentDigest !== contentDigest
-  || metadata.releaseCandidate?.schemaVersion !== 2
-  || metadata.releaseCandidate?.kind !== 'workspace-release-candidate'
-  || metadata.releaseCandidate?.status !== 'prepared'
-  || metadata.releaseCandidate?.command !== 'ops/publish.sh prepare'
-  || metadata.releaseCandidate?.treeId !== tree
-  || metadata.releaseCandidate?.contentDigest !== contentDigest
+  || ready?.schemaVersion !== 1
+  || ready?.kind !== 'workspace-ready-artifact'
+  || ready?.status !== 'ready'
+  || ready?.command !== 'ops/publish.sh ci'
+  || !/^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/.test(ready?.runId ?? '')
+  || ready?.source?.commitSha !== sha
+  || ready?.source?.treeId !== tree
+  || ready?.source?.contentDigest !== contentDigest
+  || !/^[0-9a-f]{64}$/.test(ready?.configurationDigest ?? '')
+  || !/^[0-9a-f]{64}$/.test(ready?.artifact?.sha256 ?? '')
+  || !/^[0-9a-f]{64}$/.test(ready?.artifact?.manifestSha256 ?? '')
+  || !readyTargetMatches
   || !['cnb', 'local'].includes(transport)
-  || JSON.stringify(metadata.releaseCandidate?.checks) !== JSON.stringify([
-    'cnb-release-config',
-    'tenant-config-dry-run',
-    'tenant-permission-docs',
-  ])
-  || !Number.isFinite(Date.parse(metadata.releaseCandidate?.completedAt ?? ''))
+  || !Number.isFinite(Date.parse(ready?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
@@ -226,9 +233,6 @@ NODE
     RELEASE_DATABASE_REPLACEMENT_PREPARED_AT="$(printf '%s\n' "$metadata_values" | sed -n '23p')"
   fi
   RELEASE_TRANSPORT="$(printf '%s\n' "$metadata_values" | sed -n '24p')"
-  node ops/release/plan/snapshot-contract.mjs \
-    --metadata "$RELEASE_METADATA_FILE" --action deploy --executor "$RELEASE_TRANSPORT" \
-    --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" >/dev/null
   RELEASE_RECEIPT_RECOVERY_BASE="$(printf '%s\n' "$metadata_values" | sed -n '25p')"
   if [ -n "$RELEASE_RECEIPT_RECOVERY_BASE" ]; then
     RELEASE_RECEIPT_RECOVERY_SOURCE="$(printf '%s\n' "$metadata_values" | sed -n '26p')"
@@ -244,17 +248,21 @@ build_artifact() {
   echo "==> 校验 CNB 本次构建的 standalone 与 manifest..."
   test -s "$ARTIFACT_MANIFEST_PATH"
   test -s "$ARTIFACT_PATH"
-  ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" <<'NODE'
+  ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$RELEASE_METADATA_FILE" <<'NODE'
 const fs = require('node:fs');
 const crypto = require('node:crypto');
-const [manifestPath, artifactPath, sourceTree, contentDigest] = process.argv.slice(2);
+const [manifestPath, artifactPath, sourceTree, contentDigest, metadataPath] = process.argv.slice(2);
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const ready = JSON.parse(fs.readFileSync(metadataPath, 'utf8')).releaseReady;
 const artifactSha = crypto.createHash('sha256').update(fs.readFileSync(artifactPath)).digest('hex');
+const manifestSha = crypto.createHash('sha256').update(fs.readFileSync(manifestPath)).digest('hex');
 if (manifest.schemaVersion !== 2
   || manifest.source?.treeSha !== sourceTree
   || manifest.source?.contentDigest !== contentDigest
   || manifest.build?.buildId !== contentDigest
-  || manifest.artifact?.sha256 !== artifactSha) {
+  || manifest.artifact?.sha256 !== artifactSha
+  || ready?.artifact?.sha256 !== artifactSha
+  || ready?.artifact?.manifestSha256 !== manifestSha) {
   throw new Error('CNB standalone identity or digest is invalid');
 }
 process.stdout.write(artifactSha);

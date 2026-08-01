@@ -36,6 +36,18 @@ function receiptFile(root, descriptor) {
   return path.join(root, descriptor.taskKey, `${descriptor.inputDigest}.json`);
 }
 
+function quarantineCorruptReceipt(cwd, file) {
+  const sourceRoot = path.join(cwd, ".cache", "check-results");
+  const relative = path.relative(sourceRoot, file);
+  if (!relative || relative.startsWith("..") || path.isAbsolute(relative)) return false;
+  const quarantine = path.join(cwd, ".cache", "check-results-quarantine", `${Date.now()}-${process.pid}`, relative);
+  try {
+    fs.mkdirSync(path.dirname(quarantine), { recursive: true });
+    fs.renameSync(file, quarantine);
+    return true;
+  } catch { return false; }
+}
+
 function markReceiptUsed(file, receipt) {
   try { fs.utimesSync(file, new Date(), new Date()); } catch { /* LRU metadata is best effort. */ }
   return { state: "reusable", receipt };
@@ -122,7 +134,7 @@ export function createCheckTaskCache({
         commandDigest: descriptor.commandDigest,
         runtimeDigest: descriptor.runtimeDigest,
         status,
-        sourcePlanId: env.CHECK_SOURCE_PLAN_ID?.trim() || null,
+        sourceRunId: env.CHECK_SOURCE_RUN_ID?.trim() || null,
         durationMs: Math.max(0, Math.round(durationMs)),
         completedAt: new Date().toISOString(),
       };
@@ -135,7 +147,7 @@ export function createCheckTaskCache({
         // Receipt persistence is an optimization; a passing check remains passing.
       }
     },
-    freezeTaskGraph(tasks, { file, mode = "standard", sourcePlanId = env.CHECK_SOURCE_PLAN_ID?.trim() || null } = {}) {
+    freezeTaskGraph(tasks, { file, sourceRunId = env.CHECK_SOURCE_RUN_ID?.trim() || null } = {}) {
       const graphTasks = tasks.map((task) => {
         let descriptor;
         try {
@@ -143,21 +155,26 @@ export function createCheckTaskCache({
         } catch (error) {
           return { taskKey: task.id, status: "blocked", reason: error instanceof Error ? error.message : String(error) };
         }
-        if (mode === "fast") return { ...descriptor, status: "skipped_by_fast" };
         const inspected = task.cacheable === false
           ? { state: "missing", receipt: null }
           : inspectReceipt(receiptFile(resultDirectory, descriptor), descriptor, task);
-        if (inspected.state === "corrupt") return { ...descriptor, status: "blocked", reason: "matching task receipt is corrupt" };
+        if (inspected.state === "corrupt") {
+          const file = receiptFile(resultDirectory, descriptor);
+          if (!quarantineCorruptReceipt(cwd, file)) {
+            return { ...descriptor, status: "blocked", reason: "matching task receipt is corrupt and could not be quarantined" };
+          }
+          return { ...descriptor, status: "pending", cacheRecovery: "corrupt receipt quarantined" };
+        }
         if (inspected.state === "reusable") {
-          return { ...descriptor, status: "reused", sourcePlanId: inspected.receipt.sourcePlanId, receiptDigest: inspected.receipt.receiptDigest };
+          return { ...descriptor, status: "reused", sourceRunId: inspected.receipt.sourceRunId, receiptDigest: inspected.receipt.receiptDigest };
         }
         return { ...descriptor, status: "pending" };
       });
       const unsigned = {
         schemaVersion: 1,
         kind: GRAPH_KIND,
-        sourcePlanId,
-        mode,
+        sourceRunId,
+        mode: "standard",
         tasks: graphTasks,
       };
       const graph = { ...unsigned, graphDigest: taskGraphDigest(unsigned) };

@@ -12,11 +12,12 @@ import { checkSurfaceRawContentWarnings } from "./surface-raw-content";
 import { checkSurfaceDeclareBoundaries } from "./surface-boundaries";
 import { checkUiHelperPurityWarnings } from "./ui-helper-purity";
 import { checkActionRuntimeUi } from "./action-runtime-ui";
+import { checkModalGovernance } from "./modal-governance";
 import { checkTableRowInteraction } from "./table-row-interaction";
 import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
-import { UI_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 
 export const uiGateChecks: AggregateGateCheck[] = [
+  ["modal-governance", checkModalGovernance],
   ["table-row-interaction", checkTableRowInteraction],
   ["create-surface-entry", checkCreateSurfaceEntries],
   ["field-layout-debt", checkFieldLayoutDebt],
@@ -38,16 +39,6 @@ export function uiGate(checks: AggregateGateCheck[] = uiGateChecks) {
   return runAggregateGate({ checks, displayName: "UI", logName: "UI" });
 }
 
-export function selectUiGateChecks(name?: string) {
-  if (!name) return uiGateChecks;
-  if (!UI_GATE_CHECK_NAMES.includes(name)) throw new Error(`unknown UI detector: ${name}`);
-  return uiGateChecks.filter(([candidate]) => candidate === name);
-}
-
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
-  const checkIndex = process.argv.indexOf("--check");
-  const selected = checkIndex < 0 ? undefined : process.argv[checkIndex + 1];
-  uiGate(selectUiGateChecks(selected))
-    .then((ok) => process.exit(ok ? 0 : 1))
-    .catch((error) => { console.error(error instanceof Error ? error.message : String(error)); process.exit(2); });
+  uiGate().then((ok) => process.exit(ok ? 0 : 1));
 }

@@ -442,6 +442,7 @@ runtime_ro_targets() {
 }
 runtime_traverse_only_targets() {
   local relative target
+  printf '%s\n' /home/ubuntu "$REMOTE_ROOT"
   for relative in data assets assets/brand; do
     target="$CONFIG_ROOT/$relative"
     [ ! -e "$target" ] || printf '%s\n' "$target"
@@ -507,10 +508,8 @@ install_runtime_permissions() {
   id "$RUNTIME_USER" >/dev/null 2>&1 || useradd --system --user-group --home-dir /var/lib/workspace-runtime --create-home --shell /usr/sbin/nologin "$RUNTIME_USER"
   getent group "$RUNTIME_USER" >/dev/null || { echo "[错误] runtime 用户缺少同名 primary group" >&2; exit 1; }
   install -d -o "$RUNTIME_USER" -g "$RUNTIME_USER" -m 0700 /var/lib/workspace-runtime /var/lib/workspace-runtime/.pm2
-  runuser -u "$RUNTIME_USER" -- test -x /home/ubuntu
-  runuser -u "$RUNTIME_USER" -- test -x "$REMOTE_ROOT"
-  setfacl -m "u:$RUNTIME_USER:--x" "$CONFIG_ROOT"
   local target
+  setfacl -m "u:$RUNTIME_USER:--x" "$CONFIG_ROOT"
   while IFS= read -r target; do setfacl -m "u:$RUNTIME_USER:--x" "$target"; done < <(runtime_traverse_only_targets)
   while IFS= read -r target; do
     setfacl -Rm "u:$RUNTIME_USER:rX" "$target"

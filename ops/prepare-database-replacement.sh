@@ -36,9 +36,18 @@ SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
 candidate_identity="$(node "$RELEASE_WORKTREE/ops/release/candidate/identity.mjs" capture --repository "$RELEASE_WORKTREE" --revision HEAD)"
 SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.treeId)' "$candidate_identity")"
 SOURCE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
-CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$RELEASE_WORKTREE/.cache/release-check/release-candidate.json}"
-node "$RELEASE_WORKTREE/ops/release-gate-receipt.mjs" candidate-verify \
-  --content "$SOURCE_CONTENT_DIGEST" --tree "$SOURCE_TREE" --file "$CANDIDATE_RECEIPT_FILE" >/dev/null
+ready_json="$(node "$RELEASE_WORKTREE/ops/release/readiness/ready-artifact.mjs" current \
+  --root "$RELEASE_WORKTREE/.cache/release-ready")"
+node - "$ready_json" "$SOURCE_SHA" "$SOURCE_TREE" "$SOURCE_CONTENT_DIGEST" <<'NODE'
+const receipt = JSON.parse(process.argv[2]).receipt;
+if (receipt?.status !== 'ready'
+  || receipt.source?.commitSha !== process.argv[3]
+  || receipt.source?.treeId !== process.argv[4]
+  || receipt.source?.contentDigest !== process.argv[5]
+  || receipt.target?.id !== 'monolith') {
+  throw new Error('database replacement requires the current monolith Ready Artifact');
+}
+NODE
 
 if command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:3000 -sTCP:LISTEN >/dev/null 2>&1; then
   echo "[错误] 本地 3000 仍在运行；整库替换快照前必须停止本地 Workspace writer" >&2

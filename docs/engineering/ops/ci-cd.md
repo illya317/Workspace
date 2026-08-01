@@ -1,145 +1,140 @@
 # CI/CD 与发布契约
 
-本文是 Workspace 合并与生产发布的执行真源。目标是让日常反馈只覆盖本次选择的内容，让正式发布只做一次完整证明，并保留生产切换所需的备份、迁移、健康检查和回滚能力。
-
-## 两种检查，不混用
-
-日常协作由 Agent 选择检查，不再由脚本给文件划风险等级：
-
-1. Agent 先固定 exact staged tree。
-2. Agent 明确列出本次选择的文件、需要补充的依赖文件和要运行的命令。
-3. `npm run check:agent -- --plan <file>` 只验证 staged evidence 并执行这些命令；它不推导风险，也不追加无关门禁。
-4. `check:changed` 是通用轻量兜底，只处理 changed files 与已登记依赖。共享工作区的 unstaged、untracked 和其他人的改动不进入 key，也不进入候选。
-
-生产发布只有一个固定证明：
+本文是 Workspace 生产发布的执行真源。唯一生命周期是：
 
 ```text
-prepare: freeze Plan / candidate / mode / target / executors
-  -> validate: full source CI once, or skipped_by_fast
-  -> build: compile the sealed target artifact once
-  -> deploy: consume the immutable artifact only
+ci -> Ready Artifact -> deploy
 ```
 
-`prepare` 创建 append-only Release Plan，并一次封存 source/tree/content digest、租户配置 digest、standard/fast 模式、部署目标以及每个阶段的 local/CNB 执行器。默认全部走 local；可在 prepare 时用 `--cnb-from validate|build` 或逐项 `--executor stage=local|cnb` 选择单调的 local -> CNB 边界。Plan 创建后不得改模式、目标或执行器，也不得从 CNB 回到 local。
+`prepare`、`validate`、`build`、fast mode、Release Plan、`--new-plan` 和按阶段切 local/CNB 均已删除，不提供兼容入口。
 
-每个阶段只有 `pending -> running -> succeeded|failed|cancelled|skipped_by_fast`。终态不得重开：成功证据直接复用，失败或取消也不允许在同一 Plan 内重跑；修复或重新决策后必须显式 `prepare --new-plan`。新 Plan 若 source/tree/content/config 完全相同，可复用旧 Plan 的 prepare 证据，不重新做候选准备。
+## 边界
 
-standard 模式中，`validate` 只运行一次 full source CI，`build` 只编译一次目标 artifact；两者不互相补跑。`deploy` 只消费二者的终态证据。fast 模式必须记录原因，先冻结一份所有可计算任务均为 `skipped_by_fast`、输入不可计算项保持 `blocked` 的审计图，再把 Plan 的 `validate` 固定为 `skipped_by_fast`；它仍强制一次 build、artifact identity/digest、生产锁、备份、migration、健康检查、原子切换和回执，不是绕过生产安全边界的入口。
+### CI 的责任
 
-CNB 配置中的容器准备、依赖准备是 runner 基础设施，不是业务阶段。只有本次 action 对应的发布脚本会产生业务证据，其余固定 stage 明确 no-op。当前支持从 validate 或 build 进入 CNB；`--cnb-from deploy` 预留给未来的跨平台 artifact capsule handoff，在该适配器完成前显式拒绝，避免 CNB 在 deploy 阶段偷偷重建。
+`ops/publish.sh ci` 选择专用 release worktree 的已提交候选，并在同一次 invocation 中尽可能报出全部可发现问题：
 
-`validate` 不读取风险等级、不按文件数升级，也不编译。开始执行检查前必须先冻结完整任务图；图中每项只能是 `reused`、`pending`、`blocked` 或 `skipped_by_fast`，冻结后不得临时扩大、缩小或回头重跑。源码 CI 与编译是两个独立阶段，前置失败不得触发自动全量重跑。Agent 先检查完整失败清单并集中修复，日常诊断只跑针对性命令；新的候选内容在真正部署前必须进入新 Plan。
+1. 校验仓库外的租户/CNB 配置输入并计算配置摘要。
+2. 在执行前冻结完整源码任务图。
+3. 运行所有可运行的独立 source checks；单项失败不终止其他独立项。
+4. 与 source checks 独立地恢复或构建 exact target artifact；source 失败不阻止 artifact 暴露构建问题。
+5. 对 exact artifact 做离线部署演练：校验 archive 路径、runtime 文件、basePath、server entry 和 manifest，解包到临时目录，启动 production standalone，探测 health 与 version，然后清理进程和目录。
+6. 只有 source、artifact、演练和外部输入全部通过，才签发 Ready Artifact。
 
-Plan 绑定完整候选，任务回执不绑定 Plan 或整仓 snapshot，而是绑定 `taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest`。Node tests 按稳定 shard、TypeScript 按 tsconfig project 及其引用闭包、Domain/UI gate 按 detector 生成回执；全量证明由历史输入完全一致的成功回执与本次新通过回执共同组成。failed、cancelled、skipped 和未声明可复用的 warning 永不进入回执库。
+Ready Artifact 绑定：
 
-Node 版本、lockfile、检查 runner、tsconfig 基础配置或 Prisma 版本等全局基础输入变化时，相关任务 input/command/runtime digest 必须变化。Prisma 回执绑定 schema、migration、配置和数据库连接类别，不因同类别连接的凭据轮换无谓失效；Environment 回执仍绑定所选环境变量键和值的哈希。
+- source commit、Git tree、content digest；
+- 租户配置 digest 和 Full/unit/shadow/activate 目标；
+- aggregate source result、冻结 task graph 和逐任务回执集合；
+- artifact、manifest、artifact receipt 和启动演练回执的 SHA-256；
+- runtime entry、BUILD_ID、basePath 与必要部署文件。
 
-## 候选隔离
+无法在 CI 确定的只有生产现场事实，例如当前生产版本、部署锁、生产数据库 migration 区间、备份、writer fencing、传输后的远端 digest、原子切换、公开 health 和回滚。这些属于 deploy。
 
-- 发布候选是专用 release worktree 的已提交 tree；共享工作区可以任意 dirty。
-- `push`、`prepare`、`validate` 和 `deploy` 不读取共享工作区的 unstaged、staged 或 untracked 内容。
-- release worktree 自身仍须干净，因为它是冻结候选而不是协作区。
-- commit SHA 只保留为审计来源和迁移历史定位，不再作为源码检查缓存、artifact cache 或 runtime build id 的命中条件。
-- 候选 identity 是 `Git tree + SHA-256 content digest`；相同内容即使提交元数据不同，也可复用同一 artifact。源码验证是否复用只看每项任务的实际输入回执，新的 Plan 仍生成自己的冻结任务图和汇总证明。
+### Deploy 的责任
 
-## 缓存契约
+`ops/publish.sh deploy` 只允许当前 release source、配置和目标已经存在 exact Ready Artifact。它可以：
 
-- `ops/cache-policy.json` 是唯一版本化缓存策略源，统一声明总容量、磁盘 high/stop-build 水位以及各缓存类的 retention/eviction/pin。`ops/cache/cache-policy.mjs` 负责校验与只收紧私有覆盖，`ops/cache/cache-prune.mjs` 负责 prune、build space guard 和 artifact pin。
-- 验证回执存储为 `.cache/check-results/<task-key>/<input-digest>.json`；本地 Release 将该路径映射到 release worktree 的持久缓存，CNB 使用独立 read-write volume。读取成功回执会更新 LRU 时间，但不改变签名内容。
-- validation receipt 保留 30 天，compiler cache 7 天，失败诊断 72 小时，runtime temporary 6 小时，未部署 artifact 48 小时；当前生产和一个 rollback artifact 不参与 LRU 驱逐。具体默认值以策略文件为准。
-- 私有环境只允许用 `CACHE_POLICY_*` 把容量、水位或保留期调得更严；尝试延长保留期、提高容量/水位、关闭清理或更改 pin 规则必须失败。
-- 每个检查任务的 key 由它声明的文件/环境实际输入、命令契约和运行时组成；不存在整仓 command receipt。unstaged、untracked、PATH、base/head commit SHA 或无关文件不使回执失效。
-- committed scope 只包含 HEAD tree；共享 index 和工作区状态完全忽略。
-- artifact cache 以 `target/contentDigest` 寻址，并复验 tree、content digest、artifact digest、lockfile、migration set 和 deploy graph。
-- 环境建立失败或缓存 miss 只是需要执行本次工作，不得诱发另一轮相同全量检查。
+- 恢复并复验 Ready Artifact；
+- 读取当前生产状态并执行 ancestry/migration preflight；
+- 获取生产锁，创建备份并执行 migration；
+- 传输并复验 artifact，warm up candidate，原子切换；
+- 验证公开 health/version，失败时回滚；
+- 写不可变部署回执和通知。
 
-## 软耗时诊断
+它禁止 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
 
-发布没有“超过 N 分钟即失败”的业务时间预算。计时只用于诊断：
+## 一次报全与增量收敛
 
-- 单阶段或累计耗时超过软复查阈值时，Agent 检查排队、锁等待、重复全量、重复编译、依赖重装、缓存 miss 和过宽依赖闭包。
-- CNB 等待超过软阈值只提示，不终止正在进行的发布。
-- 同一候选若重复运行 full source CI 或 compile，诊断报告必须明确标出；成功回执直接复用。
-- 网络连接、数据完整性、互斥锁和生产安全仍可因实际错误失败，它们不是时间预算。
+正式 source suite 设置 aggregate mode。冻结任务状态只有：
+
+- `reused`：input/command/runtime digest 与成功回执完全一致；
+- `pending`：本轮必须执行；
+- `blocked`：真实输入描述无法计算，仍计入最终失败，但不阻止其他任务；
+
+每个任务回执的 key 是：
+
+```text
+taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
+```
+
+成功任务进入持久回执库；failed、cancelled 和未声明可复用的 warning 不进入。修复后再次运行 `ci` 时，精确输入未变化的任务直接复用，只执行失效任务。因此第一次可能是 100%，第二次接近变更闭包，后续继续缩小，而不是每轮重跑全量。
+
+derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。
+
+同一轮中 source、artifact 和 artifact rehearsal 独立聚合。即使 source 已失败，artifact 仍继续；只有依赖于缺失 artifact 的演练会明确标记 blocked。
+
+## 候选与缓存
+
+- CI 候选只来自干净 release worktree 的已提交 tree；共享开发 worktree 的 staged、unstaged 和 untracked 内容不参与。
+- content identity 是 `Git tree + SHA-256 content digest`。commit SHA 保留用于审计和 migration ancestry，不作为 task/artifact cache 的唯一 key。
+- release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。
+- `ops/cache-policy.json` 是缓存容量、水位、retention 和 pin 的唯一版本化策略源。
+- task receipt 位于 `.cache/check-results/<task>/<input>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
+- 当前 production 和一个 rollback artifact 必须 pin，不参与普通 LRU 驱逐。
+- deploy 恢复 cache 时优先使用同文件系统 immutable hardlink；跨文件系统才复制。artifact 在生产传输前后仍各做必要 digest 复验。
+
+## Local 与 CNB
+
+Local 和 CNB 只是执行渠道，不是不同的 CI/CD 模型。任何渠道适配器都必须调用相同的 source aggregator、artifact builder/rehearsal、Ready schema 和 deploy entry，并产生相同成功判定。
+
+渠道不得：
+
+- 增加 `validate/build` 等私有生命周期；
+- 在 deploy channel 中补跑 CI 或重建 artifact；
+- 使用不同检查集合、宽松回执或不同 production safety gates；
+- 把渠道切换写进 Ready Artifact。Ready 描述“什么可以部署”，channel 只描述“在哪里执行/如何传输”。
+
+当前 operator 默认使用 local，因为它直接复用 release worktree 缓存，部署请求到切换的延迟最低。旧 `release-to-cnb.sh` 分段入口已拒绝；CNB adapter 只有在能持久化并消费同一种 Ready Artifact 时才可启用，不能用 CNB 重新 build 来伪装 deploy channel。
 
 ## 失败处理
 
-正式 `validate` 必须保存完整的 `passed / failed / blocked` 结果，`build` 保存独立 artifact 结果；任一失败都不生成可部署状态，而且本 Plan 随即终止。
+一次 `ci` 失败后：
 
-失败后：
+1. 保存本轮完整 failed/blocked/preflight/artifact/rehearsal 汇总。
+2. Agent 一次性审计完整清单和依赖链，集中修复。
+3. 用针对性命令验证修改点；不要把正式 CI 当逐错调试器。
+4. 再运行 `ci`。它复用成功的 exact-input 回执和 exact artifact/rehearsal，只执行增量。
+5. 只有新的 Ready Artifact 签发后才能 deploy。
 
-1. Agent 读取本轮全部错误与慢阶段诊断。
-2. 一次性检查环境、依赖、数据库前置和目标 build 的全部已知问题。
-3. 集中修改。
-4. 用 Agent 声明的轻量命令验证修改点和依赖。
-5. 显式创建新 Plan；不得重开原 Plan 的失败阶段，也不得自动循环全量 CI 或 build。
-
-禁止把正式全量门禁当作逐错发现器，禁止自动“全量 -> 修一个 -> 全量”的循环。
+不创建 Plan，不授权 `--new-plan`，也不存在“完成一个阶段后重新开阶段”。CI 的完成定义就是 Ready 已签发；deploy 的完成定义就是生产回执、health/version 与切换状态一致。
 
 ## Migration 与生产安全
 
-每个新增 `prisma/migrations/*/migration.sql` 的第一条非空行必须且只能声明一次：
+新增 migration 的第一条非空行必须声明一次：
 
 ```sql
 -- workspace:migration-mode=expand
 -- workspace:migration-mode=maintenance
 ```
 
-`expand` 只用于旧 writer 与新 schema 可并存的向前兼容变化；其余变更必须使用 `maintenance`。已进入可信历史的 migration 不得修改、重命名或删除。生产入口仍根据 deployed source 到 candidate 的 migration 区间检查策略，这个历史定位是有业务含义的，不参与检查范围或缓存 key。
+`expand` 只用于旧 writer 与新 schema 可并存的向前兼容变化；其余使用 `maintenance`。可信历史中的 migration 不得修改、重命名或删除。
 
-生产 deploy 继续强制：服务器互斥锁、runtime 与数据库凭据边界、备份、migration inventory、writer fencing、原子 current/Gateway 切换、健康检查、版本内容摘要复验、失败回滚和不可变部署回执。`deploy` 只能消费已经验证的 artifact，禁止现场补跑源码检查或编译。
+生产 deploy 继续强制：source ancestry、migration inventory、生产互斥锁、runtime/数据库凭据边界、备份、writer fencing、原子 current/Gateway 切换、candidate/public health、content version、失败回滚和不可变部署回执。这些现场检查不搬到 CI，也不允许 deploy 借此执行源码修复。
 
-分模块部署、Gateway generation、Profile、shadow/active 和 control-plane 细节见 `docs/engineering/ops/deploy-units.md`。数据库安全与恢复见 `docs/engineering/ops/database.md`。
-
-## 运维模块与体量治理
-
-`ops/deploy.sh` 是薄组合入口，私有实现位于 `ops/deploy/`：transport、state、artifact、runtime-supply、runtime-safety、atomic-cutover 和 health。发布候选、回执、验证和慢流程诊断位于 `ops/release/`。
-
-依赖方向登记在：
-
-- `scripts/arch/source-code-analysis/operations-module-policy.json`
-- `scripts/arch/source-code-analysis/operations-size-policy.json`
-
-`source-code-analysis:check` 同时验证唯一模块归属、单向依赖、无循环和脚本体量。新运维源码默认不得超过 450 行；历史超大文件按精确行数设只减不增基线，缩小后不得再抬高。原子切换的大型 remote transaction 作为深模块保留，但继续受只减不增约束。
+分模块部署见 [`deploy-units.md`](./deploy-units.md)，数据库安全与恢复见 [`database.md`](./database.md)。
 
 ## 常用命令
 
 ```bash
-# exact staged tree 的基础检查
+# 日常精确检查
 npm run check:precommit
-
-# Agent 提交显式检查计划；脚本不替 Agent 选择命令
 npm run check:agent -- --plan /absolute/path/to/check-plan.json
-
-# 通用 changed-files 兜底
 npm run check:changed
 
-# 冻结候选，不编译
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare
+# 代码完成时运行；聚合 source + artifact + exact runtime rehearsal，签发 Ready
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci
 
-# 一次正式源码验证
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh validate
+# 单 unit 目标在 CI 时确定，并进入同一种 Ready contract
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --deploy-unit finance
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --shadow-unit finance
 
-# 一次正式构建
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh build
+# 只查看 Ready
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status
 
-# 只消费已构建 artifact
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh deploy
+# 用户下达部署命令后只消费 Ready
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy
 
-# 快速发布：明确跳过源码质量门禁，仍须 build + deploy
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --fast "线上故障紧急恢复"
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh build
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh deploy
-
-# 从 validate 开始全部交给 CNB；未指定时所有阶段默认 local
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --cnb-from validate
-
-# 查看只增不改的 Plan 进度和证据
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh status
-
-# 失败/取消或改变决策后创建新 Plan
-OPS_ENV_FILE=/path/to/ops/.env ops/publish.sh prepare --new-plan
-
-# 运维模块、依赖和体量监管
+# 运维模块、依赖和体量治理
 npm run source-code-analysis:check
 ```

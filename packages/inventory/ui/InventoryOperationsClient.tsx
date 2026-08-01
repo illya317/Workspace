@@ -139,7 +139,7 @@ export default function InventoryOperationsClient({
     const date = `${year}-${month.padStart(2, "0")}-01`;
     const empty = emptyDocumentDraft(companyCode, date, workspace?.items[0], workspace?.warehouses[0]);
     return {
-      id: "inventory-document-create", presentation: "modal", title: "新建出入库单", open: Boolean(documentDraft), canCreate, disabled: saving || workspace?.closing.status === "closed",
+      id: "inventory-document-create", presentation: "block", title: "新建出入库单", open: Boolean(documentDraft), canCreate, disabled: saving || workspace?.closing.status === "closed",
       content: { kind: "sections", sections: documentFormSections(documentDraft ?? empty, workspace, setDocumentDraft) },
       submission: { action: "save", disabled: saving || !documentDraft?.documentNo || !documentDraft.lines[0]?.itemId || !documentDraft.lines[0]?.warehouseId, execute: saveDocument }, onOpenChange: (open) => setDocumentDraft(open ? empty : null), onCancel: () => setDocumentDraft(null),
     };
@@ -148,7 +148,7 @@ export default function InventoryOperationsClient({
   function voucherLinkCreate(): PageSurfaceCreateSpec {
     const field: FormSurfaceFieldSpec = { key: "voucherId", label: "已过账凭证ID", required: true, spec: { valueType: "number", control: "number", validation: { min: 1 } }, value: voucherDraft ?? "", step: 1, onChange: (value) => setVoucherDraft(Number(value) || null) };
     return {
-      id: "inventory-voucher-link", presentation: "modal", title: "关联成本结转凭证", open: voucherDraft !== null, canCreate: canLock && workspace?.closing.status !== "closed", disabled: saving,
+      id: "inventory-voucher-link", presentation: "block", title: "关联成本结转凭证", open: voucherDraft !== null, canCreate: canLock && workspace?.closing.status !== "closed", disabled: saving,
       content: { kind: "sections", sections: [{ key: "voucher", title: "期间结转", layout: { columns: 1, density: "compact" }, items: [field] }] }, submission: { action: "save", disabled: saving || !voucherDraft, execute: linkVoucher }, onOpenChange: (open) => setVoucherDraft(open ? 0 : null), onCancel: () => setVoucherDraft(null),
     };
   }

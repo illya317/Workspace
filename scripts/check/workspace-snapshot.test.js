@@ -438,7 +438,7 @@ test("outer wrapper promotes only successful v2 task receipts before a later sta
       "fs.writeFileSync(path.join(directory, inputDigest + '.json'), JSON.stringify({",
       "  schemaVersion: 2, kind: 'workspace-check-task-receipt', taskKey: 'fixture-task',",
       "  taskContractVersion: 2, inputDigest, commandDigest: 'b'.repeat(64),",
-      "  runtimeDigest: 'c'.repeat(64), status: 'passed', sourcePlanId: 'plan-fixture',",
+      "  runtimeDigest: 'c'.repeat(64), status: 'passed', sourceRunId: 'ci-fixture',",
       "  completedAt: new Date().toISOString(), receiptDigest: 'd'.repeat(64),",
       "}));",
       "process.exit(9);",

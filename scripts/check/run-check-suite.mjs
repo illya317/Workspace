@@ -362,20 +362,16 @@ export function runCheckSuites(
 
   const taskGraph = taskCache.freezeTaskGraph?.(plan.tasks, {
     file: env.CHECK_TASK_GRAPH_FILE?.trim() || null,
-    mode: env.CHECK_RELEASE_MODE === "fast" ? "fast" : "standard",
-    sourcePlanId: env.CHECK_SOURCE_PLAN_ID?.trim() || null,
+    sourceRunId: env.CHECK_SOURCE_RUN_ID?.trim() || null,
   }) ?? null;
   const blockedTasks = taskGraph?.tasks.filter((task) => task.status === "blocked") ?? [];
-  if (blockedTasks.length > 0 && taskGraph?.mode !== "fast") {
-    stderr.write(`Check task graph blocked before validation: ${blockedTasks.map((task) => task.taskKey).join(", ")}\n`);
-    return 2;
+  if (blockedTasks.length > 0) {
+    stderr.write(`Check task graph contains blocked inputs; independent tasks will still run: ${blockedTasks.map((task) => task.taskKey).join(", ")}\n`);
   }
   const cachedTasks = new Map();
-  const skippedTasks = new Set();
   const graphBlockedTasks = new Set();
   for (const task of plan.tasks) {
     const graphTask = taskGraph?.tasks.find((item) => item.taskKey === task.id);
-    if (graphTask?.status === "skipped_by_fast") skippedTasks.add(task.id);
     if (graphTask?.status === "blocked") graphBlockedTasks.add(task.id);
     if (taskGraph && graphTask?.status !== "reused") continue;
     const receipt = taskCache.read(task);
@@ -390,7 +386,7 @@ export function runCheckSuites(
       return result;
     }, {});
     stdout.write(
-      `Frozen task graph ${taskGraph.graphDigest}: reused=${counts.reused ?? 0}, pending=${counts.pending ?? 0}, skipped_by_fast=${counts.skipped_by_fast ?? 0}, blocked=${counts.blocked ?? 0}.\n`,
+      `Frozen task graph ${taskGraph.graphDigest}: reused=${counts.reused ?? 0}, pending=${counts.pending ?? 0}, blocked=${counts.blocked ?? 0}.\n`,
     );
   }
   executionEnv = { ...executionEnv, CHECK_TASK_RECEIPTS_ACTIVE: "1" };
@@ -405,12 +401,9 @@ export function runCheckSuites(
   for (const [index, task] of plan.tasks.entries()) {
     const executable = process.platform === "win32" && task.command === "npm" ? "npm.cmd" : task.command;
     stdout.write(`\n[${index + 1}/${plan.tasks.length}] ${task.label}\n`);
-    if (skippedTasks.has(task.id)) {
-      stdout.write(`⇥ Skipped ${task.label} by explicit fast deployment mode.\n`);
-      continue;
-    }
     if (graphBlockedTasks.has(task.id)) {
-      stdout.write(`⇥ ${task.label} input could not be resolved and remains visibly blocked in the fast task graph.\n`);
+      stdout.write(`⇥ ${task.label} input could not be resolved and remains visibly blocked.\n`);
+      blockingFailures.push({ label: `${task.label} (blocked input)`, status: 2 });
       continue;
     }
     const cached = cachedTasks.get(task.id);

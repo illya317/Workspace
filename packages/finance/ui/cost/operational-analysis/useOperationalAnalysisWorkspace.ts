@@ -138,7 +138,7 @@ export function useOperationalAnalysisWorkspace(
   const assistantCreate = useMemo<PageSurfaceCreateSpec>(() => ({
         id: "operational-analysis-template",
         title: "经营分析模板",
-        presentation: "modal",
+        presentation: "block",
         open: false,
         canCreate: true,
         disabled: loading || !catalog?.canConfigure || !pageAssistant.enabled,

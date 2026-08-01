@@ -5,7 +5,7 @@ import type {
 } from "./FormSurface.types";
 
 export type CreateSurfaceTrigger = "surface";
-export type CreateSurfacePresentation = "inline" | "block" | "modal";
+export type CreateSurfacePresentation = "inline" | "block";
 
 export type CreateSurfaceFormLayoutSpec = Pick<
   FormSurfaceLayoutSpec,
@@ -79,27 +79,15 @@ type CreateSurfaceBlockSpec<T = FormSurfaceLooseItem> = CreateSurfaceBaseProps<T
   anchor?: string;
 };
 
-type CreateSurfaceModalSpec<T = FormSurfaceLooseItem> = CreateSurfaceBaseProps<T> & {
-  presentation: "modal";
-  anchor?: never;
-};
-
 export type PageSurfaceCreateSpec<T = FormSurfaceLooseItem> =
   | CreateSurfaceInlineSpec<T>
-  | (Omit<CreateSurfaceBlockSpec<T>, "anchor"> & { anchor?: never })
-  | CreateSurfaceModalSpec<T>;
+  | (Omit<CreateSurfaceBlockSpec<T>, "anchor"> & { anchor?: never });
 
 export type CreateSurfaceBlockProps<T = FormSurfaceLooseItem> = CreateSurfaceBlockSpec<T> & {
   trigger: "surface";
 };
 
-export type CreateSurfaceModalProps<T = FormSurfaceLooseItem> = CreateSurfaceModalSpec<T> & {
-  trigger: "surface";
-};
-
-export type CreateSurfaceProps<T = FormSurfaceLooseItem> =
-  | CreateSurfaceBlockProps<T>
-  | CreateSurfaceModalProps<T>;
+export type CreateSurfaceProps<T = FormSurfaceLooseItem> = CreateSurfaceBlockProps<T>;
 
 export type PageSurfaceCreateRuntimeProps<T = FormSurfaceLooseItem> = PageSurfaceCreateSpec<T> & {
   trigger: "toolbar";

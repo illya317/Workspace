@@ -343,7 +343,7 @@ export default function GenericTableTab({
 
   const pageCreate: PageSurfaceCreateSpec | undefined = crudCapabilities.canCreate ? {
         id: `generic-create-${config.entityType}`,
-        presentation: "modal" as const,
+        presentation: "block" as const,
         title: `新增${config.title}`,
         open: createDraft !== null,
         canCreate: crudCapabilities.canCreate,

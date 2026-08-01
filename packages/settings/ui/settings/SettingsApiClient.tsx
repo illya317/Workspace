@@ -405,7 +405,7 @@ export default function SettingsApiClient({
   const clientCreate: PageSurfaceCreateSpec | undefined = activeTab === "clients" && canCreateClient
     ? {
         id: "open-api-client-create",
-        presentation: "modal",
+        presentation: "block",
         title: "新增 Client",
         open: createClientOpen,
         canCreate: true,

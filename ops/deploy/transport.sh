@@ -5,14 +5,12 @@ run_deploy_stage() {
     "$@"
     return
   fi
-
   if ! release_timing_active_begin "$stage"; then
     echo "[警告] deploy/${stage} 计时启动失败；部署仍按原命令执行" >&2
     "$@"
     return
   fi
   "$@"
-  # The active finalizer intentionally takes no arguments.
   # shellcheck disable=SC2119
   release_timing_active_passed
 }

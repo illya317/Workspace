@@ -14,21 +14,16 @@ COMMAND="${1:-}"
 [ -n "$COMMAND" ] && shift
 
 case "$COMMAND" in
-  prepare)
-    [ "$#" = "0" ] || { echo "[错误] database-replace prepare 不接受额外参数"; exit 2; }
-    OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" prepare
+  ci)
+    [ "$#" = "0" ] || { echo "[错误] database-replace ci 不接受额外参数"; exit 2; }
+    OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" ci
     OPS_ENV_FILE="$OPS_ENV_FILE" DATABASE_REPLACEMENT_RECEIPT_FILE="$RECEIPT_FILE" \
       "$SCRIPT_DIR/prepare-database-replacement.sh"
     ;;
-  validate)
-    exec env OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" validate "$@"
-    ;;
-  build)
-    exec env OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" build "$@"
-    ;;
   deploy)
-    exec env OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/publish.sh" deploy \
-      --database-replacement-receipt "$RECEIPT_FILE" "$@"
+    [ "$#" = "0" ] || { echo "[错误] database-replace deploy 不接受额外参数"; exit 2; }
+    exec env OPS_ENV_FILE="$OPS_ENV_FILE" DATABASE_REPLACEMENT_RECEIPT_FILE="$RECEIPT_FILE" \
+      "$SCRIPT_DIR/publish.sh" deploy
     ;;
   status)
     [ "$#" = "0" ] || { echo "[错误] database-replace status 不接受额外参数"; exit 2; }
@@ -42,16 +37,13 @@ case "$COMMAND" in
   -h|--help|"")
     cat <<'EOF'
 用法:
-  OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
-  OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace validate
-  OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace build
+  OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace ci
   OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
   OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace status
 
-prepare 复用普通候选冻结，再从已停写的本地 PostgreSQL 生成、校验并上传不可变 dump。
-validate 只生成源码验证回执；build 单独冻结 Full artifact。
-deploy 只消费两个终态回执，并在服务器数据库阶段执行原子整库替换。
+ci 先签发代码 Ready Artifact，再从已停写的本地 PostgreSQL 生成、校验并上传同 source/tree 的不可变 dump。
+deploy 只消费 Ready Artifact 和整库替换回执，并在服务器数据库阶段执行原子整库替换。
 EOF
     ;;
-  *) echo "[错误] database-replace 命令必须是 prepare、validate、build、deploy 或 status"; exit 2 ;;
+  *) echo "[错误] database-replace 命令必须是 ci、deploy 或 status"; exit 2 ;;
 esac

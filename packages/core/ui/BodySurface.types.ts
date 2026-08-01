@@ -104,8 +104,15 @@ export interface BodySurfaceModuleGridSpec {
   items: BodySurfaceModuleGridItemSpec[];
 }
 
+export type BodySurfaceModalPurpose =
+  | "audit-history"
+  | "read-only-inspection"
+  | "workflow-action";
+
 export interface BodySurfaceModalSpec {
   key: string;
+  /** Required for approved exceptions. Omitted only by exact legacy-baseline entries awaiting migration. */
+  purpose?: BodySurfaceModalPurpose;
   open: boolean;
   title: string;
   onClose: () => void;
@@ -132,7 +139,6 @@ export interface BodySurfaceSectionDirectCreateSpec {
 
 export type BodySurfaceSectionCreateSpec<T = FormSurfaceLooseItem> =
   | (Omit<Extract<CreateSurfaceSurfaceProps<T>, { presentation: "block" }>, "anchor"> & { anchor?: never })
-  | Extract<CreateSurfaceSurfaceProps<T>, { presentation: "modal" }>
   | BodySurfaceSectionDirectCreateSpec;
 
 export interface BodySurfaceSectionHeaderSpec {

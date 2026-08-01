@@ -4,36 +4,38 @@ import test from "node:test";
 
 const gate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
 const build = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
+const ci = readFileSync(new URL("./run-release-ci.sh", import.meta.url), "utf8");
+const deploy = readFileSync(new URL("./deploy-cnb-release-target.sh", import.meta.url), "utf8");
 const e2e = readFileSync(new URL("./run-release-e2e.sh", import.meta.url), "utf8");
 
-test("validate freezes a Plan task graph and never falls through to compilation", () => {
-  assert.match(gate, /full-source-validation\.mjs/);
-  assert.match(gate, /--plan-id "\$CHECK_SOURCE_PLAN_ID"/);
+test("source gate freezes one CI-run task graph and emits evidence only after aggregate success", () => {
+  assert.match(gate, /--run-id "\$CHECK_SOURCE_RUN_ID"/);
   assert.match(gate, /--task-graph "\$CHECK_TASK_GRAPH_FILE"/);
-  assert.doesNotMatch(gate, /source-verify/);
-  assert.match(gate, /source-create/);
   assert.match(gate, /source_status=\$\?/);
-  assert.match(gate, /不自动重跑或进入 build/);
-  assert.doesNotMatch(gate, /build-standalone-artifact|build-deploy-unit-artifact/);
+  assert.ok(gate.indexOf("source_status=$?") < gate.indexOf("source-create"));
+  assert.doesNotMatch(gate, /build-standalone-artifact|build-deploy-unit-artifact|CHECK_SOURCE_PLAN_ID/);
 });
 
-test("build and deploy never rerun the source gate", () => {
-  assert.match(gate, /if \[ "\$ACTION" != "validate" \][\s\S]*?exit 0/);
-  assert.match(build, /validate\)[\s\S]*?不运行 artifact 编译[\s\S]*?exit 0/);
-  assert.match(build, /deploy 只能消费 build 环节冻结的 artifact，禁止现场编译/);
-});
-
-test("artifact receipt is created only after the single target compilation", () => {
-  assert.ok(build.indexOf("build-standalone-artifact.sh") < build.indexOf("artifact-create"));
-  assert.ok(build.indexOf("artifact-create") < build.indexOf("cnb-release-artifact-cache.sh store"));
-  assert.match(build, /ACTION" = "build"/);
-  assert.doesNotMatch(build, /full-source-result|full-source-ci/);
-});
-
-test("a build failure is terminal for the plan and is not retried in-process", () => {
-  assert.match(build, /build_status=\$\?/);
-  assert.match(build, /build 失败；该 Plan 的 build 已终止，不自动重跑/);
+test("artifact task restores exact cache or compiles one target once", () => {
+  assert.match(build, /cnb-release-artifact-cache\.sh restore/);
   assert.equal(build.match(/build-standalone-artifact\.sh/g)?.length, 1);
+  assert.equal(build.match(/build-deploy-unit-artifact\.sh/g)?.length, 1);
+  assert.ok(build.indexOf("build_status=$?") < build.indexOf("artifact-create"));
+  assert.ok(build.indexOf("artifact-create") < build.indexOf("cnb-release-artifact-cache.sh store"));
+  assert.doesNotMatch(build, /full-source-validation|CHECK_SOURCE_PLAN_ID/);
+});
+
+test("one CI invocation runs source and artifact tasks and reports both statuses", () => {
+  assert.match(ci, /run-cnb-release-gate\.sh[\s\S]*?source_status=\$\?[\s\S]*?build-cnb-release-target\.sh[\s\S]*?artifact_status=\$\?/);
+  assert.match(ci, /rehearse-artifact\.mjs[\s\S]*?rehearsal_status=\$\?/);
+  assert.match(ci, /未签发 Ready Artifact/);
+});
+
+test("deployment requires Ready evidence and contains no compilation fallback", () => {
+  assert.match(deploy, /ready-artifact\.mjs verify/);
+  assert.match(deploy, /RELEASE_SOURCE_RESULT_FILE/);
+  assert.match(deploy, /CHECK_TASK_GRAPH_FILE/);
+  assert.doesNotMatch(deploy, /build-standalone-artifact|build-deploy-unit-artifact|npm run/);
 });
 
 test("release E2E owns one disposable database and can run the selected spec set", () => {

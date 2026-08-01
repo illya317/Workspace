@@ -30,11 +30,11 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。
-- 生产维护遵循提交优先和不可变 Plan：`prepare` 冻结精确 Git tree、私有配置摘要、模式、目标和各阶段执行器；`validate` 只运行一次源码门禁，fast 也必须先冻结全任务 skip/blocked 图再记录 skip；`build` 独立冻结目标 artifact；`deploy` 只消费同一 Plan 的验证状态和 base/source/tree/digest。阶段终态不重开，修复后显式创建新 Plan，并按精确内容复用已有成功回执。
-- Plan 绑定完整候选；验证回执只绑定单个任务的实际输入、命令和运行时。每次 validate 在执行任何任务前冻结 `reused / pending / blocked / skipped_by_fast` 任务图；Node 按稳定 shard、TypeScript 按 project 与引用闭包、Domain/UI 按 detector 产生 v2 回执。只有完整 input/command/runtime digest 一致的 passed 或显式 reusable warning 可跨 Plan 复用，failed/cancelled/skipped 永不复用。
-- 多 agent 共用 main 时，pre-commit 候选快照只用于锁定 `HEAD + staged index + 检查环境` 并拒绝执行中漂移，不产生整仓成功回执；其他 agent 的 unstaged/untracked 写入从一开始就不参与身份计算。`prepare` 只读取提交后的 main tree 并快进到干净 release worktree；`deploy` 固定消费该已验证候选。
+- 生产维护只有 `ci -> Ready Artifact -> deploy`：CI 冻结 exact Git tree/配置摘要/目标和任务图，聚合运行全部独立源码检查，同时独立构建 artifact 并启动 exact archive 做 health/version 演练；全部通过才签 Ready。deploy 只消费相同 source/tree/content/config/target 的 Ready，禁止源码检查或现场构建。
+- 验证回执只绑定单任务的实际输入、命令和运行时。每次 CI 在执行前冻结 `reused / pending / blocked` 任务图；Node 按稳定 shard、TypeScript 按 project 与引用闭包、Domain/UI 按 detector 产生 v2 回执。只有完整 input/command/runtime digest 一致的 passed 或显式 reusable warning 可复用，failed/cancelled 永不复用。
+- 多 agent 共用开发分支时，pre-commit 候选快照只锁定 `HEAD + staged index + 检查环境`；其他 agent 的 unstaged/untracked 写入不参与身份。生产 CI 只读取已提交候选并快进到干净 release worktree；deploy 固定消费该 Ready 候选。
 - 缓存策略只以版本化的 `ops/cache-policy.json` 为权威默认值；`release-private/ops.env` 只能收紧容量、水位和保留期。统一执行器负责 task receipt、compiler cache、失败诊断、runtime temporary 和 artifact；当前生产与一个 rollback artifact 必须 pin，构建达到 stop-build 水位前先 prune，仍超限才阻断。
-- 正式门禁不是逐错调试器。第一次 `validate` 或 `build` 失败后必须停止正式全量重跑，展开完整检查图，一次性审计源码、私有配置、内存、一次性数据库、TLS、migration/seed/integration、build、浏览器和 artifact 前置；独立检查以聚合模式全部执行，有依赖的链只在前置通过后继续并把其余项报告为 blocked。集中修复完整失败清单、逐项验证后，只能显式创建新 Plan；禁止在原 Plan 内重开阶段或“全量门禁 -> 修一个 -> 全量门禁”。本地正式门禁必须确定性生成 injection commit，并把成功检查回执持久化在 release worktree 的 `.cache/release-check-results`；临时 injection worktree不得拥有或清理这份缓存，只有任务实际输入、命令和运行时摘要完全一致时才能复用。
+- 正式 CI 不是逐错调试器。一次 CI 必须继续运行所有独立 source/artifact/rehearsal 项并汇总 failed/blocked；有依赖的链只把真实后续标为 blocked。集中修复完整清单、逐项验证后再次运行 CI，精确输入未变化的成功回执和 artifact rehearsal 直接复用，使后续轮次只剩增量。derived cache 损坏先 quarantine 再重算，不能永久 blocked。
 
 ## 禁止
 
@@ -52,8 +52,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 生产发布
 
-- Full 与单 unit 的 operator 顺序是 `prepare -> validate -> build -> deploy`。除当前只支持 local 的 prepare 外，各阶段可在 Plan 创建时选择 local 或 CNB；执行器只能从 local 单向进入 CNB。目标（Full/unit 与 shadow/activate）、validation base、source/tree 和 artifact digest 必须完全一致。任何 deploy cache miss 都是阻断，不允许现场构建。Profile/Fleet 仍只经受信发布流水线调用。
-- CNB 按 release metadata 构建目标 Linux artifact：Full 为 canonical monolith standalone，单 unit 为 graph/contract 约束的独立制品。已验证 artifact 交给统一部署器按目标执行或复验 control-plane，再完成不可变 release 目录、原子切换、健康检查和失败回滚；服务器不从源码重建生产 artifact。
+- Full 与单 unit 的 operator 顺序都是 `ci -> deploy`。目标（Full/unit 与 shadow/activate）、source/tree/content/config 和 artifact digest 必须完全一致。任何 deploy cache miss 都是阻断，不允许现场构建。Profile/Fleet 仍只经受信发布流水线调用。
+- Local 与 CNB 只是渠道：两者必须运行同一个 source aggregator、artifact/rehearsal、Ready schema 和 deploy entry。渠道不得增加 validate/build 生命周期，不得改变检查集合，也不得在 deploy 补建。
 - Full 成功切流必须生成并原子提交一个无 `activeUnits`、无独立路由的 Gateway generation，让全部公网模块统一回落到本次 monolith；不得保留上一次单 unit/Profile 的公开 override。后续单 unit/Profile 部署再显式建立新的 override。
 - `deployed-release.json` 只记录 CNB runtime/canonical source、artifact 与 deployment 证据。候选必须是当前部署 source 的后代；同 source 为 no-op，回退或分叉直接阻断。
 - 部署通知必须明确标注范围：Full 显示全量，单 unit/Profile 列出本次实际部署的模块，不得把未变化模块算入。Full 和经 `publish.sh` 发起的单 unit release 展示 Ops 总耗时、release 流程处理耗时、生产部署耗时、尝试次数、可用的 CNB/生产关键阶段和最慢阶段。业务 `main` 处理时间与 CI 执行时间不进入 Ops 统计；release/部署脚本故障后的修复和跨次重试持续累计，直到成功结账。计时会话不得因候选 SHA 或业务路径变化而重置；切回业务处理前显式执行 `ops/publish.sh timing pause`，业务提交完成后由下一次部署自动恢复，或手动执行 `ops/publish.sh timing resume`。Profile promotion 当前只有本次 promotion duration，不能误报为完整跨重试 Ops 计时。
@@ -61,4 +61,4 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 ## 验证
 
-远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行 `check:ci` 或其他全量补充门禁。CI 与正式发布的复合检查必须聚合报告同轮全部独立失败；串行依赖项必须显式报告 blocked，不能静默跳过。正式发布按“完整诊断收敛 -> `prepare -> validate -> build -> deploy`”执行；`validate` 和 `build` 各自只执行一次，部署阶段只做生产安全检查。Profile/Fleet 只经受信内部入口运行。
+远端是否允许合并由 base/head affected `CI / required` 决定。除用户明确要求外不运行额外全量补充门禁。正式发布 CI 必须聚合报告同轮全部独立失败，串行依赖项显式 blocked；修复后只运行增量。Ready 签发后 deploy 只做生产现场安全检查。Profile/Fleet 只经受信内部入口运行。

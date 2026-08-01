@@ -58,7 +58,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "ui/AppShell.tsx", "ui/AppVersionGuard.tsx", "ui/ModuleHome.tsx", "ui/NavLink.tsx",
       "ui/PortalClient.tsx", "ui/app-shell-page.tsx", "ui/portal-page.tsx",
       "ui/portal-preferences.ts", "ui/useDeployUnitNavigation.ts",
-      "server/app-version.ts", "server/deploy-unit-runtime.ts", "server/module-home-page.tsx",
+      "server/app-version.ts", "server/deploy-unit-runtime.test.ts", "server/deploy-unit-runtime.ts", "server/module-home-page.tsx",
       "server/module-runtime-overrides.ts", "server/module-runtime.ts",
     ],
     prefixes: ["module-", "server/module-", "ui/system/"],

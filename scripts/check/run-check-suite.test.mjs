@@ -274,26 +274,31 @@ test("CI runs the authoritative full typecheck before a Next build that skips on
   assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
 });
 
-test("explicit fast mode freezes every gate as skipped and executes none", () => {
+test("a blocked task remains visible while every independent task still runs", () => {
   const output = [];
-  let graph;
+  let calls = 0;
+  const tasks = resolveCheckPlan(["contracts"]).tasks;
   const status = runCheckSuites(["contracts"], {
-    env: { ...process.env, CHECK_RELEASE_MODE: "fast" },
+    collectFailures: true,
     createTaskCache: () => ({
-      freezeTaskGraph(tasks) {
-        graph = { graphDigest: "a".repeat(64), tasks: tasks.map((task) => ({ taskKey: task.id, status: "skipped_by_fast" })) };
-        return graph;
+      freezeTaskGraph(graphTasks) {
+        return {
+          mode: "standard",
+          graphDigest: "a".repeat(64),
+          tasks: graphTasks.map((task, index) => ({ taskKey: task.id, status: index === 0 ? "blocked" : "pending" })),
+        };
       },
       read() { return null; },
       write() {},
     }),
-    spawn: () => { throw new Error("fast mode must not execute checks"); },
+    spawn: () => { calls += 1; return { status: 0 }; },
     stdout: { write(value) { output.push(value); } },
     stderr: { write(value) { output.push(value); } },
   });
-  assert.equal(status, 0);
-  assert.ok(graph.tasks.length > 0);
-  assert.match(output.join(""), /skipped_by_fast=/);
+  assert.equal(status, 2);
+  assert.equal(calls, tasks.length - 1);
+  assert.match(output.join(""), /blocked inputs; independent tasks will still run/);
+  assert.match(output.join(""), /blocking failure\(s\)/);
 });
 
 test("unknown suites fail before any command can run", () => {

@@ -45,12 +45,12 @@ function validateTaskReceiptProof(cwd, task) {
   return receipt;
 }
 
-export function validateFrozenTaskGraph({ cwd, taskGraphFile, planId, statusCode }) {
+export function validateFrozenTaskGraph({ cwd, taskGraphFile, runId, statusCode }) {
   const taskGraph = previousResult(taskGraphFile);
   if (
     taskGraph?.schemaVersion !== 1
     || taskGraph?.kind !== "workspace-check-task-graph"
-    || !["standard", "fast"].includes(taskGraph?.mode)
+    || taskGraph?.mode !== "standard"
     || !Array.isArray(taskGraph?.tasks)
     || !/^[0-9a-f]{64}$/.test(taskGraph?.graphDigest ?? "")
   ) {
@@ -58,8 +58,8 @@ export function validateFrozenTaskGraph({ cwd, taskGraphFile, planId, statusCode
   }
   const { graphDigest, ...unsigned } = taskGraph;
   if (graphDigest !== taskGraphDigest(unsigned)) throw new Error("frozen task graph digest is invalid");
-  if (taskGraph.sourcePlanId !== planId) throw new Error("frozen task graph belongs to another Plan");
-  const allowed = new Set(["reused", "pending", "blocked", "skipped_by_fast"]);
+  if (taskGraph.sourceRunId !== runId) throw new Error("frozen task graph belongs to another CI run");
+  const allowed = new Set(["reused", "pending", "blocked"]);
   for (const task of taskGraph.tasks) {
     if (!allowed.has(task.status)) throw new Error(`frozen task graph has invalid status: ${task.taskKey}`);
     if (["reused", "pending"].includes(task.status)) {
@@ -73,9 +73,6 @@ export function validateFrozenTaskGraph({ cwd, taskGraphFile, planId, statusCode
     if (taskGraph.tasks.some((task) => task.status === "blocked")) {
       throw new Error("successful validate cannot contain blocked tasks");
     }
-    if (taskGraph.mode === "standard" && taskGraph.tasks.some((task) => task.status === "skipped_by_fast")) {
-      throw new Error("standard validate cannot contain fast-skipped tasks");
-    }
     for (const task of taskGraph.tasks) {
       if (["reused", "pending"].includes(task.status)) validateTaskReceiptProof(cwd, task);
     }
@@ -86,7 +83,7 @@ export function validateFrozenTaskGraph({ cwd, taskGraphFile, planId, statusCode
 export function runFullSourceValidation({
   cwd = process.cwd(),
   contentDigest,
-  planId,
+  runId,
   taskGraphFile,
   resultFile,
   env = process.env,
@@ -94,25 +91,25 @@ export function runFullSourceValidation({
   now = () => Date.now(),
 } = {}) {
   if (!/^[0-9a-f]{64}$/.test(contentDigest ?? "")) throw new Error("contentDigest must be SHA-256");
-  if (!/^plan-[A-Za-z0-9-]+$/.test(planId ?? "")) throw new Error("planId is required");
+  if (!/^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/.test(runId ?? "")) throw new Error("CI run id is required");
   if (!taskGraphFile) throw new Error("taskGraphFile is required");
   if (!resultFile) throw new Error("resultFile is required");
   const previous = previousResult(resultFile);
-  if (previous) throw new Error("this Plan already consumed its one-shot validate result");
+  if (previous) throw new Error("this CI run already produced a source result");
   const startedAtMs = now();
   const result = execute(COMMAND[0], COMMAND[1], {
     cwd,
     env: {
       ...env,
       CHECK_SUITE_COLLECT_FAILURES: "1",
-      CHECK_SOURCE_PLAN_ID: planId,
+      CHECK_SOURCE_RUN_ID: runId,
       CHECK_TASK_GRAPH_FILE: taskGraphFile,
     },
   });
   const completedAtMs = now();
   const statusCode = result.error || result.signal || result.status === null ? 1 : result.status;
-  const taskGraph = validateFrozenTaskGraph({ cwd, taskGraphFile, planId, statusCode });
-  const taskCounts = Object.fromEntries(["reused", "pending", "blocked", "skipped_by_fast"].map((status) => [
+  const taskGraph = validateFrozenTaskGraph({ cwd, taskGraphFile, runId, statusCode });
+  const taskCounts = Object.fromEntries(["reused", "pending", "blocked"].map((status) => [
     status,
     taskGraph.tasks.filter((task) => task.status === status).length,
   ]));
@@ -120,7 +117,7 @@ export function runFullSourceValidation({
     schemaVersion: 2,
     kind: "workspace-full-source-validation-result",
     contentDigest,
-    sourcePlanId: planId,
+    sourceRunId: runId,
     taskGraphDigest: taskGraph.graphDigest,
     taskCounts,
     command: [COMMAND[0], ...COMMAND[1]].join(" "),
@@ -139,7 +136,7 @@ function parseArgs(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
     if (key === "--content") options.contentDigest = argv[++index];
-    else if (key === "--plan-id") options.planId = argv[++index];
+    else if (key === "--run-id") options.runId = argv[++index];
     else if (key === "--task-graph") options.taskGraphFile = argv[++index];
     else if (key === "--result-file") options.resultFile = argv[++index];
     else throw new Error(`unknown argument: ${key}`);

@@ -15,6 +15,13 @@ esac
 [ "$CONFIG_ROOT" != "/" ] || { echo "[错误] CONFIG_ROOT 不能是根目录" >&2; exit 2; }
 [ "$RUNTIME_USER" = "workspace-runtime" ] || { echo "[错误] runtime 用户不受支持" >&2; exit 2; }
 [ -d "$CONFIG_ROOT" ]
+RUNTIME_ROOT="$(dirname "$CONFIG_ROOT")"
+RUNTIME_PARENT="$(dirname "$RUNTIME_ROOT")"
+[ "$CONFIG_ROOT" = "$RUNTIME_ROOT/.workspace" ] || { echo "[错误] CONFIG_ROOT 必须是 runtime root 下的 .workspace" >&2; exit 2; }
+[ "$RUNTIME_ROOT" != "/" ] || { echo "[错误] runtime root 不能是根目录" >&2; exit 2; }
+[ "$RUNTIME_PARENT" != "/" ] || { echo "[错误] runtime parent 不能是根目录" >&2; exit 2; }
+[ -d "$RUNTIME_ROOT" ]
+[ -d "$RUNTIME_PARENT" ]
 id "$RUNTIME_USER" >/dev/null
 command -v setfacl >/dev/null
 command -v runuser >/dev/null
@@ -46,6 +53,15 @@ runtime_rw_targets() {
     [ ! -e "$target" ] || printf '%s\n' "$target"
   done
 }
+
+for target in "$RUNTIME_PARENT" "$RUNTIME_ROOT"; do
+  setfacl -m "u:$RUNTIME_USER:--x" "$target"
+  runuser -u "$RUNTIME_USER" -- test -x "$target"
+  if runuser -u "$RUNTIME_USER" -- test -r "$target" || runuser -u "$RUNTIME_USER" -- test -w "$target"; then
+    echo "[错误] runtime 用户可读取或写入 release traverse-only 路径: $target" >&2
+    exit 1
+  fi
+done
 
 setfacl -m "u:$RUNTIME_USER:--x" "$CONFIG_ROOT"
 while IFS= read -r target; do setfacl -m "u:$RUNTIME_USER:--x" "$target"; done < <(runtime_traverse_only_targets)

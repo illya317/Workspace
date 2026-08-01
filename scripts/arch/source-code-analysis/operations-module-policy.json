@@ -22,14 +22,14 @@
       "allowedDependencies": []
     },
     {
-      "name": "release-plan",
-      "include": ["ops/release/plan/"],
-      "allowedDependencies": []
-    },
-    {
       "name": "release-validation",
       "include": ["ops/release/validation/"],
       "allowedDependencies": ["release-candidate", "release-contracts", "release-diagnostics"]
+    },
+    {
+      "name": "release-readiness",
+      "include": ["ops/release/readiness/"],
+      "allowedDependencies": ["release-contracts", "release-validation"]
     },
     {
       "name": "release-cli",

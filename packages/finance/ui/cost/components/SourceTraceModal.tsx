@@ -23,6 +23,7 @@ export default function SourceTraceModal({
 export function createSourceTraceModal({ open, info, onClose }: Props): BodySurfaceModalSpec | null {
   if (!open || !info) return null;
   return createPageModalSection("source-trace", {
+    purpose: "read-only-inspection",
     open,
     title: "数据来源",
     onClose,

@@ -4,10 +4,8 @@ import { workspacePath } from "@workspace/core/routing";
 import type { KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
 import { BodySurface, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec, type DataSurfaceRowActionSpec } from "@workspace/core/ui";
-import PersonListModal from "./components/PersonListModal";
-import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
-import type { Employee, CodeItem } from "@workspace/hr/types";
+import type { CodeItem } from "@workspace/hr/types";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 interface CodeTableProps {
   sortedCodes: CodeItem[];
@@ -29,30 +27,21 @@ interface CodeTableProps {
   handleAdd: () => void;
   onSelect?: (code: string) => void;
   selectedCode?: string;
-  detailModal: {
-    open: boolean;
-    code: string;
-    name: string;
-  } | null;
-  setDetailModal: (v: {
-    open: boolean;
-    code: string;
-    name: string;
-  } | null) => void;
-  positionDeptModal: {
-    open: boolean;
+  positionDepartments: {
     code: string;
     name: string;
     departments: string[];
+    loading: boolean;
+    error?: string;
   } | null;
-  setPositionDeptModal: (v: {
-    open: boolean;
+  setPositionDepartments: (v: {
     code: string;
     name: string;
     departments: string[];
+    loading: boolean;
+    error?: string;
   } | null) => void;
-  getDetailList: (item: CodeItem) => Employee[];
-  loadPositionDepts: (item: CodeItem) => void;
+  loadPositionDepts: (item: CodeItem) => Promise<void>;
   user: User;
   type: "department" | "position";
   framed?: boolean;
@@ -100,11 +89,8 @@ export default function CodeTable({
   handleAdd,
   onSelect,
   selectedCode,
-  detailModal,
-  setDetailModal,
-  positionDeptModal,
-  setPositionDeptModal,
-  getDetailList,
+  positionDepartments,
+  setPositionDepartments,
   loadPositionDepts,
   user,
   type,
@@ -167,22 +153,17 @@ export default function CodeTable({
     kind: "add" as const,
     id: "add-row"
   }] : [])];
-  function openDetail(item: CodeItem) {
-    setDetailModal({
-      open: true,
-      code: item.code,
-      name: item.name
-    });
-  }
   function handleNameClick(item: CodeItem) {
     if (editMode && hrCanEdit(user)) {
       startEditRow(item);
     } else if (onSelect) {
       onSelect(item.code);
     } else if (type === "position") {
-      loadPositionDepts(item);
-    } else {
-      openDetail(item);
+      if (positionDepartments?.code === item.code) {
+        setPositionDepartments(null);
+      } else {
+        void loadPositionDepts(item);
+      }
     }
   }
   const columns: DataSurfaceColumnSpec<CodeDisplayRow>[] = [{
@@ -289,6 +270,25 @@ export default function CodeTable({
               presentation: { density: "compact" },
 
               rowKey: row => row.id,
+              expandedRowKey: positionDepartments ? `code-${positionDepartments.code}` : null,
+              expandedRow: (row) => {
+                const detail = positionDepartments;
+                if (!detail || row.kind !== "code" || row.item.code !== detail.code) return null;
+                if (detail.loading) return { kind: "text", value: "正在加载关联部门…", tone: "muted" };
+                if (detail.error) return { kind: "empty", content: detail.error };
+                return {
+                  kind: "data",
+                  data: {
+                    kind: "table",
+                    rows: detail.departments.map((department, index) => ({ id: `${row.item.code}-${index}`, department })),
+                    columns: [{ key: "department", label: `${detail.name} · 所属部门`, required: true, cell: (item) => item.department }],
+                    visibleColumns: ["department"],
+                    rowKey: (item) => item.id,
+                    emptyText: "暂无关联部门",
+                    presentation: { density: "compact", header: "plain", rowHover: "none" },
+                  },
+                };
+              },
               onRowClick: (row) => {
                 if (row.kind === "code" && !editMode) handleNameClick(row.item);
               },
@@ -305,13 +305,9 @@ export default function CodeTable({
               rowState: row => {
                 if (row.kind === "group" || row.kind === "summary") return "muted";
                 if (row.kind === "add") return "muted";
-                return selectedCode === row.item.code ? "selected" : "normal";
+                return selectedCode === row.item.code || positionDepartments?.code === row.item.code ? "selected" : "normal";
               },
             } },
           }], { layout: "stack" })} />
-
-      <PersonListModal detailModal={detailModal} setDetailModal={setDetailModal} getDetailList={getDetailList} />
-
-      <PositionDeptModal positionDeptModal={positionDeptModal} setPositionDeptModal={setPositionDeptModal} />
     </>;
 }

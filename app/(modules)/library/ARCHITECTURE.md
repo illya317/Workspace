@@ -21,7 +21,8 @@ app/(modules)/library/
 packages/library/ui/
   LibraryClient.tsx           # 客户端入口：挂载 DocumentsTab
   components/DocumentsTab.tsx # 资料筛选、目录选择、Toolbar 上传和资料表；行点击进入独立阅读页
-  components/library-upload-modal.ts # 首版上传表单：文件、逻辑文件夹、标签和待复核元数据
+  components/library-upload-section.ts # 首版上传声明区块：文件、逻辑文件夹、标签和待复核元数据
+  components/library-version-upload-section.ts # 新版本上传声明区块
   components/LibraryDocumentReader.tsx # 资料信息编辑与自适应文档预览分栏
   hooks/useLibraryDocuments.ts         # 版本列表、所选 PDF 对象 URL 生命周期与 Office 阅读器路由选择
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryDirectories
@@ -231,8 +232,8 @@ Library 只依赖 Platform 的权威资料源 Interface，不直接 import Finan
 
 前端动作图标约定：
 
-- `update`：资料详情弹窗内编辑元数据，进入编辑使用 `edit`，保存使用 `save`；标题、简介、标签和分类属于普通元数据，`documentUid/docId` 均为系统只读身份。
-- `configure`：保密等级字段级配置，仍在资料详情弹窗内，不单独放全局设置按钮。
+- `update`：独立资料阅读页的信息区编辑元数据，进入编辑使用 `edit`，保存使用 `save`；标题、简介、标签和分类属于普通元数据，`documentUid/docId` 均为系统只读身份。
+- `configure`：保密等级字段级配置，仍在资料阅读页信息区，不单独放全局设置按钮。
 - `archive`：资料状态只能通过 Library lifecycle command 归档或恢复；元数据 PATCH 不接受 `status`，不得只靠 `update` 修改生命周期。
 - `delete`：永久删除与归档分离，仅 `configure` 可执行；有评测证据引用时拒绝。删除前把 `.versions/<documentUid>`、`artifacts/<documentUid>` 和生成资料自有的 `generated/...` 文件暂存到运行态回收区，数据库失败则恢复，成功后清理；扫描源永不删除。
 - `import`：扫描入库、生成文档、首版上传、确认入库和上传资料新版本都属于资料入库。首版上传先选择文件夹并填写标签/待复核元数据，service 创建待确认的 `LibraryDocument + V1`，随后直接从不可变原文件提取 Markdown；只有 PDF 进入 PDF 优化处理，Office 文件不生成 PDF。用户进入独立资料页调整信息并显式“确认入库”。已有资料的新版本上传仍只允许作用于 `active` 资料。文件形状先由 API Zod 校验，再由 domain validator 校验，最后由 service 写文件和事务推进版本。
@@ -283,10 +284,10 @@ Library 只依赖 Platform 的权威资料源 Interface，不直接 import Finan
 
 ## 当前资料页面
 
-- 页面 Toolbar：`+` 新建文件夹；“上传文件”打开首版上传表单并启动处理链
+- 页面 Toolbar：`+` 新建文件夹；“上传文件”把右侧资料表替换为首版上传区块并启动处理链，左侧目录上下文保持可见
 - 左侧文件夹树：来自 `LibraryDirectory` 与实际可见资料；新建空文件夹从页面 Toolbar 进入标准 CreateSurface，重命名在当前树节点内联完成，不再打开第二套弹窗
 - 右侧资料表：标题、简介、标签和更新时间；筛选包含关键词、状态、密级与文件夹
-- 独立资料阅读页：左侧展示/编辑简介、标签和保密等级；存在多个不可变版本时可选择版本，右侧预览和下载同步切换到所选版本
+- 独立资料阅读页：左侧展示/编辑简介、标签和保密等级；存在多个不可变版本时可选择版本，右侧预览和下载同步切换到所选版本；上传新版本时右侧预览临时替换为声明式上传区块
 - 当前下载走 `/api/modules/library/basic-info/documents/:id/download`，历史下载走 `/documents/:id/versions/:versionId/download`；后端按版本 `storagePath` 返回文件流，权限和路径校验都在服务端完成，前端不拼接文件路径
 
 ## 未来扩展方向

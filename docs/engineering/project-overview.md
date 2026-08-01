@@ -217,11 +217,9 @@ Company-specific facts such as identity, company names/codes, management systems
 | Validate all generated Next app mirrors | `npm run deploy:apps:check` |
 | Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
 | Full local CI authority | `npm run check:ci` |
-| Create one immutable production Plan; all stages default local | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh prepare` |
-| Run source validation once, or consume a fast skip | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh validate` |
-| Build the sealed target artifact once | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh build` |
-| Deploy only the Plan's validation state and artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
-| Inspect the monotonic Plan progress | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh status` |
+| Aggregate source checks, build and rehearse exact artifact, then sign Ready | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh ci` |
+| Deploy only the current Ready Artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
+| Inspect the current Ready Artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh status` |
 | Strict historical debt patrol | `npm run check:hygiene` |
 | Non-blocking hygiene signal | `npm run check:hygiene:warn` |
 

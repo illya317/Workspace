@@ -83,7 +83,7 @@ export default function ProductMasterClient({ canCreate, canUpdate }: { canCreat
   ];
 
   const productCreate: PageSurfaceCreateSpec = {
-    id: "production-product-create", presentation: "modal", title: "新增产品", open: Boolean(createDraft), canCreate, disabled: saving,
+    id: "production-product-create", presentation: "block", title: "新增产品", open: Boolean(createDraft), canCreate, disabled: saving,
     content: { kind: "sections", sections: productFormSections(createDraft ?? emptyProductDraft(), (key, value) => setCreateDraft((current) => current ? { ...current, [key]: value } as ProductDraft : current)) },
     submission: { action: "save", disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim(), execute: saveNewProduct },
     onOpenChange: (open) => setCreateDraft(open ? emptyProductDraft() : null), onCancel: () => setCreateDraft(null),
@@ -112,7 +112,7 @@ export default function ProductMasterClient({ canCreate, canUpdate }: { canCreat
 
   function skuCreate(): PageSurfaceCreateSpec {
     const editing = skuId !== null;
-    return { id: "production-sku-create", presentation: "modal", title: editing ? "编辑 SKU" : "新增 SKU", open: Boolean(skuDraft), canCreate: editing ? canUpdate : canCreate, disabled: saving, content: { kind: "sections", sections: skuFormSections(skuDraft ?? emptySkuDraft(selected?.name ?? ""), (key, value) => setSkuDraft((current) => current ? { ...current, [key]: value } as ProductSkuDraft : current)) }, submission: { action: "save", disabled: saving || !skuDraft?.code.trim() || !skuDraft.name.trim() || !skuDraft.baseUnit.trim(), execute: saveSku }, onOpenChange: (open) => { setSkuId(null); setSkuDraft(open ? emptySkuDraft(selected?.name ?? "") : null); }, onCancel: () => { setSkuId(null); setSkuDraft(null); } };
+    return { id: "production-sku-create", presentation: "block", title: editing ? "编辑 SKU" : "新增 SKU", open: Boolean(skuDraft), canCreate: editing ? canUpdate : canCreate, disabled: saving, content: { kind: "sections", sections: skuFormSections(skuDraft ?? emptySkuDraft(selected?.name ?? ""), (key, value) => setSkuDraft((current) => current ? { ...current, [key]: value } as ProductSkuDraft : current)) }, submission: { action: "save", disabled: saving || !skuDraft?.code.trim() || !skuDraft.name.trim() || !skuDraft.baseUnit.trim(), execute: saveSku }, onOpenChange: (open) => { setSkuId(null); setSkuDraft(open ? emptySkuDraft(selected?.name ?? "") : null); }, onCancel: () => { setSkuId(null); setSkuDraft(null); } };
   }
 
   async function saveNewProduct() { if (!createDraft) return; setSaving(true); try { const result = await products.saveProduct(createDraft); if (!result.ok) return feedback.error(result.error); setCreateDraft(null); feedback.success("产品已创建"); } finally { setSaving(false); } }

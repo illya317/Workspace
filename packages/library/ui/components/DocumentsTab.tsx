@@ -26,7 +26,7 @@ import {
   LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS,
 } from "./library-document-options";
 import { declareDirectoryTreeItems } from "./directory-selector";
-import { createLibraryUploadModal } from "./library-upload-modal";
+import { createLibraryUploadSection } from "./library-upload-section";
 import { createLibraryDocumentColumns } from "./library-document-columns";
 import { deleteDocumentPermanently } from "../hooks/useLibraryDocuments";
 
@@ -111,6 +111,8 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   };
 
   const openUpload = () => {
+    setFolderEditor(null);
+    setFolderName("");
     resetUpload();
     setUploadDirectoryPath(filters.directoryPath || "");
     setUploadOpen(true);
@@ -262,7 +264,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
     toolbarItems.push({
       kind: "action-group",
       key: "library-upload",
-      actions: [{ key: "upload", kind: "upload", label: "上传文件", onClick: openUpload }],
+      actions: [{ key: "upload", kind: "upload", label: "上传文件", disabled: uploadOpen, onClick: openUpload }],
     });
   }
   toolbarItems.push(
@@ -315,7 +317,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   });
   const pageCreate: PageSurfaceCreateSpec | undefined = canConfigure ? {
           id: "library-folder-create",
-          presentation: "modal",
+          presentation: "block",
           title: "新建文件夹",
           open: folderEditor?.mode === "create",
           content: { kind: "form" as const, form: { layout: { columns: 1 as const }, items: [{
@@ -354,8 +356,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
       } satisfies DataSurfaceProps<LibraryDocumentItem>) as DataSurfaceProps },
     },
   ];
-  const uploadModal = createLibraryUploadModal({
-    open: uploadOpen,
+  const uploadSection = createLibraryUploadSection({
     saving: uploadSaving,
     file: uploadFile,
     title: uploadTitle,
@@ -378,7 +379,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   return (
     <>
       <PageSurface kind="standard"
-        create={pageCreate}
+        create={uploadOpen ? undefined : pageCreate}
         toolbar={{ items: toolbarItems }}
         body={createPageBody([{
           key: "library-documents-workspace",
@@ -421,9 +422,10 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
               emptyText: dirError ? `目录加载失败: ${dirError}` : "暂无目录",
             },
           } },
-          detail: createPageBody(sections),
+          detail: createPageBody(uploadOpen ? [uploadSection] : sections),
+          mobile: { detailActive: uploadOpen, onNavigateToList: closeUpload },
           }),
-        }, uploadModal])}
+        }])}
         footer={totalPages > 1 ? {
           pagination: {
             page,

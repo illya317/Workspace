@@ -13,7 +13,7 @@ export const core_internal_registry_entries = [
   },
   {
     name: "CreatePresentationPanel",
-    description: "CreateSurface 内部 block/modal 呈现 renderer；trigger 与 anchor 独立",
+    description: "CreateSurface 内部 block 呈现 renderer；trigger 与 anchor 独立",
     composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"],
   },
   {

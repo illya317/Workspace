@@ -5,20 +5,16 @@ import { pathToFileURL } from "node:url";
 import {
   atomicWriteReceipt,
   createArtifactReceipt,
-  createCandidateReceipt,
   createSourceValidationReceipt,
   readReceipt,
   validateArtifactReceipt,
-  validateCandidateReceipt,
   validateSourceValidationReceipt,
 } from "./release/contracts/release-receipt.mjs";
 
 export {
   createArtifactReceipt as createReleaseArtifactReceipt,
-  createCandidateReceipt as createReleaseCandidateReceipt,
   createSourceValidationReceipt as createReleaseSourceValidationReceipt,
   validateArtifactReceipt as validateReleaseArtifactReceipt,
-  validateCandidateReceipt as validateReleaseCandidateReceipt,
   validateSourceValidationReceipt as validateReleaseSourceValidationReceipt,
 };
 
@@ -39,16 +35,6 @@ export function main(argv = process.argv.slice(2)) {
   const options = parseArguments(argv);
   if (!options.content || !options.tree) throw new Error("--content and --tree are required");
   const identity = { contentDigest: options.content, treeId: options.tree };
-  if (options.mode === "candidate-create") {
-    if (!options.output) throw new Error("candidate-create requires --output");
-    const receipt = createCandidateReceipt(identity);
-    atomicWriteReceipt(options.output, receipt);
-    return receipt;
-  }
-  if (options.mode === "candidate-verify") {
-    if (!options.file) throw new Error("candidate-verify requires --file");
-    return validateCandidateReceipt(readReceipt(options.file), identity);
-  }
   if (options.mode === "source-create") {
     if (!options.output) throw new Error("source-create requires --output");
     const receipt = createSourceValidationReceipt({ ...identity, runner: options.runner ?? "cnb" });
@@ -73,7 +59,7 @@ export function main(argv = process.argv.slice(2)) {
     if (!options.file) throw new Error("artifact-verify requires --file");
     return validateArtifactReceipt(readReceipt(options.file), { ...identity, targetId: options.target ?? "monolith" });
   }
-  throw new Error("usage: release-gate-receipt.mjs candidate-create|candidate-verify|source-create|source-verify|artifact-create|artifact-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local] [--target ID]");
+  throw new Error("usage: release-gate-receipt.mjs source-create|source-verify|artifact-create|artifact-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local] [--target ID]");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

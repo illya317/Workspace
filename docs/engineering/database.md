@@ -286,6 +286,10 @@
 | archivedNotificationDefinitions | NotificationDefinition[] | @relation("NotificationDefinitionArchiver") |  |
 | createdNotificationDefinitionRevisions | NotificationDefinitionRevision[] | @relation("NotificationDefinitionRevisionCreator") |  |
 | notificationDefinitionLifecycleEvents | NotificationDefinitionLifecycleEvent[] | @relation("NotificationDefinitionLifecycleEventActor") |  |
+| ownedNotificationManagedGroups | NotificationManagedGroup[] | @relation("NotificationManagedGroupOwner") |  |
+| claimedNotificationManagedGroups | NotificationManagedGroup[] | @relation("NotificationManagedGroupClaimer") |  |
+| createdNotificationGroupPolicies | NotificationGroupPolicy[] | @relation("NotificationGroupPolicyCreator") |  |
+| updatedNotificationGroupPolicies | NotificationGroupPolicy[] | @relation("NotificationGroupPolicyUpdater") |  |
 | createdProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRuleCreator") |  |
 | updatedProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRuleUpdater") |  |
 | publishedProjectNotificationRules | ProjectNotificationRule[] | @relation("ProjectNotificationRulePublisher") |  |
@@ -4750,6 +4754,7 @@
 | effectiveReportees | PositionEffectiveVersion[] | @relation("PositionEffectiveVersionReportTo") |  |
 | effectiveManagedDepartments | DepartmentEffectiveVersion[] | @relation("DepartmentEffectiveVersionManagerPosition") |  |
 | effectiveOverrideReports | PositionReportOverrideEffectiveVersion[] | @relation("PositionReportOverrideVersionReportTo") |  |
+| ownedNotificationManagedGroups | NotificationManagedGroup[] | @relation("NotificationManagedGroupOwnerPosition") |  |
 
 ### EDP
 
@@ -6019,6 +6024,55 @@
 | createdAt | DateTime | @default(now()) |  |
 | endpoint | NotificationChannelEndpoint | @relation(fields: [endpointId], references: [id], onDelete: Cascade) |  |
 
+### NotificationManagedGroup
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| groupKey | String | @unique |  |
+| provider | String | @default("wecom") |  |
+| providerConversationRef | String | - |  |
+| displayName | String? | - |  |
+| status | String | @default("discovered") |  |
+| ownerUserId | Int? | - |  |
+| ownerPositionId | Int? | - |  |
+| verificationStatus | String | @default("pending") |  |
+| discoveredAt | DateTime | @default(now()) |  |
+| lastSeenAt | DateTime | @default(now()) |  |
+| lastVerifiedAt | DateTime? | - |  |
+| claimedAt | DateTime? | - |  |
+| claimedByUserId | Int? | - |  |
+| version | Int | @default(1) |  |
+| ownerUser | User? | @relation("NotificationManagedGroupOwner", fields: [ownerUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerUser_fkey") |  |
+| ownerPosition | Position? | @relation("NotificationManagedGroupOwnerPosition", fields: [ownerPositionId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerPosition_fkey") |  |
+| claimedBy | User? | @relation("NotificationManagedGroupClaimer", fields: [claimedByUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_claimedBy_fkey") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| policies | NotificationGroupPolicy[] | - |  |
+
+### NotificationGroupPolicy
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| key | String | @unique |  |
+| groupId | Int | - |  |
+| definitionKey | String | - |  |
+| label | String | - |  |
+| dataScopeJson | String | @db.Text |  |
+| scheduleJson | String | @db.Text |  |
+| messageTemplate | String? | @db.Text |  |
+| weeklyAgentKey | String? | - |  |
+| enabled | Boolean | @default(false) |  |
+| version | Int | @default(1) |  |
+| createdByUserId | Int | - |  |
+| updatedByUserId | Int | - |  |
+| createdBy | User | @relation("NotificationGroupPolicyCreator", fields: [createdByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_createdBy_fkey") |  |
+| updatedBy | User | @relation("NotificationGroupPolicyUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_updatedBy_fkey") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| group | NotificationManagedGroup | @relation(fields: [groupId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_group_fkey") |  |
+
 ### NotificationSubscription
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -6863,7 +6917,7 @@
 | requestJson | String | @db.Text |  |
 | requestFingerprint | String | - |  |
 | status | String | @default("publishing") |  |
-| publicationId | String? | @unique |  |
+| publicationId | String? | @unique(map: "ProjNotifyIntent_publication_key") |  |
 | preparedAt | DateTime | @default(now()) |  |
 | committedAt | DateTime? | - |  |
 | failedAt | DateTime? | - |  |
@@ -6882,7 +6936,7 @@
 | projectId | Int | - |  |
 | projectVersion | Int | - |  |
 | signalKind | String | - |  |
-| signalId | String | @unique |  |
+| signalId | String | @unique(map: "ProjNotifySignal_signal_key") |  |
 | changedField | String | - |  |
 | snapshotJson | String | @db.Text |  |
 | factsFingerprint | String | - |  |
@@ -6890,7 +6944,7 @@
 | status | String | @default("pending") |  |
 | attemptCount | Int | @default(0) |  |
 | nextAttemptAt | DateTime? | @default(now()) |  |
-| leaseToken | String? | @unique |  |
+| leaseToken | String? | @unique(map: "ProjNotifySignal_lease_key") |  |
 | leaseExpiresAt | DateTime? | - |  |
 | processedAt | DateTime? | - |  |
 | failedAt | DateTime? | - |  |

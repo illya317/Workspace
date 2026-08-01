@@ -11,7 +11,7 @@ export const DOMAIN_GATE_CHECK_NAMES = [
 ];
 
 export const UI_GATE_CHECK_NAMES = [
-  "table-row-interaction",
+  "modal-governance",
   "create-surface-entry",
   "field-layout-debt",
   "form-surface-actions",

@@ -3,11 +3,11 @@
 import { workspacePath } from "@workspace/core/routing";
 import {
   PageSurface,
+  createAnalysisSection,
   createEmptySection,
   createFieldsSection,
   createMessageSection,
   createPageBody,
-  createPageModalSection,
   createPageTabBar,
   createStatusSection,
   useFeedback,
@@ -199,16 +199,16 @@ export default function TaxClient({
       : []),
     ...viewSections(),
   ];
-  const editModal = createEditModal();
+  const editSection = createEditSection();
   const pageCreate = createSpec();
 
   return (
     <PageSurface
       kind="standard"
-      create={pageCreate}
+      create={editSection ? undefined : pageCreate}
       tabbar={navigation}
       toolbar={{ items: toolbarItems }}
-      body={createPageBody([...sections, ...(editModal ? [editModal] : [])])}
+      body={createPageBody(editSection ? [editSection] : sections)}
     />
   );
 
@@ -216,7 +216,7 @@ export default function TaxClient({
     const draft = createDraft ?? createTaxDraft(defaultCreateKind(activeView, workspace), scope);
     return {
           id: "finance-tax-create",
-          presentation: "modal",
+          presentation: "block",
           title: "新建税务事项",
           open: Boolean(createDraft),
           canCreate,
@@ -249,13 +249,10 @@ export default function TaxClient({
     return taxReconciliationSections(workspace);
   }
 
-  function createEditModal() {
+  function createEditSection() {
     if (!editDraft) return null;
-    return createPageModalSection("tax-edit", {
-      open: true,
+    return createAnalysisSection("tax-edit", {
       title: editTitle(editDraft),
-      onClose: () => setEditDraft(null),
-      size: editDraft.kind === "workpaper" ? "xl" : "lg",
       sections: [createFieldsSection("tax-edit-fields", taxDraftFormItems(formInput(editDraft, false, setEditDraft)), {
         kind: "fields",
         actions: [

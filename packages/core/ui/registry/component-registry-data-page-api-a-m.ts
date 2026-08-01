@@ -36,7 +36,7 @@ export const page_api_registry_entries = [
               { name: "status", description: "正文主体状态：empty / loading / error。" },
               { name: "message.link", description: "消息区语义链接；声明 label / href，样式由 BodySurface 决定。" },
               { name: "empty", description: "正文局部空态。" },
-              { name: "modals", description: "正文局部弹窗；弹窗分页只能声明在 modal.pagination，由 modal footer 固定渲染。" },
+              { name: "modals", description: "少数阻塞式业务弹窗；必须声明 audit-history、read-only-inspection 或 workflow-action 用途，弹窗分页只能声明在 modal.pagination。" },
               { name: "master/detail", description: "split 布局只声明主列表与详情 BodySurface；master.label 统一驱动折叠按钮和移动端返回文案，master.presentation=compact 在桌面主栏压缩选择卡并保留一个辅助事实，master.footer.pagination 把主列表翻页固定在左侧栏，移动端仍展示完整列表卡片。" },
             ],
           },

@@ -52,7 +52,7 @@ app/(modules)/capital-securities/
 - `capitalSecurities.governance.create`：左侧 G 线组织树 command，使用 `add` 图标，创建当前选中组织的下级或顶层 G 组织。
 - `capitalSecurities.governance.update`：右侧组织详情面板保存按钮，使用 `save` 图标；岗位摘要只读，跳转 HR 维护岗位。
 - `capitalSecurities.investors`：按公司和基准日查询、导出股权结构表；股权结构图可下载当前画布的 PDF。注册资本、持股比例、估值和股权活动期间仍是来源可追溯的只读账本投影。页面只允许编辑独立的股东关系资料，并允许新增、编辑或软归档尽调参与人记录；这些写入不得覆盖任何股权事件或 `OwnershipInterest` 投影。
-- `capitalSecurities.investments`：沿用投资人关系的左侧主体列表、右侧页签与表格视觉语言；业务事实分为投资概览、股东会、尽调资料、相关合同、投后监控和智能资料。模型提取和语义检索永远显示来源定位，用户复核后才把内容写成正式业务记录。
+- `capitalSecurities.investments`：沿用投资人关系的左侧主体列表、右侧页签与表格视觉语言；业务事实分为投资概览、股东会、尽调资料、相关合同、投后监控和智能资料。新增使用页面 CreateSurface block；记录编辑和资料上传替换右侧详情区为字段区块，保留企业上下文，不使用业务弹窗。模型提取和语义检索永远显示来源定位，用户复核后才把内容写成正式业务记录。
 
 ## 工作空间轻代码读取模型
 

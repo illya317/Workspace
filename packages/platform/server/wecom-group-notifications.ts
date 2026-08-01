@@ -23,7 +23,7 @@ import {
   type NotificationGroupDataScope,
   type NotificationManagedGroupStatus,
 } from "./wecom-group-notification-contract";
-import { validatePolicyReferences } from "./wecom-group-notification-policy-validation";
+import { validatePolicyReferences } from "./wecom-group-notification-policy-service";
 
 export {
   managedGroupClaimSchema,

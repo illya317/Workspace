@@ -7,10 +7,8 @@ import test from "node:test";
 import { captureCandidateIdentity } from "../candidate/identity.mjs";
 import {
   createArtifactReceipt,
-  createCandidateReceipt,
   createSourceValidationReceipt,
   validateArtifactReceipt,
-  validateCandidateReceipt,
   validateSourceValidationReceipt,
 } from "../contracts/release-receipt.mjs";
 import { diagnoseSlowRelease } from "../diagnostics/slow-flow.mjs";
@@ -24,25 +22,22 @@ test("candidate identity is content based and ignores commit metadata", () => {
   assert.equal(first.treeId, second.treeId);
 });
 
-test("release receipts bind candidate content without a commit or base SHA gate", () => {
+test("CI receipts bind candidate content without a commit or base SHA gate", () => {
   const identity = captureCandidateIdentity({ repositoryRoot: process.cwd(), revision: "HEAD" });
-  const candidate = createCandidateReceipt(identity);
   const validation = createSourceValidationReceipt({ ...identity, runner: "local" });
   const artifact = createArtifactReceipt({ ...identity, targetId: "monolith", runner: "local" });
-  assert.equal(validateCandidateReceipt(candidate, identity), candidate);
   assert.equal(validateSourceValidationReceipt(validation, identity), validation);
   assert.equal(validateArtifactReceipt(artifact, { ...identity, targetId: "monolith" }), artifact);
-  assert.equal(Object.hasOwn(candidate, "sourceSha"), false);
   assert.equal(Object.hasOwn(validation, "baseSha"), false);
   assert.equal(Object.hasOwn(artifact, "baseSha"), false);
 });
 
-test("full source validation binds a frozen task graph and is one-shot per Plan", () => {
+test("full source validation binds a frozen task graph to one CI run", () => {
   const directory = mkdtempSync(path.join(tmpdir(), "release-validation-"));
   const resultFile = path.join(directory, "result.json");
   const taskGraphFile = path.join(directory, "task-graph.json");
   const contentDigest = "a".repeat(64);
-  const planId = "plan-fixture";
+  const runId = "ci-20260801T000000Z-aaaaaaaaaaaa-11111111";
   const descriptor = (taskKey) => ({
     taskKey,
     taskContractVersion: 2,
@@ -50,13 +45,13 @@ test("full source validation binds a frozen task graph and is one-shot per Plan"
     commandDigest: "3".repeat(64),
     runtimeDigest: "4".repeat(64),
   });
-  const writeReceipt = (task, sourcePlanId) => {
+  const writeReceipt = (task, sourceRunId) => {
     const unsigned = {
       schemaVersion: 2,
       kind: "workspace-check-task-receipt",
       ...task,
       status: "passed",
-      sourcePlanId,
+      sourceRunId,
       durationMs: 10,
       completedAt: new Date(1_000).toISOString(),
     };
@@ -65,18 +60,18 @@ test("full source validation binds a frozen task graph and is one-shot per Plan"
     writeFileSync(file, JSON.stringify({ ...unsigned, receiptDigest: taskReceiptDigest(unsigned) }));
     return taskReceiptDigest(unsigned);
   };
-  const writeGraph = (sourcePlanId, { includeReceipts = true } = {}) => {
+  const writeGraph = (sourceRunId, { includeReceipts = true } = {}) => {
     const reused = descriptor("reused");
     const pending = descriptor("pending");
-    const reusedReceiptDigest = includeReceipts ? writeReceipt(reused, "plan-history") : null;
-    if (includeReceipts) writeReceipt(pending, sourcePlanId);
+    const reusedReceiptDigest = includeReceipts ? writeReceipt(reused, "ci-history") : null;
+    if (includeReceipts) writeReceipt(pending, sourceRunId);
     const unsigned = {
       schemaVersion: 1,
       kind: "workspace-check-task-graph",
-      sourcePlanId,
+      sourceRunId,
       mode: "standard",
       tasks: [
-        { ...reused, status: "reused", sourcePlanId: "plan-history", receiptDigest: reusedReceiptDigest },
+        { ...reused, status: "reused", sourceRunId: "ci-history", receiptDigest: reusedReceiptDigest },
         { ...pending, status: "pending" },
       ],
     };
@@ -87,36 +82,37 @@ test("full source validation binds a frozen task graph and is one-shot per Plan"
   const execute = (_command, _args, options) => {
     executions += 1;
     executionOptions = options;
-    writeGraph(planId);
+    writeGraph(runId);
     return { status: 0, signal: null, error: null };
   };
-  const first = runFullSourceValidation({ cwd: directory, contentDigest, planId, taskGraphFile, resultFile, execute, now: () => 1_000 });
+  const first = runFullSourceValidation({ cwd: directory, contentDigest, runId, taskGraphFile, resultFile, execute, now: () => 1_000 });
   assert.equal(first.status, "passed");
-  assert.equal(first.sourcePlanId, planId);
+  assert.equal(first.sourceRunId, runId);
   assert.equal(first.taskCounts.reused, 1);
   assert.equal(first.taskCounts.pending, 1);
   assert.equal(executions, 1);
   assert.equal(executionOptions.env.CHECK_SUITE_COLLECT_FAILURES, "1");
-  assert.equal(executionOptions.env.CHECK_SOURCE_PLAN_ID, planId);
+  assert.equal(executionOptions.env.CHECK_SOURCE_RUN_ID, runId);
   assert.equal(executionOptions.env.CHECK_TASK_GRAPH_FILE, taskGraphFile);
   assert.throws(
-    () => runFullSourceValidation({ cwd: directory, contentDigest, planId, taskGraphFile, resultFile, execute }),
-    /already consumed/,
+    () => runFullSourceValidation({ cwd: directory, contentDigest, runId, taskGraphFile, resultFile, execute }),
+    /already produced a source result/,
   );
 
   const failedFile = path.join(directory, "failed.json");
-  writeGraph("plan-failed", { includeReceipts: false });
+  const failedRunId = "ci-20260801T000001Z-bbbbbbbbbbbb-22222222";
+  writeGraph(failedRunId, { includeReceipts: false });
   runFullSourceValidation({
     contentDigest,
-    planId: "plan-failed",
+    runId: failedRunId,
     taskGraphFile,
     resultFile: failedFile,
     execute: () => ({ status: 2, signal: null, error: null }), cwd: directory,
     now: () => 3_000,
   });
   assert.throws(
-    () => runFullSourceValidation({ cwd: directory, contentDigest, planId: "plan-failed", taskGraphFile, resultFile: failedFile, execute }),
-    /already consumed/,
+    () => runFullSourceValidation({ cwd: directory, contentDigest, runId: failedRunId, taskGraphFile, resultFile: failedFile, execute }),
+    /already produced a source result/,
   );
 });
 

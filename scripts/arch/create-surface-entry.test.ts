@@ -7,7 +7,7 @@ test("accepts the single PageSurface create slot", () => {
   const violations = findCreateSurfaceEntryViolationsInSource("page.tsx", `
     const page = <PageSurface create={{
       id: "product-create",
-      presentation: "modal",
+      presentation: "block",
       title: "新增产品",
       open: false,
       content: { kind: "form", form: { items: [] } },
@@ -24,7 +24,7 @@ test("rejects toolbar create declarations nested in a body", () => {
     const section = {
       body: {
         kind: "create",
-        create: { trigger: "toolbar", presentation: "modal" },
+        create: { trigger: "toolbar", presentation: "block" },
       },
     };
   `);

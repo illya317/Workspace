@@ -323,8 +323,7 @@ function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspa
 
 function renderSplitDetail(detail: BodySurfaceProps, pageCreate?: PageSurfaceCreateSpec) {
   if (!pageCreate?.open) return <BodySurface {...detail} />;
-  const create = <CreateSurface {...pageCreate} trigger="toolbar" />;
-  return pageCreate.presentation === "modal" ? <><BodySurface {...detail} />{create}</> : create;
+  return <CreateSurface {...pageCreate} trigger="toolbar" />;
 }
 
 function renderSectionContent(

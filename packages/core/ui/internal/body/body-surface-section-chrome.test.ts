@@ -68,7 +68,7 @@ test("create bodies never add a second frame around CreateSurface", () => {
       create: {
         id: "create",
         trigger: "surface",
-        presentation: "modal",
+        presentation: "block",
         title: "新建",
         open: false,
         content: { kind: "form", form: { items: [] } },

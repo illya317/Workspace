@@ -14,7 +14,6 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
-
 const directory = path.dirname(fileURLToPath(import.meta.url));
 const read = (name) => readFileSync(path.join(directory, name), "utf8");
 const pm2PlanTool = path.join(directory, "production-pm2-plan.mjs");
@@ -342,6 +341,7 @@ test("company brand assets are read-only through traverse-only parents", () => {
   assert.match(roBody, /assets\/brand\/company/);
   assert.doesNotMatch(roBody, /(?:^|\s)assets(?:\s|$)/m);
   assert.match(traverseBody, /for relative in data assets assets\/brand/);
+  assert.match(traverseBody, /printf '%s\\n' \/home\/ubuntu "\$REMOTE_ROOT"/);
   assert.doesNotMatch(traverseBody, /assets\/brand\/company/);
   assert.match(backupBody, /getfacl -p "\$target"[\s\S]*runtime_traverse_only_targets/);
   assert.match(backupBody, /getfacl -Rp "\$target"[\s\S]*runtime_ro_targets/);

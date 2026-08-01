@@ -153,7 +153,7 @@ export function checkCreateSurfaceEntries() {
       { key: "increment", label: "增加", icon: "add" },
       { key: "decrement", label: "减少", icon: "delete-minus" },
       { create: { presentation: "inline" } },
-      { kind: "create", create: { trigger: "surface", presentation: "modal" } },
+      { kind: "create", create: { trigger: "surface", presentation: "block" } },
       { kind: "create", agreementUid: "", employmentId: null },
     ];
   `);
@@ -162,7 +162,7 @@ export function checkCreateSurfaceEntries() {
     return false;
   }
   const toolbarTriggerRegression = findCreateSurfaceEntryViolationsInSource("legacy-toolbar-create.tsx", `
-    const section = { kind: "create", create: { trigger: "toolbar", presentation: "modal" } };
+    const section = { kind: "create", create: { trigger: "toolbar", presentation: "block" } };
   `);
   if (!toolbarTriggerRegression.some((violation) => violation.kind === "toolbar-trigger")) {
     console.error("✗ CreateSurface entry gate regression: recursive toolbar trigger was not rejected.");

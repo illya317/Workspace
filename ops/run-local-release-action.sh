@@ -5,10 +5,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ACTION="${1:-}"
 METADATA_FILE="${2:-}"
 
-case "$ACTION" in
-  validate|build|deploy) ;;
-  *) echo "用法: run-local-release-action.sh validate|build|deploy METADATA_FILE" >&2; exit 2 ;;
-esac
+[ "$ACTION" = deploy ] || { echo "用法: run-local-release-action.sh deploy METADATA_FILE" >&2; exit 2; }
 : "${RELEASE_SOURCE_DIR:?RELEASE_SOURCE_DIR is required}"
 : "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}"
 : "${RELEASE_SOURCE_TREE:?RELEASE_SOURCE_TREE is required}"
@@ -34,19 +31,14 @@ metadata_values="$(node - "$METADATA_FILE" <<'NODE'
 const metadata = JSON.parse(require('node:fs').readFileSync(process.argv[2], 'utf8'));
 if (metadata.transport?.kind !== 'local') throw new Error('local release metadata must declare local transport');
 const target = metadata.deployment?.target;
-const plan = metadata.releasePlan?.plan;
-if (!/^plan-[A-Za-z0-9-]+$/.test(plan?.planId ?? '')) throw new Error('release metadata must contain a Plan id');
-if (!['standard', 'fast'].includes(plan?.mode)) throw new Error('release metadata must contain a Plan mode');
-process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'shadow'}\n${plan.planId}\n${plan.mode}\n`);
+const ready = metadata.releaseReady;
+if (!/^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/.test(ready?.runId ?? '')) throw new Error('release metadata must contain a Ready CI run');
+process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'activate'}\n${ready.runId}\n`);
 NODE
 )"
-node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
-  --metadata "$METADATA_FILE" --action "$ACTION" --executor local \
-  --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" >/dev/null
 deploy_unit_id="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deploy_unit_mode="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
-release_plan_id="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
-release_plan_mode="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
+release_run_id="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
 
 git -C "$RELEASE_SOURCE_DIR" worktree add --detach "$injection_worktree" "$RELEASE_SOURCE_SHA" >/dev/null
 render_args=(
@@ -65,36 +57,6 @@ GIT_AUTHOR_DATE="$source_commit_date" GIT_COMMITTER_DATE="$source_commit_date" \
   git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=release@workspace.local \
   commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
 
-if [ "$ACTION" != "deploy" ]; then
-  : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE is required for local validate/build}"
-  [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE" >&2; exit 1; }
-  set -a
-  # shellcheck source=/dev/null
-  source "$RELEASE_CI_ENV_FILE"
-  set +a
-  export CI=1
-  mkdir -p "$persistent_check_result_cache" "$persistent_evidence_root" "$injection_worktree/.cache"
-  if [ -e "$injection_worktree/.cache/check-results" ] || [ -L "$injection_worktree/.cache/check-results" ]; then
-    echo "[错误] 临时 release worktree 的 check-results 路径必须为空" >&2
-    exit 1
-  fi
-  ln -s "$persistent_check_result_cache" "$injection_worktree/.cache/check-results"
-  if [ -d "$RELEASE_SOURCE_DIR/node_modules" ]; then
-    mkdir "$injection_worktree/node_modules"
-    if [ ! -L "$RELEASE_SOURCE_DIR/node_modules" ] && \
-      [ "$(stat -c %d "$RELEASE_SOURCE_DIR/node_modules")" = "$(stat -c %d "$injection_worktree/node_modules")" ]; then
-      cp -al "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
-    else
-      cp -a "$RELEASE_SOURCE_DIR/node_modules/." "$injection_worktree/node_modules/"
-    fi
-  else
-    (cd "$injection_worktree" && npm ci --no-audit --fund=false --loglevel=error)
-  fi
-  if [ -e "$RELEASE_SOURCE_DIR/.env" ] && [ ! -e "$injection_worktree/.env" ]; then
-    cp "$RELEASE_SOURCE_DIR/.env" "$injection_worktree/.env"
-    chmod 600 "$injection_worktree/.env"
-  fi
-fi
 if [ "$ACTION" = "deploy" ]; then
   : "${OPS_ENV_FILE:?OPS_ENV_FILE is required for local deploy}"
   [ -f "$OPS_ENV_FILE" ] || { echo "[错误] local deploy 环境文件不存在: $OPS_ENV_FILE" >&2; exit 1; }
@@ -118,25 +80,34 @@ export DEPLOY_UNIT_ID="$deploy_unit_id" DEPLOY_UNIT_MODE="$deploy_unit_mode"
 export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_SOURCE_DIR/.cache/release-artifacts"
 export RELEASE_EVIDENCE_ROOT="$persistent_evidence_root"
 export RELEASE_SOURCE_VALIDATION_RECEIPT_FILE="$persistent_evidence_root/source-validation.json"
+export RELEASE_SOURCE_RESULT_FILE="$persistent_evidence_root/source-$release_run_id.json"
+export CHECK_TASK_GRAPH_FILE="$RELEASE_SOURCE_DIR/.cache/release-task-graphs/$release_run_id.json"
+export RELEASE_ARTIFACT_REHEARSAL_FILE="$persistent_evidence_root/rehearsal-${deploy_unit_id:-monolith}-${RELEASE_CONFIGURATION_DIGEST}.json"
 export EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-${CNB_REPO:-}}"
-export RELEASE_SOURCE_RESULT_FILE="$persistent_evidence_root/full-source-result-$release_plan_id.json"
-export CHECK_TASK_GRAPH_FILE="$RELEASE_SOURCE_DIR/.cache/release-task-graphs/$release_plan_id.json"
-export CHECK_SOURCE_PLAN_ID="$release_plan_id"
-export CHECK_RELEASE_MODE="$release_plan_mode"
 export RELEASE_SOURCE_BRANCH="${RELEASE_BRANCH:-release}"
+export RELEASE_CI_RUN_ID="$release_run_id"
+export RELEASE_PROOF_ROOT="$RELEASE_SOURCE_DIR"
 
 cd "$injection_worktree"
-case "$ACTION" in
-  validate)
-    bash ./ops/run-cnb-release-stage.sh release.gate -- bash ./ops/run-cnb-release-gate.sh
-    echo "==> 本地 validate 完成；源码验证回执已冻结"
-    ;;
-  build)
-    bash ./ops/run-cnb-release-stage.sh artifact.build -- bash ./ops/build-cnb-release-target.sh
-    echo "==> 本地 build 完成；制品已冻结到 $CNB_RELEASE_ARTIFACT_CACHE_ROOT"
-    ;;
-  deploy)
-    bash ./ops/run-cnb-release-stage.sh artifact.restore -- bash ./ops/build-cnb-release-target.sh
-    bash ./ops/run-cnb-release-stage.sh server.deploy -- bash ./ops/deploy-cnb-release-target.sh
-    ;;
-esac
+link_ready_file() {
+  local source="$1" target="$2"
+  [ -f "$source" ] || { echo "[错误] Ready Artifact 文件缺失: $source" >&2; exit 1; }
+  mkdir -p "$(dirname "$target")"
+  rm -f "$target"
+  ln "$source" "$target"
+}
+link_ready_file "$RELEASE_SOURCE_DIR/.cache/release-check/release-artifact.json" \
+  "$injection_worktree/.cache/release-check/release-artifact.json"
+if [ -z "$deploy_unit_id" ]; then
+  link_ready_file "$RELEASE_SOURCE_DIR/.next/workspace-standalone.tgz" "$injection_worktree/.next/workspace-standalone.tgz"
+  link_ready_file "$RELEASE_SOURCE_DIR/.next/workspace-standalone.manifest.json" "$injection_worktree/.next/workspace-standalone.manifest.json"
+  link_ready_file "$RELEASE_SOURCE_DIR/.cache/release-check/deploy-graph.json" "$injection_worktree/.cache/release-check/deploy-graph.json"
+else
+  source_unit_root="$RELEASE_SOURCE_DIR/.cache/deploy-units/$deploy_unit_id"
+  target_unit_root="$injection_worktree/.cache/deploy-units/$deploy_unit_id"
+  for file in "$deploy_unit_id-standalone.tgz" "$deploy_unit_id-standalone.manifest.json" deploy-unit-contract.json deploy-graph.json; do
+    link_ready_file "$source_unit_root/$file" "$target_unit_root/$file"
+  done
+fi
+echo "==> Ready Artifact 以 immutable hardlink 交给 deploy；未复制、未构建"
+bash ./ops/run-cnb-release-stage.sh server.deploy -- bash ./ops/deploy-cnb-release-target.sh

@@ -73,5 +73,6 @@ Tax 已作为独立 Finance L2 进入运行面，而不是总账会计下的占�
 - 写入链路按 `Zod schema -> domain validator -> service/Prisma` 收口，route 不承载税务业务判断。
 - `finance.tax.workspace.create/update` 已登记 BusinessAction 与 ActionContract；module registry、API guard、permission action policy 和 RBAC resource 使用同一 `finance.tax` 边界。
 - UI 只消费已注册 API；关账 contributor 只读取税务期间事实、阻断项和证据，不反向修改 Tax 台账。
+- 新建税务事项使用页面 CreateSurface block；编辑事项时在当前页签内用声明式 analysis/fields 区块替换业务内容，保留公司、期间和页签上下文，不打开业务弹窗。
 
 尚未登记的删除、导入、重算、审批、报税提交和期间锁定仍不属于当前 contract；新增这些能力时必须同时补齐状态机、权限动作、API contract、domain validator 和测试。

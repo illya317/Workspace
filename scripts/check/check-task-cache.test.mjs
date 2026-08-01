@@ -23,7 +23,7 @@ function fixture(t) {
   const env = {
     CHECK_LOCK: "0",
     CHECK_CACHE_PENDING_DIR: pendingDirectory,
-    CHECK_SOURCE_PLAN_ID: "plan-fixture",
+    CHECK_SOURCE_RUN_ID: "ci-fixture",
   };
   const task = { id: "fixture", command: "node", args: ["fixture.js"] };
   const captureInput = () => descriptor;
@@ -45,12 +45,12 @@ test("writes a task-input receipt and reuses it across plans", (t) => {
 
   const reused = createCheckTaskCache({
     cwd,
-    env: { ...env, CHECK_SOURCE_PLAN_ID: "plan-replacement" },
+    env: { ...env, CHECK_SOURCE_RUN_ID: "ci-replacement" },
     captureInput,
   }).read(task);
   assert.equal(reused.status, "passed");
   assert.equal(reused.durationMs, 1234);
-  assert.equal(reused.sourcePlanId, "plan-fixture");
+  assert.equal(reused.sourceRunId, "ci-fixture");
   assert.equal(Object.hasOwn(reused, "snapshotKey"), false);
 });
 
@@ -64,7 +64,7 @@ test("failed, cancelled, skipped and disallowed warning results are never writte
   assert.equal(fs.existsSync(path.join(pendingDirectory, "fixture", `${descriptor.inputDigest}.json`)), true);
 });
 
-test("command and runtime drift become pending while a corrupt matching receipt blocks", (t) => {
+test("command/runtime drift and quarantined corrupt derived receipts become pending", (t) => {
   const { cwd, env, pendingDirectory, task, captureInput } = fixture(t);
   const cache = createCheckTaskCache({ cwd, env, captureInput });
   cache.write(task, "passed", 1);
@@ -80,7 +80,10 @@ test("command and runtime drift become pending while a corrupt matching receipt 
   const receiptFile = path.join(cwd, ".cache/check-results/fixture", `${descriptor.inputDigest}.json`);
   fs.writeFileSync(receiptFile, "{broken");
   const corrupt = createCheckTaskCache({ cwd, env, captureInput }).freezeTaskGraph([task]);
-  assert.equal(corrupt.tasks[0].status, "blocked");
+  assert.equal(corrupt.tasks[0].status, "pending");
+  assert.equal(corrupt.tasks[0].cacheRecovery, "corrupt receipt quarantined");
+  assert.equal(fs.existsSync(receiptFile), false);
+  assert.equal(fs.existsSync(path.join(cwd, ".cache/check-results-quarantine")), true);
 });
 
 test("freezes reused and pending tasks before execution", (t) => {

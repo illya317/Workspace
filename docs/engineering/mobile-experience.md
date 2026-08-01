@@ -69,6 +69,7 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 - repeatable 表单是连续编辑列表：条目之间使用分隔线，单条职责、联系人、规则等不得再套独立卡片；输入控件自身边框仍保留，用于表达可编辑性和焦点。
 - Selector 由外层目录 surface 承担边界，内部树/列表使用连续行和选中态，不再形成 `Panel/List/Row` 三层卡片。
 - Modal、横屏工作台、导航目录、可点击业务卡片和必须表达二维边界的数据矩阵可以拥有独立 frame；这些语义边界不得因“减少边框”而消失。
+- 手机端的普通新建、编辑和上传使用页面内 block 或全屏渐进流程；原生文件选择器可以覆盖系统界面，但应用不得再叠一层普通业务 modal。业务 modal 只用于审计历史、只读关键追溯和必须阻断父页面的流程动作；破坏性确认与未保存警告属于系统反馈层。依据 Apple [Modality](https://developer.apple.com/design/human-interface-guidelines/modality) / [Alerts](https://developer.apple.com/design/human-interface-guidelines/alerts)、Material 3 [Dialogs](https://m3.material.io/components/dialogs/guidelines) 与 Android [Storage Access Framework](https://developer.android.com/training/data-storage/shared/documents-files)：modal 会阻断父视图，应只承载关键决策；文件选择由系统 picker 承担。
 
 - 普通 `DataSurface kind="table"` 在手机端使用一个连续列表容器和行分隔，不允许每行重复圆角、边框、背景和阴影。
 - 每行默认只展示第一列主标题和后两列摘要；其余字段进入“更多信息”，有 `onRowClick` 时显示 disclosure 并进入业务详情。

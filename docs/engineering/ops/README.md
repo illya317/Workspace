@@ -1,30 +1,24 @@
 # Deployment
 
-Reusable production release orchestration and its reviewable control plane live in this repository:
-`ops/publish.sh`, `ops/publish-cnb.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, and
-`ops/deploy.sh`. The private operations workspace contains secrets, runtime targets, environment
-values, and thin wrappers that load `.env` before executing these tracked scripts; it is not a
-second source of release logic. Tenant-specific CNB imports, server paths, and health target live in
-`WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml`.
+Reusable production release orchestration lives in `ops/publish.sh`, `ops/run-release-ci.sh`,
+`ops/release/readiness/`, and `ops/deploy.sh`. The private operations workspace contains only secrets,
+runtime targets, documentation, and a thin SSH wrapper to the authoritative remote checkout; it is not
+a second source of release logic.
 
-`ops/publish.sh prepare` creates an immutable, append-only Release Plan. The Plan seals standard/fast mode, source identity, tenant-config digest, deploy target, and the local/CNB executor for every stage. `validate` runs source CI once (or is terminally skipped by fast mode), `build` creates the artifact once, and `deploy` only consumes those results. `publish-cnb.sh`,
-`release-to-cnb.sh`, and `deploy.sh` are internal stages covered by the publish/runtime contract
-tests; their separate names do not represent alternative release paths. Profile/Fleet commands are
-trusted pipeline internals rather than local alternatives to this operator entry.
+The only production lifecycle is `ci -> Ready Artifact -> deploy`. CI aggregates all independent source
+failures, builds or restores the exact target artifact independently, starts that exact archive in an
+isolated production runtime rehearsal, and signs one Ready receipt. Deploy only verifies and consumes
+that receipt. `prepare`, `validate`, `build`, fast mode, Release Plan, and `--new-plan` are removed.
 
-Production release requires an exact-tree candidate receipt, then the sealed local or CNB stages. GitHub
-PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
-Only `publish.sh prepare` may fast-forward the dedicated release worktree from `main`; it validates
-private configuration but does not run source CI or compile. `validate` checks the affected owners plus
-dependency consumers; `build` freezes the selected target artifact. `deploy` only verifies and consumes
-that same artifact, even if `main` advances. All stages default to local; `prepare --cnb-from validate|build`
-seals a one-way handoff to CNB. Deploy-only CNB handoff is reserved until an artifact capsule adapter exists.
+Successful task evidence is keyed by exact input/command/runtime digests. After a failed CI, the next CI
+reuses unchanged successes and reruns only invalidated tasks; corrupt derived cache entries are quarantined
+instead of permanently blocking the same task. GitHub PR/CI remains a collaboration boundary but is not
+queried or awaited by production deploy.
 
-Every stage is terminal after success, failure, cancellation, or fast skip. Completed evidence is reused;
-a failed stage is never reopened. Audit the complete failure set, fix and verify with targeted commands,
-then explicitly create `prepare --new-plan`. Repeating full validation or build after each individual fix
-inside one Plan is prohibited. Fast mode requires `prepare --fast "reason"`; it skips source CI only and
-retains artifact and production safety checks.
+Local and CNB are execution channels only. They must run the same aggregator, artifact/rehearsal contract,
+Ready schema, deploy entry, and success criteria. A channel may not invent stages or rebuild during deploy.
+The default operator uses local for the lowest deployment latency; the old split `release-to-cnb.sh` path is
+disabled until a CNB adapter can persist and consume the same Ready Artifact.
 
 Repository-owned runtime dependency contracts:
 
@@ -59,22 +53,16 @@ database name.
 
 ```bash
 # First stop every local writer, including the local 3000 dev server.
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace prepare
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace ci
 
-# After reviewing the receipt, trigger the same CNB release path with the bound dump.
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace validate
-
-# Build and freeze the Full artifact exactly once.
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace build
-
-# Consume the validation state and built artifact, then apply the bound dump.
+# Consume the Ready Artifact and bound dump, then apply the replacement.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
 
 # Read-only local receipt status.
 OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace status
 ```
 
-The prepare command first runs the ordinary `publish.sh prepare`, then requires the local database to
+The CI command first signs the ordinary monolith Ready Artifact, then requires the local database to
 contain exactly the candidate Prisma migration set. It refuses an active local port 3000 or active
 database sessions, creates a `pg_dump --format=custom`, verifies it with `pg_restore --list`, and binds
 its byte size, SHA-256 and migration-set digest to the exact source commit/tree. The dump and receipt

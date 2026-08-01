@@ -10,13 +10,11 @@ import {
   createMessageSection,
   createMetricsSection,
   createPageBody,
-  createPageModalSection,
   createPageTableSection,
   createPageTabBar,
   PageSurface,
   useFeedback,
   type BodySurfaceSectionSpec,
-  type BodySurfaceBodyInputSpec,
   type DataSurfaceColumnSpec,
   type FormSurfaceItemSpec,
   type PageSurfaceCreateSpec,
@@ -89,7 +87,7 @@ export default function InvestmentEnterprisesClient({ canCreate, canUpdate, canI
 
   useEffect(() => { void load(null, ""); }, [load]);
   const selected = data?.selectedProfile ?? null;
-  const navigation = useMemo(() => createPageTabBar({ items: [...VIEWS], active: view, onChange: (key) => { setView(key as View); setRecordCreate(null); setRecordEdit(null); }, ariaLabel: "投资企业档案视图" }), [view]);
+  const navigation = useMemo(() => createPageTabBar({ items: [...VIEWS], active: view, onChange: (key) => { setView(key as View); setProfileCreate(null); setRecordCreate(null); setRecordEdit(null); setUploadOpen(false); }, ariaLabel: "投资企业档案视图" }), [view]);
   const selector = useMemo<SelectorSurfaceProps<InvestmentEnterpriseProfileRecord>>(() => ({
     kind: "list", title: `投资企业 · ${data?.profiles.length ?? 0}`,
     items: (data?.profiles ?? []).map((profile) => ({ key: profile.id, value: profile, card: {
@@ -102,25 +100,23 @@ export default function InvestmentEnterprisesClient({ canCreate, canUpdate, canI
   }), [data?.profiles, deferredKeyword, error, load, loading, selectedProfileId]);
 
   return <PageSurface
-    kind="standard" tabbar={navigation} create={createSurface()}
+    kind="standard" tabbar={navigation} create={recordEdit || uploadOpen ? undefined : createSurface()}
     toolbar={{ items: view === "documents" ? [
       { kind: "search", key: "semantic-search", value: semanticQuery, onChange: setSemanticQuery, placeholder: "在本企业资料中语义检索" },
-      { kind: "action-group", key: "document-actions", actions: [{ key: "search", kind: "search", label: searching ? "检索中" : "语义检索", disabled: !selected || semanticQuery.trim().length < 2 || searching, onClick: () => void semanticSearch() }, ...(canImport ? [{ key: "upload", kind: "upload" as const, label: "上传并分析", onClick: openUpload }] : [])] },
+      { kind: "action-group", key: "document-actions", actions: [{ key: "search", kind: "search", label: searching ? "检索中" : "语义检索", disabled: !selected || semanticQuery.trim().length < 2 || searching, onClick: () => void semanticSearch() }, ...(canImport ? [{ key: "upload", kind: "upload" as const, label: "上传并分析", disabled: !selected || uploadOpen, onClick: openUpload }] : [])] },
     ] : [{ kind: "search", key: "company-search", value: keyword, onChange: setKeyword, placeholder: "搜索企业、行业或负责人" }, { kind: "text", key: "total", content: `共 ${data?.profiles.length ?? 0} 家` }], onSubmit: view === "documents" ? semanticSearch : () => load(selectedProfileId, deferredKeyword) }}
     body={createMasterDetailBody({
       master: { label: "投资企业", presentation: "compact", body: { kind: "selector", selector } },
-      detail: detailBody(), desktop: { ratio: [3, 7] }, mobile: { detailActive: mobileDetailActive, onNavigateToList: () => setMobileDetailActive(false) },
+      detail: detailBody(), desktop: { ratio: [3, 7] }, mobile: { detailActive: mobileDetailActive || Boolean(recordEdit) || uploadOpen, onNavigateToList: () => setMobileDetailActive(false) },
     })}
   />;
 
   function detailBody() {
     if (error) return createPageBody([createMessageSection("load-error", { tone: "danger", content: error })]);
     if (!selected || !data) return createPageBody([createMessageSection("empty", { tone: "muted", content: loading ? "正在加载投资企业" : "选择左侧企业查看档案，或新建一份投资档案" })]);
-    const items: BodySurfaceBodyInputSpec[] = [...viewSections()];
-    const edit = editModal(); const upload = uploadModal();
-    if (edit) items.push(edit);
-    if (upload) items.push(upload);
-    return createPageBody(items);
+    if (recordEdit) return createPageBody([recordEditSection()]);
+    if (uploadOpen) return createPageBody([documentUploadSection()]);
+    return createPageBody(viewSections());
   }
 
   function viewSections(): BodySurfaceSectionSpec[] {
@@ -180,18 +176,18 @@ export default function InvestmentEnterprisesClient({ canCreate, canUpdate, canI
     return { id: `${kind}-create`, presentation: "block", title: `新增${recordTitle(kind)}`, open: Boolean(recordCreate), canCreate, disabled: saving, content: { kind: "sections", sections: [{ key: `${kind}-create-fields`, items: recordFields(kind, draft, updateRecordCreate), layout: { columns: 2 } }] }, submission: { action: "save", disabled: saving || !recordValid(kind, recordCreate), execute: saveRecordCreate }, feedback: { saved: "记录已新增", error: "新增记录失败" }, onOpenChange: (open) => setRecordCreate(open ? emptyRecordDraft(kind, selected.id) : null), onCancel: () => setRecordCreate(null) };
   }
 
-  function editModal() {
-    if (!recordEdit) return null;
-    return createPageModalSection("record-edit", { open: true, title: `编辑${recordTitle(recordEdit.kind)}`, onClose: () => setRecordEdit(null), size: "lg", sections: [createFieldsSection("record-edit-fields", recordFields(recordEdit.kind, recordEdit.draft, updateRecordEdit), { layout: { columns: 2 }, actions: [
+  function recordEditSection(): BodySurfaceSectionSpec {
+    if (!recordEdit) throw new Error("编辑记录状态不存在");
+    return createAnalysisSection("record-edit", { title: `编辑${recordTitle(recordEdit.kind)}`, sections: [createFieldsSection("record-edit-fields", recordFields(recordEdit.kind, recordEdit.draft, updateRecordEdit), { layout: { columns: 2 }, actions: [
       { key: "cancel", action: "cancel", label: "取消", disabled: saving, onClick: () => setRecordEdit(null) }, { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving || !recordValid(recordEdit.kind, recordEdit.draft), onClick: () => void saveRecordEdit() },
     ] })] });
   }
 
-  function uploadModal() {
-    if (!uploadOpen) return null;
-    return createPageModalSection("document-upload", { open: true, title: "上传并分析资料", onClose: closeUpload, size: "lg", actions: [
-      { key: "cancel", label: "取消", disabled: saving, onClick: closeUpload }, { key: "save", label: saving ? "处理中..." : "上传并分析", disabled: saving || !uploadFile || !uploadTitle.trim(), onClick: () => void uploadDocument() },
-    ], sections: [createFieldsSection("document-upload-fields", uploadFields(), { layout: { columns: 1 } })] });
+  function documentUploadSection(): BodySurfaceSectionSpec {
+    return createAnalysisSection("document-upload", { title: "上传并分析资料", sections: [createFieldsSection("document-upload-fields", uploadFields(), { layout: { columns: 1 }, actions: [
+      { key: "cancel", action: "cancel", label: "取消", disabled: saving, onClick: closeUpload },
+      { key: "save", action: "save", label: saving ? "处理中..." : "上传并分析", disabled: saving || !uploadFile || !uploadTitle.trim(), onClick: () => void uploadDocument() },
+    ] })] });
   }
 
   function uploadFields(): FormSurfaceItemSpec[] {
@@ -210,7 +206,7 @@ export default function InvestmentEnterprisesClient({ canCreate, canUpdate, canI
   async function saveProfileCreate() { if (!profileCreate) throw new Error("请填写投资企业档案"); const response = await postDirectCommandJson<{ record: { id: number } }>(ENDPOINT, profileCreate, "新增投资企业档案失败"); setProfileCreate(null); await load(response.record.id, ""); }
   async function saveRecordCreate() { if (!recordCreate) throw new Error("请填写记录"); await postDirectCommandJson(`${ENDPOINT}/records`, recordCreate, "新增记录失败"); setRecordCreate(null); await load(selectedProfileId, deferredKeyword); }
   async function saveRecordEdit() { if (!recordEdit) return; setSaving(true); try { await putDirectCommandJson(`${ENDPOINT}/records`, recordEdit.draft, "保存记录失败"); feedback.success("记录已保存"); setRecordEdit(null); await load(selectedProfileId, deferredKeyword); } catch (cause) { feedback.error(cause instanceof Error ? cause.message : "保存失败"); } finally { setSaving(false); } }
-  function openUpload() { setUploadFile(null); setUploadCategory("due_diligence"); setUploadTitle(""); setUploadNotes(""); setUploadOpen(true); }
+  function openUpload() { setProfileCreate(null); setRecordCreate(null); setRecordEdit(null); setMobileDetailActive(true); setUploadFile(null); setUploadCategory("due_diligence"); setUploadTitle(""); setUploadNotes(""); setUploadOpen(true); }
   function closeUpload() { if (!saving) setUploadOpen(false); }
   async function uploadDocument() { if (!selected || !uploadFile) return; setSaving(true); try { const form = new FormData(); form.set("profileId", String(selected.id)); form.set("documentCategory", uploadCategory); form.set("title", uploadTitle); form.set("notes", uploadNotes); form.set("file", uploadFile); const response = await fetch(workspacePath(`${ENDPOINT}/documents`), { method: "POST", body: form }); const result = await response.json().catch(() => null) as { error?: string } | null; if (!response.ok) throw new Error(result?.error || `上传失败（${response.status}）`); feedback.success("资料已上传，OCR 与向量索引处理完成或已记录待处理状态"); setUploadOpen(false); await load(selected.id, deferredKeyword); } catch (cause) { feedback.error(cause instanceof Error ? cause.message : "上传失败"); } finally { setSaving(false); } }
   async function semanticSearch() { if (!selected || semanticQuery.trim().length < 2) return; setSearching(true); try { const response = await postDirectCommandJson<InvestmentEnterpriseSearchResponse>(`${ENDPOINT}/search`, { profileId: selected.id, query: semanticQuery, limit: 12 }, "语义检索失败"); setSearchResult(response); } catch (cause) { feedback.error(cause instanceof Error ? cause.message : "语义检索失败"); } finally { setSearching(false); } }

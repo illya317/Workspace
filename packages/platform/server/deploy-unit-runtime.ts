@@ -1,3 +1,5 @@
+import { constants } from "node:fs";
+import { access } from "node:fs/promises";
 import { NextResponse } from "next/server";
 
 import { getAppVersion } from "./app-version";
@@ -12,12 +14,27 @@ function deployUnitId() {
   return process.env.NEXT_PUBLIC_DEPLOY_UNIT_ID || "workspace-monolith";
 }
 
-export function deployUnitHealthResponse() {
+async function runtimeConfigIsTraversable() {
+  const configRoot = process.env.WORKSPACE_CONFIG_DIR;
+  if (!configRoot) return true;
+  try {
+    await access(configRoot, constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function deployUnitHealthResponse() {
+  const runtimeReady = await runtimeConfigIsTraversable();
   return NextResponse.json({
-    status: "ok",
+    status: runtimeReady ? "ok" : "error",
     unitId: deployUnitId(),
     version: getAppVersion(),
-  }, { headers: noStoreHeaders });
+  }, {
+    headers: noStoreHeaders,
+    status: runtimeReady ? 200 : 503,
+  });
 }
 
 export function deployUnitVersionResponse() {

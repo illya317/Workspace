@@ -3,16 +3,11 @@ import { basename, dirname, resolve } from "node:path";
 
 const TREE_PATTERN = /^[0-9a-f]{40}$/;
 const CONTENT_PATTERN = /^[0-9a-f]{64}$/;
-export const CANDIDATE_CHECKS = [
-  "cnb-release-config",
-  "tenant-config-dry-run",
-  "tenant-permission-docs",
-];
 export const SOURCE_VALIDATION_CHECKS = [
-  "full-source-ci-once",
+  "aggregate-source-ci",
 ];
 export const ARTIFACT_CHECKS = [
-  "artifact-compile-once",
+  "artifact-compile-or-exact-cache-restore",
   "artifact-content-identity",
 ];
 
@@ -40,29 +35,6 @@ function requireIdentity(receipt, expected) {
   return receipt;
 }
 
-export function createCandidateReceipt({ treeId, contentDigest, completedAt = new Date().toISOString() }) {
-  return {
-    schemaVersion: 2,
-    kind: "workspace-release-candidate",
-    status: "prepared",
-    command: "ops/publish.sh prepare",
-    treeId: requireTree(treeId),
-    contentDigest: requireContent(contentDigest),
-    checks: CANDIDATE_CHECKS,
-    completedAt: requireTime(completedAt),
-  };
-}
-
-export function validateCandidateReceipt(receipt, identity) {
-  requireIdentity(receipt, identity);
-  if (receipt.schemaVersion !== 2 || receipt.kind !== "workspace-release-candidate"
-    || receipt.status !== "prepared" || receipt.command !== "ops/publish.sh prepare"
-    || JSON.stringify(receipt.checks) !== JSON.stringify(CANDIDATE_CHECKS)) {
-    throw new Error("release candidate receipt contract is invalid");
-  }
-  return receipt;
-}
-
 function requireRunner(runner) {
   if (!new Set(["cnb", "local"]).has(runner)) throw new Error("release runner must be cnb or local");
   return runner;
@@ -78,7 +50,7 @@ export function createSourceValidationReceipt({
     schemaVersion: 1,
     kind: "workspace-source-validation",
     status: "passed",
-    command: "ops/publish.sh validate",
+    command: "ops/publish.sh ci",
     runner: requireRunner(runner),
     treeId: requireTree(treeId),
     contentDigest: requireContent(contentDigest),
@@ -91,7 +63,7 @@ export function createSourceValidationReceipt({
 export function validateSourceValidationReceipt(receipt, identity) {
   requireIdentity(receipt, identity);
   if (receipt.schemaVersion !== 1 || receipt.kind !== "workspace-source-validation"
-    || receipt.status !== "passed" || receipt.command !== "ops/publish.sh validate"
+    || receipt.status !== "passed" || receipt.command !== "ops/publish.sh ci"
     || !new Set(["cnb", "local"]).has(receipt.runner) || receipt.scope !== "full-repository"
     || JSON.stringify(receipt.checks) !== JSON.stringify(SOURCE_VALIDATION_CHECKS)) {
     throw new Error("source validation receipt contract is invalid");
@@ -111,7 +83,7 @@ export function createArtifactReceipt({
     schemaVersion: 1,
     kind: "workspace-release-artifact",
     status: "built",
-    command: "ops/publish.sh build",
+    command: "ops/publish.sh ci",
     runner: requireRunner(runner),
     treeId: requireTree(treeId),
     contentDigest: requireContent(contentDigest),
@@ -124,7 +96,7 @@ export function createArtifactReceipt({
 export function validateArtifactReceipt(receipt, identity) {
   requireIdentity(receipt, identity);
   if (receipt.schemaVersion !== 1 || receipt.kind !== "workspace-release-artifact"
-    || receipt.status !== "built" || receipt.command !== "ops/publish.sh build"
+    || receipt.status !== "built" || receipt.command !== "ops/publish.sh ci"
     || !new Set(["cnb", "local"]).has(receipt.runner)
     || receipt.targetId !== (identity.targetId ?? "monolith")
     || JSON.stringify(receipt.checks) !== JSON.stringify(ARTIFACT_CHECKS)) {

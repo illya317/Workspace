@@ -89,12 +89,11 @@ export default function CreateSurface<T = FormSurfaceLooseItem>(
 
   return (
     <CreatePresentationPanel
-      anchor={props.presentation === "block" ? props.anchor : undefined}
+      anchor={props.anchor}
       trigger={props.trigger}
       title={props.title}
       content={form}
       open={props.open}
-      presentation={props.presentation}
       canCreate={props.canCreate}
       disabled={props.disabled}
       submitting={submitting}

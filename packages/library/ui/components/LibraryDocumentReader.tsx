@@ -29,7 +29,7 @@ import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_OPTIONS,
   LIBRARY_DOCUMENT_STATUS_OPTIONS,
 } from "./library-document-options";
-import { createLibraryVersionUploadModal } from "./library-version-upload-modal";
+import { createLibraryVersionUploadSection } from "./library-version-upload-section";
 
 function fileExtension(fileName: string | undefined) {
   const extension = fileName?.split(".").pop()?.toLowerCase();
@@ -415,8 +415,7 @@ export default function LibraryDocumentReader({
             kind: "empty",
             content: "该文件格式暂不支持在线预览，请下载原文件查看。",
           });
-  const versionUploadModal = createLibraryVersionUploadModal({
-    open: versionUploadOpen,
+  const versionUploadSection = createLibraryVersionUploadSection({
     saving: versionUploading,
     file: versionFile,
     changeNote: versionChangeNote,
@@ -436,10 +435,10 @@ export default function LibraryDocumentReader({
             kind: "detail",
             layout: { columns: 1 },
           }),
-          versionUploadModal,
         ]) },
-        detail: createPageBody([previewSection]),
+        detail: createPageBody(versionUploadOpen ? [versionUploadSection] : [previewSection]),
         desktop: { ratio: [4, 10] },
+        mobile: { detailActive: versionUploadOpen, onNavigateToList: closeVersionUpload },
       })
     : createPageBody([], {
         empty: { content: loading ? "正在加载资料..." : "资料不存在或无权查看", compact: true },

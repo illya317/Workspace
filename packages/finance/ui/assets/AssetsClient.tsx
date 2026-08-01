@@ -422,7 +422,7 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
   }
   function disposalCreate(): PageSurfaceCreateSpec {
     return {
-      id: "finance-asset-disposal-create", presentation: "modal", title: "确认资产处置", open: Boolean(disposalDraft), canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
+      id: "finance-asset-disposal-create", presentation: "block", title: "确认资产处置", open: Boolean(disposalDraft), canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
       content: { kind: "sections", sections: disposalFormSections(disposalDraft ?? emptyDisposalDraft(companyCode, Number(year), Number(month)), workspace?.cards ?? [], (key, value) => setDisposalDraft((current) => ({ ...(current ?? emptyDisposalDraft(companyCode, Number(year), Number(month))), [key]: value }) as ConfirmFinanceAssetDisposalInput)) },
       submission: { action: "save", disabled: saving || !disposalDraft?.assetId || !disposalDraft.disposalDate || !disposalDraft.voucherNo || !disposalDraft.evidenceRef || !disposalDraft.reason, execute: saveDisposal },
       onOpenChange: (open) => setDisposalDraft(open ? emptyDisposalDraft(companyCode, Number(year), Number(month)) : null), onCancel: () => setDisposalDraft(null),
@@ -431,7 +431,7 @@ export default function AssetsClient({ canCreate, canUpdate, canRevise, canExpor
   function periodVoucherLinkCreate(): PageSurfaceCreateSpec {
     const draft = periodVoucherDraft!;
     return {
-      id: "finance-asset-period-voucher-link", presentation: "modal", title: "关联折旧摊销专用凭证", open: periodVoucherOpen, canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
+      id: "finance-asset-period-voucher-link", presentation: "block", title: "关联折旧摊销专用凭证", open: periodVoucherOpen, canCreate: canRevise, disabled: saving || Boolean(workspace?.scope.isClosed),
       content: { kind: "sections", sections: periodVoucherLinkFormSections(draft, (voucherNo) => setPeriodVoucherDraft((current) => current ? { ...current, voucherNo } : current)) },
       submission: { action: "save", disabled: saving || !draft.voucherNo, execute: savePeriodVoucherLink },
       onOpenChange: (open) => { setPeriodVoucherOpen(open); if (open) setPeriodVoucherDraft(periodVoucherLinkDraft(companyCode, Number(year), Number(month), workspace?.periodVoucherLink.linkFingerprint ?? draft.expectedLinkFingerprint)); },

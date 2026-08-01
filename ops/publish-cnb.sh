@@ -53,7 +53,7 @@ usage() {
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish-cnb.sh [选项]
 
-部署只使用本地已确认提交、CNB 仓库/流水线和生产服务器；不会连接 GitHub。
+内部入口：只接受由 ops/publish.sh deploy 发起的 Ready Artifact 本地直部署。
 
 选项:
   --bootstrap-production-base SHA
@@ -67,9 +67,8 @@ usage() {
   --shadow-unit UNIT  将一个 candidate/active 单元部署到 shadow，不切公网 Gateway
   --database-replacement-receipt FILE
                       Full monolith 使用已冻结的整库替换 receipt
-  --print-command
-  --release-action validate|build|deploy
-  --direct            使用本地验证缓存直接部署；不触发 CNB
+  --release-action deploy
+  --direct            必须指定；只消费 Ready Artifact，不触发 CNB
   --recover-local-receipt-base SHA
                       一次性修复把临时 injection 误记为 source 的旧 local 回执
 EOF
@@ -184,10 +183,9 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
-case "$RELEASE_ACTION" in
-  validate|build|deploy) ;;
-  *) echo "[错误] --release-action 只能是 validate、build 或 deploy"; exit 2 ;;
-esac
+[ "$RELEASE_ACTION" = deploy ] || { echo "[错误] 旧 validate/build 发布动作已删除；只允许 deploy" >&2; exit 2; }
+[ "$DIRECT_RELEASE" = 1 ] || { echo "[错误] 远端 CNB 分段发布已删除；只允许 Ready Artifact 本地直部署" >&2; exit 2; }
+[ "$PRINT_COMMAND_ONLY" = 0 ] || { echo "[错误] deploy 不支持 --print-command" >&2; exit 2; }
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   : "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
   : "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
@@ -195,15 +193,7 @@ fi
 if [ "$RELEASE_ACTION" = "deploy" ]; then
   : "${HEALTHCHECK_URL:?HEALTHCHECK_URL not set in $OPS_ENV_FILE}"
 fi
-[ "$DIRECT_RELEASE" = "0" ] || [ "$PRINT_COMMAND_ONLY" = "0" ] || {
-  echo "[错误] --direct 不能与 --print-command 同时使用"; exit 2;
-}
-if [ "$DIRECT_RELEASE" = "1" ]; then
-  RELEASE_TRANSPORT="local"
-fi
-if [ "$DIRECT_RELEASE" = "0" ]; then
-  : "${CNB_REMOTE:?CNB_REMOTE not set in $OPS_ENV_FILE}"
-fi
+RELEASE_TRANSPORT="local"
 
 if [ -n "$DEPLOY_UNIT_ID" ] && ! printf '%s' "$DEPLOY_UNIT_ID" | grep -Eq '^[a-z][a-z0-9-]*$'; then
   echo "[错误] deploy unit id 无效: $DEPLOY_UNIT_ID"
@@ -274,15 +264,55 @@ SOURCE_SHA="$(git rev-parse HEAD)"
 candidate_identity="$(node "$SCRIPT_DIR/release/candidate/identity.mjs" capture --repository "$SOURCE_DIR" --revision HEAD)"
 SOURCE_TREE="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.treeId)' "$candidate_identity")"
 SOURCE_CONTENT_DIGEST="$(node -e 'const value=JSON.parse(process.argv[1]); process.stdout.write(value.contentDigest)' "$candidate_identity")"
-RELEASE_CANDIDATE_RECEIPT_FILE="${RELEASE_CANDIDATE_RECEIPT_FILE:-$SOURCE_DIR/.cache/release-check/release-candidate.json}"
+: "${RELEASE_READY_RECEIPT_FILE:?deploy requires RELEASE_READY_RECEIPT_FILE from ops/publish.sh ci}"
+: "${RELEASE_CONFIGURATION_DIGEST:?deploy requires RELEASE_CONFIGURATION_DIGEST}"
 [ -f "$CNB_REAL_CNB_YML" ] || { echo "[错误] 真实 CNB 配置文件不存在: $CNB_REAL_CNB_YML"; exit 1; }
-if ! node "$SCRIPT_DIR/release-gate-receipt.mjs" candidate-verify \
-  --content "$SOURCE_CONTENT_DIGEST" --tree "$SOURCE_TREE" \
-  --file "$RELEASE_CANDIDATE_RECEIPT_FILE" >/dev/null; then
-  echo "[错误] 当前 release tree 没有有效 prepare 回执；拒绝进入 CNB。" >&2
-  echo "[提示] 先运行: OPS_ENV_FILE=$OPS_ENV_FILE ops/publish.sh prepare" >&2
-  exit 1
+ready_values="$(node - "$RELEASE_READY_RECEIPT_FILE" <<'NODE'
+const receipt = JSON.parse(require('node:fs').readFileSync(process.argv[2], 'utf8'));
+if (receipt.schemaVersion !== 1 || receipt.kind !== 'workspace-ready-artifact'
+  || receipt.status !== 'ready' || receipt.command !== 'ops/publish.sh ci') {
+  throw new Error('Ready Artifact receipt contract is invalid');
+}
+process.stdout.write(`${receipt.runId}\n${receipt.source.commitSha}\n${receipt.source.treeId}\n${receipt.source.contentDigest}\n${receipt.configurationDigest}\n${receipt.target.id}\n${receipt.target.mode}\n`);
+NODE
+)"
+RELEASE_RUN_ID="$(printf '%s\n' "$ready_values" | sed -n '1p')"
+ready_source="$(printf '%s\n' "$ready_values" | sed -n '2p')"
+ready_tree="$(printf '%s\n' "$ready_values" | sed -n '3p')"
+ready_content="$(printf '%s\n' "$ready_values" | sed -n '4p')"
+ready_configuration="$(printf '%s\n' "$ready_values" | sed -n '5p')"
+ready_target="$(printf '%s\n' "$ready_values" | sed -n '6p')"
+ready_mode="$(printf '%s\n' "$ready_values" | sed -n '7p')"
+[ "$ready_source" = "$SOURCE_SHA" ] && [ "$ready_tree" = "$SOURCE_TREE" ] \
+  && [ "$ready_content" = "$SOURCE_CONTENT_DIGEST" ] \
+  && [ "$ready_configuration" = "$RELEASE_CONFIGURATION_DIGEST" ] \
+  || { echo "[错误] Ready Artifact 与当前 source/config 不一致" >&2; exit 1; }
+[ "$ready_target" = "${DEPLOY_UNIT_ID:-monolith}" ] && [ "$ready_mode" = "${DEPLOY_UNIT_MODE:-activate}" ] \
+  || { echo "[错误] Ready Artifact 与部署目标不一致" >&2; exit 1; }
+ready_args=(
+  --file "$RELEASE_READY_RECEIPT_FILE"
+  --repository "$SOURCE_DIR"
+  --run-id "$RELEASE_RUN_ID"
+  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --content "$SOURCE_CONTENT_DIGEST"
+  --configuration "$RELEASE_CONFIGURATION_DIGEST"
+  --target "$ready_target" --target-mode "$ready_mode"
+  --source-receipt "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/source-validation.json"
+  --source-result "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/source-$RELEASE_RUN_ID.json"
+  --task-graph "$SOURCE_DIR/.cache/release-task-graphs/$RELEASE_RUN_ID.json"
+  --rehearsal "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/rehearsal-$ready_target-$RELEASE_CONFIGURATION_DIGEST.json"
+  --artifact-receipt "$SOURCE_DIR/.cache/release-check/release-artifact.json"
+)
+if [ "$ready_target" = monolith ]; then
+  ready_args+=(--artifact "$SOURCE_DIR/.next/workspace-standalone.tgz" --manifest "$SOURCE_DIR/.next/workspace-standalone.manifest.json")
+else
+  ready_args+=(
+    --artifact "$SOURCE_DIR/.cache/deploy-units/$ready_target/$ready_target-standalone.tgz"
+    --manifest "$SOURCE_DIR/.cache/deploy-units/$ready_target/$ready_target-standalone.manifest.json"
+    --contract "$SOURCE_DIR/.cache/deploy-units/$ready_target/deploy-unit-contract.json"
+  )
 fi
+node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" verify "${ready_args[@]}" >/dev/null
+echo "==> Ready Artifact 复验通过: $RELEASE_RUN_ID"
 if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
   node "$SCRIPT_DIR/database-replacement.mjs" verify \
     --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$DATABASE_REPLACEMENT_RECEIPT_FILE" >/dev/null
@@ -423,7 +453,7 @@ git merge-base --is-ancestor "$RELEASE_VALIDATION_BASE_SHA" "$SOURCE_SHA" || {
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-echo "==> 已验证 prepare 回执；本次只执行 ${RELEASE_ACTION}，已完成环节不会重跑。"
+echo "==> 已验证 Ready Receipt；deploy 不运行源码检查、编译或 artifact 组装。"
 
 if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
@@ -438,13 +468,7 @@ RELEASE_ATTEMPT_COUNT="$(node -e 'process.stdout.write(String(JSON.parse(process
 RELEASE_PROCESS_STARTED_AT="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).releaseProcessStartedAt)' "$release_process_snapshot")"
 echo "==> release 流程准备完成：累计 $(format_duration "$RELEASE_PROCESS_SECONDS")，${RELEASE_ATTEMPT_COUNT} 次尝试（main 处理与 CI 已排除）"
 
-: "${RELEASE_PLAN_ROOT:?RELEASE_PLAN_ROOT is required}"
-RELEASE_PLAN_SNAPSHOT_FILE="$TMP_DIR/release-plan-snapshot.json"
-node "$SCRIPT_DIR/release/plan/release-plan.mjs" snapshot --root "$RELEASE_PLAN_ROOT" > "$RELEASE_PLAN_SNAPSHOT_FILE"
-RELEASE_PLAN_ID="$(node -e 'process.stdout.write(require(process.argv[1]).plan.planId)' "$RELEASE_PLAN_SNAPSHOT_FILE")"
-node "$SCRIPT_DIR/release/plan/snapshot-contract.mjs" \
-  --file "$RELEASE_PLAN_SNAPSHOT_FILE" --action "$RELEASE_ACTION" --executor "$RELEASE_TRANSPORT" \
-  --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --content "$SOURCE_CONTENT_DIGEST" >/dev/null
+RELEASE_PLAN_ID="$RELEASE_RUN_ID"
 
 METADATA_FILE="$TMP_DIR/cnb-release.json"
 RESULT_FILE="$TMP_DIR/cnb-trigger.json"
@@ -521,16 +545,14 @@ BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="
 GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUNT="$GENESIS_LEGACY_MIGRATION_COUNT" \
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
-RELEASE_CANDIDATE_RECEIPT_FILE="$RELEASE_CANDIDATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
-RELEASE_PLAN_SNAPSHOT_FILE="$RELEASE_PLAN_SNAPSHOT_FILE" \
+RELEASE_READY_RECEIPT_FILE="$RELEASE_READY_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
 PRODUCTION_PREFLIGHT_FILE="${PREFLIGHT_RESULT_FILE:-}" \
 DATABASE_REPLACEMENT_RECEIPT_FILE="$DATABASE_REPLACEMENT_RECEIPT_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
 RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEASE_ATTEMPT_COUNT" \
 RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
 const fs = require('node:fs');
-const releaseCandidate = JSON.parse(fs.readFileSync(process.env.RELEASE_CANDIDATE_RECEIPT_FILE, 'utf8'));
-const releasePlan = JSON.parse(fs.readFileSync(process.env.RELEASE_PLAN_SNAPSHOT_FILE, 'utf8'));
+const releaseReady = JSON.parse(fs.readFileSync(process.env.RELEASE_READY_RECEIPT_FILE, 'utf8'));
 const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
 if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
   throw new Error('publish start epoch is invalid');
@@ -544,15 +566,14 @@ const releaseAttemptCount = seconds('RELEASE_ATTEMPT_COUNT');
 if (releaseAttemptCount < 1) throw new Error('RELEASE_ATTEMPT_COUNT is invalid');
 if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new Error('RELEASE_PROCESS_STARTED_AT is invalid');
 const metadata = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   source: {
     commitSha: process.env.SOURCE_SHA,
     treeSha: process.env.SOURCE_TREE,
     contentDigest: process.env.SOURCE_CONTENT_DIGEST,
   },
   transport: { kind: process.env.RELEASE_TRANSPORT },
-  releasePlan,
-  releaseCandidate,
+  releaseReady,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   validation: { action: process.env.RELEASE_ACTION, baseSha: process.env.RELEASE_VALIDATION_BASE_SHA },
   deployment: {
@@ -614,6 +635,7 @@ if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_SOURCE_SHA="$SOURCE_SHA" RELEASE_SOURCE_TREE="$SOURCE_TREE" RELEASE_CONTENT_DIGEST="$SOURCE_CONTENT_DIGEST" \
   RELEASE_SOURCE_DIR="$SOURCE_DIR" CNB_REAL_CNB_YML="$CNB_REAL_CNB_YML" \
   CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
+  RELEASE_READY_VERIFIED=1 \
   bash "$SCRIPT_DIR/run-local-release-action.sh" "$RELEASE_ACTION" "$METADATA_FILE"
   record_release_event succeeded 0
   [ "$RELEASE_ACTION" != "deploy" ] || complete_release_process_session
