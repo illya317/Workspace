@@ -439,7 +439,7 @@ function visit(directory) {
 }
 visit(standaloneRoot);
 NODE
-
+node ops/release/artifact/runtime-tree-permissions.mjs normalize --root .next/standalone
 mkdir -p "$(dirname "$ARTIFACT_PATH")" "$(dirname "$MANIFEST_PATH")"
 rm -f "$ARTIFACT_PATH" "$MANIFEST_PATH"
 run_artifact_stage artifact.archive env COPYFILE_DISABLE=1 \

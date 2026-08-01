@@ -21,6 +21,7 @@ test("canonical packager rewrites the shared dependency root inside the portable
   assert.match(source, /node_modules\/next\/package\.json/);
   assert.match(source, /realpath --relative-to=/);
   assert.match(source, /standalone symlink escapes the portable runtime/);
+  assert.match(source, /runtime-tree-permissions\.mjs normalize --root \.next\/standalone/);
   assert.match(source, /tar -C \.next\/standalone/);
   assert.doesNotMatch(source, /tar --dereference/);
 });

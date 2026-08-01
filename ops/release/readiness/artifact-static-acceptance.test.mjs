@@ -5,12 +5,13 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
+import { normalizeRuntimeTree } from "../artifact/runtime-tree-permissions.mjs";
 import { assertArtifactStaticAcceptance } from "./artifact-static-acceptance.mjs";
 
 const CONTENT_DIGEST = "a".repeat(64);
 const HAS_GNU_TAR = execFileSync("tar", ["--help"], { encoding: "utf8" }).includes("--full-time");
 
-function fixture(t, buildId = CONTENT_DIGEST) {
+function fixture(t, buildId = CONTENT_DIGEST, permissions = {}) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "artifact-static-acceptance-"));
   const runtime = path.join(root, "runtime");
   const write = (relative, value = "") => {
@@ -30,6 +31,9 @@ function fixture(t, buildId = CONTENT_DIGEST) {
     "scripts/check/check-prisma-deploy-status.js",
     "ops/apply-data-release.mjs",
   ]) write(required);
+  normalizeRuntimeTree(runtime);
+  if (permissions.rootMode) fs.chmodSync(runtime, permissions.rootMode);
+  if (permissions.serverMode) fs.chmodSync(path.join(runtime, "server.js"), permissions.serverMode);
   const artifact = path.join(root, "artifact.tgz");
   const manifest = path.join(root, "manifest.json");
   execFileSync("tar", ["-C", runtime, "-czf", artifact, "."]);
@@ -50,5 +54,37 @@ test("rejects an archive whose BUILD_ID differs from its manifest", { skip: !HAS
   assert.throws(
     () => assertArtifactStaticAcceptance({ ...input, target: "monolith" }),
     /artifact BUILD_ID differs from manifest/,
+  );
+});
+
+test("rejects an unnormalized archive with an umask-077 runtime directory", { skip: !HAS_GNU_TAR && "requires the production GNU tar contract" }, (t) => {
+  const input = fixture(t, CONTENT_DIGEST, { rootMode: 0o700 });
+  assert.throws(
+    () => assertArtifactStaticAcceptance({ ...input, target: "monolith" }),
+    /directory is not isolated-user traversable/,
+  );
+});
+
+test("rejects an unnormalized archive with an umask-077 runtime file", { skip: !HAS_GNU_TAR && "requires the production GNU tar contract" }, (t) => {
+  const input = fixture(t, CONTENT_DIGEST, { serverMode: 0o600 });
+  assert.throws(
+    () => assertArtifactStaticAcceptance({ ...input, target: "monolith" }),
+    /file is not isolated-user readable/,
+  );
+});
+
+test("rejects a 0754 runtime directory outside the exact archive contract", { skip: !HAS_GNU_TAR && "requires the production GNU tar contract" }, (t) => {
+  const input = fixture(t, CONTENT_DIGEST, { rootMode: 0o754 });
+  assert.throws(
+    () => assertArtifactStaticAcceptance({ ...input, target: "monolith" }),
+    /exact 0755 mode/,
+  );
+});
+
+test("rejects a 0644 runtime file outside the exact archive contract", { skip: !HAS_GNU_TAR && "requires the production GNU tar contract" }, (t) => {
+  const input = fixture(t, CONTENT_DIGEST, { serverMode: 0o644 });
+  assert.throws(
+    () => assertArtifactStaticAcceptance({ ...input, target: "monolith" }),
+    /not exact 0444 or 0555/,
   );
 });

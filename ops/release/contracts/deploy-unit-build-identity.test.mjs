@@ -11,6 +11,7 @@ import {
   deployUnitRuntimeVersion,
   normalizeDeployUnitBuildIdentity,
 } from "./deploy-unit-build-identity.mjs";
+import { normalizeRuntimeTree } from "../artifact/runtime-tree-permissions.mjs";
 import { inspectArchive } from "../readiness/artifact-inspection.mjs";
 import {
   artifactRehearsalExpectation,
@@ -19,7 +20,7 @@ import {
 
 const build = { buildId: "build-TfctsWXpff2fKS", deploymentId: "news-36b3ffa73f17" };
 
-function archiveFixture(t, buildId = build.buildId) {
+function archiveFixture(t, buildId = build.buildId, normalized = true) {
   const workRoot = fs.mkdtempSync(path.join(os.tmpdir(), "deploy-unit-build-identity-"));
   const root = path.join(workRoot, "root");
   fs.mkdirSync(root);
@@ -31,6 +32,11 @@ function archiveFixture(t, buildId = build.buildId) {
   fs.writeFileSync(path.join(root, ".next/routes-manifest.json"), '{"basePath":"/workspace"}\n');
   fs.writeFileSync(path.join(root, ".deploy-unit-contract.json"), "{}\n");
   fs.writeFileSync(path.join(root, ".control-plane-requirements.json"), "{}\n");
+  if (normalized) normalizeRuntimeTree(root);
+  else {
+    fs.chmodSync(root, 0o700);
+    fs.chmodSync(path.join(root, "server.js"), 0o600);
+  }
   const artifact = path.join(workRoot, "news.tgz");
   const packed = spawnSync("tar", ["-czf", artifact, "."], { cwd: root, encoding: "utf8" });
   assert.equal(packed.status, 0, packed.stderr);
@@ -54,6 +60,10 @@ test("static archive inspection accepts exact BUILD_ID and rejects mismatch", (t
   assert.throws(
     () => inspectArchive({ artifact: archiveFixture(t, "build-other"), manifest, target: "news" }),
     /archive BUILD_ID differs from manifest build id/,
+  );
+  assert.throws(
+    () => inspectArchive({ artifact: archiveFixture(t, build.buildId, false), manifest, target: "news" }),
+    /directory is not isolated-user traversable|file is not isolated-user readable/,
   );
 });
 

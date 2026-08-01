@@ -9,13 +9,19 @@ const tenant = readFileSync(new URL("./tenant-config-manifest.mjs", import.meta.
 const receipt = readFileSync(new URL("./control-plane-receipt.mjs", import.meta.url), "utf8");
 const controlPlaneEntrypoint = readFileSync(new URL("./deploy-control-plane.sh", import.meta.url), "utf8");
 
-test("deploy syncs and syntax-checks the control-plane receipt tool", () => {
-  assert.match(deploy, /ops\/release-receipt\.mjs ops\/control-plane-receipt\.mjs ops\/tenant-config-manifest\.mjs/);
-  assert.match(deploy, /node --check '\$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'/);
-  assert.match(deploy, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
-  assert.match(deploy, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
-  assert.match(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
-  assert.match(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\/readiness\/artifact-inspection\.mjs'/);
+test("deploy exact-syncs and remotely verifies the automatic tool dependency bundle", () => {
+  const build = deploy.indexOf("deploy-tool-bundle.mjs build");
+  const exactSync = deploy.indexOf('rsync -az --delete-delay -e "$RSYNC_SSH_COMMAND"', build);
+  const remoteVerify = deploy.indexOf(
+    "node '$REMOTE_DEPLOY_TOOL_DIR/release/control/deploy-tool-bundle.mjs'",
+    exactSync,
+  );
+  assert.ok(build >= 0 && exactSync > build && remoteVerify > exactSync);
+  assert.match(deploy, /--profile full/);
+  assert.doesNotMatch(deploy, /--entry ops\//);
+  assert.match(deploy, /verify --bundle '\$REMOTE_DEPLOY_TOOL_DIR'/);
+  assert.doesNotMatch(deploy, /ops\/\.\/release\//);
+  assert.doesNotMatch(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\//);
 });
 
 test("control-plane receipt commits after lifecycle parity and before candidate startup", () => {

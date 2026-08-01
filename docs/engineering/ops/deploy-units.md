@@ -77,6 +77,8 @@ npm run deploy:apps:check
 - production artifact 在 Linux 构建，并先走对应 `typecheck:scope`；
 - 每个独立 Next app 也有 `app-<unit>` 受治理 scope；unit builder 必须先完成图中全部 package/App scopes，生成的 Next config 才关闭 Next 内部那次对 project references 支持不完整的重复类型检查；
 - Next `buildId` 取自本次真实 `.next/BUILD_ID` 并与 archive 精确一致；`deploymentId` 单独绑定候选部署，供 version-skew/cache-bust、health/version 和 activation 使用；两者都必须有效但不要求相等。content digest 仍是候选 Git tree 的内容身份；
+- `.next/cache` 只能通过 receipt-bound compiler cache 复用；普通 app 文案变化允许命中，Node/Next/lockfile/Next config/tsconfig/deploy graph 或 generator 漂移必须隔离旧 cache。cache 命中不跳过真实 Next build，也不复用旧 artifact；
+- 打包前统一规范 standalone runtime tree 权限，目录 `0755`、普通文件 `0444`、可执行文件 `0555`。共享 archive inspector 读取 tar mode，任何 `0700/0600`、非 canonical mode、可写/特殊条目或逃逸链接都在 Ready 前失败；
 - artifact 声明所需 migration、resource manifest、data-release set 和 lifecycle tool-set digest；
 - 冻结、planned、容量/SLO 未分配或仍有 contributor 的 unit 直接失败。
 - builder 为每个 unit 生成 CycloneDX SBOM；Profile/Fleet 晋级还要求 Ed25519 provenance，把 artifact、manifest、SBOM、source、graph 和 builder identity 绑定到受信公钥。

@@ -19,11 +19,20 @@ test("profile client transfers exact promotion inputs and invokes server-side at
   assert.match(client, /release\.json/);
   assert.match(client, /observation\.json/);
   assert.match(client, /deploy-graph\.json/);
-  assert.match(client, /deploy-notification\.mjs/);
   assert.match(client, /DIGEST_INPUTS=\("\$PROFILE_FILE" "\$RELEASE_FILE" "\$ROLLOUT_FILE" "\$OBSERVATION_FILE" "\$GRAPH_FILE"\)/);
   assert.match(client, /content\.length/);
-  assert.match(client, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
-  assert.match(client, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
-  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
-  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/readiness\/artifact-inspection\.mjs'/);
+  const bundleBuild = client.indexOf("deploy-tool-bundle.mjs build");
+  const exactSync = client.indexOf('rsync -az --delete-delay -e "$RSYNC_SSH"', bundleBuild);
+  const remoteVerify = client.indexOf(
+    "node '$REMOTE_TOOL_ROOT/release/control/deploy-tool-bundle.mjs' verify",
+    exactSync,
+  );
+  const rollbackExecution = client.indexOf("'$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh'");
+  const promoteExecution = client.indexOf("'$REMOTE_TOOL_ROOT/promote-deploy-profile.sh'");
+  assert.ok(bundleBuild >= 0 && exactSync > bundleBuild && remoteVerify > exactSync);
+  assert.ok(rollbackExecution > remoteVerify && promoteExecution > remoteVerify);
+  assert.match(client, /--profile deploy-unit-tools/);
+  assert.doesNotMatch(client, /ops\/\.\/release\//);
+  assert.doesNotMatch(client, /node --check '\$REMOTE_TOOL_ROOT\/release\//);
+  assert.doesNotMatch(client, /rsync -azR/);
 });

@@ -6,6 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
+import { normalizeRuntimeTree } from "../artifact/runtime-tree-permissions.mjs";
 import { inspectArchive } from "./artifact-inspection.mjs";
 import { rehearseArtifact } from "./rehearse-artifact.mjs";
 import {
@@ -118,6 +119,7 @@ test("real tar root entry is accepted while the deployment runtime is inspected"
   }
   fs.mkdirSync(path.join(contentRoot, "release"), { recursive: true });
   fs.symlinkSync("../source/node_modules", path.join(contentRoot, "release/node_modules"));
+  normalizeRuntimeTree(contentRoot);
   const artifact = path.join(root, "artifact.tgz");
   execFileSync("tar", ["-C", contentRoot, "-czf", artifact, "."]);
   const runtime = inspectArchive({
@@ -175,6 +177,7 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => app.close
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, body);
   }
+  normalizeRuntimeTree(contentRoot);
   const artifact = path.join(root, "artifact.tgz");
   execFileSync("tar", ["-C", contentRoot, "-czf", artifact, "."]);
   const artifactSha = (await import("node:crypto")).createHash("sha256").update(fs.readFileSync(artifact)).digest("hex");

@@ -12,6 +12,11 @@
       "allowedDependencies": []
     },
     {
+      "name": "release-artifact",
+      "include": ["ops/release/artifact/"],
+      "allowedDependencies": []
+    },
+    {
       "name": "release-contracts",
       "include": ["ops/release/contracts/"],
       "allowedDependencies": []
@@ -39,7 +44,7 @@
     {
       "name": "release-readiness",
       "include": ["ops/release/readiness/"],
-      "allowedDependencies": ["release-contracts", "release-validation"]
+      "allowedDependencies": ["release-artifact", "release-contracts", "release-validation"]
     },
     {
       "name": "release-cli",

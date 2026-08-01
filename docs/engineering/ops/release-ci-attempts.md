@@ -55,6 +55,8 @@ node ops/release/attempts/ci-attempt.mjs patrol \
 
 Exit `0` means no resolved fingerprint recurred. Exit `42` means at least one P1 recurrence exists and Application Ready must not be signed.
 
+任何 deploy 阶段暴露的长期缺陷都必须先转成 CI/Controller Ready 可复现的合同再关闭：例如 deploy-tool import 缺失进入 named bundle closure fixture，archive 隔离用户不可读进入 tar mode fixture。只在生产脚本里补文件名或 chmod、却没有前置失败 fixture，不算 resolution，也不得再次部署。
+
 ## Sensitive-data boundary
 
 Attempt receipts never contain command output, exception messages, environment variables, request headers, tokens, or secret-bearing command lines. Callers supply a stable command ID and a slug error code, not a raw command or log excerpt. Evidence contains only a repository-relative file path, SHA-256 digest, kind, and byte size.

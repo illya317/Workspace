@@ -3,6 +3,7 @@ import fs from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { assertArchiveRuntimePermissions } from "../artifact/runtime-tree-permissions.mjs";
 import { assertDeployUnitArchiveBuildIdentity } from "../contracts/deploy-unit-build-identity.mjs";
 
 function archivePath(value) {
@@ -27,12 +28,15 @@ function listArchive(file) {
   return entries;
 }
 
-function validateArchiveLinks(file, entries) {
-  const listing = execFileSync(
+function archiveMetadata(file) {
+  return execFileSync(
     "tar",
     ["--numeric-owner", "--full-time", "-tvzf", file],
     { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
   );
+}
+
+function validateArchiveLinks(listing, entries) {
   for (const line of listing.split("\n").filter(Boolean)) {
     if (!line.startsWith("l")) continue;
     const match = line.match(/^l\S+\s+\S+\s+\d+\s+\S+\s+\S+\s+(?:(?:[+-]\d{4})\s+)?(.+?) -> (.+)$/);
@@ -60,7 +64,9 @@ function archiveFile(artifact, entries, relative) {
 
 export function inspectArchive({ artifact, manifest, target }) {
   const entries = listArchive(artifact);
-  validateArchiveLinks(artifact, entries);
+  const metadata = archiveMetadata(artifact);
+  assertArchiveRuntimePermissions(metadata);
+  validateArchiveLinks(metadata, entries);
   const serverEntry = archivePath(archiveFile(artifact, entries, ".server-entry").toString("utf8").trim());
   if (!serverEntry.endsWith("server.js")) throw new Error("artifact server entry must end in server.js");
   if (target !== "monolith" && manifest.build?.serverEntry !== serverEntry) {

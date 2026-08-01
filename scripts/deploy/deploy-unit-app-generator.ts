@@ -24,6 +24,7 @@ const LIBRARY_RUNTIME_SOURCE_TRACE_EXCLUDES = [
 interface GeneratedFile {
   path: string;
   content: string;
+  requiredOnCheckout?: boolean;
 }
 
 function walk(directory: string): string[] {
@@ -288,6 +289,7 @@ export function generatedDeployUnitAppFiles(
   files.push({
     path: path.join(appRoot, "next-env.d.ts"),
     content: `/// <reference types="next" />\n/// <reference types="next/image-types/global" />\nimport "./.next/types/routes.d.ts";\n\n// NOTE: This file should not be edited\n// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.\n`,
+    requiredOnCheckout: false,
   });
   files.push({
     path: path.join(appRoot, "instrumentation.ts"),
@@ -373,17 +375,24 @@ export function writeDeployUnitApp(unitId: string) {
   return files;
 }
 
-export function assertDeployUnitApp(unitId: string) {
-  const files = generatedDeployUnitAppFiles(unitId);
+export function assertDeployUnitApp(
+  unitId: string,
+  options: { graph?: DeployGraph; repositoryRoot?: string } = {},
+) {
+  const files = generatedDeployUnitAppFiles(unitId, options);
   const expectedPaths = new Set(files.map((file) => file.path));
-  const generatedAppRoot = path.join(path.resolve(import.meta.dirname, "../.."), "apps", unitId, "app");
+  const repositoryRoot = options.repositoryRoot ?? path.resolve(import.meta.dirname, "../..");
+  const generatedAppRoot = path.join(repositoryRoot, "apps", unitId, "app");
   const staleGeneratedFiles = walk(generatedAppRoot).filter((file) => (
     !expectedPaths.has(file)
     && /\.(?:ts|tsx)$/.test(file)
     && fs.readFileSync(file, "utf8").startsWith(GENERATED_BANNER)
   ));
   const mismatches = [
-    ...files.filter((file) => !fs.existsSync(file.path) || fs.readFileSync(file.path, "utf8") !== file.content).map((file) => file.path),
+    ...files.filter((file) => {
+      if (!fs.existsSync(file.path)) return file.requiredOnCheckout !== false;
+      return fs.readFileSync(file.path, "utf8") !== file.content;
+    }).map((file) => file.path),
     ...staleGeneratedFiles,
   ];
   if (mismatches.length > 0) {

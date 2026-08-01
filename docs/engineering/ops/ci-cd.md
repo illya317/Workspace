@@ -24,6 +24,8 @@ ci -> Ready -> deploy
 
 Stage-2 失败立即停止后续重任务。只有有依赖的阶段不可越过；source/artifact 两条 lane 的执行并行度由受控资源决定，不能牺牲独立结果或回执。
 
+Artifact 权限属于制品合同，不是生产现场修复项。Monolith 与 unit builder 在打包前调用同一 runtime-tree normalizer：目录固定为 `0755`，普通只读文件固定为 `0444`，原本需要执行的文件固定为 `0555`；escaping/broken symlink、hardlink 和特殊文件直接失败。共享 `inspectArchive` 从 tar metadata 复验同一 exact mode，因此 `umask 077` 形成的 `0700/0600` archive 会在 static acceptance、rehearsal 和 Ready 之前被拒绝，不能等生产隔离用户启动时才表现为“server.js 不存在”。
+
 ## 边界
 
 ### CI 的责任
@@ -91,6 +93,8 @@ Controller Ready 回执精确绑定：
 
 它禁止测试、应用 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。controller 与 Application Ready source 不同时，deploy 也只验证提前签发的 Controller Ready，绝不补跑 ops shard。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
 
+Deploy 同步控制工具时只消费 Controller Ready 已覆盖的 named bundle：先精确同步，再在远端对完整 manifest/digest/mode/import closure 做一次自验证，通过后才允许执行 gateway、receipt 或 lifecycle 工具。`node --check` 不能代替这个验证，因为它不会解析并加载相对 import；禁止在生产失败后临时向 rsync 清单补单个文件。
+
 当生产 Application source 已与 Application Ready 完全相同时，deploy 在生产锁内复验实时 health/version，并比较 deployed receipt 中的 Controller Ready 四元组。四元组相同是纯 no-op；四元组不同则只原子激活新的 controller identity，保留既有 source、artifact、migration 和 deployment identity，不重建 artifact、不执行 migration、不重启应用。旧 schema-v3 deployed receipt 可读，但下一次部署或 controller activation 会写成带完整 controller 的 schema v4。
 
 ## 一次报全与增量收敛
@@ -113,7 +117,13 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 Controller Ready 采用相同的精确复用原则，但不把 application source 误算为 ops qualification 输入：application-only 新 Ready 只使 binding 失效，控制面 qualification 仍按 `controlDigest + commandDigest + runtimeDigest` 复用。只有这三个输入之一变化才重跑完整 ops shard；新的 binding 始终重新绑定当前 `readySource` 和完整 controller provenance。
 
+完整 ops qualification 还覆盖 deploy-tool bundle 的真实 catalog。发布源码只维护经过审核的 named profile 入口；相对 ESM import/export/dynamic-import 依赖由工具递归闭包，不维护第二份手工依赖文件清单。bundle 绑定完整 inventory、mode 和 SHA-256，并在空目录本地验证。因此控制面新增嵌套依赖但 catalog 无法形成自包含 bundle 时，必须在 Controller Ready 失败，禁止推迟到生产 `deploy.tools`。
+
 derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。
+
+Deploy-unit 的 `.next/cache` 是可丢弃的编译器缓存，不是 artifact。其 receipt 位于 `.cache/next-units/<unit>/receipt.json`，只绑定 Node 平台/版本、Next package、lockfile、真实 unit Next config、相关 tsconfig 和稳定 deploy-unit graph/generator 输入；app 文案源码刻意不进入该 receipt，使第二次小改能复用编译器增量数据。路径、unit、工具链或配置漂移会把旧 cache 移入 `.cache/quarantine/next-units` 并记录明确 miss reason；每次 changed app 仍必须真实执行 Next build、生成新 BUILD_ID/artifact 并完成 static acceptance/rehearsal。
+
+Task input contract v3 不再把每个检查统一绑定整个 `scripts/check`。每个 task 绑定自己的 detector import closure 和实际 raw source roots；schema、lock、Core、Platform、Ops 和未知路径继续 fail closed。不得在中央缓存层复制 detector 的正则/AST 语义来隐藏文案差异；只有 detector 自己提供版本化 semantic-input API 后，才允许进一步缩小其 raw input。
 
 同一轮中 external preflight、CI database、source、artifact 和 artifact rehearsal 聚合汇总。即使 database/source 已失败，artifact 仍继续；只有依赖于未就绪 database 或缺失 artifact 的演练会明确标记 blocked。artifact rehearsal 是依赖阶段：无效 archive 无法被启动，但 database migration 已在 artifact 之前独立执行，因此数据库和迁移问题仍会在同一轮进入完整清单。
 

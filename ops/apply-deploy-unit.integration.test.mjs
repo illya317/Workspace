@@ -24,7 +24,7 @@ import {
   writePrivateJson,
 } from "./deploy-unit-release.mjs";
 import { canonicalJson, sha256 } from "./gateway-generation.mjs";
-
+import { normalizeRuntimeTree } from "./release/artifact/runtime-tree-permissions.mjs";
 const applyScript = path.resolve("ops/apply-deploy-unit.sh");
 const sidecarScript = path.resolve("ops/deploy-unit-sidecar.sh");
 const promoteProfileScript = path.resolve("ops/promote-deploy-profile.sh");
@@ -177,7 +177,6 @@ function contract(graphValue, unitId = "finance") {
     },
     routes: { pagePrefixes: unit.pageRoutes, apiPrefixes: unit.apiPrefixes, assetPrefix: unit.runtime.assetPrefix },
     compiler: { projects: [], typecheckScopes: [unit.id] },
-    checks: { typecheckScopes: [unit.id], e2eSuites: [], unmatchedChangePolicy: "fail-closed" },
     controlPlane: { authority: "workspace-control-plane-job", policy: "require-existing", minimumSchemaReceipt: "required-before-unit-start" },
     readiness: { contributorBlockers: [] },
   };
@@ -215,6 +214,7 @@ function buildStaging(files, version, sourceCharacter, unitId = "finance") {
   cpSync(contractFile, path.join(payload, ".deploy-unit-contract.json"));
   cpSync(requirementsFile, path.join(payload, ".control-plane-requirements.json"));
   const artifactFile = path.join(staging, "artifact.tgz");
+  normalizeRuntimeTree(payload);
   const tar = spawnSync("tar", ["-C", payload, "-czf", artifactFile, "."], { encoding: "utf8" });
   assert.equal(tar.status, 0, tar.stderr);
   const manifest = createDeployUnitArtifactManifest({

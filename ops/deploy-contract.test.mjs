@@ -19,6 +19,8 @@ const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-
 const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
 const runtimePermissionReconciler = readFileSync(new URL("./reconcile-runtime-config-permissions.sh", import.meta.url), "utf8");
+const fullDeployToolBundleSyncContract =
+  /deploy-tool-bundle\.mjs build[\s\S]*?--profile full[\s\S]*?deploy-tool-bundle\.mjs verify[\s\S]*?--bundle "\$DEPLOY_TOOL_BUNDLE_TMP"[\s\S]*?rsync -az --delete-delay -e "\$RSYNC_SSH_COMMAND"[\s\S]*?"\$DEPLOY_TOOL_BUNDLE_TMP\/" "\$SERVER:\$REMOTE_DEPLOY_TOOL_DIR\/"[\s\S]*?node '\$REMOTE_DEPLOY_TOOL_DIR\/release\/control\/deploy-tool-bundle\.mjs'[\s\S]*?verify --bundle '\$REMOTE_DEPLOY_TOOL_DIR'/;
 
 function assertOrdered(source, needles) {
   let previous = -1;
@@ -83,7 +85,7 @@ const directDatabaseUrl = hardenedDatabaseUrl(
 
 test("deploy delegates all receipt reads and writes to one versioned helper", () => {
   assert.match(deploy, /REMOTE_RELEASE_RECEIPT_TOOL=.*release-receipt\.mjs/);
-  assert.match(deploy, /release-receipt\.mjs[\s\S]*?node --check/);
+  assert.match(deploy, fullDeployToolBundleSyncContract);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' inspect/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' assert/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write/);
@@ -177,8 +179,8 @@ test("legacy PM2 deployments remain outside the hardened credential contract", (
 });
 
 test("hardened deploy reapplies runtime ACLs after tenant directory replacement", () => {
-  assert.match(deploy, /ops\/reconcile-runtime-config-permissions\.sh/);
-  assert.match(deploy, /bash -n '\$REMOTE_DEPLOY_TOOL_DIR\/reconcile-runtime-config-permissions\.sh'/);
+  assert.match(deploy, fullDeployToolBundleSyncContract);
+  assert.match(deploy, /bash -n "\$controller_reconciler"/);
   assert.match(runtimePermissionReconciler, /RUNTIME_ROOT="\$\(dirname "\$CONFIG_ROOT"\)"/);
   assert.match(runtimePermissionReconciler, /RUNTIME_PARENT="\$\(dirname "\$RUNTIME_ROOT"\)"/);
   assert.match(runtimePermissionReconciler, /for target in "\$RUNTIME_PARENT" "\$RUNTIME_ROOT"/);

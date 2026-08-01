@@ -25,6 +25,7 @@ test("unit builder uses governed typecheck and one exact Linux standalone artifa
   assert.match(build, /禁止组装 deploy-unit artifact/);
   assert.doesNotMatch(build, /source-code-analysis:snapshot:optional/);
   assert.match(build, /\.workspace\/source-code-analysis\/snapshot\.json/);
+  assert.match(build, /runtime-tree-permissions\.mjs normalize --root "\$STANDALONE_ROOT"/);
   assert.match(build, /tar -C "\$STANDALONE_ROOT" -czf "\$ARTIFACT_FILE"/);
   assert.match(build, /control-plane-requirements\.mjs write/);
   assert.match(build, /assistant-runtime\.mjs bundle/);
@@ -54,17 +55,22 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.match(client, /apply-deploy-unit\.sh' deploy/);
   assert.match(client, /shadow\|prepare\|activate/);
   assert.match(client, /DEPLOY_PROFILE_PREPARED_STATE_ROOT/);
-  assert.match(client, /deploy-notification\.mjs/);
   assert.doesNotMatch(readFileSync("ops/deploy-notification.mjs", "utf8"), /^import .*cnb-build-timing-summary/m);
-  assert.match(client, /internal-unit-identity\.mjs/);
-  assert.match(client, /internal-rpc-deployment-guard\.mjs/);
-  assert.match(client, /deploy-unit-sidecar\.sh/);
   assert.match(client, /WORKSPACE_MONOLITH_WECOM_PROCESS_NAME/);
-  assert.match(client, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
-  assert.match(client, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
-  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
-  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/readiness\/artifact-inspection\.mjs'/);
-  assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < client.indexOf("rsync -az"));
+  const bundleBuild = client.indexOf("deploy-tool-bundle.mjs build");
+  const exactSync = client.indexOf('rsync -az --delete-delay -e "$RSYNC_SSH"', bundleBuild);
+  const remoteVerify = client.indexOf(
+    "node '$REMOTE_TOOL_ROOT/release/control/deploy-tool-bundle.mjs' verify",
+    exactSync,
+  );
+  const firstToolExecution = client.indexOf("'$REMOTE_TOOL_ROOT/apply-deploy-unit.sh' rollback");
+  assert.ok(bundleBuild >= 0 && exactSync > bundleBuild && remoteVerify > exactSync);
+  assert.ok(firstToolExecution > remoteVerify);
+  assert.match(client, /--profile deploy-unit-tools/);
+  assert.doesNotMatch(client, /ops\/\.\/release\//);
+  assert.doesNotMatch(client, /node --check '\$REMOTE_TOOL_ROOT\/release\//);
+  assert.doesNotMatch(client, /rsync -azR/);
+  assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < bundleBuild);
 });
 
 test("server apply checks control plane before PM2 and commits Gateway only after health receipt", () => {

@@ -44,6 +44,9 @@ cleanup_deploy() {
   rm -rf "$SSH_CONTROL_DIR"
   rm -f "${TMPKEY:-}"
   rm -f "${FULL_DEPLOY_GRAPH_TMP:-}"
+  if [ -n "${DEPLOY_TOOL_BUNDLE_TMP:-}" ]; then
+    rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
+  fi
   return "$deploy_exit_code"
 }
 trap cleanup_deploy EXIT
@@ -380,40 +383,27 @@ sync_remote_deploy_tools() {
   expected_graph_sha="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs?.deployGraphSha256 ?? "")' "$ARTIFACT_MANIFEST_PATH")"
   node ops/gateway-generation.mjs graph-assert --graph "$FULL_DEPLOY_GRAPH_TMP" --digest "$expected_graph_sha" >/dev/null
   node ops/gateway-generation.mjs graph-digest --graph "$FULL_DEPLOY_GRAPH_TMP" >/dev/null
+  DEPLOY_TOOL_BUNDLE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/workspace-deploy-tools.XXXXXX")"
+  node ops/release/control/deploy-tool-bundle.mjs build \
+    --repository "$PWD" \
+    --output "$DEPLOY_TOOL_BUNDLE_TMP" \
+    --profile full >/dev/null
+  node ops/release/control/deploy-tool-bundle.mjs verify \
+    --bundle "$DEPLOY_TOOL_BUNDLE_TMP" >/dev/null
   ssh_cmd "mkdir -p '$REMOTE_DEPLOY_TOOL_DIR'"
-  rsync -az -e "$RSYNC_SSH_COMMAND" \
-    ops/release-receipt.mjs ops/control-plane-receipt.mjs ops/tenant-config-manifest.mjs \
-    ops/control-plane-requirements.mjs ops/deploy-unit-release.mjs \
-    ops/gateway-generation.mjs ops/switch-deploy-gateway.sh \
-    ops/deploy-unit-sidecar.sh ops/assistant-runtime.mjs \
-    ops/reconcile-runtime-config-permissions.sh \
-    "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
-  rsync -azR -e "$RSYNC_SSH_COMMAND" \
-    ops/./release/contracts/deploy-unit-build-identity.mjs \
-    ops/./release/readiness/artifact-inspection.mjs \
-    "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
+  rsync -az --delete-delay -e "$RSYNC_SSH_COMMAND" \
+    "$DEPLOY_TOOL_BUNDLE_TMP/" "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
+  ssh_cmd "
+    node '$REMOTE_DEPLOY_TOOL_DIR/release/control/deploy-tool-bundle.mjs' \
+      verify --bundle '$REMOTE_DEPLOY_TOOL_DIR' >/dev/null
+  "
+  rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
+  DEPLOY_TOOL_BUNDLE_TMP=""
   rsync -az -e "$RSYNC_SSH_COMMAND" "$FULL_DEPLOY_GRAPH_TMP" "$SERVER:$REMOTE_FULL_DEPLOY_GRAPH"
   rm -f "$FULL_DEPLOY_GRAPH_TMP"
   FULL_DEPLOY_GRAPH_TMP=""
   ssh_cmd "
-    chmod 755 '$REMOTE_RELEASE_RECEIPT_TOOL' '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL' '$REMOTE_DEPLOY_TOOL_DIR/tenant-config-manifest.mjs' \
-      '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs' '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs' \
-      '$REMOTE_GATEWAY_GENERATION_TOOL' '$REMOTE_GATEWAY_SWITCH_TOOL' \
-      '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh' '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs' \
-      '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh'
     chmod 600 '$REMOTE_FULL_DEPLOY_GRAPH'
-    node --check '$REMOTE_RELEASE_RECEIPT_TOOL'
-    node --check '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/tenant-config-manifest.mjs'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/release/contracts/deploy-unit-build-identity.mjs'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/release/readiness/artifact-inspection.mjs'
-    node --check '$REMOTE_GATEWAY_GENERATION_TOOL'
-    node --check '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
-    bash -n '$REMOTE_GATEWAY_SWITCH_TOOL'
-    bash -n '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh'
-    bash -n '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh'
     node '$REMOTE_GATEWAY_GENERATION_TOOL' graph-digest --graph '$REMOTE_FULL_DEPLOY_GRAPH' >/dev/null
   "
 
