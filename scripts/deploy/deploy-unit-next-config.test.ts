@@ -61,7 +61,12 @@ test("real generated news config loads through Next transpileConfig", async () =
   const nextConfigPath = path.join(repositoryRoot, "apps/news/next.config.ts");
   const loaded = await transpileConfig({ nextConfigPath, dir: path.dirname(nextConfigPath) });
   const config = loaded.default ?? loaded;
-  assert.equal(config.turbopack.root, fs.realpathSync(repositoryRoot));
+  const realRepositoryRoot = fs.realpathSync(repositoryRoot);
+  const expectedTurbopackRoot = fs.lstatSync(path.join(repositoryRoot, "node_modules")).isSymbolicLink()
+    ? path.dirname(realRepositoryRoot)
+    : realRepositoryRoot;
+  assert.equal(config.outputFileTracingRoot, expectedTurbopackRoot);
+  assert.equal(config.turbopack.root, expectedTurbopackRoot);
 });
 
 test("generated config keeps Turbopack root at a repository with local node_modules", async (t) => {
@@ -70,14 +75,18 @@ test("generated config keeps Turbopack root at a repository with local node_modu
   fs.mkdirSync(path.join(repository, "node_modules"), { recursive: true });
 
   const config = await loadGeneratedConfig(repository);
-  assert.equal(config.turbopack.root, fs.realpathSync(repository));
+  const expectedRoot = fs.realpathSync(repository);
+  assert.equal(config.outputFileTracingRoot, expectedRoot);
+  assert.equal(config.turbopack.root, expectedRoot);
 });
 
 test("generated config accepts the lock-matched trusted sibling source dependency", async (t) => {
   const { runtimeRoot, repository } = trustedSymlinkFixture(t);
 
   const config = await loadGeneratedConfig(repository);
-  assert.equal(config.turbopack.root, fs.realpathSync(runtimeRoot));
+  const expectedRoot = fs.realpathSync(runtimeRoot);
+  assert.equal(config.outputFileTracingRoot, expectedRoot);
+  assert.equal(config.turbopack.root, expectedRoot);
 });
 
 test("generated config rejects an arbitrary sibling dependency", async (t) => {

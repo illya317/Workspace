@@ -242,7 +242,7 @@ const nextConfig: NextConfig = {
       ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((value) => value.trim()).filter(Boolean)
       : []),
   ],
-  outputFileTracingRoot: repositoryRoot,${outputFileTracingExcludes}
+  outputFileTracingRoot: turbopackRoot,${outputFileTracingExcludes}
   turbopack: { root: turbopackRoot },
   generateBuildId: async () => buildVersion,
   async headers() {

@@ -119,7 +119,7 @@ const nextConfig: NextConfig = {
       ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((value) => value.trim()).filter(Boolean)
       : []),
   ],
-  outputFileTracingRoot: repositoryRoot,
+  outputFileTracingRoot: turbopackRoot,
   // Library runtime data lives outside the checkout; keep dynamic fs traces from copying repository sources.
   outputFileTracingExcludes: {
     "/*": ["app/**/*","apps/**/*","docs/**/*","e2e/**/*","generated/**/*","outputs/**/*","packages/**/*","prisma/**/*","scripts/**/*","test-results/**/*","tmp/**/*","*.{cjs,json,md,mjs,ts,tsbuildinfo}"],

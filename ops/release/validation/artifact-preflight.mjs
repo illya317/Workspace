@@ -203,8 +203,7 @@ export function validateArtifactPreflightReceipt(receipt, options) {
   const expectedConfig = expected.target.id === "monolith"
     ? "next.config.ts"
     : `apps/${expected.target.id}/next.config.ts`;
-  const expectedTracingRelation = expected.target.id === "monolith" ? "repository-parent" : "repository";
-  const expectedTurbopackRelation = expected.target.id === "monolith"
+  const expectedRootRelation = expected.target.id === "monolith"
     || receipt?.dependencyBoundary?.kind === "trusted-sibling-symlink"
     ? "repository-parent"
     : "repository";
@@ -227,9 +226,10 @@ export function validateArtifactPreflightReceipt(receipt, options) {
     || receipt.nextConfig?.output !== "standalone"
     || receipt.nextConfig?.appRoot !== expectedAppRoot || receipt.nextConfig?.nextConfig !== expectedConfig
     || !path.isAbsolute(receipt.nextConfig?.outputFileTracingRoot ?? "")
-    || receipt.nextConfig?.outputFileTracingRootRelation !== expectedTracingRelation
+    || receipt.nextConfig?.outputFileTracingRootRelation !== expectedRootRelation
     || !path.isAbsolute(receipt.nextConfig?.turbopackRoot ?? "")
-    || receipt.nextConfig?.turbopackRootRelation !== expectedTurbopackRelation
+    || receipt.nextConfig?.turbopackRootRelation !== expectedRootRelation
+    || receipt.nextConfig?.outputFileTracingRoot !== receipt.nextConfig?.turbopackRoot
     || receipt.nextConfig?.generatedAppCheck !== (expected.target.id === "monolith" ? "not-applicable" : "exact-unit-passed")
     || !Number.isFinite(receipt.disk?.usagePercent) || receipt.disk.usagePercent < 0 || receipt.disk.usagePercent > 100
     || !Number.isFinite(receipt.disk?.retainedBytes) || receipt.disk.retainedBytes < 0

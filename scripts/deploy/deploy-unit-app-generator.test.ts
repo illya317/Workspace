@@ -36,7 +36,7 @@ test("shell app owns shell/auth/settings routes but not business routes", () => 
   assert.match(nextConfig?.content ?? "", /package-lock\.json drift between release and trusted source/);
   assert.doesNotMatch(nextConfig?.content ?? "", /deploy-unit-turbopack-root/);
   assert.match(nextConfig?.content ?? "", /const turbopackRoot = resolveDeployUnitTurbopackRoot\(repositoryRoot\)/);
-  assert.match(nextConfig?.content ?? "", /outputFileTracingRoot: repositoryRoot/);
+  assert.match(nextConfig?.content ?? "", /outputFileTracingRoot: turbopackRoot/);
   assert.match(nextConfig?.content ?? "", /turbopack: \{ root: turbopackRoot \}/);
 });
 

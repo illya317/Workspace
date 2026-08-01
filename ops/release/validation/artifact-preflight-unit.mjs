@@ -38,16 +38,15 @@ export async function inspectExactNextConfig({ repository, target }) {
     throw new Error("real Next config loader did not return a standalone config");
   }
 
-  const expectedTracingRoot = target === "monolith" ? path.dirname(repositoryRoot) : repositoryRoot;
-  const expectedTurbopackRoot = target === "monolith"
+  const expectedRoot = target === "monolith"
     ? path.dirname(repositoryRoot)
     : fs.lstatSync(path.join(repositoryRoot, "node_modules")).isSymbolicLink()
       ? path.dirname(repositoryRoot)
       : repositoryRoot;
-  if (path.resolve(config.outputFileTracingRoot ?? "") !== expectedTracingRoot) {
+  if (path.resolve(config.outputFileTracingRoot ?? "") !== expectedRoot) {
     throw new Error(`Next outputFileTracingRoot does not match target ${target}`);
   }
-  if (path.resolve(config.turbopack?.root ?? "") !== expectedTurbopackRoot) {
+  if (path.resolve(config.turbopack?.root ?? "") !== expectedRoot) {
     throw new Error(`Next Turbopack root does not match target ${target}`);
   }
   const configuredUnit = config.env?.NEXT_PUBLIC_DEPLOY_UNIT_ID;
@@ -60,10 +59,10 @@ export async function inspectExactNextConfig({ repository, target }) {
     nextConfig: path.relative(repositoryRoot, nextConfigPath),
     targetIdentity: target,
     output: config.output,
-    outputFileTracingRoot: expectedTracingRoot,
-    outputFileTracingRootRelation: target === "monolith" ? "repository-parent" : "repository",
-    turbopackRoot: expectedTurbopackRoot,
-    turbopackRootRelation: expectedTurbopackRoot === repositoryRoot ? "repository" : "repository-parent",
+    outputFileTracingRoot: expectedRoot,
+    outputFileTracingRootRelation: expectedRoot === repositoryRoot ? "repository" : "repository-parent",
+    turbopackRoot: expectedRoot,
+    turbopackRootRelation: expectedRoot === repositoryRoot ? "repository" : "repository-parent",
     generatedAppCheck: target === "monolith" ? "not-applicable" : "exact-unit-passed",
   };
 }
