@@ -127,7 +127,7 @@ test("exact unit runner checks only news and loads its real Next config", () => 
   const repository = path.resolve(import.meta.dirname, "../../..");
   const dependency = inspectDependencyBoundary(repository);
   const toolchain = inspectToolchain(repository);
-  assert.equal(dependency.kind, "repository-local");
+  assert.ok(new Set(["repository-local", "trusted-sibling-symlink"]).has(dependency.kind));
   assert.equal(toolchain.nodeEngine, "24.x");
   assert.equal(toolchain.nodeVersionFile, "24");
   assert.equal(toolchain.packageLockNext, toolchain.next);

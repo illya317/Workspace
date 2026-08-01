@@ -2,6 +2,11 @@
   "schemaVersion": 1,
   "modules": [
     {
+      "name": "release-attempts",
+      "include": ["ops/release/attempts/"],
+      "allowedDependencies": []
+    },
+    {
       "name": "deploy-contract-test",
       "include": ["ops/deploy/source-contract.mjs"],
       "allowedDependencies": []

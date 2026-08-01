@@ -186,24 +186,19 @@ function contract(graphValue, unitId = "finance") {
 function buildStaging(files, version, sourceCharacter, unitId = "finance") {
   const staging = path.join(files.root, `staging-${version}`);
   const payload = path.join(files.root, `payload-${version}`);
-  mkdirSync(staging);
-  mkdirSync(payload);
+  for (const directory of [staging, payload]) mkdirSync(directory);
   writeFileSync(path.join(payload, "server.js"), `// ${version}\n`);
+  writeFileSync(path.join(payload, ".server-entry"), "server.js\n");
+  mkdirSync(path.join(payload, ".next"));
+  writeFileSync(path.join(payload, ".next/BUILD_ID"), `${version}\n`);
+  writePrivateJson(path.join(payload, ".next/routes-manifest.json"), { basePath: "/workspace" });
   if (unitId === "assistant") {
     const sidecarEntry = path.join(payload, ASSISTANT_RUNTIME_DESCRIPTOR.sidecars[0].entry);
     mkdirSync(path.dirname(sidecarEntry), { recursive: true });
     writeFileSync(sidecarEntry, "// test Assistant sidecar\n");
-    writeFileSync(
-      path.join(payload, ".assistant-runtime.json"),
-      `${JSON.stringify(ASSISTANT_RUNTIME_DESCRIPTOR, null, 2)}\n`,
-    );
+    writeFileSync(path.join(payload, ".assistant-runtime.json"), `${JSON.stringify(ASSISTANT_RUNTIME_DESCRIPTOR, null, 2)}\n`);
   }
-  const artifactFile = path.join(staging, "artifact.tgz");
-  const tar = spawnSync("tar", ["-C", payload, "-czf", artifactFile, "."], { encoding: "utf8" });
-  assert.equal(tar.status, 0, tar.stderr);
-  const graphFile = path.join(staging, "deploy-graph.json");
-  const contractFile = path.join(staging, "deploy-unit-contract.json");
-  const requirementsFile = path.join(staging, "control-plane-requirements.json");
+  const [graphFile, contractFile, requirementsFile] = ["deploy-graph.json", "deploy-unit-contract.json", "control-plane-requirements.json"].map((file) => path.join(staging, file));
   writePrivateJson(graphFile, files.graph);
   writePrivateJson(contractFile, contract(files.graph, unitId));
   writePrivateJson(requirementsFile, {
@@ -217,6 +212,11 @@ function buildStaging(files, version, sourceCharacter, unitId = "finance") {
     },
     createdAt: "2026-07-25T00:10:00.000Z",
   });
+  cpSync(contractFile, path.join(payload, ".deploy-unit-contract.json"));
+  cpSync(requirementsFile, path.join(payload, ".control-plane-requirements.json"));
+  const artifactFile = path.join(staging, "artifact.tgz");
+  const tar = spawnSync("tar", ["-C", payload, "-czf", artifactFile, "."], { encoding: "utf8" });
+  assert.equal(tar.status, 0, tar.stderr);
   const manifest = createDeployUnitArtifactManifest({
     contractFile,
     artifactFile,
