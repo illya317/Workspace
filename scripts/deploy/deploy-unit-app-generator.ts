@@ -126,7 +126,7 @@ function nextConfigContent(unit: ResolvedDeployUnit, graph: DeployGraph) {
 import path from "node:path";
 import type { NextConfig } from "next";
 
-import { resolveDeployUnitTurbopackRoot } from "../../scripts/deploy/deploy-unit-turbopack-root.ts";
+import { resolveDeployUnitTurbopackRoot } from "../../scripts/deploy/deploy-unit-turbopack-root.cjs";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
 const turbopackRoot = resolveDeployUnitTurbopackRoot(repositoryRoot);

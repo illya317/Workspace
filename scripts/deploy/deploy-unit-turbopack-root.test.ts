@@ -5,16 +5,31 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { resolveDeployUnitTurbopackRoot } from "./deploy-unit-turbopack-root";
+import { resolveDeployUnitTurbopackRoot } from "./deploy-unit-turbopack-root.cjs";
 
-const helperFile = path.resolve(import.meta.dirname, "deploy-unit-turbopack-root.ts");
-
-test("raw repository Node can require the explicit TypeScript helper", () => {
+test("raw Node compiled config resolves and calls the explicit CJS helper", (t) => {
+  const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-compiled-config-"));
+  t.after(() => fs.rmSync(fixtureRoot, { recursive: true, force: true }));
+  const helperDirectory = path.join(fixtureRoot, "scripts/deploy");
+  const compiledDirectory = path.join(fixtureRoot, "apps/news");
+  fs.mkdirSync(helperDirectory, { recursive: true });
+  fs.mkdirSync(compiledDirectory, { recursive: true });
+  fs.mkdirSync(path.join(fixtureRoot, "node_modules"));
+  fs.copyFileSync(
+    path.resolve(import.meta.dirname, "deploy-unit-turbopack-root.cjs"),
+    path.join(helperDirectory, "deploy-unit-turbopack-root.cjs"),
+  );
+  const compiledConfig = path.join(compiledDirectory, "next.config.compiled.cjs");
+  fs.writeFileSync(compiledConfig, [
+    'const { resolveDeployUnitTurbopackRoot } = require("../../scripts/deploy/deploy-unit-turbopack-root.cjs");',
+    `module.exports = resolveDeployUnitTurbopackRoot(${JSON.stringify(fixtureRoot)});`,
+    "",
+  ].join("\n"));
   const output = execFileSync(process.execPath, [
     "-e",
-    `const helper = require(${JSON.stringify(helperFile)}); process.stdout.write(typeof helper.resolveDeployUnitTurbopackRoot);`,
+    `process.stdout.write(require(${JSON.stringify(compiledConfig)}));`,
   ], { encoding: "utf8" });
-  assert.equal(output, "function");
+  assert.equal(output, fs.realpathSync(fixtureRoot));
 });
 
 function temporaryRuntime(t: test.TestContext) {

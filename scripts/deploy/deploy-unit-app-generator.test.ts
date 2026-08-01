@@ -32,7 +32,7 @@ test("shell app owns shell/auth/settings routes but not business routes", () => 
   assert.match(nextConfig?.content ?? "", /ignoreBuildErrors: true/);
   assert.match(
     nextConfig?.content ?? "",
-    /from "\.\.\/\.\.\/scripts\/deploy\/deploy-unit-turbopack-root\.ts";/,
+    /from "\.\.\/\.\.\/scripts\/deploy\/deploy-unit-turbopack-root\.cjs";/,
   );
   assert.doesNotMatch(
     nextConfig?.content ?? "",

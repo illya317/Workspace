@@ -1,15 +1,15 @@
-import { createHash } from "node:crypto";
-import fs from "node:fs";
-import path from "node:path";
+const { createHash } = require("node:crypto");
+const fs = require("node:fs");
+const path = require("node:path");
 
-function assertRealDirectory(directory: string, label: string) {
+function assertRealDirectory(directory, label) {
   const stat = fs.lstatSync(directory);
   if (!stat.isDirectory() || fs.realpathSync(directory) !== path.resolve(directory)) {
     throw new Error(`${label} must be a real directory: ${directory}`);
   }
 }
 
-function fileDigest(file: string, label: string) {
+function fileDigest(file, label) {
   const stat = fs.lstatSync(file);
   if (!stat.isFile()) {
     throw new Error(`${label} must be a real file: ${file}`);
@@ -17,7 +17,7 @@ function fileDigest(file: string, label: string) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 }
 
-export function resolveDeployUnitTurbopackRoot(repositoryRoot: string) {
+function resolveDeployUnitTurbopackRoot(repositoryRoot) {
   const resolvedRepositoryRoot = fs.realpathSync(repositoryRoot);
   const configuredNodeModulesRoot = path.join(repositoryRoot, "node_modules");
   const nodeModulesStat = fs.lstatSync(configuredNodeModulesRoot);
@@ -66,3 +66,5 @@ export function resolveDeployUnitTurbopackRoot(repositoryRoot: string) {
 
   return repositoryParent;
 }
+
+module.exports = { resolveDeployUnitTurbopackRoot };
