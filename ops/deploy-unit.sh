@@ -134,12 +134,18 @@ rsync -az -e "$RSYNC_SSH" \
   ops/control-plane-requirements.mjs \
   ops/tenant-config-manifest.mjs \
   "$SERVER:$REMOTE_TOOL_ROOT/"
+rsync -azR -e "$RSYNC_SSH" \
+  ops/./release/contracts/deploy-unit-build-identity.mjs \
+  ops/./release/readiness/artifact-inspection.mjs \
+  "$SERVER:$REMOTE_TOOL_ROOT/"
 ssh "${SSH_OPTIONS[@]}" "$SERVER" "
   chmod 700 '$REMOTE_TOOL_ROOT/apply-deploy-unit.sh' '$REMOTE_TOOL_ROOT/deploy-unit-sidecar.sh' '$REMOTE_TOOL_ROOT/switch-deploy-gateway.sh' '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh'
   node --check '$REMOTE_TOOL_ROOT/gateway-generation.mjs'
   node --check '$REMOTE_TOOL_ROOT/internal-unit-identity.mjs'
   node --check '$REMOTE_TOOL_ROOT/internal-rpc-deployment-guard.mjs'
   node --check '$REMOTE_TOOL_ROOT/deploy-unit-release.mjs'
+  node --check '$REMOTE_TOOL_ROOT/release/contracts/deploy-unit-build-identity.mjs'
+  node --check '$REMOTE_TOOL_ROOT/release/readiness/artifact-inspection.mjs'
   node --check '$REMOTE_TOOL_ROOT/deploy-unit-provenance.mjs'
   node --check '$REMOTE_TOOL_ROOT/deploy-notification.mjs'
   node --check '$REMOTE_TOOL_ROOT/deploy-profile-release.mjs'

@@ -12,6 +12,10 @@ const controlPlaneEntrypoint = readFileSync(new URL("./deploy-control-plane.sh",
 test("deploy syncs and syntax-checks the control-plane receipt tool", () => {
   assert.match(deploy, /ops\/release-receipt\.mjs ops\/control-plane-receipt\.mjs ops\/tenant-config-manifest\.mjs/);
   assert.match(deploy, /node --check '\$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'/);
+  assert.match(deploy, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
+  assert.match(deploy, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
+  assert.match(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
+  assert.match(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\/readiness\/artifact-inspection\.mjs'/);
 });
 
 test("control-plane receipt commits after lifecycle parity and before candidate startup", () => {

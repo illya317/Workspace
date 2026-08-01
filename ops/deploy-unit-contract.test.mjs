@@ -60,6 +60,10 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.match(client, /internal-rpc-deployment-guard\.mjs/);
   assert.match(client, /deploy-unit-sidecar\.sh/);
   assert.match(client, /WORKSPACE_MONOLITH_WECOM_PROCESS_NAME/);
+  assert.match(client, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
+  assert.match(client, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
+  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
+  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/readiness\/artifact-inspection\.mjs'/);
   assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < client.indexOf("rsync -az"));
 });
 

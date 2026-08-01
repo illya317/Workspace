@@ -388,6 +388,10 @@ sync_remote_deploy_tools() {
     ops/deploy-unit-sidecar.sh ops/assistant-runtime.mjs \
     ops/reconcile-runtime-config-permissions.sh \
     "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
+  rsync -azR -e "$RSYNC_SSH_COMMAND" \
+    ops/./release/contracts/deploy-unit-build-identity.mjs \
+    ops/./release/readiness/artifact-inspection.mjs \
+    "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
   rsync -az -e "$RSYNC_SSH_COMMAND" "$FULL_DEPLOY_GRAPH_TMP" "$SERVER:$REMOTE_FULL_DEPLOY_GRAPH"
   rm -f "$FULL_DEPLOY_GRAPH_TMP"
   FULL_DEPLOY_GRAPH_TMP=""
@@ -403,6 +407,8 @@ sync_remote_deploy_tools() {
     node --check '$REMOTE_DEPLOY_TOOL_DIR/tenant-config-manifest.mjs'
     node --check '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs'
     node --check '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs'
+    node --check '$REMOTE_DEPLOY_TOOL_DIR/release/contracts/deploy-unit-build-identity.mjs'
+    node --check '$REMOTE_DEPLOY_TOOL_DIR/release/readiness/artifact-inspection.mjs'
     node --check '$REMOTE_GATEWAY_GENERATION_TOOL'
     node --check '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
     bash -n '$REMOTE_GATEWAY_SWITCH_TOOL'

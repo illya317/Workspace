@@ -22,4 +22,8 @@ test("profile client transfers exact promotion inputs and invokes server-side at
   assert.match(client, /deploy-notification\.mjs/);
   assert.match(client, /DIGEST_INPUTS=\("\$PROFILE_FILE" "\$RELEASE_FILE" "\$ROLLOUT_FILE" "\$OBSERVATION_FILE" "\$GRAPH_FILE"\)/);
   assert.match(client, /content\.length/);
+  assert.match(client, /ops\/\.\/release\/contracts\/deploy-unit-build-identity\.mjs/);
+  assert.match(client, /ops\/\.\/release\/readiness\/artifact-inspection\.mjs/);
+  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/contracts\/deploy-unit-build-identity\.mjs'/);
+  assert.match(client, /node --check '\$REMOTE_TOOL_ROOT\/release\/readiness\/artifact-inspection\.mjs'/);
 });

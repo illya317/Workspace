@@ -80,7 +80,11 @@ rsync -az -e "$RSYNC_SSH" \
   ops/internal-rpc-deployment-guard.mjs \
   ops/control-plane-receipt.mjs ops/control-plane-requirements.mjs ops/tenant-config-manifest.mjs \
   "$SERVER:$REMOTE_TOOL_ROOT/"
-ssh "${SSH_OPTIONS[@]}" "$SERVER" "chmod 700 '$REMOTE_TOOL_ROOT/switch-deploy-gateway.sh' '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh' && node --check '$REMOTE_TOOL_ROOT/deployment-profile-promotion.mjs' && node --check '$REMOTE_TOOL_ROOT/deploy-notification.mjs' && node --check '$REMOTE_TOOL_ROOT/internal-rpc-deployment-guard.mjs' && bash -n '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' && bash -n '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh'"
+rsync -azR -e "$RSYNC_SSH" \
+  ops/./release/contracts/deploy-unit-build-identity.mjs \
+  ops/./release/readiness/artifact-inspection.mjs \
+  "$SERVER:$REMOTE_TOOL_ROOT/"
+ssh "${SSH_OPTIONS[@]}" "$SERVER" "chmod 700 '$REMOTE_TOOL_ROOT/switch-deploy-gateway.sh' '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh' && node --check '$REMOTE_TOOL_ROOT/deploy-unit-release.mjs' && node --check '$REMOTE_TOOL_ROOT/release/contracts/deploy-unit-build-identity.mjs' && node --check '$REMOTE_TOOL_ROOT/release/readiness/artifact-inspection.mjs' && node --check '$REMOTE_TOOL_ROOT/deployment-profile-promotion.mjs' && node --check '$REMOTE_TOOL_ROOT/deploy-notification.mjs' && node --check '$REMOTE_TOOL_ROOT/internal-rpc-deployment-guard.mjs' && bash -n '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' && bash -n '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh'"
 
 if [ "$COMMAND" = "promote" ]; then
   DIGEST_INPUTS=("$PROFILE_FILE" "$RELEASE_FILE" "$ROLLOUT_FILE" "$OBSERVATION_FILE" "$GRAPH_FILE")
