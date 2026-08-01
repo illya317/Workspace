@@ -134,8 +134,9 @@ function warning(
 }
 
 /**
- * Only leaf modules are sized. Parent totals are navigation/aggregation data,
- * not evidence that a single responsibility is too deep.
+ * Size the implementation owned by every node. A parent is exempt only when
+ * it is a pure aggregation node with no implementation of its own; otherwise
+ * its residual files are still the smallest declared ownership unit.
  */
 export function evaluateModuleHealth(
   modules: readonly ModuleHealthMetrics[],
@@ -180,7 +181,10 @@ export function evaluateModuleHealth(
         0,
       ));
     }
-    if (metrics.childCount !== 0 || metrics.kind === "appendOnlyHistory") continue;
+    if (metrics.kind === "appendOnlyHistory") continue;
+    if (metrics.childCount !== 0
+      && metrics.implementationLines === 0
+      && metrics.implementationFileCount === 0) continue;
 
     const orchestration = metrics.kind === "entry" || metrics.kind === "orchestrator";
     if (orchestration && metrics.implementationLines >= thresholds.orchestrationLines) {
@@ -198,6 +202,7 @@ export function evaluateModuleHealth(
         thresholds.implementationLines,
       ));
     }
+    if (orchestration) continue;
     if (metrics.implementationFileCount >= thresholds.implementationFiles) {
       warnings.push(warning(
         metrics,

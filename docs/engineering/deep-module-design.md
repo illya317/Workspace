@@ -147,6 +147,14 @@ human/code intent
 - 生产运行：Release CI、Ready/制品验收、发布控制、制品供应、部署切换、PostgreSQL、运行依赖、数据发布执行，以及历史迁移/修复。
 - 开发治理：架构检查、静态检查、持续集成、生成器、测试基础设施和 E2E；生产制品实际调用的脚本仍由生产注册表转交生产运行。
 
+当前已经以真实调用 seam 继续递归的高体量源码模块如下；这些节点用于代码所有权和依赖治理，不等价于新增产品页面或 RBAC 资源：
+
+- Core：UI Surface 运行时下分数据/表单/输入、页面布局/反馈，再继续细分表格筛选、字段引用和可视化。
+- Finance：`ledger` 下分集团科目映射与余额/辅助重分类；`statements` 下分合并流程，合并流程再分批次/来源生命周期与汇率折算。
+- HR：雇佣生命周期下分员工档案、劳动合同，社会保险继续位于员工档案之下；组织模块下分职位、职位说明书和组织结构版本。
+- Work：`projects` 下分项目通知、项目计划、成员空间与项目治理；`tasks` 向下分任务审批、执行、任务空间、工作台、协作、汇报分析和计划目标，工作台再分模型，分析再分来源与执行组合，计划目标再分计划排程、OKR 治理和 KPI 计分卡。
+- Tooling：架构治理下分源码模块、UI 结构和领域契约治理；静态检查下分检查编排、动作/工作流、Registry/访问、数据生命周期、运行交付、UI 和仓库质量检查，Registry 检查继续按访问策略、关系资源、模块运行一致性细分。
+
 页面和 API 壳归 `composition` 或 `input` role。它们负责接近入口处的拼装、认证、请求形状和挂载，不拥有被拼装模块的业务行为；壳代码少而浅是正确形态，不需要为了“看起来像深模块”再制造公开 interface。
 
 源码归属的事实源是 `scripts/arch/source-code-analysis/declarations.ts`。受治理的源码文件必须由声明解析为唯一的 `module + role`：
@@ -157,7 +165,7 @@ human/code intent
 - 默认使用集中式路径声明，而不是在每个文件写可漂移的注释标签；只有路径无法稳定表达所有权时，才收窄或增加显式声明规则。
 - 自动生成源码和 `apps/*` 部署镜像不进入人工源码统计，避免重复或生成噪声淹没真实实现。
 - snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和全仓一方源码文件强连通分量。文件循环图包含运行时 import/re-export、type-only import、测试文件、Python import、Shell `source`/脚本执行、workflow `run` 和 package script 命令边；生成物、vendor 和未受治理 fixture 不进入图。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。
-- 模块体量只在最小 active Module 上发出 Hygiene warning，父节点聚合总量不触发拆分：默认非测试/非契约 Implementation 达到 10,000 行、80 个实现文件、15 个不同叶子依赖，或 `entry/orchestrator` 达到 3,000 行时需要人工复核。`appendOnlyHistory` 不按体量告警；新增 Implementation 绕行和 active 代码引用 `retired` 节点仍告警。warning 不自动阻断交付；Hygiene 可以登记 `accepted / split / deepen` 决策，但只有 `accepted` 暂时消除提醒，最长 90 天，并在 Interface、依赖、债务摘要变化、出现新 warning 或实现行数/文件数增长超过 10% 时自动失效。复核事实源是 `module-health-reviews.json`。
+- 模块体量按每个节点自己拥有的 Implementation 发出 Hygiene warning：自身没有 Implementation 的纯聚合父节点不触发拆分，父节点尚未分给孩子的残余文件仍是最小归属单元，必须继续复核。普通节点按非测试/非契约 Implementation 的 10,000 行、80 个实现文件和 15 个不同叶子依赖复核；`entry/orchestrator` 只按 3,000 行薄编排预算复核，不套用普通节点的文件数和 fan-out 阈值。`appendOnlyHistory` 不按体量告警；新增 Implementation 绕行和 active 代码引用 `retired` 节点仍告警。warning 不自动阻断交付；Hygiene 可以登记 `accepted / split / deepen` 决策，但只有 `accepted` 暂时消除提醒，最长 90 天，并在 Interface、依赖、债务摘要变化、出现新 warning 或实现行数/文件数增长超过 10% 时自动失效。复核事实源是 `module-health-reviews.json`。
 - recursive Module 的展示不强制复用 L1 职责矩阵。snapshot 先保存完整 kind、层级、体量、依赖和健康 warning；业务模块、生产运行、数据底座和开发治理可在后续前端设计中采用不同视图，本次 contract 不为统一表格反向扭曲模块语义。
 - 管理矩阵的全部代码体量统一使用“万行”：零值显示 `—`，1–999 行显示 `<0.1`，1000 行及以上保留两位小数，例如 `0.12 / 1.12 / 5.23`；文件数和依赖数必须明确作为数量展示，不能与代码行混用。两位小数采用只影响显示的守恒舍入：原始整数行数不变，表内分配 0.01 万行的舍入尾差，使每一行的总代码等于右侧职责之和，末行每列等于上方模块之和，且末行总代码同时等于末行职责之和；`<0.1` 是区间提示，不参与肉眼小数加总。
 - snapshot 继续保存全部原始 role，治理、门禁和下钻不得消费合并后的展示值。管理矩阵按默认依赖方向从左到右聚合为：`入口 = 组合壳 + UI + 输入` -> `业务 = 业务实现 + 领域校验` -> `适配 = 数据访问 + 外部集成` -> `契约`，最后单列 `保障 = 模块测试 + 工程实现`。可展开的聚合列在列头声明下钻动作：点击保留聚合列并在其右侧展开原始 role，同一时间只展开一组，再次点击收起。聚合只影响显示，不改变后端事实。

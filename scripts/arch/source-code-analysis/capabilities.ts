@@ -1,9 +1,17 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
+import {
+  CAPABILITY_GOVERNED_MODULE_KEYS,
+  type CapabilityGovernedModuleKey,
+  type SourceCapabilityDeclaration,
+  type SourceCapabilityOptions,
+  type SourceCapabilityPathOptions,
+  type SourceCapabilityPathRule,
+} from "./capability-declaration-contract";
 import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
+import { createProductCapabilityDeclarations } from "./product-capability-declarations";
 import { sourceModuleDeclarationsForPath } from "./declarations";
-import type { SourceModuleKind } from "./module-health-policy";
 import {
   OPERATIONS_ARTIFACT_SUPPLY_FILES,
   OPERATIONS_DATA_RELEASE_FILES,
@@ -13,34 +21,12 @@ import {
   OPERATIONS_RUNTIME_DEPENDENCY_FILES,
 } from "./operations-capability-file-catalog";
 
-export interface SourceCapabilityPathRule {
-  kind: "directChildren" | "file" | "prefix";
-  path: string;
-}
-
-export interface SourceCapabilityDeclaration {
-  moduleKey: CapabilityGovernedModuleKey;
-  key: string;
-  kind: SourceModuleKind;
-  /** Null means the product L1 is the parent. Otherwise this points at another node in the same tree. */
-  parentKey: string | null;
-  label: string;
-  include: readonly SourceCapabilityPathRule[];
-  /** Explicit public Interface paths that other branches may import. */
-  interface: readonly SourceCapabilityPathRule[];
-}
-
-export const CAPABILITY_GOVERNED_MODULE_KEYS = [
-  "platform",
-  "finance",
-  "work",
-  "hr",
-  "core",
-  "data-model",
-  "operations",
-  "tooling",
-] as const;
-export type CapabilityGovernedModuleKey = (typeof CAPABILITY_GOVERNED_MODULE_KEYS)[number];
+export { CAPABILITY_GOVERNED_MODULE_KEYS };
+export type {
+  CapabilityGovernedModuleKey,
+  SourceCapabilityDeclaration,
+  SourceCapabilityPathRule,
+};
 
 export interface CapabilityOwnershipBaseline {
   schemaVersion: 1;
@@ -50,14 +36,10 @@ export interface CapabilityOwnershipBaseline {
 export const CAPABILITY_OWNERSHIP_BASELINE_PATH =
   "scripts/arch/source-code-analysis/capability-ownership-baseline.json";
 
-function rules(moduleKey: CapabilityGovernedModuleKey, options: {
-  directChildren?: readonly string[];
-  files?: readonly string[];
-  prefixes?: readonly string[];
-  rootDirectChildren?: readonly string[];
-  rootFiles?: readonly string[];
-  rootPrefixes?: readonly string[];
-}): SourceCapabilityPathRule[] {
+function rules(
+  moduleKey: CapabilityGovernedModuleKey,
+  options: SourceCapabilityPathOptions,
+): SourceCapabilityPathRule[] {
   const packagePrefix = `packages/${moduleKey}/`;
   return [
     ...(options.files ?? []).map((relativePath) => ({
@@ -81,16 +63,11 @@ function rules(moduleKey: CapabilityGovernedModuleKey, options: {
   ];
 }
 
-function capability(
+export function capability(
   moduleKey: CapabilityGovernedModuleKey,
   key: string,
   label: string,
-  options: Parameters<typeof rules>[1] & {
-    parentKey?: string | null;
-    kind?: SourceModuleKind;
-    interfaceFiles?: readonly string[];
-    interfacePrefixes?: readonly string[];
-  },
+  options: SourceCapabilityOptions,
 ): SourceCapabilityDeclaration {
   const registeredInterfaceFiles = SOURCE_CAPABILITY_INTERFACE_FILES[`${moduleKey}/${key}`] ?? [];
   return {
@@ -226,280 +203,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     prefixes: ["audit/", "calendar/", "contracts/", "integrations/", "server/api/", "server/open-api/", "types/"],
   }),
 
-  capability("finance", "entry", "L1 接入与组合层", {
-    kind: "entry",
-    rootPrefixes: ["app/(modules)/finance/", "app/api/modules/finance/"],
-  }),
-  capability("finance", "assets", "资产", {
-    prefixes: ["server/assets/", "ui/assets/", "types/assets", "constants/assets", "server/domain/asset-"],
-  }),
-  capability("finance", "budget", "预算", {
-    prefixes: ["server/budget/", "ui/budget/", "types/budget", "constants/budget", "server/domain/budget-"],
-  }),
-  capability("finance", "close", "关账", {
-    prefixes: ["server/close/", "types/close", "server/domain/close-"],
-  }),
-  capability("finance", "cost", "成本", {
-    prefixes: ["server/cost/", "ui/cost/", "types/cost", "constants/cost", "server/domain/cost-"],
-  }),
-  capability("finance", "ledger", "总账与重分类", {
-    prefixes: [
-      "server/ledger/", "ui/ledger/", "types/ledger", "constants/ledger",
-      "server/domain/ledger-", "server/domain/group-", "server/domain/counterparty-",
-      "server/schedules/", "types/auxiliary-reclass", "types/group-account", "types/reclass",
-    ],
-  }),
-  capability("finance", "statements", "报表与合并", {
-    prefixes: [
-      "server/statements/", "ui/statements/", "types/statements", "constants/statements",
-      "server/domain/statement-", "server/domain/consolidation-", "server/group-policy-",
-      "types/consolidated-", "types/consolidation-",
-      "types/statement-",
-    ],
-  }),
-  capability("finance", "tax", "税务", {
-    prefixes: ["server/tax/", "ui/tax/", "types/tax", "constants/tax", "server/domain/tax-"],
-  }),
-  capability("finance", "treasury", "资金", {
-    prefixes: [
-      "server/treasury/", "ui/treasury/", "types/treasury", "constants/treasury",
-      "server/domain/treasury-", "types/fund-flow",
-    ],
-  }),
-  capability("finance", "analysis", "财务分析", {
-    prefixes: [
-      "server/analysis/", "ui/analysis/", "server/workspace-analysis-",
-      "types/analysis", "constants/analysis",
-      "server/domain/operational-analysis-", "types/management-analysis", "types/operational-analysis",
-    ],
-  }),
-  capability("finance", "import", "财务导入", {
-    prefixes: ["import/", "server/import/", "server/domain/readable-import-"],
-  }),
-  capability("finance", "shared-ui", "财务共享界面", {
-    files: [
-      "ui/formatters.test.ts", "ui/formatters.ts", "ui/workbook-download.test.ts", "ui/workbook-download.ts",
-    ],
-    prefixes: ["ui/components/", "ui/navigation/"],
-  }),
-  capability("finance", "shared-contracts", "财务公共契约", {
-    files: [
-      "README.md", "business-temporal.ts", "index.ts", "module.ts", "package.json",
-      "server/domain/shared-validation.ts",
-      "constants/index.ts", "server/index.ts", "server/workbook-formula-contract.test.ts",
-      "server/workbook-formula-contract.ts", "types/index.ts", "ui/index.ts", "tsconfig.json",
-    ],
-    interfaceFiles: ["server/domain/shared-validation.ts"],
-  }),
-
-  capability("work", "entry", "L1 接入与组合层", {
-    kind: "entry",
-    rootPrefixes: ["app/(modules)/work/", "app/api/modules/work/"],
-  }),
-  capability("work", "meetings", "会议", { prefixes: ["server/meetings/", "ui/meetings/"] }),
-  capability("work", "projects", "项目", {
-    files: ["ui/tabs/ProjectTab.tsx"],
-    prefixes: [
-      "server/project-", "server/projects.", "server/projects/", "server/domain/project-", "server/work-project-",
-      "ui/project/", "ui/tabs/project/",
-    ],
-  }),
-  capability("work", "tasks", "任务与工作项", {
-    prefixes: [
-      "server/task-", "server/work-task-", "server/work-item-", "server/works.",
-      "server/domain/work-completion-", "server/domain/work-item-", "server/domain/work-participant-",
-      "ui/works/", "ui/works.",
-    ],
-  }),
-  capability("work", "plans-goals-kpi", "计划、目标与绩效", {
-    prefixes: [
-      "server/work-plan-", "server/work-plans.", "server/work-okr-", "server/work-kpi-",
-      "server/work-kr-", "server/work-period-", "ui/gantt/",
-      "server/domain/work-kpi-", "server/domain/work-kr-", "server/domain/work-okr-",
-      "server/domain/work-performance-", "server/domain/work-period-", "server/domain/work-plan-",
-      "server/domain/work-system-", "server/work-assigned-", "server/work-goal-", "server/work-pilot-",
-    ],
-  }),
-  capability("work", "reporting-analysis", "汇报与分析", {
-    files: ["work-report-periods.ts"],
-    prefixes: [
-      "server/report-", "server/work-report-", "server/workspace-analysis-", "server/domain/work-report-",
-      "server/weekly-report-",
-      "server/domain/work-reporting-",
-    ],
-  }),
-  capability("work", "collaboration", "协作与责任范围", {
-    files: ["server/access.ts"],
-    prefixes: [
-      "server/business-space-", "server/department-", "server/work-collaboration-",
-      "server/work-owner-", "server/work-responsibility-", "server/work-source-",
-      "server/work-superior-",
-      "server/domain/department-", "server/domain/work-responsibility-",
-    ],
-  }),
-  capability("work", "shared-ui", "工作共享界面", {
-    files: ["ui/index.ts"],
-    prefixes: ["ui/home/"],
-  }),
-  capability("work", "shared-contracts", "工作公共契约", {
-    files: [
-      "business-temporal.ts", "index.ts", "module.ts", "package.json", "server/fk-registry.ts",
-      "server/index.ts", "server/schemas.ts", "server/standard-space-seeds.ts",
-      "server/workflow-todo-provider.ts", "tsconfig.json",
-    ],
-    prefixes: ["constants/", "types/", "import/"],
-  }),
-  capability("work", "mutation-impact", "变更影响传播", {
-    files: ["server/work-mutation-impact.ts"],
-    prefixes: ["server/work-mutation-impact-", "server/domain/work-mutation-impact-"],
-  }),
-
-  capability("hr", "entry", "L1 接入与组合层", {
-    kind: "entry",
-    rootPrefixes: ["app/(modules)/hr/", "app/api/modules/hr/", "app/api/open/v1/hr/"],
-  }),
-  capability("hr", "library-export", "人事资料输出", {
-    files: ["server/library-source.ts"],
-  }),
-  capability("hr", "analysis", "人事分析", {
-    files: ["server/analysis.ts"],
-    prefixes: ["server/analysis/", "ui/analytics/"],
-  }),
-  capability("hr", "employment-lifecycle", "员工与雇佣生命周期", {
-    files: [
-      "server/domain/page-draft-validation.test.ts",
-      "server/domain/page-draft-validation.ts",
-    ],
-    prefixes: [
-      "employee-", "employment-", "server/agreement-", "server/contract-", "server/contracts.",
-      "server/employee-", "server/employees.", "server/employment-", "server/employments.",
-      "server/social-insurance-", "ui/profile/",
-      "server/domain/contract-", "server/domain/employee-", "server/domain/employment-",
-      "server/contracts-capacity.", "server/employments-department-scope.", "server/roster-",
-      "server/roster.", "ui/generated/", "utils/contract-", "utils/employment-",
-    ],
-  }),
-  capability("hr", "organization", "组织、部门与岗位", {
-    prefixes: [
-      "server/department-", "server/departments.", "server/edp-", "server/edps.",
-      "server/organization-", "server/position-", "server/positions.", "ui/organization/",
-      "ui/tabs/department-position/", "utils/department-",
-      "server/domain/department-", "server/domain/organization-", "server/domain/position-",
-    ],
-  }),
-  capability("hr", "performance", "绩效", {
-    prefixes: [
-      "server/performance-", "server/performance.", "server/performance/",
-      "server/domain/performance-", "ui/performance/",
-    ],
-  }),
-  capability("hr", "data-quality", "人事数据质量", {
-    files: ["server/audit-entities.ts"],
-    prefixes: ["server/data-quality-", "server/data-quality.", "server/domain/audit-", "ui/audit/"],
-  }),
-  capability("hr", "code-governance", "人事编码治理", {
-    files: ["ui/code-helpers.ts"],
-    prefixes: ["server/domain/code-governance-", "ui/code/"],
-  }),
-  capability("hr", "shared-ui", "人事共享界面", {
-    files: [
-      "ui/HRClient.tsx", "ui/fk-keys.ts", "ui/index.ts", "ui/roster-surface.ts",
-      "server/autocomplete-config.ts", "server/autocomplete.ts", "server/hr-tab-list-capacity.test.ts",
-      "ui/tabs/DepartmentPositionTab.tsx", "ui/tabs/EditableTable.tsx", "ui/tabs/GenericTableTab.tsx",
-      "ui/tabs/generic-table-columns.ts", "ui/tabs/generic-table-export.ts",
-    ],
-    prefixes: ["ui/components/", "ui/hooks/"],
-  }),
-  capability("hr", "shared-contracts", "人事公共契约与支撑", {
-    files: [
-      "README.md", "business-temporal.test.ts", "business-temporal.ts", "index.ts", "module.ts",
-      "package.json", "server/field-reference-adapter.ts", "server/field-validation.ts",
-      "server/fk-registry.ts", "server/hr-crud.ts", "server/index.ts",
-      "server/reference-count-adapter.ts", "server/reference-guards.ts", "server/route-commands.ts",
-      "server/schemas.ts", "tsconfig.json", "utils/identity.ts", "utils/index.ts",
-    ],
-    prefixes: ["constants/", "types/", "import/"],
-  }),
-
-  capability("core", "shared-contracts", "核心公共契约", {
-    kind: "orchestrator",
-    files: [
-      "README.md", "action-glyph-contract.ts", "index.ts", "module-contract.ts", "package.json",
-      "page-style-preview.ts", "surface-navigation-contract.ts", "tsconfig.json", "ui-registry.ts",
-    ],
-    interfaceFiles: [
-      "action-glyph-contract.ts", "index.ts", "module-contract.ts", "page-style-preview.ts",
-      "surface-navigation-contract.ts", "ui-registry.ts",
-    ],
-  }),
-  capability("core", "hooks", "通用交互 Hooks", {
-    prefixes: ["hooks/"],
-    interfaceFiles: ["hooks/index.ts", "hooks/useScrollToIndexedItem.ts"],
-  }),
-  capability("core", "period", "期间语义", {
-    prefixes: ["period/"],
-    interfaceFiles: ["period/index.ts"],
-  }),
-  capability("core", "routing", "部署单元路由", {
-    prefixes: ["routing/"],
-    interfaceFiles: ["routing/index.ts"],
-  }),
-  capability("core", "search", "通用搜索", {
-    prefixes: ["search/"],
-    interfaceFiles: ["search/index.ts"],
-  }),
-  capability("core", "ui-surfaces", "核心界面契约", {
-    prefixes: ["ui/"],
-  }),
-  capability("core", "surface-runtime", "UI Surface 运行时", {
-    parentKey: "ui-surfaces",
-    prefixes: ["ui/"],
-    interfaceFiles: [
-      "ui/CreateSurface.tsx", "ui/DataSurface.types.ts", "ui/FormSurface.tsx", "ui/InputSurface.tsx",
-      "ui/MobileExperienceBoundary.tsx", "ui/NavigationSurface.tsx", "ui/NavigationSurface.types.ts",
-      "ui/SurfaceContractTypes.ts", "ui/internal/action/ActionControls.tsx",
-      "ui/internal/action/ActionGlyphs.tsx", "ui/internal/action/CreateActionControls.tsx",
-      "ui/internal/common/Badge.tsx", "ui/internal/common/CommandButton.tsx",
-      "ui/internal/common/DisclosureRecordCard.tsx", "ui/internal/common/DropdownSurface.tsx",
-      "ui/internal/common/FloatingPortalSurface.tsx", "ui/internal/common/SplitWorkspaceMasterContext.tsx",
-      "ui/internal/common/card-utils.ts", "ui/internal/common/interactionTokens.ts",
-      "ui/internal/common/text-overflow.ts", "ui/internal/create/CreateSurfaceAnchorContext.tsx",
-      "ui/internal/form/FormStyles.ts", "ui/internal/input/CalendarDateInput.tsx",
-      "ui/internal/input/CalendarDatePopover.tsx", "ui/internal/input/FieldShell.tsx",
-      "ui/internal/input/InputSurfaceTypes.ts", "ui/internal/input/RemovableTag.tsx",
-      "ui/internal/input/adaptive-control-width.ts", "ui/internal/input/field-context.tsx",
-      "ui/internal/input/input-surface-choice-renderers.tsx", "ui/internal/page/PageSurface.commands.tsx",
-    ],
-  }),
-  capability("core", "table-filtering", "表格与筛选", {
-    parentKey: "surface-runtime",
-    files: ["ui/internal/input/FieldValueFilter.tsx", "ui/internal/input/SearchInput.tsx"],
-    prefixes: ["ui/internal/data/", "ui/internal/toolbar/"],
-  }),
-  capability("core", "field-references", "字段引用与选择", {
-    parentKey: "surface-runtime",
-    files: [
-      "ui/NavigationContextSelector.tsx", "ui/SelectorSurface.tsx", "ui/SelectorSurface.types.ts",
-      "ui/selector-tree-expansion.ts", "ui/internal/input/FkFieldInput.tsx",
-      "ui/internal/input/SearchableOptionInput.tsx", "ui/internal/input/autocomplete-list-styles.ts",
-      "ui/internal/input/autocomplete-option-display.ts",
-    ],
-    prefixes: ["ui/internal/selection/"],
-    interfaceFiles: [
-      "ui/internal/input/FkFieldInput.tsx", "ui/internal/input/SearchableOptionInput.tsx",
-      "ui/internal/selection/SelectionGrid.tsx", "ui/internal/selection/SelectionParts.tsx",
-    ],
-  }),
-  capability("core", "visualization", "可视化", {
-    parentKey: "surface-runtime",
-    files: ["ui/VisualizationSurface.tsx", "ui/VisualizationSurfaceTypes.ts"],
-    prefixes: ["ui/internal/visualization/"],
-  }),
-  capability("core", "showcase", "核心界面样例组合", {
-    kind: "orchestrator",
-    prefixes: ["showcase/"],
-  }),
-
+  ...createProductCapabilityDeclarations(capability),
   capability("data-model", "schema-entry", "数据模型组合入口", {
     kind: "entry",
     rootFiles: ["prisma/schema.prisma", "prisma.config.ts"],
@@ -647,9 +351,153 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     parentKey: "tooling-foundation",
     rootPrefixes: ["scripts/arch/"],
   }),
+  capability("tooling", "source-module-governance", "源码模块与依赖治理", {
+    parentKey: "architecture-governance",
+    rootPrefixes: ["scripts/arch/source-code-analysis/"],
+  }),
+  capability("tooling", "ui-structure-governance", "UI 结构治理", {
+    parentKey: "architecture-governance",
+    rootFiles: [
+      "scripts/arch/action-runtime-ui.ts", "scripts/arch/body-command-renderer.ts",
+      "scripts/arch/feedback-api.ts", "scripts/arch/field-layout.ts",
+    ],
+    rootPrefixes: [
+      "scripts/arch/core-ui-", "scripts/arch/create-surface-", "scripts/arch/form-surface-",
+      "scripts/arch/input-surface-", "scripts/arch/modal-governance", "scripts/arch/page-surface-",
+      "scripts/arch/structure-", "scripts/arch/surface-", "scripts/arch/table-row-", "scripts/arch/ui-",
+    ],
+  }),
+  capability("tooling", "domain-contract-governance", "领域与接口契约治理", {
+    parentKey: "architecture-governance",
+    rootFiles: [
+      "scripts/arch/app-route-hierarchy.ts", "scripts/arch/auth.ts", "scripts/arch/deps.ts",
+      "scripts/arch/modules.ts", "scripts/arch/open-api.ts",
+    ],
+    rootPrefixes: [
+      "scripts/arch/business-temporal-", "scripts/arch/completion-date-", "scripts/arch/domain-",
+      "scripts/arch/finance-workbook-", "scripts/arch/package-dependency-",
+    ],
+  }),
   capability("tooling", "static-analysis", "静态检查", {
     parentKey: "tooling-foundation",
     rootPrefixes: ["scripts/check/"],
+  }),
+  capability("tooling", "check-orchestration", "检查编排与缓存", {
+    parentKey: "static-analysis",
+    rootFiles: ["scripts/check/with-check-lock.js"],
+    rootPrefixes: ["scripts/check/changed-files", "scripts/check/run-", "scripts/check/check-task-"],
+  }),
+  capability("tooling", "contract-checks", "注册、权限与接口检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/action-contract-", "scripts/check/approval-authority-",
+      "scripts/check/business-action-", "scripts/check/check-action-", "scripts/check/check-api-",
+      "scripts/check/check-authorize-", "scripts/check/check-business-action-",
+      "scripts/check/check-business-code-registry", "scripts/check/check-business-identity-",
+      "scripts/check/check-business-temporal-", "scripts/check/check-fk-", "scripts/check/check-history-",
+      "scripts/check/check-notification-", "scripts/check/check-permission-",
+      "scripts/check/check-relation-", "scripts/check/check-resource-",
+      "scripts/check/check-work-plan-", "scripts/check/check-workspace-analysis-",
+      "scripts/check/docs-approval-", "scripts/check/mutation-impact-", "scripts/check/notification-audit-",
+      "scripts/check/permission-review", "scripts/check/relation-adapter-",
+      "scripts/check/relation-policy-", "scripts/check/service-result-", "scripts/check/verified-api-",
+      "scripts/check/work-completion-", "scripts/check/work-item-", "scripts/check/work-mutation-",
+      "scripts/check/work-task-",
+    ],
+  }),
+  capability("tooling", "action-workflow-checks", "动作与工作流契约检查", {
+    parentKey: "contract-checks",
+    rootPrefixes: [
+      "scripts/check/action-contract-", "scripts/check/approval-authority-",
+      "scripts/check/business-action-", "scripts/check/check-action-",
+      "scripts/check/check-business-action-", "scripts/check/check-business-temporal-",
+      "scripts/check/docs-approval-", "scripts/check/mutation-impact-",
+      "scripts/check/notification-audit-", "scripts/check/service-result-",
+      "scripts/check/work-completion-", "scripts/check/work-item-", "scripts/check/work-mutation-",
+      "scripts/check/work-task-",
+    ],
+  }),
+  capability("tooling", "registry-access-checks", "Registry 与访问控制检查", {
+    parentKey: "contract-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-api-", "scripts/check/check-authorize-", "scripts/check/check-fk-",
+      "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-permission-", "scripts/check/check-relation-",
+      "scripts/check/check-resource-", "scripts/check/check-work-plan-",
+      "scripts/check/check-workspace-analysis-", "scripts/check/permission-review",
+      "scripts/check/relation-adapter-", "scripts/check/relation-policy-",
+      "scripts/check/verified-api-",
+    ],
+  }),
+  capability("tooling", "access-policy-checks", "访问与权限策略检查", {
+    parentKey: "registry-access-checks",
+    rootPrefixes: [
+      "scripts/check/check-api-", "scripts/check/check-authorize-",
+      "scripts/check/check-permission-", "scripts/check/permission-review",
+      "scripts/check/verified-api-",
+    ],
+  }),
+  capability("tooling", "registry-consistency-checks", "Registry 一致性检查", {
+    parentKey: "registry-access-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-fk-", "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-relation-", "scripts/check/check-resource-", "scripts/check/check-work-plan-",
+      "scripts/check/check-workspace-analysis-", "scripts/check/relation-adapter-",
+      "scripts/check/relation-policy-",
+    ],
+  }),
+  capability("tooling", "relation-registry-checks", "关系与资源 Registry 检查", {
+    parentKey: "registry-consistency-checks",
+    rootPrefixes: [
+      "scripts/check/check-fk-", "scripts/check/check-relation-", "scripts/check/check-resource-",
+      "scripts/check/relation-adapter-", "scripts/check/relation-policy-",
+    ],
+  }),
+  capability("tooling", "module-registry-checks", "模块与运行 Registry 检查", {
+    parentKey: "registry-consistency-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-work-plan-", "scripts/check/check-workspace-analysis-",
+    ],
+  }),
+  capability("tooling", "data-lifecycle-checks", "数据与生命周期检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/business-lifecycle-", "scripts/check/check-database-", "scripts/check/check-db.",
+      "scripts/check/check-finance-", "scripts/check/check-import-", "scripts/check/check-prisma-",
+      "scripts/check/check-schema-", "scripts/check/hr-business-", "scripts/check/normalize-generated-",
+      "scripts/check/organization-lifecycle-", "scripts/check/prisma-relation-",
+      "scripts/check/relation-dmmf-",
+    ],
+  }),
+  capability("tooling", "runtime-delivery-checks", "运行与交付检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-deploy-", "scripts/check/check-env.", "scripts/check/check-standalone-",
+      "scripts/check/check-tenant-runtime-", "scripts/check/check-workspace-runtime",
+      "scripts/check/deploy/", "scripts/check/prepare-standalone-",
+    ],
+  }),
+  capability("tooling", "ui-quality-checks", "UI 与浏览器检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-core-ui-", "scripts/check/check-docs-editor-",
+      "scripts/check/check-module-nav-", "scripts/check/check-module-page-",
+      "scripts/check/check-playwright-", "scripts/check/module-page-gate-",
+    ],
+  }),
+  capability("tooling", "repository-quality-checks", "仓库与工程质量检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-architecture-", "scripts/check/check-company-", "scripts/check/check-memory-",
+      "scripts/check/check-net-", "scripts/check/check-package-", "scripts/check/check-split-",
+      "scripts/check/check-typecheck-", "scripts/check/check-business-code-hardcoding",
+      "scripts/check/governance-checker-", "scripts/check/tenant-hardcoding-",
+      "scripts/check/typecheck-entrypoints", "scripts/check/workspace-package-",
+    ],
   }),
   capability("tooling", "continuous-integration", "持续集成", {
     parentKey: "tooling-foundation",
@@ -694,6 +542,31 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     kind: "orchestrator",
     parentKey: "tooling-commands",
     rootDirectChildren: ["scripts/"],
+  }),
+  capability("tooling", "library-maintenance-commands", "资料库维护命令", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/check-library-scan-manifest.ts", "scripts/compact-library-runtime.ts",
+      "scripts/compress-library-batch.ts", "scripts/export-library-selection.ts",
+      "scripts/import-library-catalog.ts", "scripts/library-scan-smoke.ts",
+      "scripts/prepare-library-pilot.ts", "scripts/preview-library-batch.ts",
+      "scripts/preview-library-version.ts", "scripts/process-library-pilot.ts",
+      "scripts/process-library-version.ts", "scripts/run-library-incremental.ts",
+      "scripts/scan-library.ts", "scripts/search-library.ts", "scripts/seed-library-generated-sources.ts",
+    ],
+  }),
+  capability("tooling", "database-verification-commands", "数据库容量与运行验证命令", {
+    parentKey: "tooling-command-runtime",
+    rootPrefixes: ["scripts/postgresql-"],
+  }),
+  capability("tooling", "tenant-maintenance-commands", "租户数据维护命令", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/backfill-permission-grant-ledger.ts", "scripts/provision-agent-workforce.mjs",
+      "scripts/rehome-docs-editor-content.ts", "scripts/seed-resources-runtime.mjs",
+      "scripts/seed-resources.ts", "scripts/sync-external-snapshots.mjs",
+      "scripts/sync-finance-group-chart.ts", "scripts/write-resource-manifest.ts",
+    ],
   }),
 ] as const;
 

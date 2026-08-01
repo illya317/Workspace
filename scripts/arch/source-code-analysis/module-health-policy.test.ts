@@ -26,9 +26,22 @@ function metrics(overrides: Partial<ModuleHealthMetrics> = {}): ModuleHealthMetr
   };
 }
 
-test("health warnings apply to the smallest active module, not aggregate parents", () => {
+test("health warnings skip pure aggregate parents but include residual parent implementation", () => {
   const warnings = evaluateModuleHealth([
-    metrics({ key: "parent", childCount: 2, implementationLines: 30_000, implementationFileCount: 200 }),
+    metrics({
+      key: "aggregate-parent",
+      childCount: 2,
+      implementationLines: 0,
+      implementationFileCount: 0,
+      outgoingLeafDependencyCount: 0,
+    }),
+    metrics({
+      key: "residual-parent",
+      childCount: 2,
+      implementationLines: 10_000,
+      implementationFileCount: 10,
+      outgoingLeafDependencyCount: 2,
+    }),
     metrics({
       key: "leaf",
       implementationLines: 10_000,
@@ -40,6 +53,7 @@ test("health warnings apply to the smallest active module, not aggregate parents
     ["operations/leaf", "high-leaf-fan-out"],
     ["operations/leaf", "oversized-leaf-files"],
     ["operations/leaf", "oversized-leaf-lines"],
+    ["operations/residual-parent", "oversized-leaf-lines"],
   ]);
   assert.ok(warnings.every((item) => item.requiresHygieneReview));
 });
@@ -47,8 +61,20 @@ test("health warnings apply to the smallest active module, not aggregate parents
 test("entry and orchestrator nodes use a smaller implementation budget", () => {
   assert.deepEqual(
     evaluateModuleHealth([
-      metrics({ key: "entry", kind: "entry", implementationLines: 3_000 }),
-      metrics({ key: "orchestrator", kind: "orchestrator", implementationLines: 2_999 }),
+      metrics({
+        key: "entry",
+        kind: "entry",
+        implementationLines: 3_000,
+        implementationFileCount: 200,
+        outgoingLeafDependencyCount: 30,
+      }),
+      metrics({
+        key: "orchestrator",
+        kind: "orchestrator",
+        implementationLines: 2_999,
+        implementationFileCount: 200,
+        outgoingLeafDependencyCount: 30,
+      }),
     ]).map((item) => [item.moduleId, item.code]),
     [["operations/entry", "oversized-orchestration"]],
   );
