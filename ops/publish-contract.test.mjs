@@ -81,6 +81,9 @@ test("deploy binds full Controller Ready metadata while Application Ready remain
   assert.match(publish, /DEPLOY_CONTROL_RECEIPT_DIGEST/);
   assert.match(publish, /RELEASE_CONTROLLER_READY_RECEIPT_FILE/);
   assert.match(publishCnb, /controller-ready\.mjs" verify/);
+  assert.match(publishCnb, /DEPLOY_CONTROL_SOURCE_SHA='\$DEPLOY_CONTROL_SOURCE_SHA'/);
+  assert.match(publishCnb, /DEPLOY_CONTROL_TREE_ID='\$DEPLOY_CONTROL_TREE_ID'/);
+  assert.match(publishCnb, /DEPLOY_CONTROL_DIGEST='\$DEPLOY_CONTROL_DIGEST'/);
   assert.match(publishCnb, /const controllerReady = JSON\.parse/);
   assert.match(publishCnb, /schemaVersion: 3,[\s\S]*?releaseReady,[\s\S]*?controllerReady,/);
   assert.match(runLocalReleaseAction, /worktree add --detach "\$injection_worktree" "\$RELEASE_CONTROLLER_SOURCE_SHA"/);
