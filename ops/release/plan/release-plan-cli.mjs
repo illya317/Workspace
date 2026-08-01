@@ -5,7 +5,7 @@ import {
   finishReleaseStage,
   releasePlanSnapshot,
   skipFastValidation,
-} from "./release-plan.mjs";
+} from "./release-plan-contract.mjs";
 
 function options(argv) {
   const [command, ...rest] = argv;
