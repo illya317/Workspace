@@ -54,7 +54,7 @@ restore_cache() {
     local graph="$CACHE_DIR/deploy-graph.json"
     if [ ! -f "$artifact" ] || [ ! -f "$manifest" ] || [ ! -f "$graph" ] || ! verify_monolith "$artifact" "$manifest" \
       || ! node ops/gateway-generation.mjs graph-assert --graph "$graph" \
-        --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null; then
+        --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null; then
       echo "==> CNB artifact cache miss: monolith ${SOURCE_TREE:0:12}"
       return 1
     fi
@@ -77,7 +77,7 @@ restore_cache() {
     fi
     if ! node ops/deploy-unit-release.mjs artifact-assert --artifact "$artifact" --manifest "$manifest" --contract "$contract" >/dev/null \
       || ! node ops/gateway-generation.mjs graph-assert --graph "$graph" \
-        --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.unit.graphSha256)' "$manifest")" >/dev/null \
+        --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.unit.graphSha256)' "$manifest")" >/dev/null \
       || ! SOURCE_TREE="$SOURCE_TREE" UNIT_ID="$UNIT_ID" MANIFEST="$manifest" node - <<'NODE'
 const manifest = JSON.parse(require('node:fs').readFileSync(process.env.MANIFEST, 'utf8'));
 if (manifest.unit?.id !== process.env.UNIT_ID
@@ -120,7 +120,7 @@ store_cache() {
     local graph="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
     verify_monolith "$artifact" "$manifest"
     node ops/gateway-generation.mjs graph-assert --graph "$graph" \
-      --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null
+      --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null
     cp "$artifact" "$temporary/workspace-standalone.tgz"
     cp "$manifest" "$temporary/workspace-standalone.manifest.json"
     cp "$graph" "$temporary/deploy-graph.json"
