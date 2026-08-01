@@ -53,7 +53,8 @@ if os.environ.get("DEPLOY_TEST_EVENT") == "1":
 
 def atomic_write(target: Path, body: str) -> None:
     target.parent.mkdir(parents=True, exist_ok=True, mode=0o700)
-    os.chmod(target.parent, 0o700)
+    if target.parent != Path.home():
+        os.chmod(target.parent, 0o700)
     temporary = target.with_name(f".{target.name}.tmp-{os.getpid()}")
     temporary.write_text(body)
     os.chmod(temporary, 0o600)

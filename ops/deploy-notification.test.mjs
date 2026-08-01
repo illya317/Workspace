@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { spawnSync } from "node:child_process";
+import { chmodSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   createFullDeployEvent,
@@ -212,6 +214,36 @@ test("deploy event write is atomic and private", () => {
   writeDeployEvent(file, event);
   assert.deepEqual(JSON.parse(readFileSync(file, "utf8")), event);
   if (os.platform() !== "win32") assert.equal(statSync(file).mode & 0o777, 0o600);
+});
+
+test("remote deploy event preserves the existing home directory mode", () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), "workspace-remote-deploy-event-"));
+  const home = path.join(root, "home");
+  const remoteDir = path.join(home, "workspace");
+  mkdirSync(home, { mode: 0o710 });
+  chmodSync(home, 0o710);
+  const result = spawnSync("python3", [
+    fileURLToPath(new URL("./release/diagnostics/record-deploy-attempt.py", import.meta.url)),
+  ], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      HOME: home,
+      REMOTE_DIR: remoteDir,
+      DEPLOY_SOURCE_SHA: build,
+      RELEASE_PLAN_ID: "ci-example",
+      RELEASE_STAGE: "deploy",
+      DEPLOY_STATUS: "succeeded",
+      DEPLOY_TRANSPORT: "local",
+      DEPLOY_STARTED_EPOCH_SECONDS: "1785582067",
+      DEPLOY_DURATION_SECONDS: "244",
+      RELEASE_PROCESS_STARTED_AT: "2026-08-01T11:00:00Z",
+    },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(statSync(home).mode & 0o777, 0o710);
+  assert.equal(statSync(path.join(home, ".finance-bot-deploy-event.json")).mode & 0o777, 0o600);
+  assert.equal(statSync(path.join(home, ".finance-bot-deploy-events", "pending")).mode & 0o777, 0o700);
 });
 
 test("deploy event history keeps an append-only index and per-event evidence", () => {
