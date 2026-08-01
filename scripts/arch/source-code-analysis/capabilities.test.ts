@@ -12,7 +12,7 @@ import {
 } from "./capabilities";
 import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
 
-test("four governed packages assign semantic directory and root files to recursive modules", () => {
+test("product, shared, data, operations, and tooling roots use one recursive module contract", () => {
   const examples = [
     ["platform", "packages/platform/server/approvals/store.ts", "workflow-approvals"],
     ["platform", "packages/platform/source-code-analysis-contract.ts", "platform-foundation"],
@@ -23,6 +23,27 @@ test("four governed packages assign semantic directory and root files to recursi
     ["hr", "packages/hr/server/analysis/route.ts", "analysis"],
     ["hr", "packages/hr/server/performance/contribution-detail.ts", "performance"],
     ["hr", "packages/hr/index.ts", "shared-contracts"],
+    ["core", "packages/core/period/core.ts", "period"],
+    ["core", "packages/core/ui/PageSurface.tsx", "surface-runtime"],
+    ["core", "packages/core/ui/internal/data/DataTable.tsx", "table-filtering"],
+    ["core", "packages/core/ui/internal/input/FkFieldInput.tsx", "field-references"],
+    ["core", "packages/core/ui/internal/visualization/VisualizationNetwork.tsx", "visualization"],
+    ["data-model", "prisma/models/finance-ledger.prisma", "model-contracts"],
+    ["data-model", "prisma/migrations/20260729000000_finance_auxiliary_identity_targets/migration.sql", "migration-history"],
+    ["data-model", "ops/data-release-reference-contracts.mjs", "data-release-contracts"],
+    ["operations", "ops/deploy/atomic-cutover.sh", "deploy-runtime"],
+    ["operations", "ops/publish.sh", "operations-control"],
+    ["operations", "ops/release/readiness/ready-artifact.mjs", "release-ready"],
+    ["operations", "ops/build-standalone-artifact.sh", "artifact-supply"],
+    ["operations", "ops/apply-data-release.mjs", "data-release"],
+    ["operations", "scripts/import/import-finance-readable.ts", "data-import"],
+    ["tooling", "scripts/arch/gate.ts", "architecture-governance"],
+    ["tooling", "scripts/check/check-db.js", "static-analysis"],
+    ["tooling", "scripts/scan-library.ts", "tooling-command-runtime"],
+    ["tooling", "scripts/testing/run-node-tests.mjs", "test-infrastructure"],
+    ["tooling", "e2e/auth.spec.ts", "e2e"],
+    ["tooling", ".github/workflows/ci.yml", "tooling-foundation"],
+    ["tooling", "package.json", "tooling-entry"],
   ] as const;
 
   for (const [moduleKey, relativePath, capabilityKey] of examples) {
@@ -37,7 +58,10 @@ test("unknown package paths and non-governed modules do not inherit a catch-all 
   assert.equal(capabilityGovernedModuleForPath("packages/work/new-capability/file.ts"), "work");
   assert.deepEqual(sourceCapabilityDeclarationsForPath("work", "packages/work/new-capability/file.ts"), []);
   assert.deepEqual(sourceCapabilityDeclarationsForPath("docs", "packages/docs/server/index.ts"), []);
-  assert.equal(capabilityGovernedModuleForPath("app/api/modules/work/route.ts"), null);
+  assert.equal(capabilityGovernedModuleForPath("app/api/modules/work/route.ts"), "work");
+  assert.equal(capabilityGovernedModuleForPath("prisma/schema.prisma"), "data-model");
+  assert.equal(capabilityGovernedModuleForPath("ops/deploy.sh"), "operations");
+  assert.equal(capabilityGovernedModuleForPath("scripts/arch/gate.ts"), "tooling");
 });
 
 test("L1 application ingress is declared separately from nested package modules", () => {

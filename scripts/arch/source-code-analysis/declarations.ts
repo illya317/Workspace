@@ -97,6 +97,7 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/write-resource-manifest.ts",
 ] as const;
 const productionRuntimePaths = ["ops/", ...PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS];
+const DATA_RELEASE_CONTRACT_PATHS = ["ops/data-release-reference-contracts.mjs"] as const;
 const developmentGovernancePrefixes = ["scripts/", "e2e/"];
 const developmentGovernanceRootFiles = ["dependency-cruiser.config.cjs", "next.config.ts", "playwright.config.ts"];
 
@@ -183,7 +184,7 @@ export const SOURCE_MODULE_DECLARATIONS: SourceModuleDeclaration[] = [
     category: "dataEngineering",
     ownerResourceKey: null,
     interfacePaths: ["prisma/schema.prisma"],
-    include: ["prisma/", "prisma.config.ts"],
+    include: ["prisma/", "prisma.config.ts", ...DATA_RELEASE_CONTRACT_PATHS],
   },
   {
     key: "operations",
@@ -192,6 +193,7 @@ export const SOURCE_MODULE_DECLARATIONS: SourceModuleDeclaration[] = [
     ownerResourceKey: null,
     interfacePaths: ["ops/publish.sh"],
     include: productionRuntimePaths,
+    exclude: [...DATA_RELEASE_CONTRACT_PATHS],
   },
   {
     key: "tooling",
@@ -202,6 +204,8 @@ export const SOURCE_MODULE_DECLARATIONS: SourceModuleDeclaration[] = [
     include: [
       ...developmentGovernancePrefixes,
       ...developmentGovernanceRootFiles,
+      ".github/workflows/",
+      "package.json",
     ],
     exclude: [...PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS],
   },
@@ -222,11 +226,12 @@ export function sourceModuleDeclarationsForPath(relativePath: string) {
   return SOURCE_MODULE_DECLARATIONS.filter((declaration) => declarationOwnsPath(declaration, relativePath));
 }
 
-export const SOURCE_CODE_ROOTS = ["app", "packages", "prisma", "scripts", "ops", "e2e"] as const;
+export const SOURCE_CODE_ROOTS = ["app", "packages", "prisma", "scripts", "ops", "e2e", ".github/workflows"] as const;
 export const ROOT_SOURCE_FILES = [
   "dependency-cruiser.config.cjs",
   "instrumentation.ts",
   "next.config.ts",
+  "package.json",
   "prisma.config.ts",
   "playwright.config.ts",
 ] as const;

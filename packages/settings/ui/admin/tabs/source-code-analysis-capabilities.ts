@@ -57,6 +57,7 @@ function createUnassignedCapabilityRow(
   return {
     moduleKey: module.key,
     key: "__unassigned__",
+    kind: "module",
     parentKey: null,
     depth: 2,
     label,

@@ -330,6 +330,26 @@ function stronglyConnectedFileComponents(graph: Map<string, Set<string>>) {
   return components.sort((left, right) => left.join("\0").localeCompare(right.join("\0")));
 }
 
+function representativeFileCycle(paths: readonly string[], graph: ReadonlyMap<string, ReadonlySet<string>>) {
+  const members = new Set(paths);
+  function search(start: string, current: string, route: string[], active: Set<string>): string[] | null {
+    for (const target of [...(graph.get(current) ?? [])].filter((item) => members.has(item)).sort()) {
+      if (target === start) return [...route, start];
+      if (active.has(target)) continue;
+      active.add(target);
+      const found = search(start, target, [...route, target], active);
+      active.delete(target);
+      if (found) return found;
+    }
+    return null;
+  }
+  for (const start of [...paths].sort()) {
+    const found = search(start, start, [start], new Set([start]));
+    if (found) return found;
+  }
+  throw new Error("[source-code-analysis] file dependency component has no cycle route");
+}
+
 function dependencyFileCycles(
   architectureGraph: Map<string, Set<string>>,
   runtimeGraph: Map<string, Set<string>>,
@@ -351,6 +371,10 @@ function dependencyFileCycles(
     return {
       classification,
       paths,
+      cyclePath: representativeFileCycle(
+        paths,
+        classification === "runtime" ? runtimeGraph : architectureGraph,
+      ),
       cells: [...new Map(paths.flatMap((filePath) => {
         const file = filesByPath.get(filePath);
         return file ? [[capabilityDependencyFileCellKey(file), {
@@ -368,6 +392,8 @@ function dependencyFileCycles(
           || item.kind === "reExport")
         .sort((left, right) => [left.sourcePath, left.targetPath, left.kind].join("\0")
           .localeCompare([right.sourcePath, right.targetPath, right.kind].join("\0"))),
+      blocking: true,
+      waivable: false,
     };
   });
 }
@@ -543,16 +569,11 @@ export function analyzeSourceDependencies(
       const evidence = evidenceByEdge.get(dependencyKey) ?? [];
       evidence.push({ sourcePath: file.path, targetPath, kind: reference.kind });
       evidenceByEdge.set(dependencyKey, evidence);
-      if (
-        file.role !== "test"
-        && target.role !== "test"
-      ) {
-        architectureFileGraph.get(file.path)?.add(targetPath);
-        if (reference.kind === "valueImport" || reference.kind === "dynamicImport" || reference.kind === "reExport") {
-          runtimeFileGraph.get(file.path)?.add(targetPath);
-        }
-        fileEvidence.push({ sourcePath: file.path, targetPath, kind: reference.kind });
+      architectureFileGraph.get(file.path)?.add(targetPath);
+      if (reference.kind === "valueImport" || reference.kind === "dynamicImport" || reference.kind === "reExport") {
+        runtimeFileGraph.get(file.path)?.add(targetPath);
       }
+      fileEvidence.push({ sourcePath: file.path, targetPath, kind: reference.kind });
       if (file.role === "test" || target.role === "test" || target.moduleKey === file.moduleKey) continue;
       edges.get(file.moduleKey)?.add(target.moduleKey);
       crossModuleImportCounts.set(file.moduleKey, (crossModuleImportCounts.get(file.moduleKey) ?? 0) + 1);
@@ -567,6 +588,9 @@ export function analyzeSourceDependencies(
     capabilityDependencyEdges: [...capabilityDependencyEdges.values()]
       .sort((left, right) => capabilityDependencyEdgeKey(left).localeCompare(capabilityDependencyEdgeKey(right))),
     reciprocalRoleDependencies: reciprocalRoleDependencies(dependencyEdges, evidenceByEdge),
+    fileDependencyEdges: fileEvidence.sort((left, right) =>
+      [left.sourcePath, left.targetPath, left.kind].join("\0")
+        .localeCompare([right.sourcePath, right.targetPath, right.kind].join("\0"))),
     dependencyFileCycles: dependencyFileCycles(architectureFileGraph, runtimeFileGraph, fileEvidence, fileByPath),
     invalidDependencyDirections: invalidDependencyDirections.sort((left, right) =>
       [left.sourcePath, left.targetPath, left.kind, left.reason].join("\0")

@@ -138,22 +138,33 @@ human/code intent
 
 `生产运行` 固定归属 `ops/` 中的发布、部署和运行控制面，以及被正式 release/runtime 明确复制或调用的 `scripts/import`、`scripts/migrate`、`scripts/repair`、Agent runtime 和少量生命周期 helper；`开发治理` 归属其余 `scripts/`、`e2e/`、`next.config.ts` 与 `playwright.config.ts` 中的检查、生成、测试和工程脚本。两者保持独立文件夹语义和独立展示：`ops/` 自动归生产运行，`scripts/` 默认自动归开发治理；必须参与生产运行的脚本统一注册到 `PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS`，再由同一归属解析器自动排除出开发治理。脚本进入该注册表必须有制品或控制面调用证据，不能只凭文件名猜测，也不在每个文件内重复写易漂移的归属注释。Schema 按语义归属：Zod/请求 schema 属于对应业务单元的输入边界，domain validator 属于领域校验，Prisma schema 与 migration 属于数据底座，不能重新聚合成一个横切所有业务的笼统 `Schemas` 模块。
 
+生产数据脚本按意图继续拆分：`data-import` 把外部权威数据映射进当前模型，必须保留来源与重复执行语义；`data-migration` 把既有数据或结构从旧版本转换到新版本，必须有前置条件和版本边界；`data-repair` 只修复已经确认的异常事实，必须收窄目标、可审计并可证明幂等。三者都属于生产运行，不因为使用 TypeScript/Python 或没有页面就归入开发治理。
+
+当前非产品 L1 的递归语义至少保持以下边界；它们是 Module，不是前端表格列：
+
+- Core：UI Surface 运行时、表格与筛选、字段引用与选择、可视化、Hooks、期间、搜索和路由。
+- 数据底座：schema 入口、领域模型、只追加 migration 历史、seed/参考数据和数据发布契约；数据发布执行仍属于生产运行。
+- 生产运行：Release CI、Ready/制品验收、发布控制、制品供应、部署切换、PostgreSQL、运行依赖、数据发布执行，以及历史迁移/修复。
+- 开发治理：架构检查、静态检查、持续集成、生成器、测试基础设施和 E2E；生产制品实际调用的脚本仍由生产注册表转交生产运行。
+
 页面和 API 壳归 `composition` 或 `input` role。它们负责接近入口处的拼装、认证、请求形状和挂载，不拥有被拼装模块的业务行为；壳代码少而浅是正确形态，不需要为了“看起来像深模块”再制造公开 interface。
 
 源码归属的事实源是 `scripts/arch/source-code-analysis/declarations.ts`。受治理的源码文件必须由声明解析为唯一的 `module + role`：
 
 - 没有归属、多重归属、模块声明的 interface 路径不存在或出现模块级依赖循环，`gate:domain` 直接失败。
-- 产品包内的源码模块树声明在 `scripts/arch/source-code-analysis/capabilities.ts`。节点只声明稳定的 `key / parentKey / include / interface`，层级由父链计算，不保存写死的 L2/L3 枚举；因此 L3、L4 以及更深节点遵守同一 contract。文件同时命中祖先和后代时归最深节点，同一深度命中多个兄弟节点仍按多重归属失败。`entry` 是产品 L1 的组合/输入边界，不是额外业务模块。
+- Platform、Finance、Work、HR、Core、数据底座、生产运行和开发治理的源码模块树统一声明在 `scripts/arch/source-code-analysis/capabilities.ts`。节点只声明稳定的 `key / kind / parentKey / include / interface`，层级由父链计算，不保存写死的 L2/L3 枚举；因此 L3、L4 以及更深节点遵守同一 contract。文件同时命中祖先和后代时归最深节点，同一深度命中多个兄弟节点仍按多重归属失败。`entry` 是 L1 组合/输入边界，`orchestrator` 是只负责装配的薄模块，`appendOnlyHistory` 表示只追加的迁移历史，`retired` 表示不得再被 active 模块引用；页面、前端、后端仍只是 path/role，不注册成子模块。
 - 同一递归节点内可以访问自己的 Implementation；跨分支或子模块访问祖先时，只能依赖目标节点公开的 Interface（显式 `interface` 路径，或 contract/assembly role）。祖先只有 composition/assembly/input/UI 边界可以组装后代 Implementation，普通 application/domain 代码不得反向深入子模块。受治理 L1 的现有公开 Seam 分别登记在 `capability-interfaces/finance.ts`、`hr.ts`、`work.ts` 和 `platform.ts`，每一项都是精确文件，不接受目录级 Interface。`capability-contract-baseline.json` 当前为空；任何新边都必须通过目标 Module 的 Interface 评审或移动实现归属，不能恢复历史债务基线。
 - 默认使用集中式路径声明，而不是在每个文件写可漂移的注释标签；只有路径无法稳定表达所有权时，才收窄或增加显式声明规则。
 - 自动生成源码和 `apps/*` 部署镜像不进入人工源码统计，避免重复或生成噪声淹没真实实现。
-- snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和生产文件强连通分量。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。
+- snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和全仓一方源码文件强连通分量。文件循环图包含运行时 import/re-export、type-only import、测试文件、Python import、Shell `source`/脚本执行、workflow `run` 和 package script 命令边；生成物、vendor 和未受治理 fixture 不进入图。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。
+- 模块体量只在最小 active Module 上发出 Hygiene warning，父节点聚合总量不触发拆分：默认非测试/非契约 Implementation 达到 10,000 行、80 个实现文件、15 个不同叶子依赖，或 `entry/orchestrator` 达到 3,000 行时需要人工复核。`appendOnlyHistory` 不按体量告警；新增 Implementation 绕行和 active 代码引用 `retired` 节点仍告警。warning 不自动阻断交付；Hygiene 可以登记 `accepted / split / deepen` 决策，但只有 `accepted` 暂时消除提醒，最长 90 天，并在 Interface、依赖、债务摘要变化、出现新 warning 或实现行数/文件数增长超过 10% 时自动失效。复核事实源是 `module-health-reviews.json`。
+- recursive Module 的展示不强制复用 L1 职责矩阵。snapshot 先保存完整 kind、层级、体量、依赖和健康 warning；业务模块、生产运行、数据底座和开发治理可在后续前端设计中采用不同视图，本次 contract 不为统一表格反向扭曲模块语义。
 - 管理矩阵的全部代码体量统一使用“万行”：零值显示 `—`，1–999 行显示 `<0.1`，1000 行及以上保留两位小数，例如 `0.12 / 1.12 / 5.23`；文件数和依赖数必须明确作为数量展示，不能与代码行混用。两位小数采用只影响显示的守恒舍入：原始整数行数不变，表内分配 0.01 万行的舍入尾差，使每一行的总代码等于右侧职责之和，末行每列等于上方模块之和，且末行总代码同时等于末行职责之和；`<0.1` 是区间提示，不参与肉眼小数加总。
 - snapshot 继续保存全部原始 role，治理、门禁和下钻不得消费合并后的展示值。管理矩阵按默认依赖方向从左到右聚合为：`入口 = 组合壳 + UI + 输入` -> `业务 = 业务实现 + 领域校验` -> `适配 = 数据访问 + 外部集成` -> `契约`，最后单列 `保障 = 模块测试 + 工程实现`。可展开的聚合列在列头声明下钻动作：点击保留聚合列并在其右侧展开原始 role，同一时间只展开一组，再次点击收起。聚合只影响显示，不改变后端事实。
 - 管理矩阵按职责格选择关系：蓝色表示来源格引用选中格，橙色表示目标格被选中格引用；折叠范围内两侧都有 import 但尚未证明为循环时仍只按普通方向提示，不升级为双向状态；绿色只表示后端文件 SCC 证明的真实循环。选中格和自引用保持中性，不允许用同一条 self edge 同时满足两个方向。展开明细时选择会精确到 raw role；折叠后绿色只能由所含 raw role 的同一真实 SCC 向上投影，不能分别聚合两条无关边后制造绿色。
 - 每个文件只计入一个主要 role；同时执行“单文件单职责”硬门禁。高置信度跨界包括：输入解析同文件直连 Prisma、domain validator 同文件读取或写入 Prisma、集成 adapter 同文件声明输入 schema 并实现传输、React UI 同文件声明 Zod 输入或直接挂第三方 SDK。命中项必须拆到模块私有的 `*-input`、`*-reference-adapter`、transport adapter 或 UI host，`source-code-analysis:check` 要求未解耦项为零。
 - application service 可以在同一事务内组合授权后的 command、持久化、审计和幂等，因为这是一个原子 use case；不要为了消除词法信号增加透传 repository。纯规则、输入 schema、DTO 映射或第三方 SDK 生命周期若可独立变化，仍须移出 service。`policy`、`workflow`、`service` 或目录名本身不构成混合证据，type-only Prisma import 也不算数据访问。
-- 现有 package boundary gate 继续作为非法依赖的权威门禁。生产文件和声明模块默认都必须可拓扑排序；当前不维护循环白名单。未来只有外部标准强制的互递归协议、且拆分会引入更大治理面时，才允许增加精确到文件 SCC、带 owner/理由/复核期限的例外；普通 type-only import、barrel、测试便利或历史兼容都不构成白名单理由。一个候选细粒度模块若与外部形成循环，应先移动 seam、合并错误边界或完成解耦，不能只靠声明把它包装成“模块”。
+- 现有 package boundary gate 继续作为非法依赖的权威门禁。任何受治理的一方源码文件循环都直接阻断，不区分环长、运行时/type-only、生产/测试或语言，也不提供 baseline、Hygiene acceptance 或临时白名单。外部协议互递归必须收进一个单向 adapter/Module 内部，不能把仓库文件图做成环。一个候选细粒度模块若与外部形成循环，应先移动 seam、合并错误边界或完成解耦，不能只靠声明把它包装成“模块”。
 
 运行入口：
 

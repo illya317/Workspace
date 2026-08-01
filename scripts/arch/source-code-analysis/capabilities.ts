@@ -2,16 +2,26 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 
 import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
+import { sourceModuleDeclarationsForPath } from "./declarations";
+import type { SourceModuleKind } from "./module-health-policy";
+import {
+  OPERATIONS_ARTIFACT_SUPPLY_FILES,
+  OPERATIONS_DATA_RELEASE_FILES,
+  OPERATIONS_DEPLOYMENT_CUTOVER_FILES,
+  OPERATIONS_FOUNDATION_FILES,
+  OPERATIONS_RELEASE_CI_FILES,
+  OPERATIONS_RUNTIME_DEPENDENCY_FILES,
+} from "./operations-capability-file-catalog";
 
 export interface SourceCapabilityPathRule {
-  kind: "file" | "prefix";
+  kind: "directChildren" | "file" | "prefix";
   path: string;
 }
 
 export interface SourceCapabilityDeclaration {
   moduleKey: CapabilityGovernedModuleKey;
   key: string;
-  kind: "module" | "entry";
+  kind: SourceModuleKind;
   /** Null means the product L1 is the parent. Otherwise this points at another node in the same tree. */
   parentKey: string | null;
   label: string;
@@ -20,7 +30,16 @@ export interface SourceCapabilityDeclaration {
   interface: readonly SourceCapabilityPathRule[];
 }
 
-export const CAPABILITY_GOVERNED_MODULE_KEYS = ["platform", "finance", "work", "hr"] as const;
+export const CAPABILITY_GOVERNED_MODULE_KEYS = [
+  "platform",
+  "finance",
+  "work",
+  "hr",
+  "core",
+  "data-model",
+  "operations",
+  "tooling",
+] as const;
 export type CapabilityGovernedModuleKey = (typeof CAPABILITY_GOVERNED_MODULE_KEYS)[number];
 
 export interface CapabilityOwnershipBaseline {
@@ -32,8 +51,10 @@ export const CAPABILITY_OWNERSHIP_BASELINE_PATH =
   "scripts/arch/source-code-analysis/capability-ownership-baseline.json";
 
 function rules(moduleKey: CapabilityGovernedModuleKey, options: {
+  directChildren?: readonly string[];
   files?: readonly string[];
   prefixes?: readonly string[];
+  rootDirectChildren?: readonly string[];
   rootFiles?: readonly string[];
   rootPrefixes?: readonly string[];
 }): SourceCapabilityPathRule[] {
@@ -47,6 +68,14 @@ function rules(moduleKey: CapabilityGovernedModuleKey, options: {
       kind: "prefix" as const,
       path: `${packagePrefix}${relativePath}`,
     })),
+    ...(options.directChildren ?? []).map((relativePath) => ({
+      kind: "directChildren" as const,
+      path: `${packagePrefix}${relativePath}`,
+    })),
+    ...(options.rootDirectChildren ?? []).map((rootPath) => ({
+      kind: "directChildren" as const,
+      path: rootPath,
+    })),
     ...(options.rootFiles ?? []).map((rootPath) => ({ kind: "file" as const, path: rootPath })),
     ...(options.rootPrefixes ?? []).map((rootPath) => ({ kind: "prefix" as const, path: rootPath })),
   ];
@@ -58,7 +87,7 @@ function capability(
   label: string,
   options: Parameters<typeof rules>[1] & {
     parentKey?: string | null;
-    kind?: "module" | "entry";
+    kind?: SourceModuleKind;
     interfaceFiles?: readonly string[];
     interfacePrefixes?: readonly string[];
   },
@@ -391,6 +420,281 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     ],
     prefixes: ["constants/", "types/", "import/"],
   }),
+
+  capability("core", "shared-contracts", "核心公共契约", {
+    kind: "orchestrator",
+    files: [
+      "README.md", "action-glyph-contract.ts", "index.ts", "module-contract.ts", "package.json",
+      "page-style-preview.ts", "surface-navigation-contract.ts", "tsconfig.json", "ui-registry.ts",
+    ],
+    interfaceFiles: [
+      "action-glyph-contract.ts", "index.ts", "module-contract.ts", "page-style-preview.ts",
+      "surface-navigation-contract.ts", "ui-registry.ts",
+    ],
+  }),
+  capability("core", "hooks", "通用交互 Hooks", {
+    prefixes: ["hooks/"],
+    interfaceFiles: ["hooks/index.ts", "hooks/useScrollToIndexedItem.ts"],
+  }),
+  capability("core", "period", "期间语义", {
+    prefixes: ["period/"],
+    interfaceFiles: ["period/index.ts"],
+  }),
+  capability("core", "routing", "部署单元路由", {
+    prefixes: ["routing/"],
+    interfaceFiles: ["routing/index.ts"],
+  }),
+  capability("core", "search", "通用搜索", {
+    prefixes: ["search/"],
+    interfaceFiles: ["search/index.ts"],
+  }),
+  capability("core", "ui-surfaces", "核心界面契约", {
+    prefixes: ["ui/"],
+  }),
+  capability("core", "surface-runtime", "UI Surface 运行时", {
+    parentKey: "ui-surfaces",
+    prefixes: ["ui/"],
+    interfaceFiles: [
+      "ui/CreateSurface.tsx", "ui/DataSurface.types.ts", "ui/FormSurface.tsx", "ui/InputSurface.tsx",
+      "ui/MobileExperienceBoundary.tsx", "ui/NavigationSurface.tsx", "ui/NavigationSurface.types.ts",
+      "ui/SurfaceContractTypes.ts", "ui/internal/action/ActionControls.tsx",
+      "ui/internal/action/ActionGlyphs.tsx", "ui/internal/action/CreateActionControls.tsx",
+      "ui/internal/common/Badge.tsx", "ui/internal/common/CommandButton.tsx",
+      "ui/internal/common/DisclosureRecordCard.tsx", "ui/internal/common/DropdownSurface.tsx",
+      "ui/internal/common/FloatingPortalSurface.tsx", "ui/internal/common/SplitWorkspaceMasterContext.tsx",
+      "ui/internal/common/card-utils.ts", "ui/internal/common/interactionTokens.ts",
+      "ui/internal/common/text-overflow.ts", "ui/internal/create/CreateSurfaceAnchorContext.tsx",
+      "ui/internal/form/FormStyles.ts", "ui/internal/input/CalendarDateInput.tsx",
+      "ui/internal/input/CalendarDatePopover.tsx", "ui/internal/input/FieldShell.tsx",
+      "ui/internal/input/InputSurfaceTypes.ts", "ui/internal/input/RemovableTag.tsx",
+      "ui/internal/input/adaptive-control-width.ts", "ui/internal/input/field-context.tsx",
+      "ui/internal/input/input-surface-choice-renderers.tsx", "ui/internal/page/PageSurface.commands.tsx",
+    ],
+  }),
+  capability("core", "table-filtering", "表格与筛选", {
+    parentKey: "surface-runtime",
+    files: ["ui/internal/input/FieldValueFilter.tsx", "ui/internal/input/SearchInput.tsx"],
+    prefixes: ["ui/internal/data/", "ui/internal/toolbar/"],
+  }),
+  capability("core", "field-references", "字段引用与选择", {
+    parentKey: "surface-runtime",
+    files: [
+      "ui/NavigationContextSelector.tsx", "ui/SelectorSurface.tsx", "ui/SelectorSurface.types.ts",
+      "ui/selector-tree-expansion.ts", "ui/internal/input/FkFieldInput.tsx",
+      "ui/internal/input/SearchableOptionInput.tsx", "ui/internal/input/autocomplete-list-styles.ts",
+      "ui/internal/input/autocomplete-option-display.ts",
+    ],
+    prefixes: ["ui/internal/selection/"],
+    interfaceFiles: [
+      "ui/internal/input/FkFieldInput.tsx", "ui/internal/input/SearchableOptionInput.tsx",
+      "ui/internal/selection/SelectionGrid.tsx", "ui/internal/selection/SelectionParts.tsx",
+    ],
+  }),
+  capability("core", "visualization", "可视化", {
+    parentKey: "surface-runtime",
+    files: ["ui/VisualizationSurface.tsx", "ui/VisualizationSurfaceTypes.ts"],
+    prefixes: ["ui/internal/visualization/"],
+  }),
+  capability("core", "showcase", "核心界面样例组合", {
+    kind: "orchestrator",
+    prefixes: ["showcase/"],
+  }),
+
+  capability("data-model", "schema-entry", "数据模型组合入口", {
+    kind: "entry",
+    rootFiles: ["prisma/schema.prisma", "prisma.config.ts"],
+  }),
+  capability("data-model", "model-contracts", "领域数据模型", {
+    rootPrefixes: ["prisma/models/"],
+  }),
+  capability("data-model", "migration-history", "迁移历史", {
+    kind: "appendOnlyHistory",
+    rootPrefixes: ["prisma/migrations/"],
+  }),
+  capability("data-model", "seed-data", "种子与参考数据", {
+    rootPrefixes: ["prisma/seed-data/"],
+  }),
+  capability("data-model", "data-release-contracts", "数据发布契约", {
+    rootFiles: ["ops/data-release-reference-contracts.mjs"],
+  }),
+
+  capability("operations", "operations-foundation", "生产运行底座", {
+    rootPrefixes: [
+      "ops/", "scripts/import/", "scripts/lib/", "scripts/migrate/", "scripts/repair/",
+      "scripts/deploy/", "scripts/runtime/", "scripts/testing/",
+    ],
+    rootFiles: OPERATIONS_FOUNDATION_FILES,
+  }),
+  capability("operations", "operations-commands", "生产运行命令", {
+    kind: "orchestrator",
+    parentKey: "operations-foundation",
+    rootDirectChildren: ["ops/"],
+  }),
+  capability("operations", "operations-control", "生产控制面命令", {
+    kind: "orchestrator",
+    parentKey: "operations-commands",
+    rootDirectChildren: ["ops/"],
+  }),
+  capability("operations", "release-ci", "Release CI", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_RELEASE_CI_FILES,
+  }),
+  capability("operations", "artifact-supply", "制品构建与供应", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_ARTIFACT_SUPPLY_FILES,
+  }),
+  capability("operations", "deployment-cutover", "部署切换", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_DEPLOYMENT_CUTOVER_FILES,
+  }),
+  capability("operations", "runtime-dependencies", "运行依赖", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_RUNTIME_DEPENDENCY_FILES,
+  }),
+  capability("operations", "data-release", "数据发布", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_DATA_RELEASE_FILES,
+  }),
+  capability("operations", "deploy-runtime", "部署切换运行时", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/deploy/"],
+  }),
+  capability("operations", "release-pipeline", "发布控制流水线", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/release/"],
+  }),
+  capability("operations", "release-ci-steps", "Release CI 步骤", {
+    parentKey: "release-pipeline",
+    rootPrefixes: ["ops/release/attempts/", "ops/release/validation/"],
+  }),
+  capability("operations", "release-ready", "Ready 与制品验收", {
+    parentKey: "release-pipeline",
+    rootPrefixes: ["ops/release/readiness/"],
+  }),
+  capability("operations", "release-control", "发布契约与控制", {
+    parentKey: "release-pipeline",
+    rootPrefixes: [
+      "ops/release/candidate/", "ops/release/contracts/", "ops/release/control/", "ops/release/diagnostics/",
+    ],
+  }),
+  capability("operations", "database-runtime", "数据库运行保障", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/postgresql/"],
+  }),
+  capability("operations", "cache-runtime", "运行缓存治理", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/cache/"],
+  }),
+  capability("operations", "document-runtime", "文档运行环境", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/onlyoffice/"],
+  }),
+  capability("operations", "operations-support", "生产运行公共脚本", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/lib/", "scripts/lib/"],
+  }),
+  capability("operations", "data-import", "生产数据导入", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/import/"],
+  }),
+  capability("operations", "historical-maintenance", "历史迁移修复", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/migrate/", "scripts/repair/"],
+  }),
+  capability("operations", "data-migration", "生产数据迁移", {
+    parentKey: "historical-maintenance",
+    rootPrefixes: ["scripts/migrate/"],
+  }),
+  capability("operations", "data-repair", "生产数据修复", {
+    parentKey: "historical-maintenance",
+    rootPrefixes: ["scripts/repair/"],
+  }),
+  capability("operations", "deploy-model", "部署模型生成", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/deploy/"],
+  }),
+  capability("operations", "agent-runtime", "智能体生产运行时", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/runtime/"],
+  }),
+  capability("operations", "operations-policy", "生产运行校验策略", {
+    parentKey: "operations-foundation",
+    rootFiles: [
+      "scripts/check/check-permission-action-grants.mjs",
+      "scripts/check/check-prisma-deploy-status.js",
+      "scripts/ci/check-migration-policy.mjs",
+      "scripts/ci/verify-artifact-manifest.mjs",
+      "scripts/testing/module-impact-map.ts",
+    ],
+  }),
+  capability("operations", "runtime-provisioning", "生产运行初始化", {
+    parentKey: "operations-foundation",
+    rootFiles: [
+      "scripts/provision-agent-workforce.mjs",
+      "scripts/seed-resources-runtime.mjs",
+      "scripts/write-resource-manifest.ts",
+    ],
+  }),
+
+  capability("tooling", "tooling-foundation", "开发治理底座", {
+    rootPrefixes: ["scripts/", "e2e/", ".github/workflows/"],
+  }),
+  capability("tooling", "tooling-entry", "开发治理组合入口", {
+    kind: "entry",
+    rootFiles: ["dependency-cruiser.config.cjs", "next.config.ts", "package.json", "playwright.config.ts"],
+  }),
+  capability("tooling", "architecture-governance", "架构治理", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/arch/"],
+  }),
+  capability("tooling", "static-analysis", "静态检查", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/check/"],
+  }),
+  capability("tooling", "continuous-integration", "持续集成", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/ci/"],
+  }),
+  capability("tooling", "deployment-tooling", "部署开发工具", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/deploy/"],
+  }),
+  capability("tooling", "developer-runtime", "开发运行环境", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/runtime/"],
+  }),
+  capability("tooling", "test-harness", "测试支撑", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/testing/", "e2e/"],
+  }),
+  capability("tooling", "test-infrastructure", "测试基础设施", {
+    parentKey: "test-harness",
+    rootPrefixes: ["scripts/testing/"],
+  }),
+  capability("tooling", "e2e", "E2E", {
+    parentKey: "test-harness",
+    rootPrefixes: ["e2e/"],
+  }),
+  capability("tooling", "code-generation", "代码与文档生成", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/generate-action-contract-docs.ts", "scripts/generate-api-agent-guide.ts",
+      "scripts/generate-core-ui-surface-contracts.test.ts", "scripts/generate-core-ui-surface-contracts.ts",
+      "scripts/generate-doc-editor-qc-templates.ts", "scripts/generate-permission-action-docs.ts",
+      "scripts/generate-permission-review-baseline.ts", "scripts/generate-production-agent-docs.ts",
+    ],
+    rootPrefixes: ["scripts/generate/", "scripts/reference/"],
+  }),
+  capability("tooling", "tooling-commands", "开发治理命令", {
+    kind: "orchestrator",
+    parentKey: "tooling-foundation",
+    rootDirectChildren: ["scripts/"],
+  }),
+  capability("tooling", "tooling-command-runtime", "开发命令运行时", {
+    kind: "orchestrator",
+    parentKey: "tooling-commands",
+    rootDirectChildren: ["scripts/"],
+  }),
 ] as const;
 
 function validateSourceCapabilityInterfaceCatalog(
@@ -408,7 +712,10 @@ function validateSourceCapabilityInterfaceCatalog(
 validateSourceCapabilityInterfaceCatalog(SOURCE_CAPABILITY_DECLARATIONS);
 
 export function matchesCapabilityRule(relativePath: string, rule: SourceCapabilityPathRule) {
-  return rule.kind === "file" ? relativePath === rule.path : relativePath.startsWith(rule.path);
+  if (rule.kind === "file") return relativePath === rule.path;
+  if (rule.kind === "prefix") return relativePath.startsWith(rule.path);
+  if (!relativePath.startsWith(rule.path)) return false;
+  return !relativePath.slice(rule.path.length).includes("/");
 }
 
 const CAPABILITY_KEY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -515,8 +822,12 @@ export function sourceCapabilityDepth(
 }
 
 export function capabilityGovernedModuleForPath(relativePath: string) {
-  return CAPABILITY_GOVERNED_MODULE_KEYS.find((moduleKey) =>
-    relativePath.startsWith(`packages/${moduleKey}/`)) ?? null;
+  const owners = sourceModuleDeclarationsForPath(relativePath);
+  if (owners.length !== 1) return null;
+  const moduleKey = owners[0].key;
+  return CAPABILITY_GOVERNED_MODULE_KEYS.includes(moduleKey as CapabilityGovernedModuleKey)
+    ? moduleKey as CapabilityGovernedModuleKey
+    : null;
 }
 
 /**
@@ -568,8 +879,8 @@ export function parseCapabilityOwnershipBaseline(parsed: unknown): CapabilityOwn
     if (!Array.isArray(values) || values.some((value) => typeof value !== "string")) {
       throw new Error(`[source-code-analysis] invalid capability ownership baseline for ${moduleKey}`);
     }
-    const expectedPrefix = `packages/${moduleKey}/`;
-    if (values.some((value) => !value.startsWith(expectedPrefix))) {
+    if (values.some((value) => !sourceModuleDeclarationsForPath(value)
+      .some((declaration) => declaration.key === moduleKey))) {
       throw new Error(`[source-code-analysis] capability baseline path escapes ${moduleKey}`);
     }
     if (new Set(values).size !== values.length) {

@@ -1,4 +1,36 @@
-export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 7 as const;
+export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 8 as const;
+
+export const SOURCE_CODE_ANALYSIS_MODULE_KINDS = [
+  "module",
+  "entry",
+  "orchestrator",
+  "appendOnlyHistory",
+  "retired",
+] as const;
+
+export type SourceCodeAnalysisModuleKind = (typeof SOURCE_CODE_ANALYSIS_MODULE_KINDS)[number];
+
+export const SOURCE_CODE_ANALYSIS_MODULE_HEALTH_WARNING_CODES = [
+  "high-leaf-fan-out",
+  "legacy-implementation-bypass",
+  "oversized-leaf-files",
+  "oversized-leaf-lines",
+  "oversized-orchestration",
+  "retired-module-referenced",
+] as const;
+
+export type SourceCodeAnalysisModuleHealthWarningCode =
+  (typeof SOURCE_CODE_ANALYSIS_MODULE_HEALTH_WARNING_CODES)[number];
+
+export interface SourceCodeAnalysisModuleHealthWarning {
+  moduleId: string;
+  code: SourceCodeAnalysisModuleHealthWarningCode;
+  actual: number;
+  threshold: number;
+  requiresHygieneReview: true;
+  reviewStatus: "accepted" | "required";
+  reviewInvalidationReason: string | null;
+}
 
 export const SOURCE_CODE_ANALYSIS_MODULE_CATEGORIES = [
   "product",
@@ -60,6 +92,11 @@ export const SOURCE_CODE_ANALYSIS_DEPENDENCY_KINDS = [
   "dynamicImport",
   "reExport",
   "typeOnlyReExport",
+  "pythonImport",
+  "shellSource",
+  "shellExecute",
+  "workflowCommand",
+  "packageScriptCommand",
 ] as const;
 
 export type SourceCodeAnalysisDependencyKind = (typeof SOURCE_CODE_ANALYSIS_DEPENDENCY_KINDS)[number];
@@ -110,8 +147,11 @@ export interface SourceCodeAnalysisReciprocalRoleDependency {
 export interface SourceCodeAnalysisDependencyFileCycle {
   classification: "runtime" | "type-assisted";
   paths: string[];
+  cyclePath: string[];
   cells: SourceCodeAnalysisDependencyCell[];
   evidence: SourceCodeAnalysisDependencyEvidence[];
+  blocking: true;
+  waivable: false;
 }
 
 export const SOURCE_CODE_ANALYSIS_INVALID_DIRECTION_REASONS = [
@@ -179,6 +219,7 @@ export interface SourceCodeAnalysisCapabilityDependency {
 export interface SourceCodeAnalysisCapabilityRow {
   moduleKey: string;
   key: string;
+  kind: SourceCodeAnalysisModuleKind;
   parentKey: string | null;
   depth: number;
   label: string;
@@ -239,12 +280,15 @@ export interface SourceCodeAnalysisSnapshot {
     legacyCapabilityContractViolationCount: number;
     newCapabilityContractViolationCount: number;
     staleCapabilityContractBaselineCount: number;
+    moduleHealthWarningCount: number;
+    acceptedModuleHealthWarningCount: number;
   };
   modules: SourceCodeAnalysisModuleRow[];
   capabilities: SourceCodeAnalysisCapabilityRow[];
   dependencyEdges: SourceCodeAnalysisDependencyEdge[];
   capabilityDependencyEdges: SourceCodeAnalysisCapabilityDependencyEdge[];
   capabilityContractViolations: SourceCodeAnalysisCapabilityContractViolation[];
+  moduleHealthWarnings: SourceCodeAnalysisModuleHealthWarning[];
   reciprocalRoleDependencies: SourceCodeAnalysisReciprocalRoleDependency[];
   dependencyFileCycles: SourceCodeAnalysisDependencyFileCycle[];
   invalidDependencyDirections: SourceCodeAnalysisInvalidDependencyDirection[];
@@ -283,6 +327,7 @@ function hasValidCapabilityHierarchy(value: unknown): value is SourceCodeAnalysi
   if (!value.every((capability) =>
     isRecord(capability)
     && isCapabilityKey(capability.key)
+    && SOURCE_CODE_ANALYSIS_MODULE_KINDS.includes(capability.kind as SourceCodeAnalysisModuleKind)
     && isNullableCapabilityKey(capability.parentKey)
     && typeof capability.depth === "number"
     && Number.isInteger(capability.depth)
@@ -329,6 +374,12 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
     && Array.isArray(candidate.dependencyFileCycles)
     && candidate.dependencyFileCycles.every((cycle) =>
       isRecord(cycle)
+      && cycle.blocking === true
+      && cycle.waivable === false
+      && Array.isArray(cycle.paths)
+      && Array.isArray(cycle.cyclePath)
+      && cycle.cyclePath.length >= 2
+      && cycle.cyclePath[0] === cycle.cyclePath[cycle.cyclePath.length - 1]
       && Array.isArray(cycle.cells)
       && cycle.cells.every((cell) => isRecord(cell) && isNullableCapabilityKey(cell.capabilityKey)))
     && typeof candidate.summary?.invalidDependencyDirectionCount === "number"
@@ -341,6 +392,8 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
     && typeof candidate.summary?.legacyCapabilityContractViolationCount === "number"
     && typeof candidate.summary?.newCapabilityContractViolationCount === "number"
     && typeof candidate.summary?.staleCapabilityContractBaselineCount === "number"
+    && typeof candidate.summary?.moduleHealthWarningCount === "number"
+    && typeof candidate.summary?.acceptedModuleHealthWarningCount === "number"
     && hasValidCapabilityHierarchy(candidate.capabilities)
     && Array.isArray(candidate.capabilityDependencyEdges)
     && candidate.capabilityDependencyEdges.every((edge) =>
@@ -360,6 +413,18 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
       && SOURCE_CODE_ANALYSIS_CAPABILITY_CONTRACT_REASONS.includes(
         violation.reason as SourceCodeAnalysisCapabilityContractReason,
       ))
+    && Array.isArray(candidate.moduleHealthWarnings)
+    && candidate.moduleHealthWarnings.every((warning) =>
+      isRecord(warning)
+      && typeof warning.moduleId === "string"
+      && SOURCE_CODE_ANALYSIS_MODULE_HEALTH_WARNING_CODES.includes(
+        warning.code as SourceCodeAnalysisModuleHealthWarningCode,
+      )
+      && typeof warning.actual === "number"
+      && typeof warning.threshold === "number"
+      && warning.requiresHygieneReview === true
+      && (warning.reviewStatus === "accepted" || warning.reviewStatus === "required")
+      && (warning.reviewInvalidationReason === null || typeof warning.reviewInvalidationReason === "string"))
     && Array.isArray(candidate.invalidDependencyDirections)
     && candidate.invalidDependencyDirections.every((direction) =>
       isRecord(direction)

@@ -76,11 +76,14 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       legacyCapabilityContractViolationCount: 0,
       newCapabilityContractViolationCount: 0,
       staleCapabilityContractBaselineCount: 0,
+      moduleHealthWarningCount: 0,
+      acceptedModuleHealthWarningCount: 0,
     },
     modules,
     capabilities: [{
       moduleKey: "work",
       key: "meetings",
+      kind: "module",
       parentKey: null,
       depth: 2,
       label: "会议",
@@ -123,6 +126,7 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       typeOnlyReExportCount: 0,
     }],
     capabilityContractViolations: [],
+    moduleHealthWarnings: [],
     reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
     invalidDependencyDirections: [],
@@ -250,11 +254,14 @@ test("selected raw role distinguishes directions, aggregate reciprocity, real cy
   const fileCycles = [{
     classification: "runtime" as const,
     paths: ["packages/work/ui.ts", "packages/settings/ui.ts"],
+    cyclePath: ["packages/work/ui.ts", "packages/settings/ui.ts", "packages/work/ui.ts"],
     cells: [
       { moduleKey: "work", capabilityKey: "meetings", role: "ui" as const },
       { moduleKey: "settings", capabilityKey: null, role: "ui" as const },
     ],
     evidence: [],
+    blocking: true as const,
+    waivable: false as const,
   }];
   assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", bidirectionalEdges, fileCycles, selectedCell), "success");
 

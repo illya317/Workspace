@@ -90,7 +90,8 @@ export function capabilityContractViolationReason(
   const targetDeclaration = targetKey === null ? null : byId.get(`${target.moduleKey}\0${targetKey}`);
   if (targetDeclaration?.interface.some((rule) => matchesCapabilityRule(target.path, rule))) return null;
   const sourceDeclaration = sourceKey === null ? null : byId.get(`${source.moduleKey}\0${sourceKey}`);
-  if (sourceDeclaration?.kind === "entry" && ROOT_COMPOSITION_ROLES.has(source.role)) return null;
+  if ((sourceDeclaration?.kind === "entry" || sourceDeclaration?.kind === "orchestrator")
+    && ROOT_COMPOSITION_ROLES.has(source.role)) return null;
   if (isAncestor(source.moduleKey, sourceKey, targetKey, byId)) {
     return ROOT_COMPOSITION_ROLES.has(source.role) ? null : "ancestorImportsDescendantImplementation";
   }

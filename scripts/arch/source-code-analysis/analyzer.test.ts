@@ -48,9 +48,17 @@ test("source code analysis assigns every governed file to one declared module an
   assert.ok(snapshot.modules.some((module) => module.key === "application-shell"));
   assert.ok(snapshot.modules.some((module) => module.key === "data-model"));
   assert.ok(snapshot.modules.some((module) => module.key === "operations"));
-  for (const moduleKey of ["platform", "finance", "work", "hr"]) {
+  for (const moduleKey of ["platform", "finance", "work", "hr", "core", "data-model", "operations", "tooling"]) {
     assert.ok(snapshot.capabilities.some((capability) => capability.moduleKey === moduleKey));
   }
+  assert.equal(
+    snapshot.summary.moduleHealthWarningCount,
+    snapshot.moduleHealthWarnings.filter((warning) => warning.reviewStatus === "required").length,
+  );
+  assert.equal(
+    snapshot.summary.acceptedModuleHealthWarningCount,
+    snapshot.moduleHealthWarnings.filter((warning) => warning.reviewStatus === "accepted").length,
+  );
   assert.equal(
     snapshot.capabilityDependencyEdges.reduce((sum, edge) => sum + edge.importCount, 0),
     snapshot.dependencyEdges.reduce((sum, edge) => sum + edge.importCount, 0),
