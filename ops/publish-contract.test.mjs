@@ -6,6 +6,10 @@ import { join } from "node:path";
 import test from "node:test";
 
 const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
+const prepareHelpers = readFileSync(
+  new URL("./release/plan/prepare-helpers.sh", import.meta.url), "utf8",
+);
+const prepareFlow = `${publish}\n${prepareHelpers}`;
 const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "utf8");
 const promoteRelease = readFileSync(new URL("./promote-release-branch.sh", import.meta.url), "utf8");
 const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
@@ -31,7 +35,7 @@ const publishDatabaseReplacement = readFileSync(new URL("./publish-database-repl
 const replaceProductionDatabase = readFileSync(new URL("./replace-production-database.sh", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
-  for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
+  for (const [name, source] of Object.entries({ publish, prepareHelpers, publishCnb, releaseToCnb, deploy })) {
     assert.doesNotMatch(source, /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]/u, name);
   }
 });
@@ -55,9 +59,10 @@ test("prepare seals one monotonic plan and every later stage uses the same dispa
   assert.match(publish, /--cnb-from[\s\S]*?validate\)[\s\S]*?validate_executor=cnb; build_executor=cnb; deploy_executor=cnb/);
   assert.match(publish, /--fast[\s\S]*?release_mode=fast/);
   assert.match(publish, /--defer-fast-validation/);
-  assert.match(publish, /CHECK_RELEASE_MODE=fast[\s\S]*?release-task-graphs/);
-  assert.match(publish, /skip-fast-validation/);
-  assert.match(publish, /fast-task-graph[\s\S]*?validate 已终止/);
+  assert.match(publish, /source "\$SCRIPT_DIR\/release\/plan\/prepare-helpers\.sh"/);
+  assert.match(prepareFlow, /CHECK_RELEASE_MODE=fast[\s\S]*?release-task-graphs/);
+  assert.match(prepareFlow, /skip-fast-validation/);
+  assert.match(prepareFlow, /fast-task-graph[\s\S]*?validate 已终止/);
 });
 
 test("prepare alone promotes main into the dedicated release worktree by fast-forward only", () => {
@@ -79,7 +84,7 @@ test("prepare alone promotes main into the dedicated release worktree by fast-fo
   assert.match(publish, /ln -s "\$RELEASE_CI_ENV_FILE" "\$release_env_target"/);
   assert.match(publish, /export RELEASE_CI_ENV_FILE/);
   assert.match(publish, /validate_release_ci_environment/);
-  assert.match(publish, /validate_local_deploy_credentials/);
+  assert.match(prepareFlow, /validate_local_deploy_credentials/);
   assert.match(publish, /release \.env 必须是指向受控 CI 环境文件的符号链接/);
 });
 
