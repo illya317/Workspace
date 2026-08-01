@@ -238,15 +238,6 @@ NODE
   echo "==> 已验证 ${RELEASE_TRANSPORT} source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
 
-run_local_checks() {
-  echo "==> 安装 CI 依赖..."
-  npm ci --no-audit --fund=false --loglevel=error
-
-  echo "==> 运行静态检查..."
-  npm run deploy:preflight:ci
-  npm run docs:check
-}
-
 build_artifact() {
   ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
   ARTIFACT_MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"

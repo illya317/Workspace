@@ -10,7 +10,6 @@ PM2_NAME="${PM2_NAME:-workspace}"
 PM2_WECOM_BOT_NAME="${PM2_WECOM_BOT_NAME:-${PM2_NAME}-wecom-agent}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-}"
 HEALTHCHECK_URL="${HEALTHCHECK_URL:-}"
-RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-0}"
 ENV_CONTENT="${ENV_CONTENT:-}"
 REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-}"
 REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-}"
@@ -228,11 +227,6 @@ source "$SCRIPT_DIR/deploy/atomic-cutover.sh"
 # shellcheck source=ops/deploy/health.sh
 source "$SCRIPT_DIR/deploy/health.sh"
 
-if [ "$RUN_LOCAL_CHECKS" = "1" ] && ! command -v npm >/dev/null 2>&1; then
-  echo "==> 当前 CI 容器未提供 npm，自动跳过本地静态检查"
-  RUN_LOCAL_CHECKS=0
-fi
-
 echo "==> 校验 CI 基础命令..."
 require_local_cmd ssh
 require_local_cmd rsync
@@ -253,12 +247,7 @@ if [ -n "${RELEASE_TIMING_FILE:-}" ]; then
   RELEASE_TIMING_ENABLED=1
 fi
 
-if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
-  run_deploy_stage checks.local run_local_checks
-else
-  echo "==> 跳过本地静态检查（RUN_LOCAL_CHECKS=${RUN_LOCAL_CHECKS}）"
-fi
-
+echo "==> validate 回执已冻结；deploy 不运行源码、Prisma、文档或编译检查"
 echo "==> 源码与 migration 静态门禁已由 validate receipt 证明；deploy 只校验生产 migration 区间"
 
 run_deploy_stage artifact.verify build_artifact

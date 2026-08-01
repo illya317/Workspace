@@ -36,6 +36,10 @@ test("deploy composition resolves private modules from its own directory", () =>
     'source "$SCRIPT_DIR/deploy/transport.sh"',
     'source "$SCRIPT_DIR/deploy/health.sh"',
   ]);
+  assert.doesNotMatch(deploy, /RUN_LOCAL_CHECKS/);
+  assert.doesNotMatch(deploy, /checks\.local/);
+  assert.doesNotMatch(deploy, /run_local_checks/);
+  assert.doesNotMatch(deploy, /npm run (?:deploy:preflight:ci|docs:check)/);
 });
 
 function embeddedPrograms(runtime, delimiter) {
