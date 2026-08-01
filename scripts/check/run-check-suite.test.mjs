@@ -34,6 +34,7 @@ test("overlapping suite requests resolve to one stable task plan", () => {
 test("suite runner executes each resolved task once and stops on the first failure", () => {
   const calls = [];
   const status = runCheckSuites(["contracts", "contracts"], {
+    createTaskCache: () => ({ read() { return null; }, write() {} }),
     spawn: (command, args) => {
       calls.push([command, args]);
       return { status: calls.length === 2 ? 9 : 0 };

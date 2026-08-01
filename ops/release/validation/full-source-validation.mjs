@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { taskGraphDigest, taskReceiptDigest } from "../../../scripts/check/check-task-inputs.mjs";
+import { taskGraphDigest, taskReceiptDigest } from "../contracts/task-proof-contract.mjs";
 
 const COMMAND = [
   "node",

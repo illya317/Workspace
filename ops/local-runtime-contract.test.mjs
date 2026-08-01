@@ -60,7 +60,7 @@ test("repository scripts avoid the tsx CLI IPC server", () => {
 
   assert.doesNotMatch(read("scripts/check/run-domain-validation-changed.js"), /spawnSync\(["']npx["'], \[["']tsx["']/);
   assert.doesNotMatch(read("ops/build-standalone-artifact.sh"), /\bnpx\s+tsx\b/);
-  assert.match(read("scripts/check/with-check-lock.js"), /commandRest\.includes\("--import"\)/);
+  assert.doesNotMatch(read("scripts/check/with-check-lock.js"), /spawn\(["'](?:npx|tsx)["']/);
   assert.match(read("scripts/check/with-check-lock.js"), /process\.once\("SIGHUP", handleSignal\)/);
 });
 

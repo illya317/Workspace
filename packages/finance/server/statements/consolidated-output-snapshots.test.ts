@@ -112,7 +112,7 @@ function reportPayload(
       sourceFingerprint: batch.sourceFingerprint,
       rateFingerprint: batch.rateFingerprint,
     },
-  } as ConsolidatedReportOutputPackage;
+  } as unknown as ConsolidatedReportOutputPackage;
 }
 
 test("v2 input fingerprint ignores persistence timestamps and relation order", () => {

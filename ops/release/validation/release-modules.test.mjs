@@ -15,7 +15,7 @@ import {
 } from "../contracts/release-receipt.mjs";
 import { diagnoseSlowRelease } from "../diagnostics/slow-flow.mjs";
 import { runFullSourceValidation } from "./full-source-validation.mjs";
-import { taskGraphDigest, taskReceiptDigest } from "../../../scripts/check/check-task-inputs.mjs";
+import { taskGraphDigest, taskReceiptDigest } from "../contracts/task-proof-contract.mjs";
 
 test("candidate identity is content based and ignores commit metadata", () => {
   const first = captureCandidateIdentity({ repositoryRoot: process.cwd(), revision: "HEAD" });

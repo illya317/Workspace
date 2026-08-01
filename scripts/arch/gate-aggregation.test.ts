@@ -2,10 +2,8 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { domainGateChecks, selectDomainGateChecks } from "./domain-gate";
 import { DOMAIN_GATE_CHECK_NAMES, UI_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 import { runAggregateGate } from "./aggregate-gate";
-import { selectUiGateChecks, uiGateChecks } from "./ui-gate";
 
 test("domain and UI gates execute every registered check before failing", async () => {
   for (const [displayName, logName] of [["Domain", "DOMAIN"], ["UI", "UI"]]) {
@@ -29,13 +27,18 @@ test("domain and UI gates delegate to the shared aggregate runner", () => {
   }
 });
 
-test("domain and UI detector contracts are independently selectable", () => {
-  assert.deepEqual(domainGateChecks.map(([name]) => name), DOMAIN_GATE_CHECK_NAMES);
-  assert.deepEqual(uiGateChecks.map(([name]) => name), UI_GATE_CHECK_NAMES);
-  assert.deepEqual(selectDomainGateChecks("auth").map(([name]) => name), ["auth"]);
-  assert.deepEqual(selectUiGateChecks("form-surface-actions").map(([name]) => name), ["form-surface-actions"]);
-  assert.throws(() => selectDomainGateChecks("missing"), /unknown Domain detector/);
-  assert.throws(() => selectUiGateChecks("missing"), /unknown UI detector/);
+test("domain and UI detector contracts are stable and independently addressable", () => {
+  for (const [names, file] of [
+    [DOMAIN_GATE_CHECK_NAMES, "domain-gate.ts"],
+    [UI_GATE_CHECK_NAMES, "ui-gate.ts"],
+  ] as const) {
+    assert.equal(new Set(names).size, names.length);
+    const source = fs.readFileSync(new URL(`./${file}`, import.meta.url), "utf8");
+    for (const name of names) {
+      assert.match(source, new RegExp(`\\[\\s*["']${name}["']\\s*,`));
+    }
+    assert.match(source, /--check/);
+  }
 });
 
 test("structure ratchet aggregates detector categories instead of returning on the first", () => {

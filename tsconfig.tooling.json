@@ -18,7 +18,8 @@
     "e2e/**/*.cts",
     "scripts/**/*.ts",
     "scripts/**/*.mts",
-    "scripts/**/*.cts"
+    "scripts/**/*.cts",
+    "scripts/**/*.mjs"
   ],
   "exclude": ["node_modules", ".cache", "scripts/migrate/sqlite-legacy"],
   "references": [

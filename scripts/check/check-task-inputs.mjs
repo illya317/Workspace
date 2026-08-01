@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
+export { taskGraphDigest, taskReceiptDigest } from "../../ops/release/contracts/task-proof-contract.mjs";
 import { checkTaskInputContract } from "./check-task-contracts.mjs";
 
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
@@ -276,12 +277,4 @@ export function captureCheckTaskInput(task, {
       environmentKeys: environmentFacts.keys,
     },
   };
-}
-
-export function taskReceiptDigest(receiptWithoutDigest) {
-  return digest(canonical(receiptWithoutDigest));
-}
-
-export function taskGraphDigest(graphWithoutDigest) {
-  return digest(canonical(graphWithoutDigest));
 }

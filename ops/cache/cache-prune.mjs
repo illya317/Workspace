@@ -40,7 +40,7 @@ function safePolicyRoot(repositoryRoot, relativeRoot) {
   return target;
 }
 
-function sizeUnder(target, issues) {
+function sizeUnder(target) {
   let size = 0;
   const pending = [target];
   while (pending.length > 0) {
@@ -79,7 +79,7 @@ function childEntries(root, className, protectedKeys = new Set(), issues = []) {
         className,
         key: entry.name,
         mtimeMs: stat.mtimeMs,
-        size: sizeUnder(target, issues),
+        size: sizeUnder(target),
         protected: protectedKeys.has(entry.name),
       }];
     } catch (error) {

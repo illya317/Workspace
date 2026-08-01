@@ -22,8 +22,9 @@ test("CNB target deploy defaults to monolith and unit release is trusted but sha
   assert.match(deploy, /release-gate-receipt\.mjs artifact-verify/);
   assert.match(deploy, /--target "\$TARGET_ID"/);
   assert.match(deploy, /MODE="\$\{DEPLOY_UNIT_MODE:-shadow\}"/);
-  assert.match(deploy, /exec bash \.\/ops\/deploy\.sh/);
+  assert.match(deploy, /bash \.\/ops\/deploy\.sh[\s\S]*pin_production_artifact[\s\S]*exit 0/);
   assert.match(deploy, /DEPLOY_UNIT_TRUSTED_BUILD=1/);
-  assert.match(deploy, /exec bash \.\/ops\/deploy-unit\.sh deploy "\$UNIT_ID" "\$MODE"/);
+  assert.match(deploy, /bash \.\/ops\/deploy-unit\.sh deploy "\$UNIT_ID" "\$MODE"/);
+  assert.match(deploy, /\[ "\$MODE" != "activate" \] \|\| pin_production_artifact/);
   assert.doesNotMatch(deploy, /rollback/);
 });
