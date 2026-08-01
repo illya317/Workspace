@@ -172,7 +172,7 @@ export function verifyCandidate(repository, identity) {
 }
 
 export function runExactConfigProbe(repository, targetId, env = process.env) {
-  const runner = path.join(path.resolve(repository), "ops/release/validation/artifact-preflight-unit.ts");
+  const runner = path.join(path.resolve(repository), "ops/release/validation/artifact-preflight-unit.mjs");
   const result = spawnSync(process.execPath, [
     "--conditions=react-server", "--import", "tsx", runner,
     "--repository", path.resolve(repository), "--target", targetId,

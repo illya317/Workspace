@@ -10,8 +10,8 @@ import { assertDeployUnitApp } from "../../../scripts/deploy/deploy-unit-app-gen
 
 const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
 
-function parseArgs(argv: string[]) {
-  const options: { repository?: string; target?: string } = {};
+function parseArgs(argv) {
+  const options = {};
   for (let index = 0; index < argv.length; index += 1) {
     const key = argv[index];
     const value = argv[++index];
@@ -23,7 +23,7 @@ function parseArgs(argv: string[]) {
   return options;
 }
 
-export async function inspectExactNextConfig({ repository, target }: { repository: string; target: string }) {
+export async function inspectExactNextConfig({ repository, target }) {
   const repositoryRoot = fs.realpathSync(path.resolve(repository));
   if (!TARGET_PATTERN.test(target)) throw new Error("artifact preflight target is invalid");
   if (target !== "monolith") assertDeployUnitApp(target);
