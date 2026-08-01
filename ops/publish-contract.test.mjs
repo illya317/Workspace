@@ -23,7 +23,7 @@ test("ci aggregates independent preflight, source, and artifact results before R
   assert.match(publish, /set \+e[\s\S]*?validate_release_inputs[\s\S]*?capture_release_configuration_identity[\s\S]*?cache-prune\.mjs" prune[\s\S]*?set -e/);
   assert.match(publish, /RELEASE_CI_PREFLIGHT_STATUS/);
   assert.match(runReleaseCi, /set \+e[\s\S]*?run-cnb-release-gate\.sh[\s\S]*?build-cnb-release-target\.sh[\s\S]*?set -e/);
-  assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS source=\$source_status artifact=\$artifact_status/);
+  assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS database=\$DATABASE_STATUS source=\$source_status artifact=\$artifact_status/);
   assert.ok(runReleaseCi.indexOf("source_status=$?") < runReleaseCi.indexOf("build-cnb-release-target.sh"));
   assert.ok(runReleaseCi.indexOf("build-cnb-release-target.sh") < runReleaseCi.indexOf("ready-artifact.mjs\" create"));
 });
