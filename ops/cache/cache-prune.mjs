@@ -200,7 +200,7 @@ function collectEntries(repositoryRoot, policy, pins, issues) {
   return entries;
 }
 
-function removeEmptyDirectories(root, issues) {
+function removeEmptyDirectories(root, issues, removeRoot = true) {
   if (!fs.existsSync(root) || fs.lstatSync(root).isSymbolicLink()) return;
   let entries;
   try { entries = fs.readdirSync(root, { withFileTypes: true }); }
@@ -211,6 +211,7 @@ function removeEmptyDirectories(root, issues) {
   for (const entry of entries) {
     if (entry.isDirectory() && !entry.isSymbolicLink()) removeEmptyDirectories(path.join(root, entry.name), issues);
   }
+  if (!removeRoot) return;
   try {
     if (fs.readdirSync(root).length === 0) fs.rmdirSync(root);
   } catch (error) {
@@ -273,7 +274,7 @@ export function pruneCaches({
     for (const className of ["validation-receipt", "compiler-cache", "failed-diagnostics", "runtime-temporary"]) {
       for (const relativeRoot of policy.classes[className].roots) {
         const cacheRoot = safePolicyRoot(root, relativeRoot);
-        if (fs.existsSync(cacheRoot)) removeEmptyDirectories(cacheRoot, issues);
+        if (fs.existsSync(cacheRoot)) removeEmptyDirectories(cacheRoot, issues, false);
       }
     }
   }
