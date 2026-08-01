@@ -235,6 +235,7 @@ function validate() {
         "scripts/**/*.ts",
         "scripts/**/*.mts",
         "scripts/**/*.cts",
+        "scripts/arch/gate-check-contracts.mjs",
       ],
       exclude: ["node_modules", ".cache", "scripts/migrate/sqlite-legacy"],
       references: ["./tsconfig.prisma-client.json", ...packageProjectReferences],
