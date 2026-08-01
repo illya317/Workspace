@@ -47,6 +47,8 @@ payload = {
     "releaseStartedAt": release_started_at,
     "finishedAt": finished_at,
 }
+if os.environ.get("DEPLOY_TEST_EVENT") == "1":
+    payload["test"] = True
 
 
 def atomic_write(target: Path, body: str) -> None:
