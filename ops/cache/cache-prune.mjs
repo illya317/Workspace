@@ -274,7 +274,8 @@ export function pruneCaches({
     for (const className of ["validation-receipt", "compiler-cache", "failed-diagnostics", "runtime-temporary"]) {
       for (const relativeRoot of policy.classes[className].roots) {
         const cacheRoot = safePolicyRoot(root, relativeRoot);
-        if (fs.existsSync(cacheRoot)) removeEmptyDirectories(cacheRoot, issues, false);
+        fs.mkdirSync(cacheRoot, { recursive: true });
+        removeEmptyDirectories(cacheRoot, issues, false);
       }
     }
   }

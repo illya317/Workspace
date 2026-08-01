@@ -26,7 +26,6 @@ test("prune applies class retention without traversing outside governed roots", 
   const oldReceipt = path.join(repositoryRoot, ".cache/release-check-results/task/input.json");
   const currentReceipt = path.join(repositoryRoot, ".cache/release-check-results/task/current.json");
   const runtimeTemporaryRoot = path.join(repositoryRoot, ".cache/runtime-tmp");
-  fs.mkdirSync(runtimeTemporaryRoot, { recursive: true });
   writeOld(oldReceipt, now, 31 * 24 * 60 * 60 * 1000);
   writeOld(currentReceipt, now, 1_000);
   const report = pruneCaches({
