@@ -10,6 +10,8 @@ const controllerQualification = read("./release/control/controller-qualification
 const readyArtifact = read("./release/readiness/ready-artifact.mjs");
 const runReleaseCi = read("./run-release-ci.sh");
 const ciAttempt = read("./release/attempts/ci-attempt.mjs");
+const ciAttemptContract = read("./release/attempts/ci-attempt-contract.mjs");
+const ciAttemptSources = `${ciAttempt}\n${ciAttemptContract}`;
 const ciAttemptShell = read("./release/attempts/ci-attempt-shell.sh");
 const artifactStaticAcceptance = read("./release/readiness/artifact-static-acceptance.mjs");
 const publishCnb = read("./publish-cnb.sh");
@@ -53,14 +55,14 @@ test("every CI exit finalizes one run-scoped immutable attempt receipt", () => {
   assert.ok(ciCase.indexOf("release_ci_attempt_begin") < ciCase.indexOf("prepare_release_worktree"));
   assert.match(ciAttemptShell, /trap 'release_ci_attempt_finalize "\$\?"' EXIT/);
   assert.match(ciAttemptShell, /\.cache\/release-attempts/);
-  assert.match(ciAttempt, /open\(file, "wx", 0o444\)/);
-  assert.match(ciAttempt, /receiptDigest: sha256|attempt\.receiptDigest = sha256/);
-  assert.match(ciAttempt, /unexpected-exit/);
-  assert.match(ciAttempt, /normalizedMessageDigest/);
-  assert.match(ciAttempt, /normalizedMessageDigest\]\.join\("\\0"\)/);
-  assert.match(ciAttempt, /RECURRENCE_EXIT_CODE = 42/);
-  assert.match(ciAttempt, /release attempt receipt digest mismatch/);
-  assert.doesNotMatch(ciAttempt, /rawOutput:|stdout:|stderr:|environment:|commandLine:/);
+  assert.match(ciAttemptSources, /open\(file, "wx", 0o444\)/);
+  assert.match(ciAttemptSources, /receiptDigest: sha256|attempt\.receiptDigest = sha256/);
+  assert.match(ciAttemptSources, /unexpected-exit/);
+  assert.match(ciAttemptSources, /normalizedMessageDigest/);
+  assert.match(ciAttemptSources, /normalizedMessageDigest\]\.join\("\\0"\)/);
+  assert.match(ciAttemptSources, /RECURRENCE_EXIT_CODE = 42/);
+  assert.match(ciAttemptSources, /release attempt receipt digest mismatch/);
+  assert.doesNotMatch(ciAttemptSources, /rawOutput:|stdout:|stderr:|environment:|commandLine:/);
 });
 
 test("CI records all eight lane boundaries and deploy never creates or patrols attempts", () => {
