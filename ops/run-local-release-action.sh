@@ -95,6 +95,17 @@ if [ "$ACTION" != "deploy" ]; then
     chmod 600 "$injection_worktree/.env"
   fi
 fi
+if [ "$ACTION" = "deploy" ]; then
+  : "${OPS_ENV_FILE:?OPS_ENV_FILE is required for local deploy}"
+  [ -f "$OPS_ENV_FILE" ] || { echo "[错误] local deploy 环境文件不存在: $OPS_ENV_FILE" >&2; exit 1; }
+  set -a
+  # shellcheck source=/dev/null
+  source "$OPS_ENV_FILE"
+  set +a
+  : "${SERVER:?SERVER is required for local deploy}"
+  : "${REMOTE_DIR:?REMOTE_DIR is required for local deploy}"
+  : "${HEALTHCHECK_URL:?HEALTHCHECK_URL is required for local deploy}"
+fi
 if [ "$ACTION" = "deploy" ] && [ -z "${KEY_CONTENT:-}" ] && [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
   KEY_CONTENT="$(<"$KEY")"
   export KEY_CONTENT

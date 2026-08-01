@@ -63,6 +63,9 @@ test("prepare seals one monotonic plan and every later stage uses the same dispa
   assert.match(prepareFlow, /CHECK_RELEASE_MODE=fast[\s\S]*?release-task-graphs/);
   assert.match(prepareFlow, /skip-fast-validation/);
   assert.match(prepareFlow, /fast-task-graph[\s\S]*?validate 已终止/);
+  assert.match(prepareHelpers, /local deploy 必须在 prepare 前配置 SERVER/);
+  assert.match(prepareHelpers, /local deploy 必须在 prepare 前配置 REMOTE_DIR/);
+  assert.match(prepareHelpers, /local deploy 必须在 prepare 前配置有效的 HEALTHCHECK_URL/);
 });
 
 test("prepare alone promotes main into the dedicated release worktree by fast-forward only", () => {
@@ -185,6 +188,10 @@ test("validation and build are independent one-shot stages and deploy only consu
   assert.doesNotMatch(runLocalReleaseAction, /ln -s "\$RELEASE_SOURCE_DIR\/node_modules"/);
   assert.match(runLocalReleaseAction, /RELEASE_CI_ENV_FILE is required for local validate\/build/);
   assert.match(runLocalReleaseAction, /source "\$RELEASE_CI_ENV_FILE"/);
+  assert.match(runLocalReleaseAction, /ACTION" = "deploy"[\s\S]*?OPS_ENV_FILE is required for local deploy/);
+  assert.match(runLocalReleaseAction, /ACTION" = "deploy"[\s\S]*?source "\$OPS_ENV_FILE"/);
+  assert.match(runLocalReleaseAction, /source "\$OPS_ENV_FILE"[\s\S]*?SERVER is required for local deploy/);
+  assert.match(runLocalReleaseAction, /source "\$OPS_ENV_FILE"[\s\S]*?HEALTHCHECK_URL is required for local deploy/);
   assert.ok(cnbRelease.indexOf("- name: release-gate") < cnbRelease.indexOf("- name: build-release-target"));
   assert.match(buildCnbReleaseTarget, /release-gate-receipt\.mjs artifact-create/);
   assert.match(buildCnbReleaseTarget, /cnb-release-artifact-cache\.sh restore/);

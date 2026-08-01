@@ -1,6 +1,18 @@
 #!/bin/bash
 
 validate_local_deploy_credentials() {
+  if [ -z "${SERVER:-}" ]; then
+    echo "[错误] local deploy 必须在 prepare 前配置 SERVER" >&2
+    return 1
+  fi
+  if [ -z "${REMOTE_DIR:-}" ]; then
+    echo "[错误] local deploy 必须在 prepare 前配置 REMOTE_DIR" >&2
+    return 1
+  fi
+  case "${HEALTHCHECK_URL:-}" in
+    http://*|https://*) ;;
+    *) echo "[错误] local deploy 必须在 prepare 前配置有效的 HEALTHCHECK_URL" >&2; return 1 ;;
+  esac
   if [ -n "${KEY_CONTENT:-}" ]; then
     return 0
   fi
