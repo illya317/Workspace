@@ -3,7 +3,7 @@ import { execFileSync } from "node:child_process";
 import path from "node:path";
 import type { NextConfig } from "next";
 
-import { resolveDeployUnitTurbopackRoot } from "../../scripts/deploy/deploy-unit-turbopack-root";
+import { resolveDeployUnitTurbopackRoot } from "../../scripts/deploy/deploy-unit-turbopack-root.ts";
 
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
 const turbopackRoot = resolveDeployUnitTurbopackRoot(repositoryRoot);

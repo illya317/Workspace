@@ -1,10 +1,21 @@
 import assert from "node:assert/strict";
+import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import { resolveDeployUnitTurbopackRoot } from "./deploy-unit-turbopack-root";
+
+const helperFile = path.resolve(import.meta.dirname, "deploy-unit-turbopack-root.ts");
+
+test("raw repository Node can require the explicit TypeScript helper", () => {
+  const output = execFileSync(process.execPath, [
+    "-e",
+    `const helper = require(${JSON.stringify(helperFile)}); process.stdout.write(typeof helper.resolveDeployUnitTurbopackRoot);`,
+  ], { encoding: "utf8" });
+  assert.equal(output, "function");
+});
 
 function temporaryRuntime(t: test.TestContext) {
   const fixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-turbopack-root-"));
