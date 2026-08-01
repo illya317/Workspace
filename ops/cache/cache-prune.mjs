@@ -40,13 +40,16 @@ function safePolicyRoot(repositoryRoot, relativeRoot) {
   return target;
 }
 
-function sizeUnder(target) {
+function sizeUnder(target, issues) {
   let size = 0;
   const pending = [target];
   while (pending.length > 0) {
     const current = pending.pop();
     let stat;
-    try { stat = fs.lstatSync(current); } catch { continue; }
+    try { stat = fs.lstatSync(current); } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw error;
+    }
     if (stat.isSymbolicLink()) continue;
     if (stat.isFile()) {
       size += stat.size;
@@ -58,30 +61,47 @@ function sizeUnder(target) {
   return size;
 }
 
-function childEntries(root, className, protectedKeys = new Set()) {
+function childEntries(root, className, protectedKeys = new Set(), issues = []) {
   if (!fs.existsSync(root)) return [];
-  return fs.readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
+  let children;
+  try { children = fs.readdirSync(root, { withFileTypes: true }); }
+  catch (error) {
+    issues.push({ path: root, code: error?.code ?? "UNKNOWN" });
+    return [];
+  }
+  return children.flatMap((entry) => {
     if (entry.isSymbolicLink()) return [];
     const target = path.join(root, entry.name);
-    const stat = fs.statSync(target);
-    return [{
-      path: target,
-      className,
-      key: entry.name,
-      mtimeMs: stat.mtimeMs,
-      size: sizeUnder(target),
-      protected: protectedKeys.has(entry.name),
-    }];
+    try {
+      const stat = fs.statSync(target);
+      return [{
+        path: target,
+        className,
+        key: entry.name,
+        mtimeMs: stat.mtimeMs,
+        size: sizeUnder(target, issues),
+        protected: protectedKeys.has(entry.name),
+      }];
+    } catch (error) {
+      issues.push({ path: target, code: error?.code ?? "UNKNOWN" });
+      return [];
+    }
   });
 }
 
-function fileEntries(root, className) {
+function fileEntries(root, className, issues = []) {
   if (!fs.existsSync(root)) return [];
   const files = [];
   const pending = [root];
   while (pending.length > 0) {
     const current = pending.pop();
-    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+    let children;
+    try { children = fs.readdirSync(current, { withFileTypes: true }); }
+    catch (error) {
+      issues.push({ path: current, code: error?.code ?? "UNKNOWN" });
+      continue;
+    }
+    for (const entry of children) {
       if (entry.isSymbolicLink()) continue;
       const target = path.join(current, entry.name);
       if (entry.isDirectory()) pending.push(target);
@@ -138,16 +158,22 @@ function pinnedDigests(pins) {
   return new Set(Object.values(pins.targets).flatMap((entry) => [entry.production, entry.rollback]).filter(Boolean));
 }
 
-function collectArtifactEntries(repositoryRoot, policy, pins) {
+function collectArtifactEntries(repositoryRoot, policy, pins, issues) {
   const root = safePolicyRoot(repositoryRoot, policy.classes["undeployed-artifact"].roots[0]);
   if (!fs.existsSync(root)) return [];
   const entries = [];
-  for (const target of fs.readdirSync(root, { withFileTypes: true })) {
+  let targets;
+  try { targets = fs.readdirSync(root, { withFileTypes: true }); }
+  catch (error) {
+    issues.push({ path: root, code: error?.code ?? "UNKNOWN" });
+    return [];
+  }
+  for (const target of targets) {
     if (!target.isDirectory() || target.name === "evidence") continue;
     const targetRoot = path.join(root, target.name);
     const targetPins = pins.targets[target.name] ?? {};
     const protectedDigests = new Set([targetPins.production, targetPins.rollback].filter(Boolean));
-    for (const entry of childEntries(targetRoot, "undeployed-artifact", protectedDigests)) {
+    for (const entry of childEntries(targetRoot, "undeployed-artifact", protectedDigests, issues)) {
       if (!DIGEST_PATTERN.test(entry.key)) continue;
       entries.push(entry);
     }
@@ -155,31 +181,41 @@ function collectArtifactEntries(repositoryRoot, policy, pins) {
   return entries;
 }
 
-function collectEntries(repositoryRoot, policy, pins) {
+function collectEntries(repositoryRoot, policy, pins, issues) {
   const entries = [];
   for (const className of ["validation-receipt", "compiler-cache"]) {
     for (const relativeRoot of policy.classes[className].roots) {
       const root = safePolicyRoot(repositoryRoot, relativeRoot);
-      entries.push(...fileEntries(root, className));
+      entries.push(...fileEntries(root, className, issues));
     }
   }
   for (const relativeRoot of policy.classes["runtime-temporary"].roots) {
-    entries.push(...childEntries(safePolicyRoot(repositoryRoot, relativeRoot), "runtime-temporary"));
+    entries.push(...childEntries(safePolicyRoot(repositoryRoot, relativeRoot), "runtime-temporary", new Set(), issues));
   }
   const protectedEvidence = pinnedDigests(pins);
   for (const relativeRoot of policy.classes["failed-diagnostics"].roots) {
-    entries.push(...childEntries(safePolicyRoot(repositoryRoot, relativeRoot), "failed-diagnostics", protectedEvidence));
+    entries.push(...childEntries(safePolicyRoot(repositoryRoot, relativeRoot), "failed-diagnostics", protectedEvidence, issues));
   }
-  entries.push(...collectArtifactEntries(repositoryRoot, policy, pins));
+  entries.push(...collectArtifactEntries(repositoryRoot, policy, pins, issues));
   return entries;
 }
 
-function removeEmptyDirectories(root) {
+function removeEmptyDirectories(root, issues) {
   if (!fs.existsSync(root) || fs.lstatSync(root).isSymbolicLink()) return;
-  for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
-    if (entry.isDirectory() && !entry.isSymbolicLink()) removeEmptyDirectories(path.join(root, entry.name));
+  let entries;
+  try { entries = fs.readdirSync(root, { withFileTypes: true }); }
+  catch (error) {
+    if (error?.code !== "ENOENT") issues.push({ path: root, code: error?.code ?? "UNKNOWN" });
+    return;
   }
-  if (fs.readdirSync(root).length === 0) fs.rmSync(root, { recursive: false, force: true });
+  for (const entry of entries) {
+    if (entry.isDirectory() && !entry.isSymbolicLink()) removeEmptyDirectories(path.join(root, entry.name), issues);
+  }
+  try {
+    if (fs.readdirSync(root).length === 0) fs.rmdirSync(root);
+  } catch (error) {
+    if (error?.code !== "ENOENT") issues.push({ path: root, code: error?.code ?? "UNKNOWN" });
+  }
 }
 
 export function diskUsagePercent(repositoryRoot = process.cwd(), statfs = fs.statfsSync) {
@@ -199,16 +235,23 @@ export function pruneCaches({
 } = {}) {
   const root = path.resolve(repositoryRoot);
   const pins = readArtifactPins(root, policy);
-  const entries = collectEntries(root, policy, pins);
+  const issues = [];
+  const entries = collectEntries(root, policy, pins, issues);
   let totalBytes = entries.reduce((sum, entry) => sum + entry.size, 0);
   const removed = [];
   const selected = new Set();
   const select = (entry, reason) => {
     if (entry.protected || selected.has(entry.path)) return;
+    if (!dryRun) {
+      try { fs.rmSync(entry.path, { recursive: true, force: true }); }
+      catch (error) {
+        issues.push({ path: entry.path, code: error?.code ?? "UNKNOWN" });
+        return;
+      }
+    }
     selected.add(entry.path);
     removed.push({ className: entry.className, path: path.relative(root, entry.path), size: entry.size, reason });
     totalBytes -= entry.size;
-    if (!dryRun) fs.rmSync(entry.path, { recursive: true, force: true });
   };
 
   for (const entry of entries) {
@@ -230,7 +273,7 @@ export function pruneCaches({
     for (const className of ["validation-receipt", "compiler-cache", "failed-diagnostics", "runtime-temporary"]) {
       for (const relativeRoot of policy.classes[className].roots) {
         const cacheRoot = safePolicyRoot(root, relativeRoot);
-        if (fs.existsSync(cacheRoot)) removeEmptyDirectories(cacheRoot);
+        if (fs.existsSync(cacheRoot)) removeEmptyDirectories(cacheRoot, issues);
       }
     }
   }
@@ -240,6 +283,10 @@ export function pruneCaches({
     diskUsagePercent: diskUsagePercent(root, statfs),
     removed,
     pinnedArtifacts: [...pinnedDigests(pins)].sort(),
+    issues: issues.map((issue) => ({
+      path: path.relative(root, issue.path),
+      code: issue.code,
+    })),
   };
 }
 
@@ -285,6 +332,9 @@ function main(argv = process.argv.slice(2)) {
   process.stdout.write(
     `Cache policy: ${report.removed.length} evicted, ${report.totalBytes} bytes retained, disk ${report.diskUsagePercent.toFixed(1)}%.\n`,
   );
+  if (report.issues.length > 0) {
+    process.stderr.write(`Cache policy warning: ${report.issues.length} inaccessible cache path(s) retained.\n`);
+  }
   return 0;
 }
 

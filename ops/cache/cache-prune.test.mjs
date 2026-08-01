@@ -67,3 +67,23 @@ test("build space guard fails only after policy pruning cannot lower the disk wa
     /stop-build watermark/,
   );
 });
+
+test("prune retains and reports inaccessible cache paths without blocking prepare", () => {
+  const { repositoryRoot, policy } = fixture();
+  const inaccessible = path.join(repositoryRoot, ".local-release-worktrees/probe");
+  fs.mkdirSync(inaccessible, { recursive: true, mode: 0o700 });
+  fs.writeFileSync(path.join(inaccessible, "evidence"), "fixture");
+  fs.chmodSync(inaccessible, 0o000);
+  try {
+    const report = pruneCaches({
+      repositoryRoot,
+      policy,
+      statfs: () => ({ blocks: 100n, bavail: 50n }),
+    });
+    assert.equal(report.removed.some((entry) => entry.path.includes("probe")), false);
+    assert.equal(report.issues.some((issue) => issue.path.includes("probe") && issue.code === "EACCES"), true);
+  } finally {
+    fs.chmodSync(inaccessible, 0o700);
+    fs.rmSync(repositoryRoot, { recursive: true, force: true });
+  }
+});
