@@ -112,6 +112,7 @@ rsync -az --files-from="$FILE_LIST" -e "$RSYNC_SSH" \
   "$WORKSPACE_CONFIG_DIR/" "$SERVER:$REMOTE_STAGING_ROOT/"
 rsync -az -e "$RSYNC_SSH" \
   "$MANIFEST_FILE" "$SCRIPT_DIR/tenant-config-manifest.mjs" \
+  "$SCRIPT_DIR/reconcile-runtime-config-permissions.sh" \
   "$SERVER:$REMOTE_STAGING_ROOT/.deployment/"
 
 echo "==> 服务器逐文件校验并切换租户配置..."
@@ -119,12 +120,14 @@ ssh "${SSH_OPTIONS[@]}" "$SERVER" "
   set -e
   tool='$REMOTE_STAGING_ROOT/.deployment/tenant-config-manifest.mjs'
   manifest='$REMOTE_STAGING_ROOT/.deployment/tenant-config-manifest.json'
+  reconciler='$REMOTE_STAGING_ROOT/.deployment/reconcile-runtime-config-permissions.sh'
   node \"\$tool\" verify --root '$REMOTE_STAGING_ROOT' --manifest \"\$manifest\"
   node \"\$tool\" install \
     --staging-root '$REMOTE_STAGING_ROOT' \
     --target-root '$REMOTE_WORKSPACE_CONFIG_DIR' \
     --backup-root '$REMOTE_BACKUP_ROOT' \
     --manifest \"\$manifest\"
+  sudo -n -- bash \"\$reconciler\" '$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime
   node \"\$tool\" verify --root '$REMOTE_WORKSPACE_CONFIG_DIR' --manifest \"\$manifest\"
   rm -rf '$REMOTE_STAGING_ROOT'
   find '$REMOTE_DIR/.workspace.backups/tenant-config' -mindepth 1 -maxdepth 1 -type d \

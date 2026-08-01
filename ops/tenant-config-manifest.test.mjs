@@ -11,6 +11,7 @@ import {
 } from "./tenant-config-manifest.mjs";
 
 const fixtureRoot = resolve("scripts/check/fixtures/tenant-workspace");
+const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
 
 function copyFixture(target) {
   cpSync(fixtureRoot, target, { recursive: true });
@@ -126,4 +127,12 @@ test("tenant config install verifies staging and preserves replaced files in bac
   );
   assert.equal(existsSync(join(target, "data/docs-editor/templates/production-qc-snapshots/stale.json")), false);
   assert.equal(JSON.parse(readFileSync(join(backup, "deployment-manifest.json"), "utf8")).digest, manifest.digest);
+});
+
+test("tenant config sync restores runtime ACLs after atomic installation", () => {
+  const install = syncTenantConfig.indexOf('node \\"\\$tool\\" install');
+  const reconcile = syncTenantConfig.indexOf('sudo -n -- bash \\"\\$reconciler\\"');
+  assert.ok(install >= 0 && reconcile > install);
+  assert.match(syncTenantConfig, /reconcile-runtime-config-permissions\.sh/);
+  assert.match(syncTenantConfig, /'\$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime/);
 });
