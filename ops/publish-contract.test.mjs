@@ -1,10 +1,12 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
 const publish = read("./publish.sh");
 const controllerReady = read("./release/control/controller-ready.mjs");
+const readyArtifact = read("./release/readiness/ready-artifact.mjs");
 const runReleaseCi = read("./run-release-ci.sh");
 const publishCnb = read("./publish-cnb.sh");
 const runLocalReleaseAction = read("./run-local-release-action.sh");
@@ -42,6 +44,28 @@ test("Ready binds the aggregate source result, frozen task graph, receipts, conf
   assert.doesNotMatch(publishCnb, /node ops\/production-deploy-preflight\.mjs/);
   assert.match(deployArtifact, /metadata\.releaseReady/);
   assert.doesNotMatch(deployArtifact, /releaseCandidate|releasePlan/);
+  assert.match(runReleaseCi, /source-validation-\$TARGET_ID-\$CI_RUN_ID\.json/);
+  assert.match(publishCnb, /source-validation-\$ready_target-\$RELEASE_RUN_ID\.json/);
+  assert.match(runLocalReleaseAction, /source-validation-\$\{deploy_unit_id:-monolith\}-\$release_run_id\.json/);
+  assert.match(runReleaseCi, /rehearsal-\$TARGET_ID-\$TARGET_MODE-\$CI_RUN_ID-\$RELEASE_CONFIGURATION_DIGEST\.json/);
+  assert.match(publishCnb, /rehearsal-\$ready_target-\$ready_mode-\$RELEASE_RUN_ID-\$RELEASE_CONFIGURATION_DIGEST\.json/);
+  assert.match(runLocalReleaseAction, /rehearsal-\$\{deploy_unit_id:-monolith\}-\$\{deploy_unit_mode:-activate\}-\$release_run_id-\$\{RELEASE_CONFIGURATION_DIGEST\}\.json/);
+});
+
+test("CI and Ready selectors reject duplicate unit choices and reserved monolith", () => {
+  const invoke = (args) => spawnSync("bash", [new URL("./publish.sh", import.meta.url).pathname, ...args], {
+    encoding: "utf8",
+    env: { ...process.env, WORKSPACE_REPO_RUNTIME_READY: "1", OPS_ENV_FILE: "/dev/null" },
+  });
+  for (const args of [
+    ["ci", "--deploy-unit", "finance", "--shadow-unit", "hr"],
+    ["ci", "--deploy-unit", "monolith"],
+    ["ci", "--shadow-unit", "monolith"],
+    ["status", "--deploy-unit", "monolith"],
+  ]) {
+    const result = invoke(args);
+    assert.equal(result.status, 2, `${args.join(" ")} unexpectedly passed: ${result.stdout}${result.stderr}`);
+  }
 });
 
 test("deploy consumes the current Ready Artifact and cannot build", () => {
@@ -75,6 +99,21 @@ test("controller-ready tests one exact controller tuple and deploy only verifies
   assert.doesNotMatch(deployCase, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.doesNotMatch(deployCase, /deploy-control-compatibility\.mjs|run-node-tests\.mjs|with-check-lock\.js/);
   assert.ok(deployCase.indexOf("controller-ready.mjs") < deployCase.indexOf("publish-cnb.sh"));
+});
+
+test("status, controller-ready, and deploy select an exact target-mode Ready pointer", () => {
+  assert.match(publish, /parse_ready_selector\(\)/);
+  assert.match(publish, /--deploy-unit\|--shadow-unit/);
+  assert.match(publish, /READY_SELECTOR_ARGS=\(--target "\$SELECTED_READY_TARGET" --target-mode "\$SELECTED_READY_MODE"\)/);
+  for (const command of ["controller-ready", "status", "deploy"]) {
+    assert.match(publish, new RegExp(`parse_ready_selector ${command} [01] "\\$@"`));
+  }
+  const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.match(deployCase, /selected Ready target 与 receipt target 不一致；deploy 禁止重定向目标/);
+  assert.doesNotMatch(deployCase, /target_id="\$SELECTED_READY_TARGET"|target_mode="\$SELECTED_READY_MODE"/);
+  assert.match(runReleaseCi, /receipts\/\$TARGET_ID\/\$TARGET_MODE\/\$CI_RUN_ID-\$RELEASE_CONTENT_DIGEST-\$RELEASE_CONFIGURATION_DIGEST\.json/);
+  assert.match(readyArtifact, /writeImmutableReadyReceipt/);
+  assert.match(readyArtifact, /Ready Artifact receipt path already contains different immutable evidence/);
 });
 
 test("deploy binds full Controller Ready metadata while Application Ready remains the artifact identity", () => {

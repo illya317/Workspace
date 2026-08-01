@@ -64,6 +64,90 @@ test("release source suite is the complete CI gate without duplicate artifact bu
   assert.ok(sourceIds.includes("lint-full"));
 });
 
+test("deploy-unit release source suite minimizes only lint, Node tests, and typecheck from the graph", () => {
+  const deployGraph = {
+    units: [{
+      id: "finance",
+      privateSourceRoots: ["app/(modules)/finance/", "app/api/modules/finance/", "packages/finance/"],
+      compilerProjects: [
+        "packages/core/tsconfig.json",
+        "packages/finance/tsconfig.json",
+        "packages/platform/tsconfig.json",
+        "tsconfig.prisma-client.json",
+      ],
+      runtime: { appRoot: "apps/finance" },
+      checks: { typecheckScopes: ["app-finance", "finance"] },
+    }],
+  };
+  const monolith = resolveCheckPlan(["release-source"]);
+  const unit = resolveCheckPlan(["release-source"], { releaseTarget: "finance", deployGraph });
+  const unitIds = unit.tasks.map((task) => task.id);
+
+  assert.equal(monolith.tasks.some((task) => task.id === "lint-full"), true);
+  assert.equal(unitIds.includes("lint-full"), false);
+  assert.equal(unitIds.includes("lint-unit.finance"), true);
+  assert.deepEqual(unitIds.filter((id) => id.startsWith("test-node.")), [
+    "test-node.app",
+    "test-node.package.core",
+    "test-node.package.finance",
+    "test-node.package.platform",
+    "test-node.scripts.check",
+    "test-node.scripts.deploy",
+  ]);
+  assert.deepEqual(unitIds.filter((id) => id.startsWith("typecheck.")), [
+    "typecheck.app-finance",
+    "typecheck.finance",
+  ]);
+  assert.equal(unitIds.includes("test-node.ops"), false);
+  assert.equal(unitIds.includes("docs-action-contracts"), true);
+  assert.deepEqual(
+    unit.tasks.find((task) => task.id === "lint-unit.finance")?.input.roots,
+    [
+      "app/(modules)/finance",
+      "app/api/modules/finance",
+      "apps/finance",
+      "generated/prisma",
+      "packages/core",
+      "packages/finance",
+      "packages/platform",
+    ],
+  );
+  assert.throws(
+    () => resolveCheckPlan(["release-source"], { releaseTarget: "hr", deployGraph }),
+    /not a deploy graph unit/,
+  );
+});
+
+test("assistant unit includes private scripts runtime tests while retaining tooling safety shards", () => {
+  const deployGraph = {
+    units: [{
+      id: "assistant",
+      privateSourceRoots: ["app/(modules)/agent/", "packages/agent/", "scripts/runtime/"],
+      compilerProjects: [
+        "packages/agent/tsconfig.json",
+        "packages/core/tsconfig.json",
+        "packages/platform/tsconfig.json",
+        "tsconfig.prisma-client.json",
+      ],
+      runtime: { appRoot: "apps/assistant" },
+      checks: { typecheckScopes: ["agent", "app-assistant"] },
+    }],
+  };
+  const plan = resolveCheckPlan(["release-source"], { releaseTarget: "assistant", deployGraph });
+  const nodeTasks = plan.tasks.filter((task) => task.id.startsWith("test-node."));
+
+  assert.deepEqual(nodeTasks.map((task) => task.id), [
+    "test-node.app",
+    "test-node.package.agent",
+    "test-node.package.core",
+    "test-node.package.platform",
+    "test-node.scripts.check",
+    "test-node.scripts.deploy",
+    "test-node.scripts.runtime",
+  ]);
+  assert.equal(nodeTasks.find((task) => task.id === "test-node.scripts.runtime")?.testFiles.length, 8);
+});
+
 test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {
   const calls = [];
   const output = [];

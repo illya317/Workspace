@@ -17,8 +17,14 @@ usage() {
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --deploy-unit UNIT
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --shadow-unit UNIT
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready --deploy-unit UNIT
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready --shadow-unit UNIT
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy --deploy-unit UNIT
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy --shadow-unit UNIT
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status [--json]
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status --deploy-unit UNIT [--json]
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status --shadow-unit UNIT [--json]
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh push
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh database-replace ...
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh data ...
@@ -101,17 +107,54 @@ validate_release_inputs() {
 # shellcheck source=ops/release/readiness/release-inputs.sh
 source "$SCRIPT_DIR/release/readiness/release-inputs.sh"
 
+parse_ready_selector() {
+  local command="$1" allow_json="$2"
+  shift 2
+  SELECTED_READY_TARGET=monolith
+  SELECTED_READY_MODE=activate
+  SELECTED_READY_JSON=0
+  local selected=0 option
+  while [ "$#" -gt 0 ]; do
+    option="$1"
+    case "$option" in
+      --deploy-unit|--shadow-unit)
+        [ "$selected" = 0 ] || { echo "[错误] ${command} 只能选择一个 Ready target" >&2; exit 2; }
+        shift
+        SELECTED_READY_TARGET="${1:-}"
+        printf '%s' "$SELECTED_READY_TARGET" | grep -Eq '^[a-z][a-z0-9-]*$' \
+          || { echo "[错误] ${command} unit id 无效" >&2; exit 2; }
+        [ "$SELECTED_READY_TARGET" != monolith ] \
+          || { echo "[错误] ${command} unit selector 不接受保留目标 monolith" >&2; exit 2; }
+        [ "$option" = --deploy-unit ] && SELECTED_READY_MODE=activate || SELECTED_READY_MODE=shadow
+        selected=1
+        ;;
+      --json)
+        [ "$allow_json" = 1 ] || { echo "[错误] ${command} 不接受 --json" >&2; exit 2; }
+        [ "$SELECTED_READY_JSON" = 0 ] || { echo "[错误] ${command} 重复指定 --json" >&2; exit 2; }
+        SELECTED_READY_JSON=1
+        ;;
+      *) echo "[错误] ${command} 未知参数: $option" >&2; exit 2 ;;
+    esac
+    shift
+  done
+  READY_SELECTOR_ARGS=(--target "$SELECTED_READY_TARGET" --target-mode "$SELECTED_READY_MODE")
+}
+
 case "${1:-}" in
   ci)
     shift
     target_id=monolith
     target_mode=activate
+    selected=0
     while [ "$#" -gt 0 ]; do
       case "$1" in
         --deploy-unit|--shadow-unit)
+          [ "$selected" = 0 ] || { echo "[错误] ci 只能选择一个 Ready target" >&2; exit 2; }
           option="$1"; shift; target_id="${1:-}"
           printf '%s' "$target_id" | grep -Eq '^[a-z][a-z0-9-]*$' || { echo "[错误] unit id 无效"; exit 2; }
+          [ "$target_id" != monolith ] || { echo "[错误] ci unit selector 不接受保留目标 monolith" >&2; exit 2; }
           [ "$option" = --deploy-unit ] && target_mode=activate || target_mode=shadow
+          selected=1
           ;;
         *) echo "[错误] ci 未知参数: $1；旧阶段和 --new-plan 不再支持"; exit 2 ;;
       esac
@@ -161,10 +204,10 @@ case "${1:-}" in
     ;;
   controller-ready)
     shift
-    [ "$#" = 0 ] || { echo "[错误] controller-ready 不接受参数"; exit 2; }
+    parse_ready_selector controller-ready 0 "$@"
     load_ready_worktree
     ready_json="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current \
-      --root "$RELEASE_WORKTREE/.cache/release-ready")"
+      --root "$RELEASE_WORKTREE/.cache/release-ready" "${READY_SELECTOR_ARGS[@]}")"
     ready_values="$(node -e '
       const r=JSON.parse(process.argv[1]).receipt;
       process.stdout.write(`${r.source.commitSha}\n${r.source.treeId}\n${r.source.contentDigest}\n`);
@@ -181,15 +224,16 @@ case "${1:-}" in
       --repository "$REPOSITORY_ROOT" \
       --ready-source "$ready_source" \
       --file "$controller_ready_file"
-    echo "==> CONTROLLER READY: application=${ready_source:0:12}"
+    echo "==> CONTROLLER READY: target=${SELECTED_READY_TARGET}:${SELECTED_READY_MODE} application=${ready_source:0:12}"
     exit 0
     ;;
   status)
     shift
+    parse_ready_selector status 1 "$@"
     initialize_release_worktree
-    [ "$#" -le 1 ] || { echo "[错误] status 只接受 --json"; exit 2; }
-    current="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current --root "$RELEASE_WORKTREE/.cache/release-ready")"
-    if [ "${1:-}" = --json ]; then printf '%s\n' "$current"; else
+    current="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current \
+      --root "$RELEASE_WORKTREE/.cache/release-ready" "${READY_SELECTOR_ARGS[@]}")"
+    if [ "$SELECTED_READY_JSON" = 1 ]; then printf '%s\n' "$current"; else
       node -e '
         const v=JSON.parse(process.argv[1]); const r=v.receipt;
         console.log(`READY ${r.target.id}:${r.target.mode}`);
@@ -203,11 +247,12 @@ case "${1:-}" in
     ;;
   deploy)
     shift
-    [ "$#" = 0 ] || { echo "[错误] deploy 不接受参数；目标已经封存在 Ready Receipt"; exit 2; }
+    parse_ready_selector deploy 0 "$@"
     load_ready_worktree
     capture_release_configuration_identity
     validate_local_deploy_credentials
-    ready_json="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current --root "$RELEASE_WORKTREE/.cache/release-ready")"
+    ready_json="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current \
+      --root "$RELEASE_WORKTREE/.cache/release-ready" "${READY_SELECTOR_ARGS[@]}")"
     ready_file="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).receiptFile)' "$ready_json")"
     ready_values="$(node -e '
       const r=JSON.parse(process.argv[1]).receipt;
@@ -220,6 +265,9 @@ case "${1:-}" in
     ready_configuration="$(printf '%s\n' "$ready_values" | sed -n '5p')"
     target_id="$(printf '%s\n' "$ready_values" | sed -n '6p')"
     target_mode="$(printf '%s\n' "$ready_values" | sed -n '7p')"
+    [ "$target_id" = "$SELECTED_READY_TARGET" ] && [ "$target_mode" = "$SELECTED_READY_MODE" ] || {
+      echo "[错误] selected Ready target 与 receipt target 不一致；deploy 禁止重定向目标" >&2; exit 1;
+    }
     [ "$ready_source" = "$RELEASE_SOURCE_SHA" ] && [ "$ready_tree" = "$RELEASE_SOURCE_TREE" ] \
       && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] && [ "$ready_configuration" = "$RELEASE_CONFIGURATION_DIGEST" ] || {
         echo "[错误] 当前 release source/config 没有 Ready Artifact；先运行 ci" >&2; exit 1;

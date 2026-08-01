@@ -7,10 +7,11 @@ import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 
 import { DOMAIN_GATE_CHECK_NAMES, UI_GATE_CHECK_NAMES } from "../arch/gate-check-contracts.mjs";
-import { discoverNodeTests, groupNodeTestsByShard } from "../testing/run-node-tests.mjs";
+import { discoverNodeTests, groupNodeTestsByShard, selectAffectedNodeTests } from "../testing/run-node-tests.mjs";
 import { prepareChangedFilesManifest } from "./changed-files-manifest.mjs";
 import { createCheckTaskCache } from "./check-task-cache.mjs";
 import { checkTaskInputContract } from "./check-task-contracts.mjs";
+import { resolveReleaseUnitSourceClosure } from "./deploy/release-unit-source-plan.mjs";
 
 const TASKS = {
   "action-contract": npmScript("action-contract:check", "Action contract"),
@@ -209,7 +210,25 @@ function typecheckProjects(cwd) {
   return projects.sort((left, right) => left.scope.localeCompare(right.scope));
 }
 
-function expandTask(taskId, task, cwd) {
+function releaseUnitLintTask(task, releaseClosure) {
+  return {
+    ...task,
+    id: `lint-unit.${releaseClosure.targetId}`,
+    label: `Lint · deploy unit ${releaseClosure.targetId}`,
+    args: [
+      "run",
+      "lint",
+      "--",
+      "--no-warn-ignored",
+      "--max-warnings=0",
+      ...releaseClosure.lintRoots,
+    ],
+    covers: ["lint-changed"],
+    input: { kind: "files", roots: releaseClosure.lintRoots },
+  };
+}
+
+function expandTask(taskId, task, cwd, releaseClosure = null) {
   if (taskId === "domain-architecture") {
     return DOMAIN_GATE_CHECK_NAMES.map((name) => ({
       ...task,
@@ -227,7 +246,11 @@ function expandTask(taskId, task, cwd) {
     }));
   }
   if (taskId === "test-node") {
-    return groupNodeTestsByShard(discoverNodeTests(cwd)).map(({ key, files }) => ({
+    const allTests = discoverNodeTests(cwd);
+    const selectedTests = releaseClosure
+      ? selectAffectedNodeTests(allTests, releaseClosure.node)
+      : allTests;
+    return groupNodeTestsByShard(selectedTests).map(({ key, files }) => ({
       id: `test-node.${key}`,
       label: `Node tests · ${key}`,
       command: "node",
@@ -237,7 +260,15 @@ function expandTask(taskId, task, cwd) {
     }));
   }
   if (taskId === "typecheck-full") {
-    return typecheckProjects(cwd).map(({ scope, project }) => ({
+    const projects = typecheckProjects(cwd);
+    const selectedProjects = releaseClosure
+      ? releaseClosure.typecheckScopes.map((scope) => {
+        const project = projects.find((candidate) => candidate.scope === scope);
+        if (!project) throw new Error(`deploy graph references unknown typecheck scope: ${scope}`);
+        return project;
+      })
+      : projects;
+    return selectedProjects.map(({ scope, project }) => ({
       id: `typecheck.${scope}`,
       label: `TypeScript · ${scope}`,
       command: "npm",
@@ -245,6 +276,7 @@ function expandTask(taskId, task, cwd) {
       project,
     }));
   }
+  if (taskId === "lint-full" && releaseClosure) return [releaseUnitLintTask(task, releaseClosure)];
   return [{ id: taskId, ...task }];
 }
 
@@ -285,7 +317,13 @@ function applyContextualCoverage(plan, changedFilesContext) {
   };
 }
 
-export function resolveCheckPlan(suiteNames, { cwd = process.cwd() } = {}) {
+export function resolveCheckPlan(suiteNames, { cwd = process.cwd(), releaseTarget = "monolith", deployGraph } = {}) {
+  if (releaseTarget !== "monolith" && !/^[a-z][a-z0-9-]*$/.test(releaseTarget)) {
+    throw new Error(`invalid release validation target: ${releaseTarget}`);
+  }
+  const releaseClosure = releaseTarget === "monolith"
+    ? null
+    : resolveReleaseUnitSourceClosure({ cwd, targetId: releaseTarget, graph: deployGraph });
   const tasks = [];
   const seenTasks = new Set();
   const activeSuites = new Set();
@@ -308,7 +346,7 @@ export function resolveCheckPlan(suiteNames, { cwd = process.cwd() } = {}) {
         continue;
       }
       seenTasks.add(ref);
-      for (const expanded of expandTask(ref, task, cwd)) {
+      for (const expanded of expandTask(ref, task, cwd, releaseClosure)) {
         checkTaskInputContract(expanded);
         tasks.push(expanded);
       }
@@ -343,7 +381,10 @@ export function runCheckSuites(
     collectFailures = env.CHECK_SUITE_COLLECT_FAILURES === "1",
   } = {},
 ) {
-  let plan = resolveCheckPlan(suiteNames, { cwd });
+  let plan = resolveCheckPlan(suiteNames, {
+    cwd,
+    releaseTarget: env.RELEASE_VALIDATION_TARGET_ID?.trim() || "monolith",
+  });
   const suiteStartedAt = now();
   const warningFailures = [];
   const blockingFailures = [];

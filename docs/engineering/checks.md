@@ -10,6 +10,8 @@
 
 CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失败模式：同轮执行全部独立叶子并一次列完 blocking failures；前置失败导致无法安全执行的后续步骤必须显示为 blocked。日常单项命令可以 fail-fast，但不得用正式全量门禁逐个发现错误。第一次正式失败后先按 `ops/ci-cd.md` 完成全图诊断与集中修复，再运行一次最终门禁。
 
+正式 `release-source` 的 source graph 由部署目标决定。`monolith` 保持完整 `release-static + test:node + typecheck:full`。显式 unit 保留全部 `release-static` gate，只把 `lint:full` 换成目标私有根、compiler closure 与生成 App 根的 ESLint；Node 除 compiler packages、`app`、`scripts/check`、`scripts/deploy` 外，还从 `unit.privateSourceRoots` 派生非 package 测试区（例如 Assistant 的 `scripts/runtime`）；TypeScript 只运行 deploy graph 声明的 `checks.typecheckScopes`。`ops` shard 属于 Controller Ready，不在 unit Application Ready 重复执行。闭包来自 canonical deploy graph，未知 unit/scope fail closed，且每项仍产生普通 cacheable task receipt。
+
 ## 常用命令
 
 | 场景 | 命令 | 说明 |
@@ -41,7 +43,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；正式发布的冻结候选只运行一次，artifact 编译是紧随其后且同样只运行一次的独立阶段。 |
+| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；monolith 冻结候选使用全量 source graph。deploy-unit 的正式入口由 `ops/publish.sh ci --deploy-unit <id>` 传入目标并生成 graph closure，不能手工把 `check:ci` 当 unit proof。artifact 编译是独立阶段。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
@@ -85,13 +87,13 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，是 CI/发布验证的默认权威入口；`typecheck:full` 仅用于显式全量诊断。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
+`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，供变更诊断使用；monolith release 执行全部受治理 scopes，deploy-unit release 精确执行 deploy graph 的 `checks.typecheckScopes`。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
 
-根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。CI/发布 validate 先运行 `typecheck:affected`；若该 lane 被选择，artifact builder 使用 `build:next:after-typecheck` 跳过 Next 重复遍历，unit builder 也不再重复相同 scopes。未选择 type lane 的纯文档/展示 artifact build 保留 Next 自身检查。
+根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。正式 release source graph 先完成对应 monolith/unit 类型 scopes；artifact builder 随后使用跳过重复 TypeScript traversal 的构建入口，unit builder 也不再重复相同 scopes。
 
 所有入口都必须经过 `scripts/check/with-check-lock.js -> scripts/check/run-typecheck.js`。专用 runner 会校验当前活锁及其 owner，直接执行 runner 会在加载编译器前失败；`typecheck:entrypoints:check` 同时扫描 package scripts、CI/ops/scripts 和现行 agent/工程文档，阻止裸 TypeScript CLI 命令重新进入仓库。锁包装器会把 `SIGINT`、`SIGTERM` 和终端挂断的 `SIGHUP` 转发到独立子进程组，等待子进程退出后才释放锁；宽限期后仍未退出则强制终止整个进程组。
 
-日常 `check:changed`、`check:refactor`、`check:quick` 和 `check:precommit` 都不自动运行 TypeScript。普通局部修改需要诊断时优先单 scope；远端 CI 与发布 validate 使用 `typecheck:affected`。
+日常 `check:changed`、`check:refactor`、`check:quick` 和 `check:precommit` 都不自动运行 TypeScript。普通局部修改需要诊断时优先单 scope；正式发布由 target-aware `release-source` 选择 monolith 全量或 unit graph scopes。
 
 ### blockers
 
@@ -160,7 +162,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 GitHub Actions 不再做风险分类，只运行 changed-files 轻量检查。具体 Node/type/E2E 由 Agent 根据本次改动和依赖选择；没有任何 C 级别能自动把普通反馈升级成全库工作。
 
-生产发布不等待 GitHub 作为质量回执。`ops/publish.sh ci` 在一轮内聚合所有独立源码失败、独立构建目标 artifact，并启动 exact archive 做 health/version 演练；全部通过才签发绑定 source/config/task graph/receipts/artifact 的 Ready Artifact。修复后再次运行 CI 时只重跑 input/command/runtime digest 失效的任务。`deploy` 只消费 Ready，保留 migration、锁、备份、健康、切换和回滚等生产现场检查，禁止源码检查或现场构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
+生产发布不等待 GitHub 作为质量回执。`ops/publish.sh ci` 在一轮内聚合目标 source graph 的全部独立失败、独立构建目标 artifact，并启动 exact archive 做 health/version 演练；全部通过才签发绑定 source/config/target/task graph/receipts/artifact 的 Ready Artifact。source result 与 schema-v3 `source-validation-<target>-<CI_RUN_ID>.json` receipt 都在内容中绑定 run id 并拒绝跨 target/run 复用；rehearsal 文件同样按 target/mode/run/config 隔离。同一 target 的后续 CI 不覆盖旧 Ready 引用的 proof 文件。修复后再次运行 CI 时只重跑 input/command/runtime digest 失效的任务。`deploy` 只消费 Ready，保留 migration、锁、备份、健康、切换和回滚等生产现场检查，禁止源码检查或现场构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
 ### scalability contract 与真实容量
 

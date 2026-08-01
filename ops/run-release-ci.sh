@@ -30,7 +30,7 @@ printf -v CI_RUN_NONCE '%04x%04x' "$RANDOM" "$RANDOM"
 CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_CONTENT_DIGEST:0:12}-$CI_RUN_NONCE"
 EVIDENCE_ROOT="$SOURCE_DIR/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
 READY_ROOT="$SOURCE_DIR/.cache/release-ready"
-SOURCE_RECEIPT="$EVIDENCE_ROOT/source-validation.json"
+SOURCE_RECEIPT="$EVIDENCE_ROOT/source-validation-$TARGET_ID-$CI_RUN_ID.json"
 ARTIFACT_RECEIPT="$SOURCE_DIR/.cache/release-check/release-artifact.json"
 TASK_GRAPH="$SOURCE_DIR/.cache/release-task-graphs/$CI_RUN_ID.json"
 SOURCE_RESULT="$EVIDENCE_ROOT/source-$CI_RUN_ID.json"
@@ -64,7 +64,7 @@ else
   MANIFEST_FILE="$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/$TARGET_ID-standalone.manifest.json"
   CONTRACT_ARGS=(--contract "$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/deploy-unit-contract.json")
 fi
-REHEARSAL_FILE="$EVIDENCE_ROOT/rehearsal-$TARGET_ID-$RELEASE_CONFIGURATION_DIGEST.json"
+REHEARSAL_FILE="$EVIDENCE_ROOT/rehearsal-$TARGET_ID-$TARGET_MODE-$CI_RUN_ID-$RELEASE_CONFIGURATION_DIGEST.json"
 if [ "$artifact_status" -eq 0 ] && [ "$DATABASE_STATUS" -eq 0 ]; then
   # A database reset/migration is new runtime evidence even for identical source bytes.
   # Never let a historical receipt skip the exact archive startup in this CI invocation.
@@ -92,7 +92,7 @@ if [ "$PREFLIGHT_STATUS" -ne 0 ] || [ "$DATABASE_STATUS" -ne 0 ] || [ "$source_s
   exit 1
 fi
 
-READY_FILE="$READY_ROOT/receipts/$TARGET_ID-$RELEASE_CONTENT_DIGEST-$RELEASE_CONFIGURATION_DIGEST.json"
+READY_FILE="$READY_ROOT/receipts/$TARGET_ID/$TARGET_MODE/$CI_RUN_ID-$RELEASE_CONTENT_DIGEST-$RELEASE_CONFIGURATION_DIGEST.json"
 node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" create \
   --root "$READY_ROOT" \
   --output "$READY_FILE" \

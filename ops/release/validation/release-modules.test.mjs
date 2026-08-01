@@ -24,9 +24,10 @@ test("candidate identity is content based and ignores commit metadata", () => {
 
 test("CI receipts bind candidate content without a commit or base SHA gate", () => {
   const identity = captureCandidateIdentity({ repositoryRoot: process.cwd(), revision: "HEAD" });
-  const validation = createSourceValidationReceipt({ ...identity, runner: "local" });
+  const runId = "ci-20260801T000000Z-aaaaaaaaaaaa-11111111";
+  const validation = createSourceValidationReceipt({ ...identity, targetId: "monolith", runId, runner: "local" });
   const artifact = createArtifactReceipt({ ...identity, targetId: "monolith", runner: "local" });
-  assert.equal(validateSourceValidationReceipt(validation, identity), validation);
+  assert.equal(validateSourceValidationReceipt(validation, { ...identity, targetId: "monolith", runId }), validation);
   assert.equal(validateArtifactReceipt(artifact, { ...identity, targetId: "monolith" }), artifact);
   assert.equal(Object.hasOwn(validation, "baseSha"), false);
   assert.equal(Object.hasOwn(artifact, "baseSha"), false);
@@ -85,17 +86,28 @@ test("full source validation binds a frozen task graph to one CI run", () => {
     writeGraph(runId);
     return { status: 0, signal: null, error: null };
   };
-  const first = runFullSourceValidation({ cwd: directory, contentDigest, runId, taskGraphFile, resultFile, execute, now: () => 1_000 });
+  const first = runFullSourceValidation({
+    cwd: directory,
+    contentDigest,
+    runId,
+    targetId: "finance",
+    taskGraphFile,
+    resultFile,
+    execute,
+    now: () => 1_000,
+  });
   assert.equal(first.status, "passed");
   assert.equal(first.sourceRunId, runId);
+  assert.deepEqual(first.validationTarget, { kind: "unit", id: "finance" });
   assert.equal(first.taskCounts.reused, 1);
   assert.equal(first.taskCounts.pending, 1);
   assert.equal(executions, 1);
   assert.equal(executionOptions.env.CHECK_SUITE_COLLECT_FAILURES, "1");
   assert.equal(executionOptions.env.CHECK_SOURCE_RUN_ID, runId);
   assert.equal(executionOptions.env.CHECK_TASK_GRAPH_FILE, taskGraphFile);
+  assert.equal(executionOptions.env.RELEASE_VALIDATION_TARGET_ID, "finance");
   assert.throws(
-    () => runFullSourceValidation({ cwd: directory, contentDigest, runId, taskGraphFile, resultFile, execute }),
+    () => runFullSourceValidation({ cwd: directory, contentDigest, runId, targetId: "finance", taskGraphFile, resultFile, execute }),
     /already produced a source result/,
   );
 
@@ -105,13 +117,14 @@ test("full source validation binds a frozen task graph to one CI run", () => {
   runFullSourceValidation({
     contentDigest,
     runId: failedRunId,
+    targetId: "monolith",
     taskGraphFile,
     resultFile: failedFile,
     execute: () => ({ status: 2, signal: null, error: null }), cwd: directory,
     now: () => 3_000,
   });
   assert.throws(
-    () => runFullSourceValidation({ cwd: directory, contentDigest, runId: failedRunId, taskGraphFile, resultFile: failedFile, execute }),
+    () => runFullSourceValidation({ cwd: directory, contentDigest, runId: failedRunId, targetId: "monolith", taskGraphFile, resultFile: failedFile, execute }),
     /already produced a source result/,
   );
 });

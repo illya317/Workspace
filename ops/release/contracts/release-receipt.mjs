@@ -3,6 +3,8 @@ import { basename, dirname, resolve } from "node:path";
 
 const TREE_PATTERN = /^[0-9a-f]{40}$/;
 const CONTENT_PATTERN = /^[0-9a-f]{64}$/;
+const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
+const RUN_PATTERN = /^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/;
 export const SOURCE_VALIDATION_CHECKS = [
   "aggregate-source-ci",
 ];
@@ -40,21 +42,35 @@ function requireRunner(runner) {
   return runner;
 }
 
+function requireTarget(targetId) {
+  if (!TARGET_PATTERN.test(targetId ?? "")) throw new Error("release target id is invalid");
+  return targetId;
+}
+
+function requireRun(runId) {
+  if (!RUN_PATTERN.test(runId ?? "")) throw new Error("source validation CI run id is invalid");
+  return runId;
+}
+
 export function createSourceValidationReceipt({
   treeId,
   contentDigest,
+  targetId,
+  runId,
   runner = "cnb",
   completedAt = new Date().toISOString(),
 }) {
   return {
-    schemaVersion: 1,
+    schemaVersion: 3,
     kind: "workspace-source-validation",
     status: "passed",
     command: "ops/publish.sh ci",
     runner: requireRunner(runner),
     treeId: requireTree(treeId),
     contentDigest: requireContent(contentDigest),
-    scope: "full-repository",
+    targetId: requireTarget(targetId),
+    runId: requireRun(runId),
+    scope: targetId === "monolith" ? "full-repository" : "deploy-unit",
     checks: SOURCE_VALIDATION_CHECKS,
     completedAt: requireTime(completedAt),
   };
@@ -62,9 +78,14 @@ export function createSourceValidationReceipt({
 
 export function validateSourceValidationReceipt(receipt, identity) {
   requireIdentity(receipt, identity);
-  if (receipt.schemaVersion !== 1 || receipt.kind !== "workspace-source-validation"
+  const targetId = requireTarget(identity.targetId);
+  const runId = requireRun(identity.runId);
+  if (receipt.schemaVersion !== 3 || receipt.kind !== "workspace-source-validation"
     || receipt.status !== "passed" || receipt.command !== "ops/publish.sh ci"
-    || !new Set(["cnb", "local"]).has(receipt.runner) || receipt.scope !== "full-repository"
+    || !new Set(["cnb", "local"]).has(receipt.runner)
+    || receipt.targetId !== targetId
+    || receipt.runId !== runId
+    || receipt.scope !== (targetId === "monolith" ? "full-repository" : "deploy-unit")
     || JSON.stringify(receipt.checks) !== JSON.stringify(SOURCE_VALIDATION_CHECKS)) {
     throw new Error("source validation receipt contract is invalid");
   }
@@ -78,7 +99,7 @@ export function createArtifactReceipt({
   runner = "cnb",
   completedAt = new Date().toISOString(),
 }) {
-  if (!/^(monolith|[a-z][a-z0-9-]*)$/.test(targetId)) throw new Error("artifact target id is invalid");
+  if (!TARGET_PATTERN.test(targetId)) throw new Error("artifact target id is invalid");
   return {
     schemaVersion: 1,
     kind: "workspace-release-artifact",

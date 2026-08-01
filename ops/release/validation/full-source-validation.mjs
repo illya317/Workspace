@@ -9,8 +9,19 @@ import { taskGraphDigest, taskReceiptDigest } from "../contracts/task-proof-cont
 
 const COMMAND = [
   "node",
-  ["scripts/check/with-check-lock.js", "--", "node", "scripts/check/run-check-suite.mjs", "release-source"],
+  [
+    "scripts/check/with-check-lock.js",
+    "--",
+    "node",
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "scripts/check/run-check-suite.mjs",
+    "release-source",
+  ],
 ];
+
+const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
 
 function atomicWrite(file, value) {
   mkdirSync(path.dirname(file), { recursive: true });
@@ -84,6 +95,7 @@ export function runFullSourceValidation({
   cwd = process.cwd(),
   contentDigest,
   runId,
+  targetId,
   taskGraphFile,
   resultFile,
   env = process.env,
@@ -92,6 +104,7 @@ export function runFullSourceValidation({
 } = {}) {
   if (!/^[0-9a-f]{64}$/.test(contentDigest ?? "")) throw new Error("contentDigest must be SHA-256");
   if (!/^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/.test(runId ?? "")) throw new Error("CI run id is required");
+  if (!TARGET_PATTERN.test(targetId ?? "")) throw new Error("release validation target is required");
   if (!taskGraphFile) throw new Error("taskGraphFile is required");
   if (!resultFile) throw new Error("resultFile is required");
   const previous = previousResult(resultFile);
@@ -104,6 +117,7 @@ export function runFullSourceValidation({
       CHECK_SUITE_COLLECT_FAILURES: "1",
       CHECK_SOURCE_RUN_ID: runId,
       CHECK_TASK_GRAPH_FILE: taskGraphFile,
+      RELEASE_VALIDATION_TARGET_ID: targetId,
     },
   });
   const completedAtMs = now();
@@ -114,10 +128,14 @@ export function runFullSourceValidation({
     taskGraph.tasks.filter((task) => task.status === status).length,
   ]));
   const receipt = {
-    schemaVersion: 2,
-    kind: "workspace-full-source-validation-result",
+    schemaVersion: 3,
+    kind: "workspace-release-source-validation-result",
     contentDigest,
     sourceRunId: runId,
+    validationTarget: {
+      kind: targetId === "monolith" ? "monolith" : "unit",
+      id: targetId,
+    },
     taskGraphDigest: taskGraph.graphDigest,
     taskCounts,
     command: [COMMAND[0], ...COMMAND[1]].join(" "),
@@ -137,6 +155,7 @@ function parseArgs(argv) {
     const key = argv[index];
     if (key === "--content") options.contentDigest = argv[++index];
     else if (key === "--run-id") options.runId = argv[++index];
+    else if (key === "--target") options.targetId = argv[++index];
     else if (key === "--task-graph") options.taskGraphFile = argv[++index];
     else if (key === "--result-file") options.resultFile = argv[++index];
     else throw new Error(`unknown argument: ${key}`);

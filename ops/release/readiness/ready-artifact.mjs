@@ -1,12 +1,11 @@
 #!/usr/bin/env node
 
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
-  atomicWriteReceipt,
   readReceipt,
   validateArtifactReceipt,
   validateSourceValidationReceipt,
@@ -38,15 +37,19 @@ function requiredPattern(value, pattern, label) {
   return value;
 }
 
-function validateSourceProof({ proofRoot, sourceResultFile, taskGraphFile, runId, contentDigest }) {
+export function validateSourceProof({ proofRoot, sourceResultFile, taskGraphFile, runId, contentDigest, target }) {
   const sourceResult = readReceipt(sourceResultFile);
-  if (sourceResult.schemaVersion !== 2
-    || sourceResult.kind !== "workspace-full-source-validation-result"
+  if (sourceResult.schemaVersion !== 3
+    || sourceResult.kind !== "workspace-release-source-validation-result"
     || sourceResult.status !== "passed"
     || sourceResult.exitCode !== 0
     || sourceResult.sourceRunId !== runId
     || sourceResult.contentDigest !== contentDigest) {
     throw new Error("Ready Artifact requires the passed aggregate source result from this exact CI run");
+  }
+  if (sourceResult.validationTarget?.id !== target
+    || sourceResult.validationTarget?.kind !== (target === "monolith" ? "monolith" : "unit")) {
+    throw new Error("Ready Artifact source result belongs to another validation target");
   }
   const taskGraph = validateFrozenTaskGraph({
     cwd: proofRoot,
@@ -93,7 +96,12 @@ function prove(options) {
   const artifact = path.resolve(options.artifact);
   const manifestFile = path.resolve(options.manifest);
   const artifactReceiptFile = path.resolve(options.artifactReceipt);
-  const identity = { treeId: source.treeId, contentDigest: source.contentDigest, targetId: target };
+  const identity = {
+    treeId: source.treeId,
+    contentDigest: source.contentDigest,
+    targetId: target,
+    runId,
+  };
   const artifactReceipt = validateArtifactReceipt(readReceipt(artifactReceiptFile), identity);
   let manifest;
   if (target === "monolith") {
@@ -123,6 +131,7 @@ function prove(options) {
     taskGraphFile: path.resolve(options.taskGraph),
     runId,
     contentDigest: source.contentDigest,
+    target,
   });
   validateArtifactRehearsal(readReceipt(options.rehearsal), {
     repository,
@@ -167,16 +176,35 @@ function body(options) {
   };
 }
 
-function currentPointer(root) {
-  const file = path.resolve(root, "current.json");
+function readyTarget(target, targetMode) {
+  const id = requiredPattern(target ?? "monolith", TARGET_PATTERN, "target");
+  const mode = id === "monolith" ? "activate" : targetMode;
+  if (!new Set(["activate", "shadow"]).has(mode)) throw new Error("target mode is invalid");
+  if (id === "monolith" && targetMode && targetMode !== "activate") {
+    throw new Error("monolith Ready target mode must be activate");
+  }
+  return { id, mode };
+}
+
+export function readyPointerFile(root, target = "monolith", targetMode = "activate") {
+  const selected = readyTarget(target, targetMode);
+  return path.resolve(root, "pointers", selected.id, selected.mode, "current.json");
+}
+
+function currentPointer(root, target, targetMode) {
+  const selected = readyTarget(target, targetMode);
+  const file = readyPointerFile(root, selected.id, selected.mode);
   let pointer;
-  try { pointer = JSON.parse(fs.readFileSync(file, "utf8")); } catch { throw new Error("no Ready Artifact; run ops/publish.sh ci first"); }
-  if (pointer?.schemaVersion !== 1 || pointer?.kind !== "workspace-ready-pointer"
+  try { pointer = JSON.parse(fs.readFileSync(file, "utf8")); } catch {
+    throw new Error(`no Ready Artifact for ${selected.id}:${selected.mode}; run ops/publish.sh ci first`);
+  }
+  if (pointer?.schemaVersion !== 2 || pointer?.kind !== "workspace-ready-pointer"
+    || pointer.target?.id !== selected.id || pointer.target?.mode !== selected.mode
     || typeof pointer.receipt !== "string" || path.isAbsolute(pointer.receipt)
     || pointer.receipt.startsWith("../")) throw new Error("Ready Artifact pointer is invalid");
   const receiptFile = path.resolve(root, pointer.receipt);
   if (path.relative(path.resolve(root), receiptFile).startsWith("..")) throw new Error("Ready Artifact pointer escapes its root");
-  return { pointer, receiptFile };
+  return { pointer, receiptFile, selected };
 }
 
 function atomicJson(file, value) {
@@ -188,18 +216,69 @@ function atomicJson(file, value) {
   } finally { fs.rmSync(temporary, { force: true }); }
 }
 
+export function writeImmutableReadyReceipt(file, receipt) {
+  const target = path.resolve(file);
+  fs.mkdirSync(path.dirname(target), { recursive: true });
+  const serialized = `${JSON.stringify(receipt, null, 2)}\n`;
+  const temporary = `${target}.tmp-${process.pid}-${randomUUID()}`;
+  try {
+    fs.writeFileSync(temporary, serialized, { flag: "wx", mode: 0o600 });
+    try {
+      fs.linkSync(temporary, target);
+    } catch (error) {
+      if (error?.code !== "EEXIST") throw error;
+      if (fs.readFileSync(target, "utf8") !== serialized) {
+        throw new Error("Ready Artifact receipt path already contains different immutable evidence");
+      }
+    }
+  } finally {
+    fs.rmSync(temporary, { force: true });
+  }
+}
+
 export function createReadyArtifact(options) {
-  const receipt = { ...body(options), completedAt: new Date().toISOString() };
-  atomicWriteReceipt(options.output, receipt);
   const root = path.resolve(options.root);
-  const relative = path.relative(root, path.resolve(options.output));
+  const selected = readyTarget(options.target, options.targetMode);
+  const output = path.resolve(options.output);
+  const expectedReceiptDirectory = path.resolve(root, "receipts", selected.id, selected.mode);
+  if (path.dirname(output) !== expectedReceiptDirectory) {
+    throw new Error(`ready receipt must be inside receipts/${selected.id}/${selected.mode}`);
+  }
+  const receiptRunId = requiredPattern(options.runId, RUN_PATTERN, "CI run id");
+  const receiptContent = requiredPattern(options.contentDigest, DIGEST_PATTERN, "content digest");
+  const receiptConfiguration = requiredPattern(
+    options.configurationDigest,
+    DIGEST_PATTERN,
+    "configuration digest",
+  );
+  const expectedReceiptName = `${receiptRunId}-${receiptContent}-${receiptConfiguration}.json`;
+  if (path.basename(output) !== expectedReceiptName) {
+    throw new Error("ready receipt filename must bind CI run, content, and configuration");
+  }
+  const receipt = fs.existsSync(output)
+    ? verifyReadyArtifact(readReceipt(output), options)
+    : { ...body(options), completedAt: new Date().toISOString() };
+  writeImmutableReadyReceipt(output, receipt);
+  const relative = path.relative(root, output);
   if (relative.startsWith("..") || path.isAbsolute(relative)) throw new Error("ready receipt must be inside ready root");
-  atomicJson(path.join(root, "current.json"), {
-    schemaVersion: 1,
+  atomicJson(readyPointerFile(root, selected.id, selected.mode), {
+    schemaVersion: 2,
     kind: "workspace-ready-pointer",
+    target: selected,
     receipt: relative.split(path.sep).join("/"),
   });
   return receipt;
+}
+
+export function readCurrentReadyArtifact({ root, target = "monolith", targetMode = "activate" }) {
+  const current = currentPointer(root, target, targetMode);
+  const receipt = readReceipt(current.receiptFile);
+  if (receipt?.schemaVersion !== 1 || receipt.kind !== "workspace-ready-artifact"
+    || receipt.status !== "ready" || receipt.target?.id !== current.selected.id
+    || receipt.target?.mode !== current.selected.mode) {
+    throw new Error(`Ready Artifact receipt does not match selected target ${current.selected.id}:${current.selected.mode}`);
+  }
+  return { receiptFile: current.receiptFile, receipt };
 }
 
 export function verifyReadyArtifact(receipt, options) {
@@ -250,10 +329,13 @@ export function main(argv = process.argv.slice(2)) {
   if (options.command === "create") return createReadyArtifact(options);
   if (options.command === "verify") return verifyReadyArtifact(readReceipt(options.file), options);
   if (options.command === "current") {
-    const current = currentPointer(options.root);
-    const receipt = readReceipt(current.receiptFile);
-    process.stdout.write(`${JSON.stringify({ receiptFile: current.receiptFile, receipt }, null, 2)}\n`);
-    return receipt;
+    const current = readCurrentReadyArtifact({
+      root: options.root,
+      target: options.target,
+      targetMode: options.targetMode,
+    });
+    process.stdout.write(`${JSON.stringify(current, null, 2)}\n`);
+    return current.receipt;
   }
   throw new Error("usage: ready-artifact.mjs create|verify|current ...");
 }

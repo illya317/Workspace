@@ -34,15 +34,24 @@ function parseArguments(argv) {
 export function main(argv = process.argv.slice(2)) {
   const options = parseArguments(argv);
   if (!options.content || !options.tree) throw new Error("--content and --tree are required");
-  const identity = { contentDigest: options.content, treeId: options.tree };
+  const identity = {
+    contentDigest: options.content,
+    treeId: options.tree,
+    targetId: options.target,
+    runId: options.run_id,
+  };
   if (options.mode === "source-create") {
     if (!options.output) throw new Error("source-create requires --output");
+    if (!options.target) throw new Error("source-create requires --target");
+    if (!options.run_id) throw new Error("source-create requires --run-id");
     const receipt = createSourceValidationReceipt({ ...identity, runner: options.runner ?? "cnb" });
     atomicWriteReceipt(options.output, receipt);
     return receipt;
   }
   if (options.mode === "source-verify") {
     if (!options.file) throw new Error("source-verify requires --file");
+    if (!options.target) throw new Error("source-verify requires --target");
+    if (!options.run_id) throw new Error("source-verify requires --run-id");
     return validateSourceValidationReceipt(readReceipt(options.file), identity);
   }
   if (options.mode === "artifact-create") {
@@ -59,7 +68,7 @@ export function main(argv = process.argv.slice(2)) {
     if (!options.file) throw new Error("artifact-verify requires --file");
     return validateArtifactReceipt(readReceipt(options.file), { ...identity, targetId: options.target ?? "monolith" });
   }
-  throw new Error("usage: release-gate-receipt.mjs source-create|source-verify|artifact-create|artifact-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local] [--target ID]");
+  throw new Error("usage: release-gate-receipt.mjs source-create|source-verify|artifact-create|artifact-verify --content DIGEST --tree TREE --output|--file PATH [--runner cnb|local] [--target ID] [--run-id CI_RUN_ID]");
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {

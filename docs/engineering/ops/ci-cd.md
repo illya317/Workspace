@@ -24,6 +24,10 @@ ci -> Ready -> deploy
 6. 对 exact artifact 做离线部署演练：校验 archive 路径、包内 symlink、完整 runtime 依赖、basePath、server entry 和 manifest，解包到临时目录，以已迁移的 CI 数据库启动 production standalone，探测 health 与 version，然后清理进程和目录。
 7. 只有 source、CI database、artifact、演练和外部输入全部通过，才签发 Ready Artifact。
 
+source task graph 按 Ready 目标冻结。`monolith` 继续执行完整 `release-source`：完整 `release-static`、全部 Node shards 与全部 TypeScript scopes。显式 deploy unit 仍保留同一套 `release-static` 安全合同，只把三个可安全缩小的叶子换成 deploy graph 派生闭包：ESLint 扫描目标私有根、compiler closure 的共享/目标根和生成 App 根；Node 运行 compiler packages、`app`、`scripts/check`、`scripts/deploy`，并从 `unit.privateSourceRoots` 派生 `scripts/*` 等非 package 测试区（`ops` shard 由独立 Controller Ready 覆盖）；TypeScript 只运行 `unit.checks.typecheckScopes`。每个叶子仍按 exact input/command/runtime 缓存，未知 unit 或 graph scope 直接失败，不回退为猜测集合。
+
+aggregate source result 与 schema-v3 source validation receipt 都绑定 `monolith` 或精确 unit id 以及 CI run id。receipt 写入 `source-validation-<target>-<CI_RUN_ID>.json`，因此同一 content 的不同 target、以及同一 target 的多次 CI Ready 都可以并存；Ready 复验拒绝跨 target/run 的 result/receipt，复制旧 receipt 不能冒充新 run。rehearsal 写入 `rehearsal-<target>-<mode>-<CI_RUN_ID>-<config>.json`，旧 mode/run 的启动证据同样不会被覆盖或误选。
+
 Ready Artifact 绑定：
 
 - source commit、Git tree、content digest；
@@ -31,6 +35,12 @@ Ready Artifact 绑定：
 - aggregate source result、冻结 task graph 和逐任务回执集合；
 - artifact、manifest、artifact receipt 和启动演练回执的 SHA-256；
 - runtime entry、BUILD_ID、basePath 与必要部署文件。
+
+Application Ready receipt 与 current pointer 都按 `target + mode` 隔离：receipt 写入 `receipts/<target>/<mode>/<CI_RUN_ID>-<content>-<config>.json` 且不可变，pointer 写入 `pointers/<target>/<mode>/current.json` 并只指向该槽位最新签发的 receipt。`monolith` 只有 `activate`；同一 unit 的 `activate` 与 `shadow` 是互不覆盖的两个槽位。
+
+`status`、`controller-ready` 和 `deploy` 的 `--deploy-unit` / `--shadow-unit` 参数只是选择一个已经签发的 exact Ready 槽位。命令会再次核对 pointer 与 receipt 的 target/mode；selector 不能在 deploy 阶段改写 receipt、把 artifact 重定向到另一个 unit，或把 activate/shadow 相互转换。目标不存在、模式不符或 receipt 不一致时直接失败。
+
+所有 unit selector 都只接受一次且不接受保留 id `monolith`；monolith 必须通过无 selector 的默认入口选择。重复 `--deploy-unit`/`--shadow-unit`，以及 `ci --shadow-unit monolith` 等输入在候选准备前直接失败，不能静默降级为 monolith activate。
 
 无法在 CI 确定的只有生产现场事实，例如当前生产版本、部署锁、生产数据库 migration 区间、备份、writer fencing、传输后的远端 digest、原子切换、公开 health 和回滚。这些属于 deploy。
 
@@ -89,7 +99,7 @@ derived task receipt 损坏时会先移入 quarantine，再把任务改为 pendi
 - content identity 是 `Git tree + SHA-256 content digest`。commit SHA 保留用于审计和 migration ancestry，不作为 task/artifact cache 的唯一 key。
 - release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。该文件中的 `DATABASE_URL`/`DIRECT_URL` 必须指向同一专用 `*_ci` 数据库，control role 必须拥有它；生产数据库会在任何 reset 之前被拒绝。channel adapter 提供 `RELEASE_CI_DATABASE_CA_FILE`（local 优先使用 `/etc/workspace/postgresql/ca.pem`），sandbox 强制把最终 URL 固定为 `sslmode=verify-full` 和该 CA，并用相同 Node driver 证明 runtime 读取。
 - `ops/cache-policy.json` 是缓存容量、水位、retention 和 pin 的唯一版本化策略源。
-- task receipt 位于 `.cache/check-results/<task>/<input>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
+- task receipt 位于 `.cache/check-results/<task>/<input>.json`；target/run-bound source receipt 位于 `.cache/release-artifacts/evidence/<contentDigest>/source-validation-<target>-<CI_RUN_ID>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
 - 当前 production 和一个 rollback artifact 必须 pin，不参与普通 LRU 驱逐。
 - deploy 恢复 cache 时优先使用同文件系统 immutable hardlink；跨文件系统才复制。artifact 在生产传输前后仍各做必要 digest 复验。
 
@@ -151,11 +161,19 @@ OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --deploy-unit finance
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --shadow-unit finance
 
-# 只查看 Application Ready
+# 只查看 Application Ready；unit selector 选择已经签发的对应槽位
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status --deploy-unit finance
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status --shadow-unit finance
 
-# 用户下达部署命令后只消费并复验 Application Ready + Controller Ready
+# 为已签发的 unit Ready 签发同一 selector 对应的 Controller Ready
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready --deploy-unit finance
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready --shadow-unit finance
+
+# 用户下达部署命令后只消费并复验 selector 对应的 Application Ready + Controller Ready
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy --deploy-unit finance
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy --shadow-unit finance
 
 # 运维模块、依赖和体量治理
 npm run source-code-analysis:check

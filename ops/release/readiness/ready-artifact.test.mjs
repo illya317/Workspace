@@ -7,6 +7,53 @@ import test from "node:test";
 
 import { inspectArchive } from "./artifact-inspection.mjs";
 import { rehearseArtifact } from "./rehearse-artifact.mjs";
+import {
+  readCurrentReadyArtifact,
+  readyPointerFile,
+  validateSourceProof,
+  writeImmutableReadyReceipt,
+} from "./ready-artifact.mjs";
+
+test("Ready receipt creation is exact-only and never overwrites immutable evidence", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-immutable-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const file = path.join(root, "receipt.json");
+  const receipt = { schemaVersion: 1, kind: "workspace-ready-artifact", runId: "ci-first" };
+  writeImmutableReadyReceipt(file, receipt);
+  writeImmutableReadyReceipt(file, receipt);
+  assert.deepEqual(JSON.parse(fs.readFileSync(file, "utf8")), receipt);
+  assert.throws(
+    () => writeImmutableReadyReceipt(file, { ...receipt, runId: "ci-second" }),
+    /different immutable evidence/,
+  );
+  assert.deepEqual(JSON.parse(fs.readFileSync(file, "utf8")), receipt);
+});
+
+test("Ready source proof rejects a passed result from another validation target", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-source-target-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const contentDigest = "a".repeat(64);
+  const runId = "ci-20260801T000000Z-aaaaaaaaaaaa-11111111";
+  const sourceResultFile = path.join(root, "source-result.json");
+  fs.writeFileSync(sourceResultFile, JSON.stringify({
+    schemaVersion: 3,
+    kind: "workspace-release-source-validation-result",
+    status: "passed",
+    exitCode: 0,
+    sourceRunId: runId,
+    contentDigest,
+    validationTarget: { kind: "unit", id: "hr" },
+  }));
+
+  assert.throws(() => validateSourceProof({
+    proofRoot: root,
+    sourceResultFile,
+    taskGraphFile: path.join(root, "unused-task-graph.json"),
+    runId,
+    contentDigest,
+    target: "finance",
+  }), /another validation target/);
+});
 
 test("real tar root entry is accepted while the deployment runtime is inspected", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-archive-"));
@@ -71,6 +118,7 @@ const app = http.createServer((request, response) => {
   if (request.url === base + '/api/settings/version') return response.end(JSON.stringify({version}));
   response.statusCode = 404; response.end('{}');
 });
+
 app.listen(Number(process.env.PORT), process.env.HOSTNAME);
 for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => app.close(() => process.exit(0)));
 `;
@@ -109,4 +157,67 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => app.close
   assert.equal(first.status, "passed");
   assert.deepEqual(second, first);
   assert.equal(first.runtime.version, contentDigest);
+});
+
+test("Ready pointers isolate target and mode and reject cross-target receipts", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-selector-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const writeSelection = (target, mode, source) => {
+    const receiptFile = path.join(root, "receipts", target, mode, `${source}.json`);
+    fs.mkdirSync(path.dirname(receiptFile), { recursive: true });
+    fs.writeFileSync(receiptFile, JSON.stringify({
+      schemaVersion: 1,
+      kind: "workspace-ready-artifact",
+      status: "ready",
+      target: { id: target, mode },
+      source: { commitSha: source },
+    }));
+    const pointerFile = readyPointerFile(root, target, mode);
+    fs.mkdirSync(path.dirname(pointerFile), { recursive: true });
+    fs.writeFileSync(pointerFile, JSON.stringify({
+      schemaVersion: 2,
+      kind: "workspace-ready-pointer",
+      target: { id: target, mode },
+      receipt: path.relative(root, receiptFile).split(path.sep).join("/"),
+    }));
+    return pointerFile;
+  };
+
+  writeSelection("monolith", "activate", "a".repeat(40));
+  const activatePointer = writeSelection("finance", "activate", "b".repeat(40));
+  const shadowPointer = writeSelection("finance", "shadow", "c".repeat(40));
+  assert.notEqual(activatePointer, shadowPointer);
+  assert.equal(readCurrentReadyArtifact({ root }).receipt.source.commitSha, "a".repeat(40));
+  assert.equal(readCurrentReadyArtifact({ root, target: "finance", targetMode: "activate" }).receipt.source.commitSha, "b".repeat(40));
+  assert.equal(readCurrentReadyArtifact({ root, target: "finance", targetMode: "shadow" }).receipt.source.commitSha, "c".repeat(40));
+
+  const shadowPointerValue = JSON.parse(fs.readFileSync(shadowPointer, "utf8"));
+  const activatePointerValue = JSON.parse(fs.readFileSync(activatePointer, "utf8"));
+  shadowPointerValue.receipt = activatePointerValue.receipt;
+  fs.writeFileSync(shadowPointer, JSON.stringify(shadowPointerValue));
+  assert.throws(
+    () => readCurrentReadyArtifact({ root, target: "finance", targetMode: "shadow" }),
+    /receipt does not match selected target finance:shadow/,
+  );
+
+  shadowPointerValue.receipt = path.relative(
+    root,
+    path.join(root, "receipts", "finance", "shadow", `${"c".repeat(40)}.json`),
+  ).split(path.sep).join("/");
+  shadowPointerValue.target.mode = "activate";
+  fs.writeFileSync(shadowPointer, JSON.stringify(shadowPointerValue));
+  assert.throws(
+    () => readCurrentReadyArtifact({ root, target: "finance", targetMode: "shadow" }),
+    /pointer is invalid/,
+  );
+});
+
+test("Ready selector fails closed for missing target and forbids monolith shadow", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-selector-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  assert.throws(
+    () => readCurrentReadyArtifact({ root, target: "finance", targetMode: "activate" }),
+    /no Ready Artifact for finance:activate/,
+  );
+  assert.throws(() => readyPointerFile(root, "monolith", "shadow"), /must be activate/);
 });

@@ -12,6 +12,8 @@ const e2e = readFileSync(new URL("./run-release-e2e.sh", import.meta.url), "utf8
 test("source gate freezes one CI-run task graph and emits evidence only after aggregate success", () => {
   assert.match(gate, /--run-id "\$CHECK_SOURCE_RUN_ID"/);
   assert.match(gate, /--task-graph "\$CHECK_TASK_GRAPH_FILE"/);
+  assert.match(gate, /--run-id "\$CHECK_SOURCE_RUN_ID"/);
+  assert.match(gate, /source-validation-\$TARGET_ID-\$CHECK_SOURCE_RUN_ID\.json/);
   assert.match(gate, /source_status=\$\?/);
   assert.ok(gate.indexOf("source_status=$?") < gate.indexOf("source-create"));
   assert.doesNotMatch(gate, /build-standalone-artifact|build-deploy-unit-artifact|CHECK_SOURCE_PLAN_ID/);
@@ -30,6 +32,7 @@ test("one CI invocation runs source and artifact tasks and reports both statuses
   assert.match(ci, /run-cnb-release-gate\.sh[\s\S]*?source_status=\$\?[\s\S]*?build-cnb-release-target\.sh[\s\S]*?artifact_status=\$\?/);
   assert.match(ci, /rehearse-artifact\.mjs[\s\S]*?rehearsal_status=\$\?/);
   assert.match(ci, /未签发 Ready Artifact/);
+  assert.match(ci, /rehearsal-\$TARGET_ID-\$TARGET_MODE-\$CI_RUN_ID-\$RELEASE_CONFIGURATION_DIGEST\.json/);
 });
 
 test("one channel-neutral CI database sandbox migrates before source, artifact, and rehearsal", () => {
