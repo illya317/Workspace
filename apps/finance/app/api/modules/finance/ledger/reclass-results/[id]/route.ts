@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   buildReclassResultPatchCommand,
   executeReclassResultPatchCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { reclassResultIdSchema } from "@workspace/finance/server/ledger/reclass-results/schemas";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 

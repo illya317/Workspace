@@ -1,11 +1,10 @@
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import {
-  buildFinanceIdCommand,
   buildFinancePeriodCreateCommand,
-  buildFinancePeriodScopeCommand,
   buildFinancePeriodUpdateCommand,
-} from "../domain/finance-validation";
+} from "./validation";
+import { buildFinanceIdCommand, buildFinancePeriodScopeCommand } from "../domain/shared-validation";
 
 export type ListFinancePeriodsInput = {
   year?: number;

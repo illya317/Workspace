@@ -13,6 +13,7 @@ import {
 import {
   analysisTableRows,
   capabilityAnalysisTableRows,
+  createCapabilityAnalysisColumns,
   createSourceCodeAnalysisSection,
   createSourceCodeAnalysisColumns,
 } from "./SourceCodeAnalysisSection";
@@ -72,11 +73,16 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       legacyUnclassifiedCapabilityFileCount: 0,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
     modules,
     capabilities: [{
       moduleKey: "work",
       key: "meetings",
+      parentKey: null,
+      depth: 2,
       label: "会议",
       fileCount: 1,
       lines: 5_000,
@@ -116,6 +122,7 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       reExportCount: 0,
       typeOnlyReExportCount: 0,
     }],
+    capabilityContractViolations: [],
     reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
     invalidDependencyDirections: [],
@@ -128,6 +135,9 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       legacyUnclassifiedCapabilityFiles: [],
       newUnclassifiedCapabilityFiles: [],
       ambiguousCapabilityFiles: [],
+      legacyCapabilityContractViolations: [],
+      newCapabilityContractViolations: [],
+      staleCapabilityContractBaseline: [],
     },
   };
 }
@@ -346,7 +356,31 @@ test("summary shows the backend-computed invalid direction count independently o
   });
 });
 
-test("L2 capability rows and section use backend ownership and dependency counts", () => {
+test("summary distinguishes new recursive-boundary violations from ratcheted historical debt", () => {
+  const snapshot = analysisSnapshot();
+  snapshot.summary.newCapabilityContractViolationCount = 2;
+  snapshot.summary.legacyCapabilityContractViolationCount = 8;
+  const section = createSourceCodeAnalysisSection(snapshot);
+  assert.equal(section.body.kind, "section");
+  if (section.body.kind !== "section" || section.body.layout === "split") return;
+  const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
+  assert.equal(summary?.body.kind, "data");
+  if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "new-capability-boundary")?.value, {
+    kind: "text",
+    value: "2",
+    tone: "danger",
+    font: "mono",
+  });
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "legacy-capability-boundary")?.value, {
+    kind: "text",
+    value: "8",
+    tone: "warning",
+    font: "mono",
+  });
+});
+
+test("source module rows and section use backend ownership and dependency counts", () => {
   const snapshot = analysisSnapshot();
   assert.deepEqual(capabilityAnalysisTableRows(snapshot).map((row) => ({
     module: row.moduleLabel,
@@ -359,4 +393,101 @@ test("L2 capability rows and section use backend ownership and dependency counts
   assert.equal(section.body.kind, "section");
   if (section.body.kind !== "section" || section.body.layout === "split") return;
   assert.ok(section.body.sections?.some((candidate) => candidate.key === "source-code-analysis-capability-table"));
+});
+
+test("source module rows follow the recursive parent tree instead of sorting every depth as peers", () => {
+  const snapshot = analysisSnapshot();
+  const workModule = snapshot.modules.find((module) => module.key === "work")!;
+  workModule.lines = 60;
+  workModule.fileCount = 3;
+  workModule.roles = roleCounts("application", 50);
+  workModule.roles.input = 10;
+  snapshot.capabilities = [
+    {
+      ...snapshot.capabilities[0],
+      key: "entry",
+      parentKey: null,
+      depth: 1,
+      label: "L1 接入层",
+      fileCount: 1,
+      lines: 10,
+      roles: roleCounts("input", 10),
+    },
+    {
+      ...snapshot.capabilities[0],
+      key: "tasks",
+      parentKey: null,
+      depth: 2,
+      label: "任务",
+      fileCount: 1,
+      lines: 20,
+      roles: roleCounts("application", 20),
+    },
+    {
+      ...snapshot.capabilities[0],
+      key: "task-import",
+      parentKey: "tasks",
+      depth: 3,
+      label: "任务导入",
+      fileCount: 1,
+      lines: 30,
+      roles: roleCounts("application", 30),
+    },
+  ];
+
+  assert.deepEqual(
+    capabilityAnalysisTableRows(snapshot)
+      .filter((row) => row.moduleKey === "work")
+      .map((row) => [row.key, row.depth]),
+    [["entry", 1], ["tasks", 2], ["task-import", 3]],
+  );
+});
+
+test("source module columns use the same responsibility groups as L1", () => {
+  const collapsed = createCapabilityAnalysisColumns({
+    expandedGroupKey: null,
+    onToggleGroup: () => undefined,
+  });
+  assert.deepEqual(collapsed.map((column) => column.key), [
+    "module",
+    "capability",
+    "total",
+    "entry",
+    "application",
+    "adapter",
+    "domain",
+    "contract",
+    "assurance",
+    "files",
+    "dependencies",
+  ]);
+
+  const expanded = createCapabilityAnalysisColumns({
+    expandedGroupKey: "domain",
+    onToggleGroup: () => undefined,
+  });
+  assert.deepEqual(expanded.slice(7, 9).map((column) => column.key), [
+    "domain:domainValidation",
+    "domain:domain",
+  ]);
+});
+
+test("source module rows expose unassigned responsibility lines so module totals reconcile", () => {
+  const snapshot = analysisSnapshot();
+  const work = snapshot.modules.find((module) => module.key === "work");
+  assert.ok(work);
+  work.fileCount = 2;
+  work.lines = 5_500;
+  work.roles = {
+    ...work.roles,
+    application: 500,
+  };
+
+  const rows = capabilityAnalysisTableRows(snapshot).filter((row) => row.moduleKey === "work");
+  assert.deepEqual(rows.map((row) => [row.label, row.lines, row.ownership]), [
+    ["会议", 5_000, "declared"],
+    ["跨模块 / 待拆分", 500, "unassigned"],
+  ]);
+  assert.equal(rows.reduce((sum, row) => sum + row.lines, 0), work.lines);
+  assert.equal(rows.at(-1)?.roles.application, 500);
 });

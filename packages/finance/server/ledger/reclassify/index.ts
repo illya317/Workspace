@@ -8,7 +8,7 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { buildReclassBuildCommand } from "../../domain/finance-validation";
+import { buildReclassBuildCommand } from "../validation";
 import { ItemStatus } from "./types";
 import type {
   BuildReclassResultsOptions,

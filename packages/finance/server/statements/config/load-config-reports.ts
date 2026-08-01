@@ -1,4 +1,4 @@
-import { buildFinancePeriodScopeCommand } from "../../domain/finance-validation";
+import { buildFinancePeriodScopeCommand } from "../../domain/shared-validation";
 import { CASH_FLOW_LINES, type CashFlowLineConfig } from "./cash-flow-lines";
 import { INCOME_STATEMENT_LINES, type IncomeLineConfig } from "./income-statement-lines";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";

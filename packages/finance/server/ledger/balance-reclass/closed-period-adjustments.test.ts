@@ -50,7 +50,7 @@ mockModule("@workspace/platform/server/prisma", {
     },
   },
 });
-mockModule("../../domain/finance-validation", {
+mockModule("../validation", {
   namedExports: {
     buildSaveBalanceReclassAdjustmentChangeSetCommand: (input: unknown) => ({ ok: true, data: { input } }),
   },

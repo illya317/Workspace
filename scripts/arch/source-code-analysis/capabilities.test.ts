@@ -4,11 +4,13 @@ import test from "node:test";
 import {
   capabilityGovernedModuleForPath,
   parseCapabilityOwnershipBaseline,
+  sourceCapabilityDepth,
   sourceCapabilityDeclarationsForPath,
+  validateSourceCapabilityDeclarations,
   type SourceCapabilityDeclaration,
 } from "./capabilities";
 
-test("four governed packages assign semantic directory and root files to L2 capabilities", () => {
+test("four governed packages assign semantic directory and root files to recursive modules", () => {
   const examples = [
     ["platform", "packages/platform/server/approvals/store.ts", "workflow-approvals"],
     ["platform", "packages/platform/source-code-analysis-contract.ts", "platform-foundation"],
@@ -36,19 +38,33 @@ test("unknown package paths and non-governed modules do not inherit a catch-all 
   assert.equal(capabilityGovernedModuleForPath("app/api/modules/work/route.ts"), null);
 });
 
+test("L1 application ingress is declared separately from nested package modules", () => {
+  assert.deepEqual(
+    sourceCapabilityDeclarationsForPath("finance", "app/api/modules/finance/ledger/vouchers/route.ts")
+      .map((candidate) => [candidate.key, sourceCapabilityDepth(candidate)]),
+    [["entry", 1]],
+  );
+});
+
 test("matching collects every candidate so overlapping declarations remain ambiguous", () => {
   const declarations: SourceCapabilityDeclaration[] = [
     {
       moduleKey: "work",
       key: "projects",
+      kind: "module",
+      parentKey: null,
       label: "项目",
       include: [{ kind: "prefix", path: "packages/work/server/" }],
+      interface: [],
     },
     {
       moduleKey: "work",
       key: "meetings",
+      kind: "module",
+      parentKey: null,
       label: "会议",
       include: [{ kind: "file", path: "packages/work/server/meetings.ts" }],
+      interface: [],
     },
   ];
 
@@ -57,6 +73,73 @@ test("matching collects every candidate so overlapping declarations remain ambig
       .map((candidate) => candidate.key),
     ["projects", "meetings"],
   );
+});
+
+test("recursive ownership selects the deepest node and supports L3/L4 without level-specific logic", () => {
+  const declarations: SourceCapabilityDeclaration[] = [
+    {
+      moduleKey: "finance",
+      key: "ledger",
+      kind: "module",
+      parentKey: null,
+      label: "总账",
+      include: [{ kind: "prefix", path: "packages/finance/server/ledger/" }],
+      interface: [],
+    },
+    {
+      moduleKey: "finance",
+      key: "vouchers",
+      kind: "module",
+      parentKey: "ledger",
+      label: "凭证",
+      include: [{ kind: "prefix", path: "packages/finance/server/ledger/vouchers/" }],
+      interface: [],
+    },
+    {
+      moduleKey: "finance",
+      key: "voucher-import",
+      kind: "module",
+      parentKey: "vouchers",
+      label: "凭证导入",
+      include: [{ kind: "prefix", path: "packages/finance/server/ledger/vouchers/import/" }],
+      interface: [],
+    },
+  ];
+
+  assert.deepEqual(
+    sourceCapabilityDeclarationsForPath(
+      "finance",
+      "packages/finance/server/ledger/vouchers/import/parser.ts",
+      declarations,
+    ).map((candidate) => candidate.key),
+    ["voucher-import"],
+  );
+  assert.equal(sourceCapabilityDepth(declarations[0], declarations), 2);
+  assert.equal(sourceCapabilityDepth(declarations[1], declarations), 3);
+  assert.equal(sourceCapabilityDepth(declarations[2], declarations), 4);
+});
+
+test("recursive module contract rejects missing parents, cycles, and duplicate nodes", () => {
+  const node = (key: string, parentKey: string | null): SourceCapabilityDeclaration => ({
+    moduleKey: "work",
+    key,
+    kind: "module",
+    parentKey,
+    label: key,
+    include: [],
+    interface: [],
+  });
+
+  assert.throws(() => validateSourceCapabilityDeclarations([node("tasks", "missing")]), /missing capability parent/);
+  assert.throws(() => validateSourceCapabilityDeclarations([
+    node("tasks", "projects"),
+    node("projects", "tasks"),
+  ]), /capability parent cycle/);
+  assert.throws(() => validateSourceCapabilityDeclarations([node("tasks", null), node("tasks", null)]), /duplicate capability declaration/);
+  assert.throws(() => validateSourceCapabilityDeclarations([{
+    ...node("tasks", null),
+    interface: [{ kind: "file", path: "packages/work/server/outside.ts" }],
+  }]), /Interface escapes owned Implementation/);
 });
 
 test("baseline parser rejects misspelled modules, extra top-level structure, and duplicates", () => {

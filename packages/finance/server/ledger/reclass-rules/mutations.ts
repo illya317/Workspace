@@ -5,7 +5,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildSaveReclassRuleChangeSetCommand,
   type SaveReclassRuleChangeSetInput,
-} from "../../domain/finance-validation";
+} from "../validation";
 import { AutomaticReclassConflictError } from "../balance-reclass/automatic";
 import { loadGroupAccountIdsWithAuxiliaryFacts } from "./candidates";
 import { materializeConfirmedReclassAdjustments } from "./materialize-confirmed";

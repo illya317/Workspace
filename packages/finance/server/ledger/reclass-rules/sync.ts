@@ -4,7 +4,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildReclassResults } from "../reclassify";
 import { syncBalanceReclassForYear } from "../balance-reclass";
-import { buildReclassRuleScopeCommand } from "../../domain/finance-validation";
+import { buildReclassRuleScopeCommand } from "../validation";
 
 export interface SyncReclassResult {
   periods: number;

@@ -9,8 +9,13 @@ export interface SourceCapabilityPathRule {
 export interface SourceCapabilityDeclaration {
   moduleKey: CapabilityGovernedModuleKey;
   key: string;
+  kind: "module" | "entry";
+  /** Null means the product L1 is the parent. Otherwise this points at another node in the same tree. */
+  parentKey: string | null;
   label: string;
   include: readonly SourceCapabilityPathRule[];
+  /** Explicit public Interface paths that other branches may import. */
+  interface: readonly SourceCapabilityPathRule[];
 }
 
 export const CAPABILITY_GOVERNED_MODULE_KEYS = ["platform", "finance", "work", "hr"] as const;
@@ -27,6 +32,8 @@ export const CAPABILITY_OWNERSHIP_BASELINE_PATH =
 function rules(moduleKey: CapabilityGovernedModuleKey, options: {
   files?: readonly string[];
   prefixes?: readonly string[];
+  rootFiles?: readonly string[];
+  rootPrefixes?: readonly string[];
 }): SourceCapabilityPathRule[] {
   const packagePrefix = `packages/${moduleKey}/`;
   return [
@@ -38,6 +45,8 @@ function rules(moduleKey: CapabilityGovernedModuleKey, options: {
       kind: "prefix" as const,
       path: `${packagePrefix}${relativePath}`,
     })),
+    ...(options.rootFiles ?? []).map((rootPath) => ({ kind: "file" as const, path: rootPath })),
+    ...(options.rootPrefixes ?? []).map((rootPath) => ({ kind: "prefix" as const, path: rootPath })),
   ];
 }
 
@@ -45,12 +54,32 @@ function capability(
   moduleKey: CapabilityGovernedModuleKey,
   key: string,
   label: string,
-  options: Parameters<typeof rules>[1],
+  options: Parameters<typeof rules>[1] & {
+    parentKey?: string | null;
+    kind?: "module" | "entry";
+    interfaceFiles?: readonly string[];
+    interfacePrefixes?: readonly string[];
+  },
 ): SourceCapabilityDeclaration {
-  return { moduleKey, key, label, include: rules(moduleKey, options) };
+  return {
+    moduleKey,
+    key,
+    kind: options.kind ?? "module",
+    parentKey: options.parentKey ?? null,
+    label,
+    include: rules(moduleKey, options),
+    interface: rules(moduleKey, {
+      files: options.interfaceFiles,
+      prefixes: options.interfacePrefixes,
+    }),
+  };
 }
 
 export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaration[] = [
+  capability("platform", "entry", "L1 接入与组合层", {
+    kind: "entry",
+    rootPrefixes: ["app/"],
+  }),
   capability("platform", "shell-navigation", "应用壳与导航", {
     files: [
       "effective-module-registry.ts", "mobile-experience.ts", "modules.tsx",
@@ -151,7 +180,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   capability("platform", "platform-foundation", "平台基础契约与运行支撑", {
     files: [
       "README.md", "api-contract-types.ts", "completion-date-policy.ts", "index.ts", "package.json",
-      "production-batch-number.ts", "route-runtime-labels.test.ts", "route-runtime-labels.ts",
+      "deploy-unit-catalog.ts", "production-batch-number.ts", "route-runtime-labels.test.ts", "route-runtime-labels.ts",
       "search.ts", "service-result.ts", "source-code-analysis-contract.ts", "tenant-config.ts",
       "tsconfig.json", "server/api-route.ts", "server/api.test.ts", "server/api.ts",
       "server/audit-log.ts", "server/business-date.test.ts", "server/business-date.ts",
@@ -165,6 +194,10 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     prefixes: ["audit/", "calendar/", "contracts/", "integrations/", "server/api/", "server/open-api/", "types/"],
   }),
 
+  capability("finance", "entry", "L1 接入与组合层", {
+    kind: "entry",
+    rootPrefixes: ["app/(modules)/finance/", "app/api/modules/finance/"],
+  }),
   capability("finance", "assets", "资产", {
     prefixes: ["server/assets/", "ui/assets/", "types/assets", "constants/assets", "server/domain/asset-"],
   }),
@@ -220,11 +253,17 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   capability("finance", "shared-contracts", "财务公共契约", {
     files: [
       "README.md", "business-temporal.ts", "index.ts", "module.ts", "package.json",
+      "server/domain/shared-validation.ts",
       "constants/index.ts", "server/index.ts", "server/workbook-formula-contract.test.ts",
       "server/workbook-formula-contract.ts", "types/index.ts", "ui/index.ts", "tsconfig.json",
     ],
+    interfaceFiles: ["server/domain/shared-validation.ts"],
   }),
 
+  capability("work", "entry", "L1 接入与组合层", {
+    kind: "entry",
+    rootPrefixes: ["app/(modules)/work/", "app/api/modules/work/"],
+  }),
   capability("work", "meetings", "会议", { prefixes: ["server/meetings/", "ui/meetings/"] }),
   capability("work", "projects", "项目", {
     files: ["ui/tabs/ProjectTab.tsx"],
@@ -283,11 +322,22 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     prefixes: ["server/work-mutation-impact-", "server/domain/work-mutation-impact-"],
   }),
 
+  capability("hr", "entry", "L1 接入与组合层", {
+    kind: "entry",
+    rootPrefixes: ["app/(modules)/hr/", "app/api/modules/hr/", "app/api/open/v1/hr/"],
+  }),
+  capability("hr", "library-export", "人事资料输出", {
+    files: ["server/library-source.ts"],
+  }),
   capability("hr", "analysis", "人事分析", {
     files: ["server/analysis.ts"],
     prefixes: ["server/analysis/", "ui/analytics/"],
   }),
   capability("hr", "employment-lifecycle", "员工与雇佣生命周期", {
+    files: [
+      "server/domain/page-draft-validation.test.ts",
+      "server/domain/page-draft-validation.ts",
+    ],
     prefixes: [
       "employee-", "employment-", "server/agreement-", "server/contract-", "server/contracts.",
       "server/employee-", "server/employees.", "server/employment-", "server/employments.",
@@ -340,8 +390,111 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   }),
 ] as const;
 
-function matchesCapabilityRule(relativePath: string, rule: SourceCapabilityPathRule) {
+export function matchesCapabilityRule(relativePath: string, rule: SourceCapabilityPathRule) {
   return rule.kind === "file" ? relativePath === rule.path : relativePath.startsWith(rule.path);
+}
+
+const CAPABILITY_KEY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+export function sourceCapabilityDeclarationId(
+  declaration: Pick<SourceCapabilityDeclaration, "moduleKey" | "key">,
+) {
+  return `${declaration.moduleKey}\0${declaration.key}`;
+}
+
+/**
+ * Validates an arbitrarily deep product-module tree and returns each node's
+ * depth (L2 = 2, L3 = 3, ...). This is deliberately parent-based instead of
+ * carrying a fixed level enum, so future L3/L4 nodes use the same contract.
+ */
+export function validateSourceCapabilityDeclarations(
+  declarations: readonly SourceCapabilityDeclaration[],
+): ReadonlyMap<string, number> {
+  const byId = new Map<string, SourceCapabilityDeclaration>();
+  for (const declaration of declarations) {
+    if (!CAPABILITY_GOVERNED_MODULE_KEYS.includes(declaration.moduleKey)) {
+      throw new Error(`[source-code-analysis] unknown capability module: ${declaration.moduleKey}`);
+    }
+    if (!CAPABILITY_KEY_PATTERN.test(declaration.key)) {
+      throw new Error(`[source-code-analysis] invalid capability key: ${declaration.moduleKey}/${declaration.key}`);
+    }
+    if (declaration.kind === "entry" && declaration.parentKey !== null) {
+      throw new Error(`[source-code-analysis] entry capability must be an L1 boundary: ${declaration.moduleKey}/${declaration.key}`);
+    }
+    for (const interfaceRule of declaration.interface) {
+      const contained = declaration.include.some((includeRule) => {
+        if (interfaceRule.kind === "file") return matchesCapabilityRule(interfaceRule.path, includeRule);
+        return includeRule.kind === "prefix" && interfaceRule.path.startsWith(includeRule.path);
+      });
+      if (!contained) {
+        throw new Error(
+          `[source-code-analysis] capability Interface escapes owned Implementation: ${declaration.moduleKey}/${declaration.key} -> ${interfaceRule.path}`,
+        );
+      }
+    }
+    const id = sourceCapabilityDeclarationId(declaration);
+    if (byId.has(id)) {
+      throw new Error(`[source-code-analysis] duplicate capability declaration: ${declaration.moduleKey}/${declaration.key}`);
+    }
+    byId.set(id, declaration);
+  }
+  for (const moduleKey of CAPABILITY_GOVERNED_MODULE_KEYS) {
+    const entries = declarations.filter((declaration) =>
+      declaration.moduleKey === moduleKey && declaration.kind === "entry");
+    if (entries.length > 1) {
+      throw new Error(`[source-code-analysis] multiple L1 entry declarations: ${moduleKey}`);
+    }
+  }
+
+  for (const declaration of declarations) {
+    if (declaration.parentKey === null) continue;
+    if (declaration.parentKey === declaration.key) {
+      throw new Error(`[source-code-analysis] capability cannot parent itself: ${declaration.moduleKey}/${declaration.key}`);
+    }
+    if (!byId.has(`${declaration.moduleKey}\0${declaration.parentKey}`)) {
+      throw new Error(
+        `[source-code-analysis] missing capability parent: ${declaration.moduleKey}/${declaration.key} -> ${declaration.parentKey}`,
+      );
+    }
+  }
+
+  const depths = new Map<string, number>();
+  const visiting = new Set<string>();
+  function depthFor(declaration: SourceCapabilityDeclaration): number {
+    const id = sourceCapabilityDeclarationId(declaration);
+    const known = depths.get(id);
+    if (known !== undefined) return known;
+    if (visiting.has(id)) {
+      throw new Error(`[source-code-analysis] capability parent cycle: ${declaration.moduleKey}/${declaration.key}`);
+    }
+    visiting.add(id);
+    const depth = declaration.kind === "entry"
+      ? 1
+      : declaration.parentKey === null
+      ? 2
+      : depthFor(byId.get(`${declaration.moduleKey}\0${declaration.parentKey}`)!) + 1;
+    visiting.delete(id);
+    depths.set(id, depth);
+    return depth;
+  }
+  for (const declaration of declarations) depthFor(declaration);
+  return depths;
+}
+
+const SOURCE_CAPABILITY_DEPTHS = validateSourceCapabilityDeclarations(SOURCE_CAPABILITY_DECLARATIONS);
+
+export function sourceCapabilityDepth(
+  declaration: Pick<SourceCapabilityDeclaration, "moduleKey" | "key">,
+  declarations: readonly SourceCapabilityDeclaration[] = SOURCE_CAPABILITY_DECLARATIONS,
+) {
+  const depths = declarations === SOURCE_CAPABILITY_DECLARATIONS
+    ? SOURCE_CAPABILITY_DEPTHS
+    : validateSourceCapabilityDeclarations(declarations);
+  const depth = depths.get(sourceCapabilityDeclarationId(declaration));
+  if (depth === undefined) {
+    throw new Error(`[source-code-analysis] undeclared capability depth: ${declaration.moduleKey}/${declaration.key}`);
+  }
+  return depth;
 }
 
 export function capabilityGovernedModuleForPath(relativePath: string) {
@@ -349,17 +502,27 @@ export function capabilityGovernedModuleForPath(relativePath: string) {
     relativePath.startsWith(`packages/${moduleKey}/`)) ?? null;
 }
 
-/** 收集全部候选，调用方必须把 0 个和多个候选分别诊断，不能依赖声明顺序吞掉重叠。 */
+/**
+ * The deepest matching node owns a file. Ancestor and descendant path overlap
+ * is intentional; two matching nodes at the same depth remain ambiguous.
+ */
 export function sourceCapabilityDeclarationsForPath(
   moduleKey: string,
   relativePath: string,
   declarations: readonly SourceCapabilityDeclaration[] = SOURCE_CAPABILITY_DECLARATIONS,
 ) {
   if (!CAPABILITY_GOVERNED_MODULE_KEYS.includes(moduleKey as CapabilityGovernedModuleKey)) return [];
-  if (capabilityGovernedModuleForPath(relativePath) !== moduleKey) return [];
-  return declarations.filter((declaration) =>
+  const matches = declarations.filter((declaration) =>
     declaration.moduleKey === moduleKey
     && declaration.include.some((rule) => matchesCapabilityRule(relativePath, rule)));
+  if (matches.length < 2) return matches;
+  const depths = declarations === SOURCE_CAPABILITY_DECLARATIONS
+    ? SOURCE_CAPABILITY_DEPTHS
+    : validateSourceCapabilityDeclarations(declarations);
+  const deepest = Math.max(...matches.map((declaration) =>
+    depths.get(sourceCapabilityDeclarationId(declaration)) ?? 0));
+  return matches.filter((declaration) =>
+    depths.get(sourceCapabilityDeclarationId(declaration)) === deepest);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

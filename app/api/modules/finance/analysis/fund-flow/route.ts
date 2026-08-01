@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { executeFundFlowAnalysisCommand } from "@workspace/finance/server/route-commands";
+import { executeFundFlowAnalysisCommand } from "@workspace/finance/server/analysis/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

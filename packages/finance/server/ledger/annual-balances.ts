@@ -3,9 +3,8 @@ import type { PreviewResult } from "../import/import";
 import type { SideBalance } from "./balance-utils";
 import {
   buildBalanceSnapshotCommand,
-  buildFinanceIdCommand,
-  buildFinancePeriodScopeCommand,
-} from "../domain/finance-validation";
+} from "./validation";
+import { buildFinanceIdCommand, buildFinancePeriodScopeCommand } from "../domain/shared-validation";
 
 /**
  * 查找 targetYear 及之前最近一个 active baseline snapshot 的年份。

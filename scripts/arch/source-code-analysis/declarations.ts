@@ -77,6 +77,10 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/check/check-prisma-deploy-status.js",
   "scripts/ci/check-migration-policy.mjs",
   "scripts/ci/verify-artifact-manifest.mjs",
+  "scripts/deploy/deploy-graph.ts",
+  "scripts/deploy/deploy-navigation-manifest.ts",
+  "scripts/deploy/deploy-unit-app-generator.ts",
+  "scripts/deploy/deploy-unit-spec.ts",
   "scripts/provision-agent-workforce.mjs",
   "scripts/runtime/run-with-repo-node.sh",
   "scripts/runtime/wecom-agent-bot.mjs",
@@ -89,6 +93,7 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/runtime/wecom-notification-delivery.mjs",
   "scripts/runtime/wecom-notification-delivery.test.mjs",
   "scripts/seed-resources-runtime.mjs",
+  "scripts/testing/module-impact-map.ts",
   "scripts/write-resource-manifest.ts",
 ] as const;
 const productionRuntimePaths = ["ops/", ...PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS];

@@ -2,15 +2,8 @@
   "schemaVersion": 1,
   "legacyUnclassifiedFiles": {
     "platform": [],
-    "finance": [
-      "packages/finance/server/domain/finance-validation.ts",
-      "packages/finance/server/route-commands.ts"
-    ],
+    "finance": [],
     "work": [],
-    "hr": [
-      "packages/hr/server/domain/page-draft-validation.test.ts",
-      "packages/hr/server/domain/page-draft-validation.ts",
-      "packages/hr/server/library-source.ts"
-    ]
+    "hr": []
   }
 }

@@ -5,9 +5,8 @@ import { snapshotHistory } from "@workspace/platform/server/history";
 import {
   buildFinanceAccountCreateCommand,
   buildFinanceAccountUpdateCommand,
-  buildFinanceIdCommand,
-  validYear,
-} from "../domain/finance-validation";
+} from "./validation";
+import { buildFinanceIdCommand, validYear } from "../domain/shared-validation";
 import { diagnoseGroupAccountMapping, type GroupMappingReviewCandidate } from "./group-accounts/mapping-review";
 import { resolveFinanceAccountingPolicyVersionAt } from "./group-accounts/policy-version-service";
 import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./group-accounts/source-accounts";

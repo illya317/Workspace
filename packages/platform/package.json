@@ -25,6 +25,7 @@
     "./completion-date-policy": "./completion-date-policy.ts",
     "./data-quality-contract": "./data-quality-contract.ts",
     "./data-quality-provider-registry": "./data-quality-provider-registry.ts",
+    "./deploy-unit-catalog": "./deploy-unit-catalog.ts",
     "./contracts/*": "./contracts/*.ts",
     "./calendar": "./calendar/index.ts",
     "./hooks": "./hooks/index.ts",

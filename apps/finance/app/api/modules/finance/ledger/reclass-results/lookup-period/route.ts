@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   buildLookupFinancePeriodCommand,
   executeLookupFinancePeriodCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const optionalNumber = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
   z.number().int().optional(),

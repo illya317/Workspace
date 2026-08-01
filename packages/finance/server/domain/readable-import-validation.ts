@@ -4,7 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 
-import { buildFinancePeriodScopeCommand, requiredText } from "./finance-validation";
+import { buildFinancePeriodScopeCommand, requiredText } from "./shared-validation";
 
 export interface FinanceReadableBatchWriteInput {
   companyCode: unknown;

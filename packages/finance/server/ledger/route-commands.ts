@@ -1,4 +1,4 @@
-import { serviceError, serviceOk, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceError, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
 import {
   isStatementPeriodEnd,
   STATEMENT_PERIOD_KINDS,
@@ -11,55 +11,44 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 
-import { deleteImportById, getImportById, listImports } from "./cost/import";
-import { getBudgetAnalysis } from "./analysis/budget-analysis";
-import { getFundFlowAnalysis } from "./analysis/fund-flow-analysis";
-import { getManagementAnalysis } from "./analysis/management-analysis";
-import { deriveRows } from "./ledger/reclass-results/derived";
-import { computeReclassification } from "./schedules/reclassify";
-import { getReportDetail } from "./statements/report-detail";
+import { buildFinancePeriodScopeCommand } from "../domain/shared-validation";
+import { computeReclassification } from "../schedules/reclassify";
+import { deriveRows } from "./reclass-results/derived";
 import {
-  buildFinanceIdCommand,
-  buildFinancePeriodScopeCommand,
   buildSaveBalanceReclassAdjustmentChangeSetCommand,
   buildSaveReclassRuleChangeSetCommand,
   type SaveBalanceReclassAdjustmentChangeSetInput,
   type SaveReclassRuleChangeSetInput,
-} from "./domain/finance-validation";
-import { listFinanceBalances, recomputeFinanceBalances } from "./ledger/balance-api";
+} from "./validation";
+import { listFinanceBalances, recomputeFinanceBalances } from "./balance-api";
 import {
   replayFinanceBalanceCutover,
   type FinanceBalanceCutoverReplayScope,
-} from "./ledger/balance-cutover-replay";
+} from "./balance-cutover-replay";
 import {
   listCounterpartyBalances,
   type ListCounterpartyBalancesInput,
-} from "./ledger/counterparty-balances";
-import { lookupFinancePeriodId, initializeFinanceDefaults } from "./ledger/periods";
-import { buildReclassResults } from "./ledger/reclassify";
-import { listReclassResults } from "./ledger/reclass-results/list";
+} from "./counterparty-balances";
+import { lookupFinancePeriodId, initializeFinanceDefaults } from "./periods";
+import { buildReclassResults } from "./reclassify";
+import { listReclassResults } from "./reclass-results/list";
 import {
   createManualReclassResult,
   reviewReclassResult,
   ReviewError,
-} from "./ledger/reclass-results/review";
+} from "./reclass-results/review";
 import {
   manualReclassResultSchema,
   reviewReclassPayloadSchema,
-} from "./ledger/reclass-results/schemas";
-import { saveReclassRuleChangeSet, scanCandidates } from "./ledger/reclass-rules";
-import { saveBalanceReclassAdjustmentChangeSet } from "./ledger/balance-reclass";
-import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
-import { voucherPeriodValidationIssue } from "./ledger/voucher-period";
-import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
-
-type FinanceReportType = GenerateFinanceReportInput["reportType"];
+} from "./reclass-results/schemas";
+import { saveReclassRuleChangeSet, scanCandidates } from "./reclass-rules";
+import { saveBalanceReclassAdjustmentChangeSet } from "./balance-reclass";
+import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./voucher-service";
+import { voucherPeriodValidationIssue } from "./voucher-period";
 
 export type LookupFinancePeriodCommand =
   | { kind: "empty" }
   | { kind: "lookup"; companyCode: string; year: number; month: number };
-
-export type FinanceReportCommand = GenerateFinanceReportInput;
 
 function statusFrom(error: unknown): number {
   if (
@@ -70,10 +59,6 @@ function statusFrom(error: unknown): number {
     return (error as { statusCode: number }).statusCode;
   }
   return 400;
-}
-
-function isFinanceReportType(type: unknown): type is FinanceReportType {
-  return type === "balance" || type === "income" || type === "cashflow";
 }
 
 export function buildLookupFinancePeriodCommand(input: {
@@ -101,72 +86,6 @@ export function buildLookupFinancePeriodCommand(input: {
 export function executeLookupFinancePeriodCommand(command: LookupFinancePeriodCommand) {
   if (command.kind === "empty") return { periodId: null };
   return lookupFinancePeriodId(command);
-}
-
-export function buildGenerateFinanceReportCommand(input: {
-  periodId?: number;
-  companyCode?: string;
-  year?: number;
-  month?: number;
-  periodKind?: "year" | "quarter" | "month";
-  type?: string;
-}): DomainValidationResult<FinanceReportCommand> {
-  if (!input.type) return failCommand("type 为必填（balance/income/cashflow）", 400, "type");
-  if (!isFinanceReportType(input.type)) return failCommand("type 无效（balance/income/cashflow）", 400, "type");
-  if (input.periodId !== undefined) {
-    const period = buildFinanceIdCommand(input.periodId, "periodId");
-    if (!period.ok) return period;
-    return okCommand({
-      periodId: period.data.id,
-      periodKind: input.periodKind ?? "month",
-      reportType: input.type,
-    });
-  }
-  if (!input.companyCode || input.year === undefined || input.month === undefined) {
-    return failCommand("periodId 或 companyCode+year+month 为必填", 400, "periodId");
-  }
-  const scope = buildFinancePeriodScopeCommand({
-    companyCode: input.companyCode,
-    year: input.year,
-    month: input.month,
-  });
-  if (!scope.ok) return scope;
-  return okCommand({
-    companyCode: scope.data.companyCode,
-    year: scope.data.year,
-    month: scope.data.month!,
-    periodKind: input.periodKind ?? "month",
-    reportType: input.type,
-  });
-}
-
-export function executeGenerateFinanceReportCommand(command: FinanceReportCommand) {
-  return generateFinanceReport(command);
-}
-
-export function buildFinanceRouteIdCommand(id: unknown) {
-  return buildFinanceIdCommand(id);
-}
-
-export function buildFinanceActorRouteIdCommand(id: unknown, userId: number) {
-  const command = buildFinanceIdCommand(id);
-  return command.ok ? okCommand({ ...command.data, userId }) : command;
-}
-
-export async function executeGetCostImportCommand(
-  command: { id: number },
-): Promise<ServiceResult<{ success: true; data: Awaited<ReturnType<typeof getImportById>> }>> {
-  const data = await getImportById(command.id);
-  if (!data) return serviceError("记录不存在", 404);
-  return serviceOk({ success: true, data });
-}
-
-export async function executeDeleteCostImportCommand(command: { id: number; userId: number }) {
-  const existing = await getImportById(command.id);
-  if (!existing) return serviceError("记录不存在", 404);
-  const result = await deleteImportById(command.id, command.userId);
-  if (!result.success) return serviceError(result.error, result.status);
-  return serviceOk({ success: true });
 }
 
 function reviewErrorStatus(error: unknown) {
@@ -311,35 +230,6 @@ export function buildInitializeFinanceDefaultsCommand(input: Parameters<typeof i
 
 export function executeInitializeFinanceDefaultsCommand(command: { input: Parameters<typeof initializeFinanceDefaults>[0]; userId: number }) {
   return initializeFinanceDefaults(command.input, command.userId);
-}
-
-export function executeBudgetAnalysisCommand(command: { year: number; companyCode?: string }) {
-  return getBudgetAnalysis(command.year, command.companyCode);
-}
-
-export function executeFundFlowAnalysisCommand(command: {
-  companyCodes: string[];
-  year: number;
-  month?: number;
-}) {
-  return getFundFlowAnalysis(command);
-}
-
-export function executeManagementAnalysisCommand(command: {
-  companyCodes: string[];
-  year: number;
-  month?: number;
-}) {
-  return getManagementAnalysis(command);
-}
-
-export async function executeListCostImportsCommand(command: { importId?: number; page?: number; pageSize?: number }) {
-  const result = await listImports(command);
-  return { success: true, ...result };
-}
-
-export function executeUnsupportedCostImportCommand() {
-  return serviceError("请使用导入脚本: node --import tsx scripts/import/import-finance-cost-json.mjs", 400);
 }
 
 export function buildListReclassResultsCommand(input: Parameters<typeof listReclassResults>[0]) {
@@ -512,8 +402,4 @@ export async function executeUpdateVoucherCommand(command: { id: number; body: P
 
 export async function executeDeleteVoucherCommand(command: { id: number; userId: number }) {
   return financeLegacyErrorResult(await deleteVoucher(command.id, command.userId));
-}
-
-export function executeReportDetailCommand(command: Parameters<typeof getReportDetail>[0]) {
-  return getReportDetail(command);
 }

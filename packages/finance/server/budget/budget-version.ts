@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
-import { buildBudgetVersionCreateCommand, buildFinanceIdCommand } from "../domain/finance-validation";
+import { buildFinanceIdCommand } from "../domain/shared-validation";
+import { buildBudgetVersionCreateCommand } from "./validation";
 
 export type BudgetVersionStatus = "draft" | "active" | "archived";
 

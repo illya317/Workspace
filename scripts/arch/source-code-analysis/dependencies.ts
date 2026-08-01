@@ -3,6 +3,7 @@ import ts from "typescript";
 
 import type {
   SourceCodeAnalysisCapabilityDependencyEdge,
+  SourceCodeAnalysisCapabilityContractViolation,
   SourceCodeAnalysisDependencyDirection,
   SourceCodeAnalysisDependencyEdge,
   SourceCodeAnalysisDependencyEvidence,
@@ -13,6 +14,7 @@ import type {
   SourceCodeAnalysisRole,
 } from "../../../packages/platform/source-code-analysis-contract";
 import { invalidDependencyDirectionReason } from "./direction-policy";
+import { capabilityContractViolationReason } from "./capability-contract";
 import { generatedSourceVerificationCommandForPath } from "./source-files";
 
 export interface DependencySourceFile {
@@ -481,6 +483,7 @@ export function analyzeSourceDependencies(
   const runtimeFileGraph = new Map(files.map((file) => [file.path, new Set<string>()]));
   const fileEvidence: SourceCodeAnalysisDependencyEvidence[] = [];
   const invalidDependencyDirections: SourceCodeAnalysisInvalidDependencyDirection[] = [];
+  const capabilityContractViolations: SourceCodeAnalysisCapabilityContractViolation[] = [];
   for (const moduleKey of moduleKeys) {
     edges.set(moduleKey, new Set());
     crossModuleImportCounts.set(moduleKey, 0);
@@ -504,6 +507,21 @@ export function analyzeSourceDependencies(
           targetRole: target.role,
           kind: reference.kind,
           reason: invalidDirectionReason,
+        });
+      }
+      const capabilityViolationReason = capabilityContractViolationReason(file, target, reference.kind);
+      if (capabilityViolationReason) {
+        capabilityContractViolations.push({
+          sourcePath: file.path,
+          sourceModuleKey: file.moduleKey,
+          sourceCapabilityKey: file.capabilityKey ?? null,
+          sourceRole: file.role,
+          targetPath,
+          targetModuleKey: target.moduleKey,
+          targetCapabilityKey: target.capabilityKey ?? null,
+          targetRole: target.role,
+          kind: reference.kind,
+          reason: capabilityViolationReason,
         });
       }
       const dependencyKey = [file.moduleKey, file.role, target.moduleKey, target.role].join("\0");
@@ -551,6 +569,9 @@ export function analyzeSourceDependencies(
     reciprocalRoleDependencies: reciprocalRoleDependencies(dependencyEdges, evidenceByEdge),
     dependencyFileCycles: dependencyFileCycles(architectureFileGraph, runtimeFileGraph, fileEvidence, fileByPath),
     invalidDependencyDirections: invalidDependencyDirections.sort((left, right) =>
+      [left.sourcePath, left.targetPath, left.kind, left.reason].join("\0")
+        .localeCompare([right.sourcePath, right.targetPath, right.kind, right.reason].join("\0"))),
+    capabilityContractViolations: capabilityContractViolations.sort((left, right) =>
       [left.sourcePath, left.targetPath, left.kind, left.reason].join("\0")
         .localeCompare([right.sourcePath, right.targetPath, right.kind, right.reason].join("\0"))),
     dependencies: new Map([...edges].map(([moduleKey, values]) => [moduleKey, [...values].sort()])),

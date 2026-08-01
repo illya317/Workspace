@@ -3,58 +3,21 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-
-export interface FinanceIdCommand {
-  id: number;
-}
-
-export interface FinancePeriodScopeCommand {
-  companyCode: string;
-  year: number;
-  month?: number;
-}
-
-export interface FinanceRowsCommand<T> {
-  id: number;
-  rows: T[];
-}
-
-export interface FinanceImportCommand<T> {
-  data: T;
-}
+import {
+  buildFinanceIdCommand,
+  buildFinancePeriodScopeCommand,
+  finiteNumber,
+  positiveId,
+  requiredText,
+  validMonth,
+  validYear,
+  type FinanceIdCommand,
+  type FinancePeriodScopeCommand,
+} from "../domain/shared-validation";
 
 const RECLASS_ACTIONS = new Set(["approve", "adjust", "revert", "mark_pending"]);
 const RECLASS_SIDES = new Set(["debit", "credit", "both"]);
 const RECLASS_BASES = new Set(["account_net", "counterparty_gross"]);
-
-export function positiveId(value: unknown, field = "id"): DomainValidationResult<number> {
-  const id = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(id) || id <= 0) return failCommand(`${field} must be a positive integer`, 400, field);
-  return okCommand(id);
-}
-
-export function validYear(value: unknown, field = "year"): DomainValidationResult<number> {
-  const year = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(year) || year < 2000 || year > 2099) return failCommand(`${field} must be 2000..2099`, 400, field);
-  return okCommand(year);
-}
-
-export function validMonth(value: unknown, field = "month"): DomainValidationResult<number> {
-  const month = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(month) || month < 1 || month > 12) return failCommand(`${field} must be 1..12`, 400, field);
-  return okCommand(month);
-}
-
-export function requiredText(value: unknown, field: string): DomainValidationResult<string> {
-  if (typeof value !== "string" || !value.trim()) return failCommand(`${field} is required`, 400, field);
-  return okCommand(value.trim());
-}
-
-export function finiteNumber(value: unknown, field: string): DomainValidationResult<number> {
-  const number = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(number)) return failCommand(`${field} must be a finite number`, 400, field);
-  return okCommand(number);
-}
 
 export function buildSideBalanceAddCommand(code: unknown, debit: unknown, credit: unknown) {
   const accountCode = requiredText(code, "accountCode");
@@ -64,68 +27,6 @@ export function buildSideBalanceAddCommand(code: unknown, debit: unknown, credit
   const creditValue = finiteNumber(credit, "credit");
   if (!creditValue.ok) return creditValue;
   return okCommand({ code: accountCode.data, debit: debitValue.data, credit: creditValue.data });
-}
-
-export function buildFinanceIdCommand(value: unknown, field = "id"): DomainValidationResult<FinanceIdCommand> {
-  const id = positiveId(value, field);
-  if (!id.ok) return id;
-  return okCommand({ id: id.data });
-}
-
-export function buildFinancePeriodScopeCommand(input: {
-  companyCode: unknown;
-  year: unknown;
-  month?: unknown;
-}): DomainValidationResult<FinancePeriodScopeCommand> {
-  const companyCode = requiredText(input.companyCode, "companyCode");
-  if (!companyCode.ok) return companyCode;
-  const year = validYear(input.year);
-  if (!year.ok) return year;
-  if (input.month === undefined) return okCommand({ companyCode: companyCode.data, year: year.data });
-  const month = validMonth(input.month);
-  if (!month.ok) return month;
-  return okCommand({ companyCode: companyCode.data, year: year.data, month: month.data });
-}
-
-export function buildBudgetVersionCreateCommand<T extends { year: number; name: string; type: string }>(
-  input: T,
-): DomainValidationResult<FinanceImportCommand<T>> {
-  const year = validYear(input.year);
-  if (!year.ok) return year;
-  const name = requiredText(input.name, "name");
-  if (!name.ok) return name;
-  if (!["dept", "rd", "all"].includes(input.type)) return failCommand("预算版本类型无效", 400, "type");
-  return okCommand({ data: { ...input, year: year.data, name: name.data } });
-}
-
-export function buildFinanceDataImportCommand<T extends {
-  profile: string;
-  sourceFile: string;
-  recordCount: number;
-  warningCount: number;
-  errorCount: number;
-}>(data: T): DomainValidationResult<FinanceImportCommand<T>> {
-  const profile = requiredText(data.profile, "profile");
-  if (!profile.ok) return profile;
-  const sourceFile = requiredText(data.sourceFile, "sourceFile");
-  if (!sourceFile.ok) return sourceFile;
-  for (const field of ["recordCount", "warningCount", "errorCount"] as const) {
-    const count = finiteNumber(data[field], field);
-    if (!count.ok) return count;
-    if (count.data < 0) return failCommand(`${field} must be non-negative`, 400, field);
-  }
-  return okCommand({ data: { ...data, profile: profile.data, sourceFile: sourceFile.data } });
-}
-
-export function buildFinanceRowsCommand<T>(
-  importId: unknown,
-  rows: T[],
-  field = "importId",
-): DomainValidationResult<FinanceRowsCommand<T>> {
-  const id = positiveId(importId, field);
-  if (!id.ok) return id;
-  if (!Array.isArray(rows)) return failCommand("rows must be an array", 400, "rows");
-  return okCommand({ id: id.data, rows });
 }
 
 export function buildFinanceAccountCreateCommand<T extends { code: string; name: string; category: string }>(

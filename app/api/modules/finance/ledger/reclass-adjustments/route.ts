@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildSaveBalanceReclassAdjustmentChangeSetRouteCommand,
   executeSaveBalanceReclassAdjustmentChangeSetRouteCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const saveAdjustmentsSchema = z.object({

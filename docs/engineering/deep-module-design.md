@@ -143,6 +143,8 @@ human/code intent
 源码归属的事实源是 `scripts/arch/source-code-analysis/declarations.ts`。受治理的源码文件必须由声明解析为唯一的 `module + role`：
 
 - 没有归属、多重归属、模块声明的 interface 路径不存在或出现模块级依赖循环，`gate:domain` 直接失败。
+- 产品包内的源码模块树声明在 `scripts/arch/source-code-analysis/capabilities.ts`。节点只声明稳定的 `key / parentKey / include / interface`，层级由父链计算，不保存写死的 L2/L3 枚举；因此 L3、L4 以及更深节点遵守同一 contract。文件同时命中祖先和后代时归最深节点，同一深度命中多个兄弟节点仍按多重归属失败。`entry` 是产品 L1 的组合/输入边界，不是额外业务模块。
+- 同一递归节点内可以访问自己的 Implementation；跨分支或子模块访问祖先时，只能依赖目标节点公开的 Interface（显式 `interface` 路径，或 contract/assembly role）。祖先只有 composition/assembly/input/UI 边界可以组装后代 Implementation，普通 application/domain 代码不得反向深入子模块。现存跨分支 Implementation 直连按 `sourcePath + targetPath + import kind + reason + occurrences` 精确登记在 `capability-contract-baseline.json`：新增边、同一边增加次数以及已消除债务未同步收缩 baseline 都会阻断检查。
 - 默认使用集中式路径声明，而不是在每个文件写可漂移的注释标签；只有路径无法稳定表达所有权时，才收窄或增加显式声明规则。
 - 自动生成源码和 `apps/*` 部署镜像不进入人工源码统计，避免重复或生成噪声淹没真实实现。
 - snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和生产文件强连通分量。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。

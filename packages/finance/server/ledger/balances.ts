@@ -16,7 +16,7 @@ import {
   getOrCreatePeriod,
   getRangeCurrent,
 } from "./balance-helpers";
-import { buildBalanceComputeCommand, buildBalanceRangeCommand } from "../domain/finance-validation";
+import { buildBalanceComputeCommand, buildBalanceRangeCommand } from "./validation";
 
 export async function computeBalancesForPeriod(periodId: number) {
   const command = buildBalanceComputeCommand(periodId);

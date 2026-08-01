@@ -17,6 +17,8 @@ test("source code analysis assigns every governed file to one declared module an
   assert.equal(snapshot.summary.invalidDependencyDirectionCount, 0);
   assert.equal(snapshot.summary.newUnclassifiedCapabilityFileCount, 0);
   assert.equal(snapshot.summary.ambiguousCapabilityFileCount, 0);
+  assert.equal(snapshot.summary.newCapabilityContractViolationCount, 0);
+  assert.equal(snapshot.summary.staleCapabilityContractBaselineCount, 0);
   assert.equal(snapshot.summary.mixedResponsibilityFileCount, 0);
   assert.equal(snapshot.summary.reciprocalRoleDependencyCount, snapshot.reciprocalRoleDependencies.length);
   assert.equal(

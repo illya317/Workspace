@@ -6,7 +6,7 @@ import {
   buildListVouchersCommand,
   executeCreateVoucherCommand,
   executeListVouchersCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const optionalPositiveInt = z.preprocess(

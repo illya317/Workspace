@@ -4,7 +4,7 @@ import type { DomainValidationResult } from "@workspace/platform/server/domain-v
 import {
   buildFinanceIdCommand,
   buildFinancePeriodScopeCommand,
-} from "../domain/finance-validation";
+} from "../domain/shared-validation";
 import {
   loadConsolidatedStatementPageData,
   loadStandaloneStatementPageData,

@@ -46,11 +46,15 @@ function emptySnapshot(): SourceCodeAnalysisSnapshot {
       legacyUnclassifiedCapabilityFileCount: 0,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
     modules: [],
     capabilities: [],
     dependencyEdges: [],
     capabilityDependencyEdges: [],
+    capabilityContractViolations: [],
     reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
     invalidDependencyDirections: [],
@@ -63,6 +67,9 @@ function emptySnapshot(): SourceCodeAnalysisSnapshot {
       legacyUnclassifiedCapabilityFiles: [],
       newUnclassifiedCapabilityFiles: [],
       ambiguousCapabilityFiles: [],
+      legacyCapabilityContractViolations: [],
+      newCapabilityContractViolations: [],
+      staleCapabilityContractBaseline: [],
     },
   };
 }
@@ -79,6 +86,9 @@ test("dependency cycles block source-code-analysis check", () => {
       mixedResponsibilityFileCount: 0,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
   };
 
@@ -97,6 +107,9 @@ test("file dependency cycles block source-code-analysis check", () => {
       mixedResponsibilityFileCount: 0,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
   };
 
@@ -115,6 +128,9 @@ test("unresolved mixed responsibilities block source-code-analysis check", () =>
       mixedResponsibilityFileCount: 1,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
   };
 
@@ -133,13 +149,16 @@ test("invalid dependency directions block source-code-analysis check", () => {
       mixedResponsibilityFileCount: 0,
       newUnclassifiedCapabilityFileCount: 0,
       ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
     },
   };
 
   assert.equal(hasBlockingSourceCodeAnalysisDiagnostics(snapshot), true);
 });
 
-test("new or ambiguous L2 capability ownership blocks while legacy debt does not", () => {
+test("new or ambiguous source module ownership blocks while legacy debt does not", () => {
   const summary = {
     unclassifiedFileCount: 0,
     ambiguousFileCount: 0,
@@ -150,6 +169,9 @@ test("new or ambiguous L2 capability ownership blocks while legacy debt does not
     mixedResponsibilityFileCount: 0,
     newUnclassifiedCapabilityFileCount: 0,
     ambiguousCapabilityFileCount: 0,
+      legacyCapabilityContractViolationCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
   };
 
   assert.equal(hasBlockingSourceCodeAnalysisDiagnostics({ summary }), false);
@@ -158,6 +180,12 @@ test("new or ambiguous L2 capability ownership blocks while legacy debt does not
   }), true);
   assert.equal(hasBlockingSourceCodeAnalysisDiagnostics({
     summary: { ...summary, ambiguousCapabilityFileCount: 1 },
+  }), true);
+  assert.equal(hasBlockingSourceCodeAnalysisDiagnostics({
+    summary: { ...summary, newCapabilityContractViolationCount: 1 },
+  }), true);
+  assert.equal(hasBlockingSourceCodeAnalysisDiagnostics({
+    summary: { ...summary, staleCapabilityContractBaselineCount: 1 },
   }), true);
 });
 
@@ -176,11 +204,13 @@ test("snapshot writer atomically creates a missing nested directory and valid fi
   }
 });
 
-test("snapshot contract rejects malformed L2 capability keys and missing edge arrays", () => {
+test("snapshot contract rejects malformed source module keys and missing edge arrays", () => {
   const malformedKey = emptySnapshot();
   malformedKey.capabilities = [{
     moduleKey: "work",
     key: "Meetings/Unsafe",
+    parentKey: null,
+    depth: 2,
     label: "会议",
     fileCount: 0,
     lines: 0,

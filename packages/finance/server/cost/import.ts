@@ -3,9 +3,9 @@ import type { Prisma } from "@workspace/platform/server/prisma";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import {
   buildFinanceDataImportCommand,
-  buildFinanceIdCommand,
   buildFinanceRowsCommand,
-} from "../domain/finance-validation";
+} from "../import/validation";
+import { buildFinanceIdCommand } from "../domain/shared-validation";
 
 export interface ImportCreateInput {
   profile: string;

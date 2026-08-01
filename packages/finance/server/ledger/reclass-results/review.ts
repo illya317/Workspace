@@ -5,7 +5,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { ReviewReclassParams, ReclassResultRow } from "./types";
 import { syncReclassRuleResults } from "../reclass-rules/sync";
-import { buildManualReclassCommand, buildReclassReviewCommand } from "../../domain/finance-validation";
+import { buildManualReclassCommand, buildReclassReviewCommand } from "../validation";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";
 
 function userEmployeeName(user: { employees?: Array<{ name: string }> } | null | undefined) {

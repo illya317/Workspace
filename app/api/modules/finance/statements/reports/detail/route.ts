@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { executeReportDetailCommand } from "@workspace/finance/server/route-commands";
+import { executeReportDetailCommand } from "@workspace/finance/server/statements/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

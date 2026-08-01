@@ -5,7 +5,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildSaveBalanceReclassAdjustmentChangeSetCommand,
   type SaveBalanceReclassAdjustmentChangeSetInput,
-} from "../../domain/finance-validation";
+} from "../validation";
 import { loadFinanceGroupAccountMapByAccountIdsAtInTransaction } from "../group-accounts/resolve";
 import { counterpartyGrossAbnormalAmount } from "../reclass-rules/auxiliary-amount";
 import {

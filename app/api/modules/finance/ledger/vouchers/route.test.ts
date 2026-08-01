@@ -6,7 +6,7 @@ const mockModule = (mock as unknown as { module: MockModule }).module.bind(mock)
 
 let listCommand: Record<string, unknown> | null = null;
 
-mockModule("@workspace/finance/server/route-commands", {
+mockModule("@workspace/finance/server/ledger/route-commands", {
   namedExports: {
     buildListVouchersCommand: (input: Record<string, unknown>) => ({ ok: true, data: input }),
     buildCreateVoucherCommand: () => ({ ok: true, data: {} }),

@@ -29,7 +29,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
 | 业务阻断 | `npm run gate:domain` | API、route、resource、RBAC、domain validation、app route 和包边界。 |
-| 源码模块声明 | `npm run source-code-analysis:check` | 校验源码唯一归属、模块 interface、依赖无环和混合职责；同时校验运维子模块注册方向，以及新脚本 450 行上限和历史超大脚本只减不增基线。 |
+| 源码模块声明 | `npm run source-code-analysis:check` | 校验 L1 与递归源码模块的最深唯一归属、公开 Interface、祖先/后代及跨分支依赖方向、精确历史债务只减不增、依赖无环和混合职责；同时校验运维子模块注册方向，以及新脚本 450 行上限和历史超大脚本只减不增基线。 |
 | 源码分析 snapshot | `npm run source-code-analysis:snapshot` / `npm run source-code-analysis:snapshot:ensure` / `npm run source-code-analysis:report` | `snapshot` 原子重建 `.cache/source-code-analysis/snapshot.json`，`snapshot:ensure` 仅在文件缺失或 contract 无效时重建；dev、build 和 artifact 组装必须从源码自动建立缺失目录/文件，生成或复制失败即阻断对应生命周期。运行时请求只读不可变快照，意外缺失时仍不拖垮左侧模块管理；声明违规严格失败仍由显式 `source-code-analysis:check` 负责。 |
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |

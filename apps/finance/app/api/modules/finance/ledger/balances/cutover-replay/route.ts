@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   buildFinanceBalanceCutoverReplayCommand,
   executeFinanceBalanceCutoverReplayCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const cutoverReplayQuerySchema = z.object({

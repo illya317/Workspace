@@ -9,7 +9,6 @@ import {
   type DataSurfaceDisplaySpec,
 } from "@workspace/core/ui";
 import type {
-  SourceCodeAnalysisCapabilityRow,
   SourceCodeAnalysisModuleCategory,
   SourceCodeAnalysisDependencyEdge,
   SourceCodeAnalysisDependencyFileCycle,
@@ -37,15 +36,22 @@ import {
   formatBalancedCodeVolumeInTenThousands,
   formatCodeVolumeInTenThousands,
 } from "./source-code-analysis-format";
+import {
+  capabilityAnalysisTableRows,
+  createCapabilityAnalysisColumns,
+  type SourceCodeAnalysisColumnDisclosure,
+} from "./source-code-analysis-capabilities";
+
+export {
+  capabilityAnalysisTableRows,
+  createCapabilityAnalysisColumns,
+  type SourceCodeAnalysisColumnDisclosure,
+} from "./source-code-analysis-capabilities";
 
 interface AnalysisTableRow extends SourceCodeAnalysisModuleRow {
   displayLines: number;
   displayRoles: SourceCodeAnalysisRoleCounts;
   rowKind: "module" | "section" | "total";
-}
-
-interface CapabilityAnalysisTableRow extends SourceCodeAnalysisCapabilityRow {
-  moduleLabel: string;
 }
 
 const ANALYSIS_ROW_GROUPS: ReadonlyArray<{
@@ -57,51 +63,6 @@ const ANALYSIS_ROW_GROUPS: ReadonlyArray<{
   { key: "foundation", label: "共享与底座", categories: ["shared", "composition", "dataEngineering"] },
   { key: "engineering", label: "工程体系", categories: ["engineering"] },
 ];
-
-export interface SourceCodeAnalysisColumnDisclosure {
-  expandedGroupKey: string | null;
-  onToggleGroup: (groupKey: string) => void;
-}
-
-export function capabilityAnalysisTableRows(snapshot: SourceCodeAnalysisSnapshot): CapabilityAnalysisTableRow[] {
-  const moduleLabels = new Map(snapshot.modules.map((module) => [module.key, module.label]));
-  return snapshot.capabilities
-    .filter((capability) => capability.fileCount > 0)
-    .map((capability) => ({
-      ...capability,
-      moduleLabel: moduleLabels.get(capability.moduleKey) ?? capability.moduleKey,
-    }))
-    .sort((left, right) =>
-      [left.moduleLabel, left.label].join("\0").localeCompare([right.moduleLabel, right.label].join("\0"), "zh-CN"));
-}
-
-function createCapabilityAnalysisColumns(): DataSurfaceColumnSpec<CapabilityAnalysisTableRow>[] {
-  return [
-    { key: "module", label: "L1 模块", cell: (row) => row.moduleLabel },
-    { key: "capability", label: "L2 能力", cell: (row) => row.label },
-    {
-      key: "total",
-      label: "代码（万行）",
-      align: "right",
-      numeric: true,
-      cell: (row) => formatCodeVolumeInTenThousands(row.lines),
-    },
-    {
-      key: "files",
-      label: "文件",
-      align: "right",
-      numeric: true,
-      cell: (row) => row.fileCount.toLocaleString("zh-CN"),
-    },
-    {
-      key: "dependencies",
-      label: "跨能力引用",
-      align: "right",
-      numeric: true,
-      cell: (row) => row.crossCapabilityImportCount.toLocaleString("zh-CN"),
-    },
-  ];
-}
 
 interface SourceCodeAnalysisCellRelations {
   dependencyEdges: readonly SourceCodeAnalysisDependencyEdge[];
@@ -343,7 +304,7 @@ export function createSourceCodeAnalysisSection(
 ): BodySurfaceSectionSpec {
   const rows = snapshot ? analysisTableRows(snapshot) : [];
   const capabilityRows = snapshot ? capabilityAnalysisTableRows(snapshot) : [];
-  const capabilityColumns = createCapabilityAnalysisColumns();
+  const capabilityColumns = createCapabilityAnalysisColumns(disclosure);
   const selectedGroup = SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS.find((group) =>
     group.key === relationSelection?.selectedCell?.groupKey);
   const selectedCell = relationSelection?.selectedCell && selectedGroup
@@ -381,14 +342,34 @@ export function createSourceCodeAnalysisSection(
         },
         { key: "mixed", label: "未解耦混合职责", value: snapshot.summary.mixedResponsibilityFileCount },
         { key: "cycles", label: "真实依赖循环", value: snapshot.summary.dependencyFileCycleCount ?? 0 },
-        { key: "capability-coverage", label: "L2 归属覆盖", value: `${snapshot.summary.capabilityCoveragePercent}%` },
+        { key: "capability-coverage", label: "模块归属覆盖", value: `${snapshot.summary.capabilityCoveragePercent}%` },
         {
           key: "new-capability-unknown",
-          label: "新增未归属 L2",
+          label: "新增未归属模块",
           value: {
             kind: "text",
             value: snapshot.summary.newUnclassifiedCapabilityFileCount.toLocaleString("zh-CN"),
             tone: snapshot.summary.newUnclassifiedCapabilityFileCount > 0 ? "danger" : "success",
+            font: "mono",
+          },
+        },
+        {
+          key: "new-capability-boundary",
+          label: "新增边界绕行",
+          value: {
+            kind: "text",
+            value: snapshot.summary.newCapabilityContractViolationCount.toLocaleString("zh-CN"),
+            tone: snapshot.summary.newCapabilityContractViolationCount > 0 ? "danger" : "success",
+            font: "mono",
+          },
+        },
+        {
+          key: "legacy-capability-boundary",
+          label: "历史边界债务",
+          value: {
+            kind: "text",
+            value: snapshot.summary.legacyCapabilityContractViolationCount.toLocaleString("zh-CN"),
+            tone: snapshot.summary.legacyCapabilityContractViolationCount > 0 ? "warning" : "success",
             font: "mono",
           },
         },
@@ -428,18 +409,31 @@ export function createSourceCodeAnalysisSection(
         columns: capabilityColumns,
         visibleColumns: capabilityColumns.map((column) => column.key),
         rowKey: (row) => `${row.moduleKey}:${row.key}`,
+        rowState: (row) => row.ownership === "unassigned" ? "warning" : "normal",
         presentation: { density: "compact", cellWrap: "nowrap" },
         format: { kind: "matrix", rowHeaderWidth: 132 },
         scroll: { x: true },
-        emptyText: "暂无二级能力分析",
+        emptyText: "暂无源码子模块分析",
       }),
       header: {
-        title: "二级能力分布",
+        title: "递归模块职责分布",
         badges: [
+          { key: "line-unit", label: "单位：万行", tone: "muted" },
           {
-            key: "legacy-unclassified",
-            label: `历史未归属：${snapshot.summary.legacyUnclassifiedCapabilityFileCount.toLocaleString("zh-CN")}`,
-            tone: snapshot.summary.legacyUnclassifiedCapabilityFileCount > 0 ? "warning" : "muted",
+            key: "unassigned",
+            label: `归属债务：${(
+              snapshot.summary.legacyUnclassifiedCapabilityFileCount
+              + snapshot.summary.newUnclassifiedCapabilityFileCount
+              + snapshot.summary.ambiguousCapabilityFileCount
+            ).toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.legacyUnclassifiedCapabilityFileCount
+              + snapshot.summary.newUnclassifiedCapabilityFileCount
+              + snapshot.summary.ambiguousCapabilityFileCount > 0 ? "warning" : "muted",
+          },
+          {
+            key: "baseline-ratchet",
+            label: `待收缩基线：${snapshot.summary.staleCapabilityContractBaselineCount.toLocaleString("zh-CN")}`,
+            tone: snapshot.summary.staleCapabilityContractBaselineCount > 0 ? "warning" : "muted",
           },
         ],
       },

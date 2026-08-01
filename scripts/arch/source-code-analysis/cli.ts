@@ -13,7 +13,7 @@ import { analyzeOperationsSize } from "./operations-size-policy";
 export const DEFAULT_SOURCE_CODE_ANALYSIS_SNAPSHOT = ".cache/source-code-analysis/snapshot.json";
 type BlockingDiagnosticsSummary = Pick<
   SourceCodeAnalysisSnapshot["summary"],
-  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "dependencyFileCycleCount" | "invalidDependencyDirectionCount" | "mixedResponsibilityFileCount" | "newUnclassifiedCapabilityFileCount" | "ambiguousCapabilityFileCount"
+  "unclassifiedFileCount" | "ambiguousFileCount" | "missingInterfaceCount" | "dependencyCycleCount" | "dependencyFileCycleCount" | "invalidDependencyDirectionCount" | "mixedResponsibilityFileCount" | "newUnclassifiedCapabilityFileCount" | "ambiguousCapabilityFileCount" | "newCapabilityContractViolationCount" | "staleCapabilityContractBaselineCount"
 >;
 
 export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: BlockingDiagnosticsSummary }) {
@@ -25,7 +25,9 @@ export function hasBlockingSourceCodeAnalysisDiagnostics(snapshot: { summary: Bl
     || snapshot.summary.invalidDependencyDirectionCount > 0
     || snapshot.summary.mixedResponsibilityFileCount > 0
     || snapshot.summary.newUnclassifiedCapabilityFileCount > 0
-    || snapshot.summary.ambiguousCapabilityFileCount > 0;
+    || snapshot.summary.ambiguousCapabilityFileCount > 0
+    || snapshot.summary.newCapabilityContractViolationCount > 0
+    || snapshot.summary.staleCapabilityContractBaselineCount > 0;
 }
 
 function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>>) {
@@ -51,11 +53,21 @@ function printDiagnostics(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>
     console.error(`[source-code-analysis] 未解耦混合职责: ${item.path} -> ${item.roles.join(" + ")}`);
   }
   for (const item of snapshot.diagnostics.newUnclassifiedCapabilityFiles) {
-    console.error(`[source-code-analysis] 新增未声明 L2 能力归属: ${item.path} [${item.moduleKey}]`);
+    console.error(`[source-code-analysis] 新增未声明源码模块归属: ${item.path} [${item.moduleKey}]`);
   }
   for (const item of snapshot.diagnostics.ambiguousCapabilityFiles) {
     console.error(
-      `[source-code-analysis] L2 能力多重归属: ${item.path} [${item.moduleKey}] -> ${item.capabilityKeys.join(", ")}`,
+      `[source-code-analysis] 同层源码模块多重归属: ${item.path} [${item.moduleKey}] -> ${item.capabilityKeys.join(", ")}`,
+    );
+  }
+  for (const item of snapshot.diagnostics.newCapabilityContractViolations) {
+    console.error(
+      `[source-code-analysis] 新增模块边界绕行(${item.reason}): ${item.sourcePath} [${item.sourceModuleKey}/${item.sourceCapabilityKey ?? "L1"}/${item.sourceRole}] -> ${item.targetPath} [${item.targetModuleKey}/${item.targetCapabilityKey ?? "L1"}/${item.targetRole}] (${item.kind})`,
+    );
+  }
+  for (const item of snapshot.diagnostics.staleCapabilityContractBaseline) {
+    console.error(
+      `[source-code-analysis] 已消除的模块边界债务仍留在 baseline: ${item.sourcePath} -> ${item.targetPath} (${item.kind}/${item.reason})`,
     );
   }
 }
@@ -136,7 +148,7 @@ export async function runSourceCodeAnalysis(args = process.argv.slice(2), reposi
   }
   if (!json) {
     console.log(
-      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% L1 declared, ${snapshot.summary.capabilityCoveragePercent}% L2 declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles, ${snapshot.summary.invalidDependencyDirectionCount} invalid directions`,
+      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% L1 declared, ${snapshot.summary.capabilityCoveragePercent}% recursive modules declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles, ${snapshot.summary.invalidDependencyDirectionCount} invalid directions, ${snapshot.summary.newCapabilityContractViolationCount} new module-boundary violations`,
     );
   }
   return 0;

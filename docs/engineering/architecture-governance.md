@@ -47,7 +47,7 @@ app/api/modules/<domain>/<l2>/
 
 不是每个模块第一天都要建满所有文件，但新增代码时必须往这个方向收敛。
 
-源码所有权与职责投影统一声明在 `scripts/arch/source-code-analysis/declarations.ts`。每个受治理文件必须唯一归属一个 declared module，并落入 UI、输入边界、领域校验、业务实现、数据适配、组合壳、契约、测试或工具 role；role 是统计维度，不自动构成新模块。单文件仍须守住可独立变化的 seam：输入 schema、domain validator、reference/persistence adapter、第三方 transport 和 React host 不得在同一文件交叉实现；事务型 application service 的持久化编排属于一个原子 use case，不强制增加透传 repository。页面/API 壳属于 composition/input，不能为了统计把拼装代码伪装成领域模块。详细标准见 `docs/engineering/deep-module-design.md`。
+源码 L1 所有权与职责投影统一声明在 `scripts/arch/source-code-analysis/declarations.ts`，产品包内的递归模块树声明在 `scripts/arch/source-code-analysis/capabilities.ts`。每个节点通过 `parentKey` 连接父模块，不写死 L2/L3/L4；文件归最深唯一匹配节点。跨分支只能引用目标节点的公开 Interface，祖先只有组合/入口边界可以装配后代 Implementation；历史直连以精确次数基线只减不增。每个受治理文件仍须落入 UI、输入边界、领域校验、业务实现、数据适配、组合壳、契约、测试或工具 role；role 是统计维度，不自动构成新模块。单文件必须守住可独立变化的 seam：输入 schema、domain validator、reference/persistence adapter、第三方 transport 和 React host 不得在同一文件交叉实现；事务型 application service 的持久化编排属于一个原子 use case，不强制增加透传 repository。页面/API 壳属于 composition/input，不能为了统计把拼装代码伪装成领域模块。详细标准见 `docs/engineering/deep-module-design.md`。
 
 ## 3. 新业务模块接入清单
 

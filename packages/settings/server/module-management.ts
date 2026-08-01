@@ -2,6 +2,11 @@ import "server-only";
 
 import type { ModuleRegistration, SubModuleRegistration } from "@workspace/core/module-contract";
 import {
+  DEPLOY_UNIT_CATALOG,
+  type DeployUnitCatalogDependency,
+  type DeployUnitCatalogEntry,
+} from "@workspace/platform/deploy-unit-catalog";
+import {
   getResourceRuntimeState,
 } from "@workspace/platform/effective-module-registry";
 import { registeredModuleDefinitions } from "@workspace/platform/module-registry";
@@ -52,6 +57,27 @@ export interface ModuleManagementResource {
   hidden: boolean;
   enabled: boolean;
   disabledReason: string | null;
+}
+
+export interface ModuleManagementDeployUnit {
+  id: string;
+  kind: "business-l1" | "headless-runtime" | "platform-l1" | "workspace-shell";
+  maturity: "active" | "candidate" | "planned";
+  moduleKeys: string[];
+  moduleLabels: string[];
+  runtimeDependencies: Array<{
+    unitId: string;
+    requirement: "required" | "optional";
+    protocol: "gateway-http" | "signed-internal-rpc";
+    reason: string;
+  }>;
+  productionState: {
+    availability: "unavailable";
+    ready: null;
+    gatewayActive: null;
+    activeSlot: null;
+    version: null;
+  };
 }
 
 function statusOf(input: { enabled?: boolean; hidden?: boolean }): ModuleManagementStatus {
@@ -145,10 +171,30 @@ export function listModuleManagement() {
       };
     });
 
+  const deployUnits: ModuleManagementDeployUnit[] = DEPLOY_UNIT_CATALOG.map((unit: DeployUnitCatalogEntry) => {
+    const ownedModules = modules.filter((module) => unit.registryPackages.includes(module.packageName));
+    return {
+      id: unit.id,
+      kind: unit.kind,
+      maturity: unit.maturity,
+      moduleKeys: ownedModules.map((module) => module.key),
+      moduleLabels: ownedModules.map((module) => module.label),
+      runtimeDependencies: unit.runtimeDependencies.map((dependency: DeployUnitCatalogDependency) => ({ ...dependency })),
+      productionState: {
+        availability: "unavailable",
+        ready: null,
+        gatewayActive: null,
+        activeSlot: null,
+        version: null,
+      },
+    };
+  });
+
   return {
     rule: "模块开关使用 resourceKey 作为运行态键；关闭 L1/L2 会同时影响页面入口、API guard 和 resource 权限判断。",
     modules,
     auxiliaryResources,
+    deployUnits,
     sourceCodeAnalysis: readSourceCodeAnalysisSnapshot(),
   };
 }

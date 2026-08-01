@@ -16,11 +16,16 @@ import {
 import { SOURCE_MODULE_DECLARATIONS, sourceModuleDeclarationsForPath } from "./declarations";
 import { analyzeSourceDependencies, resolvedSourceImports } from "./dependencies";
 import {
+  CAPABILITY_GOVERNED_MODULE_KEYS,
   SOURCE_CAPABILITY_DECLARATIONS,
-  capabilityGovernedModuleForPath,
   readCapabilityOwnershipBaseline,
+  sourceCapabilityDepth,
   sourceCapabilityDeclarationsForPath,
 } from "./capabilities";
+import {
+  classifyCapabilityContractViolations,
+  readCapabilityContractBaseline,
+} from "./capability-contract";
 import {
   collectRegisteredGeneratedSourceTargets,
   collectSourceFiles,
@@ -439,10 +444,11 @@ function sourceRevision(repositoryRoot: string) {
 }
 
 export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceCodeAnalysisSnapshot> {
-  const [relativePaths, externalSourceTargets, capabilityBaseline] = await Promise.all([
+  const [relativePaths, externalSourceTargets, capabilityBaseline, capabilityContractBaseline] = await Promise.all([
     collectSourceFiles(repositoryRoot),
     collectRegisteredGeneratedSourceTargets(repositoryRoot),
     readCapabilityOwnershipBaseline(repositoryRoot),
+    readCapabilityContractBaseline(repositoryRoot),
   ]);
   const unclassifiedFiles: string[] = [];
   const ambiguousFiles: Array<{ path: string; moduleKeys: string[] }> = [];
@@ -472,7 +478,7 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
     }
     const moduleKey = candidates[0].key;
     let capabilityKey: string | null = null;
-    if (capabilityGovernedModuleForPath(relativePath) === moduleKey) {
+    if (CAPABILITY_GOVERNED_MODULE_KEYS.includes(moduleKey as (typeof CAPABILITY_GOVERNED_MODULE_KEYS)[number])) {
       capabilityGovernedFileCount += 1;
       const capabilityCandidates = sourceCapabilityDeclarationsForPath(moduleKey, relativePath);
       if (capabilityCandidates.length === 0) {
@@ -552,6 +558,8 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
     capabilityRows.set(`${declaration.moduleKey}\0${declaration.key}`, {
       moduleKey: declaration.moduleKey,
       key: declaration.key,
+      parentKey: declaration.parentKey,
+      depth: sourceCapabilityDepth(declaration),
       label: declaration.label,
       fileCount: 0,
       lines: 0,
@@ -573,6 +581,13 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
   }
 
   const dependencyAnalysis = analyzeSourceDependencies(files, rows.keys(), externalSourceTargets);
+  const capabilityContractClassification = classifyCapabilityContractViolations(
+    dependencyAnalysis.capabilityContractViolations,
+    capabilityContractBaseline,
+  );
+  const legacyCapabilityContractViolations = capabilityContractClassification.legacy;
+  const newCapabilityContractViolations = capabilityContractClassification.added;
+  const staleCapabilityContractBaseline = capabilityContractClassification.stale;
   for (const [moduleKey, dependencies] of dependencyAnalysis.dependencies) {
     const row = rows.get(moduleKey);
     if (row) {
@@ -661,11 +676,15 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
       legacyUnclassifiedCapabilityFileCount: legacyUnclassifiedCapabilityFiles.length,
       newUnclassifiedCapabilityFileCount: newUnclassifiedCapabilityFiles.length,
       ambiguousCapabilityFileCount: ambiguousCapabilityFiles.length,
+      legacyCapabilityContractViolationCount: legacyCapabilityContractViolations.length,
+      newCapabilityContractViolationCount: newCapabilityContractViolations.length,
+      staleCapabilityContractBaselineCount: staleCapabilityContractBaseline.length,
     },
     modules: [...rows.values()],
     capabilities: [...capabilityRows.values()],
     dependencyEdges: dependencyAnalysis.dependencyEdges,
     capabilityDependencyEdges: dependencyAnalysis.capabilityDependencyEdges,
+    capabilityContractViolations: dependencyAnalysis.capabilityContractViolations,
     reciprocalRoleDependencies,
     dependencyFileCycles,
     invalidDependencyDirections,
@@ -678,6 +697,9 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
       legacyUnclassifiedCapabilityFiles,
       newUnclassifiedCapabilityFiles,
       ambiguousCapabilityFiles,
+      legacyCapabilityContractViolations,
+      newCapabilityContractViolations,
+      staleCapabilityContractBaseline,
     },
   };
 }

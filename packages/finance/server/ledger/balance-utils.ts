@@ -1,4 +1,4 @@
-import { buildSideBalanceAddCommand } from "../domain/finance-validation";
+import { buildSideBalanceAddCommand } from "./validation";
 import type { FinanceAccountLike, SideBalance } from "./balance-contract";
 
 export type { ComputedBalance, FinanceAccountLike, SideBalance } from "./balance-contract";

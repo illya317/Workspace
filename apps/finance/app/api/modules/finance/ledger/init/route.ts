@@ -4,7 +4,7 @@ import { z } from "zod";
 import {
   buildInitializeFinanceDefaultsCommand,
   executeInitializeFinanceDefaultsCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const initFinanceSchema = z.object({
   year: z.coerce.number().int().min(2000).max(2099),
   month: z.coerce.number().int().min(1).max(12),

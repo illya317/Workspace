@@ -199,7 +199,7 @@ export async function loadFinanceGeneralWorkspaceAnalysisSourcePage(input: {
     return { rows: result.data, totalRows: result.pagination.total };
   }
   if (sourceKey === "finance.ledger.reclass-all-items") {
-    const { executeAllReclassItemsCommand } = await import("./route-commands");
+    const { executeAllReclassItemsCommand } = await import("./ledger/route-commands");
     const result = await executeAllReclassItemsCommand({ periodId: requiredInteger(parameters.periodId, "periodId", sourceKey) });
     return boundedInMemoryPage(sourceKey, result.items, page, pageSize);
   }

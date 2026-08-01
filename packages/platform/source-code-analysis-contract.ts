@@ -1,4 +1,4 @@
-export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 6 as const;
+export const SOURCE_CODE_ANALYSIS_SCHEMA_VERSION = 7 as const;
 
 export const SOURCE_CODE_ANALYSIS_MODULE_CATEGORIES = [
   "product",
@@ -152,6 +152,25 @@ export interface SourceCodeAnalysisCapabilityDependencyEdge {
   typeOnlyReExportCount: number;
 }
 
+export const SOURCE_CODE_ANALYSIS_CAPABILITY_CONTRACT_REASONS = [
+  "ancestorImportsDescendantImplementation",
+  "descendantImportsAncestorImplementation",
+  "crossBranchImplementationDependency",
+] as const;
+
+export type SourceCodeAnalysisCapabilityContractReason =
+  (typeof SOURCE_CODE_ANALYSIS_CAPABILITY_CONTRACT_REASONS)[number];
+
+export interface SourceCodeAnalysisCapabilityContractViolation extends SourceCodeAnalysisDependencyEvidence {
+  sourceModuleKey: string;
+  sourceCapabilityKey: string | null;
+  sourceRole: SourceCodeAnalysisRole;
+  targetModuleKey: string;
+  targetCapabilityKey: string | null;
+  targetRole: SourceCodeAnalysisRole;
+  reason: SourceCodeAnalysisCapabilityContractReason;
+}
+
 export interface SourceCodeAnalysisCapabilityDependency {
   moduleKey: string;
   capabilityKey: string | null;
@@ -160,6 +179,8 @@ export interface SourceCodeAnalysisCapabilityDependency {
 export interface SourceCodeAnalysisCapabilityRow {
   moduleKey: string;
   key: string;
+  parentKey: string | null;
+  depth: number;
   label: string;
   fileCount: number;
   lines: number;
@@ -215,11 +236,15 @@ export interface SourceCodeAnalysisSnapshot {
     legacyUnclassifiedCapabilityFileCount: number;
     newUnclassifiedCapabilityFileCount: number;
     ambiguousCapabilityFileCount: number;
+    legacyCapabilityContractViolationCount: number;
+    newCapabilityContractViolationCount: number;
+    staleCapabilityContractBaselineCount: number;
   };
   modules: SourceCodeAnalysisModuleRow[];
   capabilities: SourceCodeAnalysisCapabilityRow[];
   dependencyEdges: SourceCodeAnalysisDependencyEdge[];
   capabilityDependencyEdges: SourceCodeAnalysisCapabilityDependencyEdge[];
+  capabilityContractViolations: SourceCodeAnalysisCapabilityContractViolation[];
   reciprocalRoleDependencies: SourceCodeAnalysisReciprocalRoleDependency[];
   dependencyFileCycles: SourceCodeAnalysisDependencyFileCycle[];
   invalidDependencyDirections: SourceCodeAnalysisInvalidDependencyDirection[];
@@ -232,6 +257,12 @@ export interface SourceCodeAnalysisSnapshot {
     legacyUnclassifiedCapabilityFiles: Array<{ path: string; moduleKey: string }>;
     newUnclassifiedCapabilityFiles: Array<{ path: string; moduleKey: string }>;
     ambiguousCapabilityFiles: Array<{ path: string; moduleKey: string; capabilityKeys: string[] }>;
+    legacyCapabilityContractViolations: SourceCodeAnalysisCapabilityContractViolation[];
+    newCapabilityContractViolations: SourceCodeAnalysisCapabilityContractViolation[];
+    staleCapabilityContractBaseline: Array<Pick<
+      SourceCodeAnalysisCapabilityContractViolation,
+      "sourcePath" | "targetPath" | "kind" | "reason"
+    > & { occurrences: number }>;
   };
 }
 
@@ -245,6 +276,38 @@ function isCapabilityKey(value: unknown) {
 
 function isNullableCapabilityKey(value: unknown) {
   return value === null || isCapabilityKey(value);
+}
+
+function hasValidCapabilityHierarchy(value: unknown): value is SourceCodeAnalysisCapabilityRow[] {
+  if (!Array.isArray(value)) return false;
+  if (!value.every((capability) =>
+    isRecord(capability)
+    && isCapabilityKey(capability.key)
+    && isNullableCapabilityKey(capability.parentKey)
+    && typeof capability.depth === "number"
+    && Number.isInteger(capability.depth)
+    && capability.depth >= 1
+    && typeof capability.moduleKey === "string"
+    && typeof capability.label === "string"
+    && typeof capability.fileCount === "number"
+    && typeof capability.lines === "number")) return false;
+  const rows = value as SourceCodeAnalysisCapabilityRow[];
+  const byId = new Map<string, SourceCodeAnalysisCapabilityRow>();
+  for (const row of rows) {
+    const id = `${row.moduleKey}\0${row.key}`;
+    if (byId.has(id)) return false;
+    byId.set(id, row);
+  }
+  for (const row of rows) {
+    if (row.depth <= 2) {
+      if (row.parentKey !== null) return false;
+      continue;
+    }
+    if (row.parentKey === null) return false;
+    const parent = byId.get(`${row.moduleKey}\0${row.parentKey}`);
+    if (!parent || parent.depth !== row.depth - 1) return false;
+  }
+  return true;
 }
 
 export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCodeAnalysisSnapshot {
@@ -275,14 +338,10 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
     && typeof candidate.summary?.legacyUnclassifiedCapabilityFileCount === "number"
     && typeof candidate.summary?.newUnclassifiedCapabilityFileCount === "number"
     && typeof candidate.summary?.ambiguousCapabilityFileCount === "number"
-    && Array.isArray(candidate.capabilities)
-    && candidate.capabilities.every((capability) =>
-      isRecord(capability)
-      && isCapabilityKey(capability.key)
-      && typeof capability.moduleKey === "string"
-      && typeof capability.label === "string"
-      && typeof capability.fileCount === "number"
-      && typeof capability.lines === "number")
+    && typeof candidate.summary?.legacyCapabilityContractViolationCount === "number"
+    && typeof candidate.summary?.newCapabilityContractViolationCount === "number"
+    && typeof candidate.summary?.staleCapabilityContractBaselineCount === "number"
+    && hasValidCapabilityHierarchy(candidate.capabilities)
     && Array.isArray(candidate.capabilityDependencyEdges)
     && candidate.capabilityDependencyEdges.every((edge) =>
       isRecord(edge)
@@ -291,6 +350,16 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
       && typeof edge.targetModuleKey === "string"
       && isNullableCapabilityKey(edge.targetCapabilityKey)
       && typeof edge.importCount === "number")
+    && Array.isArray(candidate.capabilityContractViolations)
+    && candidate.capabilityContractViolations.every((violation) =>
+      isRecord(violation)
+      && typeof violation.sourcePath === "string"
+      && typeof violation.targetPath === "string"
+      && isNullableCapabilityKey(violation.sourceCapabilityKey)
+      && isNullableCapabilityKey(violation.targetCapabilityKey)
+      && SOURCE_CODE_ANALYSIS_CAPABILITY_CONTRACT_REASONS.includes(
+        violation.reason as SourceCodeAnalysisCapabilityContractReason,
+      ))
     && Array.isArray(candidate.invalidDependencyDirections)
     && candidate.invalidDependencyDirections.every((direction) =>
       isRecord(direction)
@@ -298,5 +367,8 @@ export function isSourceCodeAnalysisSnapshot(value: unknown): value is SourceCod
       && isNullableCapabilityKey(direction.targetCapabilityKey))
     && Array.isArray(candidate.diagnostics?.legacyUnclassifiedCapabilityFiles)
     && Array.isArray(candidate.diagnostics?.newUnclassifiedCapabilityFiles)
-    && Array.isArray(candidate.diagnostics?.ambiguousCapabilityFiles);
+    && Array.isArray(candidate.diagnostics?.ambiguousCapabilityFiles)
+    && Array.isArray(candidate.diagnostics?.legacyCapabilityContractViolations)
+    && Array.isArray(candidate.diagnostics?.newCapabilityContractViolations)
+    && Array.isArray(candidate.diagnostics?.staleCapabilityContractBaseline);
 }
