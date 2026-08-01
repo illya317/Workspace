@@ -19,7 +19,7 @@
     "scripts/**/*.ts",
     "scripts/**/*.mts",
     "scripts/**/*.cts",
-    "scripts/**/*.mjs"
+    "scripts/arch/gate-check-contracts.mjs"
   ],
   "exclude": ["node_modules", ".cache", "scripts/migrate/sqlite-legacy"],
   "references": [
