@@ -2,6 +2,7 @@ import "server-only";
 
 import { isChinaHoliday } from "@workspace/platform/calendar";
 import {
+  WEEKLY_REPORT_MESSAGE_VARIABLES,
   listActiveWeeklyReportGroupPolicies,
   publishWeeklyReportNotificationToManagedGroup,
   type ActiveWeeklyReportGroupPolicy,
@@ -39,12 +40,23 @@ export async function runScheduledWeeklyReportGroupNotifications(
     failed: 0,
   };
   for (const policy of policies) {
-    const slot = resolveWeeklyReportNotificationSlot(now, policy, {
-      followUp: policy.schedule.time > (
-        earliestTimeByGroupAndWeekday.get(`${policy.groupKey}:${policy.schedule.weekday}`)
-        ?? policy.schedule.time
-      ),
-    });
+    let slot: ReturnType<typeof resolveWeeklyReportNotificationSlot>;
+    try {
+      slot = resolveWeeklyReportNotificationSlot(now, policy, {
+        followUp: policy.schedule.time > (
+          earliestTimeByGroupAndWeekday.get(`${policy.groupKey}:${policy.schedule.weekday}`)
+          ?? policy.schedule.time
+        ),
+      });
+    } catch {
+      result.failed += 1;
+      console.error(JSON.stringify({
+        event: "weekly_report_group_notification_template_invalid",
+        policyId: policy.id,
+        scheduledTime: policy.schedule.time,
+      }));
+      continue;
+    }
     if (!slot) continue;
     const cacheKey = `${policy.id}:${slot.idempotencyKey}`;
     if (processedSlots.has(cacheKey)) continue;
@@ -79,7 +91,7 @@ export async function runScheduledWeeklyReportGroupNotifications(
 
 export function resolveWeeklyReportNotificationSlot(
   now: Date,
-  policy: Pick<ActiveWeeklyReportGroupPolicy, "schedule">,
+  policy: Pick<ActiveWeeklyReportGroupPolicy, "schedule" | "messageTemplate">,
   options: { followUp: boolean },
 ) {
   const local = shanghaiDateTime(now);
@@ -87,32 +99,48 @@ export function resolveWeeklyReportNotificationSlot(
   return {
     dateKey: local.dateKey,
     idempotencyKey: `weekly-report:${local.dateKey}:${policy.schedule.time.replace(":", "")}`,
-    message: formatWeeklyReportMessage(local.dateKey, options.followUp),
+    message: renderWeeklyReportMessageTemplate(
+      policy.messageTemplate,
+      weeklyReportMessageVariables(local.dateKey, options.followUp),
+    ),
   };
 }
 
-function formatWeeklyReportMessage(fridayDateKey: string, followUp: boolean) {
+function weeklyReportMessageVariables(fridayDateKey: string, followUp: boolean) {
   const friday = dateKeyToUtcDate(fridayDateKey);
   const monday = addDays(friday, -4);
   const nextMonday = addDays(friday, 3);
   const nextFriday = addDays(friday, 7);
   const monthly = nextFriday.getUTCMonth() !== friday.getUTCMonth();
-  const salutation = followUp
-    ? "各重点项目及部门负责人：再次提醒！"
-    : "各重点项目及部门负责人：上午好！";
-  const summary = monthly
-    ? `${formatChineseDate(nextMonday)}（星期一）召开月度例会，请在新系统中完成本月工作总结及下月工作计划的填报（${formatChineseDate(monthStart(friday))}—${formatChineseDate(monthEnd(friday))}），谢谢！`
-    : `下周一（${formatChineseDate(nextMonday)}）召开周例会，请在新系统中完成本周工作总结及下周工作计划的填报（${formatChineseDate(monday)}—${formatChineseDate(friday)}），谢谢！`;
-  const reportTab = monthly ? "月报" : "周报";
-  return [
-    salutation,
-    "",
-    summary,
-    "",
-    `部门/项目负责人请先在顶部「工作空间」切换至本人负责的部门或项目空间，再选择「工作汇报 → ${reportTab}」。`,
-    "负责多个空间的，请逐一切换并填报；如未显示对应空间，请先在「个人设置」中配置「常用部门/常用项目」。",
-    "手机端如提示扫码登录，可先截图，再从相册中识别二维码。",
-  ].join("\n");
+  return {
+    salutation: followUp ? "各重点项目及部门负责人：再次提醒！" : "各重点项目及部门负责人：上午好！",
+    meeting_date: monthly ? `${formatChineseDate(nextMonday)}（星期一）` : `下周一（${formatChineseDate(nextMonday)}）`,
+    meeting_type: monthly ? "月度例会" : "周例会",
+    report_period: monthly ? "本月工作总结及下月工作计划" : "本周工作总结及下周工作计划",
+    period_range: monthly
+      ? `${formatChineseDate(monthStart(friday))}—${formatChineseDate(monthEnd(friday))}`
+      : `${formatChineseDate(monday)}—${formatChineseDate(friday)}`,
+    report_tab: monthly ? "月报" : "周报",
+  };
+}
+
+export function renderWeeklyReportMessageTemplate(
+  template: string | null,
+  values: Record<string, string>,
+) {
+  if (!template?.trim()) throw new Error("weekly report message template is missing");
+  const tokenPattern = /{{([a-z][a-z0-9_]{0,63})}}/g;
+  const withoutTokens = template.replace(tokenPattern, "");
+  if (withoutTokens.includes("{{") || withoutTokens.includes("}}")) {
+    throw new Error("weekly report message template syntax is invalid");
+  }
+  const allowedKeys = new Set<string>(WEEKLY_REPORT_MESSAGE_VARIABLES.map((variable) => variable.key));
+  return template.replace(tokenPattern, (_token, key: string) => {
+    if (!allowedKeys.has(key) || values[key] === undefined) {
+      throw new Error(`weekly report message variable is unsupported: ${key}`);
+    }
+    return values[key];
+  });
 }
 
 function shanghaiDateTime(input: Date) {

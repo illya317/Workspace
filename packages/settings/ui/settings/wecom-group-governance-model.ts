@@ -35,6 +35,7 @@ export type NotificationGroupPolicyRow = {
   label: string;
   dataScope: NotificationGroupDataScope;
   schedule: NotificationGroupSchedule;
+  messageTemplate: string | null;
   enabled: boolean;
   weeklyAgentBinding: { agentKey: string; label: string; triggerMode: "api" } | null;
   lastDelivery: { id: number; status: string | null; createdAt: string | null } | null;
@@ -42,6 +43,28 @@ export type NotificationGroupPolicyRow = {
   version: number;
   updatedAt: string;
 };
+
+export type GroupPolicyDraft = {
+  key: string;
+  label: string;
+  definitionKey: string;
+  scopeType: "workspace" | "departments" | "projects" | "users";
+  scopeIds: string[];
+  scheduleMode: "manual" | "weekly";
+  weekday: number;
+  time: string;
+  messageTemplate: string;
+  bindWeeklyAgent: boolean;
+  enabled: boolean;
+};
+
+export function emptyGroupPolicyDraft(messageTemplate = ""): GroupPolicyDraft {
+  return {
+    key: "", label: "", definitionKey: "", scopeType: "workspace", scopeIds: [],
+    scheduleMode: "manual", weekday: 5, time: "17:30", messageTemplate,
+    bindWeeklyAgent: false, enabled: false,
+  };
+}
 
 export type NotificationGroupDeliveryRow = {
   id: number;
@@ -71,6 +94,9 @@ export type WeComGroupGovernanceResponse = {
     triggerMode: "api";
     publicationRoute: string;
     supportedScheduleModes: Array<"manual" | "weekly">;
+    defaultMessageTemplate: string;
+    messageRuleSummary: string;
+    messageVariables: Array<{ key: string; label: string }>;
   }>;
   ownerUserOptions?: GroupGovernanceOption[];
   ownerPositionOptions?: GroupGovernanceOption[];

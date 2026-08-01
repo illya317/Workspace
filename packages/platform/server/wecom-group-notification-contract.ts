@@ -1,5 +1,62 @@
 import { z } from "zod";
 
+export const WEEKLY_REPORT_MESSAGE_VARIABLES = [
+  { key: "salutation", label: "问候语" },
+  { key: "meeting_date", label: "会议日期" },
+  { key: "meeting_type", label: "会议类型" },
+  { key: "report_period", label: "汇报期间说明" },
+  { key: "period_range", label: "汇报日期范围" },
+  { key: "report_tab", label: "周报或月报" },
+] as const;
+export const WEEKLY_REPORT_DEFAULT_MESSAGE_TEMPLATE = [
+  "工作汇报提醒",
+  "",
+  "{{salutation}}",
+  "",
+  "{{meeting_date}}召开{{meeting_type}}，请在新系统中完成{{report_period}}的填报（{{period_range}}），谢谢！",
+  "",
+  "部门/项目负责人请先在顶部「工作空间」切换至本人负责的部门或项目空间，再选择「工作汇报 → {{report_tab}}」。",
+  "负责多个空间的，请逐一切换并填报；如未显示对应空间，请先在「个人设置」中配置「常用部门/常用项目」。",
+  "手机端如提示扫码登录，可先截图，再从相册中识别二维码。",
+].join("\n");
+export const WEEKLY_REPORT_MESSAGE_RULE_SUMMARY =
+  "第一行是通知标题，其余是正文。每周五按策略时间发送；当日最早一条使用上午问候，较晚一条使用再次提醒；当周五为当月最后一个周五时自动切换为月报口径，否则使用周报口径。";
+const WEEKLY_REPORT_MESSAGE_VARIABLE_KEYS = new Set<string>(
+  WEEKLY_REPORT_MESSAGE_VARIABLES.map((variable) => variable.key),
+);
+const WEEKLY_REPORT_MESSAGE_TOKEN_PATTERN = /{{([a-z][a-z0-9_]{0,63})}}/g;
+
+export const weeklyReportMessageTemplateSchema = z.string().min(1).max(4000).superRefine((value, context) => {
+  if (!value.trim()) {
+    context.addIssue({ code: "custom", message: "通知原文不能为空" });
+    return;
+  }
+  const withoutTokens = value.replace(WEEKLY_REPORT_MESSAGE_TOKEN_PATTERN, "");
+  if (withoutTokens.includes("{{") || withoutTokens.includes("}}")) {
+    context.addIssue({ code: "custom", message: "通知原文变量语法无效，应使用 {{flat_key}}" });
+  }
+  const unknown = [...new Set(
+    [...value.matchAll(WEEKLY_REPORT_MESSAGE_TOKEN_PATTERN)]
+      .map((match) => match[1]!)
+      .filter((key) => !WEEKLY_REPORT_MESSAGE_VARIABLE_KEYS.has(key)),
+  )];
+  if (unknown.length > 0) {
+    context.addIssue({ code: "custom", message: `通知原文包含未知变量：${unknown.join("、")}` });
+  }
+  const content = splitWeeklyReportNotificationContent(value);
+  if (!content.title || content.title.length > 120) {
+    context.addIssue({ code: "custom", message: "通知原文第一行必须是 1 至 120 字的标题" });
+  }
+  if (!content.body) {
+    context.addIssue({ code: "custom", message: "通知原文必须在标题后填写正文" });
+  }
+});
+
+export function splitWeeklyReportNotificationContent(value: string) {
+  const [title = "", ...bodyLines] = value.replace(/\r\n?/g, "\n").split("\n");
+  return { title: title.trim(), body: bodyLines.join("\n").trim() };
+}
+
 export const managedGroupStatusSchema = z.enum(["discovered", "unclaimed", "active", "suspended"]);
 export const managedGroupVerificationStatusSchema = z.enum(["pending", "verified", "failed"]);
 export const notificationGroupDataScopeSchema = z.object({
@@ -52,14 +109,20 @@ export const notificationGroupPolicyCreateSchema = z.object({
   label: z.string().trim().min(1).max(120),
   dataScope: notificationGroupDataScopeSchema,
   schedule: notificationGroupScheduleSchema,
+  messageTemplate: weeklyReportMessageTemplateSchema.nullable().optional(),
   weeklyAgentKey: weeklyAgentKeySchema.nullable().optional(),
   enabled: z.boolean().default(false),
-}).strict();
+}).strict().superRefine((value, context) => {
+  if (value.weeklyAgentKey && !value.messageTemplate?.trim()) {
+    context.addIssue({ code: "custom", path: ["messageTemplate"], message: "绑定周报 Agent 时必须填写通知原文" });
+  }
+});
 export const notificationGroupPolicyUpdateSchema = z.object({
   definitionKey: z.string().trim().min(3).max(160).optional(),
   label: z.string().trim().min(1).max(120).optional(),
   dataScope: notificationGroupDataScopeSchema.optional(),
   schedule: notificationGroupScheduleSchema.optional(),
+  messageTemplate: weeklyReportMessageTemplateSchema.nullable().optional(),
   weeklyAgentKey: weeklyAgentKeySchema.nullable().optional(),
   enabled: z.boolean().optional(),
   expectedVersion: z.number().int().positive(),

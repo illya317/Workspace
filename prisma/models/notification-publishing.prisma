@@ -260,6 +260,7 @@ model NotificationGroupPolicy {
   label                 String
   dataScopeJson         String                   @db.Text
   scheduleJson          String                   @db.Text
+  messageTemplate       String?                  @db.Text
   weeklyAgentKey        String?
   enabled               Boolean                  @default(false)
   version               Int                      @default(1)

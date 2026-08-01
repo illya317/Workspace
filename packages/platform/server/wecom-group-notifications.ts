@@ -7,7 +7,6 @@ import { serviceError, serviceOk } from "../service-result";
 import { renderNotificationDefinition } from "./notification-definition-dsl";
 import {
   ensureWecomNotificationEndpoint,
-  validateNotificationDeliveryChannelsForActivation,
 } from "./notification-delivery-outbox";
 import { prisma, Prisma } from "./prisma";
 import { resolvePublishedDefinition } from "./notification-publishing-storage";
@@ -20,9 +19,11 @@ import {
   notificationGroupPolicyCreateSchema,
   notificationGroupPolicyUpdateSchema,
   notificationGroupPublicationSchema,
+  splitWeeklyReportNotificationContent,
   type NotificationGroupDataScope,
   type NotificationManagedGroupStatus,
 } from "./wecom-group-notification-contract";
+import { validatePolicyReferences } from "./wecom-group-notification-policy-validation";
 
 export {
   managedGroupClaimSchema,
@@ -35,8 +36,11 @@ export {
   notificationGroupPolicyUpdateSchema,
   notificationGroupPublicationSchema,
   notificationGroupScheduleSchema,
+  splitWeeklyReportNotificationContent,
+  weeklyReportMessageTemplateSchema,
   weeklyAgentKeySchema,
 } from "./wecom-group-notification-contract";
+export { WEEKLY_REPORT_MESSAGE_VARIABLES } from "./wecom-group-notification-contract";
 export { listWecomGroupNotificationConsoleData } from "./wecom-group-notification-console";
 
 
@@ -67,6 +71,7 @@ type PolicyRow = {
   label: string;
   dataScopeJson: string;
   scheduleJson: string;
+  messageTemplate: string | null;
   weeklyAgentKey: string | null;
   enabled: boolean;
   version: number;
@@ -204,20 +209,26 @@ export async function createNotificationGroupPolicy(
   input: z.infer<typeof notificationGroupPolicyCreateSchema>,
 ) {
   if (!await notificationPermission(userId, "configure")) return serviceError("无权限", 403);
-  const readiness = await validatePolicyReferences(input.groupKey, input.definitionKey, input.enabled);
+  const readiness = await validatePolicyReferences(
+    input.groupKey,
+    input.definitionKey,
+    input.enabled,
+    input.weeklyAgentKey ?? null,
+    input.messageTemplate ?? null,
+  );
   if (readiness.ok === false) return readiness;
   const id = randomUUID();
   try {
     await prisma.$executeRaw(Prisma.sql`
       INSERT INTO "NotificationGroupPolicy" (
         "id", "key", "groupId", "definitionKey", "label", "dataScopeJson",
-        "scheduleJson", "weeklyAgentKey", "enabled", "version",
+        "scheduleJson", "messageTemplate", "weeklyAgentKey", "enabled", "version",
         "createdByUserId", "updatedByUserId", "createdAt", "updatedAt"
       )
       SELECT
         ${id}, ${input.key}, group_row."id", ${input.definitionKey}, ${input.label},
         ${JSON.stringify(input.dataScope)}, ${JSON.stringify(input.schedule)},
-        ${input.weeklyAgentKey ?? null}, ${input.enabled}, 1,
+        ${input.messageTemplate ?? null}, ${input.weeklyAgentKey ?? null}, ${input.enabled}, 1,
         ${userId}, ${userId}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
       FROM "NotificationManagedGroup" AS group_row
       WHERE group_row."groupKey" = ${input.groupKey}
@@ -251,12 +262,19 @@ export async function updateNotificationGroupPolicy(
   if (current.version !== input.expectedVersion) return serviceError("策略版本已变化，请刷新后重试", 409);
   const definitionKey = input.definitionKey ?? current.definitionKey;
   const enabled = input.enabled ?? current.enabled;
-  const readiness = await validatePolicyReferences(current.groupKey, definitionKey, enabled);
+  const weeklyAgentKey = input.weeklyAgentKey === undefined ? current.weeklyAgentKey : input.weeklyAgentKey;
+  const messageTemplate = input.messageTemplate === undefined ? current.messageTemplate : input.messageTemplate;
+  const readiness = await validatePolicyReferences(
+    current.groupKey,
+    definitionKey,
+    enabled,
+    weeklyAgentKey,
+    messageTemplate,
+  );
   if (readiness.ok === false) return readiness;
   const label = input.label ?? current.label;
   const dataScopeJson = input.dataScope ? JSON.stringify(input.dataScope) : current.dataScopeJson;
   const scheduleJson = input.schedule ? JSON.stringify(input.schedule) : current.scheduleJson;
-  const weeklyAgentKey = input.weeklyAgentKey === undefined ? current.weeklyAgentKey : input.weeklyAgentKey;
   const updated = await prisma.$queryRaw<Array<{ version: number }>>(Prisma.sql`
     UPDATE "NotificationGroupPolicy"
     SET
@@ -264,6 +282,7 @@ export async function updateNotificationGroupPolicy(
       "label" = ${label},
       "dataScopeJson" = ${dataScopeJson},
       "scheduleJson" = ${scheduleJson},
+      "messageTemplate" = ${messageTemplate},
       "weeklyAgentKey" = ${weeklyAgentKey},
       "enabled" = ${enabled},
       "version" = "version" + 1,
@@ -283,7 +302,7 @@ export async function publishNotificationToManagedGroup(
   idempotencyKey: string,
 ) {
   if (!await notificationPermission(userId, "create")) return serviceError("无权限", 403);
-  return publishNotificationToManagedGroupCore(input, idempotencyKey, null);
+  return publishNotificationToManagedGroupCore(input, idempotencyKey, null, null);
 }
 
 export async function publishWeeklyReportNotificationToManagedGroup(
@@ -291,18 +310,21 @@ export async function publishWeeklyReportNotificationToManagedGroup(
   message: string,
   idempotencyKey: string,
 ) {
+  const content = splitWeeklyReportNotificationContent(message);
+  if (!content.title || !content.body) return serviceError("周报通知原文必须包含标题和正文", 400);
   const input = notificationGroupPublicationSchema.safeParse({
     policyId,
-    variables: { message },
+    variables: { message: content.body },
   });
   if (!input.success) return serviceError(input.error.issues[0]?.message ?? "周报群发请求无效", 400);
-  return publishNotificationToManagedGroupCore(input.data, idempotencyKey, "work.weekly-report");
+  return publishNotificationToManagedGroupCore(input.data, idempotencyKey, "work.weekly-report", content);
 }
 
 async function publishNotificationToManagedGroupCore(
   input: z.infer<typeof notificationGroupPublicationSchema>,
   idempotencyKey: string,
   requiredWeeklyAgentKey: "work.weekly-report" | null,
+  contentOverride: { title: string; body: string } | null,
 ) {
   const normalizedIdempotencyKey = idempotencyKey.trim();
   if (!normalizedIdempotencyKey || normalizedIdempotencyKey.length > 240) {
@@ -337,6 +359,9 @@ async function publishNotificationToManagedGroupCore(
   if (!definition) return serviceError("策略绑定的通知定义不存在、未发布或已归档", 409);
   const rendered = renderNotificationDefinition(definition, input.variables);
   if (rendered.ok === false) return serviceError(rendered.issue.message, rendered.issue.status);
+  const deliveryContent = contentOverride
+    ? { ...rendered.data, title: contentOverride.title, body: contentOverride.body }
+    : rendered.data;
   const sourceId = `notification-group-policy:${policy.id}`;
   const fingerprint = createHash("sha256").update(JSON.stringify({
     policyId: policy.id,
@@ -344,6 +369,7 @@ async function publishNotificationToManagedGroupCore(
     definitionKey: definition.key,
     revision: definition.revision,
     variables: Object.fromEntries(Object.entries(input.variables).sort(([a], [b]) => a.localeCompare(b))),
+    deliveryContent,
   })).digest("hex");
 
   try {
@@ -425,9 +451,9 @@ async function publishNotificationToManagedGroupCore(
           channel: "wecom",
           endpointId: endpoint.id,
           destination: live.providerConversationRef,
-          title: rendered.data.title,
-          body: rendered.data.body,
-          href: rendered.data.href,
+          title: deliveryContent.title,
+          body: deliveryContent.body,
+          href: deliveryContent.href,
           status: "pending",
           nextAttemptAt: now,
         },
@@ -446,31 +472,6 @@ async function publishNotificationToManagedGroupCore(
     }
     throw error;
   }
-}
-
-async function validatePolicyReferences(groupKey: string, definitionKey: string, enabled: boolean) {
-  const groups = await prisma.$queryRaw<Array<{
-    status: string;
-    verificationStatus: string;
-  }>>(Prisma.sql`
-    SELECT "status", "verificationStatus"
-    FROM "NotificationManagedGroup"
-    WHERE "groupKey" = ${groupKey}
-    LIMIT 1
-  `);
-  const group = groups[0];
-  if (!group) return serviceError("企业微信群不存在", 404);
-  if (!await resolvePublishedDefinition(definitionKey)) {
-    return serviceError("通知定义不存在、未发布或已归档", 400);
-  }
-  if (enabled && (group.status !== "active" || group.verificationStatus !== "verified")) {
-    return serviceError("群必须已认领、命名并验证后才能启用策略", 409);
-  }
-  if (enabled) {
-    const capability = await validateNotificationDeliveryChannelsForActivation(["wecom"]);
-    if (capability.ok === false) return serviceError(capability.issue.message, capability.issue.status);
-  }
-  return serviceOk(true);
 }
 
 async function validateOwner(ownerUserId: number | null, ownerPositionId: number | null) {

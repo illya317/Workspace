@@ -4,6 +4,9 @@ import { serviceError, serviceOk } from "../service-result";
 import { prisma, Prisma } from "./prisma";
 import { evaluatePermissionAction } from "./rbac/action-grants";
 import {
+  WEEKLY_REPORT_DEFAULT_MESSAGE_TEMPLATE,
+  WEEKLY_REPORT_MESSAGE_RULE_SUMMARY,
+  WEEKLY_REPORT_MESSAGE_VARIABLES,
   managedGroupStatusSchema,
   managedGroupVerificationStatusSchema,
   type NotificationGroupDataScope,
@@ -39,6 +42,7 @@ type PolicyRow = {
   label: string;
   dataScopeJson: string;
   scheduleJson: string;
+  messageTemplate: string | null;
   weeklyAgentKey: string | null;
   enabled: boolean;
   version: number;
@@ -79,6 +83,9 @@ export async function listWecomGroupNotificationConsoleData(userId: number) {
       triggerMode: "api",
       publicationRoute: "/api/modules/settings/notifications/group-publications",
       supportedScheduleModes: ["manual", "weekly"],
+      defaultMessageTemplate: WEEKLY_REPORT_DEFAULT_MESSAGE_TEMPLATE,
+      messageRuleSummary: WEEKLY_REPORT_MESSAGE_RULE_SUMMARY,
+      messageVariables: WEEKLY_REPORT_MESSAGE_VARIABLES.map((variable) => ({ ...variable })),
     }],
     recentDeliveries,
     ...(referenceOptions ?? { ownerUserOptions: [], ownerPositionOptions: [], definitionOptions: [], dataScopeOptions: { departments: [], projects: [], users: [] } }),
@@ -216,7 +223,7 @@ async function listGroupPolicies() {
       policy."id", policy."key", policy."groupId", group_row."groupKey",
       group_row."displayName" AS "groupDisplayName", policy."definitionKey",
       policy."label", policy."dataScopeJson", policy."scheduleJson",
-      policy."weeklyAgentKey", policy."enabled", policy."version", policy."updatedAt",
+      policy."messageTemplate", policy."weeklyAgentKey", policy."enabled", policy."version", policy."updatedAt",
       latest_delivery."id" AS "lastDeliveryId",
       latest_delivery."status" AS "lastDeliveryStatus",
       latest_delivery."createdAt" AS "lastDeliveryAt",
@@ -309,6 +316,7 @@ function policyDto(row: PolicyRow) {
     label: row.label,
     dataScope: parseJson<NotificationGroupDataScope>(row.dataScopeJson, { type: "workspace", ids: [], label: "全 Workspace" }),
     schedule: parseJson<NotificationGroupSchedule>(row.scheduleJson, { mode: "manual" }),
+    messageTemplate: row.messageTemplate,
     enabled: row.enabled,
     weeklyAgentBinding: row.weeklyAgentKey ? {
       agentKey: row.weeklyAgentKey,

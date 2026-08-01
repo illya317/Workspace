@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  emptyGroupPolicyDraft,
   groupPolicyScheduleLabel,
   isManagedGroupReadyForPolicy,
   managedGroupGovernanceStage,
@@ -9,6 +10,12 @@ import {
   managedGroupVerificationView,
   type ManagedWeComGroupRow,
 } from "./wecom-group-governance-model";
+
+test("new weekly policies start from the server-provided editable original", () => {
+  const draft = emptyGroupPolicyDraft("完整通知原文");
+  assert.equal(draft.messageTemplate, "完整通知原文");
+  assert.equal(draft.bindWeeklyAgent, false);
+});
 
 function groupState(overrides: Partial<ManagedWeComGroupRow> = {}): ManagedWeComGroupRow {
   return {

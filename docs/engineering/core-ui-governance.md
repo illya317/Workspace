@@ -177,7 +177,7 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 普通表格默认随页面自然展开，不创建横向或纵向内滚动。桌面普通表格由 Core 按表头、单元格内容和容器剩余空间自适应列宽；业务声明的 `width` 是紧凑列或重点列的宽度提示，不得导致其他内容列在仍有空白时被固定等分截断。矩阵继续使用固定列宽。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
 
-DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedRowKey(s) + expandedRow`，Core 自动高亮触发行与详情行；横向展开列通过 `column.disclosure` 声明同一 `groupKey` 下的 `trigger/detail`，触发列同时声明 `expanded`。Core 根据可见列自动推导连续范围、首尾边界、表头与内容染色及键盘展开语义。业务不得声明颜色、边框、阴影或自行给展开单元格拼 class；未展开的 trigger 不着色，detail 只在真实展开时进入可见列。
+DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedRowKey(s) + expandedRow`，Core 自动高亮触发行与详情行；横向展开列通过 `column.disclosure` 声明同一 `groupKey` 下的 `trigger/detail`，触发列同时声明 `expanded`。Core 根据可见列自动推导连续范围、首尾边界、表头与内容染色及键盘展开语义。业务不得声明颜色、边框、阴影或自行给展开单元格拼 class；未展开的 trigger 不着色，detail 只在真实展开时进入可见列。展开内容为表单时，必须用 `onRowClick` 打开或关闭当前行，保持 HR/Work 的整行打开交互；不得再用 `rowActions kind="edit"` 作为展开入口。操作列只承载保存、归档、删除等直接动作，`gate:ui` 会阻断这两类回流。
 
 表格需要表达格子级关系时使用 `column.cellState(row)`，只返回 `muted / info / warning / success / danger` 等语义；Core 统一决定单元格背景和文字，并让关系状态覆盖横向展开的普通底色。当前格另用 `column.cellSelected(row)` 声明，Core 叠加独立的中性描边，因此选中标记不会占用或覆盖关系色。格子激活继续使用结构化 `DataSurfaceCellSpec kind="interactive"`，业务不得返回颜色、class 或手写可点击单元格。
 

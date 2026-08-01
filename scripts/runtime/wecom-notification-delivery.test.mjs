@@ -187,7 +187,7 @@ test("successful delivery uses the injected WSClient and posts the frozen result
         timestamp: call.options.headers["x-workspace-timestamp"],
         requestId: call.options.headers["x-workspace-request-id"],
         method: "POST",
-        pathname: new URL(call.url).pathname,
+        pathname: new URL(call.url).pathname.replace(/^\/test(?=\/|$)/u, "") || "/",
         rawBody: call.options.body,
       }),
     );

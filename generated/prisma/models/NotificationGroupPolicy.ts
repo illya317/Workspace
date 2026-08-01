@@ -48,6 +48,7 @@ export type NotificationGroupPolicyMinAggregateOutputType = {
   label: string | null
   dataScopeJson: string | null
   scheduleJson: string | null
+  messageTemplate: string | null
   weeklyAgentKey: string | null
   enabled: boolean | null
   version: number | null
@@ -65,6 +66,7 @@ export type NotificationGroupPolicyMaxAggregateOutputType = {
   label: string | null
   dataScopeJson: string | null
   scheduleJson: string | null
+  messageTemplate: string | null
   weeklyAgentKey: string | null
   enabled: boolean | null
   version: number | null
@@ -82,6 +84,7 @@ export type NotificationGroupPolicyCountAggregateOutputType = {
   label: number
   dataScopeJson: number
   scheduleJson: number
+  messageTemplate: number
   weeklyAgentKey: number
   enabled: number
   version: number
@@ -115,6 +118,7 @@ export type NotificationGroupPolicyMinAggregateInputType = {
   label?: true
   dataScopeJson?: true
   scheduleJson?: true
+  messageTemplate?: true
   weeklyAgentKey?: true
   enabled?: true
   version?: true
@@ -132,6 +136,7 @@ export type NotificationGroupPolicyMaxAggregateInputType = {
   label?: true
   dataScopeJson?: true
   scheduleJson?: true
+  messageTemplate?: true
   weeklyAgentKey?: true
   enabled?: true
   version?: true
@@ -149,6 +154,7 @@ export type NotificationGroupPolicyCountAggregateInputType = {
   label?: true
   dataScopeJson?: true
   scheduleJson?: true
+  messageTemplate?: true
   weeklyAgentKey?: true
   enabled?: true
   version?: true
@@ -253,6 +259,7 @@ export type NotificationGroupPolicyGroupByOutputType = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate: string | null
   weeklyAgentKey: string | null
   enabled: boolean
   version: number
@@ -293,6 +300,7 @@ export type NotificationGroupPolicyWhereInput = {
   label?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   dataScopeJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   scheduleJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
+  messageTemplate?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   weeklyAgentKey?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   enabled?: Prisma.BoolFilter<"NotificationGroupPolicy"> | boolean
   version?: Prisma.IntFilter<"NotificationGroupPolicy"> | number
@@ -313,6 +321,7 @@ export type NotificationGroupPolicyOrderByWithRelationInput = {
   label?: Prisma.SortOrder
   dataScopeJson?: Prisma.SortOrder
   scheduleJson?: Prisma.SortOrder
+  messageTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
   weeklyAgentKey?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -337,6 +346,7 @@ export type NotificationGroupPolicyWhereUniqueInput = Prisma.AtLeast<{
   label?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   dataScopeJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   scheduleJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
+  messageTemplate?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   weeklyAgentKey?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   enabled?: Prisma.BoolFilter<"NotificationGroupPolicy"> | boolean
   version?: Prisma.IntFilter<"NotificationGroupPolicy"> | number
@@ -357,6 +367,7 @@ export type NotificationGroupPolicyOrderByWithAggregationInput = {
   label?: Prisma.SortOrder
   dataScopeJson?: Prisma.SortOrder
   scheduleJson?: Prisma.SortOrder
+  messageTemplate?: Prisma.SortOrderInput | Prisma.SortOrder
   weeklyAgentKey?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -382,6 +393,7 @@ export type NotificationGroupPolicyScalarWhereWithAggregatesInput = {
   label?: Prisma.StringWithAggregatesFilter<"NotificationGroupPolicy"> | string
   dataScopeJson?: Prisma.StringWithAggregatesFilter<"NotificationGroupPolicy"> | string
   scheduleJson?: Prisma.StringWithAggregatesFilter<"NotificationGroupPolicy"> | string
+  messageTemplate?: Prisma.StringNullableWithAggregatesFilter<"NotificationGroupPolicy"> | string | null
   weeklyAgentKey?: Prisma.StringNullableWithAggregatesFilter<"NotificationGroupPolicy"> | string | null
   enabled?: Prisma.BoolWithAggregatesFilter<"NotificationGroupPolicy"> | boolean
   version?: Prisma.IntWithAggregatesFilter<"NotificationGroupPolicy"> | number
@@ -398,6 +410,7 @@ export type NotificationGroupPolicyCreateInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -416,6 +429,7 @@ export type NotificationGroupPolicyUncheckedCreateInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -432,6 +446,7 @@ export type NotificationGroupPolicyUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -450,6 +465,7 @@ export type NotificationGroupPolicyUncheckedUpdateInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -467,6 +483,7 @@ export type NotificationGroupPolicyCreateManyInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -483,6 +500,7 @@ export type NotificationGroupPolicyUpdateManyMutationInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -498,6 +516,7 @@ export type NotificationGroupPolicyUncheckedUpdateManyInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -531,6 +550,7 @@ export type NotificationGroupPolicyCountOrderByAggregateInput = {
   label?: Prisma.SortOrder
   dataScopeJson?: Prisma.SortOrder
   scheduleJson?: Prisma.SortOrder
+  messageTemplate?: Prisma.SortOrder
   weeklyAgentKey?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -555,6 +575,7 @@ export type NotificationGroupPolicyMaxOrderByAggregateInput = {
   label?: Prisma.SortOrder
   dataScopeJson?: Prisma.SortOrder
   scheduleJson?: Prisma.SortOrder
+  messageTemplate?: Prisma.SortOrder
   weeklyAgentKey?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -572,6 +593,7 @@ export type NotificationGroupPolicyMinOrderByAggregateInput = {
   label?: Prisma.SortOrder
   dataScopeJson?: Prisma.SortOrder
   scheduleJson?: Prisma.SortOrder
+  messageTemplate?: Prisma.SortOrder
   weeklyAgentKey?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -721,6 +743,7 @@ export type NotificationGroupPolicyCreateWithoutCreatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -738,6 +761,7 @@ export type NotificationGroupPolicyUncheckedCreateWithoutCreatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -763,6 +787,7 @@ export type NotificationGroupPolicyCreateWithoutUpdatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -780,6 +805,7 @@ export type NotificationGroupPolicyUncheckedCreateWithoutUpdatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -825,6 +851,7 @@ export type NotificationGroupPolicyScalarWhereInput = {
   label?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   dataScopeJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
   scheduleJson?: Prisma.StringFilter<"NotificationGroupPolicy"> | string
+  messageTemplate?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   weeklyAgentKey?: Prisma.StringNullableFilter<"NotificationGroupPolicy"> | string | null
   enabled?: Prisma.BoolFilter<"NotificationGroupPolicy"> | boolean
   version?: Prisma.IntFilter<"NotificationGroupPolicy"> | number
@@ -857,6 +884,7 @@ export type NotificationGroupPolicyCreateWithoutGroupInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -873,6 +901,7 @@ export type NotificationGroupPolicyUncheckedCreateWithoutGroupInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -916,6 +945,7 @@ export type NotificationGroupPolicyCreateManyCreatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -932,6 +962,7 @@ export type NotificationGroupPolicyCreateManyUpdatedByInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -947,6 +978,7 @@ export type NotificationGroupPolicyUpdateWithoutCreatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -964,6 +996,7 @@ export type NotificationGroupPolicyUncheckedUpdateWithoutCreatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -980,6 +1013,7 @@ export type NotificationGroupPolicyUncheckedUpdateManyWithoutCreatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -995,6 +1029,7 @@ export type NotificationGroupPolicyUpdateWithoutUpdatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1012,6 +1047,7 @@ export type NotificationGroupPolicyUncheckedUpdateWithoutUpdatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1028,6 +1064,7 @@ export type NotificationGroupPolicyUncheckedUpdateManyWithoutUpdatedByInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1043,6 +1080,7 @@ export type NotificationGroupPolicyCreateManyGroupInput = {
   label: string
   dataScopeJson: string
   scheduleJson: string
+  messageTemplate?: string | null
   weeklyAgentKey?: string | null
   enabled?: boolean
   version?: number
@@ -1059,6 +1097,7 @@ export type NotificationGroupPolicyUpdateWithoutGroupInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1075,6 +1114,7 @@ export type NotificationGroupPolicyUncheckedUpdateWithoutGroupInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1091,6 +1131,7 @@ export type NotificationGroupPolicyUncheckedUpdateManyWithoutGroupInput = {
   label?: Prisma.StringFieldUpdateOperationsInput | string
   dataScopeJson?: Prisma.StringFieldUpdateOperationsInput | string
   scheduleJson?: Prisma.StringFieldUpdateOperationsInput | string
+  messageTemplate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   weeklyAgentKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1110,6 +1151,7 @@ export type NotificationGroupPolicySelect<ExtArgs extends runtime.Types.Extensio
   label?: boolean
   dataScopeJson?: boolean
   scheduleJson?: boolean
+  messageTemplate?: boolean
   weeklyAgentKey?: boolean
   enabled?: boolean
   version?: boolean
@@ -1130,6 +1172,7 @@ export type NotificationGroupPolicySelectCreateManyAndReturn<ExtArgs extends run
   label?: boolean
   dataScopeJson?: boolean
   scheduleJson?: boolean
+  messageTemplate?: boolean
   weeklyAgentKey?: boolean
   enabled?: boolean
   version?: boolean
@@ -1150,6 +1193,7 @@ export type NotificationGroupPolicySelectUpdateManyAndReturn<ExtArgs extends run
   label?: boolean
   dataScopeJson?: boolean
   scheduleJson?: boolean
+  messageTemplate?: boolean
   weeklyAgentKey?: boolean
   enabled?: boolean
   version?: boolean
@@ -1170,6 +1214,7 @@ export type NotificationGroupPolicySelectScalar = {
   label?: boolean
   dataScopeJson?: boolean
   scheduleJson?: boolean
+  messageTemplate?: boolean
   weeklyAgentKey?: boolean
   enabled?: boolean
   version?: boolean
@@ -1179,7 +1224,7 @@ export type NotificationGroupPolicySelectScalar = {
   updatedAt?: boolean
 }
 
-export type NotificationGroupPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "groupId" | "definitionKey" | "label" | "dataScopeJson" | "scheduleJson" | "weeklyAgentKey" | "enabled" | "version" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationGroupPolicy"]>
+export type NotificationGroupPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "key" | "groupId" | "definitionKey" | "label" | "dataScopeJson" | "scheduleJson" | "messageTemplate" | "weeklyAgentKey" | "enabled" | "version" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["notificationGroupPolicy"]>
 export type NotificationGroupPolicyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   updatedBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -1211,6 +1256,7 @@ export type $NotificationGroupPolicyPayload<ExtArgs extends runtime.Types.Extens
     label: string
     dataScopeJson: string
     scheduleJson: string
+    messageTemplate: string | null
     weeklyAgentKey: string | null
     enabled: boolean
     version: number
@@ -1651,6 +1697,7 @@ export interface NotificationGroupPolicyFieldRefs {
   readonly label: Prisma.FieldRef<"NotificationGroupPolicy", 'String'>
   readonly dataScopeJson: Prisma.FieldRef<"NotificationGroupPolicy", 'String'>
   readonly scheduleJson: Prisma.FieldRef<"NotificationGroupPolicy", 'String'>
+  readonly messageTemplate: Prisma.FieldRef<"NotificationGroupPolicy", 'String'>
   readonly weeklyAgentKey: Prisma.FieldRef<"NotificationGroupPolicy", 'String'>
   readonly enabled: Prisma.FieldRef<"NotificationGroupPolicy", 'Boolean'>
   readonly version: Prisma.FieldRef<"NotificationGroupPolicy", 'Int'>

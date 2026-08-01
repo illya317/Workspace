@@ -111,6 +111,15 @@ export function buildWecomWorkerSignature({
     .digest("hex");
 }
 
+function canonicalWorkerPathname(pathname, basePath) {
+  const normalizedPath = String(pathname);
+  if (!basePath) return normalizedPath;
+  if (normalizedPath === basePath) return "/";
+  return normalizedPath.startsWith(basePath + "/")
+    ? normalizedPath.slice(basePath.length) || "/"
+    : normalizedPath;
+}
+
 function byteLimited(value, maximumBytes) {
   let output = String(value);
   if (Buffer.byteLength(output, "utf8") <= maximumBytes) return output;
@@ -389,7 +398,7 @@ export function createWecomNotificationDeliveryWorker({
             timestamp,
             requestId,
             method,
-            pathname: url.pathname,
+            pathname: canonicalWorkerPathname(url.pathname, normalizedBasePath),
             rawBody,
           }),
         },

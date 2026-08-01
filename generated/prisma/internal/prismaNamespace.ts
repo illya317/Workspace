@@ -28989,6 +28989,7 @@ export const NotificationGroupPolicyScalarFieldEnum = {
   label: 'label',
   dataScopeJson: 'dataScopeJson',
   scheduleJson: 'scheduleJson',
+  messageTemplate: 'messageTemplate',
   weeklyAgentKey: 'weeklyAgentKey',
   enabled: 'enabled',
   version: 'version',

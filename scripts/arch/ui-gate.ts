@@ -12,10 +12,12 @@ import { checkSurfaceRawContentWarnings } from "./surface-raw-content";
 import { checkSurfaceDeclareBoundaries } from "./surface-boundaries";
 import { checkUiHelperPurityWarnings } from "./ui-helper-purity";
 import { checkActionRuntimeUi } from "./action-runtime-ui";
+import { checkTableRowInteraction } from "./table-row-interaction";
 import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
 import { UI_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 
 export const uiGateChecks: AggregateGateCheck[] = [
+  ["table-row-interaction", checkTableRowInteraction],
   ["create-surface-entry", checkCreateSurfaceEntries],
   ["field-layout-debt", checkFieldLayoutDebt],
   ["form-surface-actions", checkFormSurfaceActions],
