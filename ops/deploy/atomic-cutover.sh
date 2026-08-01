@@ -494,7 +494,7 @@ if (!Array.isArray(routeMap.activeUnits) || routeMap.activeUnits.length !== 0
   throw new Error('Full Gateway generation still contains independent unit overrides');
 }
 NODE
-      echo "==> Full Gateway overrides 已原子清空: \$gateway_generation_id"
+      echo \"==> Full Gateway overrides 已原子清空: \$gateway_generation_id\"
     }
     commit_database_replacement_state() {
       [ \"\$database_replacement_guard\" = '1' ] || return 0

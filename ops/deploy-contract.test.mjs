@@ -660,6 +660,36 @@ test("the expanded remote artifact deployment shell remains syntactically valid"
   assert.equal(result.status, 0, result.stderr);
 });
 
+test("remote artifact deployment passes one complete command to ssh_cmd", () => {
+  const result = spawnSync("bash", ["-c", String.raw`
+    source ops/deploy/atomic-cutover.sh
+    rsync() { :; }
+    verify_release_order() { :; }
+    ssh_cmd() {
+      if [ "$#" -ne 1 ]; then
+        printf 'ssh_cmd received %s arguments\n' "$#" >&2
+        return 97
+      fi
+    }
+    RELEASE_SOURCE_SHA=0123456789abcdef
+    RELEASE_SOURCE_TREE=tree
+    RELEASE_CONTENT_DIGEST=content
+    ARTIFACT_SHA=artifact
+    ARTIFACT_MANIFEST_SHA=manifest
+    ARTIFACT_PATH=/dev/null
+    ARTIFACT_MANIFEST_PATH=/dev/null
+    SERVER=mock
+    REMOTE_WORKSPACE_CONFIG_DIR=/tmp/workspace-config
+    REMOTE_DIR=/tmp/workspace
+    REMOTE_RELEASE_TIMING_ENABLED=0
+    deploy_remote_artifact
+  `], {
+    cwd: new URL("..", import.meta.url),
+    encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+});
+
 test("deployment lifecycle does not apply or gate private data releases", () => {
   assert.doesNotMatch(deploy, /apply-data-release|data-release-gate|metadata\.deployment\?\.dataReleases/);
 });
