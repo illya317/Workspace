@@ -2,6 +2,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_PARENT="$(dirname "$PROJECT_ROOT")"
 cd "$PROJECT_ROOT"
 
 UNIT_ID="${1:-}"
@@ -166,6 +167,53 @@ SERVER_ENTRY="$SERVER_ENTRIES"
 APP_DIRECTORY="$(dirname "$SERVER_ENTRY")"
 SERVER_ENTRY_RELATIVE="${SERVER_ENTRY#"$STANDALONE_ROOT/"}"
 
+rewrite_release_dependency_link() {
+  [ "${PROJECT_ROOT##*/}" = "release" ] || return 0
+  [ -L "$PROJECT_ROOT/node_modules" ] || return 0
+
+  local trusted_node_modules="$PROJECT_PARENT/source/node_modules"
+  local source_link_target
+  source_link_target="$(readlink "$PROJECT_ROOT/node_modules")"
+  if [ "$source_link_target" != "$trusted_node_modules" ]; then
+    echo "[错误] release node_modules 必须精确指向受信 sibling: $trusted_node_modules" >&2
+    return 1
+  fi
+  if [ ! -d "$trusted_node_modules" ] || [ -L "$trusted_node_modules" ]; then
+    echo "[错误] 受信 sibling node_modules 必须是真实目录: $trusted_node_modules" >&2
+    return 1
+  fi
+
+  local packaged_source_node_modules="$STANDALONE_ROOT/source/node_modules"
+  local packaged_release_node_modules="$STANDALONE_ROOT/release/node_modules"
+  if [ ! -d "$packaged_source_node_modules" ] || [ -L "$packaged_source_node_modules" ]; then
+    echo "[错误] standalone 缺少真实 source/node_modules" >&2
+    return 1
+  fi
+  if [ ! -L "$packaged_release_node_modules" ]; then
+    echo "[错误] standalone release/node_modules 必须保留为受信链接" >&2
+    return 1
+  fi
+  if [ "$(readlink "$packaged_release_node_modules")" != "$trusted_node_modules" ]; then
+    echo "[错误] standalone release/node_modules 包含任意依赖链接" >&2
+    return 1
+  fi
+
+  local temporary_link="${packaged_release_node_modules}.relative-${BASHPID}"
+  [ ! -e "$temporary_link" ] && [ ! -L "$temporary_link" ] || {
+    echo "[错误] standalone 依赖链接临时路径已存在" >&2
+    return 1
+  }
+  ln -s "../source/node_modules" "$temporary_link"
+  mv -Tf "$temporary_link" "$packaged_release_node_modules"
+  if [ "$(readlink "$packaged_release_node_modules")" != "../source/node_modules" ] \
+    || [ "$(realpath "$packaged_release_node_modules")" != "$(realpath "$packaged_source_node_modules")" ]; then
+    echo "[错误] standalone release/node_modules 相对链接验证失败" >&2
+    return 1
+  fi
+}
+
+rewrite_release_dependency_link
+
 rm -rf "$APP_DIRECTORY/.next/static"
 mkdir -p "$APP_DIRECTORY/.next"
 cp -R "$BUILD_DIRECTORY/static" "$APP_DIRECTORY/.next/static"
@@ -189,6 +237,13 @@ if [ "$UNIT_ID" = "assistant" ]; then
     "$STANDALONE_ROOT/node_modules/sharp"
   node ops/assistant-runtime.mjs assert --release-root "$STANDALONE_ROOT"
 fi
+while IFS= read -r -d '' packaged_link; do
+  packaged_link_target="$(readlink "$packaged_link")"
+  if [[ "$packaged_link_target" = /* ]]; then
+    echo "[错误] standalone 禁止 absolute symlink: ${packaged_link#"$STANDALONE_ROOT/"}" >&2
+    exit 1
+  fi
+done < <(find "$STANDALONE_ROOT" -type l -print0)
 find "$STANDALONE_ROOT" \( -name '.DS_Store' -o -name '._*' \) -delete
 
 mkdir -p "$(dirname "$ARTIFACT_FILE")" "$(dirname "$MANIFEST_FILE")"

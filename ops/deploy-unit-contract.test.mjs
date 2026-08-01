@@ -32,6 +32,17 @@ test("unit builder uses governed typecheck and one exact Linux standalone artifa
   assert.ok(build.indexOf('npm run typecheck:scope -- "$scope"') < build.indexOf('./node_modules/.bin/next build "$APP_ROOT"'));
 });
 
+test("unit builder makes only the trusted release dependency link portable", () => {
+  assert.match(build, /\[ "\$\{PROJECT_ROOT##\*\/\}" = "release" \] \|\| return 0/);
+  assert.match(build, /\[ -L "\$PROJECT_ROOT\/node_modules" \] \|\| return 0/);
+  assert.match(build, /source_link_target" != "\$trusted_node_modules"/);
+  assert.match(build, /standalone release\/node_modules 包含任意依赖链接/);
+  assert.match(build, /ln -s "\.\.\/source\/node_modules" "\$temporary_link"/);
+  assert.match(build, /mv -Tf "\$temporary_link" "\$packaged_release_node_modules"/);
+  assert.match(build, /standalone 禁止 absolute symlink/);
+  assert.doesNotMatch(build, /rm[^\n]*packaged_release_node_modules/);
+});
+
 test("client deploy accepts only trusted artifacts while rollback remains an explicit operator action", () => {
   assert.match(client, /DEPLOY_UNIT_TRUSTED_BUILD/);
   assert.match(client, /artifact-assert/);
