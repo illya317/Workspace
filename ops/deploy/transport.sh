@@ -387,6 +387,7 @@ sync_remote_deploy_tools() {
     ops/control-plane-requirements.mjs ops/deploy-unit-release.mjs \
     ops/gateway-generation.mjs ops/switch-deploy-gateway.sh \
     ops/deploy-unit-sidecar.sh ops/assistant-runtime.mjs \
+    ops/reconcile-runtime-config-permissions.sh \
     "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"
   rsync -az -e "$RSYNC_SSH_COMMAND" "$FULL_DEPLOY_GRAPH_TMP" "$SERVER:$REMOTE_FULL_DEPLOY_GRAPH"
   rm -f "$FULL_DEPLOY_GRAPH_TMP"
@@ -395,7 +396,8 @@ sync_remote_deploy_tools() {
     chmod 755 '$REMOTE_RELEASE_RECEIPT_TOOL' '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL' '$REMOTE_DEPLOY_TOOL_DIR/tenant-config-manifest.mjs' \
       '$REMOTE_DEPLOY_TOOL_DIR/control-plane-requirements.mjs' '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-release.mjs' \
       '$REMOTE_GATEWAY_GENERATION_TOOL' '$REMOTE_GATEWAY_SWITCH_TOOL' \
-      '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh' '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
+      '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh' '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs' \
+      '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh'
     chmod 600 '$REMOTE_FULL_DEPLOY_GRAPH'
     node --check '$REMOTE_RELEASE_RECEIPT_TOOL'
     node --check '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'
@@ -406,6 +408,7 @@ sync_remote_deploy_tools() {
     node --check '$REMOTE_DEPLOY_TOOL_DIR/assistant-runtime.mjs'
     bash -n '$REMOTE_GATEWAY_SWITCH_TOOL'
     bash -n '$REMOTE_DEPLOY_TOOL_DIR/deploy-unit-sidecar.sh'
+    bash -n '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh'
     node '$REMOTE_GATEWAY_GENERATION_TOOL' graph-digest --graph '$REMOTE_FULL_DEPLOY_GRAPH' >/dev/null
   "
 

@@ -18,6 +18,7 @@ const kimiRuntimeInstaller = readFileSync(new URL("./install-kimi-agent-runtime.
 const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-deps.sh", import.meta.url), "utf8");
 const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
+const runtimePermissionReconciler = readFileSync(new URL("./reconcile-runtime-config-permissions.sh", import.meta.url), "utf8");
 
 function assertOrdered(source, needles) {
   let previous = -1;
@@ -173,6 +174,21 @@ test("legacy PM2 deployments remain outside the hardened credential contract", (
     sshShim,
     /if \[ '\$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' \]; then\n\s+test -n \\"\\\${WORKSPACE_BACKUP_DATABASE_URL:-}\\"/,
   );
+});
+
+test("hardened deploy reapplies runtime ACLs after tenant directory replacement", () => {
+  assert.match(deploy, /ops\/reconcile-runtime-config-permissions\.sh/);
+  assert.match(deploy, /bash -n '\$REMOTE_DEPLOY_TOOL_DIR\/reconcile-runtime-config-permissions\.sh'/);
+  assert.match(
+    deploy,
+    /sudo -n -- '\$REMOTE_DEPLOY_TOOL_DIR\/reconcile-runtime-config-permissions\.sh'[\s\S]*?'\$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime/,
+  );
+  assert.match(runtimePermissionReconciler, /for relative in data assets assets\/brand/);
+  assert.match(runtimePermissionReconciler, /assets\/brand\/company/);
+  assert.match(runtimePermissionReconciler, /setfacl -Rm "u:\$RUNTIME_USER:rX"/);
+  assert.match(runtimePermissionReconciler, /setfacl -Rm "u:\$RUNTIME_USER:rwX"/);
+  assert.match(runtimePermissionReconciler, /runtime 用户可写只读路径/);
+  assert.doesNotMatch(runtimePermissionReconciler, /chmod -R|chmod 777/);
 });
 
 test("hardened deploy URL contract pins every database credential to its exact role, endpoint, and TLS CA", () => {

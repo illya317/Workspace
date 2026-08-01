@@ -81,6 +81,10 @@ for key, value in replacements.items():
 env_path.write_text(text)
 PY
     fi
+    if [ '$WORKSPACE_RUNTIME_PM2_MODE' = 'hardened' ]; then
+      sudo -n -- '$REMOTE_DEPLOY_TOOL_DIR/reconcile-runtime-config-permissions.sh' \
+        '$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime
+    fi
   "
 }
 
