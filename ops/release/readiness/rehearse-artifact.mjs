@@ -13,17 +13,23 @@ import { inspectArchive } from "./artifact-inspection.mjs";
 import { deployUnitRuntimeVersion } from "../contracts/deploy-unit-build-identity.mjs";
 import { ensureInternalUnitIdentity } from "../../internal-unit-identity.mjs";
 
-export const DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS = [
+export const DEPLOY_UNIT_IDENTITY_ENVIRONMENT_KEYS = [
   "WORKSPACE_DEPLOY_UNIT_ID",
   "WORKSPACE_DEPLOY_SLOT",
   "WORKSPACE_DEPLOY_CURRENT_STATE_FILE",
   "WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE",
   "WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE",
   "WORKSPACE_INTERNAL_REPLAY_DIRECTORY",
+];
+
+export const DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS = [
+  ...DEPLOY_UNIT_IDENTITY_ENVIRONMENT_KEYS,
   "WORKSPACE_INTERNAL_ORIGIN",
   "PG_POOL_MAX",
   "PG_APPLICATION_NAME",
 ];
+
+const FATAL_RUNTIME_CONTRACT = /WORKSPACE_(?:DEPLOY|INTERNAL)_[A-Z_]+[^\n]{0,240}(?:must|required|missing|invalid)/i;
 
 const sha256File = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
@@ -93,9 +99,8 @@ export async function probeRuntimeEndpoint(url, validate, child, logs, controls 
   const now = controls.now ?? (() => Date.now());
   const fetchImpl = controls.fetchImpl ?? fetch;
   const sleep = controls.sleep ?? ((delay) => new Promise((resolve) => setTimeout(resolve, delay)));
-  const deadline = now() + 90_000;
+  const deadline = now() + (controls.timeoutMs ?? 90_000);
   let lastError = "not started";
-  let repeatedServerError = null;
   while (now() < deadline) {
     if (child.exitCode !== null || child.signalCode !== null) {
       throw new Error(`artifact runtime exited before readiness: ${logs()}`);
@@ -106,23 +111,15 @@ export async function probeRuntimeEndpoint(url, validate, child, logs, controls 
       response = await fetchImpl(url, { signal: AbortSignal.timeout(2_000) });
       text = await response.text();
     } catch (error) {
-      repeatedServerError = null;
       lastError = error instanceof Error ? error.message : String(error);
       await sleep(250);
       continue;
     }
     if (response.ok && validate(text)) return text;
     lastError = `${response.status} ${text.slice(0, 300)}`;
-    if (response.status >= 500 && response.status <= 599) {
-      const fingerprint = `${response.status}:${text.slice(0, 300)}`;
-      repeatedServerError = repeatedServerError?.fingerprint === fingerprint
-        ? { fingerprint, count: repeatedServerError.count + 1 }
-        : { fingerprint, count: 1 };
-      if (repeatedServerError.count >= 3) {
-        throw new Error(`artifact runtime probe repeated identical 5xx at ${url}: ${lastError}; ${logs()}`);
-      }
-    } else {
-      repeatedServerError = null;
+    const runtimeLogs = logs();
+    if (response.status >= 500 && FATAL_RUNTIME_CONTRACT.test(`${text}\n${runtimeLogs}`)) {
+      throw new Error(`artifact runtime contract failed at ${url}: ${lastError}; ${runtimeLogs}`);
     }
     await sleep(250);
   }
@@ -142,6 +139,7 @@ export function artifactRehearsalRuntimeEnvironment({
     ...baseEnvironment,
     CI: "1",
     PORT: String(port),
+    HOSTNAME: "127.0.0.1",
     PLAYWRIGHT_PORT: String(port),
     PLAYWRIGHT_STANDALONE_ARCHIVE: options.artifact,
     PLAYWRIGHT_STANDALONE_MANIFEST: options.manifest,
@@ -149,7 +147,7 @@ export function artifactRehearsalRuntimeEnvironment({
     NEXT_PUBLIC_BUILD_VERSION: runtime.version,
     BUILD_VERSION: runtime.version,
   };
-  for (const key of DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS) delete environment[key];
+  for (const key of DEPLOY_UNIT_IDENTITY_ENVIRONMENT_KEYS) delete environment[key];
   if (options.target === "monolith") return environment;
   const databasePoolMax = manifest.runtime?.capacity?.databasePoolMax;
   if (!Number.isSafeInteger(databasePoolMax) || databasePoolMax <= 0 || !identity || !rehearsalRoot) {
@@ -170,24 +168,60 @@ export function artifactRehearsalRuntimeEnvironment({
   };
 }
 
+export function prepareArtifactRehearsalRuntime({ manifest, options, port, runtime }) {
+  if (options.target === "monolith") {
+    return {
+      environment: artifactRehearsalRuntimeEnvironment({ manifest, options, port, runtime }),
+      root: null,
+      cleanup() {},
+    };
+  }
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-artifact-rehearsal-"));
+  try {
+    const identity = ensureInternalUnitIdentity({ root: path.join(root, "identity"), unitId: options.target });
+    fs.mkdirSync(path.join(root, "gateway/current/unit-states"), { recursive: true, mode: 0o700 });
+    return {
+      environment: artifactRehearsalRuntimeEnvironment({
+        identity,
+        manifest,
+        options,
+        port,
+        rehearsalRoot: root,
+        runtime,
+      }),
+      root,
+      cleanup() { fs.rmSync(root, { recursive: true, force: true }); },
+    };
+  } catch (error) {
+    fs.rmSync(root, { recursive: true, force: true });
+    throw error;
+  }
+}
+
+export async function terminateRuntimeChild(child, controls = {}) {
+  if (!child || child.exitCode !== null || child.signalCode !== null) return;
+  const schedule = controls.schedule ?? setTimeout;
+  const cancel = controls.cancel ?? clearTimeout;
+  const exited = once(child, "exit");
+  child.kill("SIGTERM");
+  const timer = schedule(() => {
+    if (child.exitCode === null && child.signalCode === null) child.kill("SIGKILL");
+  }, controls.graceMs ?? 8_000);
+  try { await exited; }
+  finally { cancel(timer); }
+}
+
 async function executeRuntime(options, runtime) {
   const port = await unusedPort();
   const runner = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../scripts/testing/e2e-standalone.mjs");
   const manifest = readJson(options.manifest);
-  const rehearsalRoot = options.target === "monolith"
-    ? null
-    : fs.mkdtempSync(path.join(os.tmpdir(), "workspace-artifact-rehearsal-"));
-  let identity = null;
+  const rehearsal = prepareArtifactRehearsalRuntime({ manifest, options, port, runtime });
   let child = null;
   let output = "";
   try {
-    if (rehearsalRoot) {
-      identity = ensureInternalUnitIdentity({ root: path.join(rehearsalRoot, "identity"), unitId: options.target });
-      fs.mkdirSync(path.join(rehearsalRoot, "gateway/current/unit-states"), { recursive: true, mode: 0o700 });
-    }
     child = spawn(process.execPath, [runner], {
       cwd: options.repository,
-      env: artifactRehearsalRuntimeEnvironment({ identity, manifest, options, port, rehearsalRoot, runtime }),
+      env: rehearsal.environment,
       stdio: ["ignore", "pipe", "pipe"],
     });
     const append = (chunk) => { output = `${output}${chunk}`.slice(-16_000); };
@@ -203,9 +237,8 @@ async function executeRuntime(options, runtime) {
       catch { return false; }
     }, child, () => output);
   } finally {
-    if (child?.exitCode === null && child.signalCode === null) child.kill("SIGTERM");
-    if (child?.exitCode === null && child.signalCode === null) await once(child, "exit");
-    if (rehearsalRoot) fs.rmSync(rehearsalRoot, { recursive: true, force: true });
+    try { await terminateRuntimeChild(child); }
+    finally { rehearsal.cleanup(); }
   }
 }
 

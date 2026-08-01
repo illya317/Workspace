@@ -18,7 +18,7 @@ ci -> Ready -> deploy
 2. **Stage-2 Artifact preflight**：在任何 DB reset、完整 Source CI 或 Next build 前，以真实 Next config loader 检查 exact target、生成 App、Node/npm/Next/package-lock、受控 `node_modules` symlink、PATH 工具和 build-space，写 run-scoped immutable receipt。
 3. **Source CI + artifact build**：CI database sandbox 是共同运行依赖；source lane 与 artifact lane 各写独立 result/receipt。本机 3 CPU/10 GiB 环境为避免争抢而串行，资源隔离充分的 runner 可并行。
 4. **Artifact static acceptance**：复验 builder、manifest、SBOM 和 archive；rehearsal 在启动前先运行 `inspectArchive`。
-5. **Isolated startup**：用同轮 CI database 启动 exact archive；单 unit 必须创建临时 Ed25519 identity，并注入与生产 `start_release` 相同的 unit/slot/state/signing/trust/replay/origin/pool/application-name 环境面，验证 health/version 后清理。生产启动环境面新增或删除字段而 rehearsal 未同步时，契约测试直接失败；同一 5xx 连续三次则在秒级失败并保留运行日志，不等待完整超时。
+5. **Isolated startup**：用同轮 CI database 启动 exact archive；单 unit 必须创建临时 Ed25519 identity，并注入与生产 `start_release` 相同的 unit/slot/state/signing/trust/replay/origin/pool/application-name 环境面，验证 health/version 后清理。生产启动环境面新增或删除字段而 rehearsal 未同步时，契约测试直接失败；日志或响应命中明确的部署身份环境错误时秒级失败并保留运行日志，普通可恢复 5xx 仍继续等待 readiness。演练的 internal origin 刻意指向隔离进程自身，不冒充生产 Gateway；签名、audience、trust 与 replay 行为由 Platform source contract 覆盖，真实 Gateway 路由由 Controller Ready 与 deploy 现场验证负责。
 6. **Application Ready**：绑定 Stage-2、source、artifact、static acceptance 与 startup proof。
 7. **Controller Ready → Deploy**：独立签发 Controller Ready；deploy 只复验两份 Ready 并执行生产现场安全动作。
 
