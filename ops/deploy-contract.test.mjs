@@ -9,6 +9,7 @@ import test from "node:test";
 import { readDeploySourceContract } from "./deploy/source-contract.mjs";
 
 const deploy = readDeploySourceContract();
+const deployEntrypoint = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const replaceProductionDatabase = readFileSync(new URL("./replace-production-database.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
 const kimiDarwinSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner-darwin.sh", import.meta.url), "utf8");
@@ -27,6 +28,15 @@ function assertOrdered(source, needles) {
     previous = index;
   }
 }
+
+test("deploy composition resolves private modules from its own directory", () => {
+  assertOrdered(deployEntrypoint, [
+    'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"',
+    'cd "$SCRIPT_DIR/.."',
+    'source "$SCRIPT_DIR/deploy/transport.sh"',
+    'source "$SCRIPT_DIR/deploy/health.sh"',
+  ]);
+});
 
 function embeddedPrograms(runtime, delimiter) {
   const pattern = new RegExp(`\\b${runtime}(?: [^\\n]*)? <<'${delimiter}'[^\\n]*\\n([\\s\\S]*?)\\n${delimiter}`, "g");
