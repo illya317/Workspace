@@ -12,6 +12,11 @@
       "allowedDependencies": []
     },
     {
+      "name": "release-control",
+      "include": ["ops/release/control/"],
+      "allowedDependencies": []
+    },
+    {
       "name": "release-candidate",
       "include": ["ops/release/candidate/"],
       "allowedDependencies": []

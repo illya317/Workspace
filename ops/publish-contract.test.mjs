@@ -50,6 +50,15 @@ test("deploy consumes the current Ready Artifact and cannot build", () => {
   assert.match(deployTarget, /Ready Receipt 与恢复后的 artifact 完全一致/);
 });
 
+test("deploy controller advances through its own fail-closed seam without rebuilding the application", () => {
+  const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.match(deployCase, /deploy-control-compatibility\.mjs" verify/);
+  assert.match(deployCase, /run-node-tests\.mjs shard ops/);
+  assert.match(deployCase, /"\$SCRIPT_DIR\/publish-cnb\.sh" --release-action deploy --direct/);
+  assert.doesNotMatch(deployCase, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
+  assert.ok(deployCase.indexOf("deploy-control-compatibility.mjs") < deployCase.indexOf("publish-cnb.sh"));
+});
+
 test("old split CNB actions are rejected before any production work", () => {
   const actionGuard = publishCnb.indexOf("旧 validate/build 发布动作已删除");
   const directGuard = publishCnb.indexOf("远端 CNB 分段发布已删除");

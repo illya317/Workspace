@@ -46,6 +46,11 @@ payload = {
     "startedAt": datetime.datetime.fromtimestamp(started, datetime.timezone.utc).isoformat(),
     "releaseStartedAt": release_started_at,
     "finishedAt": finished_at,
+    "control": {
+        "sourceSha": required("DEPLOY_CONTROL_SOURCE_SHA"),
+        "treeId": required("DEPLOY_CONTROL_TREE_ID"),
+        "digest": required("DEPLOY_CONTROL_DIGEST"),
+    },
 }
 if os.environ.get("DEPLOY_TEST_EVENT") == "1":
     payload["test"] = True

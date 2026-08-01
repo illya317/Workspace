@@ -34,7 +34,7 @@ Ready Artifact 绑定：
 
 ### Deploy 的责任
 
-`ops/publish.sh deploy` 只允许当前 release source、配置和目标已经存在 exact Ready Artifact。它可以：
+`ops/publish.sh deploy` 只允许 release source、配置和目标已经存在 exact Ready Artifact。应用候选继续固定在该 Ready source；入口仓库中的 CD controller 可以是它的后代，但两者之间只能包含显式登记的 deploy-control 文件。controller 独立前进时先运行完整 ops test shard，并把 controller source/tree/digest 写入部署事件；任何应用、schema、artifact builder 或未登记路径变化都失败并要求重新运行 CI。它可以：
 
 - 恢复并复验 Ready Artifact；
 - 原子安装租户配置后恢复 runtime traverse/read/write ACL，并在 SSH master 建立后再次恢复可能被登录策略收紧的 parent ACL，再验证受限 PM2 runner；
@@ -44,7 +44,7 @@ Ready Artifact 绑定：
 - 验证公开 health/version，失败时回滚；
 - 写不可变部署回执和通知。
 
-它禁止 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
+它禁止应用 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。只有 controller 与 Ready source 不同且差异完全位于 deploy-control seam 内时，deploy 才运行独立 ops test shard；这不会改变或重建 Ready Artifact。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
 
 ## 一次报全与增量收敛
 

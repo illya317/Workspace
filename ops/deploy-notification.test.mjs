@@ -238,10 +238,16 @@ test("remote deploy event preserves the existing home directory mode", () => {
       DEPLOY_STARTED_EPOCH_SECONDS: "1785582067",
       DEPLOY_DURATION_SECONDS: "244",
       RELEASE_PROCESS_STARTED_AT: "2026-08-01T11:00:00Z",
+      DEPLOY_CONTROL_SOURCE_SHA: "c".repeat(40),
+      DEPLOY_CONTROL_TREE_ID: "d".repeat(40),
+      DEPLOY_CONTROL_DIGEST: "e".repeat(64),
     },
   });
   assert.equal(result.status, 0, result.stderr);
   assert.equal(statSync(home).mode & 0o777, 0o710);
+  assert.deepEqual(JSON.parse(readFileSync(path.join(home, ".finance-bot-deploy-event.json"), "utf8")).control, {
+    sourceSha: "c".repeat(40), treeId: "d".repeat(40), digest: "e".repeat(64),
+  });
   assert.equal(statSync(path.join(home, ".finance-bot-deploy-event.json")).mode & 0o777, 0o600);
   assert.equal(statSync(path.join(home, ".finance-bot-deploy-events", "pending")).mode & 0o777, 0o700);
 });

@@ -18,6 +18,9 @@ CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-re
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
 : "${CNB_REPO:?CNB_REPO not set in $OPS_ENV_FILE}"
 : "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
+: "${DEPLOY_CONTROL_SOURCE_SHA:?deploy requires an independently verified controller source}"
+: "${DEPLOY_CONTROL_TREE_ID:?deploy requires an independently verified controller tree}"
+: "${DEPLOY_CONTROL_DIGEST:?deploy requires an independently verified controller digest}"
 
 BOOTSTRAP_PRODUCTION_BASE=""
 BOOTSTRAP_LEGACY_CNB_COMMIT=""

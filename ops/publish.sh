@@ -195,6 +195,18 @@ case "${1:-}" in
       && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] && [ "$ready_configuration" = "$RELEASE_CONFIGURATION_DIGEST" ] || {
         echo "[错误] 当前 release source/config 没有 Ready Artifact；先运行 ci" >&2; exit 1;
       }
+    control_json="$(node "$SCRIPT_DIR/release/control/deploy-control-compatibility.mjs" verify \
+      --repository "$REPOSITORY_ROOT" --ready-source "$ready_source")"
+    DEPLOY_CONTROL_SOURCE_SHA="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).sourceSha)' "$control_json")"
+    DEPLOY_CONTROL_TREE_ID="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).treeId)' "$control_json")"
+    DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controlDigest)' "$control_json")"
+    control_requires_validation="$(node -e 'process.stdout.write(String(JSON.parse(process.argv[1]).requiresValidation))' "$control_json")"
+    export DEPLOY_CONTROL_SOURCE_SHA DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST
+    if [ "$control_requires_validation" = true ]; then
+      echo "==> CD controller 已独立前进；运行 control-plane ops tests，不重建 Ready Artifact..."
+      (cd "$REPOSITORY_ROOT" && node scripts/check/with-check-lock.js -- \
+        node scripts/testing/run-node-tests.mjs shard ops)
+    fi
     export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
     export RELEASE_READY_RECEIPT_FILE="$ready_file" RELEASE_CI_RUN_ID="$ready_run_id"
     export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_WORKTREE/.cache/release-artifacts"
@@ -212,7 +224,7 @@ case "${1:-}" in
       database_args=(--database-replacement-receipt "$DATABASE_REPLACEMENT_RECEIPT_FILE")
     fi
     RELEASE_CONFIGURATION_DIGEST="$RELEASE_CONFIGURATION_DIGEST" \
-      "$RELEASE_SCRIPT_DIR/publish-cnb.sh" --release-action deploy --direct "${target_args[@]}" "${database_args[@]}"
+      "$SCRIPT_DIR/publish-cnb.sh" --release-action deploy --direct "${target_args[@]}" "${database_args[@]}"
     exit 0
     ;;
   data)
