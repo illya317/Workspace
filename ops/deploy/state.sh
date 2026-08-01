@@ -456,7 +456,7 @@ verify_release_order() {
     DEPLOYED_ARTIFACT_SHA \
     deployed_repository \
     DEPLOYED_CNB_BRANCH \
-    DEPLOYED_MIGRATION_SET_SHA <<< "$remote_state"
+    DEPLOYED_MIGRATION_SET_SHA DEPLOYED_CONTROLLER_SOURCE_SHA DEPLOYED_CONTROLLER_TREE_ID DEPLOYED_CONTROLLER_CONTROL_DIGEST DEPLOYED_CONTROLLER_RECEIPT_DIGEST <<< "$remote_state"
   case "$record_kind" in
     MISSING)
       DEPLOYED_SOURCE_SHA=""
@@ -464,7 +464,7 @@ verify_release_order() {
       DEPLOYED_CANONICAL_SOURCE_SHA=""
       DEPLOYED_CANONICAL_SOURCE_TREE=""
       DEPLOYED_CNB_INJECTION_SHA=""
-      DEPLOYED_ARTIFACT_SHA=""
+      DEPLOYED_ARTIFACT_SHA="" DEPLOYED_CONTROLLER_SOURCE_SHA="" DEPLOYED_CONTROLLER_TREE_ID="" DEPLOYED_CONTROLLER_CONTROL_DIGEST="" DEPLOYED_CONTROLLER_RECEIPT_DIGEST=""
       if [ -z "$RELEASE_BOOTSTRAP_BASE" ]; then
         echo "[错误] 生产部署记录缺失；只有经审计的一次性 production bootstrap 凭证可接管"
         exit 1
@@ -556,10 +556,11 @@ verify_release_order() {
     order_action="$(node ops/verify-deploy-order.mjs "${args[@]}")"
   fi
   if [ "$order_action" = "noop" ]; then
-    echo "==> 生产记录已是 CNB source ${RELEASE_SOURCE_SHA:0:12}；锁内复验实时健康与版本。"
-    run_healthcheck
-    echo "==> 实时生产健康且版本一致，跳过重复部署。"
-    exit 0
+    echo "==> Application 已是 ${RELEASE_SOURCE_SHA:0:12}；锁内复验实时健康与版本。"; run_healthcheck
+    if [ "$DEPLOYED_CONTROLLER_SOURCE_SHA" = "$RELEASE_CONTROLLER_SOURCE_SHA" ] && [ "$DEPLOYED_CONTROLLER_TREE_ID" = "$RELEASE_CONTROLLER_TREE_ID" ] && [ "$DEPLOYED_CONTROLLER_CONTROL_DIGEST" = "$RELEASE_CONTROLLER_CONTROL_DIGEST" ] && [ "$DEPLOYED_CONTROLLER_RECEIPT_DIGEST" = "$RELEASE_CONTROLLER_RECEIPT_DIGEST" ]; then echo "==> Application 与 Controller 均相同；实时健康且版本一致，纯 no-op。"; exit 0; fi
+    echo "==> Application no-op；仅激活 Controller Ready ${RELEASE_CONTROLLER_SOURCE_SHA:0:12}，不重建、不重启应用。"
+    controller_activation_result="$(ssh_cmd "node '$REMOTE_RELEASE_RECEIPT_TOOL' activate-controller --file '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' --expected-repository '$RELEASE_CNB_REPOSITORY' --runtime-source '$RELEASE_SOURCE_SHA' --runtime-tree '$RELEASE_SOURCE_TREE' --canonical-source '$RELEASE_SOURCE_SHA' --canonical-tree '$RELEASE_SOURCE_TREE' --artifact-sha '$ARTIFACT_SHA' --migration-set '$RELEASE_MIGRATION_SET_SHA' --cnb-injection '$DEPLOYED_CNB_INJECTION_SHA' --controller-source '$RELEASE_CONTROLLER_SOURCE_SHA' --controller-tree '$RELEASE_CONTROLLER_TREE_ID' --controller-control-digest '$RELEASE_CONTROLLER_CONTROL_DIGEST' --controller-receipt-digest '$RELEASE_CONTROLLER_RECEIPT_DIGEST'")"; [ "$controller_activation_result" = "ACTIVATED" ] || { echo "[错误] Controller activation 返回异常: $controller_activation_result"; exit 1; }
+    echo "==> Controller activation 已原子写入 deployed-release；Application identity 保持不变。"; exit 0
   fi
   if [ "$order_action" != "deploy" ]; then
     echo "[错误] 未知部署顺序判断: $order_action"

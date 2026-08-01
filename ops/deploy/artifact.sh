@@ -49,11 +49,11 @@ resolve_release_metadata() {
     echo "[错误] CNB injection commit 必须恰好有一个 canonical source parent"
     exit 1
   fi
-  RELEASE_SOURCE_SHA="$(git rev-parse HEAD^ 2>/dev/null)" || {
-    echo "[错误] CNB 发布提交缺少 canonical source parent"
+  RELEASE_CONTROLLER_SOURCE_SHA="$(git rev-parse HEAD^ 2>/dev/null)" || {
+    echo "[错误] CNB 发布提交缺少 Controller Ready source parent"
     exit 1
   }
-  RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")"
+  RELEASE_CONTROLLER_TREE_ID="$(git rev-parse "${RELEASE_CONTROLLER_SOURCE_SHA}^{tree}")"
   injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_head" | LC_ALL=C sort)"
   if [ "$injection_files" != $'.cnb-release.json\n.cnb.yml' ]; then
     echo "[错误] CNB injection commit 只能修改 .cnb.yml 与 .cnb-release.json"
@@ -61,10 +61,21 @@ resolve_release_metadata() {
     exit 1
   fi
 
-  metadata_values="$(node - "$RELEASE_METADATA_FILE" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$EXPECTED_CNB_REPOSITORY" "$RELEASE_SOURCE_BRANCH" "$release_head" <<'NODE'
+  metadata_values="$(node - "$RELEASE_METADATA_FILE" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$EXPECTED_CNB_REPOSITORY" "$RELEASE_SOURCE_BRANCH" "$release_head" "$RELEASE_CONTROLLER_SOURCE_SHA" "$RELEASE_CONTROLLER_TREE_ID" <<'NODE'
 const fs = require('node:fs');
-const [file, sha, tree, contentDigest, repository, branch, injectionSha] = process.argv.slice(2);
+(async () => {
+  const { verifyControllerReadyReceipt } = await import('./ops/release/control/controller-ready.mjs');
+const [file, sha, tree, contentDigest, repository, branch, injectionSha, controllerSha, controllerTree] = process.argv.slice(2);
 const metadata = JSON.parse(fs.readFileSync(file, 'utf8'));
+const controllerReady = verifyControllerReadyReceipt({
+  receipt: metadata.controllerReady,
+  repository: process.cwd(),
+  readySource: sha,
+  controllerSource: 'HEAD^',
+});
+if (controllerReady.controller.sourceSha !== controllerSha || controllerReady.controller.treeId !== controllerTree) {
+  throw new Error('Controller Ready receipt does not match injection parent');
+}
 const transport = metadata.transport?.kind;
 const localTiming = metadata.deployment?.localTiming;
 const localTimingKeys = 'releaseAttemptCount,releaseProcessSeconds,releaseProcessStartedAt,tenantSyncSeconds';
@@ -84,7 +95,7 @@ const readyTargetMatches = target?.kind === 'monolith'
   ? ready?.target?.kind === 'monolith' && ready?.target?.id === 'monolith' && ready?.target?.mode === 'activate'
   : target?.kind === 'unit' && ready?.target?.kind === 'unit'
     && ready?.target?.id === target.unitId && ready?.target?.mode === target.mode;
-if (metadata.schemaVersion !== 2
+if (metadata.schemaVersion !== 3
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
   || metadata.source?.contentDigest !== contentDigest
@@ -107,7 +118,7 @@ if (metadata.schemaVersion !== 2
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
   || metadata.deployment.startedAtEpochSeconds <= 0
   || !validLocalTiming) {
-  throw new Error('CNB release metadata does not match injection parent');
+  throw new Error('CNB release metadata does not match Application Ready identity');
 }
 const bootstrap = metadata.deploymentBootstrap;
 const genesis = metadata.deploymentGenesis;
@@ -195,8 +206,16 @@ const values = [
   receiptRecovery?.sourceSha ?? '',
   receiptRecovery?.treeSha ?? '',
   receiptRecovery?.migrationSetSha256 ?? '',
+  controllerReady.controller.sourceSha,
+  controllerReady.controller.treeId,
+  controllerReady.controller.controlDigest,
+  controllerReady.receiptDigest,
 ];
 process.stdout.write(values.join('\n'));
+})().catch((error) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+});
 NODE
 )"
   RELEASE_CNB_REPOSITORY="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
@@ -239,7 +258,11 @@ NODE
     RELEASE_RECEIPT_RECOVERY_TREE="$(printf '%s\n' "$metadata_values" | sed -n '27p')"
     RELEASE_RECEIPT_RECOVERY_MIGRATION_SET="$(printf '%s\n' "$metadata_values" | sed -n '28p')"
   fi
-  echo "==> 已验证 ${RELEASE_TRANSPORT} source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
+  RELEASE_CONTROLLER_SOURCE_SHA="$(printf '%s\n' "$metadata_values" | sed -n '29p')"
+  RELEASE_CONTROLLER_TREE_ID="$(printf '%s\n' "$metadata_values" | sed -n '30p')"
+  RELEASE_CONTROLLER_CONTROL_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '31p')"
+  RELEASE_CONTROLLER_RECEIPT_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '32p')"
+  echo "==> 已验证 ${RELEASE_TRANSPORT} Application Ready: ${RELEASE_SOURCE_SHA:0:12}; Controller Ready: ${RELEASE_CONTROLLER_SOURCE_SHA:0:12}; injection: ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
 
 build_artifact() {

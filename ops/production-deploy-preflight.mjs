@@ -79,8 +79,8 @@ export function preflightProductionDeploy({
   const candidate = requireSha(candidateSha, "candidate SHA");
   const candidateTree = requireSha(candidateTreeSha, "candidate tree SHA");
   const receipt = readDeployedRelease(receiptFile, { expectedRepository });
-  if (receipt.schemaVersion !== 3) {
-    throw new Error(`production receipt schema v3 is required; received v${receipt.schemaVersion}`);
+  if (![3, 4].includes(receipt.schemaVersion)) {
+    throw new Error(`production receipt schema v3 or v4 is required; received v${receipt.schemaVersion}`);
   }
 
   requireExactCommit(repositoryRoot, candidate, "candidate SHA");

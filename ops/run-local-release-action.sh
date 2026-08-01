@@ -21,6 +21,7 @@ temporary_root="$(mktemp -d "$RELEASE_SOURCE_DIR/.local-release-worktrees/action
 injection_worktree="$temporary_root/release-injection"
 cleanup() {
   local exit_code=$?
+  cd "$RELEASE_SOURCE_DIR"
   git -C "$RELEASE_SOURCE_DIR" worktree remove --force "$injection_worktree" >/dev/null 2>&1 || true
   rm -rf "$temporary_root"
   return "$exit_code"
@@ -29,18 +30,38 @@ trap cleanup EXIT
 
 metadata_values="$(node - "$METADATA_FILE" <<'NODE'
 const metadata = JSON.parse(require('node:fs').readFileSync(process.argv[2], 'utf8'));
+if (metadata.schemaVersion !== 3) throw new Error('local release metadata schema is invalid');
 if (metadata.transport?.kind !== 'local') throw new Error('local release metadata must declare local transport');
 const target = metadata.deployment?.target;
 const ready = metadata.releaseReady;
+const controller = metadata.controllerReady;
 if (!/^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/.test(ready?.runId ?? '')) throw new Error('release metadata must contain a Ready CI run');
-process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'activate'}\n${ready.runId}\n`);
+if (metadata.source?.commitSha !== process.env.RELEASE_SOURCE_SHA
+  || metadata.source?.treeSha !== process.env.RELEASE_SOURCE_TREE
+  || metadata.source?.contentDigest !== process.env.RELEASE_CONTENT_DIGEST) {
+  throw new Error('local release metadata does not match Application Ready identity');
+}
+if (controller?.readySource !== metadata.source.commitSha
+  || !/^[0-9a-f]{40}$/.test(controller?.controller?.sourceSha ?? '')
+  || !/^[0-9a-f]{40}$/.test(controller?.controller?.treeId ?? '')
+  || !/^[0-9a-f]{64}$/.test(controller?.controller?.controlDigest ?? '')
+  || !/^[0-9a-f]{64}$/.test(controller?.receiptDigest ?? '')) {
+  throw new Error('local release metadata Controller Ready identity is invalid');
+}
+process.stdout.write(`${target?.unitId ?? ''}\n${target?.mode ?? 'activate'}\n${ready.runId}\n${controller.controller.sourceSha}\n${controller.controller.treeId}\n${controller.controller.controlDigest}\n${controller.receiptDigest}\n`);
 NODE
 )"
 deploy_unit_id="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
 deploy_unit_mode="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
 release_run_id="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
+RELEASE_CONTROLLER_SOURCE_SHA="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
+RELEASE_CONTROLLER_TREE_ID="$(printf '%s\n' "$metadata_values" | sed -n '5p')"
+RELEASE_CONTROLLER_CONTROL_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '6p')"
+RELEASE_CONTROLLER_RECEIPT_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '7p')"
 
-git -C "$RELEASE_SOURCE_DIR" worktree add --detach "$injection_worktree" "$RELEASE_SOURCE_SHA" >/dev/null
+git -C "$RELEASE_SOURCE_DIR" worktree add --detach "$injection_worktree" "$RELEASE_CONTROLLER_SOURCE_SHA" >/dev/null
+[ "$(git -C "$injection_worktree" rev-parse 'HEAD^{tree}')" = "$RELEASE_CONTROLLER_TREE_ID" ] \
+  || { echo "[错误] Controller Ready source/tree 不一致" >&2; exit 1; }
 render_args=(
   --input "$CNB_REAL_CNB_YML"
   --output "$injection_worktree/.cnb.yml"
@@ -52,10 +73,10 @@ node "$SCRIPT_DIR/render-cnb-release-config.mjs" "${render_args[@]}"
 cp "$METADATA_FILE" "$injection_worktree/.cnb-release.json"
 chmod 600 "$injection_worktree/.cnb.yml" "$injection_worktree/.cnb-release.json"
 git -C "$injection_worktree" add -f .cnb.yml .cnb-release.json
-source_commit_date="$(git -C "$RELEASE_SOURCE_DIR" show -s --format=%cI "$RELEASE_SOURCE_SHA")"
+source_commit_date="$(git -C "$RELEASE_SOURCE_DIR" show -s --format=%cI "$RELEASE_CONTROLLER_SOURCE_SHA")"
 GIT_AUTHOR_DATE="$source_commit_date" GIT_COMMITTER_DATE="$source_commit_date" \
   git -C "$injection_worktree" -c user.name=Workspace-Release -c user.email=release@workspace.local \
-  commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12}" >/dev/null
+  commit --no-verify -m "release: $ACTION ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CONTROLLER_SOURCE_SHA:0:12}" >/dev/null
 
 if [ "$ACTION" = "deploy" ]; then
   : "${OPS_ENV_FILE:?OPS_ENV_FILE is required for local deploy}"
@@ -76,6 +97,7 @@ fi
 export RELEASE_ACTION="$ACTION"
 export RELEASE_VALIDATION_RUNTIME=local
 export RELEASE_SOURCE_SHA RELEASE_SOURCE_TREE RELEASE_CONTENT_DIGEST RELEASE_VALIDATION_BASE_SHA
+export RELEASE_CONTROLLER_SOURCE_SHA RELEASE_CONTROLLER_TREE_ID RELEASE_CONTROLLER_CONTROL_DIGEST RELEASE_CONTROLLER_RECEIPT_DIGEST
 export DEPLOY_UNIT_ID="$deploy_unit_id" DEPLOY_UNIT_MODE="$deploy_unit_mode"
 export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_SOURCE_DIR/.cache/release-artifacts"
 export RELEASE_EVIDENCE_ROOT="$persistent_evidence_root"

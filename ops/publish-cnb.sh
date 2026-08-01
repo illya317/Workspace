@@ -21,6 +21,8 @@ CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-re
 : "${DEPLOY_CONTROL_SOURCE_SHA:?deploy requires an independently verified controller source}"
 : "${DEPLOY_CONTROL_TREE_ID:?deploy requires an independently verified controller tree}"
 : "${DEPLOY_CONTROL_DIGEST:?deploy requires an independently verified controller digest}"
+: "${DEPLOY_CONTROL_RECEIPT_DIGEST:?deploy requires an independently verified controller receipt digest}"
+: "${RELEASE_CONTROLLER_READY_RECEIPT_FILE:?deploy requires the verified Controller Ready receipt}"
 
 BOOTSTRAP_PRODUCTION_BASE=""
 BOOTSTRAP_LEGACY_CNB_COMMIT=""
@@ -316,6 +318,18 @@ else
 fi
 node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" verify "${ready_args[@]}" >/dev/null
 echo "==> Ready Artifact 复验通过: $RELEASE_RUN_ID"
+controller_ready_json="$(node "$SCRIPT_DIR/release/control/controller-ready.mjs" verify \
+  --repository "$REPOSITORY_ROOT" --ready-source "$SOURCE_SHA" --file "$RELEASE_CONTROLLER_READY_RECEIPT_FILE")"
+controller_values="$(node -e '
+  const r=JSON.parse(process.argv[1]);
+  process.stdout.write(`${r.controller.sourceSha}\n${r.controller.treeId}\n${r.controller.controlDigest}\n${r.receiptDigest}\n`);
+' "$controller_ready_json")"
+[ "$(printf '%s\n' "$controller_values" | sed -n '1p')" = "$DEPLOY_CONTROL_SOURCE_SHA" ] \
+  && [ "$(printf '%s\n' "$controller_values" | sed -n '2p')" = "$DEPLOY_CONTROL_TREE_ID" ] \
+  && [ "$(printf '%s\n' "$controller_values" | sed -n '3p')" = "$DEPLOY_CONTROL_DIGEST" ] \
+  && [ "$(printf '%s\n' "$controller_values" | sed -n '4p')" = "$DEPLOY_CONTROL_RECEIPT_DIGEST" ] \
+  || { echo "[错误] Controller Ready receipt 与 deploy 入口身份不一致" >&2; exit 1; }
+echo "==> Controller Ready 复验通过: ${DEPLOY_CONTROL_SOURCE_SHA:0:12}"
 if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
   node "$SCRIPT_DIR/database-replacement.mjs" verify \
     --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$DATABASE_REPLACEMENT_RECEIPT_FILE" >/dev/null
@@ -424,7 +438,7 @@ if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "
   [ -z "$GENESIS_PRODUCTION_BASE" ] || preflight_args+=(--genesis-from "$GENESIS_PRODUCTION_BASE")
   [ -z "$LOCAL_RECEIPT_RECOVERY_BASE" ] \
     || preflight_args+=(--recover-local-receipt-base "$LOCAL_RECEIPT_RECOVERY_BASE")
-  node ops/production-deploy-preflight.mjs "${preflight_args[@]}" > "$PREFLIGHT_RESULT_FILE"
+  node "$SCRIPT_DIR/production-deploy-preflight.mjs" "${preflight_args[@]}" > "$PREFLIGHT_RESULT_FILE"
   node -e '
     const result = require(process.argv[1]);
     const migrations = result.migration.changedMigrations.length;
@@ -549,6 +563,7 @@ GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUN
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
 RELEASE_READY_RECEIPT_FILE="$RELEASE_READY_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+RELEASE_CONTROLLER_READY_RECEIPT_FILE="$RELEASE_CONTROLLER_READY_RECEIPT_FILE" \
 PRODUCTION_PREFLIGHT_FILE="${PREFLIGHT_RESULT_FILE:-}" \
 DATABASE_REPLACEMENT_RECEIPT_FILE="$DATABASE_REPLACEMENT_RECEIPT_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
@@ -556,6 +571,7 @@ RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEA
 RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
 const fs = require('node:fs');
 const releaseReady = JSON.parse(fs.readFileSync(process.env.RELEASE_READY_RECEIPT_FILE, 'utf8'));
+const controllerReady = JSON.parse(fs.readFileSync(process.env.RELEASE_CONTROLLER_READY_RECEIPT_FILE, 'utf8'));
 const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
 if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
   throw new Error('publish start epoch is invalid');
@@ -569,7 +585,7 @@ const releaseAttemptCount = seconds('RELEASE_ATTEMPT_COUNT');
 if (releaseAttemptCount < 1) throw new Error('RELEASE_ATTEMPT_COUNT is invalid');
 if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new Error('RELEASE_PROCESS_STARTED_AT is invalid');
 const metadata = {
-  schemaVersion: 2,
+  schemaVersion: 3,
   source: {
     commitSha: process.env.SOURCE_SHA,
     treeSha: process.env.SOURCE_TREE,
@@ -577,6 +593,7 @@ const metadata = {
   },
   transport: { kind: process.env.RELEASE_TRANSPORT },
   releaseReady,
+  controllerReady,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   validation: { action: process.env.RELEASE_ACTION, baseSha: process.env.RELEASE_VALIDATION_BASE_SHA },
   deployment: {

@@ -3,8 +3,10 @@
 本文是 Workspace 生产发布的执行真源。唯一生命周期是：
 
 ```text
-ci -> Ready Artifact -> deploy
+ci -> Ready -> deploy
 ```
+
+这里的 Ready 是一个部署前证明集合：CI 签发 Application Ready；deploy 前，`controller-ready` 对当前 controller（可与 Application Ready 同源，也可只沿 deploy-control seam 前进）另行签发 Controller Ready。Controller Ready 是 deploy 的独立前置证明，不是第三个应用 lifecycle stage，也不改变 Application Ready 或 artifact。
 
 `prepare`、`validate`、`build`、fast mode、Release Plan、`--new-plan` 和按阶段切 local/CNB 均已删除，不提供兼容入口。
 
@@ -32,9 +34,22 @@ Ready Artifact 绑定：
 
 无法在 CI 确定的只有生产现场事实，例如当前生产版本、部署锁、生产数据库 migration 区间、备份、writer fencing、传输后的远端 digest、原子切换、公开 health 和回滚。这些属于 deploy。
 
+### Controller Ready 的责任
+
+`ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`，再由项目受锁 runner 真实执行完整 `node scripts/testing/run-node-tests.mjs shard ops`。module 把 runner 返回的 exit code、Node runtime identity 和输出 digest 规范化为带固定命令的 passed evidence，然后重新计算同一 tuple，完全一致才在当前 controller worktree 的 `.cache/release-control/controller-ready.json` 原子签发 Controller Ready。CLI 不接受外部 passed evidence，测试只在 module seam 注入 fake runner；该资格检查不访问 production。
+
+Controller Ready 回执精确绑定：
+
+- 当前 Application Ready 的 `readySource`；
+- controller 的 source SHA、Git tree、control digest 和相对 Application Ready 的 changed-files 列表；
+- 完整 ops shard 的固定命令与 passed evidence；
+- 完成时间和回执内容 digest。
+
+Application Ready 改变、controller HEAD/tree/control digest 改变、changed-files 漂移、回执缺失/损坏或 ops evidence 不完整都会失败并要求重新运行 `controller-ready`。该命令不运行应用 source gate，不构建或修改 artifact，也不访问生产。
+
 ### Deploy 的责任
 
-`ops/publish.sh deploy` 只允许 release source、配置和目标已经存在 exact Ready Artifact。应用候选继续固定在该 Ready source；入口仓库中的 CD controller 可以是它的后代，但两者之间只能包含显式登记的 deploy-control 文件。controller 独立前进时先运行完整 ops test shard，并把 controller source/tree/digest 写入部署事件；任何应用、schema、artifact builder 或未登记路径变化都失败并要求重新运行 CI。它可以：
+`ops/publish.sh deploy` 只允许 release source、配置和目标已经存在 exact Application Ready，且入口仓库当前 controller 已有精确匹配的 Controller Ready。应用候选继续固定在 Application Ready source；controller 可以是它的后代，但差异只能包含显式登记的 deploy-control 文件。deploy 只复验两份回执，并把 controller source/tree/control digest/Controller Ready receipt digest 写入 canonical `deployed-release.json`；任何应用、schema、artifact builder、未登记路径变化或 Controller Ready 漂移都失败。它可以：
 
 - 恢复并复验 Ready Artifact；
 - 原子安装租户配置后恢复 runtime traverse/read/write ACL，并在 SSH master 建立后再次恢复可能被登录策略收紧的 parent ACL，再验证受限 PM2 runner；
@@ -44,7 +59,9 @@ Ready Artifact 绑定：
 - 验证公开 health/version，失败时回滚；
 - 写不可变部署回执和通知。
 
-它禁止应用 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。只有 controller 与 Ready source 不同且差异完全位于 deploy-control seam 内时，deploy 才运行独立 ops test shard；这不会改变或重建 Ready Artifact。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
+它禁止测试、应用 source check、typecheck、lint、Next build、artifact build、临时补包或 cache miss 后现场构建。controller 与 Application Ready source 不同时，deploy 也只验证提前签发的 Controller Ready，绝不补跑 ops shard。deploy cache miss 是 CI 未完成，不是 deploy 的修复机会。
+
+当生产 Application source 已与 Application Ready 完全相同时，deploy 在生产锁内复验实时 health/version，并比较 deployed receipt 中的 Controller Ready 四元组。四元组相同是纯 no-op；四元组不同则只原子激活新的 controller identity，保留既有 source、artifact、migration 和 deployment identity，不重建 artifact、不执行 migration、不重启应用。旧 schema-v3 deployed receipt 可读，但下一次部署或 controller activation 会写成带完整 controller 的 schema v4。
 
 ## 一次报全与增量收敛
 
@@ -127,14 +144,17 @@ npm run check:changed
 # 代码完成时运行；聚合 source + artifact + exact runtime rehearsal，签发 Ready
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci
 
+# 当前 Application Ready 上独立验证并签发 controller；不改变或重建 artifact
+OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready
+
 # 单 unit 目标在 CI 时确定，并进入同一种 Ready contract
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --deploy-unit finance
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --shadow-unit finance
 
-# 只查看 Ready
+# 只查看 Application Ready
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status
 
-# 用户下达部署命令后只消费 Ready
+# 用户下达部署命令后只消费并复验 Application Ready + Controller Ready
 OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy
 
 # 运维模块、依赖和体量治理

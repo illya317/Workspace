@@ -368,7 +368,7 @@ NODE
           --expected-repository '$RELEASE_CNB_REPOSITORY' \
           --runtime-source '$DEPLOYED_SOURCE_SHA' \
           --cnb-injection '$DEPLOYED_CNB_INJECTION_SHA' \
-          --artifact-sha '$DEPLOYED_ARTIFACT_SHA'
+          --artifact-sha '$DEPLOYED_ARTIFACT_SHA' --controller-source '$DEPLOYED_CONTROLLER_SOURCE_SHA' --controller-tree '$DEPLOYED_CONTROLLER_TREE_ID' --controller-control-digest '$DEPLOYED_CONTROLLER_CONTROL_DIGEST' --controller-receipt-digest '$DEPLOYED_CONTROLLER_RECEIPT_DIGEST'
       fi
       echo \"==> \$verification_phase: 生产部署记录未被并发修改\"
     }
@@ -524,7 +524,7 @@ NODE
           --runtime-source '$RELEASE_SOURCE_SHA' \
           --runtime-tree '$RELEASE_SOURCE_TREE' \
           --cnb-injection '$RELEASE_CNB_INJECTION_SHA' \
-          --artifact-sha '$ARTIFACT_SHA' \
+          --artifact-sha '$ARTIFACT_SHA' --controller-source '$RELEASE_CONTROLLER_SOURCE_SHA' --controller-tree '$RELEASE_CONTROLLER_TREE_ID' --controller-control-digest '$RELEASE_CONTROLLER_CONTROL_DIGEST' --controller-receipt-digest '$RELEASE_CONTROLLER_RECEIPT_DIGEST' \
           --release-dir \"\$release_dir\" \
           --transport '$RELEASE_TRANSPORT'
         then
@@ -1155,7 +1155,7 @@ PY
       --migration-set '$RELEASE_MIGRATION_SET_SHA' \
       --cnb-repository '$RELEASE_CNB_REPOSITORY' \
       --cnb-branch '$RELEASE_CNB_BRANCH' \
-      --cnb-injection '$RELEASE_CNB_INJECTION_SHA' \
+      --cnb-injection '$RELEASE_CNB_INJECTION_SHA' --controller-source '$RELEASE_CONTROLLER_SOURCE_SHA' --controller-tree '$RELEASE_CONTROLLER_TREE_ID' --controller-control-digest '$RELEASE_CONTROLLER_CONTROL_DIGEST' --controller-receipt-digest '$RELEASE_CONTROLLER_RECEIPT_DIGEST' \
       --release-id '$release_id' \
       --release-dir '$REMOTE_DIR/releases/$release_id'
     release_committed=1

@@ -206,12 +206,18 @@ DEPLOYED_CNB_INJECTION_SHA=""
 DEPLOYED_ARTIFACT_SHA=""
 DEPLOYED_CNB_BRANCH=""
 DEPLOYED_MIGRATION_SET_SHA=""
+DEPLOYED_CONTROLLER_SOURCE_SHA=""
+DEPLOYED_CONTROLLER_TREE_ID=""
+DEPLOYED_CONTROLLER_CONTROL_DIGEST=""
+DEPLOYED_CONTROLLER_RECEIPT_DIGEST=""
 RELEASE_TIMING_ENABLED=0
 REMOTE_RELEASE_TIMING_ENABLED=0
 FULL_DEPLOY_GRAPH_TMP=""
 
 
 # Production deployment is composed here; implementation modules are private to this entrypoint.
+# shellcheck source=ops/release/control/runtime-permission-bootstrap.sh
+source "$SCRIPT_DIR/release/control/runtime-permission-bootstrap.sh"
 # shellcheck source=ops/deploy/transport.sh
 source "$SCRIPT_DIR/deploy/transport.sh"
 # shellcheck source=ops/deploy/state.sh
@@ -228,8 +234,10 @@ source "$SCRIPT_DIR/deploy/atomic-cutover.sh"
 source "$SCRIPT_DIR/deploy/health.sh"
 
 echo "==> 校验 CI 基础命令..."
+require_local_cmd base64
 require_local_cmd ssh
 require_local_cmd rsync
+require_local_cmd sha256sum
 require_local_cmd tar
 echo "==> ssh: $(command -v ssh)"
 echo "==> rsync: $(command -v rsync)"

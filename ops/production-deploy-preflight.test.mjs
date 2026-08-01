@@ -80,6 +80,25 @@ test("production preflight accepts a canonical descendant and reports cumulative
   assert.equal(result.migration.requiresMaintenance, true);
 });
 
+test("production preflight accepts a schema-v4 receipt with a strict controller identity", (context) => {
+  const fixture = createRepository(context);
+  const record = JSON.parse(readFileSync(fixture.receiptFile, "utf8"));
+  record.schemaVersion = 4;
+  record.controller = {
+    sourceSha: "a".repeat(40), treeId: "b".repeat(40),
+    controlDigest: digest("4"), receiptDigest: digest("5"),
+  };
+  writeFileSync(fixture.receiptFile, `${JSON.stringify(record)}\n`);
+  writeFileSync(join(fixture.cwd, "candidate.txt"), "candidate\n");
+  const candidate = commitAll(fixture.cwd, "v4 candidate");
+  const result = preflightProductionDeploy({
+    cwd: fixture.cwd, receiptFile: fixture.receiptFile,
+    candidateSha: candidate.sha, candidateTreeSha: candidate.tree,
+    expectedRepository: "example-owner/example-repo",
+  });
+  assert.equal(result.order.action, "deploy");
+});
+
 test("production preflight rejects an unsafe expand migration before release trigger", (context) => {
   const fixture = createRepository(context);
   writeMigration(

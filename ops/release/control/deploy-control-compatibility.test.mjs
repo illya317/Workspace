@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { verifyDeployControlCompatibility } from "./deploy-control-compatibility.mjs";
+import { isDeployControlPath, verifyDeployControlCompatibility } from "./deploy-control-compatibility.mjs";
 
 function git(repository, ...args) {
   return execFileSync("git", args, { cwd: repository, encoding: "utf8" }).trim();
@@ -65,4 +65,18 @@ test("uncommitted controller changes fail closed", (t) => {
     () => verifyDeployControlCompatibility({ repository, readySource }),
     /worktree must be clean/,
   );
+});
+
+test("receipt, preflight, injection, and their tests are explicit deploy-control paths", () => {
+  for (const file of [
+    "ops/cnb-builder-contract.test.mjs",
+    "ops/production-deploy-preflight.mjs",
+    "ops/production-deploy-preflight.test.mjs",
+    "ops/release-receipt.mjs",
+    "ops/release-receipt.test.mjs",
+    "ops/run-cnb-release-stage.sh",
+  ]) assert.equal(isDeployControlPath(file), true, file);
+  assert.equal(isDeployControlPath("app/page.tsx"), false);
+  assert.equal(isDeployControlPath("prisma/schema.prisma"), false);
+  assert.equal(isDeployControlPath("ops/build-standalone-artifact.mjs"), false);
 });

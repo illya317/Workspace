@@ -16,6 +16,7 @@ usage() {
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --deploy-unit UNIT
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh ci --shadow-unit UNIT
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh controller-ready
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh deploy
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status [--json]
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh push
@@ -23,11 +24,14 @@ usage() {
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh data ...
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh timing pause|resume|status
 
-正式发布只有两个阶段：
-  ci      冻结当前已提交候选，一次聚合源码失败，同时构建并离线演练目标 artifact；成功后签发 Ready Receipt。
-  deploy  只消费并复验当前 Ready Receipt；不会运行源码检查、编译、打包或创建新候选。
+正式应用生命周期保持 ci -> Ready -> deploy：
+  ci      冻结当前已提交候选，聚合源码失败，构建并演练 artifact；成功后签发 Application Ready。
+  deploy  只消费并复验 Ready set；不会运行测试、源码检查、编译、打包或创建新候选。
 
-prepare、validate、build、--new-plan 已删除。修复后再次运行 ci 时，只有输入失效的任务会执行。
+独立的 deploy 前置证明：
+  controller-ready  针对当前 Application Ready 验证 controller seam，运行完整 ops test shard 并签发 Controller Ready。
+
+controller-ready 不改变 Application Ready 或 artifact。prepare、validate、build、--new-plan 已删除。
 EOF
 }
 
@@ -155,6 +159,31 @@ case "${1:-}" in
     )
     exit 0
     ;;
+  controller-ready)
+    shift
+    [ "$#" = 0 ] || { echo "[错误] controller-ready 不接受参数"; exit 2; }
+    load_ready_worktree
+    ready_json="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current \
+      --root "$RELEASE_WORKTREE/.cache/release-ready")"
+    ready_values="$(node -e '
+      const r=JSON.parse(process.argv[1]).receipt;
+      process.stdout.write(`${r.source.commitSha}\n${r.source.treeId}\n${r.source.contentDigest}\n`);
+    ' "$ready_json")"
+    ready_source="$(printf '%s\n' "$ready_values" | sed -n '1p')"
+    ready_tree="$(printf '%s\n' "$ready_values" | sed -n '2p')"
+    ready_content="$(printf '%s\n' "$ready_values" | sed -n '3p')"
+    [ "$ready_source" = "$RELEASE_SOURCE_SHA" ] && [ "$ready_tree" = "$RELEASE_SOURCE_TREE" ] \
+      && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] || {
+        echo "[错误] 当前 release source 没有 Application Ready；先运行 ci" >&2; exit 1;
+      }
+    controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
+    node "$SCRIPT_DIR/release/control/controller-ready.mjs" qualify \
+      --repository "$REPOSITORY_ROOT" \
+      --ready-source "$ready_source" \
+      --file "$controller_ready_file"
+    echo "==> CONTROLLER READY: application=${ready_source:0:12}"
+    exit 0
+    ;;
   status)
     shift
     initialize_release_worktree
@@ -195,18 +224,15 @@ case "${1:-}" in
       && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] && [ "$ready_configuration" = "$RELEASE_CONFIGURATION_DIGEST" ] || {
         echo "[错误] 当前 release source/config 没有 Ready Artifact；先运行 ci" >&2; exit 1;
       }
-    control_json="$(node "$SCRIPT_DIR/release/control/deploy-control-compatibility.mjs" verify \
-      --repository "$REPOSITORY_ROOT" --ready-source "$ready_source")"
-    DEPLOY_CONTROL_SOURCE_SHA="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).sourceSha)' "$control_json")"
-    DEPLOY_CONTROL_TREE_ID="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).treeId)' "$control_json")"
-    DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controlDigest)' "$control_json")"
-    control_requires_validation="$(node -e 'process.stdout.write(String(JSON.parse(process.argv[1]).requiresValidation))' "$control_json")"
-    export DEPLOY_CONTROL_SOURCE_SHA DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST
-    if [ "$control_requires_validation" = true ]; then
-      echo "==> CD controller 已独立前进；运行 control-plane ops tests，不重建 Ready Artifact..."
-      (cd "$REPOSITORY_ROOT" && node scripts/check/with-check-lock.js -- \
-        node scripts/testing/run-node-tests.mjs shard ops)
-    fi
+    controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
+    controller_ready_json="$(node "$SCRIPT_DIR/release/control/controller-ready.mjs" verify \
+      --repository "$REPOSITORY_ROOT" --ready-source "$ready_source" --file "$controller_ready_file")"
+    DEPLOY_CONTROL_SOURCE_SHA="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.sourceSha)' "$controller_ready_json")"
+    DEPLOY_CONTROL_TREE_ID="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.treeId)' "$controller_ready_json")"
+    DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.controlDigest)' "$controller_ready_json")"
+    DEPLOY_CONTROL_RECEIPT_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).receiptDigest)' "$controller_ready_json")"
+    export DEPLOY_CONTROL_SOURCE_SHA DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST DEPLOY_CONTROL_RECEIPT_DIGEST
+    export RELEASE_CONTROLLER_READY_RECEIPT_FILE="$controller_ready_file"
     export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
     export RELEASE_READY_RECEIPT_FILE="$ready_file" RELEASE_CI_RUN_ID="$ready_run_id"
     export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_WORKTREE/.cache/release-artifacts"
@@ -241,7 +267,7 @@ case "${1:-}" in
     exit 0
     ;;
   prepare|validate|build)
-    echo "[错误] $1 已删除；正式流程只有 ci -> deploy" >&2
+    echo "[错误] $1 已删除；应用 lifecycle 只有 ci -> Ready -> deploy；deploy 前另需 controller-ready" >&2
     exit 2
     ;;
 esac

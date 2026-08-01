@@ -8,6 +8,7 @@ import { pathToFileURL } from "node:url";
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const EXACT_CONTROL_FILES = new Set([
   "docs/engineering/ops/ci-cd.md",
+  "ops/cnb-builder-contract.test.mjs",
   "ops/cnb-release-artifact-cache.sh",
   "ops/deploy-cnb-release-target.sh",
   "ops/deploy-contract.test.mjs",
@@ -17,7 +18,12 @@ const EXACT_CONTROL_FILES = new Set([
   "ops/publish-cnb.sh",
   "ops/publish-contract.test.mjs",
   "ops/publish.sh",
+  "ops/production-deploy-preflight.mjs",
+  "ops/production-deploy-preflight.test.mjs",
   "ops/reconcile-runtime-config-permissions.sh",
+  "ops/release-receipt.mjs",
+  "ops/release-receipt.test.mjs",
+  "ops/run-cnb-release-stage.sh",
   "ops/run-local-release-action.sh",
   "ops/sync-tenant-config.sh",
   "ops/tenant-config-manifest.test.mjs",

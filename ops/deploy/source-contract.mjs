@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 
 const MODULES = [
+  "../release/control/runtime-permission-bootstrap.sh",
   "transport.sh",
   "state.sh",
   "artifact.sh",

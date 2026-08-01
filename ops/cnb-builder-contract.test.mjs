@@ -26,9 +26,11 @@ test("Builder smoke enforces repository Node and every release tool", () => {
   assert.match(verifyBuilder, /uname -s/);
 });
 
-test("timed CNB stage runner binds records to the exact injection parent", () => {
+test("timed CNB stage runner separates the Controller Ready parent from Application Ready", () => {
   assert.match(stageRunner, /\.cnb-release\.json\\n\.cnb\.yml/);
   assert.match(stageRunner, /git rev-parse HEAD\^/);
+  assert.match(stageRunner, /RELEASE_CONTROLLER_SOURCE_SHA/);
+  assert.match(stageRunner, /metadata_source_sha/);
   assert.match(stageRunner, /RELEASE_TIMING_FILE/);
   assert.match(stageRunner, /release_timing_run "\$stage" "\$@"/);
   assert.doesNotMatch(stageRunner, /echo .*"\$@"|printf .*"\$@"/);
