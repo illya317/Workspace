@@ -62,16 +62,20 @@ Application Ready receipt 与 current pointer 都按 `target + mode` 隔离：re
 
 ### Controller Ready 的责任
 
-`ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`，再由 module 内部固定的受锁 runner 真实执行完整 `node scripts/testing/run-node-tests.mjs shard ops`。module 把 child process 返回的 exit code、Node runtime identity 和输出 digest 规范化为带固定命令的 passed evidence，然后重新计算同一 tuple，完全一致才在当前 controller worktree 的 `.cache/release-control/controller-ready.json` 原子签发 Controller Ready。`qualify` interface 与 CLI 都不接受 runner 或 passed evidence 注入；测试在临时 Git repository 中提交并运行真实的最小 child fixture，覆盖成功、非零退出和运行期间 controller 漂移。该资格检查不访问 production。
+`ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，并冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`。
+
+昂贵的 ops shard qualification 与面向当前 Application Ready 的 binding 分开存证。qualification key 精确绑定 `controlDigest + 固定命令 digest + Node runtime digest`，持久回执位于 `.cache/release-control/controller-qualifications/<controlDigest>/<commandDigest>-<runtimeDigest>.json`。cache miss 时，module 内部固定的受锁 runner 真实执行完整 `node scripts/check/with-check-lock.js -- node scripts/testing/run-node-tests.mjs shard ops`，把 exit code、Node runtime identity 和输出 digest 规范化为 passed evidence，并以不可变首写方式保存；cache hit 时复验整份 qualification 回执及其内容 digest，绝不重跑 ops shard。命中或执行完成后，module 都重新计算 controller tuple；tuple 完全一致才签发 schema-v2 Controller Ready binding 到当前 controller worktree 的 `.cache/release-control/controller-ready.json`。
+
+`qualify` interface 与 CLI 都不接受 runner 或 passed evidence 注入；测试在临时 Git repository 中提交并运行真实的最小 child fixture，覆盖成功、非零退出、运行期间 controller 漂移，以及 application-only Ready 变化时复用 qualification。该资格检查不访问 production。
 
 Controller Ready 回执精确绑定：
 
 - 当前 Application Ready 的 `readySource`；
 - controller 的 source SHA、Git tree、control digest 和相对 Application Ready 的 changed-files 列表；
-- 完整 ops shard 的固定命令与 passed evidence；
+- 内嵌的完整 ops qualification：control digest、固定命令及其 digest、Node runtime 及其 digest、passed exit/output evidence 和 qualification receipt digest；
 - 完成时间和回执内容 digest。
 
-Application Ready 改变、controller HEAD/tree/control digest 改变、changed-files 漂移、回执缺失/损坏或 ops evidence 不完整都会失败并要求重新运行 `controller-ready`。该命令不运行应用 source gate，不构建或修改 artifact，也不访问生产。
+已有 Controller Ready binding 在 Application Ready 改变后仍会因 `readySource` 不匹配而拒绝 deploy，必须重新运行 `controller-ready` 绑定新 Ready；但如果只是 application-only 变化，且 control digest、固定命令与 Node runtime 均未变化，本次只复用既有 qualification 并重签 binding，不运行 ops shard。control digest、命令或 runtime 任一漂移都会 cache miss 并真实重跑 ops shard。controller HEAD/tree/changed-files 漂移、qualification 或 binding 缺失/损坏、passed evidence 不完整均 fail closed。该命令不运行应用 source gate，不构建或修改 artifact，也不访问生产。
 
 ### Deploy 的责任
 
@@ -105,6 +109,8 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 成功任务进入持久回执库；failed、cancelled 和未声明可复用的 warning 不进入。修复后再次运行 `ci` 时，精确输入未变化的任务直接复用，只执行失效任务。因此第一次可能是 100%，第二次接近变更闭包，后续继续缩小，而不是每轮重跑全量。
 
+Controller Ready 采用相同的精确复用原则，但不把 application source 误算为 ops qualification 输入：application-only 新 Ready 只使 binding 失效，控制面 qualification 仍按 `controlDigest + commandDigest + runtimeDigest` 复用。只有这三个输入之一变化才重跑完整 ops shard；新的 binding 始终重新绑定当前 `readySource` 和完整 controller provenance。
+
 derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。
 
 同一轮中 external preflight、CI database、source、artifact 和 artifact rehearsal 聚合汇总。即使 database/source 已失败，artifact 仍继续；只有依赖于未就绪 database 或缺失 artifact 的演练会明确标记 blocked。artifact rehearsal 是依赖阶段：无效 archive 无法被启动，但 database migration 已在 artifact 之前独立执行，因此数据库和迁移问题仍会在同一轮进入完整清单。
@@ -115,7 +121,7 @@ derived task receipt 损坏时会先移入 quarantine，再把任务改为 pendi
 - content identity 是 `Git tree + SHA-256 content digest`。commit SHA 保留用于审计和 migration ancestry，不作为 task/artifact cache 的唯一 key。
 - release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。该文件中的 `DATABASE_URL`/`DIRECT_URL` 必须指向同一专用 `*_ci` 数据库，control role 必须拥有它；生产数据库会在任何 reset 之前被拒绝。channel adapter 提供 `RELEASE_CI_DATABASE_CA_FILE`（local 优先使用 `/etc/workspace/postgresql/ca.pem`），sandbox 强制把最终 URL 固定为 `sslmode=verify-full` 和该 CA，并用相同 Node driver 证明 runtime 读取。
 - `ops/cache-policy.json` 是缓存容量、水位、retention 和 pin 的唯一版本化策略源。
-- task receipt 位于 `.cache/check-results/<task>/<input>.json`；target/run-bound source receipt 位于 `.cache/release-artifacts/evidence/<contentDigest>/source-validation-<target>-<CI_RUN_ID>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
+- task receipt 位于 `.cache/check-results/<task>/<input>.json`；Controller qualification 位于 `.cache/release-control/controller-qualifications/<controlDigest>/<commandDigest>-<runtimeDigest>.json`；target/run-bound source receipt 位于 `.cache/release-artifacts/evidence/<contentDigest>/source-validation-<target>-<CI_RUN_ID>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
 - 当前 production 和一个 rollback artifact 必须 pin，不参与普通 LRU 驱逐。
 - deploy 恢复 cache 时优先使用同文件系统 immutable hardlink；跨文件系统才复制。artifact 在生产传输前后仍各做必要 digest 复验。
 
