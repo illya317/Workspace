@@ -133,12 +133,26 @@ case "${1:-}" in
     echo "==> CI 外部输入聚合: config-inputs=$inputs_status config-digest=$configuration_status cache=$cache_status"
     export RELEASE_CI_PREFLIGHT_STATUS="$preflight_status"
     export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
+    if [ -z "${RELEASE_CI_DATABASE_CA_FILE:-}" ]; then
+      for ci_ca_candidate in /etc/workspace/postgresql/ca.pem "$(dirname "$RELEASE_WORKTREE")/postgresql-security/tls/ca.crt"; do
+        if [ -f "$ci_ca_candidate" ]; then RELEASE_CI_DATABASE_CA_FILE="$ci_ca_candidate"; break; fi
+      done
+    fi
+    export RELEASE_CI_DATABASE_CA_FILE="${RELEASE_CI_DATABASE_CA_FILE:-}"
     if [ "$target_id" = monolith ]; then
       unset DEPLOY_UNIT_ID DEPLOY_UNIT_MODE || true
     else
       export DEPLOY_UNIT_ID="$target_id" DEPLOY_UNIT_MODE="$target_mode"
     fi
-    "$RELEASE_SCRIPT_DIR/run-release-ci.sh"
+    (
+      set -a
+      # shellcheck source=/dev/null
+      source "$RELEASE_CI_ENV_FILE"
+      set +a
+      export RELEASE_CI_DATABASE_CA_FILE
+      node "$RELEASE_SCRIPT_DIR/release/readiness/ci-database-sandbox.mjs" \
+        --repository "$RELEASE_WORKTREE" -- "$RELEASE_SCRIPT_DIR/run-release-ci.sh"
+    )
     exit 0
     ;;
   status)

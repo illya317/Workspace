@@ -5,6 +5,7 @@ import test from "node:test";
 const gate = readFileSync(new URL("./run-cnb-release-gate.sh", import.meta.url), "utf8");
 const build = readFileSync(new URL("./build-cnb-release-target.sh", import.meta.url), "utf8");
 const ci = readFileSync(new URL("./run-release-ci.sh", import.meta.url), "utf8");
+const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
 const deploy = readFileSync(new URL("./deploy-cnb-release-target.sh", import.meta.url), "utf8");
 const e2e = readFileSync(new URL("./run-release-e2e.sh", import.meta.url), "utf8");
 
@@ -29,6 +30,16 @@ test("one CI invocation runs source and artifact tasks and reports both statuses
   assert.match(ci, /run-cnb-release-gate\.sh[\s\S]*?source_status=\$\?[\s\S]*?build-cnb-release-target\.sh[\s\S]*?artifact_status=\$\?/);
   assert.match(ci, /rehearse-artifact\.mjs[\s\S]*?rehearsal_status=\$\?/);
   assert.match(ci, /未签发 Ready Artifact/);
+});
+
+test("one channel-neutral CI database sandbox migrates before source, artifact, and rehearsal", () => {
+  assert.match(publish, /ci-database-sandbox\.mjs[\s\S]*?run-release-ci\.sh/);
+  assert.match(publish, /RELEASE_CI_DATABASE_CA_FILE/);
+  assert.doesNotMatch(publish, /CI database CA is required/);
+  assert.match(ci, /RELEASE_CI_DATABASE_STATUS/);
+  assert.match(ci, /database=\$DATABASE_STATUS/);
+  assert.match(ci, /artifact_status.*DATABASE_STATUS.*rehearse-artifact\.mjs/s);
+  assert.match(ci, /rm -f "\$REHEARSAL_FILE"/);
 });
 
 test("deployment requires Ready evidence and contains no compilation fallback", () => {

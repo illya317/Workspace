@@ -24,12 +24,15 @@ test("real tar root entry is accepted while the deployment runtime is inspected"
     ["seed-resources-runtime.mjs", "export {};\n"],
     ["scripts/check/check-prisma-deploy-status.js", "module.exports = {};\n"],
     ["ops/apply-data-release.mjs", "export {};\n"],
+    ["source/node_modules/next/package.json", "{}\n"],
   ]);
   for (const [relative, body] of files) {
     const file = path.join(contentRoot, relative);
     fs.mkdirSync(path.dirname(file), { recursive: true });
     fs.writeFileSync(file, body);
   }
+  fs.mkdirSync(path.join(contentRoot, "release"), { recursive: true });
+  fs.symlinkSync("../source/node_modules", path.join(contentRoot, "release/node_modules"));
   const artifact = path.join(root, "artifact.tgz");
   execFileSync("tar", ["-C", contentRoot, "-czf", artifact, "."]);
   const runtime = inspectArchive({
@@ -41,6 +44,15 @@ test("real tar root entry is accepted while the deployment runtime is inspected"
   assert.equal(runtime.buildId, contentDigest);
   assert.equal(runtime.basePath, "/workspace");
   assert.ok(runtime.entryCount >= files.size);
+
+  fs.symlinkSync("/etc/passwd", path.join(contentRoot, "unsafe-link"));
+  const unsafeArtifact = path.join(root, "unsafe-artifact.tgz");
+  execFileSync("tar", ["-C", contentRoot, "-czf", unsafeArtifact, "."]);
+  assert.throws(() => inspectArchive({
+    artifact: unsafeArtifact,
+    manifest: { source: { contentDigest }, build: { buildId: contentDigest } },
+    target: "monolith",
+  }), /unsafe symlink/);
 });
 
 test("exact archive is started and its health/version rehearsal is reusable", async (t) => {

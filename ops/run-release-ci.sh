@@ -16,10 +16,17 @@ set -a
 # shellcheck source=/dev/null
 source "$RELEASE_CI_ENV_FILE"
 set +a
+if [ "${RELEASE_CI_DATABASE_STATUS:-2}" -eq 0 ]; then
+  DATABASE_URL="${RELEASE_CI_RUNTIME_DATABASE_URL:?sandbox runtime DATABASE_URL is required}"
+  DIRECT_URL="${RELEASE_CI_CONTROL_DATABASE_URL:?sandbox control DATABASE_URL is required}"
+  export DATABASE_URL DIRECT_URL
+  unset SHADOW_DATABASE_URL
+fi
 export CI=1 WORKSPACE_CONFIG_DIR
 TARGET_ID="${DEPLOY_UNIT_ID:-monolith}"
 TARGET_MODE="${DEPLOY_UNIT_MODE:-activate}"
 PREFLIGHT_STATUS="${RELEASE_CI_PREFLIGHT_STATUS:-0}"
+DATABASE_STATUS="${RELEASE_CI_DATABASE_STATUS:-2}"
 printf -v CI_RUN_NONCE '%04x%04x' "$RANDOM" "$RANDOM"
 CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_CONTENT_DIGEST:0:12}-$CI_RUN_NONCE"
 EVIDENCE_ROOT="$SOURCE_DIR/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
@@ -59,8 +66,14 @@ else
   CONTRACT_ARGS=(--contract "$SOURCE_DIR/.cache/deploy-units/$TARGET_ID/deploy-unit-contract.json")
 fi
 REHEARSAL_FILE="$EVIDENCE_ROOT/rehearsal-$TARGET_ID-$RELEASE_CONFIGURATION_DIGEST.json"
-if [ "$artifact_status" -eq 0 ]; then
+if [ "$artifact_status" -eq 0 ] && [ "$DATABASE_STATUS" -eq 0 ]; then
+  # A database reset/migration is new runtime evidence even for identical source bytes.
+  # Never let a historical receipt skip the exact archive startup in this CI invocation.
+  rm -f "$REHEARSAL_FILE"
   set +e
+  runtime_database_url="$DATABASE_URL"
+  unset DIRECT_URL SHADOW_DATABASE_URL
+  export DATABASE_URL="$runtime_database_url"
   node "$SCRIPT_DIR/release/readiness/rehearse-artifact.mjs" \
     --repository "$SOURCE_DIR" --output "$REHEARSAL_FILE" \
     --source "$RELEASE_SOURCE_SHA" --tree "$RELEASE_SOURCE_TREE" --content "$RELEASE_CONTENT_DIGEST" \
@@ -70,12 +83,12 @@ if [ "$artifact_status" -eq 0 ]; then
   set -e
 else
   rehearsal_status=2
-  echo "[CI] artifact 启动演练 blocked：artifact 未成功构建或恢复" >&2
+  echo "[CI] artifact 启动演练 blocked：artifact 或 CI database 未就绪" >&2
 fi
 
-if [ "$PREFLIGHT_STATUS" -ne 0 ] || [ "$source_status" -ne 0 ] || [ "$artifact_status" -ne 0 ] || [ "$rehearsal_status" -ne 0 ]; then
+if [ "$PREFLIGHT_STATUS" -ne 0 ] || [ "$DATABASE_STATUS" -ne 0 ] || [ "$source_status" -ne 0 ] || [ "$artifact_status" -ne 0 ] || [ "$rehearsal_status" -ne 0 ]; then
   echo "" >&2
-  echo "[CI 汇总] preflight=$PREFLIGHT_STATUS source=$source_status artifact=$artifact_status rehearsal=${rehearsal_status}；未签发 Ready Artifact" >&2
+  echo "[CI 汇总] preflight=$PREFLIGHT_STATUS database=$DATABASE_STATUS source=$source_status artifact=$artifact_status rehearsal=${rehearsal_status}；未签发 Ready Artifact" >&2
   echo "[CI 汇总] 修复完整清单后再次运行 ci；精确输入未变化的成功任务会直接复用。" >&2
   exit 1
 fi

@@ -25,6 +25,31 @@ function listArchive(file) {
   return entries;
 }
 
+function validateArchiveLinks(file, entries) {
+  const listing = execFileSync(
+    "tar",
+    ["--numeric-owner", "--full-time", "-tvzf", file],
+    { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 },
+  );
+  for (const line of listing.split("\n").filter(Boolean)) {
+    if (!line.startsWith("l")) continue;
+    const match = line.match(/^l\S+\s+\S+\s+\d+\s+\S+\s+\S+\s+(?:(?:[+-]\d{4})\s+)?(.+?) -> (.+)$/);
+    if (!match) throw new Error(`unable to parse artifact symlink metadata: ${line}`);
+    const link = archivePath(match[1]);
+    const target = match[2];
+    if (!target || target.includes("\\") || target.includes("\0") || path.posix.isAbsolute(target)) {
+      throw new Error(`artifact contains unsafe symlink: ${link} -> ${target}`);
+    }
+    const resolved = path.posix.normalize(path.posix.join(path.posix.dirname(link), target));
+    if (resolved === ".." || resolved.startsWith("../") || path.posix.isAbsolute(resolved)) {
+      throw new Error(`artifact symlink escapes archive root: ${link} -> ${target}`);
+    }
+    const exists = entries.has(resolved)
+      || [...entries.keys()].some((entry) => entry.startsWith(`${resolved}/`));
+    if (!exists) throw new Error(`artifact contains broken symlink: ${link} -> ${target}`);
+  }
+}
+
 function archiveFile(artifact, entries, relative) {
   const raw = entries.get(relative);
   if (!raw) throw new Error(`artifact is missing required runtime file: ${relative}`);
@@ -33,6 +58,7 @@ function archiveFile(artifact, entries, relative) {
 
 export function inspectArchive({ artifact, manifest, target }) {
   const entries = listArchive(artifact);
+  validateArchiveLinks(artifact, entries);
   const serverEntry = archivePath(archiveFile(artifact, entries, ".server-entry").toString("utf8").trim());
   if (!serverEntry.endsWith("server.js")) throw new Error("artifact server entry must end in server.js");
   if (target !== "monolith" && manifest.build?.serverEntry !== serverEntry) {

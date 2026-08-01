@@ -15,11 +15,12 @@ ci -> Ready Artifact -> deploy
 `ops/publish.sh ci` 选择专用 release worktree 的已提交候选，并在同一次 invocation 中尽可能报出全部可发现问题：
 
 1. 校验仓库外的租户/CNB 配置输入并计算配置摘要。
-2. 在执行前冻结完整源码任务图。
-3. 运行所有可运行的独立 source checks；单项失败不终止其他独立项。
-4. 与 source checks 独立地恢复或构建 exact target artifact；source 失败不阻止 artifact 暴露构建问题。
-5. 对 exact artifact 做离线部署演练：校验 archive 路径、runtime 文件、basePath、server entry 和 manifest，解包到临时目录，启动 production standalone，探测 health 与 version，然后清理进程和目录。
-6. 只有 source、artifact、演练和外部输入全部通过，才签发 Ready Artifact。
+2. 对明确以 `_ci` 结尾的专用 PostgreSQL 数据库获取 advisory lock，验证 control role 是 database owner，清空并迁移完整 schema，再证明 runtime role 可读；整个 CI 结束后清空并释放锁。
+3. 在执行前冻结完整源码任务图。
+4. 运行所有可运行的独立 source checks；单项失败不终止其他独立项。
+5. 与 source checks 独立地恢复或构建 exact target artifact；source 失败不阻止 artifact 暴露构建问题。
+6. 对 exact artifact 做离线部署演练：校验 archive 路径、包内 symlink、完整 runtime 依赖、basePath、server entry 和 manifest，解包到临时目录，以已迁移的 CI 数据库启动 production standalone，探测 health 与 version，然后清理进程和目录。
+7. 只有 source、CI database、artifact、演练和外部输入全部通过，才签发 Ready Artifact。
 
 Ready Artifact 绑定：
 
@@ -62,13 +63,13 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。
 
-同一轮中 source、artifact 和 artifact rehearsal 独立聚合。即使 source 已失败，artifact 仍继续；只有依赖于缺失 artifact 的演练会明确标记 blocked。
+同一轮中 external preflight、CI database、source、artifact 和 artifact rehearsal 聚合汇总。即使 database/source 已失败，artifact 仍继续；只有依赖于未就绪 database 或缺失 artifact 的演练会明确标记 blocked。artifact rehearsal 是依赖阶段：无效 archive 无法被启动，但 database migration 已在 artifact 之前独立执行，因此数据库和迁移问题仍会在同一轮进入完整清单。
 
 ## 候选与缓存
 
 - CI 候选只来自干净 release worktree 的已提交 tree；共享开发 worktree 的 staged、unstaged 和 untracked 内容不参与。
 - content identity 是 `Git tree + SHA-256 content digest`。commit SHA 保留用于审计和 migration ancestry，不作为 task/artifact cache 的唯一 key。
-- release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。
+- release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。该文件中的 `DATABASE_URL`/`DIRECT_URL` 必须指向同一专用 `*_ci` 数据库，control role 必须拥有它；生产数据库会在任何 reset 之前被拒绝。channel adapter 提供 `RELEASE_CI_DATABASE_CA_FILE`（local 优先使用 `/etc/workspace/postgresql/ca.pem`），sandbox 强制把最终 URL 固定为 `sslmode=verify-full` 和该 CA，并用相同 Node driver 证明 runtime 读取。
 - `ops/cache-policy.json` 是缓存容量、水位、retention 和 pin 的唯一版本化策略源。
 - task receipt 位于 `.cache/check-results/<task>/<input>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
 - 当前 production 和一个 rollback artifact 必须 pin，不参与普通 LRU 驱逐。

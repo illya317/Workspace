@@ -394,21 +394,32 @@ test -f .next/standalone/generated/prisma/client.ts
 test ! -e .next/standalone/generated/production
 
 # A shared release worktree may use one external node_modules symlink for build speed.
-# The standalone parent already owns the complete traced/runtime closure, so the app-level
-# shortcut is neither needed at runtime nor allowed in the portable artifact.
+# Next traces that physical dependency root into the standalone tree, but preserves the
+# app-level absolute shortcut. Rewrite only that shortcut to the exact package-internal
+# traced root; deleting it loses Next itself, while dereferencing it duplicates the closure.
 if [ -L "$standalone_app_dir/node_modules" ]; then
   [ "$(realpath "$standalone_app_dir/node_modules")" = "$(realpath node_modules)" ] || {
     echo "[错误] standalone app node_modules 指向未知位置" >&2
     exit 1
   }
+  mapfile -t portable_dependency_candidates < <(
+    find .next/standalone -type f -path '*/node_modules/next/package.json' -print
+  )
+  [ "${#portable_dependency_candidates[@]}" -eq 1 ] || {
+    echo "[error] standalone must contain exactly one traced Next dependency root" >&2
+    exit 1
+  }
+  portable_dependency_root="$(dirname "$(dirname "${portable_dependency_candidates[0]}")")"
+  test -f "$portable_dependency_root/next/dist/server/next.js"
   rm -f "$standalone_app_dir/node_modules"
+  portable_dependency_link="$(realpath --relative-to="$standalone_app_dir" "$portable_dependency_root")"
+  ln -s "$portable_dependency_link" "$standalone_app_dir/node_modules"
 fi
-STANDALONE_ROOT=".next/standalone" DEPENDENCY_ROOT="$(realpath node_modules)" node <<'NODE'
+STANDALONE_ROOT=".next/standalone" node <<'NODE'
 const fs = require("fs");
 const path = require("path");
 
 const standaloneRoot = fs.realpathSync(process.env.STANDALONE_ROOT);
-const dependencyRoot = fs.realpathSync(process.env.DEPENDENCY_ROOT);
 const inside = (root, candidate) => {
   const relative = path.relative(root, candidate);
   return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
@@ -420,8 +431,8 @@ function visit(directory) {
       let target;
       try { target = fs.realpathSync(entryPath); }
       catch { throw new Error(`standalone contains broken symlink: ${entryPath}`); }
-      if (!inside(standaloneRoot, target) && !inside(dependencyRoot, target)) {
-        throw new Error(`standalone symlink escapes governed runtime dependencies: ${entryPath} -> ${target}`);
+      if (!inside(standaloneRoot, target)) {
+        throw new Error(`standalone symlink escapes the portable runtime: ${entryPath} -> ${target}`);
       }
     } else if (entry.isDirectory()) visit(entryPath);
   }
@@ -432,7 +443,7 @@ NODE
 mkdir -p "$(dirname "$ARTIFACT_PATH")" "$(dirname "$MANIFEST_PATH")"
 rm -f "$ARTIFACT_PATH" "$MANIFEST_PATH"
 run_artifact_stage artifact.archive env COPYFILE_DISABLE=1 \
-  tar --dereference -C .next/standalone -czf "$ARTIFACT_PATH" .
+  tar -C .next/standalone -czf "$ARTIFACT_PATH" .
 artifact_sha="$(hash_file "$ARTIFACT_PATH")"
 package_lock_sha="$(hash_file package-lock.json)"
 migration_set_sha="$(node <<'NODE'

@@ -4,7 +4,7 @@
   "legacyCaps": {
     "ops/apply-deploy-unit.integration.test.mjs": 708,
     "ops/apply-deploy-unit.sh": 536,
-    "ops/build-standalone-artifact.sh": 518,
+    "ops/build-standalone-artifact.sh": 527,
     "ops/deploy-contract.test.mjs": 991,
     "ops/deploy-unit-release.mjs": 622,
     "ops/deploy/atomic-cutover.sh": 1188,
