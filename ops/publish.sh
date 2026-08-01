@@ -162,8 +162,12 @@ case "${1:-}" in
       esac
       shift
     done
+    # Candidate identity is not available until freeze completes, but the
+    # immutable attempt must start before freeze. Use a collision-resistant
+    # opaque run identity that already satisfies every downstream receipt.
+    printf -v release_ci_identity '%04x%04x%04x' "$RANDOM" "$RANDOM" "$RANDOM"
     printf -v release_ci_nonce '%04x%04x' "$RANDOM" "$RANDOM"
-    RELEASE_CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-$release_ci_nonce"
+    RELEASE_CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-$release_ci_identity-$release_ci_nonce"
     attempt_repository="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
     [ -n "$attempt_repository" ] || { echo "[错误] RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE" >&2; exit 1; }
     release_ci_attempt_begin "$attempt_repository" "$RELEASE_CI_RUN_ID" "$target_id" "$target_mode"

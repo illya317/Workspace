@@ -30,6 +30,8 @@ test("public production code release keeps ci to Ready to deploy with a separate
 });
 
 test("Stage-2 preflight fails before database, source CI, or artifact build", () => {
+  assert.match(publish, /printf -v release_ci_identity '%04x%04x%04x'/);
+  assert.match(publish, /RELEASE_CI_RUN_ID="ci-\$\(date -u \+%Y%m%dT%H%M%SZ\)-\$release_ci_identity-\$release_ci_nonce"/);
   assert.match(publish, /RELEASE_CI_RUN_ID="ci-[\s\S]*?artifact-preflight-\$target_id-\$target_mode-\$RELEASE_CI_RUN_ID\.json/);
   assert.match(publish, /artifact-preflight\.mjs" create/);
   assert.ok(publish.indexOf('artifact-preflight.mjs" create') < publish.indexOf("ci-database-sandbox.mjs"));
