@@ -65,6 +65,10 @@ npm run deploy:apps:check
 
 ## Unit release protocol
 
+正式 unit CI 在 database sandbox、source graph 和 Next build 前只预检所选 exact unit：target-aware runner 调用 `assertDeployUnitApp(<unit>)`，核对 contract 的 id/appRoot/runtime engine，并让 Next 的真实 `transpileConfig` 加载该 App 的 `next.config.ts`。它不会为单 unit 目标扫描全部 13 个生成 App；未知 target、stale mirror、配置加载失败、lock/symlink/toolchain 漂移或 build-space 不足都会秒级失败。
+
+预检回执按 content/target/mode/run 隔离。后续 Source CI 与 unit artifact build 保持独立 lane/receipt；本机受 3 CPU/10 GiB 限制时串行，资源隔离充分时可并行。static acceptance 先验证 manifest/SBOM/archive，isolated startup 再验证 health/version；Application Ready 之后是 Controller Ready → Deploy。deploy 只通过 evidence hardlink 复验已有回执，禁止调用 `assertDeployUnitApp`、`transpileConfig`、测试或 build。
+
 每个 Web unit 使用两个固定、只监听 loopback 的生产槽位。3200–3212 是 blue，3300–3312 是 green；本地开发仍只使用全机唯一 3000。`scripts/deploy/render-deploy-unit-contract.ts` 从 deploy graph 派生单元 contract，build/deploy shell 不维护第二份路由或 package 清单。
 
 独立制品通过 `ops/build-deploy-unit-artifact.sh` 构建，必须满足：

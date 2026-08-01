@@ -104,6 +104,7 @@ export RELEASE_EVIDENCE_ROOT="$persistent_evidence_root"
 export RELEASE_SOURCE_VALIDATION_RECEIPT_FILE="$persistent_evidence_root/source-validation-${deploy_unit_id:-monolith}-$release_run_id.json"
 export RELEASE_SOURCE_RESULT_FILE="$persistent_evidence_root/source-$release_run_id.json"
 export CHECK_TASK_GRAPH_FILE="$RELEASE_SOURCE_DIR/.cache/release-task-graphs/$release_run_id.json"
+source_artifact_preflight_file="$persistent_evidence_root/artifact-preflight-${deploy_unit_id:-monolith}-${deploy_unit_mode:-activate}-$release_run_id.json"
 export RELEASE_ARTIFACT_REHEARSAL_FILE="$persistent_evidence_root/rehearsal-${deploy_unit_id:-monolith}-${deploy_unit_mode:-activate}-$release_run_id-${RELEASE_CONFIGURATION_DIGEST}.json"
 export EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-${CNB_REPO:-}}"
 export RELEASE_SOURCE_BRANCH="${RELEASE_BRANCH:-release}"
@@ -120,6 +121,10 @@ link_ready_file() {
 }
 link_ready_file "$RELEASE_SOURCE_DIR/.cache/release-check/release-artifact.json" \
   "$injection_worktree/.cache/release-check/release-artifact.json"
+RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE="$injection_worktree/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST/$(basename "$source_artifact_preflight_file")"
+export RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE
+link_ready_file "$source_artifact_preflight_file" \
+  "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE"
 if [ -z "$deploy_unit_id" ]; then
   link_ready_file "$RELEASE_SOURCE_DIR/.next/workspace-standalone.tgz" "$injection_worktree/.next/workspace-standalone.tgz"
   link_ready_file "$RELEASE_SOURCE_DIR/.next/workspace-standalone.manifest.json" "$injection_worktree/.next/workspace-standalone.manifest.json"

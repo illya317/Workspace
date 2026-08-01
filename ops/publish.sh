@@ -161,25 +161,34 @@ case "${1:-}" in
       shift
     done
     prepare_release_worktree
-    preflight_status=0
     set +e
     validate_release_inputs
     inputs_status=$?
     capture_release_configuration_identity
     configuration_status=$?
-    node "$RELEASE_SCRIPT_DIR/cache/cache-prune.mjs" prune --root "$RELEASE_WORKTREE"
-    cache_status=$?
     set -e
-    for result in "$inputs_status" "$configuration_status" "$cache_status"; do
-      [ "$result" = 0 ] || preflight_status=1
-    done
-    if [ "$configuration_status" != 0 ]; then
-      RELEASE_CONFIGURATION_DIGEST="$(printf '0%.0s' {1..64})"
-      export RELEASE_CONFIGURATION_DIGEST
+    if [ "$inputs_status" != 0 ] || [ "$configuration_status" != 0 ]; then
+      echo "[错误] Stage-2 Artifact 预检 blocked：外部输入或配置摘要无效；未启动 DB sandbox/source CI/build" >&2
+      exit 1
     fi
-    echo "==> CI 外部输入聚合: config-inputs=$inputs_status config-digest=$configuration_status cache=$cache_status"
-    export RELEASE_CI_PREFLIGHT_STATUS="$preflight_status"
+    printf -v release_ci_nonce '%04x%04x' "$RANDOM" "$RANDOM"
+    RELEASE_CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_CONTENT_DIGEST:0:12}-$release_ci_nonce"
+    release_evidence_root="$RELEASE_WORKTREE/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
+    RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE="$release_evidence_root/artifact-preflight-$target_id-$target_mode-$RELEASE_CI_RUN_ID.json"
+    export RELEASE_CI_RUN_ID RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE
     export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
+    node "$RELEASE_SCRIPT_DIR/release/validation/artifact-preflight.mjs" create \
+      --output "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE" \
+      --repository "$RELEASE_WORKTREE" \
+      --run-id "$RELEASE_CI_RUN_ID" \
+      --source "$RELEASE_SOURCE_SHA" \
+      --tree "$RELEASE_SOURCE_TREE" \
+      --content "$RELEASE_CONTENT_DIGEST" \
+      --configuration "$RELEASE_CONFIGURATION_DIGEST" \
+      --target "$target_id" \
+      --target-mode "$target_mode"
+    echo "==> Stage-2 Artifact 预检通过: target=$target_id:$target_mode run=$RELEASE_CI_RUN_ID"
+    export RELEASE_CI_PREFLIGHT_STATUS=0
     if [ -z "${RELEASE_CI_DATABASE_CA_FILE:-}" ]; then
       for ci_ca_candidate in /etc/workspace/postgresql/ca.pem "$(dirname "$RELEASE_WORKTREE")/postgresql-security/tls/ca.crt"; do
         if [ -f "$ci_ca_candidate" ]; then RELEASE_CI_DATABASE_CA_FILE="$ci_ca_candidate"; break; fi

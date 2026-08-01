@@ -30,14 +30,11 @@ test("shell app owns shell/auth/settings routes but not business routes", () => 
   assert.equal(references.includes("../../packages/library"), false);
   const nextConfig = generated.find((file) => file.path.endsWith("/next.config.ts"));
   assert.match(nextConfig?.content ?? "", /ignoreBuildErrors: true/);
-  assert.match(
-    nextConfig?.content ?? "",
-    /from "\.\.\/\.\.\/scripts\/deploy\/deploy-unit-turbopack-root\.cjs";/,
-  );
-  assert.doesNotMatch(
-    nextConfig?.content ?? "",
-    /from "\.\.\/\.\.\/scripts\/deploy\/deploy-unit-turbopack-root";/,
-  );
+  assert.match(nextConfig?.content ?? "", /import \{ createHash \} from "node:crypto";/);
+  assert.match(nextConfig?.content ?? "", /import fs from "node:fs";/);
+  assert.match(nextConfig?.content ?? "", /function resolveDeployUnitTurbopackRoot\(repositoryRoot: string\)/);
+  assert.match(nextConfig?.content ?? "", /package-lock\.json drift between release and trusted source/);
+  assert.doesNotMatch(nextConfig?.content ?? "", /deploy-unit-turbopack-root/);
   assert.match(nextConfig?.content ?? "", /const turbopackRoot = resolveDeployUnitTurbopackRoot\(repositoryRoot\)/);
   assert.match(nextConfig?.content ?? "", /outputFileTracingRoot: repositoryRoot/);
   assert.match(nextConfig?.content ?? "", /turbopack: \{ root: turbopackRoot \}/);

@@ -304,6 +304,7 @@ ready_args=(
   --source-receipt "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/source-validation-$ready_target-$RELEASE_RUN_ID.json"
   --source-result "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/source-$RELEASE_RUN_ID.json"
   --task-graph "$SOURCE_DIR/.cache/release-task-graphs/$RELEASE_RUN_ID.json"
+  --artifact-preflight "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/artifact-preflight-$ready_target-$ready_mode-$RELEASE_RUN_ID.json"
   --rehearsal "$SOURCE_DIR/.cache/release-artifacts/evidence/$SOURCE_CONTENT_DIGEST/rehearsal-$ready_target-$ready_mode-$RELEASE_RUN_ID-$RELEASE_CONFIGURATION_DIGEST.json"
   --artifact-receipt "$SOURCE_DIR/.cache/release-check/release-artifact.json"
 )

@@ -10,19 +10,33 @@ ci -> Ready -> deploy
 
 `prepare`、`validate`、`build`、fast mode、Release Plan、`--new-plan` 和按阶段切 local/CNB 均已删除，不提供兼容入口。
 
+## 正式 release 七阶段
+
+七阶段描述依赖顺序，不要求所有独立重任务永远串行；channel 不得改序或拆成可绕过 lifecycle：
+
+1. **Candidate/config freeze**：固定 source SHA/tree/content、tenant configuration、target/mode，并只生成一次 `RELEASE_CI_RUN_ID`。
+2. **Stage-2 Artifact preflight**：在任何 DB reset、完整 Source CI 或 Next build 前，以真实 Next config loader 检查 exact target、生成 App、Node/npm/Next/package-lock、受控 `node_modules` symlink、PATH 工具和 build-space，写 run-scoped immutable receipt。
+3. **Source CI + artifact build**：CI database sandbox 是共同运行依赖；source lane 与 artifact lane 各写独立 result/receipt。本机 3 CPU/10 GiB 环境为避免争抢而串行，资源隔离充分的 runner 可并行。
+4. **Artifact static acceptance**：复验 builder、manifest、SBOM 和 archive；rehearsal 在启动前先运行 `inspectArchive`。
+5. **Isolated startup**：用同轮 CI database 启动 exact archive，验证 health/version 后清理。
+6. **Application Ready**：绑定 Stage-2、source、artifact、static acceptance 与 startup proof。
+7. **Controller Ready → Deploy**：独立签发 Controller Ready；deploy 只复验两份 Ready 并执行生产现场安全动作。
+
+Stage-2 失败立即停止后续重任务。只有有依赖的阶段不可越过；source/artifact 两条 lane 的执行并行度由受控资源决定，不能牺牲独立结果或回执。
+
 ## 边界
 
 ### CI 的责任
 
 `ops/publish.sh ci` 选择专用 release worktree 的已提交候选，并在同一次 invocation 中尽可能报出全部可发现问题：
 
-1. 校验仓库外的租户/CNB 配置输入并计算配置摘要。
-2. 对明确以 `_ci` 结尾的专用 PostgreSQL 数据库获取 advisory lock，验证 control role 是 database owner，清空并迁移完整 schema，再证明 runtime role 可读；整个 CI 结束后清空并释放锁。
-3. 在执行前冻结完整源码任务图。
-4. 运行所有可运行的独立 source checks；单项失败不终止其他独立项。
-5. 与 source checks 独立地恢复或构建 exact target artifact；source 失败不阻止 artifact 暴露构建问题。
-6. 对 exact artifact 做离线部署演练：校验 archive 路径、包内 symlink、完整 runtime 依赖、basePath、server entry 和 manifest，解包到临时目录，以已迁移的 CI 数据库启动 production standalone，探测 health 与 version，然后清理进程和目录。
-7. 只有 source、CI database、artifact、演练和外部输入全部通过，才签发 Ready Artifact。
+1. 校验仓库外租户/CNB 输入、计算配置摘要并冻结同轮 run id。
+2. 执行 Stage-2 Artifact 预检并写不可变回执；失败时不启动 database/source/build。
+3. 对 `_ci` database 获取 advisory lock，验证 owner，清空并迁移 schema，再证明 runtime role 可读。
+4. 冻结并运行 target-aware source task graph，聚合独立 source failures。
+5. 独立恢复或构建 exact target artifact；source 失败不改写 artifact 结果。
+6. 对 exact artifact 做离线启动演练并探测 health/version。
+7. 复验 preflight/database/source/artifact/rehearsal 的 exact identity 后签发 Ready Artifact。
 
 source task graph 按 Ready 目标冻结。`monolith` 继续执行完整 `release-source`：完整 `release-static`、全部 Node shards 与全部 TypeScript scopes。显式 deploy unit 仍保留同一套 `release-static` 安全合同，只把三个可安全缩小的叶子换成 deploy graph 派生闭包：ESLint 扫描目标私有根、compiler closure 的共享/目标根和生成 App 根；Node 运行 compiler packages、`app`、`scripts/check`、`scripts/deploy`，并从 `unit.privateSourceRoots` 派生 `scripts/*` 等非 package 测试区（`ops` shard 由独立 Controller Ready 覆盖）；TypeScript 只运行 `unit.checks.typecheckScopes`。每个叶子仍按 exact input/command/runtime 缓存，未知 unit 或 graph scope 直接失败，不回退为猜测集合。
 

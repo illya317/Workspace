@@ -25,8 +25,14 @@ test("public production code release keeps ci to Ready to deploy with a separate
   assert.doesNotMatch(publish, /--new-plan\)|--fast\)|--cnb-from\)|--executor\)/);
 });
 
-test("ci aggregates independent preflight, source, and artifact results before Ready", () => {
-  assert.match(publish, /set \+e[\s\S]*?validate_release_inputs[\s\S]*?capture_release_configuration_identity[\s\S]*?cache-prune\.mjs" prune[\s\S]*?set -e/);
+test("Stage-2 preflight fails before database, source CI, or artifact build", () => {
+  assert.match(publish, /RELEASE_CI_RUN_ID="ci-[\s\S]*?artifact-preflight-\$target_id-\$target_mode-\$RELEASE_CI_RUN_ID\.json/);
+  assert.match(publish, /artifact-preflight\.mjs" create/);
+  assert.ok(publish.indexOf('artifact-preflight.mjs" create') < publish.indexOf("ci-database-sandbox.mjs"));
+  assert.doesNotMatch(runReleaseCi, /CI_RUN_NONCE|date -u \+%Y%m%dT%H%M%SZ/);
+  assert.match(runReleaseCi, /CI_RUN_ID="\$RELEASE_CI_RUN_ID"/);
+  assert.ok(runReleaseCi.indexOf('artifact-preflight.mjs" verify') < runReleaseCi.indexOf("run-cnb-release-gate.sh"));
+  assert.ok(runReleaseCi.indexOf('artifact-preflight.mjs" verify') < runReleaseCi.indexOf("build-cnb-release-target.sh"));
   assert.match(publish, /RELEASE_CI_PREFLIGHT_STATUS/);
   assert.match(runReleaseCi, /set \+e[\s\S]*?run-cnb-release-gate\.sh[\s\S]*?build-cnb-release-target\.sh[\s\S]*?set -e/);
   assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS database=\$DATABASE_STATUS source=\$source_status artifact=\$artifact_status/);
@@ -34,10 +40,12 @@ test("ci aggregates independent preflight, source, and artifact results before R
   assert.ok(runReleaseCi.indexOf("build-cnb-release-target.sh") < runReleaseCi.indexOf("ready-artifact.mjs\" create"));
 });
 
-test("Ready binds the aggregate source result, frozen task graph, receipts, config, and artifact", () => {
-  for (const option of ["--source-result", "--task-graph", "--source-receipt", "--artifact-receipt", "--configuration"]) {
+test("Ready binds preflight, aggregate source, frozen task graph, config, and artifact", () => {
+  for (const option of ["--artifact-preflight", "--source-result", "--task-graph", "--source-receipt", "--artifact-receipt", "--configuration"]) {
     assert.match(runReleaseCi, new RegExp(option));
   }
+  assert.match(readyArtifact, /artifactPreflightReceiptSha256/);
+  assert.match(readyArtifact, /artifactPreflightIdentityDigest/);
   assert.match(publishCnb, /ready-artifact\.mjs" verify/);
   assert.ok(publishCnb.indexOf("ready-artifact.mjs\" verify") < publishCnb.indexOf("production-deploy-preflight.mjs"));
   assert.match(publishCnb, /node "\$SCRIPT_DIR\/production-deploy-preflight\.mjs"/);
@@ -76,6 +84,13 @@ test("deploy consumes the current Ready Artifact and cannot build", () => {
   assert.doesNotMatch(deployCase, /run-release-ci|run-cnb-release-gate|build-cnb-release-target|build-standalone-artifact|run-node-tests|with-check-lock|npm run/);
   for (const source of [runLocalReleaseAction, deployTarget]) {
     assert.doesNotMatch(source, /build-standalone-artifact|build-deploy-unit-artifact/);
+  }
+  assert.match(publishCnb, /--artifact-preflight/);
+  assert.match(runLocalReleaseAction, /artifact-preflight-/);
+  assert.match(runLocalReleaseAction, /link_ready_file "\$source_artifact_preflight_file"/);
+  assert.match(deployTarget, /--artifact-preflight/);
+  for (const source of [publishCnb, runLocalReleaseAction, deployTarget]) {
+    assert.doesNotMatch(source, /artifact-preflight\.mjs" create|transpileConfig|assert-build-space|next build/);
   }
   assert.match(deployTarget, /Ready Receipt 与恢复后的 artifact 完全一致/);
 });

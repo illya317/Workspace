@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -10,6 +11,7 @@ import { rehearseArtifact } from "./rehearse-artifact.mjs";
 import {
   readCurrentReadyArtifact,
   readyPointerFile,
+  validateArtifactPreflightProof,
   validateSourceProof,
   writeImmutableReadyReceipt,
 } from "./ready-artifact.mjs";
@@ -27,6 +29,42 @@ test("Ready receipt creation is exact-only and never overwrites immutable eviden
     /different immutable evidence/,
   );
   assert.deepEqual(JSON.parse(fs.readFileSync(file, "utf8")), receipt);
+});
+
+test("Ready binds an exact verified Stage-2 preflight receipt digest and identity", (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-ready-preflight-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const validationRoot = path.join(root, "ops/release/validation");
+  fs.mkdirSync(validationRoot, { recursive: true });
+  fs.writeFileSync(
+    path.join(validationRoot, "artifact-preflight.mjs"),
+    'if (process.argv[2] !== "verify") process.exit(2);\n',
+  );
+  const file = path.join(root, "artifact-preflight.json");
+  const identityDigest = "a".repeat(64);
+  fs.writeFileSync(file, JSON.stringify({ identityDigest }));
+  const proof = validateArtifactPreflightProof({
+    repository: root,
+    file,
+    runId: "ci-20260801T000000Z-aaaaaaaaaaaa-11111111",
+    source: { commitSha: "b".repeat(40), treeId: "c".repeat(40), contentDigest: "d".repeat(64) },
+    configurationDigest: "e".repeat(64),
+    target: "finance",
+    targetMode: "shadow",
+  });
+  assert.equal(proof.artifactPreflightIdentityDigest, identityDigest);
+  assert.equal(
+    proof.artifactPreflightReceiptSha256,
+    createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+  );
+
+  fs.writeFileSync(file, JSON.stringify({ identityDigest: "invalid" }));
+  assert.throws(() => validateArtifactPreflightProof({
+    repository: root, file,
+    runId: "ci-20260801T000000Z-aaaaaaaaaaaa-11111111",
+    source: { commitSha: "b".repeat(40), treeId: "c".repeat(40), contentDigest: "d".repeat(64) },
+    configurationDigest: "e".repeat(64), target: "finance", targetMode: "shadow",
+  }), /identity digest/);
 });
 
 test("Ready source proof rejects a passed result from another validation target", (t) => {

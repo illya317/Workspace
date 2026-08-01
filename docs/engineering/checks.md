@@ -164,6 +164,10 @@ GitHub Actions 不再做风险分类，只运行 changed-files 轻量检查。�
 
 生产发布不等待 GitHub 作为质量回执。`ops/publish.sh ci` 在一轮内聚合目标 source graph 的全部独立失败、独立构建目标 artifact，并启动 exact archive 做 health/version 演练；全部通过才签发绑定 source/config/target/task graph/receipts/artifact 的 Ready Artifact。source result 与 schema-v3 `source-validation-<target>-<CI_RUN_ID>.json` receipt 都在内容中绑定 run id 并拒绝跨 target/run 复用；rehearsal 文件同样按 target/mode/run/config 隔离。同一 target 的后续 CI 不覆盖旧 Ready 引用的 proof 文件。修复后再次运行 CI 时只重跑 input/command/runtime digest 失效的任务。`deploy` 只消费 Ready，保留 migration、锁、备份、健康、切换和回滚等生产现场检查，禁止源码检查或现场构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
+Stage-2 Artifact 预检位于 candidate/config/target 冻结之后、CI database sandbox/完整 Source CI/Next build 之前：它用 Next 自己的 `transpileConfig` 加载 exact target config，验证 target identity、生成 App、Node/npm/Next/lock/symlink/PATH 工具链，并调用 cache policy 的 `assert-build-space`。失败立即停止所有重任务。
+
+同一个 `RELEASE_CI_RUN_ID` 贯穿 preflight、database、source、artifact、static acceptance、isolated startup 与 Application Ready。Source CI 与 artifact build 是两条独立 result/receipt lane：本机 3 CPU/10 GiB 环境串行，资源隔离充分时可并行；只有依赖顺序不可绕过。Controller Ready 随后独立签发，`deploy` 只复验两份 Ready，不运行 loader、测试、源码检查或现场构建。
+
 ### scalability contract 与真实容量
 
 `test:scalability-contract` 中的 workflow case 是确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，同一用户批量投影时还必须按不同 control target 复用判权结果，且成员判定路径不得枚举全部可登录用户。

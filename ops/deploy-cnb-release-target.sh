@@ -31,6 +31,7 @@ ready_args=(
   --source-receipt "${RELEASE_SOURCE_VALIDATION_RECEIPT_FILE:?source validation receipt is required}"
   --source-result "${RELEASE_SOURCE_RESULT_FILE:?aggregate source result is required}"
   --task-graph "${CHECK_TASK_GRAPH_FILE:?frozen task graph is required}"
+  --artifact-preflight "${RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE:?artifact preflight receipt is required}"
   --rehearsal "${RELEASE_ARTIFACT_REHEARSAL_FILE:?artifact rehearsal receipt is required}"
   --artifact-receipt "$CNB_RELEASE_ARTIFACT_RECEIPT_FILE"
 )

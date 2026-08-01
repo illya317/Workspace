@@ -8,6 +8,8 @@ SOURCE_DIR="${RELEASE_SOURCE_DIR:?RELEASE_SOURCE_DIR is required}"
 : "${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}"
 : "${RELEASE_CONFIGURATION_DIGEST:?RELEASE_CONFIGURATION_DIGEST is required}"
 : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE is required}"
+: "${RELEASE_CI_RUN_ID:?RELEASE_CI_RUN_ID is required}"
+: "${RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE:?RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE is required}"
 [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] CI 环境文件不存在: $RELEASE_CI_ENV_FILE" >&2; exit 1; }
 [ -z "$(git -C "$SOURCE_DIR" status --short)" ] || { echo "[错误] CI 只接受干净 release tree" >&2; exit 1; }
 [ "$(git -C "$SOURCE_DIR" rev-parse HEAD)" = "$RELEASE_SOURCE_SHA" ] || { echo "[错误] CI source 已漂移" >&2; exit 1; }
@@ -26,8 +28,7 @@ TARGET_ID="${DEPLOY_UNIT_ID:-monolith}"
 TARGET_MODE="${DEPLOY_UNIT_MODE:-activate}"
 PREFLIGHT_STATUS="${RELEASE_CI_PREFLIGHT_STATUS:-0}"
 DATABASE_STATUS="${RELEASE_CI_DATABASE_STATUS:-2}"
-printf -v CI_RUN_NONCE '%04x%04x' "$RANDOM" "$RANDOM"
-CI_RUN_ID="ci-$(date -u +%Y%m%dT%H%M%SZ)-${RELEASE_CONTENT_DIGEST:0:12}-$CI_RUN_NONCE"
+CI_RUN_ID="$RELEASE_CI_RUN_ID"
 EVIDENCE_ROOT="$SOURCE_DIR/.cache/release-artifacts/evidence/$RELEASE_CONTENT_DIGEST"
 READY_ROOT="$SOURCE_DIR/.cache/release-ready"
 SOURCE_RECEIPT="$EVIDENCE_ROOT/source-validation-$TARGET_ID-$CI_RUN_ID.json"
@@ -45,6 +46,17 @@ export RELEASE_SOURCE_RESULT_FILE="$SOURCE_RESULT"
 export RELEASE_VALIDATION_RUNTIME=local
 export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$SOURCE_DIR/.cache/release-artifacts"
 export CNB_RELEASE_ARTIFACT_RECEIPT_FILE="$ARTIFACT_RECEIPT"
+
+node "$SCRIPT_DIR/release/validation/artifact-preflight.mjs" verify \
+  --file "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE" \
+  --repository "$SOURCE_DIR" \
+  --run-id "$CI_RUN_ID" \
+  --source "$RELEASE_SOURCE_SHA" \
+  --tree "$RELEASE_SOURCE_TREE" \
+  --content "$RELEASE_CONTENT_DIGEST" \
+  --configuration "$RELEASE_CONFIGURATION_DIGEST" \
+  --target "$TARGET_ID" \
+  --target-mode "$TARGET_MODE"
 
 echo "==> CI ${CI_RUN_ID}：先聚合运行全部源码检查；单项失败不终止其他独立检查"
 set +e
@@ -111,6 +123,7 @@ node "$SCRIPT_DIR/release/readiness/ready-artifact.mjs" create \
   --task-graph "$TASK_GRAPH" \
   --rehearsal "$REHEARSAL_FILE" \
   --artifact-receipt "$ARTIFACT_RECEIPT" \
+  --artifact-preflight "$RELEASE_ARTIFACT_PREFLIGHT_RECEIPT_FILE" \
   "${CONTRACT_ARGS[@]}"
 
 echo "==> READY: $TARGET_ID ${RELEASE_SOURCE_SHA:0:12} content=${RELEASE_CONTENT_DIGEST:0:12}"

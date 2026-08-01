@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -21,6 +22,7 @@ const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
 const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
 const RUN_PATTERN = /^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/;
 const CHECKS = [
+  "artifact-preflight-identity",
   "aggregate-source-proof",
   "artifact-content-identity",
   "archive-path-safety",
@@ -80,6 +82,40 @@ export function validateSourceProof({ proofRoot, sourceResultFile, taskGraphFile
   };
 }
 
+export function validateArtifactPreflightProof({
+  repository,
+  file,
+  runId,
+  source,
+  configurationDigest,
+  target,
+  targetMode,
+}) {
+  const resolved = path.resolve(file);
+  execFileSync(process.execPath, [
+    path.join(repository, "ops/release/validation/artifact-preflight.mjs"),
+    "verify",
+    "--file", resolved,
+    "--repository", repository,
+    "--run-id", runId,
+    "--source", source.commitSha,
+    "--tree", source.treeId,
+    "--content", source.contentDigest,
+    "--configuration", configurationDigest,
+    "--target", target,
+    "--target-mode", targetMode,
+  ], { cwd: repository, stdio: ["ignore", "ignore", "pipe"] });
+  const receipt = readReceipt(resolved);
+  return {
+    artifactPreflightReceiptSha256: digestFile(resolved),
+    artifactPreflightIdentityDigest: requiredPattern(
+      receipt.identityDigest,
+      DIGEST_PATTERN,
+      "artifact preflight identity digest",
+    ),
+  };
+}
+
 function prove(options) {
   const source = {
     commitSha: requiredPattern(options.commitSha, SHA_PATTERN, "commit SHA"),
@@ -133,6 +169,15 @@ function prove(options) {
     contentDigest: source.contentDigest,
     target,
   });
+  const artifactPreflightProof = validateArtifactPreflightProof({
+    repository: proofRoot,
+    file: options.artifactPreflight,
+    runId,
+    source,
+    configurationDigest,
+    target,
+    targetMode,
+  });
   validateArtifactRehearsal(readReceipt(options.rehearsal), {
     repository,
     artifact,
@@ -156,6 +201,7 @@ function prove(options) {
       runner: artifactReceipt.runner,
     },
     proofs: {
+      ...artifactPreflightProof,
       sourceReceiptSha256: digestFile(options.sourceReceipt),
       ...sourceProof,
       rehearsalReceiptSha256: digestFile(options.rehearsal),
@@ -320,6 +366,7 @@ function parse(argv) {
     sourceResult: raw.source_result,
     taskGraph: raw.task_graph,
     rehearsal: raw.rehearsal,
+    artifactPreflight: raw.artifact_preflight,
     artifactReceipt: raw.artifact_receipt,
   };
 }
