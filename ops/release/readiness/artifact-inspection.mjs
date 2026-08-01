@@ -3,6 +3,8 @@ import fs from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
+import { assertDeployUnitArchiveBuildIdentity } from "../contracts/deploy-unit-build-identity.mjs";
+
 function archivePath(value) {
   const withoutPrefix = value.replace(/^\.\//, "").replace(/\/$/, "");
   const normalized = path.posix.normalize(withoutPrefix);
@@ -68,8 +70,11 @@ export function inspectArchive({ artifact, manifest, target }) {
   const appFile = (relative) => appRoot === "." ? relative : `${appRoot}/${relative}`;
   const buildId = archiveFile(artifact, entries, appFile(".next/BUILD_ID")).toString("utf8").trim();
   const routes = JSON.parse(archiveFile(artifact, entries, appFile(".next/routes-manifest.json")).toString("utf8"));
-  const expectedBuildId = target === "monolith" ? manifest.source.contentDigest : manifest.build.buildId;
-  if (buildId !== expectedBuildId) throw new Error("artifact BUILD_ID differs from manifest");
+  if (target === "monolith") {
+    if (buildId !== manifest.source.contentDigest) throw new Error("artifact BUILD_ID differs from manifest");
+  } else {
+    assertDeployUnitArchiveBuildIdentity(manifest.build, buildId, `${target} artifact`);
+  }
   if (routes.basePath !== "/workspace") throw new Error(`artifact basePath must be /workspace, received ${routes.basePath ?? "<missing>"}`);
   const required = target === "monolith"
     ? [

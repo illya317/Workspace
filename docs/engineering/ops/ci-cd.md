@@ -48,7 +48,9 @@ Ready Artifact 绑定：
 - 租户配置 digest 和 Full/unit/shadow/activate 目标；
 - aggregate source result、冻结 task graph 和逐任务回执集合；
 - artifact、manifest、artifact receipt 和启动演练回执的 SHA-256；
-- runtime entry、BUILD_ID、basePath 与必要部署文件。
+- runtime entry、Next `BUILD_ID`、deployment ID、basePath 与必要部署文件。
+
+三类身份不可混用：content digest 绑定候选 Git tree 的内容；Next `.next/BUILD_ID` 是实际编译产物身份，manifest 的 `buildId` 必须从 archive 中该文件读取并与其一致；`deploymentId` 是滚动部署 version-skew/cache-bust、health/version 与 activation 使用的运行身份。同一 artifact 的 `buildId` 和 `deploymentId` 都必须存在，但不要求相等。
 
 Application Ready receipt 与 current pointer 都按 `target + mode` 隔离：receipt 写入 `receipts/<target>/<mode>/<CI_RUN_ID>-<content>-<config>.json` 且不可变，pointer 写入 `pointers/<target>/<mode>/current.json` 并只指向该槽位最新签发的 receipt。`monolith` 只有 `activate`；同一 unit 的 `activate` 与 `shadow` 是互不覆盖的两个槽位。
 

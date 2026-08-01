@@ -9,6 +9,7 @@ import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { inspectArchive } from "./artifact-inspection.mjs";
+import { deployUnitRuntimeVersion } from "../contracts/deploy-unit-build-identity.mjs";
 
 const sha256File = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
@@ -25,12 +26,12 @@ function readJson(file) {
   return JSON.parse(fs.readFileSync(file, "utf8"));
 }
 
-function expected(options) {
+export function artifactRehearsalExpectation(options) {
   const manifest = readJson(options.manifest);
   const monolith = options.target === "monolith";
   const artifactSha256 = monolith ? manifest.artifact?.sha256 : manifest.artifact?.sha256;
   const basePath = monolith ? "/workspace" : manifest.build?.basePath;
-  const version = monolith ? options.content : manifest.build?.buildId;
+  const version = monolith ? options.content : deployUnitRuntimeVersion(manifest.build, `${options.target} rehearsal`);
   const healthPath = monolith ? "/api/internal/health" : manifest.runtime?.healthPath;
   const versionPath = monolith ? "/api/settings/version" : manifest.runtime?.versionPath;
   if (!/^[0-9a-f]{64}$/.test(artifactSha256 ?? "")
@@ -55,7 +56,7 @@ function expected(options) {
 }
 
 export function validateArtifactRehearsal(receipt, options) {
-  const body = expected(options);
+  const body = artifactRehearsalExpectation(options);
   if (!Number.isFinite(Date.parse(receipt?.completedAt ?? ""))
     || JSON.stringify(receipt) !== JSON.stringify({ ...body, completedAt: receipt.completedAt })) {
     throw new Error("artifact rehearsal does not match the exact source, config, target, and artifact");
@@ -131,7 +132,7 @@ async function executeRuntime(options, runtime) {
 }
 
 export async function rehearseArtifact(options) {
-  const body = expected(options);
+  const body = artifactRehearsalExpectation(options);
   if (fs.existsSync(options.output)) {
     try {
       const receipt = validateArtifactRehearsal(readJson(options.output), options);

@@ -149,6 +149,16 @@ NEXT_DEPLOYMENT_ID="$DEPLOYMENT_ID" \
 NEXT_PUBLIC_BUILD_VERSION="$DEPLOYMENT_ID" \
 BUILD_VERSION="$DEPLOYMENT_ID" \
   ./node_modules/.bin/next build "$APP_ROOT"
+NEXT_BUILD_ID_FILE="$BUILD_DIRECTORY/BUILD_ID"
+if [ ! -f "$NEXT_BUILD_ID_FILE" ] || [ -L "$NEXT_BUILD_ID_FILE" ]; then
+  echo "[错误] $UNIT_ID Next build 缺少真实 .next/BUILD_ID" >&2
+  exit 1
+fi
+NEXT_BUILD_ID="$(< "$NEXT_BUILD_ID_FILE")"
+if [[ ! "$NEXT_BUILD_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "[错误] $UNIT_ID Next BUILD_ID 非法" >&2
+  exit 1
+fi
 rm -rf "$NEXT_CACHE_ROOT"
 if [ -d "$BUILD_DIRECTORY/cache" ]; then
   mkdir -p "$(dirname "$NEXT_CACHE_ROOT")"
@@ -254,7 +264,7 @@ node ops/deploy-unit-release.mjs artifact-write \
   --manifest "$MANIFEST_FILE" \
   --source-sha "$SOURCE_SHA" \
   --source-tree "$SOURCE_TREE" \
-  --build-id "$DEPLOYMENT_ID" \
+  --build-id "$NEXT_BUILD_ID" \
   --deployment-id "$DEPLOYMENT_ID" \
   --server-entry "$SERVER_ENTRY_RELATIVE" \
   --control-plane-requirements "$CONTROL_PLANE_REQUIREMENTS_FILE"
