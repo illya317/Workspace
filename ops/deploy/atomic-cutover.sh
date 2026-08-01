@@ -348,8 +348,8 @@ if (!payload || typeof payload.version !== 'string') {
 process.stdout.write(payload.version);
 NODE
       )
-      if [ \"\$actual_version\" != '$RELEASE_SOURCE_SHA' ]; then
-        echo \"[错误] \$version_label 版本 \$actual_version 与 runtime source $RELEASE_SOURCE_SHA 不一致\"
+      if [ \"\$actual_version\" != '$RELEASE_CONTENT_DIGEST' ]; then
+        echo \"[错误] \$version_label 版本 \$actual_version 与 content digest $RELEASE_CONTENT_DIGEST 不一致\"
         exit 1
       fi
     }

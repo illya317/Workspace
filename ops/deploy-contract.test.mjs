@@ -382,6 +382,15 @@ test("Full cutover atomically revokes every independent Gateway override", () =>
   assert.match(deploy, /workspace_stop_deploy_unit_sidecar assistant/);
 });
 
+test("candidate and public version checks use the frozen content digest", () => {
+  const versionCheck = deploy.slice(
+    deploy.indexOf("assert_release_version()"),
+    deploy.indexOf("verify_remote_deployed_record()"),
+  );
+  assert.match(versionCheck, /actual_version[^\n]*RELEASE_CONTENT_DIGEST/);
+  assert.doesNotMatch(versionCheck, /RELEASE_SOURCE_SHA/);
+});
+
 test("Full deploy preserves Assistant ownership until fallback commit and restores it on pre-commit failure", () => {
   assert.match(deploy, /source '\$REMOTE_DEPLOY_TOOL_DIR\/deploy-unit-sidecar\.sh'/);
   assert.match(deploy, /workspace_capture_gateway_assistant_owner '\$REMOTE_GATEWAY_ROOT'/);
