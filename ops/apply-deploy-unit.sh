@@ -11,6 +11,7 @@ UNIT_ID="${2:-}"
 STAGING_DIR="${3:-}"
 MODE="${4:-shadow}"
 REMOTE_DIR="${REMOTE_DIR:-}"
+RUNTIME_PM2_RUNNER="${WORKSPACE_RUNTIME_PM2_RUNNER:-/usr/local/sbin/workspace-runtime-pm2}"
 PREPARED_STATE_ROOT="${DEPLOY_PROFILE_PREPARED_STATE_ROOT:-}"
 DEPLOY_EVENT_FILE="${DEPLOY_EVENT_FILE:-$HOME/.finance-bot-deploy-event.json}"
 DEPLOY_PACKAGE_VERSION="${DEPLOY_PACKAGE_VERSION:-unknown}"
@@ -70,6 +71,28 @@ LOCK_FILE="$CONFIG_ROOT/deploy.lock"
 LOCK_OWNER_FILE="$CONFIG_ROOT/deploy-lock.owner"
 
 qualify_apply_deploy_unit_lock "$CONFIG_ROOT" "$LOCK_FILE" "$LOCK_OWNER_FILE"
+case "$RUNTIME_PM2_RUNNER" in
+  /*) ;;
+  *) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 必须是绝对路径" >&2; exit 1 ;;
+esac
+case "$RUNTIME_PM2_RUNNER" in
+  *[!A-Za-z0-9_./-]*) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 包含不安全字符" >&2; exit 1 ;;
+esac
+sudo -n -- test -x "$RUNTIME_PM2_RUNNER" \
+  || { echo "[错误] hardened runtime PM2 runner 不可执行" >&2; exit 1; }
+
+runtime_pm2() {
+  local key value
+  local runner_environment=(WORKSPACE_RUNTIME_PM2_TARGET=unit)
+  for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \
+    WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE \
+    WORKSPACE_INTERNAL_ORIGIN WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE \
+    WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
+    value="${!key-}"
+    [ -z "$value" ] || runner_environment+=("$key=$value")
+  done
+  sudo -n -- env "${runner_environment[@]}" "$RUNTIME_PM2_RUNNER" "$@"
+}
 
 mkdir -p "$CONFIG_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
 chmod 700 "$CONFIG_ROOT" "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
@@ -119,12 +142,12 @@ cleanup_candidate() {
         WORKSPACE_MONOLITH_WECOM_SIDECAR_WAS_ONLINE=1
         workspace_restore_monolith_wecom_sidecar "$MONOLITH_WECOM_PROCESS_NAME" || true
       fi
-      [ -z "$STARTED_PROCESS" ] || pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
-      pm2 save >/dev/null 2>&1 || true
+      [ -z "$STARTED_PROCESS" ] || runtime_pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
+      runtime_pm2 save >/dev/null 2>&1 || true
     elif [ "$GATEWAY_COMMITTED" = "0" ]; then
       [ -z "$STARTED_SIDECAR" ] || pm2 delete "$STARTED_SIDECAR" >/dev/null 2>&1 || true
-      [ -z "$STARTED_PROCESS" ] || pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
-      pm2 save >/dev/null 2>&1 || true
+      [ -z "$STARTED_PROCESS" ] || runtime_pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
+      runtime_pm2 save >/dev/null 2>&1 || true
     fi
   fi
   exit "$exit_code"
@@ -181,17 +204,6 @@ write_unit_deploy_event() {
   node "$SCRIPT_DIR/deploy-notification.mjs" "${notification_args[@]}"
 }
 
-load_runtime_environment() {
-  if [ -f "$CONFIG_ROOT/.env" ]; then
-    set +u
-    set -a
-    # shellcheck source=/dev/null
-    source "$CONFIG_ROOT/.env"
-    set +a
-    set -u
-  fi
-}
-
 wait_for_runtime() {
   local manifest_file=$1
   local port=$2
@@ -236,9 +248,9 @@ start_release() {
   node "$SCRIPT_DIR/internal-unit-identity.mjs" ensure \
     --root "$INTERNAL_IDENTITY_ROOT" \
     --unit "$UNIT_ID" >/dev/null
-  pm2 delete "$process_name" >/dev/null 2>&1 || true
-  load_runtime_environment
+  runtime_pm2 delete "$process_name" >/dev/null 2>&1 || true
   PORT="$port" HOSTNAME=127.0.0.1 BUILD_VERSION="$deployment_id" NEXT_PUBLIC_BUILD_VERSION="$deployment_id" \
+    WORKSPACE_CONFIG_DIR="$CONFIG_ROOT" \
     WORKSPACE_INTERNAL_ORIGIN="${WORKSPACE_INTERNAL_ORIGIN:-${WORKSPACE_PUBLIC_ORIGIN:-http://127.0.0.1}}" \
     WORKSPACE_DEPLOY_UNIT_ID="$UNIT_ID" \
     WORKSPACE_DEPLOY_SLOT="$slot" \
@@ -247,7 +259,7 @@ start_release() {
     WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE="$INTERNAL_TRUSTED_PUBLIC_KEYS_FILE" \
     WORKSPACE_INTERNAL_REPLAY_DIRECTORY="$INTERNAL_REPLAY_DIRECTORY" \
     PG_POOL_MAX="$database_pool_max" PG_APPLICATION_NAME="workspace-$UNIT_ID-$slot" \
-    pm2 start "$release_dir/$server_entry" --name "$process_name" --cwd "$app_dir" \
+    runtime_pm2 start "$release_dir/$server_entry" --name "$process_name" --cwd "$app_dir" \
       --max-memory-restart "${memory_mib}M" --update-env
   STARTED_PROCESS="$process_name"
   wait_for_runtime "$manifest_file" "$port" "$deployment_id"
@@ -451,7 +463,7 @@ NODE
   fi
 
   if [ "$MODE" = "shadow" ]; then
-    pm2 save
+    runtime_pm2 save
     write_unit_deploy_event deploy "$manifest_copy" "$release_dir/deploy-unit-contract.json" "$release_id" "" shadow
     echo "$UNIT_ID shadow-ready: $release_id ($slot)"
     return
@@ -471,7 +483,7 @@ NODE
   fi
   node "$SCRIPT_DIR/deploy-unit-release.mjs" state-promote --state "$proposed_state" --activation "$activation_file"
   if [ "$MODE" = "prepare" ]; then
-    pm2 save
+    runtime_pm2 save
     rm -f "$activation_file"
     echo "$UNIT_ID profile-prepared: $release_id ($slot), state $proposed_state"
     return
@@ -487,9 +499,9 @@ NODE
   switch_gateway "$generation_id"
   start_next_sidecar_for_handoff
   if [ -n "$active_slot" ]; then
-    pm2 delete "$(read_json_field "$manifest_copy" runtime.processName)-$active_slot" >/dev/null 2>&1 || true
+    runtime_pm2 delete "$(read_json_field "$manifest_copy" runtime.processName)-$active_slot" >/dev/null 2>&1 || true
   fi
-  pm2 save
+  runtime_pm2 save
   write_unit_deploy_event deploy "$manifest_copy" "$release_dir/deploy-unit-contract.json" "$release_id" "$generation_id" activate
   rm -f "$activation_file" "$proposed_state"
   echo "$UNIT_ID active: $release_id ($slot), Gateway $generation_id"
@@ -520,8 +532,8 @@ rollback_unit() {
   stop_previous_sidecar_for_handoff
   switch_gateway "$generation_id"
   start_next_sidecar_for_handoff
-  pm2 delete "$(read_json_field "$manifest" runtime.processName)-$former_slot" >/dev/null 2>&1 || true
-  pm2 save
+  runtime_pm2 delete "$(read_json_field "$manifest" runtime.processName)-$former_slot" >/dev/null 2>&1 || true
+  runtime_pm2 save
   write_unit_deploy_event rollback "$manifest" "$contract" "$release_id" "$generation_id" rollback
   rm -f "$proposed_state"
   echo "$UNIT_ID rolled back to $(read_json_field "$manifest" build.deploymentId), Gateway $generation_id"

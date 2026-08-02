@@ -248,7 +248,7 @@ function fixture(activeUnitId = "finance") {
   cpSync(control.tenantManifestFile, path.join(remoteDir, ".workspace", ".deployment", "tenant-config-manifest.json"));
   writeFileSync(path.join(remoteDir, ".workspace", "deploy-lock.owner"), `${deployLockToken}\n`);
   writeFileSync(nginxSite, "server {\n    location /workspace {\n        proxy_pass http://127.0.0.1:3000;\n    }\n}\n");
-  executable(path.join(fakeBin, "sudo"), "#!/bin/sh\nexec \"$@\"\n");
+  executable(path.join(fakeBin, "sudo"), "#!/bin/sh\n[ \"${1:-}\" != -n ] || shift\n[ \"${1:-}\" != -- ] || shift\nexec \"$@\"\n");
   executable(path.join(fakeBin, "nginx"), "#!/bin/sh\n[ \"$1\" = '-t' ]\n");
   executable(path.join(fakeBin, "systemctl"), "#!/bin/sh\nexit 0\n");
   executable(path.join(fakeBin, "pm2"), `#!/bin/sh
@@ -328,6 +328,7 @@ function commandEnvironment(files, extraEnvironment = {}) {
     REMOTE_DIR: files.remoteDir,
     FAKE_RUNTIME_ROOT: files.runtimeRoot,
     WORKSPACE_GATEWAY_NGINX_SITE: files.nginxSite,
+    WORKSPACE_RUNTIME_PM2_RUNNER: path.join(files.fakeBin, "pm2"),
     DEPLOY_PROFILE_PREPARED_STATE_ROOT: files.preparedStateRoot,
     DEPLOY_LOCK_TOKEN: files.deployLockToken,
     WECHAT_BOT_ID: "test-bot",

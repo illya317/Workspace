@@ -1112,7 +1112,7 @@ test("runtime PM2 wrapper gives Bot only its explicit environment allowlist", ()
     writeFileSync(path.join(fakeBin, "id"), "#!/bin/sh\n[ \"$1\" = -u ] && { echo 0; exit 0; }\nexec /usr/bin/id \"$@\"\n", { mode: 0o755 });
     writeFileSync(
       path.join(fakeBin, "runuser"),
-      "#!/bin/sh\n[ \"$1\" = -u ] || exit 9\nshift 2\n[ \"${1:-}\" != -- ] || shift\nexec \"$@\"\n",
+      "#!/bin/sh\n[ \"$1\" = -u ] || exit 9\nshift 2\nif [ \"${1:-}\" = -g ]; then shift 2; fi\n[ \"${1:-}\" != -- ] || shift\nexec \"$@\"\n",
       { mode: 0o755 },
     );
     writeFileSync(
@@ -1186,6 +1186,13 @@ test("runtime PM2 wrapper gives Bot only its explicit environment allowlist", ()
       assert.equal(webCapture.env.ONLYOFFICE_JWT_SECRET, "onlyoffice-secret");
       assert.equal(Object.hasOwn(webCapture.env, "WORKSPACE_MIGRATOR_DATABASE_PASSWORD"), false);
     }
+    const unit = spawnSync("bash", [
+      wrapper, "start", process.execPath, "--name", "workspace-news-blue",
+    ], { encoding: "utf8", env: { ...environment, WORKSPACE_RUNTIME_PM2_TARGET: "unit" } });
+    assert.equal(unit.status, 0, unit.stderr);
+    const unitCapture = JSON.parse(readFileSync(captureFile, "utf8"));
+    assert.match(unitCapture.env.DATABASE_URL, /^postgresql:\/\/workspace_runtime:/);
+    assert.equal(unitCapture.env.WORKSPACE_DEPLOY_UNIT_ID, "assistant");
   } finally {
     rmSync(temporary, { recursive: true, force: true });
   }

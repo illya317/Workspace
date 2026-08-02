@@ -4,6 +4,7 @@ RUNTIME_USER="${WORKSPACE_RUNTIME_OS_USER:-workspace-runtime}"
 RUNTIME_HOME="${WORKSPACE_RUNTIME_HOME:-/var/lib/workspace-runtime}"
 RUNTIME_ENV_FILE="${WORKSPACE_RUNTIME_ENV_FILE:-/home/ubuntu/workspace/.workspace/runtime.env}"
 PM2_BINARY="${WORKSPACE_PM2_BINARY:-/usr/bin/pm2}"
+PM2_TARGET="${WORKSPACE_RUNTIME_PM2_TARGET:-auto}"
 [ "$(id -u)" -eq 0 ] || { echo "[错误] 必须由 root/sudo 调用" >&2; exit 77; }
 [ -r "$RUNTIME_ENV_FILE" ] || { echo "[错误] runtime env 不可读: $RUNTIME_ENV_FILE" >&2; exit 1; }
 if grep -Eq '^[[:space:]]*(export[[:space:]]+)?(DIRECT_URL|SHADOW_DATABASE_URL|WORKSPACE_BACKUP_DATABASE_URL|WORKSPACE_MONITOR_DATABASE_URL|WORKSPACE_DATABASE_URL|WORKSPACE_RUNTIME_DATABASE_PASSWORD|WORKSPACE_MIGRATOR_DATABASE_PASSWORD|WORKSPACE_BACKUP_DATABASE_PASSWORD|WORKSPACE_MONITOR_DATABASE_PASSWORD|PGPASSWORD|PGPASSFILE|PGSERVICE|PGSERVICEFILE|PGOPTIONS|PGUSER|PGHOST|PGDATABASE)=' "$RUNTIME_ENV_FILE"; then
@@ -35,10 +36,25 @@ case "${1:-}" in
 esac
 database_target=0
 case "$process_name" in workspace|workspace-candidate) database_target=1 ;; esac
-exec runuser -u "$RUNTIME_USER" -- env -i \
-  HOME="$RUNTIME_HOME" USER="$RUNTIME_USER" LOGNAME="$RUNTIME_USER" \
+effective_user="$RUNTIME_USER"
+effective_group=""
+effective_home="$RUNTIME_HOME"
+case "$PM2_TARGET" in
+  auto) ;;
+  unit)
+    effective_user="${WORKSPACE_UNIT_RUNTIME_OS_USER:-ubuntu}"
+    effective_group="${WORKSPACE_UNIT_RUNTIME_OS_GROUP:-workspace-runtime}"
+    effective_home="${WORKSPACE_UNIT_RUNTIME_HOME:-/home/ubuntu}"
+    database_target=1
+    ;;
+  *) echo "[错误] WORKSPACE_RUNTIME_PM2_TARGET 只能是 auto 或 unit" >&2; exit 2 ;;
+esac
+runuser_args=(-u "$effective_user")
+[ -z "$effective_group" ] || runuser_args+=(-g "$effective_group")
+exec runuser "${runuser_args[@]}" -- env -i \
+  HOME="$effective_home" USER="$effective_user" LOGNAME="$effective_user" \
   PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-  PM2_HOME="$RUNTIME_HOME/.pm2" WORKSPACE_RUNTIME_ENV_FILE="$RUNTIME_ENV_FILE" \
+  PM2_HOME="$effective_home/.pm2" WORKSPACE_RUNTIME_ENV_FILE="$RUNTIME_ENV_FILE" \
   WORKSPACE_PM2_DATABASE_TARGET="$database_target" \
   "${process_environment[@]}" \
   /bin/bash -c '
