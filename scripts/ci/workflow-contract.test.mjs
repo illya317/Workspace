@@ -11,7 +11,6 @@ const cnbDeploy = read("../../.cnb/tag_deploy.yml");
 const cnbCi = read("../../ops/cnb-ci.sh");
 const cnbCiCache = read("../../ops/cnb-ci-cache.Dockerfile");
 const cnbRelease = read("../../ops/cnb-release.sh");
-const cnbArtifactRetention = read("../../ops/cnb-artifact-retention.sh");
 const imageDockerfile = read("../../ops/image.Dockerfile");
 const deployImage = read("../../ops/deploy-image.sh");
 const packageJson = JSON.parse(read("../../package.json"));
@@ -61,20 +60,8 @@ test("CNB is the only source CI, image builder, registry and CD platform", () =>
   assert.match(cnb, /^main:\n  pull_request:/m);
   assert.match(cnb, /^  push:/m);
   assert.match(cnb, /^  api_trigger_deploy:/m);
-  assert.match(cnb, /^  "crontab: 30 4 \* \* \*":/m);
   assert.doesNotMatch(`${cnb}\n${cnbCi}\n${cnbRelease}`, /github|ghcr\.io|GITHUB_|GHCR_|skopeo/i);
   assert.doesNotMatch(cnb, /NEXTAUTH_SECRET:.*\b20\d{2}\b/);
-});
-
-test("CNB bounds application and environment cache artifacts without touching buildcache", () => {
-  assert.match(cnb, /cnb-artifact-retention\.sh select-one workspace 5 application/);
-  assert.match(cnb, /cnb-artifact-retention\.sh select-one workspace\/dockerfile-caches 3 environment/);
-  assert.equal((cnb.match(/type: artifact:remove-tag/g) ?? []).length, 2);
-  assert.match(cnbArtifactRetention, /\.current\.imageDigest/);
-  assert.match(cnbArtifactRetention, /\.previous\.imageDigest/);
-  assert.match(cnbArtifactRetention, /\.guarded == true/);
-  assert.match(cnbArtifactRetention, /\^sha-\[0-9a-f\]\{40\}\$/);
-  assert.doesNotMatch(cnbArtifactRetention, /buildcache-main/);
 });
 
 test("PR and main restore the versioned dependency image and aggregate native parallel jobs", () => {
@@ -90,9 +77,9 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCiCache, /playwright install --with-deps chromium/);
   assert.match(cnbCiCache, new RegExp(`FROM node:${nodeVersion}-bookworm@sha256:[0-9a-f]{64}`));
   assert.match(cnb, /package-lock\.json[\s\S]*ops\/cnb-ci-cache\.Dockerfile/);
-  assert.equal((cnb.match(/versionBy:\n\s+- \.node-version\n\s+- package-lock\.json\n\s+- ops\/cnb-ci-cache\.Dockerfile/g) ?? []).length, 4);
+  assert.equal((cnb.match(/versionBy:\n\s+- \.node-version\n\s+- package-lock\.json\n\s+- ops\/cnb-ci-cache\.Dockerfile/g) ?? []).length, 3);
   assert.doesNotMatch(cnb, /versionBy:\n(?:\s+- .+\n)*\s+- package\.json/);
-  assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 4);
+  assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 3);
   assert.match(cnb, /copy-on-write-read-only/);
   assert.match(cnb, /main:\/workspace\/\.next\/cache:read-write/);
   assert.match(cnb, /main:\/workspace\/\.cache\/eslint:read-write/);
@@ -166,7 +153,7 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(cnbDeploy, /approver:/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
   assert.equal((cnb.match(/PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"/g) ?? []).length, 3);
-  assert.equal((cnb.match(/REMOTE_DIR: \/home\/ubuntu\/workspace/g) ?? []).length, 4);
+  assert.equal((cnb.match(/REMOTE_DIR: \/home\/ubuntu\/workspace/g) ?? []).length, 3);
   assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 3);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);

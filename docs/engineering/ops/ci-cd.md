@@ -107,11 +107,9 @@ cnb-release.sh verify
 - deploy-unit graph、生成 App、独立 unit 编译/导航/控制面；
 - 生产源码 checkout、现场依赖安装或现场构建。
 
-保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/cnb-artifact-retention.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
+保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
 
 缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用，其版本只由 `.node-version`、`package-lock.json` 和缓存 Dockerfile 决定；`package.json` 仅作为构建输入，改脚本而 lockfile 未变时不重建依赖镜像。main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；ESLint 使用 content strategy，不依赖干净 checkout 每次改变的文件时闳戳；TypeScript 另以实际受管源码、JSON/Prisma 输入、lockfile/Node 版本和检查入口的 Git blob 集合作为内容键，相同输入可直接复用已成功结果，任一相关输入变更都会产生新键并重跑；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
-
-CNB 每天 04:30（Asia/Shanghai）执行轻量制品保留任务，并与发布链共用排他锁。应用镜像始终保护生产回执中的 current/previous digest、最近 5 个 `sha-*` 标签及 CNB guarded 标签；版本化 CI 环境镜像保护最近 3 个及 guarded 标签；`buildcache-main` 是单一滚动 BuildKit cache，不进入 `sha-*` 清理范围。每轮每类最多删除一个最老标签，未引用 layer 交由 CNB GC 异步回收。标签列表、生产回执、SSH 或 API 任一读取失败时任务严格失败且删除 0 个，不允许在身份不明时猜测清理。
 
 ## Agent 闭环
 
