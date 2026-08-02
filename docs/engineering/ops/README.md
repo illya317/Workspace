@@ -19,13 +19,12 @@ and its exact receipt is consumed by rehearsal and Ready; deploy never reopens C
 
 Successful task evidence is keyed by exact input/command/runtime digests. After a failed CI, the next CI
 reuses unchanged successes and reruns only invalidated tasks; corrupt derived cache entries are quarantined
-instead of permanently blocking the same task. GitHub PR/CI remains a collaboration boundary but is not
-queried or awaited by production deploy.
+instead of permanently blocking the same task. GitHub is the only CI/application builder. Protected main
+packages the exact build once as `linux/amd64`, pushes it to GHCR, records `release.json`, then calls CNB.
 
-Local and CNB are execution channels only. They must run the same aggregator, artifact/rehearsal contract,
-Ready schema, deploy entry, and success criteria. A channel may not invent stages or rebuild during deploy.
-The default operator uses local for the lowest deployment latency; the old split `release-to-cnb.sh` path is
-disabled until a CNB adapter can persist and consume the same Ready Artifact.
+CNB is thin CD, not another CI channel. It verifies exact SHA/tree/release metadata, pulls the GHCR image by
+digest, pushes the identical manifest to CNB Registry, then performs migration, lock, backup, cutover,
+health, receipt and rollback. It must never install application dependencies, test, compile, or build.
 
 Repository-owned runtime dependency contracts:
 

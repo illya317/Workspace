@@ -31,6 +31,7 @@ export async function deployUnitHealthResponse() {
     status: runtimeReady ? "ok" : "error",
     unitId: deployUnitId(),
     version: getAppVersion(),
+    imageDigest: process.env.RELEASE_IMAGE_DIGEST || null,
   }, {
     headers: noStoreHeaders,
     status: runtimeReady ? 200 : 503,
@@ -41,6 +42,7 @@ export function deployUnitVersionResponse() {
   return NextResponse.json({
     unitId: deployUnitId(),
     version: getAppVersion(),
+    imageDigest: process.env.RELEASE_IMAGE_DIGEST || null,
   }, { headers: noStoreHeaders });
 }
 

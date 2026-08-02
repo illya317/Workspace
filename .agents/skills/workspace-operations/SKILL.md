@@ -25,6 +25,8 @@ Operations 负责 CI、部署、环境和脚本运行态。
 ## 职责
 
 - 维护 GitHub Actions CI、CNB CD、部署流程、环境变量检查和运行脚本。
+- GitHub 是唯一源码/CI/应用构建平台；CNB 只同步同一 OCI digest 并负责中国侧 CD/回滚。Mac 只提交源码，不中转制品或部署；远端开发 checkout 不配置 provider push 权限。
+- 开工先查 provider 与远端基线；推送前跑受影响快速检查；推送后主动跟踪 exact SHA 的 GitHub required CI、GHCR digest、CNB Build ID、Registry 镜像、部署阶段、健康和线上 digest，交付前再次刷新，不能让用户代查。
 - 维护 Git base/head 影响分类、deploy graph/impact map 依赖闭包、独立 static/Node/type/PostgreSQL/build/E2E job 和稳定的 `CI / required` 聚合门禁；不能确定 owner 时应拒绝分类，不得用风险或规模启发式自动加全量门禁。
 - 区分 PR CI 和 deploy/runtime 检查；真实 DB、租户私有配置、ops env 和部署后验证不进入普通 PR CI。
 - 调查 CI 失败、构建失败和部署失败。
@@ -53,7 +55,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 ## 生产发布
 
 - Full 与单 unit 的 operator 顺序都是 `ci -> deploy`。目标（Full/unit 与 shadow/activate）、source/tree/content/config 和 artifact digest 必须完全一致。任何 deploy cache miss 都是阻断，不允许现场构建。Profile/Fleet 仍只经受信发布流水线调用。
-- Local 与 CNB 只是渠道：两者必须运行同一个 source aggregator、artifact/rehearsal、Ready schema 和 deploy entry。渠道不得增加 validate/build 生命周期，不得改变检查集合，也不得在 deploy 补建。
+- GitHub required CI 后只允许一次 `linux/amd64` OCI 构建。CNB 只消费、镜像和部署相同 digest；不得运行 `npm ci`、lint/type/test/E2E、Next build 或第二次 Docker build。生产 mutation 只保留 migration preflight、锁、备份、原子切换、健康、回执和回滚。
 - Full 成功切流必须生成并原子提交一个无 `activeUnits`、无独立路由的 Gateway generation，让全部公网模块统一回落到本次 monolith；不得保留上一次单 unit/Profile 的公开 override。后续单 unit/Profile 部署再显式建立新的 override。
 - `deployed-release.json` 只记录 CNB runtime/canonical source、artifact 与 deployment 证据。候选必须是当前部署 source 的后代；同 source 为 no-op，回退或分叉直接阻断。
 - 部署通知必须明确标注范围：Full 显示全量，单 unit/Profile 列出本次实际部署的模块，不得把未变化模块算入。Full 和经 `publish.sh` 发起的单 unit release 展示 Ops 总耗时、release 流程处理耗时、生产部署耗时、尝试次数、可用的 CNB/生产关键阶段和最慢阶段。业务 `main` 处理时间与 CI 执行时间不进入 Ops 统计；release/部署脚本故障后的修复和跨次重试持续累计，直到成功结账。计时会话不得因候选 SHA 或业务路径变化而重置；切回业务处理前显式执行 `ops/publish.sh timing pause`，业务提交完成后由下一次部署自动恢复，或手动执行 `ops/publish.sh timing resume`。Profile promotion 当前只有本次 promotion duration，不能误报为完整跨重试 Ops 计时。

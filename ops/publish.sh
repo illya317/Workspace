@@ -412,44 +412,19 @@ case "${1:-}" in
 esac
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
-DEVELOPMENT_BRANCH="${DEVELOPMENT_BRANCH:-main}"
 GITHUB_REMOTE_NAME="${GITHUB_REMOTE:-origin}"
-GITHUB_HTTPS_PROXY="${GITHUB_HTTPS_PROXY-http://127.0.0.1:7897}"
-PROMOTION_REVIEW_SECONDS="${PROMOTION_REVIEW_SECONDS:-600}"
-
-with_github_proxy() {
-  if [ -n "$GITHUB_HTTPS_PROXY" ]; then HTTPS_PROXY="$GITHUB_HTTPS_PROXY" "$@"; else "$@"; fi
-}
 
 case "${1:-}" in push) shift ;; -h|--help) usage; exit 0 ;; *) usage; exit 1 ;; esac
 [ "$#" = 0 ] || { echo "[错误] push 不接受额外参数"; exit 1; }
-case "$PROMOTION_REVIEW_SECONDS" in ''|*[!0-9]*) exit 1 ;; esac
-[ "$PROMOTION_REVIEW_SECONDS" -ge 1 ] || exit 1
 
 cd "$SOURCE_DIR"
-echo "==> 候选固定为已提交 HEAD；工作区未提交内容不参与。"
-command -v gh >/dev/null 2>&1 || { echo "[错误] 未找到 gh CLI"; exit 1; }
-with_github_proxy git fetch "$GITHUB_REMOTE_NAME" "$DEVELOPMENT_BRANCH"
-remote_main_sha="$(git rev-parse "$GITHUB_REMOTE_NAME/$DEVELOPMENT_BRANCH")"
+echo "==> 从 Mac 正式仓库推送当前已提交分支；未提交内容不参与。"
+[ "$(uname -s)" = Darwin ] || { echo "[错误] 正式 GitHub push 只允许在 Mac 仓库执行" >&2; exit 1; }
+[ -z "$(git status --porcelain)" ] || { echo "[错误] 正式 push 要求工作区干净" >&2; exit 1; }
+current_branch="$(git symbolic-ref --quiet --short HEAD)" || { echo "[错误] detached HEAD 禁止 push" >&2; exit 1; }
+git fetch "$GITHUB_REMOTE_NAME" main
+remote_main_sha="$(git rev-parse "$GITHUB_REMOTE_NAME/main")"
 head_sha="$(git rev-parse HEAD)"
-github_repository="${GITHUB_REPOSITORY:-$(with_github_proxy gh repo view --json nameWithOwner --jq .nameWithOwner)}"
 git merge-base --is-ancestor "$remote_main_sha" "$head_sha" || { echo "[错误] 候选不是远端主分支的快进后代"; exit 1; }
-staging_branch=codex/staging-main
-candidate_branch=codex/candidate-main
-staging_before="$(with_github_proxy git ls-remote --heads "$GITHUB_REMOTE_NAME" "refs/heads/$staging_branch" | awk '{print $1}')"
-WORKSPACE_DIFF_BASE="$remote_main_sha" WORKSPACE_DIFF_HEAD="$head_sha" with_github_proxy git push "$GITHUB_REMOTE_NAME" \
-  --force-with-lease="refs/heads/$staging_branch:$staging_before" "HEAD:refs/heads/$staging_branch"
-minimum_run_id="$(with_github_proxy gh api "repos/${github_repository}/actions/workflows/promote-candidate.yml/runs?branch=${DEVELOPMENT_BRANCH}&event=workflow_dispatch&per_page=100" --jq '[.workflow_runs[].id] | max // 0')"
-with_github_proxy gh workflow run promote-candidate.yml --repo "$github_repository" --ref "$DEVELOPMENT_BRANCH" \
-  -f staging_branch="$staging_branch" -f staging_sha="$head_sha" -f base_sha="$remote_main_sha"
-review_at=$(( $(date +%s) + PROMOTION_REVIEW_SECONDS )); notice=0; run_id=""
-while [ -z "$run_id" ]; do
-  run_id="$(with_github_proxy gh api "repos/${github_repository}/actions/workflows/promote-candidate.yml/runs?branch=${DEVELOPMENT_BRANCH}&event=workflow_dispatch&per_page=100" \
-    --jq "[.workflow_runs[] | select(.id > $minimum_run_id and .head_sha == \"$remote_main_sha\")] | sort_by(.id) | last | .id // empty")"
-  [ -n "$run_id" ] && break
-  if [ "$notice" = 0 ] && [ "$(date +%s)" -ge "$review_at" ]; then echo "[提示] promotion 等待超过软复查阈值" >&2; notice=1; fi
-  sleep 2
-done
-with_github_proxy gh run watch "$run_id" --repo "$github_repository" --exit-status --interval 5
-pr_url="$(with_github_proxy gh pr view "$candidate_branch" --repo "$github_repository" --json url --jq .url)"
-echo "==> bot PR 已就绪: $pr_url"
+git push --set-upstream "$GITHUB_REMOTE_NAME" "HEAD:refs/heads/$current_branch"
+echo "==> GitHub exact SHA 已推送: $head_sha"
