@@ -12,7 +12,7 @@ test("canonical packager embeds the source code analysis snapshot beside the run
   assert.match(source, /source-code-analysis\/snapshot\.json/);
   assert.match(source, /standalone_app_dir\/\.workspace\/source-code-analysis/);
   assert.match(source, /禁止组装 standalone artifact/);
-  assert.match(source, /next_compiler_cache_monolith_build/);
+  assert.doesNotMatch(source, /next_compiler_cache/);
   assert.doesNotMatch(source, /source-code-analysis:snapshot:optional/);
 });
 
@@ -30,13 +30,9 @@ test("canonical packager rewrites the shared dependency root inside the portable
 test("canonical packager refuses to reuse a build whose BUILD_ID is not the candidate content digest", () => {
   const root = mkdtempSync(path.join(tmpdir(), "standalone-packager-test-"));
   try {
-    mkdirSync(path.join(root, "ops/release/artifact"), { recursive: true });
+    mkdirSync(path.join(root, "ops"), { recursive: true });
     mkdirSync(path.join(root, ".next"));
     copyFileSync(path.join(repositoryRoot, "ops/build-standalone-artifact.sh"), path.join(root, "ops/build-standalone-artifact.sh"));
-    copyFileSync(
-      path.join(repositoryRoot, "ops/release/artifact/next-compiler-cache-shell.sh"),
-      path.join(root, "ops/release/artifact/next-compiler-cache-shell.sh"),
-    );
     writeFileSync(path.join(root, "tracked.txt"), "fixture\n");
     writeFileSync(path.join(root, ".next/BUILD_ID"), `${"f".repeat(40)}\n`);
     for (const args of [

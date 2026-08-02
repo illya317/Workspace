@@ -73,7 +73,6 @@ const profileSchema = z.object({
     permissionReview: relativeConfigPath,
     financeImports: relativeConfigPath,
     productNameAliases: relativeConfigPath,
-    cnbRelease: relativeConfigPath,
     hrEthnicities: relativeConfigPath,
     hrProfessionalTitles: relativeConfigPath,
     hrSchoolWhitelist: relativeConfigPath,

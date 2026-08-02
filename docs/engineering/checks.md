@@ -10,7 +10,7 @@
 
 CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失败模式：同轮执行全部独立叶子并一次列完 blocking failures；前置失败导致无法安全执行的后续步骤必须显示为 blocked。日常单项命令可以 fail-fast，但不得用正式全量门禁逐个发现错误。第一次正式失败后先按 `ops/ci-cd.md` 完成全图诊断与集中修复，再运行一次最终门禁。
 
-正式 `release-source` 的 source graph 由部署目标决定。`monolith` 保持完整 `release-static + test:node + typecheck:full`。显式 unit 保留全部 `release-static` gate，只把 `lint:full` 换成目标私有根、compiler closure 与生成 App 根的 ESLint；Node 除 compiler packages、`app`、`scripts/check`、`scripts/deploy` 外，还从 `unit.privateSourceRoots` 派生非 package 测试区（例如 Assistant 的 `scripts/runtime`）；TypeScript 只运行 deploy graph 声明的 `checks.typecheckScopes`。`ops` shard 属于 Controller Ready，不在 unit Application Ready 重复执行。闭包来自 canonical deploy graph，未知 unit/scope fail closed，且每项仍产生普通 cacheable task receipt。
+正式 CNB required CI 固定执行 monolith `release-static + test:node + typecheck:full + build-next`。Deploy graph 继续约束源码 ownership、生成 App 与编译闭包，但不再派生独立 unit CI/CD、Ready 或 controller 回执。
 
 ## 常用命令
 
@@ -23,7 +23,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | TypeScript 工程图治理 | `npm run typecheck:references:check` | 锁定根 project references、源码 ownership 与 CI 声明/build-info 成对缓存契约；不执行编译。 |
 | 本地提交默认检查 | `npm run check:precommit` | 只验证 exact staged tree 的 changed lint、domain 与 migration；不读取未 stage 内容，不自动加全量或 TypeScript 门禁。 |
 | Agent 针对性检查 | `npm run check:agent -- --plan <file>` | Agent 显式声明 staged 文件、依赖文件和命令；执行器只验证 evidence 并执行，不做风险分类或自动追加门禁。 |
-| 推送门禁 | GitHub `CI / required` | 只运行 changed-files 轻量检查；完整 CI 与编译不在普通 push 重复执行。 |
+| 推送门禁 | CNB required CI | PR 与 `main` 共用同一 required 入口；`main` 复用唯一 Next build 发布镜像。 |
 | 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和静态 contract；类型检查留到显式诊断或 CI/发布。 |
 | 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
@@ -43,7 +43,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；monolith 冻结候选使用全量 source graph。deploy-unit 的正式入口由 `ops/publish.sh ci --deploy-unit <id>` 传入目标并生成 graph closure，不能手工把 `check:ci` 当 unit proof。artifact 编译是独立阶段。 |
+| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；CNB required CI 用它汇总完整 static、Node、type 与唯一 Next build。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
@@ -160,13 +160,9 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 - PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
 - 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
 
-GitHub Actions 是唯一 CI：changed-files、Node、完整 type、PostgreSQL 与一次 production build 作为独立 job 运行，E2E 下载并启动同一个 packaged standalone，不重建。稳定的 `CI / required` 聚合全部六条质量线。
+CNB 是唯一 CI/CD 平台。版本化的 `ops/cnb-ci-cache.Dockerfile` 一次安装 `node_modules` 与 Chromium，Pipeline 只恢复依赖；`ops/cnb-ci.sh` 不执行 `npm ci`。`npm run check:ci` 聚合 static、Node、完整 type 和唯一 Next production build。随后同一 checkout 打包 standalone，运行 PostgreSQL integration，并让 Playwright 启动这个 exact archive，禁止重建。
 
-`main` 的 required CI 成功后，GitHub 只把该 job 已生成的 standalone 包装为一个 `linux/amd64` OCI 应用镜像；镜像 job 不运行 Next build。`release.json` 绑定 commit、tree、content digest、GHCR digest、migration set 与 GitHub Run ID。CNB 只消费同一 digest，禁止源码检查或构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
-
-Stage-2 Artifact 预检位于 candidate/config/target 冻结之后、CI database sandbox/完整 Source CI/Next build 之前：它用 Next 自己的 `transpileConfig` 加载 exact target config，验证 target identity、生成 App、Node/npm/Next/lock/symlink/PATH 工具链，并调用 cache policy 的 `assert-build-space`。失败立即停止所有重任务。
-
-同一个 `RELEASE_CI_RUN_ID` 贯穿 preflight、database、source、artifact、static acceptance、isolated startup 与 Application Ready。Source CI 与 artifact build 是两条独立 result/receipt lane：本机 3 CPU/10 GiB 环境串行，资源隔离充分时可并行；只有依赖顺序不可绕过。Controller Ready 随后独立签发，`deploy` 只复验两份 Ready，不运行 loader、测试、源码检查或现场构建。
+受保护 `main` 成功后，`ops/cnb-release.sh` 只把该 standalone 包装为一个 `linux/amd64` OCI 应用镜像并直接推送 CNB Registry。`release.json` 绑定 commit、tree、content digest、artifact digest、migration set、CNB Build ID 和 image digest。演练与生产只消费该 digest。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
 ### scalability contract 与真实容量
 

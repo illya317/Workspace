@@ -24,7 +24,6 @@ const REQUIRED_PROFILE_FILE_KEYS = [
   "permissionReview",
   "financeImports",
   "productNameAliases",
-  "cnbRelease",
   "hrEthnicities",
   "hrProfessionalTitles",
   "hrSchoolWhitelist",
@@ -145,10 +144,6 @@ function tenantConfigPaths(root) {
   ];
   for (const relativePath of files) resolveRegularFile(root, relativePath);
   for (const relativePath of files.filter((file) => file.endsWith(".json"))) readJson(root, relativePath);
-  const cnbRelease = readFileSync(resolveRegularFile(root, profile.files.cnbRelease), "utf8");
-  if (!/^cnb-release:\s*(?:\n|\{)/m.test(cnbRelease)) {
-    throw new Error("tenant CNB release config must declare cnb-release");
-  }
   return { files: [...new Set(files)].sort(), managedDirectories: [...managedDirectories].sort() };
 }
 

@@ -7,7 +7,6 @@
     "permissionReview": "config/tenant/permission-review.json",
     "financeImports": "config/tenant/finance-imports.json",
     "productNameAliases": "config/tenant/product-name-aliases.json",
-    "cnbRelease": "config/tenant/cnb-release.yml",
     "hrEthnicities": "config/hr/ethnicities.json",
     "hrProfessionalTitles": "config/hr/professional-titles.json",
     "hrSchoolWhitelist": "config/hr/school-whitelist.json"

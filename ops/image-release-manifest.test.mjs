@@ -16,15 +16,15 @@ function fixture() {
     schemaVersion: 1,
     kind: "workspace-oci-release",
     source: { commitSha: "1".repeat(40), treeSha: "2".repeat(40), contentDigest: "3".repeat(64) },
-    image: { ref: "ghcr.io/illya317/workspace", digest: `sha256:${"4".repeat(64)}`, platform: "linux/amd64" },
+    image: { ref: "docker.cnb.cool/illya317/workspace", digest: `sha256:${"4".repeat(64)}`, platform: "linux/amd64" },
     artifact: { sha256: "5".repeat(64), manifestSha256: "6".repeat(64) },
     migration: { head: "20260801011000_example", setSha256: "7".repeat(64) },
-    build: { provider: "github-actions", requiredCheck: "CI / required", requiredConclusion: "success", runId: "123", runAttempt: "1", createdAt: "2026-08-02T00:00:00.000Z" },
+    build: { provider: "cnb", requiredCheck: "CNB / required", requiredConclusion: "success", runId: "cnb-sr8-example", event: "push", createdAt: "2026-08-02T00:00:00.000Z" },
   };
   return { ...unsigned, releaseDigest: sha256(JSON.stringify(canonical(unsigned))) };
 }
 
-test("release manifest binds source, tree, linux image digest, migration and GitHub run", () => {
+test("release manifest binds source, tree, CNB image digest, migration and CNB build", () => {
   const value = fixture();
   assert.equal(normalizeImageRelease(value), value);
 });

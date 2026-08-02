@@ -3,7 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 
-export { taskGraphDigest, taskReceiptDigest } from "../../ops/release/contracts/task-proof-contract.mjs";
+export { taskGraphDigest, taskReceiptDigest } from "./task-proof-contract.mjs";
 import { checkTaskInputContract } from "./check-task-contracts.mjs";
 
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
@@ -24,7 +24,6 @@ const CANONICAL_REGISTRY_ENTRIES = [
   "scripts/deploy/deploy-unit-spec.ts",
 ];
 const GLOBAL_INPUT_PREFIXES = [
-  ".github/",
   "generated/prisma/",
   "ops/",
   "packages/core/",

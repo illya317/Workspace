@@ -259,11 +259,6 @@ function validate() {
   if (!/fileName:\s*["']tsconfig\.base\.json["']/.test(dependencyCruiserConfig)) {
     violations.push("dependency-cruiser must resolve paths through tsconfig.base.json");
   }
-  const releaseConfig = fs.readFileSync(path.join(repoRoot, "ops/cnb-release.yml"), "utf8");
-  for (const cachePath of [".cache/types", ".cache/tsbuild"]) {
-    if (!releaseConfig.includes(cachePath)) violations.push(`release type cache must include ${cachePath}`);
-  }
-
   return violations;
 }
 

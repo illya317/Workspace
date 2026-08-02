@@ -231,7 +231,7 @@ test("task input paths classify private owner slices and fail closed for shared 
     "package-lock.json",
     "packages/core/ui/index.ts",
     "packages/platform/module-registry.ts",
-    "ops/publish.sh",
+    "ops/cnb-release.sh",
   ]) {
     assert.deepEqual(classifyTaskInputPath(file), { kind: "global", owner: null }, file);
   }

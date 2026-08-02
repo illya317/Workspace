@@ -2,20 +2,8 @@
   "schemaVersion": 1,
   "defaultMaxLines": 450,
   "legacyCaps": {
-    "ops/apply-deploy-unit.integration.test.mjs": 708,
-    "ops/apply-deploy-unit.sh": 536,
     "ops/build-standalone-artifact.sh": 527,
-    "ops/deploy-contract.test.mjs": 991,
-    "ops/deploy-unit-release.mjs": 622,
-    "ops/deploy/atomic-cutover.sh": 1188,
-    "ops/deploy/state.sh": 579,
-    "ops/deploy/transport.sh": 488,
-    "ops/gateway-generation.mjs": 451,
     "ops/postgresql/dev/sql-settings-worker.sh": 1178,
-    "ops/postgresql/dev/sql-settings-worker.test.mjs": 551,
-    "ops/postgresql/production-pm2-plan.mjs": 681,
-    "ops/postgresql/production-security.sh": 791,
-    "ops/postgresql/production-security.test.mjs": 1212,
-    "ops/publish-cnb.sh": 793
+    "ops/postgresql/dev/sql-settings-worker.test.mjs": 551
   }
 }

@@ -113,32 +113,6 @@ test("new diagnostic and preflight classifications are prohibited", () => {
   );
 });
 
-test("deploy execution errexit is allowed only immediately after the canonical mutation barrier", () => {
-  const barrier = "# workspace-errexit-role: mutation-barrier";
-  const entry = {
-    path: "ops/deploy.sh",
-    command: simpleEnable,
-    counts: { execution: 1 },
-    requiredPreviousLine: barrier,
-    reason: "mutation starts after lock acquisition",
-  };
-  const accepted = [{ path: "ops/deploy.sh", line: 20, command: simpleEnable, previousLine: barrier }];
-  const moved = [{ path: "ops/deploy.sh", line: 20, command: simpleEnable, previousLine: "acquire_lock" }];
-
-  assert.equal(validateErrexitPolicy({ policy: policyFor([entry], 1), occurrences: accepted }).ok, true);
-  assert.match(
-    validateErrexitPolicy({ policy: policyFor([entry], 1), occurrences: moved }).violations.join("\n"),
-    /errexit barrier drift/,
-  );
-  assert.match(
-    validateErrexitPolicy({
-      policy: policyFor([{ ...entry, requiredPreviousLine: undefined }], 1),
-      occurrences: accepted,
-    }).violations.join("\n"),
-    /execution errexit requires # workspace-errexit-role: mutation-barrier/,
-  );
-});
-
 test("diagnostic filenames cannot bypass the ban by claiming execution", () => {
   const entry = {
     path: "ops/runtime-health-verify.sh",

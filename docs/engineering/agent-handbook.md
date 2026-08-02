@@ -7,17 +7,17 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub 是唯一源码/CI/应用构建平台；CNB 只镜像和部署同一个不可变 OCI digest，并负责回滚
+- **CI/CD**: CNB 是唯一源码/CI/应用构建/Registry/CD 平台，同一个不可变 OCI digest 贯穿演练、生产和回滚
 
 ## 2. 部署与运行态同步
 
-Mac `/Users/koito/Project/workspace/workspace` 是正式代码真源。远端 `workspace-dev` 只做 Linux/运行态调试，不配置 GitHub/CNB push；远端改动按任务文件白名单同步回 Mac 后复核、检查、提交并推送 GitHub。
+Mac `/Users/koito/Project/workspace/workspace` 是正式提交工作区。远端 `workspace-dev` 只做 Linux/运行态调试，不配置 provider push；远端改动按任务文件白名单同步回 Mac 后复核、检查、提交并推送 CNB。
 
-- 普通候选从 Mac 正式仓库推送任务分支并通过 PR 进入 `main`。`ops/publish.sh push` 只允许 Mac、干净已提交分支和 `origin/main` 的快进后代；它不再创建 staging/candidate 分支或调用自建 promotion workflow。
-- CNB 不执行源码 CI 或构建。它只接受 GitHub 传入的 exact SHA/tree、GHCR image digest、`release.json` URL 和 GitHub Run ID，把同一 digest 镜像到 CNB Registry 后部署。
-- 生产维护尽量在本地完成代码、migration、文档和检查。`publish.sh deploy` 是唯一生产发布入口；不要在服务器 `current` 上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
-- 只有受保护 `main`/正式 release tag 的 `CI / required` 全部通过后，GitHub 才把预构建 standalone 包装成唯一的 `linux/amd64` 应用镜像、推送 GHCR 并生成 `release.json`。PR 永远不能触发 CNB 生产事件。
-- GitHub 用最小权限 `CNB_TRIGGER_TOKEN` 调用 `api_trigger_rehearsal` 或 `api_trigger_deploy`。CNB 只拉取 digest、镜像同一 manifest、执行迁移预检/锁/备份/切换/健康/回执/回滚；生产服务器不 checkout GitHub，也不现场安装应用依赖或构建。
+- 普通候选从 Mac 推送 CNB 任务分支并通过 PR 进入 `main`；仓库不提供自建 push/promotion 包装器。
+- CNB PR 运行 required CI；受保护 `main` 在同一 checkout 中安装一次依赖、执行一次 Next build、启动 exact standalone E2E，再把该产物包装为唯一 `linux/amd64` 应用镜像。
+- 镜像直接推送 CNB Registry；`release.json` 绑定 CNB Build ID、SHA、tree、content、artifact、migration 和 image digest。
+- 同一条 `main push` 流水线先完成 disposable PostgreSQL/应用启动/回滚演练，再按同一 digest 执行生产锁、备份、migration、候选健康、切换、线上 digest 回执。生产服务器不 checkout 源码，也不现场安装应用依赖或构建。
+- 不要在服务器上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
@@ -30,23 +30,17 @@ Mac `/Users/koito/Project/workspace/workspace` 是正式代码真源。远端 `w
 git status --short
 git add <files>
 git commit -m "<message>"
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
+git push cnb <branch>
 ```
 
 生产发布流程：
 
-1. 确认候选已提交。代码完成时运行一次 CI，签发 Ready；部署请求到达后只运行 deploy：
+1. 将任务分支通过 CNB PR 合入受保护 `main`，或由已授权维护者快进推送 exact commit。
+2. CNB required CI 汇总源码检查并完成唯一 Next build、PostgreSQL 与 exact-build E2E。
+3. CNB 把该 standalone 包装为唯一应用镜像并直接推送 CNB Registry；同一流水线先演练，再运行备份、migration、候选健康、容器切换和线上 digest 校验。
+4. 成功后复验 `deployed-image.json`、公网 health/version 与批准的 image digest；失败只按 previous digest 回滚。
 
-```bash
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh ci
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
-```
-
-2. CI 在任务图冻结后运行全部独立检查；source 失败不阻止 artifact build/rehearsal。完整通过后 Ready 绑定 source/config/task evidence/artifact。
-3. CI 失败后集中修复完整清单并做针对性验证，再运行增量 CI；成功 exact-input 回执直接复用。
-4. `publish.sh deploy` 不运行源码门禁或构建。成功后复验 `deployed-release.json` 的 canonical source、artifact、PM2、health 与版本。
-
-首次切换生产前，`api_trigger_rehearsal` 必须先证明 GHCR 拉取、CNB Registry digest 一致、非生产启动和回滚。通过后才把仓库变量 `CNB_RELEASE_EVENT` 从 rehearsal 改为 `api_trigger_deploy`，并在私有环境中启用 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`。
+生产 stage 前的 rehearsal 必须证明 CNB Registry digest 拉取、disposable PostgreSQL migration、非生产启动、健康/version 和回滚启动。`PRODUCTION_IMAGE_DEPLOY_ENABLED` 不为 `1` 时生产 stage 必须拒绝。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 

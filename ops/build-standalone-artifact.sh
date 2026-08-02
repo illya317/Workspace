@@ -2,55 +2,18 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-# shellcheck source=ops/release/artifact/next-compiler-cache-shell.sh
-source ./ops/release/artifact/next-compiler-cache-shell.sh
 
 ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
-ALLOW_CNB_RELEASE_INJECTION="${ALLOW_CNB_RELEASE_INJECTION:-0}"
 STANDALONE_SKIP_NEXT_BUILD="${STANDALONE_SKIP_NEXT_BUILD:-0}"
 ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
 MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
 SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
 SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${SOURCE_SHA}^{tree}")}"
 CONTENT_DIGEST="${RELEASE_CONTENT_DIGEST:-}"
-RELEASE_TIMING_ENABLED=0
-
-if [ -n "${RELEASE_TIMING_FILE:-}" ]; then
-  # shellcheck source=ops/lib/release-timing.sh
-  source ./ops/lib/release-timing.sh
-  release_timing_configure \
-    "$RELEASE_TIMING_FILE" \
-    "${RELEASE_TIMING_RELEASE_ID:-$SOURCE_SHA}" \
-    artifact
-  RELEASE_TIMING_ENABLED=1
-fi
-
-cleanup_artifact_timing() {
-  local artifact_exit_code=$?
-  if [ "$RELEASE_TIMING_ENABLED" = "1" ]; then
-    release_timing_active_finalize_on_exit "$artifact_exit_code" || true
-  fi
-  return "$artifact_exit_code"
-}
-trap cleanup_artifact_timing EXIT
 
 run_artifact_stage() {
-  local stage="$1"
   shift
-  if [ "$RELEASE_TIMING_ENABLED" != "1" ]; then
-    "$@"
-    return
-  fi
-
-  if ! release_timing_active_begin "$stage"; then
-    echo "[警告] artifact/${stage} 计时启动失败；构建仍按原命令执行" >&2
-    "$@"
-    return
-  fi
   "$@"
-  # The active finalizer intentionally takes no arguments.
-  # shellcheck disable=SC2119
-  release_timing_active_passed
 }
 
 if ! printf '%s' "$SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
@@ -70,13 +33,8 @@ if [ "$(git rev-parse "${SOURCE_SHA}^{tree}")" != "$SOURCE_TREE" ]; then
   exit 1
 fi
 if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
-  injection_files="$(git diff-tree --no-commit-id --name-only -r HEAD | LC_ALL=C sort)"
-  if [ "$ALLOW_CNB_RELEASE_INJECTION" != "1" ] \
-    || [ "$(git rev-parse HEAD^)" != "$SOURCE_SHA" ] \
-    || [ "$injection_files" != $'.cnb-release.json\n.cnb.yml' ]; then
-    echo "[错误] standalone 构建必须位于 source SHA 或其精确 CNB release injection"
-    exit 1
-  fi
+  echo "[错误] standalone 构建必须位于 CI checkout 的精确 source SHA"
+  exit 1
 fi
 if [ "$(uname -s)" != "Linux" ] && [ "$ALLOW_NON_LINUX_BUILD" != "1" ]; then
   echo "[错误] standalone 产物必须在 Linux 构建；仅本地诊断可显式设置 ALLOW_NON_LINUX_BUILD=1"
@@ -240,7 +198,6 @@ copy_data_release_files() {
   echo "==> 打包私有数据发布执行器与生产回执门禁..."
   test -f ops/data-release.mjs
   test -f ops/apply-data-release.mjs
-  test -f ops/replace-production-database.sh
   test -f ops/prisma-genesis-cutover.mjs
   rm -rf .next/standalone/ops/data-releases
   mkdir -p .next/standalone/ops
@@ -248,14 +205,8 @@ copy_data_release_files() {
   cp ops/apply-data-release.mjs .next/standalone/ops/apply-data-release.mjs
   cp ops/data-release-handlers.mjs .next/standalone/ops/data-release-handlers.mjs
   cp ops/data-release-transfer.mjs .next/standalone/ops/data-release-transfer.mjs
-  cp ops/replace-production-database.sh .next/standalone/ops/replace-production-database.sh
-  chmod 755 .next/standalone/ops/replace-production-database.sh
   cp ops/prisma-genesis-cutover.mjs .next/standalone/ops/prisma-genesis-cutover.mjs
   cp tsconfig.json tsconfig.base.json .next/standalone/
-  if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
-    test -f .cnb-release.json
-    cp .cnb-release.json .next/standalone/.cnb-release.json
-  fi
   cp -R packages .next/standalone/
   cp -R generated .next/standalone/
   cp -R scripts/import .next/standalone/scripts/
@@ -265,7 +216,6 @@ copy_data_release_files() {
   test -f .next/standalone/ops/apply-data-release.mjs
   test -f .next/standalone/ops/data-release-handlers.mjs
   test -f .next/standalone/ops/data-release-transfer.mjs
-  test -x .next/standalone/ops/replace-production-database.sh
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json
@@ -275,9 +225,6 @@ copy_data_release_files() {
   test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs
   node ops/release/artifact/link-data-release-next-runtime.mjs .next/standalone node_modules/next
-  if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
-    cmp .cnb-release.json .next/standalone/.cnb-release.json
-  fi
 }
 
 if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
@@ -292,7 +239,16 @@ if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
   npm run output-tracing:check
 else
   echo "==> 构建 Next standalone 产物..."
-  next_compiler_cache_monolith_build "$PWD" "$CONTENT_DIGEST" "${STANDALONE_EXTERNAL_TYPECHECK:-0}"
+  ensure_build_deps
+  if [ "${STANDALONE_EXTERNAL_TYPECHECK:-0}" = "1" ]; then
+    run_artifact_stage next.build \
+      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
+      bash -c 'npm run db:generate:inner && npm run build:next:after-typecheck'
+  else
+    run_artifact_stage next.build \
+      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
+      npm run build
+  fi
 fi
 
 if [ ! -f .cache/source-code-analysis/snapshot.json ]; then
@@ -469,7 +425,7 @@ NODE
 
 DEPLOY_GRAPH_PATH="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
 node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts --json > "$DEPLOY_GRAPH_PATH"
-deploy_graph_sha="$(node ops/gateway-generation.mjs graph-digest --graph "$DEPLOY_GRAPH_PATH")"
+deploy_graph_sha="$(hash_file "$DEPLOY_GRAPH_PATH")"
 
 SOURCE_SHA="$SOURCE_SHA" \
 SOURCE_TREE="$SOURCE_TREE" \
@@ -510,9 +466,9 @@ const manifest = {
     platform: process.platform,
     architecture: process.arch,
     command: "ops/build-standalone-artifact.sh",
-    githubRunId: process.env.GITHUB_RUN_ID || null,
-    githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || null,
-    githubEventName: process.env.GITHUB_EVENT_NAME || null,
+    provider: process.env.CNB ? "cnb" : "local",
+    runId: process.env.CNB_BUILD_ID || null,
+    eventName: process.env.CNB_EVENT || null,
   },
 };
 writeFileSync(process.env.MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o644 });

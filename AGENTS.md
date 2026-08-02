@@ -12,12 +12,11 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Environment Authority
 
-- `/Users/koito/Project/workspace/workspace` 是正式代码仓库和唯一源码真源；正式 diff、检查、commit 与 GitHub push 只在这里执行。
+- `/Users/koito/Project/workspace/workspace` 是正式代码仓库；正式 diff、检查、commit 与 CNB push 只在这里执行。
 - `workspace-dev:/home/ubuntu/workspace-dev/source` 只用于远端开发调试。调试完成后只按任务文件白名单同步回 Mac；禁止复制 `.env`、密钥、数据库、`.next`、`node_modules`、缓存、运行时数据和私有租户配置。
-- GitHub 是唯一源码平台、唯一 CI 和唯一应用构建平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
-- CNB 只负责同一镜像 digest 的中国侧 Registry 同步、CD、回滚和审计；禁止重新运行源码 CI、安装应用依赖或二次构建。
-- Mac 只提交源码，不中转构建制品或生产部署；生产服务器不 checkout GitHub 源码，CNB 通过 digest 部署。
-- Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 GitHub CI、GHCR digest、CNB Build ID/阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
+- CNB 是唯一源码平台、CI、应用构建、Registry、CD、回滚和审计平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
+- Mac 只提交源码到 CNB，不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
+- Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 CNB Build ID、required CI、镜像 digest、演练、部署阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
 
 ## Start Here
 
@@ -70,7 +69,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **本地检查内存硬上限 8GB**：本机受治理 typecheck、build、lint 和其他 Node 检查的 old-space 上限不得超过 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量；各入口必须使用 package script 声明的受治理上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
-18. **生产制品只有一个 OCI digest**：GitHub required CI 通过后构建一次 `linux/amd64` 镜像、推送 GHCR 并生成 `release.json`；CNB 只镜像同一 digest 并执行 migration、锁、备份、原子切换、健康、回执与回滚。禁止 CNB 二次 CI/build、生产现场安装或构建、可变 tag 部署、Mac 制品中转，以及 GitHub/CNB 产生两份制品。生产链启用前必须先完成非生产镜像拉取、Registry 同步、部署和回滚演练。
-19. **正式 CI 一次报全并按输入增量收敛**：独立 source/artifact/rehearsal 检查必须同轮执行并汇总全部失败；依赖链只在真实前置失败时显式 blocked。集中修复完整清单并做针对性验证后再次运行 CI，完整 input/command/runtime digest 未变化的成功回执直接复用。derived cache 损坏先 quarantine 再重算；禁止“全量一次、修一项、再全量”。
+18. **生产制品只有一个 OCI digest**：CNB required CI 通过后，把同一次 Next standalone 构建包装成唯一 `linux/amd64` 应用镜像、直接推送 CNB Registry 并生成 `release.json`；同一流水线再执行 migration、锁、备份、切换、健康、回执与回滚演练。禁止第二次应用 build、生产现场安装或构建、可变 tag 部署和 Mac 制品中转。
+19. **正式 CI 一次报全**：CNB required CI 在同一轮汇总独立源码失败；真实依赖项只在前置失败后停止。集中修复完整清单后再推送，不恢复本地 Ready/controller、blocker ledger、retry fence 或跨渠道回执控制面。
 
 检查命令按 `docs/engineering/checks.md` 选择并串行执行。多 agent 任务由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

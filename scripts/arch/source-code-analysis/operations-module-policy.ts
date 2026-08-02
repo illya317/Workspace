@@ -106,7 +106,7 @@ export async function analyzeOperationsModules(repositoryRoot: string, policyVal
     path.join(repositoryRoot, POLICY_PATH), "utf8",
   )) as unknown);
   const violations: OperationsModuleViolation[] = [];
-  const governedFiles: string[] = ["ops/deploy.sh", "ops/release-gate-receipt.mjs"];
+  const governedFiles: string[] = [];
   async function visit(relativeDirectory: string) {
     for (const entry of await fs.readdir(path.join(repositoryRoot, relativeDirectory), { withFileTypes: true })) {
       const relative = `${relativeDirectory}/${entry.name}`;
@@ -114,7 +114,6 @@ export async function analyzeOperationsModules(repositoryRoot: string, policyVal
       else if (entry.isFile() && /\.(?:mjs|py|sh)$/.test(entry.name)) governedFiles.push(relative);
     }
   }
-  await visit("ops/deploy");
   await visit("ops/release");
   for (const file of [...new Set(governedFiles)].sort()) {
     const matches = owners(policy, file);

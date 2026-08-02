@@ -7,15 +7,7 @@ import { pathToFileURL } from "node:url";
 
 const POLICY_FILE = "scripts/check/shell-errexit-policy.json";
 const CATEGORIES = ["execution", "dependent", "structural", "diagnostic"];
-const MUTATION_BARRIER_MARKER = "# workspace-errexit-role: mutation-barrier";
-const SET_E_COMMAND = `set ${"-e"}`;
-const SET_ERREXIT_COMMAND = `set -o ${"errexit"}`;
-const REQUIRED_ENTRY_BARRIERS = new Map([
-  [groupKey("ops/deploy.sh", SET_E_COMMAND), MUTATION_BARRIER_MARKER],
-  [groupKey("ops/deploy-unit.sh", SET_E_COMMAND), MUTATION_BARRIER_MARKER],
-  [groupKey("ops/publish-cnb.sh", SET_E_COMMAND), MUTATION_BARRIER_MARKER],
-  [groupKey("ops/publish.sh", SET_ERREXIT_COMMAND), "# workspace-errexit-role: non-deploy-execution"],
-]);
+const REQUIRED_ENTRY_BARRIERS = new Map();
 const DIAGNOSTIC_PATH = /(?:^|\/)[^/]*(?:preflight|verify|health|patrol|diagnostic)[^/]*\.(?:bash|cjs|js|mjs|sh|ts|tsx)$/i;
 const TEXT_EXTENSIONS = new Set([
   "", ".bash", ".cjs", ".js", ".json", ".mjs", ".sh", ".ts", ".tsx", ".yaml", ".yml",

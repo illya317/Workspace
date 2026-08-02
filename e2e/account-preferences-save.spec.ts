@@ -46,6 +46,7 @@ test("账号设置可以从页面保存、读回并在刷新后保持", {
       await expect(page.getByRole("heading", { name: "账号信息", exact: true })).toBeVisible();
       await expect(page.getByRole("heading", { name: "个性化桌面", exact: true })).toBeVisible();
       await expect(phoneInput).toHaveCount(1);
+      await expect(phoneInput).toBeEnabled();
       await expect(phoneInput).toHaveValue(formattedPhone(before.phone));
     },
   });

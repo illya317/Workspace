@@ -60,7 +60,6 @@ export type TenantProfile = {
     permissionReview: string;
     financeImports: string;
     productNameAliases: string;
-    cnbRelease: string;
     hrEthnicities: string;
     hrProfessionalTitles: string;
     hrSchoolWhitelist: string;

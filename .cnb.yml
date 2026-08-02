@@ -1,45 +1,111 @@
 main:
-  api_trigger_rehearsal:
-    - name: rehearse-exact-image
-      services:
-        - docker
+  pull_request:
+    - name: required-ci
+      runner:
+        cpus: 16
       docker:
-        image: docker:27-cli
+        build:
+          dockerfile: ops/cnb-ci-cache.Dockerfile
+          by:
+            - .node-version
+            - package.json
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+          versionBy:
+            - .node-version
+            - package.json
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+        volumes:
+          - main:/workspace/.next/cache:copy-on-write-read-only
+          - main:/workspace/.cache/types:copy-on-write-read-only
+          - main:/workspace/.cache/tsbuild:copy-on-write-read-only
+      env:
+        CI: "true"
+        NEXTAUTH_SECRET: cnb-ci-secret-2026
+        DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
+        WORKSPACE_CONFIG_DIR: /workspace/scripts/check/fixtures/tenant-workspace
+        PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       stages:
-        - name: install-deploy-tools
-          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync skopeo
-        - name: mirror-exact-image
-          script: bash ./ops/cnb-image-release.sh prepare
-        - name: deploy-and-rollback-rehearsal
-          script: bash ./ops/cnb-image-release.sh rehearsal
+        - name: restore-dependencies
+          script: |
+            test ! -e node_modules
+            cp -a /opt/workspace-deps/node_modules ./node_modules
+            test -x node_modules/.bin/next
+            test -x node_modules/.bin/playwright
+        - name: setup-ci-services
+          script: bash ./ops/cnb-ci.sh setup
+        - name: required-ci-build-once-postgresql-e2e
+          script: bash ./ops/cnb-ci.sh required
 
-  api_trigger_deploy:
-    - name: deploy-exact-image
+  push:
+    - name: build-and-deploy-exact-image
+      runner:
+        cpus: 16
       services:
-        - docker
+        - name: docker
+          options:
+            rootlessBuildkitd:
+              enabled: true
       docker:
-        image: docker:27-cli
+        build:
+          dockerfile: ops/cnb-ci-cache.Dockerfile
+          by:
+            - .node-version
+            - package.json
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+          versionBy:
+            - .node-version
+            - package.json
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+          sync: "true"
+        volumes:
+          - main:/workspace/.next/cache:copy-on-write
+          - main:/workspace/.cache/types:copy-on-write
+          - main:/workspace/.cache/tsbuild:copy-on-write
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+      env:
+        CI: "true"
+        NEXTAUTH_SECRET: cnb-ci-secret-2026
+        DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
+        WORKSPACE_CONFIG_DIR: /workspace/scripts/check/fixtures/tenant-workspace
+        PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       stages:
-        - name: install-deploy-tools
-          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync skopeo
-        - name: mirror-exact-image
-          script: bash ./ops/cnb-image-release.sh prepare
+        - name: restore-dependencies
+          script: |
+            test ! -e node_modules
+            cp -a /opt/workspace-deps/node_modules ./node_modules
+            test -x node_modules/.bin/next
+            test -x node_modules/.bin/playwright
+        - name: setup-ci-services
+          script: bash ./ops/cnb-ci.sh setup
+        - name: required-ci-build-once-postgresql-e2e
+          script: bash ./ops/cnb-ci.sh required
+        - name: publish-cnb-image-once
+          script: bash ./ops/cnb-release.sh build
+        - name: verify-cnb-image-digest
+          script: bash ./ops/cnb-release.sh verify
+        - name: deploy-and-rollback-rehearsal
+          script: bash ./ops/cnb-release.sh rehearsal
         - name: deploy-production
-          script: bash ./ops/cnb-image-release.sh production
+          script: bash ./ops/cnb-release.sh production
 
 $:
   tag_deploy.production:
     - name: rollback-known-good-image
-      services:
-        - docker
       docker:
-        image: docker:27-cli
+        image: node:24-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       stages:
         - name: install-deploy-tools
-          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync
+          script: apt-get update && apt-get install -y --no-install-recommends ca-certificates curl openssh-client python3
         - name: rollback
           script: bash ./ops/rollback-image.sh

@@ -76,7 +76,6 @@ export const PRODUCTION_RUNTIME_SCRIPT_REGISTRATIONS = [
   "scripts/check/check-permission-action-grants.mjs",
   "scripts/check/check-prisma-deploy-status.js",
   "scripts/ci/check-migration-policy.mjs",
-  "scripts/ci/verify-artifact-manifest.mjs",
   "scripts/deploy/deploy-graph.ts",
   "scripts/deploy/deploy-navigation-manifest.ts",
   "scripts/deploy/deploy-unit-app-generator.ts",
@@ -190,7 +189,7 @@ export const SOURCE_MODULE_DECLARATIONS: SourceModuleDeclaration[] = [
     label: "生产运行",
     category: "engineering",
     ownerResourceKey: null,
-    interfacePaths: ["ops/publish.sh"],
+    interfacePaths: ["ops/cnb-ci.sh", "ops/cnb-release.sh", "ops/deploy-image.sh"],
     include: productionRuntimePaths,
   },
   {

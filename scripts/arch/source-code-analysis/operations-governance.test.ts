@@ -10,37 +10,13 @@ test("operations deployment modules have one owner and acyclic registered direct
   assert.deepEqual(result.violations, []);
 });
 
-test("release worktree and deploy helpers have one owner with explicit composition dependencies", () => {
+test("the remaining release helpers are only build identity and artifact packaging", () => {
   const policy = parseOperationsModulePolicy(JSON.parse(readFileSync(
     new URL("./operations-module-policy.json", import.meta.url), "utf8",
   )));
-  assert.deepEqual(policy.modules.find((module) => module.name === "release-deploy"), {
-    name: "release-deploy",
-    include: ["ops/release/deploy/"],
-    allowedDependencies: ["release-candidate", "release-control", "release-readiness"],
-  });
-  for (const helper of [
-    "ops/release/deploy/publish-entry-preflight.sh",
-    "ops/release/deploy/publish-cnb-preflight.sh",
-    "ops/release/deploy/unit-preflight.mjs",
-  ]) {
-    const owners = policy.modules.filter((module) => module.include.some((entry) =>
-      entry.endsWith("/") ? helper.startsWith(entry) : helper === entry));
-    assert.deepEqual(owners.map((owner) => owner.name), ["release-deploy"]);
-  }
-  assert.ok(policy.modules.find((module) => module.name === "orchestration")
-    ?.allowedDependencies.includes("release-deploy"));
-  assert.deepEqual(policy.modules.find((module) => module.name === "release-worktree"), {
-    name: "release-worktree",
-    include: ["ops/release/worktree/"],
-    allowedDependencies: [],
-  });
-  assert.deepEqual(policy.modules.find((module) => module.name === "transport")?.include, [
-    "ops/deploy/transport-preflight.sh",
-    "ops/deploy/transport.sh",
-  ]);
-  assert.deepEqual(policy.modules.find((module) => module.name === "deploy-contract-test")?.allowedDependencies, [
-    "transport",
+  assert.deepEqual(policy.modules, [
+    { name: "release-artifact", include: ["ops/release/artifact/"], allowedDependencies: [] },
+    { name: "release-candidate", include: ["ops/release/candidate/"], allowedDependencies: [] },
   ]);
 });
 

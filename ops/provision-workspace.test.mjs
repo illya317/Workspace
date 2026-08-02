@@ -23,7 +23,7 @@ test("workspace provisioning creates a schema-valid neutral tenant package", (co
   const root = path.join(parent, ".workspace");
 
   const result = provisionWorkspace(root, options());
-  assert.equal(result.written.length, 13);
+  assert.equal(result.written.length, 12);
   assert.equal(existsSync(path.join(root, ".env")), false);
   assert.equal(existsSync(path.join(root, "assets/brand/company/logo.png")), false);
   assert.equal(existsSync(path.join(root, "assets/brand/company/logo.svg")), true);
@@ -35,7 +35,7 @@ test("workspace provisioning creates a schema-valid neutral tenant package", (co
   assert.equal(companies[0].code, "EX01");
   assert.deepEqual(profile.docs.officialQcProductKeys, []);
 
-  assert.equal(result.manifest.files.length, 12);
+  assert.equal(result.manifest.files.length, 11);
   assert.ok(result.manifest.managedDirectories.includes("assets/brand/company"));
   assert.ok(result.manifest.files.some((file) => file.path.endsWith("production-qc-snapshots/audit.json")));
   assert.ok(result.manifest.files.some((file) => file.path === "assets/brand/company/logo.svg"));

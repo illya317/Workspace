@@ -45,7 +45,7 @@ function sharedReason(file: string) {
   if (/^tsconfig(?:\.[a-z0-9-]+)?\.json$/.test(file) || file === "next.config.ts") return "shared-compiler-config";
   if (file === "app/layout.tsx" || file === "app/error.tsx" || file === "app/globals.css") return "shared-next-shell";
   if (file.startsWith("public/")) return "shared-public-asset";
-  if (file.startsWith("scripts/deploy/") || file.startsWith("ops/") || file === ".github/workflows/ci.yml") {
+  if (file.startsWith("scripts/deploy/") || file.startsWith("ops/") || file === ".cnb.yml") {
     return "shared-deploy-protocol";
   }
   return null;

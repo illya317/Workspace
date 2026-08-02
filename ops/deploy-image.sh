@@ -36,7 +36,8 @@ checks = [
     value.get("image", {}).get("ref") == image_ref,
     value.get("image", {}).get("digest") == image_digest,
     value.get("image", {}).get("platform") == "linux/amd64",
-    value.get("build", {}).get("requiredCheck") == "CI / required",
+    value.get("build", {}).get("provider") == "cnb",
+    value.get("build", {}).get("requiredCheck") == "CNB / required",
     value.get("build", {}).get("requiredConclusion") == "success",
     re.fullmatch(r"[0-9a-f]{64}", value.get("source", {}).get("contentDigest", "")) is not None,
     re.fullmatch(r"[0-9a-f]{64}", value.get("artifact", {}).get("sha256", "")) is not None,
@@ -123,7 +124,10 @@ fi
 [ "$MODE" = production ] || fail "模式只能是 verify、rehearsal 或 production"
 : "${PRODUCTION_IMAGE_DEPLOY_ENABLED:?PRODUCTION_IMAGE_DEPLOY_ENABLED is required}"
 [ "$PRODUCTION_IMAGE_DEPLOY_ENABLED" = 1 ] || fail "生产镜像部署尚未在非生产演练后启用"
-for key in SERVER REMOTE_DIR REMOTE_RUNTIME_ENV_FILE REMOTE_CONTROL_ENV_FILE HEALTHCHECK_URL; do require "$key"; done
+for key in SERVER REMOTE_DIR HEALTHCHECK_URL; do require "$key"; done
+REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-$REMOTE_DIR/.workspace/runtime.env}"
+REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-$REMOTE_DIR/.workspace/control-plane.env}"
+REMOTE_LEGACY_ENV_FILE="${REMOTE_LEGACY_ENV_FILE:-$REMOTE_DIR/.workspace/.env}"
 if [ -n "${KEY:-}" ]; then
   SSH_KEY="$KEY"
 elif [ -n "${KEY_CONTENT:-}" ]; then
@@ -149,10 +153,37 @@ ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releas
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 
 ssh "${ssh_options[@]}" "$SERVER" \
-  "SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' IMAGE='$IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' PM2_NAME='${PM2_NAME:-workspace}' bash -s" <<'REMOTE'
+  "SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' IMAGE='$IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' bash -s" <<'REMOTE'
 set -euo pipefail
 exec 9>"$REMOTE_DIR/.workspace/image-deploy.lock"
 flock -n 9 || { echo '[错误] 另一镜像部署正在运行' >&2; exit 1; }
+
+if [ ! -s "$REMOTE_RUNTIME_ENV_FILE" ] || [ ! -s "$REMOTE_CONTROL_ENV_FILE" ]; then
+  [ -s "$REMOTE_LEGACY_ENV_FILE" ] || { echo '[错误] 缺少生产 env 文件' >&2; exit 1; }
+  umask 077
+  runtime_tmp="${REMOTE_RUNTIME_ENV_FILE}.tmp.$$"
+  control_tmp="${REMOTE_CONTROL_ENV_FILE}.tmp.$$"
+  awk -F= '
+    /^[[:space:]]*#/ || /^[[:space:]]*$/ { print; next }
+    {
+      key=$1; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+      if (key !~ /^(DIRECT_URL|SHADOW_DATABASE_URL|WORKSPACE_BACKUP_DATABASE_URL|WORKSPACE_MONITOR_DATABASE_URL)$/) print
+    }
+  ' "$REMOTE_LEGACY_ENV_FILE" > "$runtime_tmp"
+  awk -F= '
+    /^[[:space:]]*#/ || /^[[:space:]]*$/ { next }
+    {
+      key=$1; gsub(/^[[:space:]]+|[[:space:]]+$/, "", key)
+      if (key ~ /^(DATABASE_URL|DIRECT_URL|WORKSPACE_BACKUP_DATABASE_URL|WORKSPACE_MONITOR_DATABASE_URL|PG[A-Z0-9_]*)$/) print
+    }
+  ' "$REMOTE_LEGACY_ENV_FILE" > "$control_tmp"
+  grep -q '^DATABASE_URL=' "$runtime_tmp" || { echo '[错误] runtime.env 缺少 DATABASE_URL' >&2; exit 1; }
+  grep -q '^DIRECT_URL=' "$control_tmp" || { echo '[错误] control-plane.env 缺少 DIRECT_URL' >&2; exit 1; }
+  mv "$runtime_tmp" "$REMOTE_RUNTIME_ENV_FILE"
+  mv "$control_tmp" "$REMOTE_CONTROL_ENV_FILE"
+  chmod 600 "$REMOTE_RUNTIME_ENV_FILE" "$REMOTE_CONTROL_ENV_FILE"
+fi
+
 docker --config "$REMOTE_DIR/.workspace/docker-auth" pull "$IMAGE"
 [ "$(docker image inspect "$IMAGE" --format '{{.Architecture}}')" = amd64 ]
 set -a
@@ -180,18 +211,20 @@ for _ in $(seq 1 30); do
 done
 [ "$candidate_ok" = 1 ] || { docker logs "$candidate" --tail 100 >&2; exit 1; }
 previous_container=""
+legacy_pm2_running=0
 if docker inspect workspace >/dev/null 2>&1; then
   previous_container="workspace-rollback-$stamp"
   docker stop workspace >/dev/null
   docker rename workspace "$previous_container"
-elif command -v pm2 >/dev/null 2>&1; then
-  pm2 stop "$PM2_NAME" >/dev/null 2>&1 || true
+elif command -v pm2 >/dev/null 2>&1 && [ "$(pm2 pid "$LEGACY_PM2_NAME" 2>/dev/null || true)" != 0 ]; then
+  pm2 stop "$LEGACY_PM2_NAME" >/dev/null
+  legacy_pm2_running=1
 fi
 docker rm -f "$candidate" >/dev/null
 rollback() {
   docker rm -f workspace >/dev/null 2>&1 || true
   if [ -n "$previous_container" ]; then docker rename "$previous_container" workspace; docker start workspace >/dev/null; fi
-  if command -v pm2 >/dev/null 2>&1; then pm2 restart "$PM2_NAME" >/dev/null 2>&1 || true; fi
+  if [ "$legacy_pm2_running" = 1 ]; then pm2 restart "$LEGACY_PM2_NAME" >/dev/null 2>&1 || true; fi
 }
 trap rollback ERR
 docker run -d --name workspace --restart unless-stopped --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \

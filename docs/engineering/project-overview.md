@@ -216,10 +216,9 @@ Company-specific facts such as identity, company names/codes, management systems
 | Inspect one derived unit contract | `npm run deploy:unit:contract -- --unit <id>` |
 | Validate all generated Next app mirrors | `npm run deploy:apps:check` |
 | Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
-| Full local CI authority | `npm run check:ci` |
-| Aggregate source checks, build and rehearse exact artifact, then sign Ready | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh ci` |
-| Deploy only the current Ready Artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` |
-| Inspect the current Ready Artifact | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh status` |
+| CNB required CI executor | `npm run check:ci`（由 `ops/cnb-ci.sh` 调用） |
+| Package and publish the exact standalone image | `ops/cnb-release.sh build`（仅 CNB `main push`） |
+| Verify/rehearse/deploy the same digest | `ops/cnb-release.sh verify|rehearsal|production`（仅 CNB Pipeline） |
 | Strict historical debt patrol | `npm run check:hygiene` |
 | Non-blocking hygiene signal | `npm run check:hygiene:warn` |
 

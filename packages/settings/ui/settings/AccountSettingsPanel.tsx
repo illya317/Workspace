@@ -45,6 +45,7 @@ export default function AccountSettingsPanel({
   const [alias, setAlias] = useState("");
   const [phone, setPhone] = useState("");
   const [profileBaseline, setProfileBaseline] = useState<AccountProfileForm>(() => accountProfileFromUser(user));
+  const [profileLoaded, setProfileLoaded] = useState(false);
   const [profileSaving, setProfileSaving] = useState(false);
   const [portalSlots, setPortalSlots] = useState<PortalSlot[]>(() => defaultSlotsForUser(user));
   const [portalSlotsSaving, setPortalSlotsSaving] = useState(false);
@@ -80,6 +81,7 @@ export default function AccountSettingsPanel({
         setAlias(profile.alias);
         setPhone(profile.phone);
         setProfileBaseline(profile);
+        setProfileLoaded(true);
       })
       .catch((error) => {
         if (cancelled) return;
@@ -105,6 +107,7 @@ export default function AccountSettingsPanel({
     };
   }, [feedback]);
   async function saveProfile(patch: Partial<AccountProfileForm> = {}) {
+    if (!profileLoaded) return;
     const nextProfile = normalizeAccountProfile({
       username,
       alias,
@@ -287,7 +290,7 @@ export default function AccountSettingsPanel({
     {
       key: "username",
       label: "用户名",
-      spec: { valueType: "string", control: "text", state: profileSaving ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: profileSaving || !profileLoaded ? "disabled" : "normal" },
       value: username,
       onChange: (value: unknown) => setUsername(String(value ?? "")),
       onKeyDown: handleProfileKeyDown,
@@ -303,7 +306,7 @@ export default function AccountSettingsPanel({
       getLabel: (tag) => tag,
       onRemove: (_, index) => updateAliasTags(aliasTags.filter((__, tagIndex) => tagIndex !== index)),
       onUpdateLabel: (_, index, next) => updateAliasTags(aliasTags.map((tag, tagIndex) => tagIndex === index ? next : tag)),
-      disabled: profileSaving,
+      disabled: profileSaving || !profileLoaded,
       shellClassName: "content-start",
       append: {
         textInput: {
@@ -319,7 +322,7 @@ export default function AccountSettingsPanel({
     {
       key: "phone",
       label: "电话",
-      spec: { valueType: "string", control: "text", state: profileSaving ? "disabled" : "normal" },
+      spec: { valueType: "string", control: "text", state: profileSaving || !profileLoaded ? "disabled" : "normal" },
       value: formatAccountPhoneInput(phone),
       inputMode: "tel",
       maxLength: 13,

@@ -66,12 +66,8 @@ test("domain Agent Harness files and private Agent RPC routes cannot return", ()
 });
 
 test("deployment no longer provisions an Agent source checkout", () => {
-  const deploy = [
-    source("ops/deploy.sh"),
-    source("ops/deploy/runtime-supply.sh"),
-    source("ops/deploy/runtime-safety.sh"),
-  ].join("\n");
+  const deploy = source("ops/deploy-image.sh");
   assert.doesNotMatch(deploy, /sync_remote_agent_source|source\.agent|REMOTE_AGENT_SOURCE_DIR/);
-  assert.match(deploy, /AGENT_SOURCE_WORKTREE/);
-  assert.match(deploy, /obsolete_agent_keys/);
+  assert.doesNotMatch(deploy, /git (?:clone|checkout|fetch)|npm (?:ci|install)|next build/);
+  assert.match(deploy, /docker .*pull/);
 });

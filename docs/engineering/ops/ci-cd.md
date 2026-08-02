@@ -1,154 +1,115 @@
 # Workspace CI/CD
 
-## 责任边界
+## 唯一链路
 
 ```text
-Mac formal repository -> GitHub required CI -> one linux/amd64 OCI image
-                    -> GHCR digest + release.json
-                    -> CNB api_trigger -> CNB Registry same digest
-                    -> migration/backup/cutover/health/receipt/rollback
+Mac/remote debug -> Mac commit -> CNB source repository
+                                  -> required CI + one Next build
+                                  -> one linux/amd64 OCI image
+                                  -> CNB Registry immutable digest
+                                  -> rehearsal
+                                  -> backup/migration/cutover/health/receipt
 ```
 
-- Mac `/Users/koito/Project/workspace/workspace` 是正式代码真源，只负责复核、提交和 push。
-- `workspace-dev` 只做远端调试，不保存 provider push 凭据。
-- GitHub 是唯一源码平台、CI 与应用构建平台。
-- CNB 是中国侧 Registry、CD、回滚与审计平台，不执行应用源码 CI 或构建。
-- 生产服务器不连接或 checkout GitHub，不现场安装依赖、不编译、不构建镜像。
+- CNB 是唯一源码、CI、应用构建、Registry、CD、回滚和审计平台。
+- Mac 只复核、提交并推送源码，不中转制品、不连接生产部署。
+- `workspace-dev` 只做调试，不保存 provider push 凭据。
+- 生产服务器不 checkout 源码、不运行 `npm ci`、不测试、不编译、不构建镜像。
+- GitHub workflow、GHCR、跨 Registry mirror、provider adapter 和本地发布控制面均不存在。
 
-## GitHub required CI
+## CNB required CI
 
-`.github/workflows/ci.yml` 的质量线为：
+`.cnb.yml` 为 `main` 的 PR 和 push 使用同一个 `ops/cnb-ci.sh` interface：
 
-1. `CI / changed`：base/head 影响检查。
-2. `CI / node`：Node tests。
-3. `CI / type`：完整 project-reference typecheck。
-4. `CI / PostgreSQL`：migration、约束与真实 PostgreSQL integration。
-5. `CI / build once`：只编译一次 Next standalone，并组装 portable runtime artifact。
-6. `CI / E2E exact build`：下载并启动第 5 步的 exact build，不允许重建。
-7. `CI / required`：聚合以上结果；任一非 success 即失败。
+1. `ops/cnb-ci-cache.Dockerfile` 只随 `.node-version`、package manifests 或 Dockerfile 变化而重建；镜像内一次性安装 Node 依赖和 Chromium。
+2. Pipeline 把 `/opt/workspace-deps/node_modules` 复制到 checkout；`ops/cnb-ci.sh` 不再运行 `npm ci` 或下载浏览器。
+3. `npm run check:ci` 聚合 static、Node、完整 type 与唯一 Next production build；独立源码失败同轮汇总。
+4. `STANDALONE_SKIP_NEXT_BUILD=1` 把该 exact build 打包为 `workspace-standalone.tgz`，不重新编译。
+5. 在 disposable `*_ci` PostgreSQL 上运行 migration、seed 和 integration。
+6. Playwright 只启动该 exact standalone archive 并完成页面保存闭环。
 
-PR/Fork 只运行质量线，不获得 package write 或 CNB trigger 权限。只有受保护 `main` push 才运行 `Image / publish exact digest`。
+PR 到此结束，不导入生产环境、不构建镜像、不部署。
 
 ## 唯一应用镜像
 
-`Image / publish exact digest` 下载 `CI / build once` 的 portable runtime，使用 `ops/image.Dockerfile` 包装为唯一的 `linux/amd64` 应用镜像。Dockerfile 不运行 `npm ci`、Next build 或任何测试。
+只有受保护 `main push` 在 required CI 成功后运行 `ops/cnb-release.sh build`：
 
-镜像推送到：
+1. 校验 checkout `HEAD == CNB_COMMIT`，取得 Git tree 与 content digest。
+2. 解包已经通过 E2E 的 standalone。
+3. `ops/image.Dockerfile` 只复制 runtime 与 release evidence；禁止依赖安装、测试或 Next build。
+4. 只执行一次 `docker buildx build --platform linux/amd64 --push`，并以 CNB Registry 中独立的 `-buildcache:main` 镜像读写 BuildKit cache。
+5. 镜像写入 `${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:sha-<full-sha>`。
+6. tag 只用于检索；演练和生产必须使用 `${IMAGE_REF}@${IMAGE_DIGEST}`。
 
-```text
-ghcr.io/<owner>/<repository>:sha-<full-sha>
-```
+`release.json` 至少绑定：
 
-部署不能使用该 tag；tag 只便于检索。批准身份必须是：
-
-```text
-ghcr.io/<owner>/<repository>@sha256:<digest>
-```
-
-GitHub 随后生成 `release.json`，至少绑定：
-
-- commit SHA 与 Git tree；
-- repository content digest；
-- `linux/amd64` GHCR image ref/digest；
+- Git commit SHA、Git tree 与 repository content digest；
 - standalone artifact/manifest digest；
 - migration head 与 migration-set digest；
-- GitHub Run ID、attempt、`CI / required=success` 与 build timestamp；
+- CNB Build ID、event、build timestamp；
+- `linux/amd64` CNB Registry image ref/digest；
 - `releaseDigest` 自校验摘要。
 
-动态 `release.json` 以一个只含该文件的 OCI metadata artifact 发布。它不是第二个应用 build，也不能替代应用镜像；`RELEASE_MANIFEST_URL` 始终带 metadata artifact digest。
+## 演练与生产
 
-## GitHub -> CNB
-
-GitHub 只保存最小权限 `CNB_TRIGGER_TOKEN`。仓库变量：
-
-- `CNB_REPOSITORY`：默认 `illya317/Workspace`；
-- `CNB_RELEASE_EVENT`：迁移期设为 `api_trigger_rehearsal`，演练通过后才改为 `api_trigger_deploy`。
-
-调用 CNB OpenAPI 时传递：
+同一 `main push` Pipeline 内依次运行：
 
 ```text
-SOURCE_SHA
-SOURCE_TREE
-IMAGE_REF
-IMAGE_DIGEST
-RELEASE_MANIFEST_URL
-GITHUB_RUN_ID
+cnb-release.sh verify
+  -> cnb-release.sh rehearsal
+  -> cnb-release.sh production
 ```
 
-CNB checkout 只承载受保护的部署控制代码，不是应用源码；应用身份只能来自 GitHub `release.json`。缺字段、SHA/tree/digest 格式错误、`releaseDigest` 不一致或 manifest 参数漂移全部 fail closed。
+`verify` 按 digest 拉取镜像，校验 release/SHA/tree/digest/platform。
 
-## CNB Registry 镜像
+`rehearsal` 使用 disposable PostgreSQL 和租户 fixture：执行 migration，启动 exact image，检查 `/workspace/api/internal/health` 与 `/workspace/api/settings/version.imageDigest`，停止后再启动同一 digest 证明回滚启动路径。任何一步失败都不会进入生产 stage。
 
-`ops/cnb-image-release.sh prepare`：
+`production` 必须同时满足：
 
-1. 按 digest 拉取 OCI metadata artifact 并读取 `release.json`。
-2. 按 digest 拉取唯一 GHCR 应用镜像。
-3. 运行 `ops/deploy-image.sh verify` 校验 release/SHA/tree/digest/platform。
-4. 将同一 image manifest 推送到 `${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:sha-${SOURCE_SHA}`。
-5. 校验 push 返回的 CNB digest 必须逐字等于 GHCR digest，并按 digest 回拉验证。
+- `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
+- `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
+- 私有 CNB env import 提供 SSH、目标路径、health 和生产数据库/运行配置位置；
+- 生产镜像 ref/digest 与 `release.json` 完全一致。
 
-CNB 禁止运行：
+生产顺序固定为：
 
-- `npm ci`、lint、typecheck、Node/PostgreSQL/E2E；
-- Next build；
-- 第二次 Docker application build；
-- 可变 tag 部署。
-
-## 演练门禁
-
-首次生产启用前必须成功运行 `api_trigger_rehearsal`：
-
-1. GHCR digest 拉取；
-2. CNB Registry 同 digest 镜像；
-3. disposable PostgreSQL migration；
-4. exact image 非生产启动；
-5. health 与 `/api/settings/version.imageDigest` 复验；
-6. 容器停止与上一 digest 启动路径演练。
-
-`PRODUCTION_IMAGE_DEPLOY_ENABLED` 缺失或不为 `1` 时，`ops/deploy-image.sh production` 必须拒绝。演练证据确认后才允许在 CNB 私有环境启用并把 GitHub 的 `CNB_RELEASE_EVENT` 切为 `api_trigger_deploy`。
-
-## 生产部署
-
-CNB 私有环境保存 GHCR read-only robot、生产 SSH/数据库和 CNB Registry 凭据。凭据不得进入仓库、日志、patch、截图或命令参数输出。
-
-生产只消费 `${CNB_IMAGE_REF}@${IMAGE_DIGEST}`，顺序为：
-
-1. 获取部署锁；
-2. 拉取并复验 `linux/amd64` digest；
-3. PostgreSQL `pg_dump`、`pg_restore --list` 与 checksum；
-4. 使用镜像内已冻结 Prisma schema/migrations 执行 migration；
+1. 获取排他部署锁；
+2. 按 digest 拉取并复验 `linux/amd64` 镜像；
+3. 生成并验证 custom-format PostgreSQL backup 与 checksum；
+4. 使用镜像内冻结的 Prisma schema/migrations 执行 `migrate deploy`；
 5. 启动隔离 candidate 并检查 health；
-6. 切换正式容器；失败则恢复上一容器/既有运行态；
-7. 检查公网 health 与 version 的 `imageDigest`；
-8. 原子写入 `deployed-image.json`，保存 current/previous digest 与 source identity；
+6. 切换正式容器，失败时恢复上一容器或首次切换前的旧 PM2 进程；
+7. 验证公网 health 与线上 `imageDigest`；
+8. 原子写入 `deployed-image.json`，记录 current/previous digest 与 source identity；
 9. 清除临时 Registry 登录材料。
 
-生产路径不能 checkout 源码、安装应用依赖或构建。
+旧组合 `.env` 仅用于首次过渡：部署脚本在服务器本地生成权限为 `0600` 的 `runtime.env` 和 `control-plane.env`。runtime 文件排除 migration/backup 凭据；control 文件只保留数据库控制项。凭据不进入仓库、日志、patch 或命令输出。
 
 ## 回滚
 
-`.cnb/tag_deploy.yml` 的 production 环境要求 owner/master 权限和人工审批。`ops/rollback-image.sh` 只读取 `deployed-image.json.previous.imageDigest`，拒绝任意可变 tag；它复用同一部署入口和安全门禁。数据库 migration 只允许向前兼容，应用回滚不会自动执行 down migration。
+`.cnb/tag_deploy.yml` 的 production 环境只允许 owner/master 并要求审批。`ops/rollback-image.sh` 只读取 `deployed-image.json.previous.imageDigest` 和对应 release manifest，再复用同一部署入口。它拒绝任意可变 tag；数据库 migration 只允许向前兼容，应用回滚不自动执行 down migration。
+
+## 删除边界
+
+正式源码不再包含：
+
+- GitHub Actions、GHCR、CNB trigger token 或 provider 间 mirror；
+- `ops/publish.sh`、本地 push/promotion/deploy 包装器；
+- Ready/controller、blocker ledger、retry fence、Profile/Fleet、单 unit 发布器；
+- 本地 CI receipt、production bootstrap receipt、跨 job result adapter；
+- 生产源码 checkout、现场依赖安装或现场构建。
+
+保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
+
+缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。PR 只读 main 的 `.next/cache` 与 TypeScript 机会缓存；main 成功后才回写。缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
 
 ## Agent 闭环
 
-Agent 在每次 CI/CD 任务中必须：
+Agent 每次发布必须：
 
-1. 开工查询 Mac、GitHub、CNB 与远端健康基线。
+1. 开工查询 Mac、CNB 和远端 health/version 基线。
 2. push 前运行受影响快速检查。
-3. push 后跟踪 exact SHA 的 GitHub required lanes 与 image job。
-4. 记录 GHCR digest、release manifest digest、CNB Build ID 与 Registry mirror digest。
-5. 若进入部署，持续跟踪 migration/backup/cutover/health/receipt/rollback 阶段。
-6. 交付前重新读取 GitHub/CNB 状态，并只读验证生产 health 与线上 digest。
-
-Agent 不能要求用户去 GitHub/CNB 查询后再转述。
-
-## 旧控制面的收口
-
-`ops/publish.sh`、CNB injection、Application Ready/Controller Ready、blocker ledger、retry fence 和跨渠道 build adapter 属于旧 artifact/PM2 发布控制面。新 GitHub/CNB 流程不得调用它们。它们只在镜像非生产演练与生产切换完成前保留为兼容/回滚依据；删除必须在以下证据齐备后进行：
-
-- 至少一次 CNB rehearsal 成功；
-- 一次受控 production image cutover 成功；
-- 一次 previous-digest rollback drill 成功；
-- 新 `deployed-image.json` 与旧生产回执完成归档。
-
-未满足这些条件前直接删除旧生产恢复代码会降低可恢复性，因此禁止把“代码行减少”置于可回滚性之前。
+3. push 后跟踪 exact SHA 的 CNB Build ID、required CI、image digest、rehearsal 与 production stages。
+4. 构建后核对 SHA、tree、content、artifact、release 和 image digest。
+5. 部署后核对公网 health、线上 image digest 与 `deployed-image.json`。
+6. 交付前重新刷新 CNB 与线上状态；不能要求用户代查。

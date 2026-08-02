@@ -27,16 +27,15 @@ WORKSPACE_CONFIG_DIR/
 ```bash
 # 提前上传；agent 会完成本地校验、上传、远端复验和回执写入
 OPS_ENV_FILE=/path/to/private/.env \
-  ops/publish.sh data upload --id <release-id>
+  ops/upload-data-release.sh upload --id <release-id>
 
 # 查看或再次复验已上传版本
 OPS_ENV_FILE=/path/to/private/.env \
-  ops/publish.sh data status --id <release-id>
+  ops/upload-data-release.sh status --id <release-id>
 OPS_ENV_FILE=/path/to/private/.env \
-  ops/publish.sh data verify --id <release-id>
+  ops/upload-data-release.sh verify --id <release-id>
 
-# 代码部署是另一条命令，不接受数据批次参数
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
+# 代码部署由 CNB 镜像链自动执行，不接受数据批次参数
 ```
 
 ## 执行边界
@@ -59,18 +58,6 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 - 租户配置：放 `WORKSPACE_CONFIG_DIR/config/**`，由租户配置清单单独同步。
 - 业务源文件和一次性数据：放上述私有数据发布目录，只由独立数据命令管理。
 
-## 生产 apply 的唯一入口
+## 生产 apply
 
-生产数据写入必须使用：
-
-```bash
-OPS_ENV_FILE=/path/to/private/ops.env ./ops/publish.sh data apply \
-  --id 2026-08-02-finance-june-close-v1 \
-  --source-sha <当前已部署完整 Git SHA>
-```
-
-禁止直接从开发 worktree 连接生产库，也禁止手工执行 artifact 内的 `apply-data-release.mjs`。该入口会在写库前一次汇总校验固定 upload receipt/payload digest、当前不可变 artifact、部署 commit、私有文件 owner/0600、生产 OS 身份、systemd `runtime.env`、数据库 URL 以及 health/version 基线；任何一项失败都不会写库。
-
-前置检查全部通过后，入口先生成并验证 custom-format PostgreSQL dump，再以私有文件 owner `ubuntu` 运行 handler，同时由 systemd 读取受保护的 `runtime.env`。完成后必须恢复受治理 runtime ACL，并复验公网使用的 monolith health、version 和 content digest。完整输出保存在 gitignored 的 `.cache/data-release-attempts/`。
-
-私有审批文件的安全契约是普通文件、owner 与执行用户相同、权限严格 `0600`。不得为数据 handler 递归添加 runtime ACL；ACL 会改变 POSIX group mask 并使审批 gate 正确失败。共享生产 ACL 只能由安装在 `runtime/deploy-tools/reconcile-runtime-config-permissions.sh` 的受治理 reconciler 修改。
+应用镜像 CD 不提供数据批次 apply 入口，也不得借部署顺带写业务数据。仓库只保留通用 handler、离线校验和不可变上传/复验；生产 apply 需要独立的 digest-bound 数据变更流程，至少具备人工审批、固定 payload、当前线上 image digest、数据库备份、事务执行、结果断言和回执。禁止从开发 worktree 直连生产库，也禁止手工执行镜像内的 `apply-data-release.mjs`。

@@ -3,7 +3,6 @@
 import {
   existsSync,
   mkdirSync,
-  readFileSync,
   rmSync,
   writeFileSync,
 } from "node:fs";
@@ -24,7 +23,6 @@ const OUTPUT_PATHS = Object.freeze([
   "config/tenant/permission-review.json",
   "config/tenant/finance-imports.json",
   "config/tenant/product-name-aliases.json",
-  "config/tenant/cnb-release.yml",
   "config/hr/ethnicities.json",
   "config/hr/professional-titles.json",
   "config/hr/school-whitelist.json",
@@ -137,7 +135,6 @@ function buildTenantFiles(options) {
       permissionReview: "config/tenant/permission-review.json",
       financeImports: "config/tenant/finance-imports.json",
       productNameAliases: "config/tenant/product-name-aliases.json",
-      cnbRelease: "config/tenant/cnb-release.yml",
       hrEthnicities: "config/hr/ethnicities.json",
       hrProfessionalTitles: "config/hr/professional-titles.json",
       hrSchoolWhitelist: "config/hr/school-whitelist.json",
@@ -303,7 +300,6 @@ function buildTenantFiles(options) {
     })],
     ["assets/brand/company/logo.svg", companyLogoSvg(companyName)],
   ]);
-  files.set("config/tenant/cnb-release.yml", readFileSync(path.join(REPOSITORY_ROOT, "ops/cnb-release.yml"), "utf8"));
   return { tenantKey, companyCode, companyName, files };
 }
 

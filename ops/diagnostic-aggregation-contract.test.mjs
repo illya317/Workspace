@@ -9,7 +9,6 @@ const repository = process.cwd();
 const scripts = [
   "ops/postgresql/dev/verify.sh",
   "ops/postgresql/pitr-check.sh",
-  "ops/verify-cnb-builder.sh",
 ];
 
 function executable(file, body) {
@@ -77,24 +76,4 @@ esac
   assert.match(output, /no approved off-host repository check is configured/);
   assert.match(output, /archive_mode is off/);
   assert.match(output, /archive_command is empty or disabled/);
-});
-
-test("CNB Builder verification reports version, tool, and platform defects together", (context) => {
-  const root = mkdtempSync(path.join(os.tmpdir(), "workspace-builder-diagnostics-"));
-  context.after(() => rmSync(root, { recursive: true, force: true }));
-  executable(path.join(root, "dirname"), "#!/bin/sh\nexec /usr/bin/dirname \"$@\"\n");
-  executable(path.join(root, "tr"), "#!/bin/sh\nexec /usr/bin/tr \"$@\"\n");
-  executable(path.join(root, "node"), "#!/bin/sh\nprintf '99\\n'\n");
-  executable(path.join(root, "uname"), "#!/bin/sh\nprintf 'Darwin\\n'\n");
-  for (const command of ["npm", "ssh", "rsync", "git", "tar", "python3", "make", "g++", "pg_ctlcluster", "createdb", "runuser"]) {
-    executable(path.join(root, command), "#!/bin/sh\nexit 0\n");
-  }
-
-  const result = run("ops/verify-cnb-builder.sh", { PATH: root });
-  const output = `${result.stdout}${result.stderr}`;
-  assert.equal(result.status, 1, output);
-  assert.match(output, /Node 主版本不匹配/);
-  assert.match(output, /缺少命令：rg/);
-  assert.match(output, /缺少命令：psql/);
-  assert.match(output, /必须运行在 Linux，当前为 Darwin/);
 });

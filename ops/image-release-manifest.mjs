@@ -55,10 +55,10 @@ export function normalizeImageRelease(value) {
     || !HEX_DIGEST.test(value.migration?.setSha256 ?? "") || typeof value.migration?.head !== "string") {
     fail("release artifact or migration identity is invalid");
   }
-  if (value.build?.provider !== "github-actions" || value.build?.requiredCheck !== "CI / required"
-    || value.build?.requiredConclusion !== "success" || !/^\d+$/.test(String(value.build?.runId ?? ""))
-    || !/^\d+$/.test(String(value.build?.runAttempt ?? "")) || !Number.isFinite(Date.parse(value.build?.createdAt ?? ""))) {
-    fail("release GitHub build identity is invalid");
+  if (value.build?.provider !== "cnb" || value.build?.requiredCheck !== "CNB / required"
+    || value.build?.requiredConclusion !== "success" || !/^[A-Za-z0-9._:-]{1,128}$/.test(String(value.build?.runId ?? ""))
+    || !/^(push|tag_push)$/.test(String(value.build?.event ?? "")) || !Number.isFinite(Date.parse(value.build?.createdAt ?? ""))) {
+    fail("release CNB build identity is invalid");
   }
   const { releaseDigest, ...unsigned } = value;
   if (!HEX_DIGEST.test(releaseDigest ?? "") || releaseDigest !== sha256(JSON.stringify(canonical(unsigned)))) {
@@ -100,11 +100,11 @@ export function createImageRelease(options) {
       setSha256: artifactManifest.inputs.migrationSetSha256,
     },
     build: {
-      provider: "github-actions",
-      requiredCheck: "CI / required",
+      provider: "cnb",
+      requiredCheck: "CNB / required",
       requiredConclusion: "success",
-      runId: requireValue(options, "github_run_id"),
-      runAttempt: requireValue(options, "github_run_attempt"),
+      runId: requireValue(options, "cnb_build_id"),
+      event: requireValue(options, "cnb_event"),
       createdAt: artifactManifest.build?.createdAt ?? new Date().toISOString(),
     },
   };

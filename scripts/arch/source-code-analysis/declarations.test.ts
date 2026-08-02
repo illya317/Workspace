@@ -11,14 +11,14 @@ function declaredModuleKeys(relativePath: string) {
 }
 
 test("production runtime owns ops and release/runtime script source", () => {
-  assert.deepEqual(declaredModuleKeys("ops/publish.sh"), ["operations"]);
-  assert.deepEqual(declaredModuleKeys("ops/deploy-profile-release.test.mjs"), ["operations"]);
+  assert.deepEqual(declaredModuleKeys("ops/cnb-ci.sh"), ["operations"]);
+  assert.deepEqual(declaredModuleKeys("ops/cnb-release.sh"), ["operations"]);
+  assert.deepEqual(declaredModuleKeys("ops/deploy-image.sh"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/runtime/wecom-agent-bot.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/migrate/sqlite-to-postgresql.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/import/import-product-master.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/repair/repair-finance-consolidation-entry.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/check/check-prisma-deploy-status.js"), ["operations"]);
-  assert.deepEqual(declaredModuleKeys("scripts/ci/verify-artifact-manifest.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-unit-app-generator.ts"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-graph.ts"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/testing/module-impact-map.ts"), ["operations"]);

@@ -2,104 +2,14 @@
   "schemaVersion": 1,
   "modules": [
     {
-      "name": "release-attempts",
-      "include": ["ops/release/attempts/"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "deploy-contract-test",
-      "include": ["ops/deploy/source-contract.mjs"],
-      "allowedDependencies": ["transport"]
-    },
-    {
       "name": "release-artifact",
       "include": ["ops/release/artifact/"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "release-contracts",
-      "include": ["ops/release/contracts/"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "release-control",
-      "include": ["ops/release/control/"],
       "allowedDependencies": []
     },
     {
       "name": "release-candidate",
       "include": ["ops/release/candidate/"],
       "allowedDependencies": []
-    },
-    {
-      "name": "release-diagnostics",
-      "include": ["ops/release/diagnostics/"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "release-deploy",
-      "include": ["ops/release/deploy/"],
-      "allowedDependencies": ["release-candidate", "release-control", "release-readiness"]
-    },
-    {
-      "name": "release-validation",
-      "include": ["ops/release/validation/"],
-      "allowedDependencies": ["release-candidate", "release-contracts", "release-diagnostics"]
-    },
-    {
-      "name": "release-readiness",
-      "include": ["ops/release/readiness/"],
-      "allowedDependencies": ["release-artifact", "release-candidate", "release-contracts", "release-validation"]
-    },
-    {
-      "name": "release-worktree",
-      "include": ["ops/release/worktree/"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "release-cli",
-      "include": ["ops/release-gate-receipt.mjs"],
-      "allowedDependencies": ["release-contracts"]
-    },
-    {
-      "name": "transport",
-      "include": ["ops/deploy/transport-preflight.sh", "ops/deploy/transport.sh"],
-      "allowedDependencies": []
-    },
-    {
-      "name": "state",
-      "include": ["ops/deploy/state.sh"],
-      "allowedDependencies": ["transport"]
-    },
-    {
-      "name": "artifact",
-      "include": ["ops/deploy/artifact.sh"],
-      "allowedDependencies": ["transport"]
-    },
-    {
-      "name": "runtime-supply",
-      "include": ["ops/deploy/runtime-supply.sh"],
-      "allowedDependencies": ["transport"]
-    },
-    {
-      "name": "runtime-safety",
-      "include": ["ops/deploy/runtime-safety.sh"],
-      "allowedDependencies": ["state", "transport"]
-    },
-    {
-      "name": "atomic-cutover",
-      "include": ["ops/deploy/atomic-cutover.sh"],
-      "allowedDependencies": ["artifact", "runtime-safety", "state", "transport"]
-    },
-    {
-      "name": "health",
-      "include": ["ops/deploy/health.sh"],
-      "allowedDependencies": ["transport"]
-    },
-    {
-      "name": "orchestration",
-      "include": ["ops/deploy.sh"],
-      "allowedDependencies": ["artifact", "atomic-cutover", "health", "release-deploy", "runtime-safety", "runtime-supply", "state", "transport"]
     }
   ]
 }

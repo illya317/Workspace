@@ -65,7 +65,7 @@ Ubuntu 24.04 默认用 AppArmor 限制未授权进程创建 user namespace。安
 
 ## 部署与回滚
 
-`ops/deploy.sh` 默认保留并校验 Kimi primary runtime，同时从服务器 `.env` 删除已废弃的 `AGENT_MODEL_PROVIDER`、`KIMI_*` API 直连项和旧 `DEEPSEEK_*`。Pi DeepSeek fallback 使用独立的 `PI_DEEPSEEK_API_KEY`，不会被旧配置清理逻辑删除；Kimi API Key 仍由专用 CLI 配置持有，不放回应用环境。首次迁移会先把旧值移到不加载、权限为 `0600` 的 `$WORKSPACE_CONFIG_DIR/retired/agent-provider.env`，随后随运行态备份保留；standalone 产物显式携带两个 runtime 的依赖树。
+Kimi primary runtime 与 Pi DeepSeek fallback 的依赖树由 standalone 镜像携带；运行凭据由服务器受保护环境注入。Pi 使用独立的 `PI_DEEPSEEK_API_KEY`，Kimi API Key 仍由专用 CLI 配置持有，不写入镜像或仓库。
 
 回滚只能回滚到同时包含旧代码和从 retired 文件人工恢复的旧 provider 配置的完整 release；不能让新代码读取旧密钥。若 Kimi runtime 未登录、版本漂移或 sandbox 不可用，且已配置 `PI_DEEPSEEK_API_KEY`，新的纯文本 turn 会在上述安全边界内回退到 Pi；未配置 fallback、图片 turn 或已经开始输出/执行的 turn 仍失败关闭。不得绕过 Bubblewrap 直接指向真实 `kimi`。
 
