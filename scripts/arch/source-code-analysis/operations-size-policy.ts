@@ -1,5 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const POLICY_PATH = "scripts/arch/source-code-analysis/operations-size-policy.json";
 const SOURCE_EXTENSIONS = new Set([".cjs", ".js", ".mjs", ".py", ".sh", ".ts"]);
@@ -67,7 +68,8 @@ export async function analyzeOperationsSize(repositoryRoot: string, policyValue?
     path.join(repositoryRoot, POLICY_PATH), "utf8",
   )) as unknown);
   const violations: OperationsSizeViolation[] = [];
-  for (const file of await sourceFiles(repositoryRoot)) {
+  const files = await sourceFiles(repositoryRoot);
+  for (const file of files) {
     const lines = physicalLines(await fs.readFile(path.join(repositoryRoot, file), "utf8"));
     const limit = policy.legacyCaps[file] ?? policy.defaultMaxLines;
     if (lines <= limit) continue;
@@ -78,5 +80,22 @@ export async function analyzeOperationsSize(repositoryRoot: string, policyValue?
       kind: Object.hasOwn(policy.legacyCaps, file) ? "legacy-growth" : "new-oversized-file",
     });
   }
-  return { policy, violations };
+  return { policy, checkedFiles: files.length, violations };
+}
+
+async function main(argv = process.argv.slice(2)) {
+  if (argv.length !== 2 || argv[0] !== "--repository" || !argv[1]) {
+    throw new Error("usage: operations-size-policy.ts --repository ROOT");
+  }
+  const repositoryRoot = path.resolve(argv[1]);
+  const result = await analyzeOperationsSize(repositoryRoot);
+  process.stdout.write(`${JSON.stringify(result)}\n`);
+  if (result.violations.length > 0) process.exitCode = 1;
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
 }

@@ -321,7 +321,6 @@ esac
 `);
   return { root, remoteDir, fakeBin, runtimeRoot, nginxSite, preparedStateRoot, deployLockToken, graph: graph(activeUnitId), control };
 }
-
 function commandEnvironment(files, extraEnvironment = {}) {
   return {
     ...process.env,
@@ -340,12 +339,10 @@ function commandEnvironment(files, extraEnvironment = {}) {
     ...extraEnvironment,
   };
 }
-
 function apply(files, args, extraEnvironment = {}) {
   const lockFile = path.join(files.remoteDir, ".workspace", "deploy.lock");
   return spawnSync("flock", ["-x", lockFile, "bash", applyScript, ...args], {
-    encoding: "utf8",
-    env: commandEnvironment(files, extraEnvironment),
+    encoding: "utf8", env: commandEnvironment(files, extraEnvironment),
   });
 }
 

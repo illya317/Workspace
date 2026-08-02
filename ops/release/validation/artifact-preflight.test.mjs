@@ -9,6 +9,7 @@ import {
   runArtifactPreflight,
   runExactConfigProbe,
   inspectDependencyBoundary,
+  inspectOperationsGrowth,
   inspectToolchain,
   validateArtifactPreflightReceipt,
   writeImmutableArtifactPreflightReceipt,
@@ -35,6 +36,7 @@ test("artifact preflight writes and reuses exact immutable run evidence", (t) =>
     ...identity,
     now: () => 1_000,
     verifyCandidateFn: () => ({ clean: true }),
+    inspectOperationsGrowthFn: () => ({ checkedFiles: 42, defaultMaxLines: 600, legacyCapCount: 3 }),
     inspectDependencyFn: () => ({ kind: "repository-local", packageLockSha256: "c".repeat(64) }),
     inspectToolchainFn: () => ({
       node: "v24.0.0",
@@ -105,20 +107,35 @@ test("artifact preflight receipt path rejects different immutable evidence", (t)
   );
 });
 
-test("failed create is preserved and cannot be accepted or rerun", (t) => {
+test("failed create aggregates every independent finding and cannot be rerun", (t) => {
   const repository = fs.mkdtempSync(path.join(os.tmpdir(), "artifact-preflight-failed-"));
   t.after(() => fs.rmSync(repository, { recursive: true, force: true }));
   const output = path.join(repository, "failed.json");
+  const calls = [];
   const options = {
     repository,
     output,
     ...identity,
     now: () => 2_000,
-    verifyCandidateFn: () => { throw new Error("candidate drift"); },
+    verifyCandidateFn: () => { calls.push("candidate"); throw new Error("candidate drift"); },
+    inspectOperationsGrowthFn: () => { calls.push("ops-size"); throw new Error("legacy growth"); },
+    configProbeFn: () => { calls.push("config"); return {}; },
+    inspectDependencyFn: () => { calls.push("dependency"); return {}; },
+    inspectToolchainFn: () => { calls.push("toolchain"); return {}; },
+    assertBuildSpaceFn: () => { calls.push("disk"); return {}; },
   };
-  assert.throws(() => runArtifactPreflight(options), /candidate drift/);
+  assert.throws(
+    () => runArtifactPreflight(options),
+    /clean-candidate-identity: candidate drift; operations-source-growth: legacy growth/,
+  );
   const failed = JSON.parse(fs.readFileSync(output, "utf8"));
   assert.equal(failed.status, "failed");
+  assert.deepEqual(calls, ["candidate", "ops-size", "config", "dependency", "toolchain", "disk"]);
+  assert.deepEqual(
+    failed.findings.filter((finding) => finding.status === "failed").map((finding) => finding.check),
+    ["clean-candidate-identity", "operations-source-growth"],
+  );
+  assert.equal(failed.findings.length, 8);
   assert.throws(() => validateArtifactPreflightReceipt(failed, identity), /does not match exact candidate/);
   assert.throws(() => runArtifactPreflight(options), /already failed/);
 });
@@ -126,7 +143,10 @@ test("failed create is preserved and cannot be accepted or rerun", (t) => {
 test("exact unit runner checks only news and loads its real Next config", () => {
   const repository = path.resolve(import.meta.dirname, "../../..");
   const dependency = inspectDependencyBoundary(repository);
+  const operationsGrowth = inspectOperationsGrowth(repository);
   const toolchain = inspectToolchain(repository);
+  assert.ok(operationsGrowth.checkedFiles > 0);
+  assert.equal(operationsGrowth.defaultMaxLines, 450);
   assert.ok(new Set(["repository-local", "trusted-sibling-symlink"]).has(dependency.kind));
   assert.equal(toolchain.nodeEngine, "24.x");
   assert.equal(toolchain.nodeVersionFile, "24");
