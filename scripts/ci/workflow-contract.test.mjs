@@ -160,6 +160,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(deployImage, /docker save "\$TRANSFER_IMAGE" \| gzip -1/);
   assert.match(deployImage, /sha256sum --check --status/);
   assert.match(deployImage, /gzip -dc "\$IMAGE_ARCHIVE" \| docker load/);
+  assert.match(deployImage, /IMAGE_ARCHIVE_READY/);
+  assert.match(deployImage, /runtime\.docker\.env/);
+  assert.match(deployImage, /--env DATABASE_URL --env DIRECT_URL/);
   assert.match(deployImage, /远端加载镜像 ID 不匹配/);
   assert.match(deployImage, /APPROVED_IMAGE='\$IMAGE'/);
   assert.match(deployImage, /sudo -n env SOURCE_SHA=/);

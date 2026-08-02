@@ -157,11 +157,8 @@ verify_local_image
 IMAGE_ARCHIVE="$(mktemp)"
 TRANSFER_IMAGE="workspace-cnb-transfer:sha256-${IMAGE_DIGEST#sha256:}"
 docker tag "$IMAGE" "$TRANSFER_IMAGE"
-docker save "$TRANSFER_IMAGE" | gzip -1 > "$IMAGE_ARCHIVE"
-IMAGE_ARCHIVE_SHA256="$(sha256sum "$IMAGE_ARCHIVE" | awk '{print $1}')"
 EXPECTED_IMAGE_ID="$(docker image inspect "$TRANSFER_IMAGE" --format '{{.Id}}')"
-[[ "$IMAGE_ARCHIVE_SHA256" =~ ^[0-9a-f]{64}$ && "$EXPECTED_IMAGE_ID" =~ ^sha256:[0-9a-f]{64}$ ]] \
-  || fail "镜像传输制品身份非法"
+[[ "$EXPECTED_IMAGE_ID" =~ ^sha256:[0-9a-f]{64}$ ]] || fail "镜像传输制品身份非法"
 cleanup_local_credentials() {
   rm -f "$IMAGE_ARCHIVE"
   docker image rm "$TRANSFER_IMAGE" >/dev/null 2>&1 || true
@@ -170,20 +167,35 @@ cleanup_local_credentials() {
 trap cleanup_local_credentials EXIT
 ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releases'"
 REMOTE_IMAGE_ARCHIVE="$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.tar.gz"
-scp "${ssh_options[@]}" "$IMAGE_ARCHIVE" "$SERVER:$REMOTE_IMAGE_ARCHIVE" >/dev/null
+IMAGE_ARCHIVE_READY=0
+IMAGE_ARCHIVE_SHA256=""
+if ! ssh "${ssh_options[@]}" "$SERVER" \
+  "test \"\$(docker image inspect '$TRANSFER_IMAGE' --format '{{.Id}}' 2>/dev/null)\" = '$EXPECTED_IMAGE_ID'"; then
+  docker save "$TRANSFER_IMAGE" | gzip -1 > "$IMAGE_ARCHIVE"
+  IMAGE_ARCHIVE_SHA256="$(sha256sum "$IMAGE_ARCHIVE" | awk '{print $1}')"
+  [[ "$IMAGE_ARCHIVE_SHA256" =~ ^[0-9a-f]{64}$ ]] || fail "镜像归档校验和非法"
+  scp "${ssh_options[@]}" "$IMAGE_ARCHIVE" "$SERVER:$REMOTE_IMAGE_ARCHIVE" >/dev/null
+  IMAGE_ARCHIVE_READY=1
+fi
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 
 ssh "${ssh_options[@]}" "$SERVER" \
-  "sudo -n env SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' APPROVED_IMAGE='$IMAGE' RUNTIME_IMAGE='$TRANSFER_IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' IMAGE_ARCHIVE='$REMOTE_IMAGE_ARCHIVE' IMAGE_ARCHIVE_SHA256='$IMAGE_ARCHIVE_SHA256' EXPECTED_IMAGE_ID='$EXPECTED_IMAGE_ID' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' LEGACY_PM2_USER='${LEGACY_PM2_USER:-workspace-runtime}' LEGACY_PM2_HOME='${LEGACY_PM2_HOME:-/var/lib/workspace-runtime/.pm2}' bash -s" <<'REMOTE'
+  "sudo -n env SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' APPROVED_IMAGE='$IMAGE' RUNTIME_IMAGE='$TRANSFER_IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' IMAGE_ARCHIVE='$REMOTE_IMAGE_ARCHIVE' IMAGE_ARCHIVE_READY='$IMAGE_ARCHIVE_READY' IMAGE_ARCHIVE_SHA256='$IMAGE_ARCHIVE_SHA256' EXPECTED_IMAGE_ID='$EXPECTED_IMAGE_ID' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' LEGACY_PM2_USER='${LEGACY_PM2_USER:-workspace-runtime}' LEGACY_PM2_HOME='${LEGACY_PM2_HOME:-/var/lib/workspace-runtime/.pm2}' bash -s" <<'REMOTE'
 set -euo pipefail
 exec 9>"$REMOTE_DIR/.workspace/image-deploy.lock"
 flock -n 9 || { echo '[错误] 另一镜像部署正在运行' >&2; exit 1; }
-cleanup_image_archive() { rm -f "$IMAGE_ARCHIVE"; }
+RUNTIME_DOCKER_ENV=""
+cleanup_image_archive() {
+  rm -f "$IMAGE_ARCHIVE"
+  [ -z "$RUNTIME_DOCKER_ENV" ] || rm -f "$RUNTIME_DOCKER_ENV"
+}
 trap cleanup_image_archive EXIT
 
-printf '%s  %s\n' "$IMAGE_ARCHIVE_SHA256" "$IMAGE_ARCHIVE" | sha256sum --check --status
-gzip -dc "$IMAGE_ARCHIVE" | docker load >/dev/null
-rm -f "$IMAGE_ARCHIVE"
+if [ "$IMAGE_ARCHIVE_READY" = 1 ]; then
+  printf '%s  %s\n' "$IMAGE_ARCHIVE_SHA256" "$IMAGE_ARCHIVE" | sha256sum --check --status
+  gzip -dc "$IMAGE_ARCHIVE" | docker load >/dev/null
+  rm -f "$IMAGE_ARCHIVE"
+fi
 [ "$(docker image inspect "$RUNTIME_IMAGE" --format '{{.Id}}')" = "$EXPECTED_IMAGE_ID" ] \
   || { echo '[错误] 远端加载镜像 ID 不匹配' >&2; exit 1; }
 [ "$(docker image inspect "$RUNTIME_IMAGE" --format '{{.Architecture}}')" = amd64 ]
@@ -215,8 +227,28 @@ if [ ! -s "$REMOTE_RUNTIME_ENV_FILE" ] || [ ! -s "$REMOTE_CONTROL_ENV_FILE" ]; t
 fi
 
 set -a
+. "$REMOTE_RUNTIME_ENV_FILE"
 . "$REMOTE_CONTROL_ENV_FILE"
 set +a
+RUNTIME_DOCKER_ENV="$REMOTE_DIR/.workspace/runtime.docker.env.$$"
+python3 - "$REMOTE_RUNTIME_ENV_FILE" "$RUNTIME_DOCKER_ENV" <<'PY'
+import os, re, sys
+source, target = sys.argv[1:]
+lines = []
+for raw in open(source, encoding="utf-8"):
+    value = raw.strip()
+    if not value or value.startswith("#") or "=" not in value:
+        continue
+    key = value.split("=", 1)[0].strip()
+    if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", key) or key not in os.environ:
+        raise SystemExit("runtime env key invalid")
+    resolved = os.environ[key]
+    if "\n" in resolved or "\r" in resolved:
+        raise SystemExit("runtime env multiline value unsupported")
+    lines.append(f"{key}={resolved}\n")
+open(target, "w", encoding="utf-8").writelines(lines)
+os.chmod(target, 0o600)
+PY
 backup_dir="$REMOTE_DIR/.workspace.backups"
 mkdir -p "$backup_dir"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -224,12 +256,14 @@ backup="$backup_dir/workspace-postgresql-$stamp.dump"
 pg_dump --format=custom --no-owner --no-privileges --file="$backup" "${WORKSPACE_BACKUP_DATABASE_URL:-$DIRECT_URL}"
 pg_restore --list "$backup" >/dev/null
 sha256sum "$backup" > "$backup.sha256"
-docker run --rm --network host --env-file "$REMOTE_CONTROL_ENV_FILE" --entrypoint node \
+docker run --rm --network host \
+  --env DATABASE_URL --env DIRECT_URL --env SHADOW_DATABASE_URL \
+  --env WORKSPACE_BACKUP_DATABASE_URL --env WORKSPACE_MONITOR_DATABASE_URL --entrypoint node \
   -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" \
   node_modules/prisma/build/index.js migrate deploy --schema=./prisma
 candidate="workspace-candidate-${SOURCE_SHA:0:12}"
 docker rm -f "$candidate" >/dev/null 2>&1 || true
-docker run -d --name "$candidate" --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \
+docker run -d --name "$candidate" --network host --env-file "$RUNTIME_DOCKER_ENV" \
   -e PORT=3101 -e HOSTNAME=127.0.0.1 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
   -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
 candidate_ok=0
@@ -256,7 +290,7 @@ rollback() {
   if [ "$legacy_pm2_running" = 1 ]; then legacy_pm2 restart "$LEGACY_PM2_NAME" >/dev/null 2>&1 || true; fi
 }
 trap rollback ERR
-docker run -d --name workspace --restart unless-stopped --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \
+docker run -d --name workspace --restart unless-stopped --network host --env-file "$RUNTIME_DOCKER_ENV" \
   -e PORT=3000 -e HOSTNAME=0.0.0.0 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
   -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
 for _ in $(seq 1 30); do curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 && break; sleep 1; done
