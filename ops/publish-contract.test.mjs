@@ -350,7 +350,7 @@ test("controller-ready reuses an exact ops qualification and deploy only verifie
   const controllerReadyCase = publish.slice(publish.indexOf("  controller-ready)"), publish.indexOf("  status)"));
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
   assert.match(controllerReadyCase, /controller-ready\.mjs" qualify/);
-  assert.match(controllerReadyCase, /flock -x "\$controller_ready_lock_fd"[\s\S]*?controller-ready\.mjs" qualify/);
+  assert.match(controllerReadyCase, /acquire_controller_ready_qualification_lock[\s\S]*?controller-ready\.mjs" qualify/);
   assert.doesNotMatch(controllerReadyCase, /deploy-control-compatibility|run-node-tests|with-check-lock|--controller-source|--control-digest|--changed-files/);
   assert.match(controllerQualification, /export const CONTROLLER_OPS_ARGS = Object\.freeze\(/);
   assert.match(controllerQualification, /"scripts\/check\/with-check-lock\.js"[\s\S]*?"scripts\/testing\/run-node-tests\.mjs"[\s\S]*?"shard"[\s\S]*?"ops"/);
@@ -366,9 +366,10 @@ test("controller-ready reuses an exact ops qualification and deploy only verifie
   assert.ok(controllerReady.indexOf("const reusable = readReusableQualification") < controllerReady.indexOf("const afterTests"));
   assert.ok(controllerReady.indexOf("const afterTests") < controllerReady.indexOf("atomicWrite(target, receipt)"));
   assert.match(publishSources, /load_controller_ready\(\)[\s\S]*?controller-ready\.mjs" verify/);
+  assert.match(publishEntryPreflight, /acquire_controller_ready_qualification_lock\(\)[\s\S]*?flock -x "\$controller_ready_lock_fd"/);
   assert.match(publishEntryPreflight, /load_controller_ready\(\)[\s\S]*?flock -s -n "\$controller_ready_lock_fd"/);
   assert.match(publishEntryPreflight, /Controller Ready qualification is in progress[\s\S]*?return 2/);
-  assert.match(deployCase, /controller_ready_status=\$\?[\s\S]*?deploy_preflight_block controller-ready/);
+  assert.match(publishEntryPreflight, /load_controller_ready_for_preflight\(\)[\s\S]*?controller_ready_status=\$\?[\s\S]*?deploy_preflight_block controller-ready/);
   assert.match(deployCase, /"\$SCRIPT_DIR\/publish-cnb\.sh" --release-action deploy --direct/);
   assert.doesNotMatch(deployCase, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.doesNotMatch(deployCase, /deploy-control-compatibility\.mjs|run-node-tests\.mjs|with-check-lock\.js/);

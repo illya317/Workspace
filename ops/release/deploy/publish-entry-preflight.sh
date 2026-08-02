@@ -117,6 +117,14 @@ load_selected_ready() {
     }
 }
 
+acquire_controller_ready_qualification_lock() {
+  controller_ready_lock_file="$REPOSITORY_ROOT/.cache/release-control/controller-ready.lock"
+  mkdir -p "$(dirname "$controller_ready_lock_file")"
+  exec {controller_ready_lock_fd}>> "$controller_ready_lock_file"
+  echo "==> 等待 Controller Ready/Deploy 单飞锁"
+  flock -x "$controller_ready_lock_fd"
+}
+
 load_controller_ready() {
   controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
   controller_ready_lock_file="$REPOSITORY_ROOT/.cache/release-control/controller-ready.lock"
@@ -137,4 +145,15 @@ load_controller_ready() {
   DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.controlDigest)' "$controller_ready_json")" || return 1
   DEPLOY_CONTROL_RECEIPT_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).receiptDigest)' "$controller_ready_json")" || return 1
   export DEPLOY_CONTROL_SOURCE_SHA DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST DEPLOY_CONTROL_RECEIPT_DIGEST
+}
+
+load_controller_ready_for_preflight() {
+  if load_controller_ready; then return 0; fi
+  local controller_ready_status=$?
+  if [ "$controller_ready_status" = 2 ]; then
+    deploy_preflight_block controller-ready "Controller Ready 正在签发；本次 deploy 未进入 mutation"
+  else
+    deploy_preflight_fail controller-ready "Controller Ready receipt/identity 无效"
+  fi
+  return 1
 }

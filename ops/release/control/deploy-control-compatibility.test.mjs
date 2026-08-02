@@ -74,6 +74,7 @@ test("receipt, preflight, injection, and their tests are explicit deploy-control
     "ops/production-deploy-preflight.test.mjs",
     "ops/release-receipt.mjs",
     "ops/release-receipt.test.mjs",
+    "ops/release/deploy/publish-entry-preflight.sh",
     "ops/run-cnb-release-stage.sh",
   ]) assert.equal(isDeployControlPath(file), true, file);
   assert.equal(isDeployControlPath("app/page.tsx"), false);
