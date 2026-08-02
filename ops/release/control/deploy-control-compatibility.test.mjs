@@ -79,6 +79,7 @@ test("receipt, preflight, injection, and their tests are explicit deploy-control
     "ops/postgresql/production-security.test.mjs",
     "ops/release-receipt.mjs",
     "ops/release-receipt.test.mjs",
+    "ops/release/readiness/rehearse-artifact.test.mjs",
     "ops/release/deploy/publish-entry-preflight.sh",
     "ops/run-cnb-release-stage.sh",
   ]) assert.equal(isDeployControlPath(file), true, file);
