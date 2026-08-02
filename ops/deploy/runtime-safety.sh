@@ -125,7 +125,7 @@ PY
       test -r \"\${SQLITE_CUTOVER_ROLLBACK_ENV:-/nonexistent}\" || record_runtime_failure 'SQLITE_CUTOVER_ROLLBACK_ENV 不可读'
     fi
     for required_command in psql pg_dump pg_restore pg_isready; do
-      command -v "\$required_command" >/dev/null || record_runtime_failure "缺少数据库命令: \$required_command"
+      command -v "\$required_command" >/dev/null || record_runtime_failure \"缺少数据库命令: \$required_command\"
     done
     pg_isready --dbname="\${DIRECT_URL:-}" >/dev/null || record_runtime_failure 'DIRECT_URL pg_isready 失败'
     psql "\${DIRECT_URL:-}" -v ON_ERROR_STOP=1 -Atc 'SELECT 1' >/dev/null || record_runtime_failure 'DIRECT_URL SELECT 1 失败'
