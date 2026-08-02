@@ -16,18 +16,21 @@ Mac/remote debug -> Mac commit -> CNB source repository
 - `workspace-dev` 只做调试，不保存 provider push 凭据。
 - 生产服务器不 checkout 源码、不运行 `npm ci`、不测试、不编译、不构建镜像。
 - GitHub workflow、GHCR、跨 Registry mirror、provider adapter 和本地发布控制面均不存在。
+- 本地工作区是否有未提交改动与部署无关；CNB 只 checkout 已推送 commit，Pipeline 首步验证工作区干净且 HEAD 等于本次 push SHA（PR 则等于 CNB 预合并 SHA）。
+- CI/CD 逻辑必须是版本化、可重复的长期合同；禁止按日期、Build ID 或某次事故临时分支执行，也禁止重新引入一次性 receipt/DAG 控制面。
 
 ## CNB required CI
 
 `.cnb.yml` 为 `main` 的 PR 和 push 使用同一个 `ops/cnb-ci.sh` interface：
 
-1. `ops/cnb-ci-cache.Dockerfile` 只随 `.node-version`、package manifests 或 Dockerfile 变化而重建；镜像内一次性安装 Node 依赖和 Chromium。
-2. Pipeline 把 `/opt/workspace-deps/node_modules` 软链到 checkout；`ops/cnb-ci.sh` 不运行 `npm ci`、不复制依赖、不下载浏览器。
-3. setup 先生成一次 Prisma Client 并准备 PostgreSQL，结果也写成独立状态；即使数据库准备失败，源码类 lane 仍继续执行。
-4. CNB 原生并行 jobs 同轮运行 static、四个 Node test bucket、完整 type、唯一 Next build+standalone 和 PostgreSQL；随后对 exact standalone 运行 E2E。每个 job 写独立状态，最终 summary 一次列出所有失败 lane。
-5. `STANDALONE_SKIP_NEXT_BUILD=1` 把该 exact build 打包为 `workspace-standalone.tgz`，不重新编译。
-6. PostgreSQL lane 使用 disposable `*_ci` 数据库执行数据 gate、migration、seed 和 integration。
-7. Playwright 始终尝试启动 exact archive；build 失败导致 archive 不存在时，E2E 记录为同轮独立失败，最终与其余错误一起汇总。
+1. Pipeline 首先拒绝不匹配本次事件 SHA 或含 tracked/untracked 变化的 checkout；此检查只针对 CNB 临时工作区，不读取 Mac 或调试服务器工作区。
+2. `ops/cnb-ci-cache.Dockerfile` 只随 `.node-version`、package manifests 或 Dockerfile 变化而重建；镜像内一次性安装 Node 依赖和 Chromium。
+3. Pipeline 把 `/opt/workspace-deps/node_modules` 软链到 checkout；`ops/cnb-ci.sh` 不运行 `npm ci`、不复制依赖、不下载浏览器。
+4. setup 先生成一次 Prisma Client 并准备 PostgreSQL，结果也写成独立状态；即使数据库准备失败，源码类 lane 仍继续执行。
+5. CNB 原生并行 jobs 同轮运行 static、四个 Node test bucket、完整 type、唯一 Next build+standalone 和 PostgreSQL；随后对 exact standalone 运行 E2E。每个 job 写独立状态，最终 summary 一次列出所有失败 lane。
+6. `STANDALONE_SKIP_NEXT_BUILD=1` 把该 exact build 打包为 `workspace-standalone.tgz`，不重新编译。
+7. PostgreSQL lane 使用 disposable `*_ci` 数据库执行数据 gate、migration、seed 和 integration。
+8. Playwright 始终尝试启动 exact archive；build 失败导致 archive 不存在时，E2E 记录为同轮独立失败，最终与其余错误一起汇总。
 
 PR 到此结束，不导入生产环境、不构建镜像、不部署。
 

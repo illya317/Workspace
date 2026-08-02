@@ -23,13 +23,15 @@ main:
           - main:/workspace/.cache/tsbuild:copy-on-write-read-only
       env:
         CI: "true"
-        NEXTAUTH_SECRET: cnb-ci-secret-2026
+        NEXTAUTH_SECRET: workspace-cnb-ci-test-secret
         DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
         DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
         SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
         WORKSPACE_CONFIG_DIR: /workspace/scripts/check/fixtures/tenant-workspace
         PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       stages:
+        - name: verify-clean-committed-checkout
+          script: bash ./ops/cnb-ci.sh checkout
         - name: restore-dependencies
           script: |
             test ! -e node_modules
@@ -101,13 +103,15 @@ main:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
         CI: "true"
-        NEXTAUTH_SECRET: cnb-ci-secret-2026
+        NEXTAUTH_SECRET: workspace-cnb-ci-test-secret
         DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
         DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
         SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
         WORKSPACE_CONFIG_DIR: /workspace/scripts/check/fixtures/tenant-workspace
         PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
       stages:
+        - name: verify-clean-committed-checkout
+          script: bash ./ops/cnb-ci.sh checkout
         - name: restore-dependencies
           script: |
             test ! -e node_modules

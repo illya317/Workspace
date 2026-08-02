@@ -1,5 +1,8 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 const read = (path) => fs.readFileSync(new URL(path, import.meta.url), "utf8");
@@ -12,15 +15,56 @@ const imageDockerfile = read("../../ops/image.Dockerfile");
 const deployImage = read("../../ops/deploy-image.sh");
 const packageJson = JSON.parse(read("../../package.json"));
 const packager = read("../../ops/build-standalone-artifact.sh");
+const nodeVersion = read("../../.node-version").trim();
+
+function git(cwd, args) {
+  const result = spawnSync("git", args, { cwd, encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  return result.stdout.trim();
+}
+
+function checkoutFixture(t) {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "cnb-clean-checkout-"));
+  t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(cwd, "ops"));
+  fs.copyFileSync(new URL("../../ops/cnb-ci.sh", import.meta.url), path.join(cwd, "ops/cnb-ci.sh"));
+  fs.writeFileSync(path.join(cwd, "tracked.txt"), "source\n");
+  git(cwd, ["init", "--quiet"]);
+  git(cwd, ["config", "user.email", "cnb-contract@example.test"]);
+  git(cwd, ["config", "user.name", "CNB Contract"]);
+  git(cwd, ["add", "."]);
+  git(cwd, ["commit", "--quiet", "-m", "source"]);
+  return cwd;
+}
+
+function runCheckout(cwd, environment) {
+  return spawnSync("bash", ["ops/cnb-ci.sh", "checkout"], {
+    cwd,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      CNB_PULL_REQUEST_LIKE: "false",
+      CNB_PULL_REQUEST_MERGE_SHA: "",
+      ...environment,
+    },
+  });
+}
 
 test("CNB is the only source CI, image builder, registry and CD platform", () => {
-  assert.equal(fs.existsSync(new URL("../../.github/workflows/ci.yml", import.meta.url)), false);
+  for (const removedPath of ["../../.github", "../../apps", "../../scripts/deploy"]) {
+    assert.equal(fs.existsSync(new URL(removedPath, import.meta.url)), false, removedPath);
+  }
+  for (const removedScript of ["ci", "check:ci", "check:full", "deploy:graph:check", "deploy:unit:app"]) {
+    assert.equal(packageJson.scripts[removedScript], undefined, removedScript);
+  }
   assert.match(cnb, /^main:\n  pull_request:/m);
   assert.match(cnb, /^  push:/m);
   assert.doesNotMatch(`${cnb}\n${cnbCi}\n${cnbRelease}`, /github|ghcr\.io|GITHUB_|GHCR_|skopeo/i);
+  assert.doesNotMatch(cnb, /NEXTAUTH_SECRET:.*\b20\d{2}\b/);
 });
 
 test("PR and main restore the versioned dependency image and aggregate native parallel jobs", () => {
+  assert.equal((cnb.match(/cnb-ci\.sh checkout/g) ?? []).length, 2);
   assert.equal((cnb.match(/restore-dependencies/g) ?? []).length, 2);
   assert.equal((cnb.match(/cnb-ci\.sh setup/g) ?? []).length, 2);
   assert.equal((cnb.match(/cnb-ci\.sh lane/g) ?? []).length, 18);
@@ -30,6 +74,7 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.equal((cnbCiCache.match(/npm ci --no-audit/g) ?? []).length, 1);
   assert.match(cnbCiCache, /PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright/);
   assert.match(cnbCiCache, /playwright install --with-deps chromium/);
+  assert.match(cnbCiCache, new RegExp(`FROM node:${nodeVersion}-bookworm@sha256:[0-9a-f]{64}`));
   assert.match(cnb, /package-lock\.json[\s\S]*ops\/cnb-ci-cache\.Dockerfile/);
   assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 2);
   assert.match(cnb, /copy-on-write-read-only/);
@@ -45,6 +90,30 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCi, /for lane in setup static node-0 node-1 node-2 node-3 typecheck build database e2e/);
   assert.match(cnbCi, /npm run test:e2e:smoke/);
   assert.match(cnbCi, /CNB required failed lanes/);
+  assert.match(cnbCi, /CNB_PULL_REQUEST_MERGE_SHA/);
+  assert.match(cnbCi, /git status --porcelain=v1 --untracked-files=all/);
+  assert.match(cnbCi, /CNB 必须从干净 checkout 开始/);
+});
+
+test("CNB accepts only a clean event checkout and handles PR pre-merge identity", (t) => {
+  const cwd = checkoutFixture(t);
+  const sourceSha = git(cwd, ["rev-parse", "HEAD"]);
+  assert.equal(runCheckout(cwd, { CNB_COMMIT: sourceSha }).status, 0);
+
+  fs.writeFileSync(path.join(cwd, "untracked.txt"), "dirty\n");
+  const dirty = runCheckout(cwd, { CNB_COMMIT: sourceSha });
+  assert.equal(dirty.status, 1);
+  assert.match(dirty.stderr, /必须从干净 checkout 开始/);
+  fs.rmSync(path.join(cwd, "untracked.txt"));
+
+  git(cwd, ["commit", "--allow-empty", "--quiet", "-m", "pre-merge"]);
+  const mergeSha = git(cwd, ["rev-parse", "HEAD"]);
+  const premerge = runCheckout(cwd, {
+    CNB_COMMIT: sourceSha,
+    CNB_PULL_REQUEST_LIKE: "true",
+    CNB_PULL_REQUEST_MERGE_SHA: mergeSha,
+  });
+  assert.equal(premerge.status, 0, premerge.stderr);
 });
 
 test("main packages and publishes one linux amd64 application image", () => {

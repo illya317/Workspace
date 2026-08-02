@@ -6,6 +6,21 @@ LANE="${2:-}"
 RESULT_DIR="${CNB_CI_RESULT_DIR:-.release/ci-results}"
 fail() { echo "[错误] $*" >&2; exit 1; }
 
+verify_checkout() {
+  [[ "${CNB_COMMIT:-}" =~ ^[0-9a-f]{40}$ ]] || fail "CNB_COMMIT 必须是完整小写 SHA"
+  expected_sha="$CNB_COMMIT"
+  if [ "${CNB_PULL_REQUEST_LIKE:-false}" = true ]; then
+    [[ "${CNB_PULL_REQUEST_MERGE_SHA:-}" =~ ^[0-9a-f]{40}$ ]] \
+      || fail "PR 预合并工作区缺少 CNB_PULL_REQUEST_MERGE_SHA"
+    expected_sha="$CNB_PULL_REQUEST_MERGE_SHA"
+  fi
+  actual_sha="$(git rev-parse HEAD)"
+  [ "$actual_sha" = "$expected_sha" ] \
+    || fail "CNB checkout SHA 不匹配：expected=$expected_sha actual=$actual_sha"
+  [ -z "$(git status --porcelain=v1 --untracked-files=all)" ] \
+    || fail "CNB 必须从干净 checkout 开始；拒绝复用带脏文件的工作区"
+}
+
 setup_database() {
   service postgresql start >/dev/null || return
   runuser -u postgres -- psql --set ON_ERROR_STOP=1 <<'SQL' || return
@@ -125,8 +140,9 @@ summary() {
 }
 
 case "$ACTION" in
+  checkout) verify_checkout ;;
   setup) setup ;;
   lane) run_lane ;;
   summary) summary ;;
-  *) fail "用法: cnb-ci.sh setup|lane <name>|summary" ;;
+  *) fail "用法: cnb-ci.sh checkout|setup|lane <name>|summary" ;;
 esac
