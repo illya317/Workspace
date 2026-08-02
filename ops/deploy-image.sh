@@ -68,9 +68,11 @@ if [ "$MODE" = rehearsal ]; then
   database="workspace-release-db-${rehearsal_id}"
   application="workspace-release-app-${rehearsal_id}"
   rollback="workspace-release-rollback-${rehearsal_id}"
+  config_volume="workspace-release-config-${rehearsal_id}"
   cleanup() {
     docker rm -f "$application" "$rollback" "$database" >/dev/null 2>&1 || true
     docker network rm "$network" >/dev/null 2>&1 || true
+    docker volume rm -f "$config_volume" >/dev/null 2>&1 || true
   }
   trap cleanup EXIT
   docker network create "$network" >/dev/null
@@ -81,6 +83,10 @@ if [ "$MODE" = rehearsal ]; then
     sleep 1
   done
   docker exec "$database" pg_isready -U workspace -d workspace_rehearsal >/dev/null
+  docker volume create "$config_volume" >/dev/null
+  tar -C scripts/check/fixtures/tenant-workspace -cf - . \
+    | docker run --rm -i -v "$config_volume:/workspace-config" alpine:3.20 \
+      tar -C /workspace-config -xf -
   database_url='postgresql://workspace:workspace@workspace-release-db-'"${rehearsal_id}"':5432/workspace_rehearsal'
   docker run --rm --network "$network" --entrypoint node \
     -e DATABASE_URL="$database_url" -e DIRECT_URL="$database_url" \
@@ -88,13 +94,17 @@ if [ "$MODE" = rehearsal ]; then
   run_rehearsal_app() {
     local name="$1" port="$2"
     docker run -d --name "$name" --network "$network" -p "127.0.0.1:${port}:3000" \
+      -v "$config_volume:/workspace-config:ro" \
       -e DATABASE_URL="$database_url" -e NEXTAUTH_SECRET=rehearsal-only \
       -e NEXTAUTH_URL="http://127.0.0.1:${port}/workspace" \
-      -e WORKSPACE_CONFIG_DIR=/tmp -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" "$IMAGE" >/dev/null
+      -e WORKSPACE_CONFIG_DIR=/workspace-config -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" "$IMAGE" >/dev/null
+    local health_ok=0
     for _ in $(seq 1 30); do
-      curl -fsS "http://127.0.0.1:${port}/workspace/api/internal/health" >/dev/null 2>&1 && break
+      curl -fsS "http://127.0.0.1:${port}/workspace/api/internal/health" >/dev/null 2>&1 \
+        && health_ok=1 && break
       sleep 1
     done
+    [ "$health_ok" = 1 ] || { docker logs "$name" --tail 100 >&2; fail "演练健康检查失败"; }
     response="$(curl -fsS "http://127.0.0.1:${port}/workspace/api/settings/version")"
     VERSION_RESPONSE="$response" EXPECTED_DIGEST="$IMAGE_DIGEST" python3 - <<'PY'
 import json, os

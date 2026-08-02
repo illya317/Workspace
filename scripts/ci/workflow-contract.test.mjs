@@ -86,6 +86,8 @@ test("CNB is thin CD: mirror, rehearsal, production and rollback only", () => {
   assert.doesNotMatch(cnbImageRelease, /docker push/);
   assert.doesNotMatch(cnbImageRelease, /CNB_COMMIT.*SOURCE_SHA/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
+  assert.match(deployImage, /WORKSPACE_CONFIG_DIR=\/workspace-config/);
+  assert.match(deployImage, /workspace-release-config-/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
   assert.match(deployImage, /online image digest mismatch/);
