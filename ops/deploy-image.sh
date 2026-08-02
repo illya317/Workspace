@@ -249,6 +249,57 @@ for raw in open(source, encoding="utf-8"):
 open(target, "w", encoding="utf-8").writelines(lines)
 os.chmod(target, 0o600)
 PY
+legacy_pm2() { sudo -n -u "$LEGACY_PM2_USER" env PM2_HOME="$LEGACY_PM2_HOME" pm2 "$@"; }
+runtime_mounts=(-v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace")
+preflight_errors=()
+for command in docker curl pg_dump pg_restore psql sha256sum flock python3 sudo pm2; do
+  command -v "$command" >/dev/null 2>&1 || preflight_errors+=("missing command: $command")
+done
+for key in DATABASE_URL DIRECT_URL; do
+  value="${!key:-}"
+  [[ "$value" == postgresql://* || "$value" == postgres://* ]] \
+    || preflight_errors+=("$key must use PostgreSQL")
+done
+for key in NODE_EXTRA_CA_CERTS ONLYOFFICE_NGINX_SITE; do
+  value="${!key:-}"
+  if [ -n "$value" ]; then
+    case "$value" in
+      /*) ;;
+      *) preflight_errors+=("$key must be an absolute path"); continue ;;
+    esac
+    if [ ! -r "$value" ]; then
+      preflight_errors+=("$key path is not readable")
+    else
+      runtime_mounts+=(-v "$value:$value:ro")
+    fi
+  fi
+done
+mkdir -p "$REMOTE_DIR/.workspace.backups"
+if ! touch "$REMOTE_DIR/.workspace.backups/.deploy-write-test" 2>/dev/null; then
+  preflight_errors+=("backup directory is not writable")
+else
+  rm -f "$REMOTE_DIR/.workspace.backups/.deploy-write-test"
+fi
+available_kib="$(df -Pk "$REMOTE_DIR" | awk 'NR==2 {print $4}')"
+if ! [[ "$available_kib" =~ ^[0-9]+$ ]] || [ "$available_kib" -lt 2097152 ]; then
+  preflight_errors+=("less than 2 GiB free disk")
+fi
+psql_url="${DIRECT_URL:-${DATABASE_URL:-}}"
+psql "$psql_url" --no-psqlrc --tuples-only --no-align --command 'SELECT 1' >/dev/null 2>&1 \
+  || preflight_errors+=("production database is not reachable")
+curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 \
+  || preflight_errors+=("current production healthcheck failed")
+if ! docker inspect workspace >/dev/null 2>&1; then
+  legacy_pid="$(legacy_pm2 pid "$LEGACY_PM2_NAME" 2>/dev/null || true)"
+  [[ "$legacy_pid" =~ ^[1-9][0-9]*$ ]] || preflight_errors+=("legacy PM2 workspace process not found")
+fi
+if [ "${#preflight_errors[@]}" -gt 0 ]; then
+  printf '[错误] 生产部署预检失败:' >&2
+  printf ' %s;' "${preflight_errors[@]}" >&2
+  printf '\n' >&2
+  exit 1
+fi
+echo "production deploy preflight passed"
 backup_dir="$REMOTE_DIR/.workspace.backups"
 mkdir -p "$backup_dir"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -259,13 +310,13 @@ sha256sum "$backup" > "$backup.sha256"
 docker run --rm --network host \
   --env DATABASE_URL --env DIRECT_URL --env SHADOW_DATABASE_URL \
   --env WORKSPACE_BACKUP_DATABASE_URL --env WORKSPACE_MONITOR_DATABASE_URL --entrypoint node \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" \
+  "${runtime_mounts[@]}" "$RUNTIME_IMAGE" \
   node_modules/prisma/build/index.js migrate deploy --schema=./prisma
 candidate="workspace-candidate-${SOURCE_SHA:0:12}"
 docker rm -f "$candidate" >/dev/null 2>&1 || true
 docker run -d --name "$candidate" --network host --env-file "$RUNTIME_DOCKER_ENV" \
   -e PORT=3101 -e HOSTNAME=127.0.0.1 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
+  "${runtime_mounts[@]}" "$RUNTIME_IMAGE" >/dev/null
 candidate_ok=0
 for _ in $(seq 1 30); do
   curl -fsS http://127.0.0.1:3101/workspace/api/internal/health >/dev/null 2>&1 && candidate_ok=1 && break
@@ -274,7 +325,6 @@ done
 [ "$candidate_ok" = 1 ] || { docker logs "$candidate" --tail 100 >&2; exit 1; }
 previous_container=""
 legacy_pm2_running=0
-legacy_pm2() { sudo -n -u "$LEGACY_PM2_USER" env PM2_HOME="$LEGACY_PM2_HOME" pm2 "$@"; }
 if docker inspect workspace >/dev/null 2>&1; then
   previous_container="workspace-rollback-$stamp"
   docker stop workspace >/dev/null
@@ -292,7 +342,7 @@ rollback() {
 trap rollback ERR
 docker run -d --name workspace --restart unless-stopped --network host --env-file "$RUNTIME_DOCKER_ENV" \
   -e PORT=3000 -e HOSTNAME=0.0.0.0 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
+  "${runtime_mounts[@]}" "$RUNTIME_IMAGE" >/dev/null
 for _ in $(seq 1 30); do curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 && break; sleep 1; done
 version="$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version)"
 VERSION_RESPONSE="$version" EXPECTED_DIGEST="$IMAGE_DIGEST" python3 - <<'PY'

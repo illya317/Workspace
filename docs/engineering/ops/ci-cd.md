@@ -82,14 +82,13 @@ cnb-release.sh verify
 生产顺序固定为：
 
 1. 获取排他部署锁；
-2. 按 digest 拉取并复验 `linux/amd64` 镜像；
+2. 一次性只读预检并汇总所有独立错误：镜像 ID/架构、工具、env 解析、数据库协议/连通性、CA/外部文件、磁盘、备份目录、当前 health 和 PM2 身份；
 3. 生成并验证 custom-format PostgreSQL backup 与 checksum；
 4. 使用镜像内冻结的 Prisma schema/migrations 执行 `migrate deploy`；
 5. 启动隔离 candidate 并检查 health；
 6. 切换正式容器，失败时恢复上一容器或首次切换前的旧 PM2 进程；
 7. 验证公网 health 与线上 `imageDigest`；
-8. 原子写入 `deployed-image.json`，记录 current/previous digest 与 source identity；
-9. 清除临时 Registry 登录材料。
+8. 原子写入 `deployed-image.json`，记录 current/previous digest 与 source identity。
 
 旧组合 `.env` 仅用于首次过渡：部署脚本通过服务器无密码 sudo 在受保护的 root 上下文读取生产配置，并生成 `runtime.env` 和 `control-plane.env`。runtime 文件排除 migration/backup 凭据；control 文件只保留数据库控制项。Docker 不直接读取带 shell 引号的生产 env：脚本先在 root shell 中解析，再生成权限 `0600` 的临时 Docker env，退出时必定删除。切换时显式通过 `workspace-runtime` 的 `PM2_HOME` 停止旧 `workspace` 进程，失败则以同一身份恢复。凭据不进入仓库、日志、patch 或命令输出。
 

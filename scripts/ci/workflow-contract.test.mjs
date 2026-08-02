@@ -163,6 +163,10 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(deployImage, /IMAGE_ARCHIVE_READY/);
   assert.match(deployImage, /runtime\.docker\.env/);
   assert.match(deployImage, /--env DATABASE_URL --env DIRECT_URL/);
+  assert.match(deployImage, /production deploy preflight passed/);
+  assert.match(deployImage, /preflight_errors/);
+  assert.match(deployImage, /NODE_EXTRA_CA_CERTS ONLYOFFICE_NGINX_SITE/);
+  assert.match(deployImage, /production database is not reachable/);
   assert.match(deployImage, /远端加载镜像 ID 不匹配/);
   assert.match(deployImage, /APPROVED_IMAGE='\$IMAGE'/);
   assert.match(deployImage, /sudo -n env SOURCE_SHA=/);
