@@ -83,6 +83,40 @@ build_and_publish() {
   echo "CNB image published once: ${image_ref}@${image_digest}"
 }
 
+deploy_existing() {
+  for key in APPROVED_SOURCE_SHA APPROVED_SOURCE_TREE APPROVED_IMAGE_REF APPROVED_IMAGE_DIGEST \
+    CNB_DOCKER_REGISTRY CNB_REPO_SLUG_LOWERCASE SERVER REMOTE_DIR; do require "$key"; done
+  [ "${CNB_EVENT:-}" = api_trigger_deploy ] || fail "现有镜像部署只接受 api_trigger_deploy"
+  [[ "$APPROVED_SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || fail "APPROVED_SOURCE_SHA 非法"
+  [[ "$APPROVED_SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]] || fail "APPROVED_SOURCE_TREE 非法"
+  [[ "$APPROVED_IMAGE_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]] || fail "APPROVED_IMAGE_DIGEST 非法"
+  expected_ref="${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}"
+  [ "$APPROVED_IMAGE_REF" = "$expected_ref" ] || fail "只允许部署当前 CNB 仓库镜像"
+
+  mkdir -p "$STATE_DIR"
+  manifest="$RELEASE_FILE"
+  if [ -n "${KEY:-}" ]; then
+    ssh_key="$KEY"
+  elif [ -n "${KEY_CONTENT:-}" ]; then
+    ssh_key="$(mktemp)"
+    printf '%s\n' "$KEY_CONTENT" > "$ssh_key"
+    chmod 600 "$ssh_key"
+    trap 'rm -f "$ssh_key"' EXIT
+  else
+    fail "缺少 KEY/KEY_CONTENT"
+  fi
+  ssh -i "$ssh_key" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new \
+    "$SERVER" "cat '$REMOTE_DIR/.workspace/image-releases/${APPROVED_IMAGE_DIGEST#sha256:}.json'" > "$manifest"
+  [ -s "$manifest" ] || fail "生产服务器缺少已批准 release.json"
+  write_state source-sha "$APPROVED_SOURCE_SHA"
+  write_state source-tree "$APPROVED_SOURCE_TREE"
+  write_state image-ref "$APPROVED_IMAGE_REF"
+  write_state image-digest "$APPROVED_IMAGE_DIGEST"
+  load_release_state
+  docker pull "${IMAGE_REF}@${IMAGE_DIGEST}"
+  bash ./ops/deploy-image.sh production
+}
+
 case "$ACTION" in
   build)
     build_and_publish
@@ -104,5 +138,8 @@ case "$ACTION" in
     [ "${CNB_COMMIT:-}" = "$SOURCE_SHA" ] || fail "部署 SHA 与 CNB_COMMIT 不一致"
     bash ./ops/deploy-image.sh production
     ;;
-  *) fail "用法: cnb-release.sh build|verify|rehearsal|production" ;;
+  deploy-existing)
+    deploy_existing
+    ;;
+  *) fail "用法: cnb-release.sh build|verify|rehearsal|production|deploy-existing" ;;
 esac

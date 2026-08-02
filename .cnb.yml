@@ -186,6 +186,40 @@ main:
         - name: deploy-production
           script: bash ./ops/cnb-release.sh production
 
+  api_trigger_deploy:
+    - name: deploy-approved-existing-image
+      lock:
+        key: main-cnb-delivery-cache
+        expires: 3600
+        wait: true
+        timeout: 3600
+      runner:
+        cpus: 4
+      services:
+        - name: docker
+      docker:
+        build:
+          dockerfile: ops/cnb-ci-cache.Dockerfile
+          by:
+            - .node-version
+            - package.json
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+          versionBy:
+            - .node-version
+            - package-lock.json
+            - ops/cnb-ci-cache.Dockerfile
+          sync: "true"
+      imports:
+        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+      env:
+        PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"
+        REMOTE_DIR: /home/ubuntu/workspace
+        HEALTHCHECK_URL: http://127.0.0.1:3000/workspace/api/internal/health
+      stages:
+        - name: deploy-approved-existing-image-only
+          script: bash ./ops/cnb-release.sh deploy-existing
+
 $:
   tag_deploy.production:
     - name: rollback-known-good-image

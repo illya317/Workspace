@@ -77,6 +77,8 @@ cnb-release.sh verify
 - 私有 CNB env import 只提供 SSH 和生产数据库/运行配置位置；目标路径与 health 是受版本管理的非敏感 Pipeline 配置，Registry 认证和镜像凭据均不进入私有 env；
 - 生产镜像 ref/digest 与 `release.json` 完全一致。
 
+若 required CI、镜像发布、digest 校验和演练已通过，仅 production CD 失败，重试必须走 `api_trigger_deploy`：传入已批准的 SHA、tree、image ref 和 digest，从生产保存的 release manifest 重新校验身份，只执行现有镜像传输与部署。该路径禁止重跑 lint、类型、测试、Next build、Docker build 和演练。
+
 生产顺序固定为：
 
 1. 获取排他部署锁；

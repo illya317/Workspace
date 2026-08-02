@@ -40,4 +40,5 @@ DEPLOY_IMAGE_REF="${ROLLBACK_IMAGE_REF:-${default_rollback_ref:-$APPROVED_IMAGE_
 export SOURCE_SHA SOURCE_TREE APPROVED_IMAGE_REF DEPLOY_IMAGE_REF
 export IMAGE_DIGEST="$previous_digest"
 export RELEASE_MANIFEST_FILE="$manifest_local"
+docker pull "${DEPLOY_IMAGE_REF}@${IMAGE_DIGEST}"
 exec bash "$(dirname "$0")/deploy-image.sh" production

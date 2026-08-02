@@ -59,6 +59,7 @@ test("CNB is the only source CI, image builder, registry and CD platform", () =>
   }
   assert.match(cnb, /^main:\n  pull_request:/m);
   assert.match(cnb, /^  push:/m);
+  assert.match(cnb, /^  api_trigger_deploy:/m);
   assert.doesNotMatch(`${cnb}\n${cnbCi}\n${cnbRelease}`, /github|ghcr\.io|GITHUB_|GHCR_|skopeo/i);
   assert.doesNotMatch(cnb, /NEXTAUTH_SECRET:.*\b20\d{2}\b/);
 });
@@ -76,9 +77,9 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCiCache, /playwright install --with-deps chromium/);
   assert.match(cnbCiCache, new RegExp(`FROM node:${nodeVersion}-bookworm@sha256:[0-9a-f]{64}`));
   assert.match(cnb, /package-lock\.json[\s\S]*ops\/cnb-ci-cache\.Dockerfile/);
-  assert.equal((cnb.match(/versionBy:\n\s+- \.node-version\n\s+- package-lock\.json\n\s+- ops\/cnb-ci-cache\.Dockerfile/g) ?? []).length, 2);
+  assert.equal((cnb.match(/versionBy:\n\s+- \.node-version\n\s+- package-lock\.json\n\s+- ops\/cnb-ci-cache\.Dockerfile/g) ?? []).length, 3);
   assert.doesNotMatch(cnb, /versionBy:\n(?:\s+- .+\n)*\s+- package\.json/);
-  assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 2);
+  assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 3);
   assert.match(cnb, /copy-on-write-read-only/);
   assert.match(cnb, /main:\/workspace\/\.next\/cache:read-write/);
   assert.match(cnb, /main:\/workspace\/\.cache\/eslint:read-write/);
@@ -151,9 +152,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(cnb, /rollback-image\.sh/);
   assert.match(cnbDeploy, /approver:/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
-  assert.equal((cnb.match(/PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"/g) ?? []).length, 2);
-  assert.equal((cnb.match(/REMOTE_DIR: \/home\/ubuntu\/workspace/g) ?? []).length, 2);
-  assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 2);
+  assert.equal((cnb.match(/PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"/g) ?? []).length, 3);
+  assert.equal((cnb.match(/REMOTE_DIR: \/home\/ubuntu\/workspace/g) ?? []).length, 3);
+  assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 3);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);
   assert.match(deployImage, /docker save "\$TRANSFER_IMAGE" \| gzip -1/);
@@ -165,6 +166,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
   assert.match(deployImage, /online image digest mismatch/);
+  assert.match(cnbRelease, /api_trigger_deploy/);
+  assert.match(cnbRelease, /deploy_existing/);
+  assert.match(cnbRelease, /docker pull "\$\{IMAGE_REF\}@\$\{IMAGE_DIGEST\}"/);
 });
 
 test("runtime image and artifact stay build-free and immutable", () => {
