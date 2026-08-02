@@ -3,6 +3,8 @@ import { E2E_ADMIN_STORAGE_STATE } from "./support/auth";
 import { recordReadyTransition } from "./support/readiness";
 
 const TEST_TIMEOUT_MS = 90_000;
+const SAVE_RESPONSE_TIMEOUT_MS = 15_000;
+const RESTORE_TIMEOUT_MS = 15_000;
 const ACCOUNT_RELOAD_SLOW_BUDGET_MS = 10_000;
 test.use({ storageState: E2E_ADMIN_STORAGE_STATE });
 test.describe.configure({ retries: 0 });
@@ -49,13 +51,15 @@ test("账号设置可以从页面保存、读回并在刷新后保持", {
   });
 
   try {
-    const saveResponsePromise = page.waitForResponse((response) => (
-      response.request().method() === "PUT"
-      && response.url().endsWith("/workspace/api/settings/account/profile")
-    ));
     await phoneInput.fill(changedPhone);
-    await phoneInput.press("Tab");
-    const saveResponse = await saveResponsePromise;
+    await expect(phoneInput).toHaveValue(formattedPhone(changedPhone));
+    const [saveResponse] = await Promise.all([
+      page.waitForResponse((response) => (
+        response.request().method() === "PUT"
+        && response.url().endsWith("/workspace/api/settings/account/profile")
+      ), { timeout: SAVE_RESPONSE_TIMEOUT_MS }),
+      phoneInput.press("Tab"),
+    ]);
     expect(saveResponse.ok()).toBeTruthy();
     await expect(page.getByText("账号资料已更新", { exact: true })).toBeVisible();
 
@@ -78,7 +82,9 @@ test("账号设置可以从页面保存、读回并在刷新后保持", {
         .toHaveValue(formattedPhone(changedPhone)),
     });
   } finally {
+    testInfo.setTimeout(testInfo.timeout + RESTORE_TIMEOUT_MS);
     const restoreResponse = await page.request.put("/workspace/api/settings/account/profile", {
+      timeout: RESTORE_TIMEOUT_MS,
       data: {
         username: before.username,
         alias: before.alias,
