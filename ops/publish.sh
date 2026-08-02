@@ -32,7 +32,8 @@ usage() {
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh status --shadow-unit UNIT [--json]
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh push
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh database-replace ...
-  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh data ...
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh data upload|verify|status ...
+  OPS_ENV_FILE=/path/to/ops.env ops/publish.sh data apply --id RELEASE_ID --source-sha FULL_GIT_SHA
   OPS_ENV_FILE=/path/to/ops.env ops/publish.sh timing pause|resume|status
 
 正式应用生命周期保持 ci -> Ready -> deploy：
@@ -388,7 +389,11 @@ case "${1:-}" in
     exit 0
     ;;
   data)
-    shift; exec "$SCRIPT_DIR/upload-data-release.sh" "$@" ;;
+    shift
+    if [ "${1:-}" = apply ]; then
+      exec "$SCRIPT_DIR/apply-production-data-release.sh" "$@"
+    fi
+    exec "$SCRIPT_DIR/upload-data-release.sh" "$@" ;;
   database-replace)
     shift; exec "$SCRIPT_DIR/publish-database-replacement.sh" "$@" ;;
   timing)
