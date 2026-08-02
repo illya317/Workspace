@@ -73,8 +73,8 @@ cnb-release.sh verify
 - `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
 - 受保护的 main push Pipeline 在演练通过后固定注入 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
 - 受保护 Pipeline 版本化保存非敏感的生产根目录与回环健康地址，私有 env 只保存服务器、SSH 和生产凭据；
-- 生产服务器拉取私有镜像时，只使用私有 env 中的 `CNB_REGISTRY_USER + CNB_REGISTRY_TOKEN` 专用只读凭据；不使用 Pipeline 内置短期 token，不给予源码或镜像写权限；
-- 私有 CNB env import 提供 SSH、只读 Registry 凭据和生产数据库/运行配置位置；目标路径与 health 是受版本管理的非敏感 Pipeline 配置；
+- 生产服务器拉取私有镜像时，使用 CNB 为当前构建节点自动注入且已经完成镜像校验的 Registry 临时认证；只转交目标 Registry 的单个 auth 条目，Pipeline 结束后平台销毁 token，服务器无论成败都删除临时 Docker config；不需要长期 Registry token；
+- 私有 CNB env import 只提供 SSH 和生产数据库/运行配置位置；目标路径与 health 是受版本管理的非敏感 Pipeline 配置，Registry 认证由 CNB 临时注入而不进入私有 env；
 - 生产镜像 ref/digest 与 `release.json` 完全一致。
 
 生产顺序固定为：

@@ -156,11 +156,12 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 2);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);
-  assert.match(deployImage, /CNB_REGISTRY_TOKEN/);
-  assert.match(deployImage, /CNB_REGISTRY_USER="\$\{CNB_REGISTRY_USER:-cnb\}"/);
-  assert.match(deployImage, /login '\$remote_registry' -u '\$CNB_REGISTRY_USER' --password-stdin/);
-  assert.doesNotMatch(deployImage, /CNB_TOKEN_USER_NAME|printf '%s' "\$CNB_TOKEN"/);
-  assert.doesNotMatch(deployImage, /login '\$remote_registry' -u cnb/);
+  assert.match(deployImage, /DOCKER_AUTH_CONFIG/);
+  assert.match(deployImage, /CNB 构建节点未提供可转交的 Registry 临时认证/);
+  assert.match(deployImage, /json\.dumps\(\{"auths": \{registry: credential\}\}/);
+  assert.match(deployImage, /cat > '\$REMOTE_DIR\/\.workspace\/docker-auth\/config\.json'/);
+  assert.match(deployImage, /trap cleanup_registry_auth EXIT/);
+  assert.doesNotMatch(deployImage, /CNB_REGISTRY_TOKEN|CNB_REGISTRY_USER|CNB_TOKEN_USER_NAME/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
   assert.match(deployImage, /online image digest mismatch/);

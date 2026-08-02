@@ -125,7 +125,7 @@ fi
 missing_inputs=()
 [ "${PRODUCTION_IMAGE_DEPLOY_ENABLED:-}" = 1 ] \
   || missing_inputs+=("PRODUCTION_IMAGE_DEPLOY_ENABLED=1")
-for key in SERVER REMOTE_DIR HEALTHCHECK_URL CNB_REGISTRY_TOKEN; do
+for key in SERVER REMOTE_DIR HEALTHCHECK_URL; do
   [ -n "${!key:-}" ] || missing_inputs+=("$key")
 done
 if [ -z "${KEY:-}" ] && [ -z "${KEY_CONTENT:-}" ]; then
@@ -140,7 +140,6 @@ fi
 REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-$REMOTE_DIR/.workspace/runtime.env}"
 REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-$REMOTE_DIR/.workspace/control-plane.env}"
 REMOTE_LEGACY_ENV_FILE="${REMOTE_LEGACY_ENV_FILE:-$REMOTE_DIR/.workspace/.env}"
-CNB_REGISTRY_USER="${CNB_REGISTRY_USER:-cnb}"
 if [ -n "${KEY:-}" ]; then
   SSH_KEY="$KEY"
 elif [ -n "${KEY_CONTENT:-}" ]; then
@@ -153,16 +152,48 @@ fi
 case "$REMOTE_DIR $REMOTE_RUNTIME_ENV_FILE $REMOTE_CONTROL_ENV_FILE" in
   *[!A-Za-z0-9_./\ -]*) fail "远端路径包含不安全字符" ;;
 esac
-case "$CNB_REGISTRY_USER" in
-  *[!A-Za-z0-9_.@-]*) fail "CNB_REGISTRY_USER 包含不安全字符" ;;
-esac
 ssh_options=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new)
-cleanup_key() { [ "${KEY:-}" = "$SSH_KEY" ] || rm -f "$SSH_KEY"; }
-trap cleanup_key EXIT
-
 remote_registry="${DEPLOY_IMAGE_REF%%/*}"
-printf '%s' "$CNB_REGISTRY_TOKEN" | ssh "${ssh_options[@]}" "$SERVER" \
-  "mkdir -p '$REMOTE_DIR/.workspace/docker-auth' && docker --config '$REMOTE_DIR/.workspace/docker-auth' login '$remote_registry' -u '$CNB_REGISTRY_USER' --password-stdin >/dev/null"
+REGISTRY_AUTH_FILE="$(mktemp)"
+cleanup_local_credentials() {
+  rm -f "$REGISTRY_AUTH_FILE"
+  [ "${KEY:-}" = "$SSH_KEY" ] || rm -f "$SSH_KEY"
+}
+trap cleanup_local_credentials EXIT
+REMOTE_REGISTRY="$remote_registry" REGISTRY_AUTH_FILE="$REGISTRY_AUTH_FILE" python3 - <<'PY'
+import json, os, pathlib
+
+registry = os.environ["REMOTE_REGISTRY"]
+target = pathlib.Path(os.environ["REGISTRY_AUTH_FILE"])
+sources = []
+inline = os.environ.get("DOCKER_AUTH_CONFIG", "").strip()
+if inline:
+    sources.append(("DOCKER_AUTH_CONFIG", inline))
+docker_config = pathlib.Path(os.environ.get("DOCKER_CONFIG", pathlib.Path.home() / ".docker")) / "config.json"
+if docker_config.is_file():
+    sources.append((str(docker_config), docker_config.read_text(encoding="utf-8")))
+
+def host(value):
+    return value.removeprefix("https://").removeprefix("http://").removesuffix("/v1/").rstrip("/")
+
+for source, raw in sources:
+    try:
+        config = json.loads(raw)
+    except json.JSONDecodeError:
+        continue
+    for key, credential in config.get("auths", {}).items():
+        if host(key) != registry or not isinstance(credential, dict):
+            continue
+        if not any(credential.get(name) for name in ("auth", "identitytoken", "registrytoken")):
+            continue
+        target.write_text(json.dumps({"auths": {registry: credential}}, separators=(",", ":")), encoding="utf-8")
+        target.chmod(0o600)
+        raise SystemExit(0)
+raise SystemExit("CNB 构建节点未提供可转交的 Registry 临时认证")
+PY
+ssh "${ssh_options[@]}" "$SERVER" \
+  "umask 077; mkdir -p '$REMOTE_DIR/.workspace/docker-auth'; cat > '$REMOTE_DIR/.workspace/docker-auth/config.json'" \
+  < "$REGISTRY_AUTH_FILE"
 ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releases'"
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 
@@ -171,6 +202,8 @@ ssh "${ssh_options[@]}" "$SERVER" \
 set -euo pipefail
 exec 9>"$REMOTE_DIR/.workspace/image-deploy.lock"
 flock -n 9 || { echo '[错误] 另一镜像部署正在运行' >&2; exit 1; }
+cleanup_registry_auth() { rm -rf "$REMOTE_DIR/.workspace/docker-auth"; }
+trap cleanup_registry_auth EXIT
 
 if [ ! -s "$REMOTE_RUNTIME_ENV_FILE" ] || [ ! -s "$REMOTE_CONTROL_ENV_FILE" ]; then
   [ -s "$REMOTE_LEGACY_ENV_FILE" ] || { echo '[错误] 缺少生产 env 文件' >&2; exit 1; }
@@ -263,6 +296,5 @@ value={"schemaVersion":1,"kind":"workspace-deployed-image","current":{"sourceSha
 tmp=path+'.tmp'; open(tmp,'w').write(json.dumps(value,indent=2)+'\n'); os.replace(tmp,path)
 PY
 docker --config "$REMOTE_DIR/.workspace/docker-auth" logout "${IMAGE%%/*}" >/dev/null 2>&1 || true
-rm -rf "$REMOTE_DIR/.workspace/docker-auth"
 echo "production image deployed: $IMAGE_DIGEST"
 REMOTE
