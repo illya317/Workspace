@@ -79,6 +79,7 @@ const TASKS = {
   ),
   "test-focus": npmScript("test:focus:check", "Focused-test guard"),
   "test-node": npmScript("test:node", "Node tests"),
+  "shell-errexit-policy": npmScript("shell:errexit:check", "Shell errexit policy"),
   "typecheck-entrypoints": npmScript("typecheck:entrypoints:check", "TypeScript entrypoint policy"),
   "typecheck-project-references": npmScript("typecheck:references:check", "TypeScript project references"),
   "typecheck-full": npmScript("typecheck:full", "Full typecheck", { covers: ["typecheck-quick"] }),
@@ -147,6 +148,7 @@ const SUITES = {
   push: ["@blockers", "@changed", "test-node"],
   "release-static": [
     "playwright-lifecycle",
+    "shell-errexit-policy",
     "@blockers",
     "env",
     "db-path",

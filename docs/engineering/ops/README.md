@@ -23,6 +23,8 @@ disabled until a CNB adapter can persist and consume the same Ready Artifact.
 Repository-owned runtime dependency contracts:
 
 - [CI/CD 与测试分级](./ci-cd.md)
+- [Release CI attempt receipts](./release-ci-attempts.md)
+- [Deploy attempts and blocker ledger](./release-deploy-attempts.md)
 - [Deploy Unit Graph](./deploy-units.md)
 - [远端开发环境与 Codex SSH 项目](./remote-development.md)
 - [私有工作区与新租户初始化](./workspace-config.md)

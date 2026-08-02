@@ -9,7 +9,7 @@
     {
       "name": "deploy-contract-test",
       "include": ["ops/deploy/source-contract.mjs"],
-      "allowedDependencies": []
+      "allowedDependencies": ["transport"]
     },
     {
       "name": "release-artifact",
@@ -37,6 +37,11 @@
       "allowedDependencies": []
     },
     {
+      "name": "release-deploy",
+      "include": ["ops/release/deploy/"],
+      "allowedDependencies": ["release-candidate", "release-control", "release-readiness"]
+    },
+    {
       "name": "release-validation",
       "include": ["ops/release/validation/"],
       "allowedDependencies": ["release-candidate", "release-contracts", "release-diagnostics"]
@@ -47,13 +52,18 @@
       "allowedDependencies": ["release-artifact", "release-contracts", "release-validation"]
     },
     {
+      "name": "release-worktree",
+      "include": ["ops/release/worktree/"],
+      "allowedDependencies": []
+    },
+    {
       "name": "release-cli",
       "include": ["ops/release-gate-receipt.mjs"],
       "allowedDependencies": ["release-contracts"]
     },
     {
       "name": "transport",
-      "include": ["ops/deploy/transport.sh"],
+      "include": ["ops/deploy/transport-preflight.sh", "ops/deploy/transport.sh"],
       "allowedDependencies": []
     },
     {
@@ -89,7 +99,7 @@
     {
       "name": "orchestration",
       "include": ["ops/deploy.sh"],
-      "allowedDependencies": ["artifact", "atomic-cutover", "health", "runtime-safety", "runtime-supply", "state", "transport"]
+      "allowedDependencies": ["artifact", "atomic-cutover", "health", "release-deploy", "runtime-safety", "runtime-supply", "state", "transport"]
     }
   ]
 }

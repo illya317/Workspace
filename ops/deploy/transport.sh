@@ -291,73 +291,8 @@ $remote_command
 "
 }
 
-verify_remote_runtime_pm2() {
-  if [ "$WORKSPACE_RUNTIME_PM2_MODE" != "hardened" ]; then
-    echo "==> 使用 legacy PM2 兼容模式；长期进程凭据隔离未由 deploy runner 强制"
-    return 0
-  fi
-  echo "==> 校验 production runtime PM2 runner 与凭据隔离契约..."
-  ssh_cmd "
-    set -e
-    sudo -n -- test -f '$WORKSPACE_RUNTIME_PM2_RUNNER'
-    sudo -n -- test -x '$WORKSPACE_RUNTIME_PM2_RUNNER'
-    sudo -n -- test -r '$REMOTE_CONTROL_ENV_FILE'
-    sudo -n -- test -r '$REMOTE_RUNTIME_ENV_FILE'
-    sudo -n -- python3 - '$WORKSPACE_RUNTIME_PM2_RUNNER' '$REMOTE_CONTROL_ENV_FILE' '$REMOTE_RUNTIME_ENV_FILE' <<'PY'
-from pathlib import Path
-import stat
-import sys
-
-runner, control, runtime = map(Path, sys.argv[1:])
-for path, label in ((runner, 'runtime PM2 runner'), (control, 'control-plane env'), (runtime, 'runtime env')):
-    if not path.is_file():
-        raise SystemExit(f'{label} must be a regular file')
-    if path.stat().st_uid != 0:
-        raise SystemExit(f'{label} must be root-owned')
-    if path.stat().st_mode & (stat.S_IWGRP | stat.S_IWOTH):
-        raise SystemExit(f'{label} must not be group/world-writable')
-if stat.S_IMODE(control.stat().st_mode) & 0o077:
-    raise SystemExit('control-plane env must not be accessible by group or other users')
-runtime_mode = stat.S_IMODE(runtime.stat().st_mode)
-if not runtime_mode & stat.S_IRUSR or not runtime_mode & stat.S_IRGRP:
-    raise SystemExit('runtime env must be readable only by root and its dedicated runtime group')
-if runtime_mode & 0o027:
-    raise SystemExit('runtime env must not be group-writable/executable or accessible by other users')
-if control.resolve() == runtime.resolve():
-    raise SystemExit('runtime and control-plane env must resolve to different files')
-runtime_keys = {
-    line.split('=', 1)[0].strip()
-    for line in runtime.read_text(encoding='utf-8').splitlines()
-    if line.strip() and not line.lstrip().startswith('#') and '=' in line
-}
-if 'DATABASE_URL' not in runtime_keys:
-    raise SystemExit('runtime env is missing DATABASE_URL')
-for forbidden in (
-    'DIRECT_URL', 'SHADOW_DATABASE_URL', 'WORKSPACE_BACKUP_DATABASE_URL', 'WORKSPACE_MONITOR_DATABASE_URL',
-    'PGPASSWORD', 'PGPASSFILE', 'PGSERVICE', 'PGSERVICEFILE', 'PGOPTIONS', 'PGUSER', 'PGHOST', 'PGDATABASE',
-):
-    if forbidden in runtime_keys:
-        raise SystemExit(f'runtime env contains forbidden {forbidden}')
-control_keys = {
-    line.split('=', 1)[0].strip()
-    for line in control.read_text(encoding='utf-8').splitlines()
-    if line.strip() and not line.lstrip().startswith('#') and '=' in line
-}
-for required in ('DIRECT_URL', 'WORKSPACE_BACKUP_DATABASE_URL'):
-    if required not in control_keys:
-        raise SystemExit(f'control-plane env is missing {required}')
-PY
-    load_control_environment
-    workspace_assert_hardened_database_url \"\$DATABASE_URL\" workspace_runtime 0 DATABASE_URL
-    workspace_assert_hardened_database_url \"\$DIRECT_URL\" workspace_migrator 1 DIRECT_URL
-    workspace_assert_hardened_database_url \"\$WORKSPACE_BACKUP_DATABASE_URL\" workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL
-    if [ \"\${WORKSPACE_MONITOR_DATABASE_URL+x}\" = 'x' ]; then
-      workspace_assert_hardened_database_url \"\$WORKSPACE_MONITOR_DATABASE_URL\" workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL
-    fi
-    sudo -n -- '$WORKSPACE_RUNTIME_PM2_RUNNER' --version >/dev/null
-    workspace_assert_managed_runtime_environment
-  "
-}
+# shellcheck source=ops/deploy/transport-preflight.sh
+source "$SCRIPT_DIR/deploy/transport-preflight.sh"
 
 
 start_ssh_master() {
@@ -372,24 +307,19 @@ start_ssh_master() {
     fi
   done
   echo "[错误] SSH 控制连接连续 5 次建立失败"
-  exit 1
+  return 1
 }
 
 sync_remote_deploy_tools() {
-  echo "==> 同步部署凭证与 Full Gateway 收口工具..."
-  FULL_DEPLOY_GRAPH_TMP="$(mktemp "${TMPDIR:-/tmp}/workspace-full-deploy-graph.XXXXXX")"
-  : "${RELEASE_DEPLOY_GRAPH_FILE:?RELEASE_DEPLOY_GRAPH_FILE is required from the validated artifact bundle}"
-  cp "$RELEASE_DEPLOY_GRAPH_FILE" "$FULL_DEPLOY_GRAPH_TMP"
-  expected_graph_sha="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs?.deployGraphSha256 ?? "")' "$ARTIFACT_MANIFEST_PATH")"
-  node ops/gateway-generation.mjs graph-assert --graph "$FULL_DEPLOY_GRAPH_TMP" --digest "$expected_graph_sha" >/dev/null
-  node ops/gateway-generation.mjs graph-digest --graph "$FULL_DEPLOY_GRAPH_TMP" >/dev/null
-  DEPLOY_TOOL_BUNDLE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/workspace-deploy-tools.XXXXXX")"
-  node ops/release/control/deploy-tool-bundle.mjs build \
-    --repository "$PWD" \
-    --output "$DEPLOY_TOOL_BUNDLE_TMP" \
-    --profile full >/dev/null
-  node ops/release/control/deploy-tool-bundle.mjs verify \
-    --bundle "$DEPLOY_TOOL_BUNDLE_TMP" >/dev/null
+  echo "==> 锁内同步已预检的部署工具与 Full Gateway graph..."
+  [ -n "${DEPLOY_TOOL_BUNDLE_TMP:-}" ] && [ -d "$DEPLOY_TOOL_BUNDLE_TMP" ] || {
+    echo "[错误] deploy-tool bundle 未经零写入预检" >&2
+    return 1
+  }
+  [ -n "${FULL_DEPLOY_GRAPH_TMP:-}" ] && [ -f "$FULL_DEPLOY_GRAPH_TMP" ] || {
+    echo "[错误] Full Gateway graph 未经零写入预检" >&2
+    return 1
+  }
   ssh_cmd "mkdir -p '$REMOTE_DEPLOY_TOOL_DIR'"
   rsync -az --delete-delay -e "$RSYNC_SSH_COMMAND" \
     "$DEPLOY_TOOL_BUNDLE_TMP/" "$SERVER:$REMOTE_DEPLOY_TOOL_DIR/"

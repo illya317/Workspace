@@ -135,4 +135,7 @@ test("tenant config sync restores runtime ACLs after atomic installation", () =>
   assert.ok(install >= 0 && reconcile > install);
   assert.match(syncTenantConfig, /reconcile-runtime-config-permissions\.sh/);
   assert.match(syncTenantConfig, /'\$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime/);
+  assert.match(syncTenantConfig, /租户配置安装只能在已获取的共享 deploy\.lock 内执行/);
+  assert.match(syncTenantConfig, /deploy-lock\.owner/);
+  assert.match(syncTenantConfig, /flock -n/);
 });

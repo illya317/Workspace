@@ -17,6 +17,7 @@ const PROFILES = Object.freeze({
   "deploy-unit-tools": Object.freeze([
     "ops/release/control/deploy-tool-bundle.mjs",
     "ops/apply-deploy-unit.sh",
+    "ops/release/deploy/unit-lock-qualification.sh",
     "ops/deploy-unit-sidecar.sh",
     "ops/internal-unit-identity.mjs",
     "ops/internal-rpc-deployment-guard.mjs",

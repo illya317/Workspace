@@ -1,28 +1,18 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
-  exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
+  exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@" || exit 1
 fi
 OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 # shellcheck source=/dev/null
-source "$OPS_ENV_FILE"
+source "$OPS_ENV_FILE" || exit 1
 SOURCE_DIR="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
 WORKSPACE_CONFIG_DIR="${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}"
 export WORKSPACE_CONFIG_DIR
 CNB_REAL_CNB_YML="${CNB_REAL_CNB_YML:-$WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml}"
-
-: "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
-: "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
-: "${CNB_REPO:?CNB_REPO not set in $OPS_ENV_FILE}"
-: "${WORKSPACE_CONFIG_DIR:?WORKSPACE_CONFIG_DIR not set in $OPS_ENV_FILE}"
-: "${DEPLOY_CONTROL_SOURCE_SHA:?deploy requires an independently verified controller source}"
-: "${DEPLOY_CONTROL_TREE_ID:?deploy requires an independently verified controller tree}"
-: "${DEPLOY_CONTROL_DIGEST:?deploy requires an independently verified controller digest}"
-: "${DEPLOY_CONTROL_RECEIPT_DIGEST:?deploy requires an independently verified controller receipt digest}"
-: "${RELEASE_CONTROLLER_READY_RECEIPT_FILE:?deploy requires the verified Controller Ready receipt}"
 
 BOOTSTRAP_PRODUCTION_BASE=""
 BOOTSTRAP_LEGACY_CNB_COMMIT=""
@@ -119,9 +109,12 @@ prepare_server_read_key() {
     SERVER_READ_KEY="$TMP_KEY"
   else
     echo "[错误] 缺少生产只读验证所需 KEY/KEY_CONTENT"
-    exit 1
+    return 1
   fi
 }
+
+# shellcheck source=ops/release/deploy/publish-cnb-preflight.sh
+source "$SCRIPT_DIR/release/deploy/publish-cnb-preflight.sh"
 
 format_duration() {
   local total_seconds="$1"
@@ -187,6 +180,33 @@ while [ "$#" -gt 0 ]; do
   esac
   shift
 done
+
+TMP_DIR="$(mktemp -d)"
+input_probe_ready=1
+credential_probe_ready=1
+if ! probe_publish_inputs; then
+  publish_preflight_fail "入口参数/环境/目标组合无效"
+  input_probe_ready=0
+fi
+if ! prepare_server_read_key; then
+  publish_preflight_fail "生产只读凭据无效"
+  credential_probe_ready=0
+fi
+if [ "$input_probe_ready" = 1 ]; then
+  probe_candidate_ready_artifact || publish_preflight_fail "Application Ready/artifact 复验失败"
+  probe_controller_ready || publish_preflight_fail "Controller Ready 复验失败"
+  probe_tenant_config || publish_preflight_fail "tenant config dry-run 失败"
+else
+  publish_preflight_fail "Application Ready/artifact blocked：入口输入无效"
+  publish_preflight_fail "Controller Ready blocked：入口输入无效"
+  publish_preflight_fail "tenant config dry-run blocked：入口输入无效"
+fi
+if [ "$input_probe_ready" = 1 ] && [ "$credential_probe_ready" = 1 ]; then
+  probe_production_state || publish_preflight_fail "生产 canonical 状态/ancestry 预检失败"
+else
+  publish_preflight_fail "生产 canonical 状态 blocked：入口输入或只读凭据无效"
+fi
+if ! finish_publish_preflight; then exit 1; fi
 
 [ "$RELEASE_ACTION" = deploy ] || { echo "[错误] 旧 validate/build 发布动作已删除；只允许 deploy" >&2; exit 2; }
 [ "$DIRECT_RELEASE" = 1 ] || { echo "[错误] 远端 CNB 分段发布已删除；只允许 Ready Artifact 本地直部署" >&2; exit 2; }
@@ -385,7 +405,6 @@ if [ -n "$GENESIS_PRODUCTION_BASE" ]; then
     || { echo "[错误] genesis 候选历史必须保持线性"; exit 1; }
 fi
 
-TMP_DIR="$(mktemp -d)"
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   prepare_server_read_key
 fi
@@ -474,9 +493,9 @@ LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH
 echo "==> 已验证 Ready Receipt；deploy 不运行源码检查、编译或 artifact 组装。"
 
 if [ "$RELEASE_ACTION" = "deploy" ] && [ "$PRINT_COMMAND_ONLY" = "0" ]; then
-  echo "==> 同步并校验本次部署使用的租户配置..."
+  echo "==> 零写入校验本次部署使用的租户配置；实际安装由 deploy.lock 持有者执行..."
   TENANT_SYNC_STARTED_EPOCH_SECONDS="$(date +%s)"
-  OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$SOURCE_SHA"
+  OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/sync-tenant-config.sh" --dry-run --source-sha "$SOURCE_SHA"
   TENANT_SYNC_DURATION_SECONDS="$(($(date +%s) - TENANT_SYNC_STARTED_EPOCH_SECONDS))"
 fi
 
@@ -647,6 +666,8 @@ if (process.env.DATABASE_REPLACEMENT_RECEIPT_FILE) {
 }
 fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
 NODE
+# workspace-errexit-role: mutation-barrier
+set -e
 record_release_event running 0
 
 if [ "$DIRECT_RELEASE" = "1" ]; then
@@ -732,7 +753,15 @@ NODE" 2>/dev/null || true)"
   deployed_release_id="$(printf '%s\n' "$deployed_values" | sed -n '2p')"
   if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then
     ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-      "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_CONTENT_DIGEST'"
+      "health_status=0
+       version_status=0
+       curl --max-time 15 -fsS '$HEALTHCHECK_URL' >/dev/null || health_status=1
+       version_value=\$(curl --max-time 15 -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))') || version_status=1
+       [ \"\$version_value\" = '$SOURCE_CONTENT_DIGEST' ] || version_status=1
+       if [ \"\$health_status\" -ne 0 ] || [ \"\$version_status\" -ne 0 ]; then
+         echo \"[错误] deploy completion verification failed: health=\$health_status version=\$version_status\" >&2
+         exit 1
+       fi"
     FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
     FORMAL_DEPLOY_FINISHED_AT="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
     FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"

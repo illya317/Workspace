@@ -39,6 +39,7 @@
     "complexity:line-budget": "node scripts/check/with-check-lock.js -- node scripts/check/check-net-line-growth.js",
     "complexity:split-quality": "node scripts/check/with-check-lock.js -- node scripts/check/check-split-quality.js",
     "lint:full": "npm run lint -- --max-warnings=0",
+    "shell:errexit:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-shell-errexit-policy.mjs",
     "typecheck:entrypoints:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-typecheck-entrypoints.js",
     "typecheck:references:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-typecheck-project-references.js",
     "deploy:graph:check": "node scripts/check/with-check-lock.js -- node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts",

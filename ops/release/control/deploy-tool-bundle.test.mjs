@@ -38,6 +38,7 @@ test("versioned profiles cover every release entry and current second-level depe
   for (const entry of [
     "ops/release/control/deploy-tool-bundle.mjs",
     "ops/apply-deploy-unit.sh",
+    "ops/release/deploy/unit-lock-qualification.sh",
     "ops/promote-deploy-profile.sh",
     "ops/rollback-deploy-profile.sh",
   ]) assert.ok(unitEntries.includes(entry));
@@ -197,6 +198,7 @@ test("transferred bundle rejects missing transitive files and multiple stale fil
 
 test("transport exact-syncs then remotely verifies before executing another deploy tool", () => {
   const transport = readFileSync(new URL("../../deploy/transport.sh", import.meta.url), "utf8");
+  const preflight = readFileSync(new URL("../../deploy/transport-preflight.sh", import.meta.url), "utf8");
   const exactTransfer = transport.indexOf('rsync -az --delete-delay -e "$RSYNC_SSH_COMMAND"');
   const remoteVerify = transport.indexOf(
     "node '$REMOTE_DEPLOY_TOOL_DIR/release/control/deploy-tool-bundle.mjs'",
@@ -204,8 +206,8 @@ test("transport exact-syncs then remotely verifies before executing another depl
   const firstOtherRemoteTool = transport.indexOf(
     "node '$REMOTE_GATEWAY_GENERATION_TOOL' graph-digest",
   );
-  assert.match(transport, /--profile full/);
-  assert.doesNotMatch(transport, /--entry ops\//);
+  assert.match(preflight, /--profile full/);
+  assert.doesNotMatch(preflight, /--entry ops\//);
   assert.ok(exactTransfer >= 0);
   assert.ok(remoteVerify > exactTransfer);
   assert.ok(firstOtherRemoteTool > remoteVerify);

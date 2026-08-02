@@ -62,6 +62,7 @@ test("release source suite is the complete CI gate without duplicate artifact bu
   assert.ok(firstTypecheck > lastNodeShard);
   assert.ok(sourceIds.includes("docs-action-contracts"));
   assert.ok(sourceIds.includes("lint-full"));
+  assert.ok(sourceIds.includes("shell-errexit-policy"));
 });
 
 test("deploy-unit release source suite minimizes only lint, Node tests, and typecheck from the graph", () => {

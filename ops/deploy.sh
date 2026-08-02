@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
@@ -213,6 +213,17 @@ DEPLOYED_CONTROLLER_RECEIPT_DIGEST=""
 RELEASE_TIMING_ENABLED=0
 REMOTE_RELEASE_TIMING_ENABLED=0
 FULL_DEPLOY_GRAPH_TMP=""
+DEPLOY_PREFLIGHT_EVIDENCE_ROOT="${DEPLOY_PREFLIGHT_EVIDENCE_ROOT:-$PWD/.cache/release-deploy-preflight}"
+DEPLOY_PREFLIGHT_ATTEMPT_ID="full-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+DEPLOY_PREFLIGHT_LOG_ROOT="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/logs/$DEPLOY_PREFLIGHT_ATTEMPT_ID"
+DEPLOY_PREFLIGHT_CHECKS_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.checks.tsv"
+DEPLOY_PREFLIGHT_CONTEXT_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.context.json"
+DEPLOY_PREFLIGHT_BINDINGS_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.bindings.json"
+DEPLOY_PREFLIGHT_EXACT_BINDINGS_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.exact-bindings.json"
+DEPLOY_PREFLIGHT_SNAPSHOT_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.production.json"
+DEPLOY_PREFLIGHT_LOCKED_SNAPSHOT_FILE="$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/$DEPLOY_PREFLIGHT_ATTEMPT_ID.production-locked.json"
+DEPLOY_PREFLIGHT_ATTEMPT_FILE=""
+DEPLOY_PREFLIGHT_READY_FILE=""
 
 
 # Production deployment is composed here; implementation modules are private to this entrypoint.
@@ -233,17 +244,132 @@ source "$SCRIPT_DIR/deploy/atomic-cutover.sh"
 # shellcheck source=ops/deploy/health.sh
 source "$SCRIPT_DIR/deploy/health.sh"
 
-echo "==> 校验 CI 基础命令..."
-require_local_cmd base64
-require_local_cmd ssh
-require_local_cmd rsync
-require_local_cmd sha256sum
-require_local_cmd tar
-echo "==> ssh: $(command -v ssh)"
-echo "==> rsync: $(command -v rsync)"
+DEPLOY_PREFLIGHT_FAILURES=()
+DEPLOY_PREFLIGHT_BLOCKED=()
+DEPLOY_PREFLIGHT_LAST_STATUS=0
+
+case "$DEPLOY_PREFLIGHT_EVIDENCE_ROOT" in
+  /*) ;;
+  *) echo "[错误] DEPLOY_PREFLIGHT_EVIDENCE_ROOT 必须是绝对路径" >&2; exit 1 ;;
+esac
+umask 077
+mkdir -p "$DEPLOY_PREFLIGHT_LOG_ROOT"
+chmod 700 "$DEPLOY_PREFLIGHT_EVIDENCE_ROOT" "$DEPLOY_PREFLIGHT_EVIDENCE_ROOT/logs" "$DEPLOY_PREFLIGHT_LOG_ROOT"
+: > "$DEPLOY_PREFLIGHT_CHECKS_FILE"
+chmod 600 "$DEPLOY_PREFLIGHT_CHECKS_FILE"
+
+deploy_preflight_input_digest() {
+  local key="$1"
+  node - "$key" "$RELEASE_CONTENT_DIGEST" "$RELEASE_METADATA_FILE" \
+    "${ARTIFACT_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}" \
+    "$DEPLOY_PREFLIGHT_SNAPSHOT_FILE" "$SERVER" "$REMOTE_DIR" \
+    "$DEPLOY_EXECUTION_MODE" "$WORKSPACE_RUNTIME_PM2_MODE" <<'NODE'
+const { createHash } = require('node:crypto');
+const { readFileSync } = require('node:fs');
+const [key, content, metadata, manifest, snapshot, server, remote, executionMode, runtimeMode] = process.argv.slice(2);
+const hash = (value) => createHash('sha256').update(value).digest('hex');
+const fileDigest = (file, label) => {
+  try { return hash(readFileSync(file)); } catch (error) {
+    if (error?.code !== 'ENOENT') throw error;
+    return hash(`missing:${label}`);
+  }
+};
+process.stdout.write(hash(JSON.stringify({
+  key, content,
+  metadataDigest: fileDigest(metadata, 'metadata'),
+  manifestDigest: fileDigest(manifest, 'manifest'),
+  snapshotDigest: fileDigest(snapshot, 'snapshot'),
+  serverIdentityDigest: hash(server), remoteRootDigest: hash(remote),
+  executionMode, runtimeMode,
+})));
+NODE
+}
+
+append_deploy_preflight_result() {
+  local key="$1" command_id="$2" status="$3" exit_code="$4" dependencies="$5" log_file="$6"
+  local input_digest
+  input_digest="$(deploy_preflight_input_digest "$key")" || return 1
+  printf '%s\t%s\t%s\t%s\t%s\t%s\t%s\n' \
+    "$key" "$command_id" "$input_digest" "$status" "$exit_code" "$dependencies" "$log_file" \
+    >> "$DEPLOY_PREFLIGHT_CHECKS_FILE"
+}
+
+run_zero_write_preflight_check() {
+  local key="$1"
+  shift
+  local status=0
+  local log_file="$DEPLOY_PREFLIGHT_LOG_ROOT/$key.log"
+  echo "==> Deploy Preflight: $key"
+  : > "$log_file"
+  chmod 600 "$log_file"
+  "$@" >"$log_file" 2>&1 || status=$?
+  DEPLOY_PREFLIGHT_LAST_STATUS="$status"
+  if [ "$status" -eq 0 ]; then
+    echo "    PASS $key (log=$log_file)"
+    append_deploy_preflight_result "$key" "full-deploy.$key.v1" passed 0 "" "$log_file" || {
+      echo "[错误] 无法记录 Deploy Preflight check evidence: $key" >&2
+      exit 1
+    }
+  else
+    echo "    FAIL $key (exit=$status, log=$log_file)" >&2
+    DEPLOY_PREFLIGHT_FAILURES+=("$key:$status")
+    append_deploy_preflight_result "$key" "full-deploy.$key.v1" failed "$status" "" "$log_file" || {
+      echo "[错误] 无法记录 Deploy Preflight check evidence: $key" >&2
+      exit 1
+    }
+  fi
+}
+
+record_zero_write_preflight_blocked() {
+  local key="$1" dependencies="$2"
+  local log_file="$DEPLOY_PREFLIGHT_LOG_ROOT/$key.log"
+  printf 'BLOCKED: prerequisite check did not pass: %s\n' "$dependencies" > "$log_file"
+  chmod 600 "$log_file"
+  echo "    BLOCKED $key (dependencies=$dependencies, log=$log_file)" >&2
+  DEPLOY_PREFLIGHT_BLOCKED+=("$key:$dependencies")
+  append_deploy_preflight_result "$key" "full-deploy.$key.v1" blocked "" "$dependencies" "$log_file" || {
+    echo "[错误] 无法记录 blocked Deploy Preflight evidence: $key" >&2
+    exit 1
+  }
+}
+
+# shellcheck source=ops/release/deploy/full-preflight.sh
+source "$SCRIPT_DIR/release/deploy/full-preflight.sh"
+
+echo "==> Deploy Preflight：任何 production 写入前聚合全部独立检查..."
+for local_command in base64 node ssh rsync sha256sum tar; do
+  run_zero_write_preflight_check "local-command.$local_command" require_local_cmd "$local_command"
+done
+run_zero_write_preflight_check candidate-artifact-graph preflight_candidate_artifact_graph
+run_zero_write_preflight_check deploy-tool-bundle preflight_deploy_tool_bundle
+run_zero_write_preflight_check transport.connect start_ssh_master
+transport_status="$DEPLOY_PREFLIGHT_LAST_STATUS"
+if [ "$transport_status" -eq 0 ]; then
+  run_zero_write_preflight_check transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && test -d '$REMOTE_DIR'"
+  run_zero_write_preflight_check runtime.pm2-contract verify_remote_runtime_pm2
+  run_zero_write_preflight_check runtime.environment validate_remote_runtime
+  run_zero_write_preflight_check production.semantic-snapshot \
+    capture_production_semantic_snapshot "$DEPLOY_PREFLIGHT_SNAPSHOT_FILE"
+else
+  record_zero_write_preflight_blocked transport.remote-smoke transport.connect
+  record_zero_write_preflight_blocked runtime.pm2-contract transport.connect
+  record_zero_write_preflight_blocked runtime.environment transport.connect
+  record_zero_write_preflight_blocked production.semantic-snapshot transport.connect
+fi
+if [ "${#DEPLOY_PREFLIGHT_FAILURES[@]}" -ne 0 ] || [ "${#DEPLOY_PREFLIGHT_BLOCKED[@]}" -ne 0 ]; then
+  record_deploy_preflight_receipts 0 || {
+    echo "[错误] Deploy Preflight failed attempt 回执写入失败" >&2
+    exit 1
+  }
+  echo "[Deploy Preflight 汇总] failed=${DEPLOY_PREFLIGHT_FAILURES[*]:-none}" >&2
+  echo "[Deploy Preflight 汇总] blocked=${DEPLOY_PREFLIGHT_BLOCKED[*]:-none}" >&2
+  echo "[Deploy Preflight 汇总] attempt=$DEPLOY_PREFLIGHT_ATTEMPT_FILE；production mutation=0；修复完整清单后再部署。" >&2
+  exit 1
+fi
+echo "==> Deploy Preflight 聚合通过；物化并绑定精确候选输入..."
 
 echo "==> 校验 release metadata 与精确 source..."
-resolve_release_metadata
+resolve_release_metadata || exit "$?"
 
 if [ -n "${RELEASE_TIMING_FILE:-}" ]; then
   # shellcheck source=ops/lib/release-timing.sh
@@ -258,14 +384,37 @@ fi
 echo "==> validate 回执已冻结；deploy 不运行源码、Prisma、文档或编译检查"
 echo "==> 源码与 migration 静态门禁已由 validate receipt 证明；deploy 只校验生产 migration 区间"
 
-run_deploy_stage artifact.verify build_artifact
-
-echo "==> 验证服务器连接..."
-run_deploy_stage transport.connect start_ssh_master
-run_deploy_stage transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+run_deploy_stage artifact.verify build_artifact || exit "$?"
+run_deploy_stage deploy.tools-preflight prepare_local_deploy_tools || exit "$?"
+record_deploy_preflight_receipts 1 || exit "$?"
+[ -n "$DEPLOY_PREFLIGHT_READY_FILE" ] || {
+  echo "[错误] Deploy Preflight 未签发 Ready；production mutation=0" >&2
+  exit 1
+}
+write_deploy_preflight_context "$DEPLOY_PREFLIGHT_CONTEXT_FILE" || exit "$?"
+node "$SCRIPT_DIR/release/deploy/full-preflight.mjs" bindings \
+  --context "$DEPLOY_PREFLIGHT_CONTEXT_FILE" --output "$DEPLOY_PREFLIGHT_EXACT_BINDINGS_FILE" \
+  --strict 1 --rehash 1 || exit "$?"
+node "$SCRIPT_DIR/release/deploy/full-preflight.mjs" verify \
+  --ready "$DEPLOY_PREFLIGHT_READY_FILE" --attempt "$DEPLOY_PREFLIGHT_ATTEMPT_FILE" \
+  --bindings "$DEPLOY_PREFLIGHT_EXACT_BINDINGS_FILE" >/dev/null || exit "$?"
+echo "==> Deploy Preflight Ready 已锁前精确复验: $DEPLOY_PREFLIGHT_READY_FILE"
+run_deploy_stage deploy.lock acquire_remote_deploy_lock || exit "$?"
+run_deploy_stage deploy.production-snapshot-recheck \
+  capture_production_semantic_snapshot "$DEPLOY_PREFLIGHT_LOCKED_SNAPSHOT_FILE" || {
+    echo "[错误] 锁内 production snapshot 重取失败；production mutation=0" >&2
+    exit 1
+  }
+node "$SCRIPT_DIR/release/deploy/full-preflight.mjs" snapshot-compare \
+  --expected "$DEPLOY_PREFLIGHT_SNAPSHOT_FILE" --actual "$DEPLOY_PREFLIGHT_LOCKED_SNAPSHOT_FILE" || {
+    echo "[错误] 获取部署锁期间 production 语义状态漂移；production mutation=0" >&2
+    exit 1
+  }
+# workspace-errexit-role: mutation-barrier
+set -e
+run_deploy_stage deploy.tenant-config env OPS_ENV_FILE="${OPS_ENV_FILE:?OPS_ENV_FILE is required}" \
+  "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$RELEASE_SOURCE_SHA" --lock-token "$REMOTE_DEPLOY_LOCK_TOKEN"
 run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions
-run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2
-run_deploy_stage deploy.lock acquire_remote_deploy_lock
 run_deploy_stage deploy.tools sync_remote_deploy_tools
 run_deploy_stage deploy.reconcile reconcile_completed_deploy_markers
 verify_release_order
@@ -273,9 +422,9 @@ verify_release_order
 run_deploy_stage runtime.prepare prepare_remote_runtime
 if [ "$DEPLOY_EXECUTION_MODE" = "control-plane-only" ]; then
   run_deploy_stage backup.postgresql backup_remote_postgresql
-  run_deploy_stage backup.cleanup cleanup_remote_backups
   run_deploy_stage lifecycle.deploy deploy_remote_artifact
   run_deploy_stage lifecycle.verify verify_control_plane_release
+  run_deploy_stage backup.cleanup cleanup_remote_backups
 else
   run_deploy_stage runtime.library ensure_remote_library_runtime_deps
   run_deploy_stage runtime.agent ensure_remote_kimi_agent_runtime
@@ -285,9 +434,9 @@ else
   verify_release_order
   run_deploy_stage backup.postgresql backup_remote_postgresql
   run_deploy_stage backup.runtime backup_remote_runtime
-  run_deploy_stage backup.cleanup cleanup_remote_backups
   run_deploy_stage artifact.deploy deploy_remote_artifact
   run_deploy_stage health.final run_healthcheck
+  run_deploy_stage backup.cleanup cleanup_remote_backups
 fi
 
 echo ""

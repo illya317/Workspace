@@ -128,6 +128,11 @@ const contracts = {
   "playwright-lifecycle": { detectors: ["scripts/check/check-playwright-lifecycle.ts"], roots: ["e2e"], files: ["playwright.config.ts"] },
   "playwright-processes": { detectors: ["scripts/check/check-playwright-processes.ts"], roots: ["e2e"], files: ["playwright.config.ts"] },
   "schema": { kind: "prisma", detectors: ["scripts/check/check-schema-governance.js"], roots: ["prisma", "packages/platform"] },
+  "shell-errexit-policy": {
+    detectors: ["scripts/check/check-shell-errexit-policy.mjs"],
+    files: ["scripts/check/shell-errexit-policy.json"],
+    patterns: ["^(?!scripts/check/shell-errexit-policy\\.json$).+"],
+  },
   "split-quality": { detectors: ["scripts/check/check-split-quality.js"], roots: ["scripts/arch", "packages", "app"] },
   "structure-domain": { kind: "domain", detectors: ["scripts/arch/structure-enforce.ts"], roots: ["packages", "app"] },
   "structure-hygiene-warning": {

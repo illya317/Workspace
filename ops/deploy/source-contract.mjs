@@ -17,7 +17,12 @@ const MODULES = [
  */
 export function readDeploySourceContract() {
   return [
-    ...MODULES.map((file) => readFileSync(new URL(file, import.meta.url), "utf8")),
+    ...MODULES.map((file) => {
+      const source = readFileSync(new URL(file, import.meta.url), "utf8");
+      if (file !== "transport.sh") return source;
+      const marker = '# shellcheck source=ops/deploy/transport-preflight.sh\nsource "$SCRIPT_DIR/deploy/transport-preflight.sh"';
+      return source.replace(marker, readFileSync(new URL("transport-preflight.sh", import.meta.url), "utf8"));
+    }),
     readFileSync(new URL("../deploy.sh", import.meta.url), "utf8"),
   ].join("\n");
 }

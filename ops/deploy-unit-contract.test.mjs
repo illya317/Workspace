@@ -1,10 +1,13 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const build = readFileSync("ops/build-deploy-unit-artifact.sh", "utf8");
 const client = readFileSync("ops/deploy-unit.sh", "utf8");
 const apply = readFileSync("ops/apply-deploy-unit.sh", "utf8");
+const unitPreflight = readFileSync("ops/release/deploy/unit-preflight.sh", "utf8");
+const unitLockQualification = readFileSync("ops/release/deploy/unit-lock-qualification.sh", "utf8");
 const sidecar = readFileSync("ops/deploy-unit-sidecar.sh", "utf8");
 const gateway = readFileSync("ops/switch-deploy-gateway.sh", "utf8");
 
@@ -48,6 +51,8 @@ test("unit builder makes only the trusted release dependency link portable", () 
 });
 
 test("client deploy accepts only trusted artifacts while rollback remains an explicit operator action", () => {
+  assert.doesNotMatch(client.slice(0, client.indexOf("PROJECT_ROOT")), /^set -e/m);
+  assert.match(client, /set -uo pipefail/);
   assert.match(client, /DEPLOY_UNIT_TRUSTED_BUILD/);
   assert.match(client, /artifact-assert/);
   assert.match(client, /graph-assert/);
@@ -67,10 +72,64 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.ok(bundleBuild >= 0 && exactSync > bundleBuild && remoteVerify > exactSync);
   assert.ok(firstToolExecution > remoteVerify);
   assert.match(client, /--profile deploy-unit-tools/);
+  const artifactPreflight = client.indexOf("artifact-assert");
+  const sharedLock = client.indexOf("acquire_remote_deploy_lock", artifactPreflight);
+  const remoteToolWrite = client.indexOf("mkdir -p '$REMOTE_TOOL_ROOT'", sharedLock);
+  const remoteStagingWrite = client.indexOf("mkdir -p '$REMOTE_STAGING'", sharedLock);
+  assert.ok(artifactPreflight >= 0 && sharedLock > artifactPreflight);
+  assert.ok(remoteToolWrite > sharedLock && remoteStagingWrite > sharedLock);
+  assert.ok(client.indexOf("sync-tenant-config.sh", sharedLock) > sharedLock);
+  assert.match(client, /DEPLOY_LOCK_TOKEN='\$REMOTE_DEPLOY_LOCK_TOKEN'/);
+  assert.match(unitLockQualification, /apply-deploy-unit 只能消费已获取的共享 deploy\.lock/);
+  assert.match(apply, /qualify_apply_deploy_unit_lock "\$CONFIG_ROOT" "\$LOCK_FILE" "\$LOCK_OWNER_FILE"/);
+  assert.ok(apply.indexOf("qualify_apply_deploy_unit_lock") < apply.indexOf('mkdir -p "$CONFIG_ROOT"'));
   assert.doesNotMatch(client, /ops\/\.\/release\//);
   assert.doesNotMatch(client, /node --check '\$REMOTE_TOOL_ROOT\/release\//);
   assert.doesNotMatch(client, /rsync -azR/);
   assert.ok(client.indexOf("DEPLOY_UNIT_TRUSTED_BUILD") < bundleBuild);
+});
+
+test("unit deploy aggregates zero-write diagnostics and crosses one lock-held mutation barrier", () => {
+  assert.match(client, /preflight_failed=\(\)/);
+  assert.match(client, /preflight_blocked=\(\)/);
+  assert.match(client, /deploy-tool-bundle\.build/);
+  assert.match(client, /artifact\.assert/);
+  assert.match(client, /gateway\.graph-assert/);
+  assert.match(client, /tenant-config\.dry-run/);
+  assert.match(client, /runtime\.remote-contract/);
+  assert.match(client, /production\.semantic-snapshot/);
+  assert.match(unitPreflight, /unit_preflight_record_receipts/);
+  assert.match(client, /unit_preflight_verify_ready/);
+  assert.match(client, /Unit Deploy Preflight 汇总/);
+  const summary = client.indexOf("Unit Deploy Preflight 汇总");
+  const record = client.indexOf("unit_preflight_finalize_evidence");
+  const verifyReady = client.indexOf("unit_preflight_verify_ready", record);
+  const lock = client.indexOf("if ! acquire_remote_deploy_lock", summary);
+  const lockedSnapshot = client.indexOf('capture_unit_production_snapshot "$DEPLOY_PREFLIGHT_LOCKED_SNAPSHOT_FILE"', lock);
+  const compare = client.indexOf('unit-preflight.mjs" snapshot-compare', lockedSnapshot);
+  const marker = client.indexOf("# workspace-errexit-role: mutation-barrier", compare);
+  const errexit = client.indexOf("set " + "-e", marker);
+  const tenantWrite = client.indexOf("./ops/sync-tenant-config.sh --source-sha", errexit);
+  assert.ok(summary > 0 && record < summary && verifyReady > summary && lock > verifyReady);
+  assert.ok(lockedSnapshot > lock && compare > lockedSnapshot);
+  assert.ok(marker > compare && errexit > marker && tenantWrite > errexit);
+  assert.doesNotMatch(client.slice(0, marker), /mkdir -p '\$REMOTE_TOOL_ROOT'|mkdir -p '\$REMOTE_STAGING'/);
+  assert.match(client, /set -o errexit[\s\S]*?exec 9>>'\$lock_file'/);
+});
+
+test("unit deploy reports all independent input failures before acquiring the production lock", () => {
+  const result = spawnSync("bash", ["ops/deploy-unit.sh", "rollback", "invalid!"], {
+    cwd: process.cwd(),
+    encoding: "utf8",
+    env: { PATH: process.env.PATH },
+  });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Unit Deploy Preflight 汇总: failed=[1-9][0-9]* blocked=[1-9][0-9]*; production mutation=0/);
+  assert.match(result.stderr, /failed: input\.unit-id/);
+  assert.match(result.stderr, /failed: input\.SERVER/);
+  assert.match(result.stderr, /failed: input\.deploy-key/);
+  assert.match(result.stderr, /blocked: transport\.connect/);
+  assert.doesNotMatch(result.stderr, /Unit deploy 未获取 shared deploy\.lock/);
 });
 
 test("server apply checks control plane before PM2 and commits Gateway only after health receipt", () => {

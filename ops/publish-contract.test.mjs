@@ -5,6 +5,8 @@ import test from "node:test";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
 const publish = read("./publish.sh");
+const publishEntryPreflight = read("./release/deploy/publish-entry-preflight.sh");
+const publishSources = `${publish}\n${publishEntryPreflight}`;
 const controllerReady = read("./release/control/controller-ready.mjs");
 const controllerQualification = read("./release/control/controller-qualification-cache.mjs");
 const readyArtifact = read("./release/readiness/ready-artifact.mjs");
@@ -13,8 +15,12 @@ const ciAttempt = read("./release/attempts/ci-attempt.mjs");
 const ciAttemptContract = read("./release/attempts/ci-attempt-contract.mjs");
 const ciAttemptSources = `${ciAttempt}\n${ciAttemptContract}`;
 const ciAttemptShell = read("./release/attempts/ci-attempt-shell.sh");
+const deployAttemptShell = read("./release/attempts/deploy-attempt-shell.sh");
+const deployBlocker = read("./release/attempts/deploy-blocker.mjs");
 const artifactStaticAcceptance = read("./release/readiness/artifact-static-acceptance.mjs");
 const publishCnb = read("./publish-cnb.sh");
+const publishCnbPreflight = read("./release/deploy/publish-cnb-preflight.sh");
+const publishCnbSources = `${publishCnb}\n${publishCnbPreflight}`;
 const runLocalReleaseAction = read("./run-local-release-action.sh");
 const runCnbReleaseStage = read("./run-cnb-release-stage.sh");
 const deployTarget = read("./deploy-cnb-release-target.sh");
@@ -65,7 +71,7 @@ test("every CI exit finalizes one run-scoped immutable attempt receipt", () => {
   assert.doesNotMatch(ciAttemptSources, /rawOutput:|stdout:|stderr:|environment:|commandLine:/);
 });
 
-test("CI records all eight lane boundaries and deploy never creates or patrols attempts", () => {
+test("CI records all eight lane boundaries without reusing CI attempts during deploy", () => {
   const ciCase = publish.slice(publish.indexOf("  ci)"), publish.indexOf("  controller-ready)"));
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
   for (const lane of ["candidate-freeze", "artifact-preflight", "database"]) {
@@ -82,6 +88,20 @@ test("CI records all eight lane boundaries and deploy never creates or patrols a
   assert.match(runReleaseCi, /deploy-unit-release\.mjs" artifact-assert/);
   assert.match(artifactStaticAcceptance, /inspectArchive\(\{ artifact, manifest: parsedManifest, target \}\)/);
   assert.doesNotMatch(deployCase, /release_ci_attempt_(?:begin|finalize|lane_|patrol)|ci-attempt\.mjs/);
+});
+
+test("deploy retry is fenced by immutable classified blocker history", () => {
+  const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.match(publish, /source "\$SCRIPT_DIR\/release\/attempts\/deploy-attempt-shell\.sh"/);
+  assert.match(deployCase, /deploy-blocker\.mjs|release_deploy_attempt_tool/);
+  assert.match(deployCase, /assert-clear/);
+  assert.ok(deployCase.indexOf("assert-clear") < deployCase.indexOf("publish-cnb.sh"));
+  assert.match(deployCase, /release_deploy_attempt_run --/);
+  assert.match(deployAttemptShell, /\.cache\/release-deploy-attempts/);
+  assert.match(deployAttemptShell, /chmod 400 "\$log_file"/);
+  for (const command of ["record", "classify", "resolve", "assert-clear", "patrol"]) {
+    assert.match(deployBlocker, new RegExp(`command === "${command}"`));
+  }
 });
 
 test("Ready binds preflight, aggregate source, frozen task graph, config, and artifact", () => {
@@ -122,7 +142,7 @@ test("CI and Ready selectors reject duplicate unit choices and reserved monolith
 
 test("deploy consumes the current Ready Artifact and cannot build", () => {
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
-  assert.match(deployCase, /ready-artifact\.mjs" current/);
+  assert.match(publishSources, /load_selected_ready\(\)[\s\S]*?ready-artifact\.mjs" current/);
   assert.match(deployCase, /cnb-release-artifact-cache\.sh restore/);
   assert.match(deployCase, /publish-cnb\.sh" --release-action deploy --direct/);
   assert.doesNotMatch(deployCase, /run-release-ci|run-cnb-release-gate|build-cnb-release-target|build-standalone-artifact|run-node-tests|with-check-lock|npm run/);
@@ -137,6 +157,119 @@ test("deploy consumes the current Ready Artifact and cannot build", () => {
     assert.doesNotMatch(source, /artifact-preflight\.mjs" create|transpileConfig|assert-build-space|next build/);
   }
   assert.match(deployTarget, /Ready Receipt 与恢复后的 artifact 完全一致/);
+});
+
+test("local and target deploy adapters aggregate before dispatch and never inherit global errexit", () => {
+  for (const source of [runLocalReleaseAction, deployTarget]) {
+    assert.doesNotMatch(source, /^set -e/m);
+    assert.match(source, /set -uo pipefail/);
+    assert.match(source, /preflight_failed=\(\)/);
+    assert.match(source, /preflight_blocked=\(\)/);
+    assert.match(source, /production mutation=0/);
+  }
+  const localSummary = runLocalReleaseAction.indexOf("Local deploy adapter preflight 汇总");
+  const localDispatch = runLocalReleaseAction.indexOf("bash ./ops/run-cnb-release-stage.sh", localSummary);
+  assert.ok(localSummary > 0 && localDispatch > localSummary);
+  assert.match(runLocalReleaseAction.slice(localDispatch), /deploy_status=\$\?[\s\S]*?exit "\$deploy_status"/);
+  const targetSummary = deployTarget.indexOf("Deploy target adapter preflight 汇总");
+  assert.ok(targetSummary > 0 && deployTarget.indexOf("bash ./ops/deploy.sh", targetSummary) > targetSummary);
+  assert.ok(deployTarget.indexOf("bash ./ops/deploy-unit.sh", targetSummary) > targetSummary);
+});
+
+test("local deploy adapter reports independent missing inputs before creating a worktree", () => {
+  const result = spawnSync("bash", [
+    new URL("./run-local-release-action.sh", import.meta.url).pathname,
+    "deploy",
+    "/missing/release-metadata.json",
+  ], {
+    encoding: "utf8",
+    env: { PATH: process.env.PATH },
+  });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Local deploy adapter preflight 汇总: failed=[1-9][0-9]* blocked=[1-9][0-9]*; production mutation=0/);
+  assert.match(result.stderr, /failed: input\.RELEASE_SOURCE_DIR/);
+  assert.match(result.stderr, /failed: input\.release-metadata/);
+  assert.match(result.stderr, /blocked: git\.controller-identity/);
+  assert.doesNotMatch(result.stderr, /无法创建 controller injection worktree/);
+});
+
+test("publish deploy preflight aggregates before any fail-fast release mutation", () => {
+  assert.match(publish, /^#!\/usr\/bin\/env bash\nset -uo pipefail/m);
+  assert.doesNotMatch(publish, /^set -euo pipefail/m);
+  assert.match(publishSources, /deploy_preflight_failures=\(\)/);
+  assert.match(publishSources, /finish_deploy_entry_preflight/);
+  for (const failure of [
+    "release worktree/candidate identity 无效",
+    "tenant configuration digest 无法计算",
+    "本地部署凭据/目标配置无效",
+    "Application Ready receipt/identity 无效",
+    "Controller Ready receipt/identity 无效",
+    "deploy blocker ledger 未清空",
+    "Ready artifact cache 恢复/复验失败",
+  ]) {
+    assert.match(publishSources, new RegExp(failure));
+  }
+  const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.doesNotMatch(deployCase, /set -(?:e|[A-Za-z]*e[A-Za-z]*)|set -o errexit/);
+});
+
+test("publish-cnb aggregates zero-write probes and enables errexit only at mutation barrier", () => {
+  assert.match(publishCnb, /^#!\/bin\/bash\nset -uo pipefail/m);
+  assert.match(publishCnbSources, /publish_preflight_failures=\(\)/);
+  for (const probe of [
+    "probe_publish_inputs",
+    "probe_candidate_ready_artifact",
+    "probe_controller_ready",
+    "probe_production_state",
+    "probe_tenant_config",
+  ]) {
+    assert.match(publishCnbSources, new RegExp(`${probe}\\(\\)`));
+  }
+  const barrier = "# workspace-errexit-role: mutation-barrier";
+  const barrierIndex = publishCnb.indexOf(barrier);
+  assert.ok(barrierIndex > publishCnb.indexOf("finish_publish_preflight"));
+  assert.doesNotMatch(publishCnb.slice(0, barrierIndex), /(?:^|\n)\s*set\s+(?:-[A-Za-z]*e[A-Za-z]*|-o\s+errexit)(?:\s|$)/);
+  assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);
+});
+
+test("sourced deploy preflight helpers report independent failures and blocked probes in one run", () => {
+  const environment = {
+    ...process.env,
+    WORKSPACE_REPO_RUNTIME_READY: "1",
+    OPS_ENV_FILE: "/dev/null",
+  };
+  const publishResult = spawnSync("bash", [new URL("./publish.sh", import.meta.url).pathname, "deploy"], {
+    encoding: "utf8",
+    env: environment,
+  });
+  assert.equal(publishResult.status, 1);
+  const publishOutput = `${publishResult.stdout}${publishResult.stderr}`;
+  for (const message of [
+    "deploy 入口预检发现 7 项失败",
+    "本地部署凭据/目标配置无效",
+    "Application Ready receipt blocked",
+    "Controller Ready receipt blocked",
+    "deploy blocker ledger blocked",
+    "Ready artifact cache blocked",
+  ]) {
+    assert.match(publishOutput, new RegExp(message));
+  }
+
+  const cnbResult = spawnSync("bash", [new URL("./publish-cnb.sh", import.meta.url).pathname, "--direct"], {
+    encoding: "utf8",
+    env: environment,
+  });
+  assert.equal(cnbResult.status, 1);
+  const cnbOutput = `${cnbResult.stdout}${cnbResult.stderr}`;
+  for (const message of [
+    "deploy 零写入预检发现 6 项失败",
+    "Application Ready/artifact blocked",
+    "Controller Ready blocked",
+    "tenant config dry-run blocked",
+    "生产 canonical 状态 blocked",
+  ]) {
+    assert.match(cnbOutput, new RegExp(message));
+  }
 });
 
 test("controller-ready reuses an exact ops qualification and deploy only verifies its binding", () => {
@@ -157,7 +290,7 @@ test("controller-ready reuses an exact ops qualification and deploy only verifie
   assert.ok(controllerReady.indexOf("const beforeTests") < controllerReady.indexOf("const reusable = readReusableQualification"));
   assert.ok(controllerReady.indexOf("const reusable = readReusableQualification") < controllerReady.indexOf("const afterTests"));
   assert.ok(controllerReady.indexOf("const afterTests") < controllerReady.indexOf("atomicWrite(target, receipt)"));
-  assert.match(deployCase, /controller-ready\.mjs" verify/);
+  assert.match(publishSources, /load_controller_ready\(\)[\s\S]*?controller-ready\.mjs" verify/);
   assert.match(deployCase, /"\$SCRIPT_DIR\/publish-cnb\.sh" --release-action deploy --direct/);
   assert.doesNotMatch(deployCase, /"\$RELEASE_SCRIPT_DIR\/publish-cnb\.sh"/);
   assert.doesNotMatch(deployCase, /deploy-control-compatibility\.mjs|run-node-tests\.mjs|with-check-lock\.js/);
@@ -172,7 +305,7 @@ test("status, controller-ready, and deploy select an exact target-mode Ready poi
     assert.match(publish, new RegExp(`parse_ready_selector ${command} [01] "\\$@"`));
   }
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
-  assert.match(deployCase, /selected Ready target 与 receipt target 不一致；deploy 禁止重定向目标/);
+  assert.match(publishSources, /load_selected_ready\(\)[\s\S]*?selected Ready target 与 receipt target 不一致；deploy 禁止重定向目标/);
   assert.doesNotMatch(deployCase, /target_id="\$SELECTED_READY_TARGET"|target_mode="\$SELECTED_READY_MODE"/);
   assert.match(runReleaseCi, /receipts\/\$TARGET_ID\/\$TARGET_MODE\/\$CI_RUN_ID-\$RELEASE_CONTENT_DIGEST-\$RELEASE_CONFIGURATION_DIGEST\.json/);
   assert.match(readyArtifact, /writeImmutableReadyReceipt/);
@@ -180,9 +313,9 @@ test("status, controller-ready, and deploy select an exact target-mode Ready poi
 });
 
 test("deploy binds full Controller Ready metadata while Application Ready remains the artifact identity", () => {
-  assert.match(publish, /DEPLOY_CONTROL_RECEIPT_DIGEST/);
-  assert.match(publish, /RELEASE_CONTROLLER_READY_RECEIPT_FILE/);
-  assert.match(publishCnb, /controller-ready\.mjs" verify/);
+  assert.match(publishSources, /DEPLOY_CONTROL_RECEIPT_DIGEST/);
+  assert.match(publishSources, /RELEASE_CONTROLLER_READY_RECEIPT_FILE/);
+  assert.match(publishCnbSources, /controller-ready\.mjs" verify/);
   assert.match(publishCnb, /DEPLOY_CONTROL_SOURCE_SHA='\$DEPLOY_CONTROL_SOURCE_SHA'/);
   assert.match(publishCnb, /DEPLOY_CONTROL_TREE_ID='\$DEPLOY_CONTROL_TREE_ID'/);
   assert.match(publishCnb, /DEPLOY_CONTROL_DIGEST='\$DEPLOY_CONTROL_DIGEST'/);
@@ -208,7 +341,9 @@ test("old split CNB actions are rejected before any production work", () => {
 });
 
 test("release worktree uses the controlled CI environment and stays immutable for deploy", () => {
-  assert.match(publish, /release \.env 必须是指向受控 CI 环境文件的符号链接/);
+  assert.match(publish, /release\/worktree\/controlled-environment\.mjs" ensure/);
+  assert.match(publish, /--worktree "\$RELEASE_WORKTREE" --environment "\$RELEASE_CI_ENV_FILE"/);
+  assert.match(publish, /--dependencies "\$RELEASE_CI_DEPENDENCIES_DIR"/);
   assert.match(publish, /promote-release-branch\.sh" promote/);
   assert.match(publish, /promote-release-branch\.sh" verify/);
   assert.match(publishCnb, /\[ -z "\$\(git status --short\)" \]/);

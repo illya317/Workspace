@@ -1,14 +1,19 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
-  exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
+  exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@" || exit 1
 fi
 OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 # shellcheck source=/dev/null
-source "$OPS_ENV_FILE"
+source "$OPS_ENV_FILE" || exit 1
+
+if [ "${1:-}" != deploy ]; then
+  # workspace-errexit-role: non-deploy-execution
+  set -o errexit
+fi
 
 usage() {
   cat <<'EOF'
@@ -43,31 +48,24 @@ EOF
 
 initialize_release_worktree() {
   RELEASE_WORKTREE="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
-  : "${RELEASE_WORKTREE:?RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE}"
+  [ -n "$RELEASE_WORKTREE" ] || { echo "[错误] RELEASE_SOURCE_DIR not set in $OPS_ENV_FILE" >&2; return 1; }
   RELEASE_CI_ENV_FILE="${RELEASE_CI_ENV_FILE:-${SOURCE_DIR:-}/.env}"
-  : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
-  [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
-  local release_env_target="$RELEASE_WORKTREE/.env"
-  if [ -L "$release_env_target" ]; then
-    [ "$(readlink "$release_env_target")" = "$RELEASE_CI_ENV_FILE" ] || {
-      echo "[错误] release .env 必须是指向受控 CI 环境文件的符号链接" >&2; exit 1;
-    }
-  elif [ -e "$release_env_target" ]; then
-    echo "[错误] release .env 必须是指向受控 CI 环境文件的符号链接" >&2; exit 1
-  else
-    ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
-  fi
-  export RELEASE_CI_ENV_FILE
+  [ -n "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE" >&2; return 1; }
+  RELEASE_CI_DEPENDENCIES_DIR="${RELEASE_CI_DEPENDENCIES_DIR:-${SOURCE_DIR:-}/node_modules}"
+  node "$SCRIPT_DIR/release/worktree/controlled-environment.mjs" ensure \
+    --worktree "$RELEASE_WORKTREE" --environment "$RELEASE_CI_ENV_FILE" \
+    --dependencies "$RELEASE_CI_DEPENDENCIES_DIR" || return 1
+  export RELEASE_CI_ENV_FILE RELEASE_CI_DEPENDENCIES_DIR
   RELEASE_SCRIPT_DIR="$RELEASE_WORKTREE/ops"
-  [ -x "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" ] || { echo "[错误] release worktree 缺少候选选择器"; exit 1; }
+  [ -x "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" ] || { echo "[错误] release worktree 缺少候选选择器"; return 1; }
 }
 
 capture_release_identity() {
-  RELEASE_SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)"
+  RELEASE_SOURCE_SHA="$(git -C "$RELEASE_WORKTREE" rev-parse HEAD)" || return 1
   local identity
-  identity="$(node "$RELEASE_WORKTREE/ops/release/candidate/identity.mjs" capture --repository "$RELEASE_WORKTREE" --revision HEAD)"
-  RELEASE_SOURCE_TREE="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).treeId)' "$identity")"
-  RELEASE_CONTENT_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).contentDigest)' "$identity")"
+  identity="$(node "$RELEASE_WORKTREE/ops/release/candidate/identity.mjs" capture --repository "$RELEASE_WORKTREE" --revision HEAD)" || return 1
+  RELEASE_SOURCE_TREE="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).treeId)' "$identity")" || return 1
+  RELEASE_CONTENT_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).contentDigest)' "$identity")" || return 1
   export RELEASE_SOURCE_SHA RELEASE_SOURCE_TREE RELEASE_CONTENT_DIGEST
 }
 
@@ -78,9 +76,9 @@ prepare_release_worktree() {
 }
 
 load_ready_worktree() {
-  initialize_release_worktree
-  "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" verify
-  capture_release_identity
+  initialize_release_worktree || return 1
+  "$RELEASE_SCRIPT_DIR/promote-release-branch.sh" verify || return 1
+  capture_release_identity || return 1
 }
 
 validate_release_inputs() {
@@ -108,6 +106,10 @@ validate_release_inputs() {
 source "$SCRIPT_DIR/release/readiness/release-inputs.sh"
 # shellcheck source=ops/release/attempts/ci-attempt-shell.sh
 source "$SCRIPT_DIR/release/attempts/ci-attempt-shell.sh"
+# shellcheck source=ops/release/attempts/deploy-attempt-shell.sh
+source "$SCRIPT_DIR/release/attempts/deploy-attempt-shell.sh"
+# shellcheck source=ops/release/deploy/publish-entry-preflight.sh
+source "$SCRIPT_DIR/release/deploy/publish-entry-preflight.sh"
 
 parse_ready_selector() {
   local command="$1" allow_json="$2"
@@ -296,57 +298,87 @@ case "${1:-}" in
   deploy)
     shift
     parse_ready_selector deploy 0 "$@"
-    load_ready_worktree
-    capture_release_configuration_identity
-    validate_local_deploy_credentials
-    ready_json="$(node "$RELEASE_SCRIPT_DIR/release/readiness/ready-artifact.mjs" current \
-      --root "$RELEASE_WORKTREE/.cache/release-ready" "${READY_SELECTOR_ARGS[@]}")"
-    ready_file="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).receiptFile)' "$ready_json")"
-    ready_values="$(node -e '
-      const r=JSON.parse(process.argv[1]).receipt;
-      process.stdout.write(`${r.runId}\n${r.source.commitSha}\n${r.source.treeId}\n${r.source.contentDigest}\n${r.configurationDigest}\n${r.target.id}\n${r.target.mode}\n`);
-    ' "$ready_json")"
-    ready_run_id="$(printf '%s\n' "$ready_values" | sed -n '1p')"
-    ready_source="$(printf '%s\n' "$ready_values" | sed -n '2p')"
-    ready_tree="$(printf '%s\n' "$ready_values" | sed -n '3p')"
-    ready_content="$(printf '%s\n' "$ready_values" | sed -n '4p')"
-    ready_configuration="$(printf '%s\n' "$ready_values" | sed -n '5p')"
-    target_id="$(printf '%s\n' "$ready_values" | sed -n '6p')"
-    target_mode="$(printf '%s\n' "$ready_values" | sed -n '7p')"
-    [ "$target_id" = "$SELECTED_READY_TARGET" ] && [ "$target_mode" = "$SELECTED_READY_MODE" ] || {
-      echo "[错误] selected Ready target 与 receipt target 不一致；deploy 禁止重定向目标" >&2; exit 1;
-    }
-    [ "$ready_source" = "$RELEASE_SOURCE_SHA" ] && [ "$ready_tree" = "$RELEASE_SOURCE_TREE" ] \
-      && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] && [ "$ready_configuration" = "$RELEASE_CONFIGURATION_DIGEST" ] || {
-        echo "[错误] 当前 release source/config 没有 Ready Artifact；先运行 ci" >&2; exit 1;
-      }
-    controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
-    controller_ready_json="$(node "$SCRIPT_DIR/release/control/controller-ready.mjs" verify \
-      --repository "$REPOSITORY_ROOT" --ready-source "$ready_source" --file "$controller_ready_file")"
-    DEPLOY_CONTROL_SOURCE_SHA="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.sourceSha)' "$controller_ready_json")"
-    DEPLOY_CONTROL_TREE_ID="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.treeId)' "$controller_ready_json")"
-    DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.controlDigest)' "$controller_ready_json")"
-    DEPLOY_CONTROL_RECEIPT_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).receiptDigest)' "$controller_ready_json")"
-    export DEPLOY_CONTROL_SOURCE_SHA DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST DEPLOY_CONTROL_RECEIPT_DIGEST
-    export RELEASE_CONTROLLER_READY_RECEIPT_FILE="$controller_ready_file"
-    export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
-    export RELEASE_READY_RECEIPT_FILE="$ready_file" RELEASE_CI_RUN_ID="$ready_run_id"
-    export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_WORKTREE/.cache/release-artifacts"
-    export CNB_RELEASE_ARTIFACT_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-artifact.json"
-    if [ "$target_id" = monolith ]; then
-      unset DEPLOY_UNIT_ID DEPLOY_UNIT_MODE || true
-      target_args=()
-    else
-      export DEPLOY_UNIT_ID="$target_id" DEPLOY_UNIT_MODE="$target_mode"
-      [ "$target_mode" = activate ] && target_args=(--deploy-unit "$target_id") || target_args=(--shadow-unit "$target_id")
+    release_worktree_ready=1
+    configuration_ready=1
+    ready_receipt_ready=1
+    controller_receipt_ready=1
+    if ! load_ready_worktree; then
+      deploy_preflight_fail "release worktree/candidate identity 无效"
+      release_worktree_ready=0
     fi
-    (cd "$RELEASE_WORKTREE" && bash ./ops/cnb-release-artifact-cache.sh restore)
+    if [ "$release_worktree_ready" = 1 ]; then
+      if ! capture_release_configuration_identity \
+        || ! printf '%s' "${RELEASE_CONFIGURATION_DIGEST:-}" | grep -Eq '^[0-9a-f]{64}$'; then
+        deploy_preflight_fail "tenant configuration digest 无法计算"
+        configuration_ready=0
+      fi
+    else
+      deploy_preflight_fail "tenant configuration digest blocked：candidate worktree 无效"
+      configuration_ready=0
+    fi
+    if ! validate_local_deploy_credentials; then
+      deploy_preflight_fail "本地部署凭据/目标配置无效"
+    fi
+    if [ "$release_worktree_ready" = 1 ] && [ "$configuration_ready" = 1 ]; then
+      if ! load_selected_ready; then
+        deploy_preflight_fail "Application Ready receipt/identity 无效"
+        ready_receipt_ready=0
+      fi
+    else
+      deploy_preflight_fail "Application Ready receipt blocked：candidate/config identity 无效"
+      ready_receipt_ready=0
+    fi
+    if [ "$ready_receipt_ready" = 1 ]; then
+      if ! load_controller_ready; then
+        deploy_preflight_fail "Controller Ready receipt/identity 无效"
+        controller_receipt_ready=0
+      fi
+    else
+      deploy_preflight_fail "Controller Ready receipt blocked：Application Ready 无效"
+      controller_receipt_ready=0
+    fi
+    deploy_attempt_root="$RELEASE_WORKTREE/.cache/release-deploy-attempts"
+    if [ "$controller_receipt_ready" = 1 ]; then
+      if ! node "$(release_deploy_attempt_tool)" assert-clear \
+        --root "$deploy_attempt_root" \
+        --repository "$RELEASE_WORKTREE" \
+        --target "$SELECTED_READY_TARGET" \
+        --target-mode "$SELECTED_READY_MODE" \
+        --source-content "$RELEASE_CONTENT_DIGEST" \
+        --source-commit "$RELEASE_SOURCE_SHA" \
+        --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA"; then
+        deploy_preflight_fail "deploy blocker ledger 未清空"
+      fi
+    else
+      deploy_preflight_fail "deploy blocker ledger blocked：Controller Ready 无效"
+    fi
+    if [ "$ready_receipt_ready" = 1 ]; then
+      export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
+      export RELEASE_READY_RECEIPT_FILE="$ready_file" RELEASE_CI_RUN_ID="$ready_run_id"
+      export CNB_RELEASE_ARTIFACT_CACHE_ROOT="$RELEASE_WORKTREE/.cache/release-artifacts"
+      export CNB_RELEASE_ARTIFACT_RECEIPT_FILE="$RELEASE_WORKTREE/.cache/release-check/release-artifact.json"
+      if [ "$target_id" = monolith ]; then
+        unset DEPLOY_UNIT_ID DEPLOY_UNIT_MODE || true
+        target_args=()
+      else
+        export DEPLOY_UNIT_ID="$target_id" DEPLOY_UNIT_MODE="$target_mode"
+        [ "$target_mode" = activate ] && target_args=(--deploy-unit "$target_id") || target_args=(--shadow-unit "$target_id")
+      fi
+      if ! (cd "$RELEASE_WORKTREE" && bash ./ops/cnb-release-artifact-cache.sh restore); then
+        deploy_preflight_fail "Ready artifact cache 恢复/复验失败"
+      fi
+    else
+      deploy_preflight_fail "Ready artifact cache blocked：Application Ready 无效"
+    fi
+    if ! finish_deploy_entry_preflight; then exit 1; fi
+    export RELEASE_CONTROLLER_READY_RECEIPT_FILE="$controller_ready_file"
     database_args=()
     if [ -n "${DATABASE_REPLACEMENT_RECEIPT_FILE:-}" ]; then
       database_args=(--database-replacement-receipt "$DATABASE_REPLACEMENT_RECEIPT_FILE")
     fi
     RELEASE_CONFIGURATION_DIGEST="$RELEASE_CONFIGURATION_DIGEST" \
-      "$SCRIPT_DIR/publish-cnb.sh" --release-action deploy --direct "${target_args[@]}" "${database_args[@]}"
+      release_deploy_attempt_run -- \
+      "$SCRIPT_DIR/publish-cnb.sh" --release-action deploy --direct "${target_args[@]}" "${database_args[@]}" || exit $?
     exit 0
     ;;
   data)

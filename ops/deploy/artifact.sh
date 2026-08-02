@@ -2,7 +2,7 @@ require_local_cmd() {
   local cmd="$1"
   if ! command -v "$cmd" >/dev/null 2>&1; then
     echo "[错误] 当前 CI 容器缺少命令: $cmd"
-    exit 1
+    return 1
   fi
 }
 
@@ -41,10 +41,10 @@ resolve_release_metadata() {
     echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
     exit 1
   fi
-  test -f "$RELEASE_METADATA_FILE"
+  test -f "$RELEASE_METADATA_FILE" || { echo "[错误] release metadata 不存在: $RELEASE_METADATA_FILE"; return 1; }
 
-  release_head="$(git rev-parse HEAD)"
-  release_parent_count="$(git rev-list --parents -n 1 "$release_head" | awk '{print NF - 1}')"
+  release_head="$(git rev-parse HEAD)" || return 1
+  release_parent_count="$(git rev-list --parents -n 1 "$release_head" | awk '{print NF - 1}')" || return 1
   if [ "$release_parent_count" != "1" ]; then
     echo "[错误] CNB injection commit 必须恰好有一个 canonical source parent"
     exit 1
@@ -53,8 +53,8 @@ resolve_release_metadata() {
     echo "[错误] CNB 发布提交缺少 Controller Ready source parent"
     exit 1
   }
-  RELEASE_CONTROLLER_TREE_ID="$(git rev-parse "${RELEASE_CONTROLLER_SOURCE_SHA}^{tree}")"
-  injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_head" | LC_ALL=C sort)"
+  RELEASE_CONTROLLER_TREE_ID="$(git rev-parse "${RELEASE_CONTROLLER_SOURCE_SHA}^{tree}")" || return 1
+  injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_head" | LC_ALL=C sort)" || return 1
   if [ "$injection_files" != $'.cnb-release.json\n.cnb.yml' ]; then
     echo "[错误] CNB injection commit 只能修改 .cnb.yml 与 .cnb-release.json"
     printf '%s\n' "$injection_files"
@@ -217,7 +217,7 @@ process.stdout.write(values.join('\n'));
   process.exitCode = 1;
 });
 NODE
-)"
+)" || return 1
   RELEASE_CNB_REPOSITORY="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
   RELEASE_CNB_BRANCH="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
   RELEASE_CNB_INJECTION_SHA="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
@@ -269,8 +269,8 @@ build_artifact() {
   ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
   ARTIFACT_MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
   echo "==> 校验 CNB 本次构建的 standalone 与 manifest..."
-  test -s "$ARTIFACT_MANIFEST_PATH"
-  test -s "$ARTIFACT_PATH"
+  test -s "$ARTIFACT_MANIFEST_PATH" || { echo "[错误] standalone manifest 缺失或为空"; return 1; }
+  test -s "$ARTIFACT_PATH" || { echo "[错误] standalone artifact 缺失或为空"; return 1; }
   ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_TREE" "$RELEASE_CONTENT_DIGEST" "$RELEASE_METADATA_FILE" <<'NODE'
 const fs = require('node:fs');
 const crypto = require('node:crypto');
@@ -290,13 +290,13 @@ if (manifest.schemaVersion !== 2
 }
 process.stdout.write(artifactSha);
 NODE
-)"
-  RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
+)" || return 1
+  RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")" || return 1
   if [ -n "$RELEASE_DATABASE_REPLACEMENT_DUMP_SHA" ]; then
     [ "$RELEASE_DATABASE_REPLACEMENT_MIGRATION_SET" = "$RELEASE_MIGRATION_SET_SHA" ] || {
       echo "[错误] 数据库替换 receipt 的 migration set 与 CNB artifact 不一致"
       exit 1
     }
   fi
-  ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
+  ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")" || return 1
 }

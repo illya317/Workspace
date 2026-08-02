@@ -93,7 +93,7 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.match(deploy, /metadata\.transport\?\.kind/);
   assert.match(deploy, /--transport '\$RELEASE_TRANSPORT'/);
   assert.doesNotMatch(deploy, /DEPLOYED_TRANSPORT/);
-  const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
+  const invocation = deployEntrypoint.slice(deployEntrypoint.indexOf('echo "==> Deploy Preflight'));
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
@@ -128,7 +128,7 @@ test("hardened production runtime keeps PM2 and database credentials behind an e
   assert.match(sshShim, /workspace_migrator 1 DIRECT_URL/);
   assert.match(sshShim, /workspace_backup 0 WORKSPACE_BACKUP_DATABASE_URL/);
   assert.match(sshShim, /workspace_monitor 0 WORKSPACE_MONITOR_DATABASE_URL/);
-  assertOrdered(deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."')), [
+  assertOrdered(deployEntrypoint.slice(deployEntrypoint.indexOf('echo "==> Deploy Preflight')), [
     "start_ssh_master",
     "verify_remote_runtime_pm2",
     "acquire_remote_deploy_lock",
@@ -193,10 +193,12 @@ test("hardened deploy reapplies runtime ACLs after tenant directory replacement"
   assert.match(runtimePermissionReconciler, /runtime 用户可写只读路径/);
   assert.doesNotMatch(runtimePermissionReconciler, /chmod -R|chmod 777/);
   assertOrdered(deployEntrypoint, [
-    "run_deploy_stage transport.connect start_ssh_master",
-    "run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions",
-    "run_deploy_stage runtime.pm2-contract verify_remote_runtime_pm2",
+    "run_zero_write_preflight_check deploy-tool-bundle preflight_deploy_tool_bundle",
+    "run_zero_write_preflight_check transport.connect start_ssh_master",
+    "run_zero_write_preflight_check runtime.pm2-contract verify_remote_runtime_pm2",
     "run_deploy_stage deploy.lock acquire_remote_deploy_lock",
+    "run_deploy_stage deploy.tenant-config",
+    "run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions",
     "run_deploy_stage deploy.tools sync_remote_deploy_tools",
   ]);
 });

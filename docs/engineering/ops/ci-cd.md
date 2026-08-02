@@ -84,9 +84,11 @@ Controller Ready 回执精确绑定：
 `ops/publish.sh deploy` 只允许 release source、配置和目标已经存在 exact Application Ready，且入口仓库当前 controller 已有精确匹配的 Controller Ready。应用候选继续固定在 Application Ready source；controller 可以是它的后代，但差异只能包含显式登记的 deploy-control 文件。deploy 只复验两份回执，并把 controller source/tree/control digest/Controller Ready receipt digest 写入 canonical `deployed-release.json`；任何应用、schema、artifact builder、未登记路径变化或 Controller Ready 漂移都失败。它可以：
 
 - 恢复并复验 Ready Artifact；
-- 原子安装租户配置后恢复 runtime traverse/read/write ACL，并在 SSH master 建立后再次恢复可能被登录策略收紧的 parent ACL，再验证受限 PM2 runner；
-- 读取当前生产状态并执行 ancestry/migration preflight；
-- 获取生产锁，创建备份并执行 migration；
+- 在零生产写入的 preflight 中聚合本地输入、远端只读运行条件和当前生产语义状态；
+- 签发并复验精确绑定候选、controller、deploy input 与生产快照的 Deploy Preflight Ready；
+- 获取 Full、unit 与 tenant config 共用的生产锁，在锁内复验生产语义快照；
+- 锁内原子安装租户配置、恢复 runtime traverse/read/write ACL，并验证受限 PM2 runner；
+- 创建备份并执行 migration；
 - 传输并复验 artifact，warm up candidate，原子切换；
 - 验证公开 health/version，失败时回滚；
 - 写不可变部署回执和通知。
@@ -96,6 +98,56 @@ Controller Ready 回执精确绑定：
 Deploy 同步控制工具时只消费 Controller Ready 已覆盖的 named bundle：先精确同步，再在远端对完整 manifest/digest/mode/import closure 做一次自验证，通过后才允许执行 gateway、receipt 或 lifecycle 工具。`node --check` 不能代替这个验证，因为它不会解析并加载相对 import；禁止在生产失败后临时向 rsync 清单补单个文件。
 
 当生产 Application source 已与 Application Ready 完全相同时，deploy 在生产锁内复验实时 health/version，并比较 deployed receipt 中的 Controller Ready 四元组。四元组相同是纯 no-op；四元组不同则只原子激活新的 controller identity，保留既有 source、artifact、migration 和 deployment identity，不重建 artifact、不执行 migration、不重启应用。旧 schema-v3 deployed receipt 可读，但下一次部署或 controller activation 会写成带完整 controller 的 schema v4。
+
+### Deploy 零写入聚合、共享锁与 mutation barrier
+
+Deploy 现场只有两种错误处理语义，边界是“已经持有共享生产锁且即将发生第一项生产写入”，不是某个脚本是否方便使用 `set -e`：
+
+```text
+zero-write aggregate preflight
+  -> immutable Deploy Preflight Ready
+  -> shared deploy lock
+  -> lock-held semantic recheck
+  -> mutation barrier
+  -> fail-fast mutation + rollback
+```
+
+**锁前必须一次报全。** 候选/Application Ready、Controller Ready、artifact/manifest、tenant config、deploy-tool bundle、SSH/remote runtime、数据库只读条件、磁盘与当前生产状态等彼此独立的检查都必须继续执行；真实依赖未满足的项目记录为 `blocked`。此阶段禁止创建远端目录、chmod/ACL 修复、rsync/staging、同步控制工具、安装 tenant config、备份、migration、进程变更、`current`/Gateway 切换或其他生产写入。每项检查绑定 `inputDigest + commandId`，保留私有日志和失败/blocked 汇总；只有全部通过才允许签发不可变 `workspace.deploy-preflight-ready/v1`。
+
+Deploy Preflight Ready 必须精确绑定：
+
+- Application Ready 的 source/tree/content/config/target/mode 与 receipt digest；
+- Controller Ready 的 source/tree/control digest 与 receipt digest；
+- artifact、manifest、tenant-config manifest 和 deploy-tool bundle 的 digest；
+- 不含 secrets 的生产语义快照，例如 deployed receipt、current/Gateway/unit 状态、migration inventory、runtime identity、tenant manifest 与 health/version 证据的语义 digest；
+- 每项检查的 input/command/log digest 以及对应 immutable attempt receipt。
+
+时间戳、探测 PID 和临时端口等观测噪声不能进入锁内等值比较。获取共享锁后、任何 tenant config/ACL/tool/staging 写入前，必须重新读取相同生产语义字段；digest 漂移立即放弃本次 Ready，在零生产写入状态退出并重新 preflight，不能带着旧快照继续部署。
+
+**锁后才允许 fail-fast。** Full monolith、单 unit activate/shadow/rollback 和 tenant config 安装必须持有同一把生产 deploy lock；tenant config 入口必须验证由当前 lock holder 签发的 token，不能作为锁外旁路写生产。完成锁内语义复验后，以唯一 `mutation-barrier` 进入 mutation 区；从备份、migration、传输、warmup 到原子切换，每一步失败都必须立即停止后续写入并执行与当前阶段匹配的 rollback/fencing。此处 fail-fast 有意义，因为继续写只会扩大部分变更；它不能被用来替代锁前的完整诊断。
+
+上述流程是合并和正式部署前的实施验收合同。Deploy Preflight receipt module、shell 外部 evidence、共享锁和 blocker ledger 只有在发布入口完成接线、入口强制复验 Ready、锁内 semantic recheck 有 contract test、Full/unit/tenant config 都无旁路且端到端 fixture 通过后，才可以宣称改造完成；仅存在模块或单元测试不等于生产路径已经启用。
+
+### Shell `errexit` gate
+
+`shell:errexit:check` 扫描全部 Git tracked 源码中的实际 `set -e*` / `set -o errexit`，并要求每个出现位置按路径、命令、数量和必要时的行号精确登记。当前基线为：
+
+```text
+total=110 execution=76 dependent=8 structural=26 diagnostic=0
+```
+
+四类含义如下：
+
+- `execution`：已开始写 artifact/cache/runtime/数据库/生产状态，后续动作不能在部分失败后继续；
+- `dependent`：后一步在语义上无法脱离前一步产生有效结果，例如只允许完整产生一个候选输出；
+- `structural`：测试 fixture、退役 tombstone，或显式捕获状态后恢复调用方原有 errexit；
+- `diagnostic`：preflight、verify、patrol、health/version、依赖/路径/权限探测等本应聚合独立错误的检查。
+
+`diagnosticPolicy` 固定为 `prohibited`：diagnostic/preflight 中出现一次 errexit 都阻断；新增未登记 occurrence、过期登记、总数/分类/行号漂移同样阻断。`ops/deploy.sh` 的 execution errexit 还必须紧跟唯一 mutation-barrier 标记。修改 policy 不是绕过方式；每个 `execution`/`dependent` 必须给出为何继续会产生无效输出或扩大变更的具体理由。`set +e` 和显式逐项状态捕获不属于禁止对象，它们正是聚合诊断的实现方式。
+
+文件后半段包含变更不能为顶部全局 errexit 提供豁免。`publish.sh`、`publish-cnb.sh`、`run-local-release-action.sh`、`deploy-cnb-release-target.sh` 与 `deploy-unit.sh` 的 deploy 路径必须在锁前保持 aggregation 语义；纯 adapter 不启用 errexit，真正执行入口只能在 policy 锁定的 mutation marker 后启用。非 deploy 的 CI/controller/push 执行分支必须由显式 `non-deploy-execution` marker 隔离，不能把其 fail-fast 继承到 deploy 分支。
+
+从用户关心的两类看，`execution + dependent + structural` 是可证明有意义的保留项；`diagnostic` 是纯粹逐错、反复重跑的浪费项，项目基线必须永久保持为 `0`。
 
 ## 一次报全与增量收敛
 
@@ -115,6 +167,8 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 每次 `ci` 无论成功或失败，都会在 gitignored `.cache/release-attempts` 写入一份 run-scoped immutable attempt receipt，并为八个 lane 保留 `0600` 日志、耗时、证据摘要和稳定故障指纹。后续同责任 lane 通过时，回执记录修复 commit；已关闭指纹再次出现会以 P1 和退出码 `42` 阻止 Ready。字段、巡检命令和敏感信息边界见 [Release CI attempt receipts](./release-ci-attempts.md)。
 
+每次 deploy 同样必须在 gitignored `.cache/release-deploy-attempts` 留下 run-scoped 日志和不可变 attempt。失败 fingerprint 在下一次 deploy 前必须分类为 `candidate-specific` 或 `systemic`；未分类、同候选重试、未解决 systemic blocker 都禁止重试。systemic resolution 必须绑定 fixing commit、该 commit 中 tracked fixture、Application Ready 或 Controller Ready gate 及其 receipt；已解决问题复发，或 candidate-specific 问题跨候选复发，均按 P1/退出码 `42` 处理。完整合同见 [Deploy attempts and blocker ledger](./release-deploy-attempts.md)。
+
 Controller Ready 采用相同的精确复用原则，但不把 application source 误算为 ops qualification 输入：application-only 新 Ready 只使 binding 失效，控制面 qualification 仍按 `controlDigest + commandDigest + runtimeDigest` 复用。只有这三个输入之一变化才重跑完整 ops shard；新的 binding 始终重新绑定当前 `readySource` 和完整 controller provenance。
 
 完整 ops qualification 还覆盖 deploy-tool bundle 的真实 catalog。发布源码只维护经过审核的 named profile 入口；相对 ESM import/export/dynamic-import 依赖由工具递归闭包，不维护第二份手工依赖文件清单。bundle 绑定完整 inventory、mode 和 SHA-256，并在空目录本地验证。因此控制面新增嵌套依赖但 catalog 无法形成自包含 bundle 时，必须在 Controller Ready 失败，禁止推迟到生产 `deploy.tools`。
@@ -131,7 +185,7 @@ Task input contract v3 不再把每个检查统一绑定整个 `scripts/check`�
 
 - CI 候选只来自干净 release worktree 的已提交 tree；共享开发 worktree 的 staged、unstaged 和 untracked 内容不参与。
 - content identity 是 `Git tree + SHA-256 content digest`。commit SHA 保留用于审计和 migration ancestry，不作为 task/artifact cache 的唯一 key。
-- release `.env` 必须是指向受控 CI 环境文件的符号链接；不得把桌面或生产 secrets 写入源码。该文件中的 `DATABASE_URL`/`DIRECT_URL` 必须指向同一专用 `*_ci` 数据库，control role 必须拥有它；生产数据库会在任何 reset 之前被拒绝。channel adapter 提供 `RELEASE_CI_DATABASE_CA_FILE`（local 优先使用 `/etc/workspace/postgresql/ca.pem`），sandbox 强制把最终 URL 固定为 `sslmode=verify-full` 和该 CA，并用相同 Node driver 证明 runtime 读取。
+- release `.env` 必须是指向受控 CI 环境文件的符号链接，`node_modules` 必须是指向受控外部依赖 runtime 的符号链接；bootstrap 逐一验证两者的绝对目标，禁止 worktree 内私建文件、目录或错链。不得把桌面或生产 secrets 写入源码。环境文件中的 `DATABASE_URL`/`DIRECT_URL` 必须指向同一专用 `*_ci` 数据库，control role 必须拥有它；生产数据库会在任何 reset 之前被拒绝。Relation Policy 的静态 DMMF 生成改用不可路由 fixture URL，只加载 schema/compiler，不读取或连接私有数据库。channel adapter 提供 `RELEASE_CI_DATABASE_CA_FILE`（local 优先使用 `/etc/workspace/postgresql/ca.pem`），sandbox 强制把最终 URL 固定为 `sslmode=verify-full` 和该 CA，并用相同 Node driver 证明 runtime 读取。
 - `ops/cache-policy.json` 是缓存容量、水位、retention 和 pin 的唯一版本化策略源。
 - task receipt 位于 `.cache/check-results/<task>/<input>.json`；Controller qualification 位于 `.cache/release-control/controller-qualifications/<controlDigest>/<commandDigest>-<runtimeDigest>.json`；target/run-bound source receipt 位于 `.cache/release-artifacts/evidence/<contentDigest>/source-validation-<target>-<CI_RUN_ID>.json`；artifact cache 位于 `.cache/release-artifacts/<target>/<contentDigest>`。
 - 当前 production 和一个 rollback artifact 必须 pin，不参与普通 LRU 驱逐。
@@ -160,7 +214,17 @@ Local 和 CNB 只是执行渠道，不是不同的 CI/CD 模型。任何渠道�
 4. 再运行 `ci`。它复用成功的 exact-input 回执和 exact artifact/rehearsal，只执行增量。
 5. 只有新的 Ready Artifact 签发后才能 deploy。
 
+一次 `deploy` 失败后，不得直接再按同一命令试一次：先保存完整 deploy attempt，分类 blocker；candidate-specific 必须形成新候选，systemic 必须把复现 fixture 和 gate 前移到 Application Ready 或 Controller Ready 并绑定修复回执。retry fence 通过后才允许重新生成 Deploy Preflight Ready。Ops patrol 同时巡视 CI 与 deploy 历史，任何已关闭 fingerprint 复发都先作为 P1 处理，而不是在生产脚本里再次临时补文件、chmod 或修改 manifest。
+
 不创建 Plan，不授权 `--new-plan`，也不存在“完成一个阶段后重新开阶段”。CI 的完成定义就是 Ready 已签发；deploy 的完成定义就是生产回执、health/version 与切换状态一致。
+
+## 小改 hot path 与正式验收
+
+main 已有成功生产基线后，文字或少量模块代码修改的目标路径是：冻结新候选 → 复用 exact-input source/task receipts → 只运行受影响 unit/closure → 复用 compiler cache 但真实生成新的 Next `BUILD_ID`/artifact → static acceptance/rehearsal → Application Ready → 复用未变化的 controller qualification 并重签 binding → 秒级聚合 deploy preflight → 共享锁内复验并原子切换。deploy 不能回头运行 CI、测试或 build。
+
+这里不设脱离环境的硬性三分钟阈值，但“几行文字改动仍重复 15–30 分钟完整 Source CI/Controller qualification，或靠多次 deploy fail 才找全问题”明确不合理。缓存命中不豁免真实 artifact build、static acceptance、isolated rehearsal 和生产安全检查；它只消除与本次输入无关的重复工作。
+
+改造合并且当前 baseline 成功部署后，必须连续做 2 次小改部署实验，必要时做第 3 次：每次创建新的简单 committed change，完整走 `ci -> Application Ready -> Controller Ready -> Deploy Preflight Ready -> deploy -> acceptance`，不得手工补生产文件或跳过 gate。每次记录端到端时间、source receipt reuse/pending 数、artifact build、rehearsal、controller qualification reuse、deploy preflight、锁等待、mutation/cutover 和 acceptance；必须没有 deploy 中途失败、没有重复发现已分类长期缺陷，并证明第二次及后续小改只承担实际变化闭包。若任一次退化到不合理的全量重跑，改造仍未验收完成，必须根据回执修复输入分类或 cache contract 后重新从连续实验计数。
 
 ## Migration 与生产安全
 

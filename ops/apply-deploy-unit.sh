@@ -4,6 +4,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=ops/deploy-unit-sidecar.sh
 source "$SCRIPT_DIR/deploy-unit-sidecar.sh"
+# shellcheck source=ops/release/deploy/unit-lock-qualification.sh
+source "$SCRIPT_DIR/release/deploy/unit-lock-qualification.sh"
 COMMAND="${1:-}"
 UNIT_ID="${2:-}"
 STAGING_DIR="${3:-}"
@@ -65,6 +67,9 @@ CURRENT_STATE_ROOT="$CURRENT_GATEWAY/unit-states"
 CURRENT_STATE_FILE="$CURRENT_STATE_ROOT/$UNIT_ID.json"
 EMPTY_STATE_ROOT="$UNIT_ROOT/empty-states"
 LOCK_FILE="$CONFIG_ROOT/deploy.lock"
+LOCK_OWNER_FILE="$CONFIG_ROOT/deploy-lock.owner"
+
+qualify_apply_deploy_unit_lock "$CONFIG_ROOT" "$LOCK_FILE" "$LOCK_OWNER_FILE"
 
 mkdir -p "$CONFIG_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
 chmod 700 "$CONFIG_ROOT" "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
@@ -72,13 +77,6 @@ if [ "$MODE" = "prepare" ]; then
   mkdir -p "$PREPARED_STATE_ROOT"
   chmod 700 "$PREPARED_STATE_ROOT"
 fi
-command -v flock >/dev/null
-exec 9>"$LOCK_FILE"
-if ! flock -n 9; then
-  echo "[错误] 另一生产部署正在 backup→switch 临界区运行" >&2
-  exit 73
-fi
-
 STARTED_PROCESS=""
 STARTED_SIDECAR=""
 GATEWAY_COMMITTED=0
