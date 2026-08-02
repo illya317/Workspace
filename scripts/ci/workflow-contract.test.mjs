@@ -141,6 +141,8 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(cnbDeploy, /approver:/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
   assert.equal((cnb.match(/PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"/g) ?? []).length, 2);
+  assert.equal((cnb.match(/REMOTE_DIR: \/home\/ubuntu\/workspace/g) ?? []).length, 2);
+  assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 2);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);
   assert.match(deployImage, /pg_dump/);
