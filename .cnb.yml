@@ -7,7 +7,7 @@ main:
         image: docker:27-cli
       stages:
         - name: install-deploy-tools
-          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync
+          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync skopeo
         - name: mirror-exact-image
           script: bash ./ops/cnb-image-release.sh prepare
         - name: deploy-and-rollback-rehearsal
@@ -23,7 +23,7 @@ main:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       stages:
         - name: install-deploy-tools
-          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync
+          script: apk add --no-cache bash ca-certificates curl openssh-client python3 rsync skopeo
         - name: mirror-exact-image
           script: bash ./ops/cnb-image-release.sh prepare
         - name: deploy-production
