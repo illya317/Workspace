@@ -14,6 +14,7 @@ import {
 } from "@workspace/core/ui";
 import type { SourceCodeAnalysisSnapshot } from "@workspace/platform/source-code-analysis-contract";
 import { createSourceCodeAnalysisSection } from "./SourceCodeAnalysisSection";
+import { sourceCodeAnalysisNavigationTree } from "./source-code-analysis-capabilities";
 import {
   sourceCodeAnalysisSelectionAfterClick,
   type SourceCodeAnalysisCellKey,
@@ -25,7 +26,7 @@ type StatusTone = "success" | "warning" | "muted";
 interface ModuleTreeNode {
   key: string;
   name: string;
-  nodeKind: "product-view" | "module" | "resource" | "deployment-view" | "deploy-unit" | "source-view";
+  nodeKind: "product-view" | "module" | "resource" | "deployment-view" | "deploy-unit" | "source-view" | "source-node";
   hidden?: boolean;
   enabled?: boolean;
   disabledReason?: string | null;
@@ -207,6 +208,17 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
 
   const navigationTree = useMemo<ModuleTreeNode[]>(() => {
     if (!data) return [];
+    function toSourceTreeNode(node: ReturnType<typeof sourceCodeAnalysisNavigationTree>[number]): ModuleTreeNode {
+      return {
+        key: node.key,
+        name: node.label,
+        nodeKind: "source-node",
+        statusLabel: node.statusLabel,
+        statusTone: node.statusTone,
+        children: node.children.map(toSourceTreeNode),
+      };
+    }
+    const sourceWarnings = data.sourceCodeAnalysis?.summary.moduleHealthWarningCount ?? 0;
     return [
       {
         key: "view:product",
@@ -235,9 +247,15 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
         key: "view:source",
         name: "源码治理",
         nodeKind: "source-view",
-        statusLabel: data.sourceCodeAnalysis ? "快照可用" : "不可用",
-        statusTone: data.sourceCodeAnalysis ? "success" : "muted",
-        children: [],
+        statusLabel: data.sourceCodeAnalysis
+          ? sourceWarnings > 0 ? `${sourceWarnings} 项复核` : "Contract 健康"
+          : "不可用",
+        statusTone: data.sourceCodeAnalysis
+          ? sourceWarnings > 0 ? "warning" : "success"
+          : "muted",
+        children: data.sourceCodeAnalysis
+          ? sourceCodeAnalysisNavigationTree(data.sourceCodeAnalysis).map(toSourceTreeNode)
+          : [],
       },
     ];
   }, [data, moduleTree]);
@@ -386,19 +404,28 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
     ]);
   }
 
-  const detailBody = selectedNavigationKey === "view:source"
+  const detailBody = selectedNavigationKey === "view:source" || selectedNavigationKey.startsWith("source:")
     ? createPageBody([createSourceCodeAnalysisSection(data?.sourceCodeAnalysis ?? null, {
-        expandedGroupKey: expandedAnalysisGroupKey,
-        onToggleGroup: (groupKey) => {
-          setExpandedAnalysisGroupKey((current) => current === groupKey ? null : groupKey);
-        },
-      }, {
-        selectedCell: selectedAnalysisCell ?? hoveredAnalysisCell,
-        onSelectCell: (cell) => {
-          setSelectedAnalysisCell((current) => sourceCodeAnalysisSelectionAfterClick(current, cell));
+        selectedNavigationKey,
+        onNavigate: (key) => {
+          setSelectedNavigationKey(key);
+          setSelectedAnalysisCell(null);
           setHoveredAnalysisCell(null);
         },
-        onHoverCell: selectedAnalysisCell ? undefined : setHoveredAnalysisCell,
+        disclosure: {
+          expandedGroupKey: expandedAnalysisGroupKey,
+          onToggleGroup: (groupKey) => {
+            setExpandedAnalysisGroupKey((current) => current === groupKey ? null : groupKey);
+          },
+        },
+        relationSelection: {
+          selectedCell: selectedAnalysisCell ?? hoveredAnalysisCell,
+          onSelectCell: (cell) => {
+            setSelectedAnalysisCell((current) => sourceCodeAnalysisSelectionAfterClick(current, cell));
+            setHoveredAnalysisCell(null);
+          },
+          onHoverCell: selectedAnalysisCell ? undefined : setHoveredAnalysisCell,
+        },
       })])
     : selectedNavigationKey === "view:deployment" || selectedNavigationKey.startsWith("deploy:")
       ? deploymentDetailBody()

@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import type {
   SourceCodeAnalysisModuleCategory,
   SourceCodeAnalysisRoleCounts,
@@ -17,17 +16,18 @@ import {
   createSourceCodeAnalysisSection,
   createSourceCodeAnalysisColumns,
 } from "./SourceCodeAnalysisSection";
+import {
+  sourceCodeAnalysisL1NavigationKey,
+  sourceCodeAnalysisModuleNavigationKey,
+  sourceCodeAnalysisNavigationTree,
+} from "./source-code-analysis-capabilities";
 import { SOURCE_CODE_ANALYSIS_DISPLAY_GROUPS } from "./source-code-analysis-display";
 import {
   sourceCodeAnalysisCellSelected,
   sourceCodeAnalysisRelationCellState,
   sourceCodeAnalysisSelectionAfterClick,
 } from "./source-code-analysis-relations";
-
-function roleCounts(role: keyof SourceCodeAnalysisRoleCounts, lines: number): SourceCodeAnalysisRoleCounts {
-  return Object.fromEntries(SOURCE_CODE_ANALYSIS_ROLES.map((key) => [key, key === role ? lines : 0])) as SourceCodeAnalysisRoleCounts;
-}
-
+function roleCounts(role: keyof SourceCodeAnalysisRoleCounts, lines: number): SourceCodeAnalysisRoleCounts { return Object.fromEntries(SOURCE_CODE_ANALYSIS_ROLES.map((key) => [key, key === role ? lines : 0])) as SourceCodeAnalysisRoleCounts; }
 function analysisSnapshot(): SourceCodeAnalysisSnapshot {
   const modules = [
     { key: "work", label: "工作管理", category: "product" as SourceCodeAnalysisModuleCategory, lines: 5_000, roles: roleCounts("ui", 5_000), dependencies: ["core"] },
@@ -76,11 +76,14 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       legacyCapabilityContractViolationCount: 0,
       newCapabilityContractViolationCount: 0,
       staleCapabilityContractBaselineCount: 0,
+      moduleHealthWarningCount: 0,
+      acceptedModuleHealthWarningCount: 0,
     },
     modules,
     capabilities: [{
       moduleKey: "work",
       key: "meetings",
+      kind: "module",
       parentKey: null,
       depth: 2,
       label: "会议",
@@ -123,6 +126,7 @@ function analysisSnapshot(): SourceCodeAnalysisSnapshot {
       typeOnlyReExportCount: 0,
     }],
     capabilityContractViolations: [],
+    moduleHealthWarnings: [],
     reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
     invalidDependencyDirections: [],
@@ -183,7 +187,6 @@ test("source analysis columns stay compact until an aggregate column is expanded
     "输入",
   ]);
 });
-
 test("clicking an expandable column delegates its group key", () => {
   let toggledGroupKey: string | null = null;
   const columns = createSourceCodeAnalysisColumns({
@@ -197,7 +200,6 @@ test("clicking an expandable column delegates its group key", () => {
   assert.equal(toggledGroupKey, "assurance");
   assert.equal(columns.find((column) => column.key === "contract")?.onHeaderClick, undefined);
 });
-
 test("analysis rows add visual groups without changing module data", () => {
   const rows = analysisTableRows(analysisSnapshot());
   assert.deepEqual(rows.map((row) => row.label), [
@@ -250,11 +252,14 @@ test("selected raw role distinguishes directions, aggregate reciprocity, real cy
   const fileCycles = [{
     classification: "runtime" as const,
     paths: ["packages/work/ui.ts", "packages/settings/ui.ts"],
+    cyclePath: ["packages/work/ui.ts", "packages/settings/ui.ts", "packages/work/ui.ts"],
     cells: [
       { moduleKey: "work", capabilityKey: "meetings", role: "ui" as const },
       { moduleKey: "settings", capabilityKey: null, role: "ui" as const },
     ],
     evidence: [],
+    blocking: true as const,
+    waivable: false as const,
   }];
   assert.equal(sourceCodeAnalysisRelationCellState(settings, entry, "ui", bidirectionalEdges, fileCycles, selectedCell), "success");
 
@@ -336,51 +341,68 @@ test("total-code cells use a relative meter while small role values stay muted",
   });
 });
 
-test("summary shows the backend-computed invalid direction count independently of disclosure", () => {
+test("summary groups source governance into total code and three decision metrics", () => {
   const snapshot = analysisSnapshot();
   snapshot.summary.invalidDependencyDirectionCount = 3;
+  snapshot.summary.dependencyFileCycleCount = 2;
+  snapshot.summary.newUnclassifiedCapabilityFileCount = 4;
+  snapshot.summary.mixedResponsibilityFileCount = 5;
+  snapshot.summary.newCapabilityContractViolationCount = 2;
+  snapshot.summary.legacyCapabilityContractViolationCount = 8;
   const section = createSourceCodeAnalysisSection(snapshot, {
-    expandedGroupKey: "entry",
-    onToggleGroup: () => undefined,
+    disclosure: {
+      expandedGroupKey: "entry",
+      onToggleGroup: () => undefined,
+    },
   });
   assert.equal(section.body.kind, "section");
   if (section.body.kind !== "section" || section.body.layout === "split") return;
   const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
   assert.equal(summary?.body.kind, "data");
   if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "invalid-directions")?.value, {
+  assert.deepEqual(summary.body.data.metrics.map((metric) => metric.key), [
+    "lines",
+    "dependency-structure",
+    "module-cohesion",
+    "interface-boundary",
+  ]);
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "dependency-structure")?.value, {
     kind: "text",
-    value: "3",
+    value: "方向 3 · 循环 2",
+    tone: "danger",
+    font: "mono",
+  });
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "module-cohesion")?.value, {
+    kind: "text",
+    value: "未归属 4 · 混合 5 · 复核 0",
+    tone: "danger",
+    font: "mono",
+  });
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "interface-boundary")?.value, {
+    kind: "text",
+    value: "新增 2 · 存量 8",
     tone: "danger",
     font: "mono",
   });
 });
 
-test("summary distinguishes new recursive-boundary violations from ratcheted historical debt", () => {
+test("summary keeps historical Interface debt visible without treating it as a new violation", () => {
   const snapshot = analysisSnapshot();
-  snapshot.summary.newCapabilityContractViolationCount = 2;
   snapshot.summary.legacyCapabilityContractViolationCount = 8;
   const section = createSourceCodeAnalysisSection(snapshot);
   assert.equal(section.body.kind, "section");
   if (section.body.kind !== "section" || section.body.layout === "split") return;
   const summary = section.body.sections?.find((candidate) => candidate.key === "source-code-analysis-summary");
-  assert.equal(summary?.body.kind, "data");
   if (summary?.body.kind !== "data" || summary.body.data.kind !== "summary") return;
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "new-capability-boundary")?.value, {
+  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "interface-boundary")?.value, {
     kind: "text",
-    value: "2",
-    tone: "danger",
-    font: "mono",
-  });
-  assert.deepEqual(summary.body.data.metrics.find((metric) => metric.key === "legacy-capability-boundary")?.value, {
-    kind: "text",
-    value: "8",
+    value: "新增 0 · 存量 8",
     tone: "warning",
     font: "mono",
   });
 });
 
-test("source module rows and section use backend ownership and dependency counts", () => {
+test("source module rows and L1 drilldown use backend ownership and dependency counts", () => {
   const snapshot = analysisSnapshot();
   assert.deepEqual(capabilityAnalysisTableRows(snapshot).map((row) => ({
     module: row.moduleLabel,
@@ -389,13 +411,15 @@ test("source module rows and section use backend ownership and dependency counts
     imports: row.crossCapabilityImportCount,
   })), [{ module: "工作管理", capability: "会议", files: 1, imports: 1 }]);
 
-  const section = createSourceCodeAnalysisSection(snapshot);
+  const section = createSourceCodeAnalysisSection(snapshot, {
+    selectedNavigationKey: sourceCodeAnalysisL1NavigationKey("work"),
+  });
   assert.equal(section.body.kind, "section");
   if (section.body.kind !== "section" || section.body.layout === "split") return;
-  assert.ok(section.body.sections?.some((candidate) => candidate.key === "source-code-analysis-capability-table"));
+  assert.ok(section.body.sections?.some((candidate) => candidate.key === "source-code-analysis-module-children"));
 });
 
-test("source module rows follow the recursive parent tree instead of sorting every depth as peers", () => {
+test("source navigation exposes every recursive level and aggregates parent subtree code", () => {
   const snapshot = analysisSnapshot();
   const workModule = snapshot.modules.find((module) => module.key === "work")!;
   workModule.lines = 60;
@@ -435,22 +459,36 @@ test("source module rows follow the recursive parent tree instead of sorting eve
     },
   ];
 
-  assert.deepEqual(
-    capabilityAnalysisTableRows(snapshot)
-      .filter((row) => row.moduleKey === "work")
-      .map((row) => [row.key, row.depth]),
-    [["entry", 1], ["tasks", 2], ["task-import", 3]],
-  );
+  const rows = capabilityAnalysisTableRows(snapshot).filter((row) => row.moduleKey === "work");
+  assert.deepEqual(rows.map((row) => [row.key, row.depth, row.subtreeLines]), [
+    ["entry", 1, 10],
+    ["tasks", 2, 50],
+    ["task-import", 3, 30],
+  ]);
+
+  const product = sourceCodeAnalysisNavigationTree(snapshot).find((group) => group.key === "source:group:product");
+  const work = product?.children.find((module) => module.key === sourceCodeAnalysisL1NavigationKey("work"));
+  assert.deepEqual(work?.children.map((node) => [node.label, node.children.map((child) => child.label)]), [
+    ["L1 接入层", []],
+    ["任务", ["任务导入"]],
+  ]);
+
+  const leaf = createSourceCodeAnalysisSection(snapshot, {
+    selectedNavigationKey: sourceCodeAnalysisModuleNavigationKey("work", "task-import"),
+  });
+  assert.equal(leaf.body.kind, "section");
+  if (leaf.body.kind !== "section" || leaf.body.layout === "split") return;
+  assert.ok(leaf.body.sections?.some((section) => section.key === "source-code-analysis-role-summary"));
+  assert.ok(!leaf.body.sections?.some((section) => section.key === "source-code-analysis-module-children"));
 });
 
-test("source module columns use the same responsibility groups as L1", () => {
-  const collapsed = createCapabilityAnalysisColumns({
+test("source module columns change with the selected L1 semantics", () => {
+  const collapsed = createCapabilityAnalysisColumns("product", {
     expandedGroupKey: null,
     onToggleGroup: () => undefined,
   });
   assert.deepEqual(collapsed.map((column) => column.key), [
     "module",
-    "capability",
     "total",
     "entry",
     "application",
@@ -459,16 +497,35 @@ test("source module columns use the same responsibility groups as L1", () => {
     "contract",
     "assurance",
     "files",
-    "dependencies",
+    "health",
   ]);
 
-  const expanded = createCapabilityAnalysisColumns({
+  const expanded = createCapabilityAnalysisColumns("product", {
     expandedGroupKey: "domain",
     onToggleGroup: () => undefined,
   });
-  assert.deepEqual(expanded.slice(7, 9).map((column) => column.key), [
+  assert.deepEqual(expanded.filter((column) => column.key.startsWith("domain:")).map((column) => column.key), [
     "domain:domainValidation",
     "domain:domain",
+  ]);
+
+  assert.deepEqual(createCapabilityAnalysisColumns("operations").map((column) => column.label), [
+    "运行 Module",
+    "运行角色",
+    "脚本 / 文件",
+    "子树代码",
+    "运行依赖",
+    "调用引用",
+    "健康",
+  ]);
+  assert.deepEqual(createCapabilityAnalysisColumns("tooling").map((column) => column.label), [
+    "治理 Module",
+    "治理形态",
+    "检查 / 测试文件",
+    "子树代码",
+    "检查依赖",
+    "工具引用",
+    "健康",
   ]);
 });
 

@@ -49,12 +49,15 @@ function emptySnapshot(): SourceCodeAnalysisSnapshot {
       legacyCapabilityContractViolationCount: 0,
       newCapabilityContractViolationCount: 0,
       staleCapabilityContractBaselineCount: 0,
+      moduleHealthWarningCount: 0,
+      acceptedModuleHealthWarningCount: 0,
     },
     modules: [],
     capabilities: [],
     dependencyEdges: [],
     capabilityDependencyEdges: [],
     capabilityContractViolations: [],
+    moduleHealthWarnings: [],
     reciprocalRoleDependencies: [],
     dependencyFileCycles: [],
     invalidDependencyDirections: [],
@@ -114,6 +117,27 @@ test("file dependency cycles block source-code-analysis check", () => {
   };
 
   assert.equal(hasBlockingSourceCodeAnalysisDiagnostics(snapshot), true);
+});
+
+test("module health findings require Hygiene review but do not become a structural blocker", () => {
+  const snapshot = {
+    summary: {
+      unclassifiedFileCount: 0,
+      ambiguousFileCount: 0,
+      missingInterfaceCount: 0,
+      dependencyCycleCount: 0,
+      dependencyFileCycleCount: 0,
+      invalidDependencyDirectionCount: 0,
+      mixedResponsibilityFileCount: 0,
+      newUnclassifiedCapabilityFileCount: 0,
+      ambiguousCapabilityFileCount: 0,
+      newCapabilityContractViolationCount: 0,
+      staleCapabilityContractBaselineCount: 0,
+      moduleHealthWarningCount: 1,
+      acceptedModuleHealthWarningCount: 0,
+    },
+  };
+  assert.equal(hasBlockingSourceCodeAnalysisDiagnostics(snapshot), false);
 });
 
 test("unresolved mixed responsibilities block source-code-analysis check", () => {
@@ -209,6 +233,7 @@ test("snapshot contract rejects malformed source module keys and missing edge ar
   malformedKey.capabilities = [{
     moduleKey: "work",
     key: "Meetings/Unsafe",
+    kind: "module",
     parentKey: null,
     depth: 2,
     label: "会议",
@@ -237,8 +262,11 @@ test("snapshot contract rejects malformed source module keys and missing edge ar
   nullCycleCell.dependencyFileCycles = [{
     classification: "runtime",
     paths: ["packages/work/a.ts"],
+    cyclePath: ["packages/work/a.ts", "packages/work/a.ts"],
     cells: [null] as unknown as SourceCodeAnalysisSnapshot["dependencyFileCycles"][number]["cells"],
     evidence: [],
+    blocking: true,
+    waivable: false,
   }];
   assert.equal(isSourceCodeAnalysisSnapshot(nullCycleCell), false);
 });

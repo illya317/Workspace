@@ -1,25 +1,32 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 
-export interface SourceCapabilityPathRule {
-  kind: "file" | "prefix";
-  path: string;
-}
+import {
+  CAPABILITY_GOVERNED_MODULE_KEYS,
+  type CapabilityGovernedModuleKey,
+  type SourceCapabilityDeclaration,
+  type SourceCapabilityOptions,
+  type SourceCapabilityPathOptions,
+  type SourceCapabilityPathRule,
+} from "./capability-declaration-contract";
+import { SOURCE_CAPABILITY_INTERFACE_FILES } from "./capability-interfaces";
+import { createProductCapabilityDeclarations } from "./product-capability-declarations";
+import { sourceModuleDeclarationsForPath } from "./declarations";
+import {
+  OPERATIONS_ARTIFACT_SUPPLY_FILES,
+  OPERATIONS_DATA_RELEASE_FILES,
+  OPERATIONS_DEPLOYMENT_CUTOVER_FILES,
+  OPERATIONS_FOUNDATION_FILES,
+  OPERATIONS_RELEASE_CI_FILES,
+  OPERATIONS_RUNTIME_DEPENDENCY_FILES,
+} from "./operations-capability-file-catalog";
 
-export interface SourceCapabilityDeclaration {
-  moduleKey: CapabilityGovernedModuleKey;
-  key: string;
-  kind: "module" | "entry";
-  /** Null means the product L1 is the parent. Otherwise this points at another node in the same tree. */
-  parentKey: string | null;
-  label: string;
-  include: readonly SourceCapabilityPathRule[];
-  /** Explicit public Interface paths that other branches may import. */
-  interface: readonly SourceCapabilityPathRule[];
-}
-
-export const CAPABILITY_GOVERNED_MODULE_KEYS = ["platform", "finance", "work", "hr"] as const;
-export type CapabilityGovernedModuleKey = (typeof CAPABILITY_GOVERNED_MODULE_KEYS)[number];
+export { CAPABILITY_GOVERNED_MODULE_KEYS };
+export type {
+  CapabilityGovernedModuleKey,
+  SourceCapabilityDeclaration,
+  SourceCapabilityPathRule,
+};
 
 export interface CapabilityOwnershipBaseline {
   schemaVersion: 1;
@@ -29,12 +36,10 @@ export interface CapabilityOwnershipBaseline {
 export const CAPABILITY_OWNERSHIP_BASELINE_PATH =
   "scripts/arch/source-code-analysis/capability-ownership-baseline.json";
 
-function rules(moduleKey: CapabilityGovernedModuleKey, options: {
-  files?: readonly string[];
-  prefixes?: readonly string[];
-  rootFiles?: readonly string[];
-  rootPrefixes?: readonly string[];
-}): SourceCapabilityPathRule[] {
+function rules(
+  moduleKey: CapabilityGovernedModuleKey,
+  options: SourceCapabilityPathOptions,
+): SourceCapabilityPathRule[] {
   const packagePrefix = `packages/${moduleKey}/`;
   return [
     ...(options.files ?? []).map((relativePath) => ({
@@ -45,22 +50,26 @@ function rules(moduleKey: CapabilityGovernedModuleKey, options: {
       kind: "prefix" as const,
       path: `${packagePrefix}${relativePath}`,
     })),
+    ...(options.directChildren ?? []).map((relativePath) => ({
+      kind: "directChildren" as const,
+      path: `${packagePrefix}${relativePath}`,
+    })),
+    ...(options.rootDirectChildren ?? []).map((rootPath) => ({
+      kind: "directChildren" as const,
+      path: rootPath,
+    })),
     ...(options.rootFiles ?? []).map((rootPath) => ({ kind: "file" as const, path: rootPath })),
     ...(options.rootPrefixes ?? []).map((rootPath) => ({ kind: "prefix" as const, path: rootPath })),
   ];
 }
 
-function capability(
+export function capability(
   moduleKey: CapabilityGovernedModuleKey,
   key: string,
   label: string,
-  options: Parameters<typeof rules>[1] & {
-    parentKey?: string | null;
-    kind?: "module" | "entry";
-    interfaceFiles?: readonly string[];
-    interfacePrefixes?: readonly string[];
-  },
+  options: SourceCapabilityOptions,
 ): SourceCapabilityDeclaration {
+  const registeredInterfaceFiles = SOURCE_CAPABILITY_INTERFACE_FILES[`${moduleKey}/${key}`] ?? [];
   return {
     moduleKey,
     key,
@@ -69,7 +78,7 @@ function capability(
     label,
     include: rules(moduleKey, options),
     interface: rules(moduleKey, {
-      files: options.interfaceFiles,
+      files: [...registeredInterfaceFiles, ...(options.interfaceFiles ?? [])],
       prefixes: options.interfacePrefixes,
     }),
   };
@@ -194,204 +203,392 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
     prefixes: ["audit/", "calendar/", "contracts/", "integrations/", "server/api/", "server/open-api/", "types/"],
   }),
 
-  capability("finance", "entry", "L1 接入与组合层", {
+  ...createProductCapabilityDeclarations(capability),
+  capability("data-model", "schema-entry", "数据模型组合入口", {
     kind: "entry",
-    rootPrefixes: ["app/(modules)/finance/", "app/api/modules/finance/"],
+    rootFiles: ["prisma/schema.prisma", "prisma.config.ts"],
   }),
-  capability("finance", "assets", "资产", {
-    prefixes: ["server/assets/", "ui/assets/", "types/assets", "constants/assets", "server/domain/asset-"],
+  capability("data-model", "model-contracts", "领域数据模型", {
+    rootPrefixes: ["prisma/models/"],
   }),
-  capability("finance", "budget", "预算", {
-    prefixes: ["server/budget/", "ui/budget/", "types/budget", "constants/budget", "server/domain/budget-"],
+  capability("data-model", "migration-history", "迁移历史", {
+    kind: "appendOnlyHistory",
+    rootPrefixes: ["prisma/migrations/"],
   }),
-  capability("finance", "close", "关账", {
-    prefixes: ["server/close/", "types/close", "server/domain/close-"],
+  capability("data-model", "seed-data", "种子与参考数据", {
+    rootPrefixes: ["prisma/seed-data/"],
   }),
-  capability("finance", "cost", "成本", {
-    prefixes: ["server/cost/", "ui/cost/", "types/cost", "constants/cost", "server/domain/cost-"],
-  }),
-  capability("finance", "ledger", "总账与重分类", {
-    prefixes: [
-      "server/ledger/", "ui/ledger/", "types/ledger", "constants/ledger",
-      "server/domain/ledger-", "server/domain/group-", "server/domain/counterparty-",
-      "server/schedules/", "types/auxiliary-reclass", "types/group-account", "types/reclass",
-    ],
-  }),
-  capability("finance", "statements", "报表与合并", {
-    prefixes: [
-      "server/statements/", "ui/statements/", "types/statements", "constants/statements",
-      "server/domain/statement-", "server/domain/consolidation-", "server/group-policy-",
-      "types/consolidated-", "types/consolidation-",
-      "types/statement-",
-    ],
-  }),
-  capability("finance", "tax", "税务", {
-    prefixes: ["server/tax/", "ui/tax/", "types/tax", "constants/tax", "server/domain/tax-"],
-  }),
-  capability("finance", "treasury", "资金", {
-    prefixes: [
-      "server/treasury/", "ui/treasury/", "types/treasury", "constants/treasury",
-      "server/domain/treasury-", "types/fund-flow",
-    ],
-  }),
-  capability("finance", "analysis", "财务分析", {
-    prefixes: [
-      "server/analysis/", "ui/analysis/", "server/workspace-analysis-",
-      "types/analysis", "constants/analysis",
-      "server/domain/operational-analysis-", "types/management-analysis", "types/operational-analysis",
-    ],
-  }),
-  capability("finance", "import", "财务导入", {
-    prefixes: ["import/", "server/import/", "server/domain/readable-import-"],
-  }),
-  capability("finance", "shared-ui", "财务共享界面", {
-    files: [
-      "ui/formatters.test.ts", "ui/formatters.ts", "ui/workbook-download.test.ts", "ui/workbook-download.ts",
-    ],
-    prefixes: ["ui/components/", "ui/navigation/"],
-  }),
-  capability("finance", "shared-contracts", "财务公共契约", {
-    files: [
-      "README.md", "business-temporal.ts", "index.ts", "module.ts", "package.json",
-      "server/domain/shared-validation.ts",
-      "constants/index.ts", "server/index.ts", "server/workbook-formula-contract.test.ts",
-      "server/workbook-formula-contract.ts", "types/index.ts", "ui/index.ts", "tsconfig.json",
-    ],
-    interfaceFiles: ["server/domain/shared-validation.ts"],
+  capability("data-model", "data-release-contracts", "数据发布契约", {
+    rootFiles: ["ops/data-release-reference-contracts.mjs"],
   }),
 
-  capability("work", "entry", "L1 接入与组合层", {
-    kind: "entry",
-    rootPrefixes: ["app/(modules)/work/", "app/api/modules/work/"],
+  capability("operations", "operations-foundation", "生产运行底座", {
+    rootPrefixes: [
+      "ops/", "scripts/import/", "scripts/lib/", "scripts/migrate/", "scripts/repair/",
+      "scripts/deploy/", "scripts/runtime/", "scripts/testing/",
+    ],
+    rootFiles: OPERATIONS_FOUNDATION_FILES,
   }),
-  capability("work", "meetings", "会议", { prefixes: ["server/meetings/", "ui/meetings/"] }),
-  capability("work", "projects", "项目", {
-    files: ["ui/tabs/ProjectTab.tsx"],
-    prefixes: [
-      "server/project-", "server/projects.", "server/projects/", "server/domain/project-", "server/work-project-",
-      "ui/project/", "ui/tabs/project/",
+  capability("operations", "operations-commands", "生产运行命令", {
+    kind: "orchestrator",
+    parentKey: "operations-foundation",
+    rootDirectChildren: ["ops/"],
+  }),
+  capability("operations", "operations-control", "生产控制面命令", {
+    kind: "orchestrator",
+    parentKey: "operations-commands",
+    rootDirectChildren: ["ops/"],
+  }),
+  capability("operations", "release-ci", "Release CI", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_RELEASE_CI_FILES,
+  }),
+  capability("operations", "artifact-supply", "制品构建与供应", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_ARTIFACT_SUPPLY_FILES,
+  }),
+  capability("operations", "deployment-cutover", "部署切换", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_DEPLOYMENT_CUTOVER_FILES,
+  }),
+  capability("operations", "runtime-dependencies", "运行依赖", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_RUNTIME_DEPENDENCY_FILES,
+  }),
+  capability("operations", "data-release", "数据发布", {
+    parentKey: "operations-control",
+    rootFiles: OPERATIONS_DATA_RELEASE_FILES,
+  }),
+  capability("operations", "deploy-runtime", "部署切换运行时", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/deploy/"],
+  }),
+  capability("operations", "release-pipeline", "发布控制流水线", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/release/"],
+  }),
+  capability("operations", "release-ci-steps", "Release CI 步骤", {
+    parentKey: "release-pipeline",
+    rootPrefixes: ["ops/release/attempts/", "ops/release/validation/"],
+  }),
+  capability("operations", "release-ready", "Ready 与制品验收", {
+    parentKey: "release-pipeline",
+    rootPrefixes: ["ops/release/readiness/"],
+  }),
+  capability("operations", "release-control", "发布契约与控制", {
+    parentKey: "release-pipeline",
+    rootPrefixes: [
+      "ops/release/candidate/", "ops/release/contracts/", "ops/release/control/", "ops/release/diagnostics/",
     ],
   }),
-  capability("work", "tasks", "任务与工作项", {
-    prefixes: [
-      "server/task-", "server/work-task-", "server/work-item-", "server/works.",
-      "server/domain/work-completion-", "server/domain/work-item-", "server/domain/work-participant-",
-      "ui/works/", "ui/works.",
+  capability("operations", "database-runtime", "数据库运行保障", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/postgresql/"],
+  }),
+  capability("operations", "cache-runtime", "运行缓存治理", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/cache/"],
+  }),
+  capability("operations", "document-runtime", "文档运行环境", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/onlyoffice/"],
+  }),
+  capability("operations", "operations-support", "生产运行公共脚本", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["ops/lib/", "scripts/lib/"],
+  }),
+  capability("operations", "data-import", "生产数据导入", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/import/"],
+  }),
+  capability("operations", "historical-maintenance", "历史迁移修复", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/migrate/", "scripts/repair/"],
+  }),
+  capability("operations", "data-migration", "生产数据迁移", {
+    parentKey: "historical-maintenance",
+    rootPrefixes: ["scripts/migrate/"],
+  }),
+  capability("operations", "data-repair", "生产数据修复", {
+    parentKey: "historical-maintenance",
+    rootPrefixes: ["scripts/repair/"],
+  }),
+  capability("operations", "deploy-model", "部署模型生成", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/deploy/"],
+  }),
+  capability("operations", "agent-runtime", "智能体生产运行时", {
+    parentKey: "operations-foundation",
+    rootPrefixes: ["scripts/runtime/"],
+  }),
+  capability("operations", "operations-policy", "生产运行校验策略", {
+    parentKey: "operations-foundation",
+    rootFiles: [
+      "scripts/check/check-permission-action-grants.mjs",
+      "scripts/check/check-prisma-deploy-status.js",
+      "scripts/ci/check-migration-policy.mjs",
+      "scripts/ci/verify-artifact-manifest.mjs",
+      "scripts/testing/module-impact-map.ts",
     ],
   }),
-  capability("work", "plans-goals-kpi", "计划、目标与绩效", {
-    prefixes: [
-      "server/work-plan-", "server/work-plans.", "server/work-okr-", "server/work-kpi-",
-      "server/work-kr-", "server/work-period-", "ui/gantt/",
-      "server/domain/work-kpi-", "server/domain/work-kr-", "server/domain/work-okr-",
-      "server/domain/work-performance-", "server/domain/work-period-", "server/domain/work-plan-",
-      "server/domain/work-system-", "server/work-assigned-", "server/work-goal-", "server/work-pilot-",
+  capability("operations", "runtime-provisioning", "生产运行初始化", {
+    parentKey: "operations-foundation",
+    rootFiles: [
+      "scripts/provision-agent-workforce.mjs",
+      "scripts/seed-resources-runtime.mjs",
+      "scripts/write-resource-manifest.ts",
     ],
-  }),
-  capability("work", "reporting-analysis", "汇报与分析", {
-    files: ["work-report-periods.ts"],
-    prefixes: [
-      "server/report-", "server/work-report-", "server/workspace-analysis-", "server/domain/work-report-",
-      "server/weekly-report-",
-      "server/domain/work-reporting-",
-    ],
-  }),
-  capability("work", "collaboration", "协作与责任范围", {
-    files: ["server/access.ts"],
-    prefixes: [
-      "server/business-space-", "server/department-", "server/work-collaboration-",
-      "server/work-owner-", "server/work-responsibility-", "server/work-source-",
-      "server/work-superior-",
-      "server/domain/department-", "server/domain/work-responsibility-",
-    ],
-  }),
-  capability("work", "shared-ui", "工作共享界面", {
-    files: ["ui/index.ts"],
-    prefixes: ["ui/home/"],
-  }),
-  capability("work", "shared-contracts", "工作公共契约", {
-    files: [
-      "business-temporal.ts", "index.ts", "module.ts", "package.json", "server/fk-registry.ts",
-      "server/index.ts", "server/schemas.ts", "server/standard-space-seeds.ts",
-      "server/workflow-todo-provider.ts", "tsconfig.json",
-    ],
-    prefixes: ["constants/", "types/", "import/"],
-  }),
-  capability("work", "mutation-impact", "变更影响传播", {
-    files: ["server/work-mutation-impact.ts"],
-    prefixes: ["server/work-mutation-impact-", "server/domain/work-mutation-impact-"],
   }),
 
-  capability("hr", "entry", "L1 接入与组合层", {
+  capability("tooling", "tooling-foundation", "开发治理底座", {
+    rootPrefixes: ["scripts/", "e2e/", ".github/workflows/"],
+  }),
+  capability("tooling", "tooling-entry", "开发治理组合入口", {
     kind: "entry",
-    rootPrefixes: ["app/(modules)/hr/", "app/api/modules/hr/", "app/api/open/v1/hr/"],
+    rootFiles: ["dependency-cruiser.config.cjs", "next.config.ts", "package.json", "playwright.config.ts"],
   }),
-  capability("hr", "library-export", "人事资料输出", {
-    files: ["server/library-source.ts"],
+  capability("tooling", "architecture-governance", "架构治理", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/arch/"],
   }),
-  capability("hr", "analysis", "人事分析", {
-    files: ["server/analysis.ts"],
-    prefixes: ["server/analysis/", "ui/analytics/"],
+  capability("tooling", "source-module-governance", "源码模块与依赖治理", {
+    parentKey: "architecture-governance",
+    rootPrefixes: ["scripts/arch/source-code-analysis/"],
   }),
-  capability("hr", "employment-lifecycle", "员工与雇佣生命周期", {
-    files: [
-      "server/domain/page-draft-validation.test.ts",
-      "server/domain/page-draft-validation.ts",
+  capability("tooling", "ui-structure-governance", "UI 结构治理", {
+    parentKey: "architecture-governance",
+    rootFiles: [
+      "scripts/arch/action-runtime-ui.ts", "scripts/arch/body-command-renderer.ts",
+      "scripts/arch/feedback-api.ts", "scripts/arch/field-layout.ts",
     ],
-    prefixes: [
-      "employee-", "employment-", "server/agreement-", "server/contract-", "server/contracts.",
-      "server/employee-", "server/employees.", "server/employment-", "server/employments.",
-      "server/social-insurance-", "ui/profile/",
-      "server/domain/contract-", "server/domain/employee-", "server/domain/employment-",
-      "server/contracts-capacity.", "server/employments-department-scope.", "server/roster-",
-      "server/roster.", "ui/generated/", "utils/contract-", "utils/employment-",
-    ],
-  }),
-  capability("hr", "organization", "组织、部门与岗位", {
-    prefixes: [
-      "server/department-", "server/departments.", "server/edp-", "server/edps.",
-      "server/organization-", "server/position-", "server/positions.", "ui/organization/",
-      "ui/tabs/department-position/", "utils/department-",
-      "server/domain/department-", "server/domain/organization-", "server/domain/position-",
+    rootPrefixes: [
+      "scripts/arch/core-ui-", "scripts/arch/create-surface-", "scripts/arch/form-surface-",
+      "scripts/arch/input-surface-", "scripts/arch/modal-governance", "scripts/arch/page-surface-",
+      "scripts/arch/structure-", "scripts/arch/surface-", "scripts/arch/table-row-", "scripts/arch/ui-",
     ],
   }),
-  capability("hr", "performance", "绩效", {
-    prefixes: [
-      "server/performance-", "server/performance.", "server/performance/",
-      "server/domain/performance-", "ui/performance/",
+  capability("tooling", "domain-contract-governance", "领域与接口契约治理", {
+    parentKey: "architecture-governance",
+    rootFiles: [
+      "scripts/arch/app-route-hierarchy.ts", "scripts/arch/auth.ts", "scripts/arch/deps.ts",
+      "scripts/arch/modules.ts", "scripts/arch/open-api.ts",
+    ],
+    rootPrefixes: [
+      "scripts/arch/business-temporal-", "scripts/arch/completion-date-", "scripts/arch/domain-",
+      "scripts/arch/finance-workbook-", "scripts/arch/package-dependency-",
     ],
   }),
-  capability("hr", "data-quality", "人事数据质量", {
-    files: ["server/audit-entities.ts"],
-    prefixes: ["server/data-quality-", "server/data-quality.", "server/domain/audit-", "ui/audit/"],
+  capability("tooling", "static-analysis", "静态检查", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/check/"],
   }),
-  capability("hr", "code-governance", "人事编码治理", {
-    files: ["ui/code-helpers.ts"],
-    prefixes: ["server/domain/code-governance-", "ui/code/"],
+  capability("tooling", "check-orchestration", "检查编排与缓存", {
+    parentKey: "static-analysis",
+    rootFiles: ["scripts/check/with-check-lock.js"],
+    rootPrefixes: ["scripts/check/changed-files", "scripts/check/run-", "scripts/check/check-task-"],
   }),
-  capability("hr", "shared-ui", "人事共享界面", {
-    files: [
-      "ui/HRClient.tsx", "ui/fk-keys.ts", "ui/index.ts", "ui/roster-surface.ts",
-      "server/autocomplete-config.ts", "server/autocomplete.ts", "server/hr-tab-list-capacity.test.ts",
-      "ui/tabs/DepartmentPositionTab.tsx", "ui/tabs/EditableTable.tsx", "ui/tabs/GenericTableTab.tsx",
-      "ui/tabs/generic-table-columns.ts", "ui/tabs/generic-table-export.ts",
+  capability("tooling", "contract-checks", "注册、权限与接口检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/action-contract-", "scripts/check/approval-authority-",
+      "scripts/check/business-action-", "scripts/check/check-action-", "scripts/check/check-api-",
+      "scripts/check/check-authorize-", "scripts/check/check-business-action-",
+      "scripts/check/check-business-code-registry", "scripts/check/check-business-identity-",
+      "scripts/check/check-business-temporal-", "scripts/check/check-fk-", "scripts/check/check-history-",
+      "scripts/check/check-notification-", "scripts/check/check-permission-",
+      "scripts/check/check-relation-", "scripts/check/check-resource-",
+      "scripts/check/check-work-plan-", "scripts/check/check-workspace-analysis-",
+      "scripts/check/docs-approval-", "scripts/check/mutation-impact-", "scripts/check/notification-audit-",
+      "scripts/check/permission-review", "scripts/check/relation-adapter-",
+      "scripts/check/relation-policy-", "scripts/check/service-result-", "scripts/check/verified-api-",
+      "scripts/check/work-completion-", "scripts/check/work-item-", "scripts/check/work-mutation-",
+      "scripts/check/work-task-",
     ],
-    prefixes: ["ui/components/", "ui/hooks/"],
   }),
-  capability("hr", "shared-contracts", "人事公共契约与支撑", {
-    files: [
-      "README.md", "business-temporal.test.ts", "business-temporal.ts", "index.ts", "module.ts",
-      "package.json", "server/field-reference-adapter.ts", "server/field-validation.ts",
-      "server/fk-registry.ts", "server/hr-crud.ts", "server/index.ts",
-      "server/reference-count-adapter.ts", "server/reference-guards.ts", "server/route-commands.ts",
-      "server/schemas.ts", "tsconfig.json", "utils/identity.ts", "utils/index.ts",
+  capability("tooling", "action-workflow-checks", "动作与工作流契约检查", {
+    parentKey: "contract-checks",
+    rootPrefixes: [
+      "scripts/check/action-contract-", "scripts/check/approval-authority-",
+      "scripts/check/business-action-", "scripts/check/check-action-",
+      "scripts/check/check-business-action-", "scripts/check/check-business-temporal-",
+      "scripts/check/docs-approval-", "scripts/check/mutation-impact-",
+      "scripts/check/notification-audit-", "scripts/check/service-result-",
+      "scripts/check/work-completion-", "scripts/check/work-item-", "scripts/check/work-mutation-",
+      "scripts/check/work-task-",
     ],
-    prefixes: ["constants/", "types/", "import/"],
+  }),
+  capability("tooling", "registry-access-checks", "Registry 与访问控制检查", {
+    parentKey: "contract-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-api-", "scripts/check/check-authorize-", "scripts/check/check-fk-",
+      "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-permission-", "scripts/check/check-relation-",
+      "scripts/check/check-resource-", "scripts/check/check-work-plan-",
+      "scripts/check/check-workspace-analysis-", "scripts/check/permission-review",
+      "scripts/check/relation-adapter-", "scripts/check/relation-policy-",
+      "scripts/check/verified-api-",
+    ],
+  }),
+  capability("tooling", "access-policy-checks", "访问与权限策略检查", {
+    parentKey: "registry-access-checks",
+    rootPrefixes: [
+      "scripts/check/check-api-", "scripts/check/check-authorize-",
+      "scripts/check/check-permission-", "scripts/check/permission-review",
+      "scripts/check/verified-api-",
+    ],
+  }),
+  capability("tooling", "registry-consistency-checks", "Registry 一致性检查", {
+    parentKey: "registry-access-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-fk-", "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-relation-", "scripts/check/check-resource-", "scripts/check/check-work-plan-",
+      "scripts/check/check-workspace-analysis-", "scripts/check/relation-adapter-",
+      "scripts/check/relation-policy-",
+    ],
+  }),
+  capability("tooling", "relation-registry-checks", "关系与资源 Registry 检查", {
+    parentKey: "registry-consistency-checks",
+    rootPrefixes: [
+      "scripts/check/check-fk-", "scripts/check/check-relation-", "scripts/check/check-resource-",
+      "scripts/check/relation-adapter-", "scripts/check/relation-policy-",
+    ],
+  }),
+  capability("tooling", "module-registry-checks", "模块与运行 Registry 检查", {
+    parentKey: "registry-consistency-checks",
+    rootFiles: ["scripts/check/check-module-definitions.js"],
+    rootPrefixes: [
+      "scripts/check/check-history-", "scripts/check/check-notification-",
+      "scripts/check/check-work-plan-", "scripts/check/check-workspace-analysis-",
+    ],
+  }),
+  capability("tooling", "data-lifecycle-checks", "数据与生命周期检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/business-lifecycle-", "scripts/check/check-database-", "scripts/check/check-db.",
+      "scripts/check/check-finance-", "scripts/check/check-import-", "scripts/check/check-prisma-",
+      "scripts/check/check-schema-", "scripts/check/hr-business-", "scripts/check/normalize-generated-",
+      "scripts/check/organization-lifecycle-", "scripts/check/prisma-relation-",
+      "scripts/check/relation-dmmf-",
+    ],
+  }),
+  capability("tooling", "runtime-delivery-checks", "运行与交付检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-deploy-", "scripts/check/check-env.", "scripts/check/check-standalone-",
+      "scripts/check/check-tenant-runtime-", "scripts/check/check-workspace-runtime",
+      "scripts/check/deploy/", "scripts/check/prepare-standalone-",
+    ],
+  }),
+  capability("tooling", "ui-quality-checks", "UI 与浏览器检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-core-ui-", "scripts/check/check-docs-editor-",
+      "scripts/check/check-module-nav-", "scripts/check/check-module-page-",
+      "scripts/check/check-playwright-", "scripts/check/module-page-gate-",
+    ],
+  }),
+  capability("tooling", "repository-quality-checks", "仓库与工程质量检查", {
+    parentKey: "static-analysis",
+    rootPrefixes: [
+      "scripts/check/check-architecture-", "scripts/check/check-company-", "scripts/check/check-memory-",
+      "scripts/check/check-net-", "scripts/check/check-package-", "scripts/check/check-split-",
+      "scripts/check/check-typecheck-", "scripts/check/check-business-code-hardcoding",
+      "scripts/check/governance-checker-", "scripts/check/tenant-hardcoding-",
+      "scripts/check/typecheck-entrypoints", "scripts/check/workspace-package-",
+    ],
+  }),
+  capability("tooling", "continuous-integration", "持续集成", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/ci/"],
+  }),
+  capability("tooling", "deployment-tooling", "部署开发工具", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/deploy/"],
+  }),
+  capability("tooling", "developer-runtime", "开发运行环境", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/runtime/"],
+  }),
+  capability("tooling", "test-harness", "测试支撑", {
+    parentKey: "tooling-foundation",
+    rootPrefixes: ["scripts/testing/", "e2e/"],
+  }),
+  capability("tooling", "test-infrastructure", "测试基础设施", {
+    parentKey: "test-harness",
+    rootPrefixes: ["scripts/testing/"],
+  }),
+  capability("tooling", "e2e", "E2E", {
+    parentKey: "test-harness",
+    rootPrefixes: ["e2e/"],
+  }),
+  capability("tooling", "code-generation", "代码与文档生成", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/generate-action-contract-docs.ts", "scripts/generate-api-agent-guide.ts",
+      "scripts/generate-core-ui-surface-contracts.test.ts", "scripts/generate-core-ui-surface-contracts.ts",
+      "scripts/generate-doc-editor-qc-templates.ts", "scripts/generate-permission-action-docs.ts",
+      "scripts/generate-permission-review-baseline.ts", "scripts/generate-production-agent-docs.ts",
+    ],
+    rootPrefixes: ["scripts/generate/", "scripts/reference/"],
+  }),
+  capability("tooling", "tooling-commands", "开发治理命令", {
+    kind: "orchestrator",
+    parentKey: "tooling-foundation",
+    rootDirectChildren: ["scripts/"],
+  }),
+  capability("tooling", "tooling-command-runtime", "开发命令运行时", {
+    kind: "orchestrator",
+    parentKey: "tooling-commands",
+    rootDirectChildren: ["scripts/"],
+  }),
+  capability("tooling", "library-maintenance-commands", "资料库维护命令", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/check-library-scan-manifest.ts", "scripts/compact-library-runtime.ts",
+      "scripts/compress-library-batch.ts", "scripts/export-library-selection.ts",
+      "scripts/import-library-catalog.ts", "scripts/library-scan-smoke.ts",
+      "scripts/prepare-library-pilot.ts", "scripts/preview-library-batch.ts",
+      "scripts/preview-library-version.ts", "scripts/process-library-pilot.ts",
+      "scripts/process-library-version.ts", "scripts/run-library-incremental.ts",
+      "scripts/scan-library.ts", "scripts/search-library.ts", "scripts/seed-library-generated-sources.ts",
+    ],
+  }),
+  capability("tooling", "database-verification-commands", "数据库容量与运行验证命令", {
+    parentKey: "tooling-command-runtime",
+    rootPrefixes: ["scripts/postgresql-"],
+  }),
+  capability("tooling", "tenant-maintenance-commands", "租户数据维护命令", {
+    parentKey: "tooling-command-runtime",
+    rootFiles: [
+      "scripts/backfill-permission-grant-ledger.ts", "scripts/provision-agent-workforce.mjs",
+      "scripts/rehome-docs-editor-content.ts", "scripts/seed-resources-runtime.mjs",
+      "scripts/seed-resources.ts", "scripts/sync-external-snapshots.mjs",
+      "scripts/sync-finance-group-chart.ts", "scripts/write-resource-manifest.ts",
+    ],
   }),
 ] as const;
 
+function validateSourceCapabilityInterfaceCatalog(
+  declarations: readonly SourceCapabilityDeclaration[],
+) {
+  const declarationIds = new Set(declarations.map((declaration) =>
+    `${declaration.moduleKey}/${declaration.key}`));
+  const unknownIds = Object.keys(SOURCE_CAPABILITY_INTERFACE_FILES)
+    .filter((id) => !declarationIds.has(id));
+  if (unknownIds.length > 0) {
+    throw new Error(`[source-code-analysis] Interface catalog has unknown modules: ${unknownIds.join(", ")}`);
+  }
+}
+
+validateSourceCapabilityInterfaceCatalog(SOURCE_CAPABILITY_DECLARATIONS);
+
 export function matchesCapabilityRule(relativePath: string, rule: SourceCapabilityPathRule) {
-  return rule.kind === "file" ? relativePath === rule.path : relativePath.startsWith(rule.path);
+  if (rule.kind === "file") return relativePath === rule.path;
+  if (rule.kind === "prefix") return relativePath.startsWith(rule.path);
+  if (!relativePath.startsWith(rule.path)) return false;
+  return !relativePath.slice(rule.path.length).includes("/");
 }
 
 const CAPABILITY_KEY_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
@@ -498,8 +695,12 @@ export function sourceCapabilityDepth(
 }
 
 export function capabilityGovernedModuleForPath(relativePath: string) {
-  return CAPABILITY_GOVERNED_MODULE_KEYS.find((moduleKey) =>
-    relativePath.startsWith(`packages/${moduleKey}/`)) ?? null;
+  const owners = sourceModuleDeclarationsForPath(relativePath);
+  if (owners.length !== 1) return null;
+  const moduleKey = owners[0].key;
+  return CAPABILITY_GOVERNED_MODULE_KEYS.includes(moduleKey as CapabilityGovernedModuleKey)
+    ? moduleKey as CapabilityGovernedModuleKey
+    : null;
 }
 
 /**
@@ -551,8 +752,8 @@ export function parseCapabilityOwnershipBaseline(parsed: unknown): CapabilityOwn
     if (!Array.isArray(values) || values.some((value) => typeof value !== "string")) {
       throw new Error(`[source-code-analysis] invalid capability ownership baseline for ${moduleKey}`);
     }
-    const expectedPrefix = `packages/${moduleKey}/`;
-    if (values.some((value) => !value.startsWith(expectedPrefix))) {
+    if (values.some((value) => !sourceModuleDeclarationsForPath(value)
+      .some((declaration) => declaration.key === moduleKey))) {
       throw new Error(`[source-code-analysis] capability baseline path escapes ${moduleKey}`);
     }
     if (new Set(values).size !== values.length) {

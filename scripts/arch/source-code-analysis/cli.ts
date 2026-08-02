@@ -86,6 +86,16 @@ function printOperationsDiagnostics(
   }
 }
 
+function printModuleHealthWarnings(snapshot: Awaited<ReturnType<typeof analyzeSourceCode>>) {
+  for (const warning of snapshot.moduleHealthWarnings) {
+    if (warning.reviewStatus === "accepted") continue;
+    console.error(
+      `[source-code-analysis] 最小 Module 健康提醒(${warning.code}): ${warning.moduleId} `
+      + `${warning.actual} / ${warning.threshold}; 需要 Hygiene 复核`,
+    );
+  }
+}
+
 export async function writeSourceCodeAnalysisSnapshot(outputPath: string, snapshot: SourceCodeAnalysisSnapshot) {
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
   const temporaryPath = `${outputPath}.${process.pid}.${Date.now()}.tmp`;
@@ -141,6 +151,7 @@ export async function runSourceCodeAnalysis(args = process.argv.slice(2), reposi
   if (json) console.log(JSON.stringify(snapshot));
   if (failed) printDiagnostics(snapshot);
   if (failed) printOperationsDiagnostics(operationsModules.violations, operationsSize.violations);
+  if (check) printModuleHealthWarnings(snapshot);
   if (check && failed) return 1;
   if (write) {
     await writeSourceCodeAnalysisSnapshot(outputPath, snapshot);
@@ -148,7 +159,7 @@ export async function runSourceCodeAnalysis(args = process.argv.slice(2), reposi
   }
   if (!json) {
     console.log(
-      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% L1 declared, ${snapshot.summary.capabilityCoveragePercent}% recursive modules declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles, ${snapshot.summary.invalidDependencyDirectionCount} invalid directions, ${snapshot.summary.newCapabilityContractViolationCount} new module-boundary violations`,
+      `source code analysis: ${snapshot.summary.fileCount} files, ${snapshot.summary.lines} lines, ${snapshot.summary.coveragePercent}% L1 declared, ${snapshot.summary.capabilityCoveragePercent}% recursive modules declared, ${snapshot.summary.dependencyCycleCount} module cycles, ${snapshot.summary.dependencyFileCycleCount} file cycles, ${snapshot.summary.invalidDependencyDirectionCount} invalid directions, ${snapshot.summary.newCapabilityContractViolationCount} new module-boundary violations, ${snapshot.summary.moduleHealthWarningCount} module health warnings`,
     );
   }
   return 0;

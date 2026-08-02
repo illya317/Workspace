@@ -10,6 +10,7 @@ import {
 
 const declarations: SourceCapabilityDeclaration[] = [
   { moduleKey: "finance", key: "entry", kind: "entry", parentKey: null, label: "接入层", include: [], interface: [] },
+  { moduleKey: "finance", key: "report-host", kind: "orchestrator", parentKey: null, label: "报表组合", include: [], interface: [] },
   { moduleKey: "finance", key: "ledger", kind: "module", parentKey: null, label: "总账", include: [], interface: [] },
   { moduleKey: "finance", key: "vouchers", kind: "module", parentKey: "ledger", label: "凭证", include: [], interface: [] },
   { moduleKey: "finance", key: "voucher-import", kind: "module", parentKey: "vouchers", label: "凭证导入", include: [], interface: [] },
@@ -24,7 +25,7 @@ const declarations: SourceCapabilityDeclaration[] = [
   },
 ];
 
-const file = (capabilityKey: string | null, role: "application" | "contract" | "composition" | "input") => ({
+const file = (capabilityKey: string | null, role: "application" | "assembly" | "contract" | "composition" | "input" | "ui") => ({
   path: `packages/finance/${capabilityKey ?? "root"}/${role}.ts`,
   moduleKey: "finance",
   capabilityKey,
@@ -79,6 +80,21 @@ test("recursive contract permits ancestor composition but rejects ordinary paren
     "valueImport",
     declarations,
   ), "descendantImportsAncestorImplementation");
+});
+
+test("an explicit orchestrator may assemble another Module without making every UI file public", () => {
+  assert.equal(capabilityContractViolationReason(
+    file("report-host", "ui"),
+    file("statements", "application"),
+    "valueImport",
+    declarations,
+  ), null);
+  assert.equal(capabilityContractViolationReason(
+    file("report-host", "application"),
+    file("statements", "application"),
+    "valueImport",
+    declarations,
+  ), "crossBranchImplementationDependency");
 });
 
 test("contract debt baseline is exact and rejects duplicate fingerprints", () => {

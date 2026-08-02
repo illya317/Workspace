@@ -22,6 +22,7 @@ test("production runtime owns ops and release/runtime script source", () => {
   assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-unit-app-generator.ts"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-graph.ts"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/testing/module-impact-map.ts"), ["operations"]);
+  assert.deepEqual(declaredModuleKeys("ops/data-release-reference-contracts.mjs"), ["data-model"]);
 });
 
 test("every registered production script resolves only to production runtime", () => {
@@ -30,7 +31,7 @@ test("every registered production script resolves only to production runtime", (
   }
 });
 
-test("development governance owns the remaining scripts, e2e, and engineering config", () => {
+test("development governance owns the remaining scripts, workflows, e2e, and engineering config", () => {
   assert.deepEqual(declaredModuleKeys("scripts/check/check-domain.js"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-unit-impact.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("scripts/runtime/start-local-dev.mjs"), ["tooling"]);
@@ -38,6 +39,8 @@ test("development governance owns the remaining scripts, e2e, and engineering co
   assert.deepEqual(declaredModuleKeys("next.config.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("playwright.config.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("dependency-cruiser.config.cjs"), ["tooling"]);
+  assert.deepEqual(declaredModuleKeys(".github/workflows/ci.yml"), ["tooling"]);
+  assert.deepEqual(declaredModuleKeys("package.json"), ["tooling"]);
 });
 
 test("root runtime instrumentation belongs to the application shell", () => {

@@ -27,6 +27,17 @@ import {
   readCapabilityContractBaseline,
 } from "./capability-contract";
 import {
+  detectRepositoryDependencyCycles,
+  extractRepositoryCommandDependencyEdges,
+} from "./repository-dependency-cycle-policy";
+import {
+  evaluateModuleHealth,
+  moduleHealthReviewEvidence,
+  moduleHealthReviewStatus,
+  readModuleHealthReviewPolicy,
+  type ModuleHealthMetrics,
+} from "./module-health-policy";
+import {
   collectRegisteredGeneratedSourceTargets,
   collectSourceFiles,
   countSourceLines,
@@ -46,6 +57,10 @@ interface AnalyzedFile {
 
 function emptyRoleCounts(): SourceCodeAnalysisRoleCounts {
   return Object.fromEntries(SOURCE_CODE_ANALYSIS_ROLES.map((role) => [role, 0])) as SourceCodeAnalysisRoleCounts;
+}
+
+function policyDigest(value: unknown) {
+  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
 
 function withoutTypeOnlyImports(text: string) {
@@ -444,11 +459,18 @@ function sourceRevision(repositoryRoot: string) {
 }
 
 export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceCodeAnalysisSnapshot> {
-  const [relativePaths, externalSourceTargets, capabilityBaseline, capabilityContractBaseline] = await Promise.all([
+  const [
+    relativePaths,
+    externalSourceTargets,
+    capabilityBaseline,
+    capabilityContractBaseline,
+    moduleHealthReviewPolicy,
+  ] = await Promise.all([
     collectSourceFiles(repositoryRoot),
     collectRegisteredGeneratedSourceTargets(repositoryRoot),
     readCapabilityOwnershipBaseline(repositoryRoot),
     readCapabilityContractBaseline(repositoryRoot),
+    readModuleHealthReviewPolicy(repositoryRoot),
   ]);
   const unclassifiedFiles: string[] = [];
   const ambiguousFiles: Array<{ path: string; moduleKeys: string[] }> = [];
@@ -558,6 +580,7 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
     capabilityRows.set(`${declaration.moduleKey}\0${declaration.key}`, {
       moduleKey: declaration.moduleKey,
       key: declaration.key,
+      kind: declaration.kind,
       parentKey: declaration.parentKey,
       depth: sourceCapabilityDepth(declaration),
       label: declaration.label,
@@ -620,6 +643,105 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
         .localeCompare([right.moduleKey, right.capabilityKey ?? ""].join("\0")));
     row.dependencyCount = row.dependencies.length;
   }
+
+  const capabilityDeclarationsById = new Map(SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => [
+    declaration.moduleKey + "\0" + declaration.key,
+    declaration,
+  ]));
+  const childCountById = new Map(SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => [
+    declaration.moduleKey + "\0" + declaration.key,
+    SOURCE_CAPABILITY_DECLARATIONS.filter((candidate) =>
+      candidate.moduleKey === declaration.moduleKey && candidate.parentKey === declaration.key).length,
+  ]));
+  const implementationRoles = new Set<SourceCodeAnalysisRole>([
+    "application", "composition", "domain", "domainValidation", "input", "integration", "persistence", "tooling", "ui",
+  ]);
+  const healthMetrics: ModuleHealthMetrics[] = SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => {
+    const id = declaration.moduleKey + "\0" + declaration.key;
+    const ownedImplementation = files.filter((file) =>
+      file.moduleKey === declaration.moduleKey
+      && file.capabilityKey === declaration.key
+      && implementationRoles.has(file.role));
+    const outgoingDependencies = dependencyAnalysis.capabilityDependencyEdges.filter((edge) =>
+      edge.sourceModuleKey === declaration.moduleKey
+      && edge.sourceCapabilityKey === declaration.key
+      && edge.sourceRole !== "test"
+      && edge.targetRole !== "test"
+      && (edge.targetModuleKey !== declaration.moduleKey || edge.targetCapabilityKey !== declaration.key));
+    const outgoingLeafDependencies = new Set(outgoingDependencies.flatMap((edge) => {
+      if (edge.targetCapabilityKey === null) return [edge.targetModuleKey + "/L1"];
+      const targetId = edge.targetModuleKey + "\0" + edge.targetCapabilityKey;
+      return (childCountById.get(targetId) ?? 0) === 0
+        ? [edge.targetModuleKey + "/" + edge.targetCapabilityKey]
+        : [];
+    }));
+    const activeReferences = new Set(dependencyAnalysis.capabilityDependencyEdges.flatMap((edge) => {
+      if (edge.targetModuleKey !== declaration.moduleKey
+        || edge.targetCapabilityKey !== declaration.key
+        || edge.sourceRole === "test") return [];
+      const source = edge.sourceCapabilityKey === null
+        ? null
+        : capabilityDeclarationsById.get(edge.sourceModuleKey + "\0" + edge.sourceCapabilityKey);
+      if (source?.kind === "retired") return [];
+      return [edge.sourceModuleKey + "/" + (edge.sourceCapabilityKey ?? "L1")];
+    }));
+    return {
+      moduleKey: declaration.moduleKey,
+      key: declaration.key,
+      kind: declaration.kind,
+      childCount: childCountById.get(id) ?? 0,
+      implementationLines: ownedImplementation.reduce((sum, file) => sum + file.lines, 0),
+      implementationFileCount: ownedImplementation.length,
+      outgoingLeafDependencyCount: outgoingLeafDependencies.size,
+      legacyImplementationBypassCount: legacyCapabilityContractViolations.filter((violation) =>
+        violation.sourceModuleKey === declaration.moduleKey
+        && violation.sourceCapabilityKey === declaration.key).length,
+      referencedByActiveModuleCount: activeReferences.size,
+    };
+  });
+  const rawHealthWarnings = evaluateModuleHealth(healthMetrics);
+  const healthMetricsByModuleId = new Map(healthMetrics.map((metrics) => [
+    metrics.moduleKey + "/" + metrics.key,
+    metrics,
+  ]));
+  const reviewByModuleId = new Map(moduleHealthReviewPolicy.reviews.map((review) => [review.moduleId, review]));
+  for (const moduleId of reviewByModuleId.keys()) {
+    if (!healthMetricsByModuleId.has(moduleId)) {
+      throw new Error(`[source-code-analysis] module health review references unknown module: ${moduleId}`);
+    }
+  }
+  const healthEvidenceByModuleId = new Map(SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => {
+    const moduleId = declaration.moduleKey + "/" + declaration.key;
+    const dependencyEvidence = dependencyAnalysis.capabilityDependencyEdges.filter((edge) =>
+      edge.sourceModuleKey === declaration.moduleKey
+      && edge.sourceCapabilityKey === declaration.key
+      && edge.sourceRole !== "test"
+      && edge.targetRole !== "test");
+    const debtEvidence = legacyCapabilityContractViolations.filter((violation) =>
+      violation.sourceModuleKey === declaration.moduleKey
+      && violation.sourceCapabilityKey === declaration.key);
+    return [moduleId, moduleHealthReviewEvidence(
+      healthMetricsByModuleId.get(moduleId)!,
+      rawHealthWarnings,
+      {
+        interfaceDigest: policyDigest(declaration.interface),
+        dependencyDigest: policyDigest(dependencyEvidence),
+        debtDigest: policyDigest(debtEvidence),
+      },
+    )] as const;
+  }));
+  const moduleHealthWarnings = rawHealthWarnings.map((warning) => {
+    const receipt = reviewByModuleId.get(warning.moduleId);
+    const evidence = healthEvidenceByModuleId.get(warning.moduleId)!;
+    const status = receipt
+      ? moduleHealthReviewStatus(receipt, evidence)
+      : { valid: false, reason: null };
+    return {
+      ...warning,
+      reviewStatus: status.valid ? "accepted" as const : "required" as const,
+      reviewInvalidationReason: status.reason,
+    };
+  });
   const l1ImportCount = dependencyAnalysis.dependencyEdges.reduce((sum, edge) => sum + edge.importCount, 0);
   const capabilityImportCount = dependencyAnalysis.capabilityDependencyEdges
     .reduce((sum, edge) => sum + edge.importCount, 0);
@@ -633,7 +755,30 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
   const reciprocalRoleDependencies = dependencyAnalysis.reciprocalRoleDependencies;
   const runtimeReciprocalRoleDependencyCount = reciprocalRoleDependencies
     .filter((dependency) => dependency.classification === "runtime").length;
-  const dependencyFileCycles = dependencyAnalysis.dependencyFileCycles;
+  const analyzedFilesByPath = new Map(files.map((file) => [file.path, file]));
+  const dependencyFileCycles = detectRepositoryDependencyCycles(
+    files.map((file) => file.path),
+    [
+      ...dependencyAnalysis.fileDependencyEdges,
+      ...extractRepositoryCommandDependencyEdges(files),
+    ],
+  ).map((cycle) => {
+    const pathSet = new Set(cycle.paths);
+    return {
+      ...cycle,
+      cells: [...new Map(cycle.paths.flatMap((filePath) => {
+        const file = analyzedFilesByPath.get(filePath);
+        return file ? [[file.moduleKey + "\0" + (file.capabilityKey ?? "") + "\0" + file.role, {
+          moduleKey: file.moduleKey,
+          capabilityKey: file.capabilityKey,
+          role: file.role,
+        }] as const] : [];
+      })).values()].sort((left, right) =>
+        [left.moduleKey, left.capabilityKey ?? "", left.role].join("\0")
+          .localeCompare([right.moduleKey, right.capabilityKey ?? "", right.role].join("\0"))),
+      evidence: cycle.evidence.filter((edge) => pathSet.has(edge.sourcePath) && pathSet.has(edge.targetPath)),
+    };
+  });
   const invalidDependencyDirections = dependencyAnalysis.invalidDependencyDirections;
   const runtimeDependencyFileCycleCount = dependencyFileCycles
     .filter((cycle) => cycle.classification === "runtime").length;
@@ -679,12 +824,17 @@ export async function analyzeSourceCode(repositoryRoot: string): Promise<SourceC
       legacyCapabilityContractViolationCount: legacyCapabilityContractViolations.length,
       newCapabilityContractViolationCount: newCapabilityContractViolations.length,
       staleCapabilityContractBaselineCount: staleCapabilityContractBaseline.length,
+      moduleHealthWarningCount: moduleHealthWarnings
+        .filter((warning) => warning.reviewStatus === "required").length,
+      acceptedModuleHealthWarningCount: moduleHealthWarnings
+        .filter((warning) => warning.reviewStatus === "accepted").length,
     },
     modules: [...rows.values()],
     capabilities: [...capabilityRows.values()],
     dependencyEdges: dependencyAnalysis.dependencyEdges,
     capabilityDependencyEdges: dependencyAnalysis.capabilityDependencyEdges,
     capabilityContractViolations: dependencyAnalysis.capabilityContractViolations,
+    moduleHealthWarnings,
     reciprocalRoleDependencies,
     dependencyFileCycles,
     invalidDependencyDirections,

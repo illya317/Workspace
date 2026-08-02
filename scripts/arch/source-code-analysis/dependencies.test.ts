@@ -244,6 +244,7 @@ test("production tooling, re-exports, type-only re-exports, and self-loops parti
     classification: cycle.classification,
     paths: cycle.paths,
   })), [
+    { classification: "runtime", paths: ["ops/a.test.ts", "ops/b.test.ts"] },
     { classification: "runtime", paths: ["ops/a.ts", "ops/b.ts"] },
     { classification: "runtime", paths: ["ops/cjs-a.js", "ops/cjs-b.js"] },
     { classification: "runtime", paths: ["ops/self.ts"] },
