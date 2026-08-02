@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { applyHistoricalCutoverEvidencePolicy } from "./historical-cutover-evidence-policy";
 
-function inspection(status: "pending" | "ready" | "blocked") {
+function inspection(status: "pending" | "ready" | "blocked" | "unavailable", blockerCode = "real_blocker") {
   return {
     status,
     contributorVersion: "provider-v1",
     inputFingerprint: "before",
-    blockers: status === "blocked" ? [{ code: "real_blocker", message: "真实阻断", deepLink: "/finance" }] : [],
+    blockers: status === "blocked" || status === "unavailable" ? [{ code: blockerCode, message: "真实阻断", deepLink: "/finance" }] : [],
     evidenceRefs: [],
     voucherRefs: [],
     deepLink: "/finance",
@@ -31,6 +31,27 @@ test("June source-closed ledger evidence completes pending evidence-only checks 
   assert.notEqual(result.get("pending")?.inputFingerprint, "before");
   assert.equal(result.get("blocked")?.status, "blocked");
   assert.equal(result.get("blocked")?.blockers[0]?.code, "real_blocker");
+});
+
+test("June source-closed ledger evidence completes only the allowlisted historical output gaps", () => {
+  const result = applyHistoricalCutoverEvidencePolicy(new Map([
+    ["finance.statements.standalone", inspection("unavailable", "provider_unavailable")],
+    ["finance.statements.group-adjustments", inspection("blocked", "consolidation_not_locked")],
+    ["finance.assets.movement", inspection("blocked", "real_blocker")],
+  ]), {
+    enabled: true,
+    periodRef: "finance-period:1273",
+    voucherRefs: ["finance-voucher:1"],
+  });
+
+  assert.equal(result.get("finance.statements.standalone")?.status, "ready");
+  assert.equal(result.get("finance.statements.group-adjustments")?.status, "ready");
+  assert.equal(result.get("finance.assets.movement")?.status, "blocked");
+  assert.deepEqual(
+    (result.get("finance.statements.standalone")?.payload as { historicalCutoverEvidencePolicy: { supersededBlockers: unknown[] } })
+      .historicalCutoverEvidencePolicy.supersededBlockers,
+    [{ code: "provider_unavailable", message: "真实阻断", deepLink: "/finance" }],
+  );
 });
 
 test("policy stays inert when the period is not an enabled historical cutover", () => {

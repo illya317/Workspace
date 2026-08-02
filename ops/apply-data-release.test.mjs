@@ -133,6 +133,29 @@ test("finance budget releases use private workbooks and a pinned reference map",
   }), /escapes/);
 });
 
+test("June finance close cutover uses one pinned private payload", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-june-close-cutover-v1",
+    parameters: { inputFile: "finance/june-close-2026-06/cutover.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId: "finance-june-close-2026-06-v1",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--release-id=finance-june-close-2026-06-v1"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/june-close-2026-06/cutover.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-june-close-cutover-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId: "finance-june-close-2026-06-v1",
+  }), /escapes/);
+});
+
 test("finance reviewed-origin repairs use a pinned private input file", () => {
   const command = buildDataReleaseHandlerCommand({
     handler: "finance-reviewed-origin-mappings-v1",
