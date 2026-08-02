@@ -244,6 +244,7 @@ test("News copy-only change invalidates only the golden task input set", (t) => 
     "deploy-unit-apps",
     "lint-changed",
     "lint-full",
+    "shell-errexit-policy",
     "split-quality",
     "structure-domain",
     "structure-ui",
@@ -318,7 +319,7 @@ test("News copy-only change invalidates only the golden task input set", (t) => 
   const detectorPending = tasks
     .filter((task) => inputDigest(task.id) !== beforeDetector.get(task.id))
     .map((task) => task.id);
-  assert.deepEqual(detectorPending, ["action-registry"]);
+  assert.deepEqual(detectorPending, ["action-registry", "shell-errexit-policy"]);
 });
 
 test("owner-scoped task inputs reject packages absent from the canonical registry", (t) => {

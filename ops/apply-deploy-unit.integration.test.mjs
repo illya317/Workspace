@@ -239,17 +239,18 @@ function fixture(activeUnitId = "finance") {
   const runtimeRoot = path.join(root, "runtime");
   const nginxSite = path.join(root, "workspace.conf");
   const preparedStateRoot = path.join(remoteDir, ".workspace", "gateway", "profile-preparations", "test-rollout");
+  const deployLockToken = "apply-deploy-unit-integration";
   mkdirSync(path.join(remoteDir, ".workspace", ".deployment"), { recursive: true });
   mkdirSync(fakeBin);
   mkdirSync(runtimeRoot);
   const control = tenantAndControlPlane(path.join(root, "control"));
   cpSync(control.controlPlaneReceiptFile, path.join(remoteDir, ".workspace", "control-plane-release.json"));
   cpSync(control.tenantManifestFile, path.join(remoteDir, ".workspace", ".deployment", "tenant-config-manifest.json"));
+  writeFileSync(path.join(remoteDir, ".workspace", "deploy-lock.owner"), `${deployLockToken}\n`);
   writeFileSync(nginxSite, "server {\n    location /workspace {\n        proxy_pass http://127.0.0.1:3000;\n    }\n}\n");
   executable(path.join(fakeBin, "sudo"), "#!/bin/sh\nexec \"$@\"\n");
   executable(path.join(fakeBin, "nginx"), "#!/bin/sh\n[ \"$1\" = '-t' ]\n");
   executable(path.join(fakeBin, "systemctl"), "#!/bin/sh\nexit 0\n");
-  executable(path.join(fakeBin, "flock"), "#!/bin/sh\nexit 0\n");
   executable(path.join(fakeBin, "pm2"), `#!/bin/sh
 case "$1" in
   start)
@@ -318,7 +319,7 @@ case "$url" in
   *) printf '{"ok":true}\n' ;;
 esac
 `);
-  return { root, remoteDir, fakeBin, runtimeRoot, nginxSite, preparedStateRoot, graph: graph(activeUnitId), control };
+  return { root, remoteDir, fakeBin, runtimeRoot, nginxSite, preparedStateRoot, deployLockToken, graph: graph(activeUnitId), control };
 }
 
 function commandEnvironment(files, extraEnvironment = {}) {
@@ -329,6 +330,7 @@ function commandEnvironment(files, extraEnvironment = {}) {
     FAKE_RUNTIME_ROOT: files.runtimeRoot,
     WORKSPACE_GATEWAY_NGINX_SITE: files.nginxSite,
     DEPLOY_PROFILE_PREPARED_STATE_ROOT: files.preparedStateRoot,
+    DEPLOY_LOCK_TOKEN: files.deployLockToken,
     WECHAT_BOT_ID: "test-bot",
     WECHAT_BOT_SECRET: "test-secret",
     WECOM_WORKER_BRIDGE_SECRET: "test-worker-bridge-secret-at-least-32-characters",
@@ -340,7 +342,8 @@ function commandEnvironment(files, extraEnvironment = {}) {
 }
 
 function apply(files, args, extraEnvironment = {}) {
-  return spawnSync("bash", [applyScript, ...args], {
+  const lockFile = path.join(files.remoteDir, ".workspace", "deploy.lock");
+  return spawnSync("flock", ["-x", lockFile, "bash", applyScript, ...args], {
     encoding: "utf8",
     env: commandEnvironment(files, extraEnvironment),
   });
