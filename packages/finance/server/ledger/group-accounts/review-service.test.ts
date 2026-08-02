@@ -6,7 +6,7 @@ let mappingUpdateCount = 1;
 const mappingUpdates: unknown[] = [];
 const testCompanyCode = ["0", "2"].join("");
 
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     isPlatformServiceResult: () => false,
     jsonErrorResponse: () => new Response(null, { status: 400 }),

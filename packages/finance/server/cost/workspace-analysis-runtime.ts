@@ -1,6 +1,6 @@
 import "server-only";
 
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { workspaceSourcesOperationalAnalysisDefinitionSchema } from "@workspace/platform/workspace-analysis-definition-schema";
 import { buildWorkspaceAnalysisExecutionPlan } from "@workspace/platform/server/workspace-analysis-execution-plan";
 import type { WorkspaceAnalysisSourceDirectoryResult } from "@workspace/platform/server/workspace-analysis-source-directory";

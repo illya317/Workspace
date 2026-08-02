@@ -54,7 +54,7 @@ mock.module("@workspace/platform/server/prisma", {
     },
   },
 } as never);
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     serviceOk: (data: unknown) => ({ ok: true, data }),
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),

@@ -1,4 +1,5 @@
-import { serviceError, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceResponse } from "@workspace/platform/server/api";
+import { serviceError, type ServiceResult } from "@workspace/platform/service-result";
 import {
   isStatementPeriodEnd,
   STATEMENT_PERIOD_KINDS,

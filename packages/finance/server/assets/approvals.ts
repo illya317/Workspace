@@ -9,7 +9,7 @@ import {
   type ApprovalStatus,
 } from "@workspace/platform/server/approvals";
 import { resolveWorkflowNodeHandlerUserIds } from "@workspace/platform/server/approvals/workflow-node-handlers";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { evaluatePermissionAction } from "@workspace/platform/server/auth";
 import {
   defineBusinessActionCommandAdapter,

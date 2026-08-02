@@ -1,4 +1,4 @@
-import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/service-result";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 import { buildFinanceIdCommand } from "../domain/shared-validation";

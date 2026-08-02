@@ -6,6 +6,7 @@ import test from "node:test";
 
 import {
   createExecutionApprovedFinanceAssetErpGlCutoverReconciler,
+  findProjectCodeRoot,
   getApprovedFinanceAssetLegacySyntheticAssets,
   isExecutionApprovedGovernedReconciler,
   loadApprovedFinanceAssetCutoverConfig,
@@ -14,6 +15,19 @@ import { createFinanceAssetErpGlCutoverReconciler } from "./erp-gl-cutover-provi
 import type { FinanceAssetLegacySyntheticAsset } from "./legacy-synthetic-assets";
 
 const scope = { companyCode: "TEST", year: 2026, month: 6 };
+
+test("resolves both source worktree and standalone artifact roots", async () => {
+  assert.equal(await findProjectCodeRoot(process.cwd()), process.cwd());
+  const root = await mkdtemp(join(tmpdir(), "approved-asset-artifact-root-"));
+  try {
+    const moduleDirectory = join(root, "packages/finance/server/assets");
+    await mkdir(moduleDirectory, { recursive: true });
+    await writeFile(join(root, ".server-entry"), "source/server.js\n");
+    assert.equal(await findProjectCodeRoot(moduleDirectory), root);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
 
 test("only a current-user 0600 file outside the worktree can create an execution-approved reconciler", async () => {
   const root = await mkdtemp(join(tmpdir(), "approved-asset-cutover-"));

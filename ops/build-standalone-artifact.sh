@@ -350,7 +350,7 @@ rm -f "$standalone_app_dir/.env"
 # Output tracing can retain partial runtime package shells. Copy complete closures that
 # production loads dynamically, then add deployment-only schema/resource/runtime files.
 run_artifact_stage runtime.dependencies \
-  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv server-only sharp tsx xlsx @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
+  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv pinyin-pro server-only sharp tsx xlsx zod @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
 run_artifact_stage runtime.sharp \
   node -e 'const sharp=require("./.next/standalone/node_modules/sharp"); if (!sharp.versions?.sharp) throw new Error("standalone sharp runtime is incomplete")'
 run_artifact_stage runtime.prisma copy_prisma_deploy_files

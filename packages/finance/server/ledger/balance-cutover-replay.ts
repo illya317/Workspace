@@ -1,4 +1,4 @@
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 
 import { sha256CanonicalJson } from "../close/canonical-json";
 import type {

@@ -1,9 +1,7 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@workspace/platform/server/prisma";
 import { BalanceItem, ReportPeriod, ReclassEntry } from "./report-helpers";
 import { generateBalanceSheet } from "./reports/balance-sheet";
 import { generateDirectStatementReport } from "./reports/direct";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { loadBalanceSheetPeriodReclassEntries } from "./balance-sheet-reclass-entries";
 import {
@@ -33,6 +31,10 @@ export interface GenerateFinanceReportInput {
   reportType: "balance" | "income" | "cashflow";
 }
 
+function reportErrorResponse(error: string, status: number) {
+  return Response.json({ error }, { status });
+}
+
 export async function generateFinanceReport(input: GenerateFinanceReportInput) {
   const periodKind = input.periodKind ?? "month";
   let targetPeriodId = input.periodId;
@@ -40,17 +42,17 @@ export async function generateFinanceReport(input: GenerateFinanceReportInput) {
     const period = await prisma.financePeriod.findFirst({
       where: { companyCode: input.companyCode, year: input.year, month: input.month },
     });
-    if (!period) return jsonErrorResponse("期间不存在", 404);
+    if (!period) return reportErrorResponse("期间不存在", 404);
     targetPeriodId = period.id;
   }
   if (!targetPeriodId) {
-    return jsonErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
+    return reportErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
   }
 
   const period = await prisma.financePeriod.findUnique({ where: { id: targetPeriodId } });
-  if (!period) return jsonErrorResponse("期间不存在", 404);
+  if (!period) return reportErrorResponse("期间不存在", 404);
   if (!isStatementPeriodEnd(period, periodKind)) {
-    return jsonErrorResponse(periodKind === "year" ? "年度报表必须选择12月作为期末" : "季度报表必须选择季度末月份", 400);
+    return reportErrorResponse(periodKind === "year" ? "年度报表必须选择12月作为期末" : "季度报表必须选择季度末月份", 400);
   }
   const prefixSet = getTenantProfile().finance.countryReportProfiles.find((profile) => profile.companyCodes.includes(period.companyCode))?.prefixSet ?? "chn";
 
@@ -104,7 +106,7 @@ export async function generateReport(params: GenerateReportParams) {
     reportType === "income" ? "incomeStatement" : "cashFlow",
   );
 
-  return NextResponse.json({
+  return Response.json({
     type: reportType,
     period: { id: period.id, year: period.year, month: period.month, companyCode: period.companyCode },
     source: statementReport.source,

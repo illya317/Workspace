@@ -7,7 +7,7 @@ import type {
   ConsolidationReadinessCheck,
   StatementExchangeRateSnapshot,
 } from "@workspace/finance/types";
-import { serviceError, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceError, type ServiceResult } from "@workspace/platform/service-result";
 import { prisma } from "@workspace/platform/server/prisma";
 import { CONSOLIDATION_BATCH_INCLUDE, consolidationBatchSnapshot } from "./consolidation-dto";
 import {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { serviceError } from "@workspace/platform/server/api";
+import { serviceError } from "@workspace/platform/service-result";
 import {
   normalizeLifecycleScope,
   searchFkOptions,

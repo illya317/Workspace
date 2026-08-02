@@ -1,5 +1,5 @@
 import type { StatementExchangeRateSnapshot } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {

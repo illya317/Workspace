@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import type { ReportPeriod, BalanceItem } from "../report-helpers";
 import { yearlyCurrentLeaf } from "../report-helpers";
 import { INCOME_STATEMENT_LINES, type IncomeLineConfig } from "../config/income-statement-lines";
@@ -52,5 +51,5 @@ export function generateIncomeStatement(
     });
   }
 
-  return NextResponse.json({ type: "income", period, lines });
+  return Response.json({ type: "income", period, lines });
 }

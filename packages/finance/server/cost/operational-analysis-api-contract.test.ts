@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test, { mock } from "node:test";
 
 mock.module("server-only", { namedExports: {} } as never);
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     serviceOk: (data: unknown) => ({ ok: true, data }),
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),

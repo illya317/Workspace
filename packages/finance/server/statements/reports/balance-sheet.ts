@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import type { BalanceItem, ReportPeriod, ReclassEntry } from "../report-helpers";
 import { loadBalanceSheetConfig } from "../config/load-config";
 import { computeBalanceSheet } from "../compute-balance-sheet";
@@ -130,5 +129,5 @@ export async function generateBalanceSheet(
     previousTotalLiabilitiesAndEquity: balanceTotals.previous,
   };
   if (allDiagnostics.length > 0) payload.diagnostics = allDiagnostics;
-  return NextResponse.json(payload);
+  return Response.json(payload);
 }

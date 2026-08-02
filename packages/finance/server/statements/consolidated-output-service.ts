@@ -2,7 +2,7 @@ import type {
   ConsolidatedReportOutputPackage,
   ConsolidationBatchSnapshot,
 } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import {
   failCommand,
   type DomainValidationResult,

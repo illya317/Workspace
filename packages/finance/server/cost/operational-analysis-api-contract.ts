@@ -2,7 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 
 import {
   operationalAnalysisTemplateDraftCreateBodySchema,

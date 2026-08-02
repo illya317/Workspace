@@ -1,4 +1,4 @@
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   validateReviewFinanceCloseWorkpaperPersistenceCommand,

@@ -32,11 +32,12 @@ mock.module("./operational-analytics", {
     }),
   },
 } as never);
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     serviceOk: (data: unknown) => ({ ok: true, data }),
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),
     isPlatformServiceResult: () => false,
+    isServiceResult: () => false,
     jsonErrorResponse: () => new Response(null, { status: 400 }),
     serviceResponse: (result: unknown) => result,
   },

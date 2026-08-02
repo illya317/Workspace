@@ -36,7 +36,7 @@ let runtimeCalls = 0;
 let templateUpdate: Record<string, unknown> | null = null;
 let revisionCreate: Record<string, unknown> | null = null;
 
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     serviceOk: (data: unknown) => ({ ok: true, data }),
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { matchText } from "@workspace/platform/search";
 import type { WorkspaceAnalysisSourceDefinition } from "@workspace/platform/workspace-analysis-source-contract";
 import {

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { createRequire } from "node:module";
+import { spawnSync } from "node:child_process";
 import { copyFileSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -58,8 +59,29 @@ export function linkDataReleaseNextRuntime(standaloneRoot, sourceNextRoot) {
   const importerRequire = createRequire(importer);
   const resolved = importerRequire.resolve("next/server");
   if (!inside(root, realpathSync(resolved))) throw new Error("data release Next runtime resolves outside artifact");
-  importerRequire("next/server");
   return { releaseNext, resolved };
+}
+
+export function verifyFinanceJuneCloseRuntime(standaloneRoot) {
+  const root = realpathSync(path.resolve(standaloneRoot));
+  const entry = "./scripts/import/import-finance-june-close-cutover.ts";
+  const result = spawnSync(process.execPath, [
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "--input-type=module",
+    "--eval",
+    `await import(${JSON.stringify(entry)})`,
+  ], {
+    cwd: root,
+    encoding: "utf8",
+    env: { ...process.env, NODE_ENV: "production" },
+  });
+  if (result.error) throw result.error;
+  if (result.status !== 0) {
+    const diagnostic = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.trim().slice(-8_000);
+    throw new Error(`finance June close importer runtime preflight failed: ${diagnostic}`);
+  }
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
@@ -69,4 +91,5 @@ if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) 
     throw new Error("usage: link-data-release-next-runtime.mjs STANDALONE_ROOT SOURCE_NEXT_ROOT");
   }
   linkDataReleaseNextRuntime(standaloneRoot, sourceNextRoot);
+  verifyFinanceJuneCloseRuntime(standaloneRoot);
 }

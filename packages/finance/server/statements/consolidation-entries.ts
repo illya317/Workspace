@@ -13,7 +13,7 @@ import {
   validateConsolidationEntryWriteMode,
   validateConsolidationVersionTarget,
 } from "../domain/consolidation-entry-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";

@@ -1,5 +1,5 @@
 import { Prisma } from "@workspace/platform/server/prisma";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { getUserBusinessActorIdentity } from "@workspace/platform/server/user-identity";
 import { runSerializableTransaction, SerializableTransactionConflictError } from "@workspace/platform/server/serializable-transaction";
 import { defineBusinessActionCommandAdapter } from "@workspace/platform/server/business-action-executor";

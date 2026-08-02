@@ -153,24 +153,26 @@ function parseAuxiliary(value: unknown) {
 }
 
 async function assertOutsideWorktree(configPath: string) {
-  const worktreeRoot = await findProjectWorktreeRoot();
-  const relative = path.relative(worktreeRoot, path.resolve(configPath));
+  const projectRoot = await findProjectCodeRoot(path.dirname(fileURLToPath(import.meta.url)));
+  const relative = path.relative(projectRoot, path.resolve(configPath));
   if (relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))) {
     throw new Error("资产切点审批配置不得位于 git worktree/cwd 内");
   }
 }
 
-async function findProjectWorktreeRoot() {
-  let current = path.dirname(fileURLToPath(import.meta.url));
+export async function findProjectCodeRoot(start: string) {
+  let current = path.resolve(start);
   while (true) {
-    try {
-      await fs.lstat(path.join(current, ".git"));
-      return current;
-    } catch (error) {
-      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    for (const marker of [".git", ".server-entry"]) {
+      try {
+        await fs.lstat(path.join(current, marker));
+        return current;
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+      }
     }
     const parent = path.dirname(current);
-    if (parent === current) throw new Error("无法从 Finance server 模块位置解析 git worktree root");
+    if (parent === current) throw new Error("无法从 Finance server 模块位置解析源码或制品根目录");
     current = parent;
   }
 }

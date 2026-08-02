@@ -1,4 +1,4 @@
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 

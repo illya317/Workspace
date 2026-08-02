@@ -4,7 +4,7 @@ import type {
   OperationalAnalysisTemplateLifecycleDTO,
   OperationalAnalysisTemplateRevisionKind,
 } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceSourcesOperationalAnalysisDefinitionSchema } from "@workspace/platform/workspace-analysis-definition-schema";
 

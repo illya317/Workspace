@@ -3,7 +3,7 @@ import {
   type ReviewConsolidationEntryCommand,
   validateConsolidationEntryReviewTarget,
 } from "../domain/consolidation-entry-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";

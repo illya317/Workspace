@@ -1,4 +1,4 @@
-import { serviceError } from "@workspace/platform/server/api";
+import { serviceError } from "@workspace/platform/service-result";
 import type { DomainValidationResult } from "@workspace/platform/server/domain-validation";
 
 import {

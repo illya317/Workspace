@@ -1,4 +1,4 @@
-import { serviceError } from "@workspace/platform/server/api";
+import { serviceError } from "@workspace/platform/service-result";
 import { authorize } from "@workspace/platform/server/auth";
 import {
   normalizeLifecycleScope,
