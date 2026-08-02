@@ -1,7 +1,7 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type KeyboardEvent } from "react";
 import { Home, Inbox, UserRound } from "lucide-react";
 import { ActionGlyph, createFieldsSection, createSectionsSection, createPageBody, createPageTabBar, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceItemSpec, type SurfaceToolbarItem, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
@@ -143,8 +143,11 @@ export default function AccountSettingsPanel({
     if (event.key === "Enter") void saveProfile();
     if (event.key === "Escape") cancelProfileEdit();
   }
-  function handleProfileBlur() {
-    void saveProfile();
+  function handleUsernameBlur(event: FocusEvent<HTMLInputElement>) {
+    void saveProfile({ username: event.currentTarget.value });
+  }
+  function handlePhoneBlur(event: FocusEvent<HTMLInputElement>) {
+    void saveProfile({ phone: normalizeAccountPhoneInput(event.currentTarget.value) });
   }
   function updateAliasTags(tags: string[]) {
     const nextAlias = serializeAccountAliasTags(tags);
@@ -288,7 +291,7 @@ export default function AccountSettingsPanel({
       value: username,
       onChange: (value: unknown) => setUsername(String(value ?? "")),
       onKeyDown: handleProfileKeyDown,
-      onBlur: handleProfileBlur,
+      onBlur: handleUsernameBlur,
     },
     avatarField,
     {
@@ -322,7 +325,7 @@ export default function AccountSettingsPanel({
       maxLength: 13,
       onChange: (value: unknown) => setPhone(normalizeAccountPhoneInput(value)),
       onKeyDown: handleProfileKeyDown,
-      onBlur: handleProfileBlur,
+      onBlur: handlePhoneBlur,
     },
     {
       key: "preferred-department-1",
