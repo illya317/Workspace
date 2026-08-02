@@ -153,57 +153,40 @@ case "$REMOTE_DIR $REMOTE_RUNTIME_ENV_FILE $REMOTE_CONTROL_ENV_FILE" in
   *[!A-Za-z0-9_./\ -]*) fail "远端路径包含不安全字符" ;;
 esac
 ssh_options=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new)
-remote_registry="${DEPLOY_IMAGE_REF%%/*}"
-REGISTRY_AUTH_FILE="$(mktemp)"
+verify_local_image
+IMAGE_ARCHIVE="$(mktemp)"
+TRANSFER_IMAGE="workspace-cnb-transfer:sha256-${IMAGE_DIGEST#sha256:}"
+docker tag "$IMAGE" "$TRANSFER_IMAGE"
+docker save "$TRANSFER_IMAGE" | gzip -1 > "$IMAGE_ARCHIVE"
+IMAGE_ARCHIVE_SHA256="$(sha256sum "$IMAGE_ARCHIVE" | awk '{print $1}')"
+EXPECTED_IMAGE_ID="$(docker image inspect "$TRANSFER_IMAGE" --format '{{.Id}}')"
+[[ "$IMAGE_ARCHIVE_SHA256" =~ ^[0-9a-f]{64}$ && "$EXPECTED_IMAGE_ID" =~ ^sha256:[0-9a-f]{64}$ ]] \
+  || fail "镜像传输制品身份非法"
 cleanup_local_credentials() {
-  rm -f "$REGISTRY_AUTH_FILE"
+  rm -f "$IMAGE_ARCHIVE"
+  docker image rm "$TRANSFER_IMAGE" >/dev/null 2>&1 || true
   [ "${KEY:-}" = "$SSH_KEY" ] || rm -f "$SSH_KEY"
 }
 trap cleanup_local_credentials EXIT
-REMOTE_REGISTRY="$remote_registry" REGISTRY_AUTH_FILE="$REGISTRY_AUTH_FILE" python3 - <<'PY'
-import json, os, pathlib
-
-registry = os.environ["REMOTE_REGISTRY"]
-target = pathlib.Path(os.environ["REGISTRY_AUTH_FILE"])
-sources = []
-inline = os.environ.get("DOCKER_AUTH_CONFIG", "").strip()
-if inline:
-    sources.append(("DOCKER_AUTH_CONFIG", inline))
-docker_config = pathlib.Path(os.environ.get("DOCKER_CONFIG", pathlib.Path.home() / ".docker")) / "config.json"
-if docker_config.is_file():
-    sources.append((str(docker_config), docker_config.read_text(encoding="utf-8")))
-
-def host(value):
-    return value.removeprefix("https://").removeprefix("http://").removesuffix("/v1/").rstrip("/")
-
-for source, raw in sources:
-    try:
-        config = json.loads(raw)
-    except json.JSONDecodeError:
-        continue
-    for key, credential in config.get("auths", {}).items():
-        if host(key) != registry or not isinstance(credential, dict):
-            continue
-        if not any(credential.get(name) for name in ("auth", "identitytoken", "registrytoken")):
-            continue
-        target.write_text(json.dumps({"auths": {registry: credential}}, separators=(",", ":")), encoding="utf-8")
-        target.chmod(0o600)
-        raise SystemExit(0)
-raise SystemExit("CNB 构建节点未提供可转交的 Registry 临时认证")
-PY
-ssh "${ssh_options[@]}" "$SERVER" \
-  "umask 077; mkdir -p '$REMOTE_DIR/.workspace/docker-auth'; cat > '$REMOTE_DIR/.workspace/docker-auth/config.json'" \
-  < "$REGISTRY_AUTH_FILE"
 ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releases'"
+REMOTE_IMAGE_ARCHIVE="$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.tar.gz"
+scp "${ssh_options[@]}" "$IMAGE_ARCHIVE" "$SERVER:$REMOTE_IMAGE_ARCHIVE" >/dev/null
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 
 ssh "${ssh_options[@]}" "$SERVER" \
-  "SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' IMAGE='$IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' bash -s" <<'REMOTE'
+  "SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' APPROVED_IMAGE='$IMAGE' RUNTIME_IMAGE='$TRANSFER_IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' IMAGE_ARCHIVE='$REMOTE_IMAGE_ARCHIVE' IMAGE_ARCHIVE_SHA256='$IMAGE_ARCHIVE_SHA256' EXPECTED_IMAGE_ID='$EXPECTED_IMAGE_ID' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' bash -s" <<'REMOTE'
 set -euo pipefail
 exec 9>"$REMOTE_DIR/.workspace/image-deploy.lock"
 flock -n 9 || { echo '[错误] 另一镜像部署正在运行' >&2; exit 1; }
-cleanup_registry_auth() { rm -rf "$REMOTE_DIR/.workspace/docker-auth"; }
-trap cleanup_registry_auth EXIT
+cleanup_image_archive() { rm -f "$IMAGE_ARCHIVE"; }
+trap cleanup_image_archive EXIT
+
+printf '%s  %s\n' "$IMAGE_ARCHIVE_SHA256" "$IMAGE_ARCHIVE" | sha256sum --check --status
+gzip -dc "$IMAGE_ARCHIVE" | docker load >/dev/null
+rm -f "$IMAGE_ARCHIVE"
+[ "$(docker image inspect "$RUNTIME_IMAGE" --format '{{.Id}}')" = "$EXPECTED_IMAGE_ID" ] \
+  || { echo '[错误] 远端加载镜像 ID 不匹配' >&2; exit 1; }
+[ "$(docker image inspect "$RUNTIME_IMAGE" --format '{{.Architecture}}')" = amd64 ]
 
 if [ ! -s "$REMOTE_RUNTIME_ENV_FILE" ] || [ ! -s "$REMOTE_CONTROL_ENV_FILE" ]; then
   [ -s "$REMOTE_LEGACY_ENV_FILE" ] || { echo '[错误] 缺少生产 env 文件' >&2; exit 1; }
@@ -231,8 +214,6 @@ if [ ! -s "$REMOTE_RUNTIME_ENV_FILE" ] || [ ! -s "$REMOTE_CONTROL_ENV_FILE" ]; t
   chmod 600 "$REMOTE_RUNTIME_ENV_FILE" "$REMOTE_CONTROL_ENV_FILE"
 fi
 
-docker --config "$REMOTE_DIR/.workspace/docker-auth" pull "$IMAGE"
-[ "$(docker image inspect "$IMAGE" --format '{{.Architecture}}')" = amd64 ]
 set -a
 . "$REMOTE_CONTROL_ENV_FILE"
 set +a
@@ -244,13 +225,13 @@ pg_dump --format=custom --no-owner --no-privileges --file="$backup" "${WORKSPACE
 pg_restore --list "$backup" >/dev/null
 sha256sum "$backup" > "$backup.sha256"
 docker run --rm --network host --env-file "$REMOTE_CONTROL_ENV_FILE" --entrypoint node \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$IMAGE" \
+  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" \
   node_modules/prisma/build/index.js migrate deploy --schema=./prisma
 candidate="workspace-candidate-${SOURCE_SHA:0:12}"
 docker rm -f "$candidate" >/dev/null 2>&1 || true
 docker run -d --name "$candidate" --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \
   -e PORT=3101 -e HOSTNAME=127.0.0.1 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$IMAGE" >/dev/null
+  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
 candidate_ok=0
 for _ in $(seq 1 30); do
   curl -fsS http://127.0.0.1:3101/workspace/api/internal/health >/dev/null 2>&1 && candidate_ok=1 && break
@@ -276,7 +257,7 @@ rollback() {
 trap rollback ERR
 docker run -d --name workspace --restart unless-stopped --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \
   -e PORT=3000 -e HOSTNAME=0.0.0.0 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
-  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$IMAGE" >/dev/null
+  -v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace" "$RUNTIME_IMAGE" >/dev/null
 for _ in $(seq 1 30); do curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 && break; sleep 1; done
 version="$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version)"
 VERSION_RESPONSE="$version" EXPECTED_DIGEST="$IMAGE_DIGEST" python3 - <<'PY'
@@ -289,12 +270,11 @@ trap - ERR
 receipt="$REMOTE_DIR/.workspace/deployed-image.json"
 previous_digest=""
 [ -f "$receipt" ] && previous_digest="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1])).get("current",{}).get("imageDigest",""))' "$receipt")"
-python3 - "$receipt" "$SOURCE_SHA" "$SOURCE_TREE" "$IMAGE" "$IMAGE_DIGEST" "$previous_digest" <<'PY'
+python3 - "$receipt" "$SOURCE_SHA" "$SOURCE_TREE" "$APPROVED_IMAGE" "$IMAGE_DIGEST" "$previous_digest" <<'PY'
 import datetime, json, os, sys
 path, sha, tree, image, digest, previous = sys.argv[1:]
 value={"schemaVersion":1,"kind":"workspace-deployed-image","current":{"sourceSha":sha,"sourceTree":tree,"image":image,"imageDigest":digest},"previous":{"imageDigest":previous or None},"deployedAt":datetime.datetime.now(datetime.timezone.utc).isoformat()}
 tmp=path+'.tmp'; open(tmp,'w').write(json.dumps(value,indent=2)+'\n'); os.replace(tmp,path)
 PY
-docker --config "$REMOTE_DIR/.workspace/docker-auth" logout "${IMAGE%%/*}" >/dev/null 2>&1 || true
 echo "production image deployed: $IMAGE_DIGEST"
 REMOTE
