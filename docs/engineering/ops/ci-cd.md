@@ -71,7 +71,7 @@ cnb-release.sh verify
 `production` 必须同时满足：
 
 - `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
-- `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
+- 受保护的 main push Pipeline 在演练通过后固定注入 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
 - 私有 CNB env import 提供 SSH、目标路径、health 和生产数据库/运行配置位置；
 - 生产镜像 ref/digest 与 `release.json` 完全一致。
 

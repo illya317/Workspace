@@ -122,9 +122,21 @@ PY
 fi
 
 [ "$MODE" = production ] || fail "模式只能是 verify、rehearsal 或 production"
-: "${PRODUCTION_IMAGE_DEPLOY_ENABLED:?PRODUCTION_IMAGE_DEPLOY_ENABLED is required}"
-[ "$PRODUCTION_IMAGE_DEPLOY_ENABLED" = 1 ] || fail "生产镜像部署尚未在非生产演练后启用"
-for key in SERVER REMOTE_DIR HEALTHCHECK_URL; do require "$key"; done
+missing_inputs=()
+[ "${PRODUCTION_IMAGE_DEPLOY_ENABLED:-}" = 1 ] \
+  || missing_inputs+=("PRODUCTION_IMAGE_DEPLOY_ENABLED=1")
+for key in SERVER REMOTE_DIR HEALTHCHECK_URL; do
+  [ -n "${!key:-}" ] || missing_inputs+=("$key")
+done
+if [ -z "${KEY:-}" ] && [ -z "${KEY_CONTENT:-}" ]; then
+  missing_inputs+=("KEY or KEY_CONTENT")
+fi
+if [ "${#missing_inputs[@]}" -gt 0 ]; then
+  printf '[错误] 缺少生产部署输入:' >&2
+  printf ' %s' "${missing_inputs[@]}" >&2
+  printf '\n' >&2
+  exit 1
+fi
 REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-$REMOTE_DIR/.workspace/runtime.env}"
 REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-$REMOTE_DIR/.workspace/control-plane.env}"
 REMOTE_LEGACY_ENV_FILE="${REMOTE_LEGACY_ENV_FILE:-$REMOTE_DIR/.workspace/.env}"

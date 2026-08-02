@@ -109,6 +109,7 @@ main:
         SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
         WORKSPACE_CONFIG_DIR: /workspace/scripts/check/fixtures/tenant-workspace
         PLAYWRIGHT_BROWSERS_PATH: /ms-playwright
+        PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"
       stages:
         - name: verify-clean-committed-checkout
           script: bash ./ops/cnb-ci.sh checkout
@@ -167,6 +168,8 @@ $:
         image: node:24-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+      env:
+        PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"
       stages:
         - name: install-deploy-tools
           script: apt-get update && apt-get install -y --no-install-recommends ca-certificates curl openssh-client python3

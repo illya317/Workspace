@@ -140,6 +140,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(cnb, /rollback-image\.sh/);
   assert.match(cnbDeploy, /approver:/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
+  assert.equal((cnb.match(/PRODUCTION_IMAGE_DEPLOY_ENABLED: "1"/g) ?? []).length, 2);
+  assert.match(deployImage, /缺少生产部署输入/);
+  assert.match(deployImage, /KEY or KEY_CONTENT/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
   assert.match(deployImage, /online image digest mismatch/);
