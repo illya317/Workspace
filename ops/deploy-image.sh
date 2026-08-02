@@ -174,7 +174,7 @@ scp "${ssh_options[@]}" "$IMAGE_ARCHIVE" "$SERVER:$REMOTE_IMAGE_ARCHIVE" >/dev/n
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 
 ssh "${ssh_options[@]}" "$SERVER" \
-  "SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' APPROVED_IMAGE='$IMAGE' RUNTIME_IMAGE='$TRANSFER_IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' IMAGE_ARCHIVE='$REMOTE_IMAGE_ARCHIVE' IMAGE_ARCHIVE_SHA256='$IMAGE_ARCHIVE_SHA256' EXPECTED_IMAGE_ID='$EXPECTED_IMAGE_ID' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' bash -s" <<'REMOTE'
+  "sudo -n env SOURCE_SHA='$SOURCE_SHA' SOURCE_TREE='$SOURCE_TREE' APPROVED_IMAGE='$IMAGE' RUNTIME_IMAGE='$TRANSFER_IMAGE' IMAGE_DIGEST='$IMAGE_DIGEST' IMAGE_ARCHIVE='$REMOTE_IMAGE_ARCHIVE' IMAGE_ARCHIVE_SHA256='$IMAGE_ARCHIVE_SHA256' EXPECTED_IMAGE_ID='$EXPECTED_IMAGE_ID' REMOTE_DIR='$REMOTE_DIR' REMOTE_RUNTIME_ENV_FILE='$REMOTE_RUNTIME_ENV_FILE' REMOTE_CONTROL_ENV_FILE='$REMOTE_CONTROL_ENV_FILE' REMOTE_LEGACY_ENV_FILE='$REMOTE_LEGACY_ENV_FILE' HEALTHCHECK_URL='$HEALTHCHECK_URL' LEGACY_PM2_NAME='${LEGACY_PM2_NAME:-workspace}' LEGACY_PM2_USER='${LEGACY_PM2_USER:-workspace-runtime}' LEGACY_PM2_HOME='${LEGACY_PM2_HOME:-/var/lib/workspace-runtime/.pm2}' bash -s" <<'REMOTE'
 set -euo pipefail
 exec 9>"$REMOTE_DIR/.workspace/image-deploy.lock"
 flock -n 9 || { echo '[错误] 另一镜像部署正在运行' >&2; exit 1; }
@@ -240,19 +240,20 @@ done
 [ "$candidate_ok" = 1 ] || { docker logs "$candidate" --tail 100 >&2; exit 1; }
 previous_container=""
 legacy_pm2_running=0
+legacy_pm2() { sudo -n -u "$LEGACY_PM2_USER" env PM2_HOME="$LEGACY_PM2_HOME" pm2 "$@"; }
 if docker inspect workspace >/dev/null 2>&1; then
   previous_container="workspace-rollback-$stamp"
   docker stop workspace >/dev/null
   docker rename workspace "$previous_container"
-elif command -v pm2 >/dev/null 2>&1 && [ "$(pm2 pid "$LEGACY_PM2_NAME" 2>/dev/null || true)" != 0 ]; then
-  pm2 stop "$LEGACY_PM2_NAME" >/dev/null
+elif command -v pm2 >/dev/null 2>&1 && [ "$(legacy_pm2 pid "$LEGACY_PM2_NAME" 2>/dev/null || true)" != 0 ]; then
+  legacy_pm2 stop "$LEGACY_PM2_NAME" >/dev/null
   legacy_pm2_running=1
 fi
 docker rm -f "$candidate" >/dev/null
 rollback() {
   docker rm -f workspace >/dev/null 2>&1 || true
   if [ -n "$previous_container" ]; then docker rename "$previous_container" workspace; docker start workspace >/dev/null; fi
-  if [ "$legacy_pm2_running" = 1 ]; then pm2 restart "$LEGACY_PM2_NAME" >/dev/null 2>&1 || true; fi
+  if [ "$legacy_pm2_running" = 1 ]; then legacy_pm2 restart "$LEGACY_PM2_NAME" >/dev/null 2>&1 || true; fi
 }
 trap rollback ERR
 docker run -d --name workspace --restart unless-stopped --network host --env-file "$REMOTE_RUNTIME_ENV_FILE" \

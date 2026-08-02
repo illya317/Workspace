@@ -162,6 +162,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.match(deployImage, /gzip -dc "\$IMAGE_ARCHIVE" \| docker load/);
   assert.match(deployImage, /远端加载镜像 ID 不匹配/);
   assert.match(deployImage, /APPROVED_IMAGE='\$IMAGE'/);
+  assert.match(deployImage, /sudo -n env SOURCE_SHA=/);
+  assert.match(deployImage, /LEGACY_PM2_USER='\$\{LEGACY_PM2_USER:-workspace-runtime\}'/);
+  assert.match(deployImage, /PM2_HOME="\$LEGACY_PM2_HOME" pm2/);
   assert.doesNotMatch(deployImage, /CNB_REGISTRY_TOKEN|CNB_REGISTRY_USER|CNB_TOKEN_USER_NAME|docker-auth/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
