@@ -71,6 +71,10 @@ test("discovers ops tests recursively and classifies them as tooling determinist
       "packages/work/ui/works/WorkReportPeriods.test.ts",
     ]);
     assert.equal(nodeTestShardKey("packages/work/value.test.ts"), "package.work");
+    assert.equal(
+      nodeTestShardKey("scripts/check/approval-authority-boundary.test.ts"),
+      "scripts.check.repository",
+    );
     assert.deepEqual(selectNodeTests(allTests, "shard", { shard: "ops" }), [
       "ops/build-standalone-artifact.test.mjs",
       "ops/nested/check.test.js",

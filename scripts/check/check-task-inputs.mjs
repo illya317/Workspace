@@ -18,6 +18,7 @@ const COMMON_CONTRACT_FILES = [
   "scripts/check/with-check-lock.js",
 ];
 const SOURCE_EXTENSIONS = ["", ".ts", ".tsx", ".mts", ".cts", ".js", ".mjs", ".cjs", ".json"];
+const ISOLATED_TEST_FILESYSTEM_MARKER = "workspace-test-filesystem: isolated";
 const CANONICAL_REGISTRY_ENTRIES = [
   "packages/platform/module-registry.ts",
   "scripts/deploy/deploy-unit-spec.ts",
@@ -218,6 +219,12 @@ function literalFilesystemInputs(cwd, testFiles, allFiles) {
   const selected = new Set(testFiles);
   for (const testFile of testFiles) {
     const content = fs.readFileSync(path.join(cwd, testFile), "utf8");
+    if (content.split(/\r?\n/, 1)[0].trim() === `// ${ISOLATED_TEST_FILESYSTEM_MARKER}`) {
+      if (/(?:\bprocess\.cwd\(\)|\bimport\.meta\.dirname\b|\b__dirname\b|\brepositoryRoot\b|\bREPOSITORY_ROOT\b)/.test(content)) {
+        throw new Error(`isolated filesystem test references the live repository: ${testFile}`);
+      }
+      continue;
+    }
     for (const match of content.matchAll(/["']((?:app|apps|docs|e2e|generated|ops|packages|prisma|public|scripts)\/[A-Za-z0-9_./\[\]-]+)["']/g)) {
       const value = path.posix.normalize(match[1]);
       const absolute = path.join(cwd, value);

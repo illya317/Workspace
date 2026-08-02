@@ -11,6 +11,12 @@ import { isDeployControlPath } from "../control/deploy-control-compatibility.mjs
 
 const SHA = /^[0-9a-f]{40}$/;
 const TARGET = /^(?:monolith|[a-z][a-z0-9-]*)$/;
+const CANDIDATE_CONTROL_PREFIXES = ["scripts/check/", "scripts/testing/"];
+
+export function isCandidateControlPath(file) {
+  return isDeployControlPath(file)
+    || CANDIDATE_CONTROL_PREFIXES.some((prefix) => file.startsWith(prefix));
+}
 
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
@@ -96,8 +102,8 @@ export function createReleaseExecutionPlan({
       if (!unit) throw new Error(`release execution target is not a deploy unit: ${target}`);
       privateSourceRoots = [...unit.privateSourceRoots].map((entry) => entry.replace(/\/$/, "")).sort();
       const candidateFiles = changedFiles(root, baselineSource, source);
-      controllerFiles = candidateFiles.filter(isDeployControlPath);
-      files = candidateFiles.filter((file) => !isDeployControlPath(file));
+      controllerFiles = candidateFiles.filter(isCandidateControlPath);
+      files = candidateFiles.filter((file) => !isCandidateControlPath(file));
       if (files.length === 0) reason = "candidate-has-no-delta";
       else if (files.every((file) => privateSourceRoots.some((rootPath) => withinRoot(file, rootPath)))) {
         strategy = "parallel";

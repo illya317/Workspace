@@ -91,12 +91,15 @@ test("deploy-unit release source suite minimizes only lint, Node tests, and type
   assert.equal(monolith.tasks.some((task) => task.id === "lint-full"), true);
   assert.equal(unitIds.includes("lint-full"), false);
   assert.equal(unitIds.includes("lint-unit.finance"), true);
+  assert.equal(unitIds.includes("ui-architecture.unit"), true);
+  assert.equal(unitIds.some((id) => id.startsWith("ui-architecture.") && id !== "ui-architecture.unit"), false);
   assert.deepEqual(unitIds.filter((id) => id.startsWith("test-node.")), [
     "test-node.app",
     "test-node.package.core",
     "test-node.package.finance",
     "test-node.package.platform",
     "test-node.scripts.check",
+    "test-node.scripts.check.repository",
     "test-node.scripts.deploy",
   ]);
   assert.deepEqual(unitIds.filter((id) => id.startsWith("typecheck.")), [
@@ -151,6 +154,7 @@ test("assistant unit includes private scripts runtime tests while retaining tool
     "test-node.package.core",
     "test-node.package.platform",
     "test-node.scripts.check",
+    "test-node.scripts.check.repository",
     "test-node.scripts.deploy",
     "test-node.scripts.runtime",
   ]);

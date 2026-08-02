@@ -40,7 +40,7 @@ Artifact 权限属于制品合同，不是生产现场修复项。Monolith 与 u
 6. 对 exact artifact 签发 static receipt，再做离线启动演练并探测 health/version。
 7. 复验 preflight/database/candidate-evidence/source/artifact/static/rehearsal 的 exact identity 后签发 Ready Artifact。
 
-source task graph 按 Ready 目标冻结。`monolith` 继续执行完整 `release-source`：完整 `release-static`、全部 Node shards 与全部 TypeScript scopes。显式 deploy unit 仍保留同一套 `release-static` 安全合同，只把三个可安全缩小的叶子换成 deploy graph 派生闭包：ESLint 扫描目标私有根、compiler closure 的共享/目标根和生成 App 根；Node 运行 compiler packages、`app`、`scripts/check`、`scripts/deploy`，并从 `unit.privateSourceRoots` 派生 `scripts/*` 等非 package 测试区（`ops` shard 由独立 Controller Ready 覆盖）；TypeScript 只运行 `unit.checks.typecheckScopes`。每个叶子仍按 exact input/command/runtime 缓存，未知 unit 或 graph scope 直接失败，不回退为猜测集合。
+source task graph 按 Ready 目标冻结。`monolith` 继续执行完整 `release-source`：完整 `release-static`、全部 Node shards 与全部 TypeScript scopes。显式 deploy unit 仍保留同一套 `release-static` 安全合同，只把三个可安全缩小的叶子换成 deploy graph 派生闭包：ESLint 扫描目标私有根、compiler closure 的共享/目标根和生成 App 根；Node 运行 compiler packages、`app`、`scripts/check`、`scripts/deploy`，并从 `unit.privateSourceRoots` 派生 `scripts/*` 等非 package 测试区（`ops` shard 由独立 Controller Ready 覆盖）；TypeScript 只运行 `unit.checks.typecheckScopes`。`scripts/check` 再拆为纯工具测试与读取真实 repository 的 contract 测试两个 shard，模块源码变化只重跑后者；显式声明为 isolated filesystem 的测试夹具不得引用 live repository anchor，夹具路径不会误扩大 task input。unit 的 UI architecture 仍执行全部 detector、一次汇总全部失败，但只启动一个聚合进程并签发一个 exact-input receipt；monolith 保留逐 detector 回执。每个叶子仍按 exact input/command/runtime 缓存，未知 unit 或 graph scope 直接失败，不回退为猜测集合。
 
 aggregate source result 与 schema-v3 source validation receipt 都绑定 `monolith` 或精确 unit id 以及 CI run id。receipt 写入 `source-validation-<target>-<CI_RUN_ID>.json`，因此同一 content 的不同 target、以及同一 target 的多次 CI Ready 都可以并存；Ready 复验拒绝跨 target/run 的 result/receipt，复制旧 receipt 不能冒充新 run。rehearsal 写入 `rehearsal-<target>-<mode>-<CI_RUN_ID>-<config>.json`，旧 mode/run 的启动证据同样不会被覆盖或误选。
 
@@ -65,6 +65,8 @@ Application Ready receipt 与 current pointer 都按 `target + mode` 隔离：re
 ### Controller Ready 的责任
 
 `ops/publish.sh controller-ready` 加载当前 Application Ready 后只调用 Controller Ready module 的 `qualify` interface。module 自己确认入口仓库 controller 是 Application Ready source 的后代且差异只包含登记的 deploy-control 文件，并冻结 `readySource + controller sourceSha/treeId/controlDigest + changedFiles`。
+
+候选执行计划中的 control-only 分类比 deploy-control seam 多一层：`scripts/check/**` 与 `scripts/testing/**` 会影响候选 CI，但不会进入应用 runtime/artifact，因此它们不把同一候选里的私有模块改动误判成 shared application delta；它们必须先作为同一 frozen candidate 的 Source CI 输入真实执行并进入 Application Ready。Application Ready 签发之后，deploy controller 仍只允许更窄的显式 deploy-control 路径前进，不能用 candidate control-only 分类绕过 Controller Ready。
 
 昂贵的 ops shard qualification 与面向当前 Application Ready 的 binding 分开存证。qualification key 精确绑定 `controlDigest + 固定命令 digest + Node runtime digest`，持久回执位于 `.cache/release-control/controller-qualifications/<controlDigest>/<commandDigest>-<runtimeDigest>.json`。cache miss 时，module 内部固定的受锁 runner 真实执行完整 `node scripts/check/with-check-lock.js -- node scripts/testing/run-node-tests.mjs shard ops`，把 exit code、Node runtime identity 和输出 digest 规范化为 passed evidence，并以不可变首写方式保存；cache hit 时复验整份 qualification 回执及其内容 digest，绝不重跑 ops shard。命中或执行完成后，module 都重新计算 controller tuple；tuple 完全一致才签发 schema-v2 Controller Ready binding 到当前 controller worktree 的 `.cache/release-control/controller-ready.json`。
 

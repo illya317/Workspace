@@ -69,13 +69,21 @@ test("a private unit delta is the only plan allowed to parallelize source and ar
 test("controller-only drift is audited without downgrading a private unit delta", (t) => {
   const value = fixture(t);
   fs.mkdirSync(path.join(value.root, "ops"), { recursive: true });
+  fs.mkdirSync(path.join(value.root, "scripts/check"), { recursive: true });
+  fs.mkdirSync(path.join(value.root, "scripts/testing"), { recursive: true });
   fs.writeFileSync(path.join(value.root, "ops/publish.sh"), "controller changed\n");
+  fs.writeFileSync(path.join(value.root, "scripts/check/gate.mjs"), "check control changed\n");
+  fs.writeFileSync(path.join(value.root, "scripts/testing/runner.mjs"), "test control changed\n");
   fs.writeFileSync(path.join(value.root, "app/(modules)/news/page.tsx"), "copy changed\n");
   const source = commit(value.root, "controller and copy");
   const plan = createReleaseExecutionPlan({ repository: value.root, baselineRoot: value.baselineRoot, source, target: "news", targetMode: "shadow", graph: value.graph });
   assert.equal(plan.sourceArtifactStrategy, "parallel");
   assert.deepEqual(plan.changedFiles, ["app/(modules)/news/page.tsx"]);
-  assert.deepEqual(plan.controllerChangedFiles, ["ops/publish.sh"]);
+  assert.deepEqual(plan.controllerChangedFiles, [
+    "ops/publish.sh",
+    "scripts/check/gate.mjs",
+    "scripts/testing/runner.mjs",
+  ]);
 });
 
 test("shared changes, missing baseline, and monolith remain serial", async (t) => {

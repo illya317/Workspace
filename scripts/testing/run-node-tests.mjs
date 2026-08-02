@@ -31,6 +31,15 @@ const actionContractTests = new Set([
   "scripts/check/business-action-registry-validation.test.ts",
 ]);
 
+const repositoryContractTests = new Set([
+  "scripts/check/approval-authority-boundary.test.ts",
+  "scripts/check/check-memory-policy.test.js",
+  "scripts/check/notification-audit-immutability.test.ts",
+  "scripts/check/prisma-relation-dmmf.test.ts",
+  "scripts/check/typecheck-entrypoints.test.js",
+  "scripts/check/workspace-package-boundaries.test.js",
+]);
+
 const clientReactTests = new Set([
   "packages/capital-securities/ui/market-intelligence-stock-sections.test.ts",
   "packages/core/showcase/core-ui-declaration-outline.test.tsx",
@@ -64,6 +73,7 @@ export function discoverNodeTests(repositoryRoot = defaultRoot) {
 }
 
 export function nodeTestShardKey(relativePath) {
+  if (repositoryContractTests.has(relativePath)) return "scripts.check.repository";
   const packageMatch = relativePath.match(/^packages\/([^/]+)\//);
   if (packageMatch) return `package.${packageMatch[1]}`;
   const scriptMatch = relativePath.match(/^scripts\/([^/]+)\//);

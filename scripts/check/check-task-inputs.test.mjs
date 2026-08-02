@@ -1,3 +1,4 @@
+// workspace-test-filesystem: isolated
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -73,6 +74,47 @@ test("unrelated files do not invalidate a narrow task input", (t) => {
   fs.writeFileSync(path.join(cwd, "unrelated/value.ts"), "export const value = 2;\n");
   const second = captureCheckTaskInput(task, { cwd, env: {}, runtime: { node: "24" } });
   assert.equal(first.inputDigest, second.inputDigest);
+});
+
+test("isolated filesystem tests do not bind fixture-looking paths to the live repository", (t) => {
+  const cwd = fixture(t);
+  writeTracked(cwd, "packages/news/ui/NewsPage.tsx", "export const heading = 'old';\n");
+  writeTracked(cwd, "scripts/check/isolated.test.mjs", [
+    "// workspace-test-filesystem: isolated",
+    "const fixture = 'packages/news/ui/NewsPage.tsx';",
+    "void fixture;",
+    "",
+  ].join("\n"));
+  run(cwd, "git", ["add", "."]);
+  const task = {
+    id: "test-node.scripts.check",
+    command: "node",
+    args: ["scripts/testing/run-node-tests.mjs", "shard", "scripts.check"],
+    shard: "scripts.check",
+    testFiles: ["scripts/check/isolated.test.mjs"],
+  };
+  const first = captureCheckTaskInput(task, { cwd, env: {}, runtime: { node: "24" } });
+  fs.writeFileSync(path.join(cwd, "packages/news/ui/NewsPage.tsx"), "export const heading = 'new';\n");
+  const second = captureCheckTaskInput(task, { cwd, env: {}, runtime: { node: "24" } });
+  assert.equal(first.inputDigest, second.inputDigest);
+});
+
+test("isolated filesystem marker rejects live repository anchors", (t) => {
+  const cwd = fixture(t);
+  writeTracked(cwd, "scripts/check/invalid.test.mjs", [
+    "// workspace-test-filesystem: isolated",
+    "const repository" + "Root = process." + "cwd();",
+    "void repository" + "Root;",
+    "",
+  ].join("\n"));
+  run(cwd, "git", ["add", "."]);
+  assert.throws(() => captureCheckTaskInput({
+    id: "test-node.scripts.check",
+    command: "node",
+    args: ["scripts/testing/run-node-tests.mjs", "shard", "scripts.check"],
+    shard: "scripts.check",
+    testFiles: ["scripts/check/invalid.test.mjs"],
+  }, { cwd, env: {}, runtime: { node: "24" } }), /references the live repository/);
 });
 
 test("detector closure binds every literal import form including side effects", (t) => {

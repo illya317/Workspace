@@ -240,6 +240,14 @@ function expandTask(taskId, task, cwd, releaseClosure = null) {
     }));
   }
   if (taskId === "ui-architecture") {
+    if (releaseClosure) {
+      return [{
+        ...task,
+        id: "ui-architecture.unit",
+        label: `UI architecture · deploy unit ${releaseClosure.targetId}`,
+        input: { kind: "ui", roots: ["packages", "app"] },
+      }];
+    }
     return UI_GATE_CHECK_NAMES.map((name) => ({
       ...task,
       id: `ui-architecture.${name}`,
