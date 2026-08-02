@@ -152,6 +152,10 @@ const contracts = {
     patterns: ["(?:^|/)[^/]+\\.(?:spec|test)\\.[cm]?[jt]sx?$"],
   },
   "typecheck-entrypoints": { detectors: ["scripts/check/check-typecheck-entrypoints.js"], roots: ["ops"], files: ["package.json", ".cnb.yml"] },
+  "typecheck-full": {
+    roots: ["app", "apps", "generated", "ops", "packages", "prisma", "scripts"],
+    files: ["package.json", "tsconfig.json", "tsconfig.base.json", "tsconfig.app.json", "tsconfig.prisma-client.json", "tsconfig.tooling.json"],
+  },
   "typecheck-project-references": {
     kind: "typescript-config",
     detectors: ["scripts/check/check-typecheck-project-references.js"],

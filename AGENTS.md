@@ -66,7 +66,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 12. **提交先 stage 本任务**：开始提交检查前先看 `git status --short` 并只 stage 本任务文件；pre-commit 只验证该 index 快照。不要回滚、格式化或提交别人的改动。
 13. **先确认运行环境**：宿主项目入口声明的远端开发、容器、端口和生产边界优先。直接本地 checkout 才统一使用 `npm run dev` 的 3000 单实例；不得把外部映射端口误当成本地 dev 端口。需要端口连续性时按宿主规则取得并释放 `dev:guard` 租约。
 14. **并发服从宿主模式，重检查始终串行**：是否启动 subagent 服从当前 system / collaboration mode。无论是否允许多 agent，都不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server；发现已有同类进程时等待或复用。
-15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
+15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断；正式 CNB CI 固定运行一次权威 `typecheck:full`，不得把同一 project-reference 图拆成多次串行 scope。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`。禁止直接调用 TypeScript CLI 或绕过项目锁。
 16. **本地检查内存硬上限 8GB**：本机受治理 typecheck、build、lint 和其他 Node 检查的 old-space 上限不得超过 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量；各入口必须使用 package script 声明的受治理上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
 18. **生产制品只有一个 OCI digest**：CNB required CI 通过后，把同一次 Next standalone 构建包装成唯一 `linux/amd64` 应用镜像、直接推送 CNB Registry 并生成 `release.json`；同一流水线再执行 migration、锁、备份、切换、健康、回执与回滚演练。禁止第二次应用 build、生产现场安装或构建、可变 tag 部署和 Mac 制品中转。

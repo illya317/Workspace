@@ -87,13 +87,13 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
 
-`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，供变更诊断使用；monolith release 执行全部受治理 scopes，deploy-unit release 精确执行 deploy graph 的 `checks.typecheckScopes`。这些入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
+`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，供变更诊断使用。正式 CNB release 只运行一次 `typecheck:full`，让 TypeScript build mode 按 project references 自己完成拓扑构建，禁止把同一引用图拆成几十次串行 scope。所有入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
 
-根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。正式 release source graph 先完成对应 monolith/unit 类型 scopes；artifact builder 随后使用跳过重复 TypeScript traversal 的构建入口，unit builder 也不再重复相同 scopes。
+根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。正式 release source graph 先完成一次完整 project-reference build；artifact builder 随后使用跳过重复 TypeScript traversal 的构建入口。
 
 所有入口都必须经过 `scripts/check/with-check-lock.js -> scripts/check/run-typecheck.js`。专用 runner 会校验当前活锁及其 owner，直接执行 runner 会在加载编译器前失败；`typecheck:entrypoints:check` 同时扫描 package scripts、CI/ops/scripts 和现行 agent/工程文档，阻止裸 TypeScript CLI 命令重新进入仓库。锁包装器会把 `SIGINT`、`SIGTERM` 和终端挂断的 `SIGHUP` 转发到独立子进程组，等待子进程退出后才释放锁；宽限期后仍未退出则强制终止整个进程组。
 
-日常 `check:changed`、`check:refactor`、`check:quick` 和 `check:precommit` 都不自动运行 TypeScript。普通局部修改需要诊断时优先单 scope；正式发布由 target-aware `release-source` 选择 monolith 全量或 unit graph scopes。
+日常 `check:changed`、`check:refactor`、`check:quick` 和 `check:precommit` 都不自动运行 TypeScript。普通局部修改需要诊断时优先单 scope；正式发布固定运行一次 monolith `typecheck:full`。
 
 ### blockers
 

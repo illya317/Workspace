@@ -293,6 +293,7 @@ test("News copy-only change invalidates only the golden task input set", (t) => 
     "surface-boundaries-warning",
     "surface-page-adoption-warning",
     "surface-visualization-adoption-warning",
+    "typecheck-full",
   ]);
   const architectureTasks = [
     ...DOMAIN_GATE_CHECK_NAMES.map((name) => ({
@@ -361,7 +362,7 @@ test("News copy-only change invalidates only the golden task input set", (t) => 
   const detectorPending = tasks
     .filter((task) => inputDigest(task.id) !== beforeDetector.get(task.id))
     .map((task) => task.id);
-  assert.deepEqual(detectorPending, ["action-registry", "shell-errexit-policy"]);
+  assert.deepEqual(detectorPending, ["action-registry", "shell-errexit-policy", "typecheck-full"]);
 });
 
 test("owner-scoped task inputs reject packages absent from the canonical registry", (t) => {

@@ -60,105 +60,13 @@ test("release source suite is the complete CI gate without duplicate artifact bu
   assert.deepEqual(ciIds, [...sourceIds, "build-next", "playwright-processes"]);
   assert.deepEqual(sourceIds.slice(0, staticIds.length), staticIds);
   assert.ok(sourceIds.filter((id) => id.startsWith("test-node.")).length > 1);
-  assert.ok(sourceIds.filter((id) => id.startsWith("typecheck.")).length > 1);
-  const firstTypecheck = sourceIds.findIndex((id) => id.startsWith("typecheck."));
+  assert.equal(sourceIds.filter((id) => id === "typecheck-full").length, 1);
+  const firstTypecheck = sourceIds.findIndex((id) => id === "typecheck-full");
   const lastNodeShard = sourceIds.findLastIndex((id) => id.startsWith("test-node."));
   assert.ok(firstTypecheck > lastNodeShard);
   assert.ok(sourceIds.includes("docs-action-contracts"));
   assert.ok(sourceIds.includes("lint-full"));
   assert.ok(sourceIds.includes("shell-errexit-policy"));
-});
-
-test("deploy-unit release source suite minimizes only lint, Node tests, and typecheck from the graph", () => {
-  const deployGraph = {
-    units: [{
-      id: "finance",
-      privateSourceRoots: ["app/(modules)/finance/", "app/api/modules/finance/", "packages/finance/"],
-      compilerProjects: [
-        "packages/core/tsconfig.json",
-        "packages/finance/tsconfig.json",
-        "packages/platform/tsconfig.json",
-        "tsconfig.prisma-client.json",
-      ],
-      runtime: { appRoot: "apps/finance" },
-      checks: { typecheckScopes: ["app-finance", "finance"] },
-    }],
-  };
-  const monolith = resolveCheckPlan(["release-source"]);
-  const unit = resolveCheckPlan(["release-source"], { releaseTarget: "finance", deployGraph });
-  const unitIds = unit.tasks.map((task) => task.id);
-
-  assert.equal(monolith.tasks.some((task) => task.id === "lint-full"), true);
-  assert.equal(unitIds.includes("lint-full"), false);
-  assert.equal(unitIds.includes("lint-unit.finance"), true);
-  assert.equal(unitIds.includes("ui-architecture.unit"), true);
-  assert.equal(unitIds.some((id) => id.startsWith("ui-architecture.") && id !== "ui-architecture.unit"), false);
-  assert.deepEqual(unitIds.filter((id) => id.startsWith("test-node.")), [
-    "test-node.app",
-    "test-node.package.core",
-    "test-node.package.finance",
-    "test-node.package.platform",
-    "test-node.scripts.check",
-    "test-node.scripts.check.repository",
-    "test-node.scripts.deploy",
-  ]);
-  assert.deepEqual(unitIds.filter((id) => id.startsWith("typecheck.")), [
-    "typecheck.app-finance",
-    "typecheck.finance",
-  ]);
-  assert.equal(unitIds.includes("test-node.ops"), false);
-  assert.equal(unitIds.includes("docs-action-contracts"), true);
-  assert.deepEqual(
-    unit.tasks.find((task) => task.id === "lint-unit.finance")?.input.roots,
-    [
-      "app/(modules)/finance",
-      "app/api/modules/finance",
-      "generated/prisma",
-      "packages/core",
-      "packages/finance",
-      "packages/platform",
-    ],
-  );
-  const lintTask = unit.tasks.find((task) => task.id === "lint-unit.finance");
-  assert.equal(lintTask.args.includes("apps/finance"), false);
-  for (const requiredRoot of ["app/(modules)/finance", "app/api/modules/finance", "packages/finance"]) {
-    assert.equal(lintTask.args.includes(requiredRoot), true);
-  }
-  assert.throws(
-    () => resolveCheckPlan(["release-source"], { releaseTarget: "hr", deployGraph }),
-    /not a deploy graph unit/,
-  );
-});
-
-test("assistant unit includes private scripts runtime tests while retaining tooling safety shards", () => {
-  const deployGraph = {
-    units: [{
-      id: "assistant",
-      privateSourceRoots: ["app/(modules)/agent/", "packages/agent/", "scripts/runtime/"],
-      compilerProjects: [
-        "packages/agent/tsconfig.json",
-        "packages/core/tsconfig.json",
-        "packages/platform/tsconfig.json",
-        "tsconfig.prisma-client.json",
-      ],
-      runtime: { appRoot: "apps/assistant" },
-      checks: { typecheckScopes: ["agent", "app-assistant"] },
-    }],
-  };
-  const plan = resolveCheckPlan(["release-source"], { releaseTarget: "assistant", deployGraph });
-  const nodeTasks = plan.tasks.filter((task) => task.id.startsWith("test-node."));
-
-  assert.deepEqual(nodeTasks.map((task) => task.id), [
-    "test-node.app",
-    "test-node.package.agent",
-    "test-node.package.core",
-    "test-node.package.platform",
-    "test-node.scripts.check",
-    "test-node.scripts.check.repository",
-    "test-node.scripts.deploy",
-    "test-node.scripts.runtime",
-  ]);
-  assert.equal(nodeTasks.find((task) => task.id === "test-node.scripts.runtime")?.testFiles.length, 8);
 });
 
 test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {
@@ -360,14 +268,14 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
   assert.ok(pushIds.filter((id) => id.startsWith("ui-architecture.")).length > 1);
   assert.ok(pushIds.filter((id) => id.startsWith("test-node.")).length > 1);
   assert.equal(resolveCheckPlan(["refactor"]).tasks.some((task) => task.id === "typecheck-quick"), false);
-  assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id.startsWith("typecheck.")), true);
+  assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id === "typecheck-full"), true);
 });
 
 test("CI runs the authoritative full typecheck before a Next build that skips only the duplicate traversal", () => {
   const tasks = resolveCheckPlan(["ci"]).tasks;
-  const typecheckIndexes = tasks.flatMap((task, index) => task.id.startsWith("typecheck.") ? [index] : []);
+  const typecheckIndexes = tasks.flatMap((task, index) => task.id === "typecheck-full" ? [index] : []);
   const buildIndex = tasks.findIndex((task) => task.id === "build-next");
-  assert.ok(typecheckIndexes.length > 1);
+  assert.equal(typecheckIndexes.length, 1);
   assert.ok(buildIndex > Math.max(...typecheckIndexes));
   assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
 });

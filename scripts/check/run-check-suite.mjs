@@ -1,17 +1,15 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import fs from "node:fs";
 import path from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
 
 import { DOMAIN_GATE_CHECK_NAMES, UI_GATE_CHECK_NAMES } from "../arch/gate-check-contracts.mjs";
-import { discoverNodeTests, groupNodeTestsByShard, selectAffectedNodeTests } from "../testing/run-node-tests.mjs";
+import { discoverNodeTests, groupNodeTestsByShard } from "../testing/run-node-tests.mjs";
 import { prepareChangedFilesManifest } from "./changed-files-manifest.mjs";
 import { createCheckTaskCache } from "./check-task-cache.mjs";
 import { checkTaskInputContract } from "./check-task-contracts.mjs";
-import { resolveReleaseUnitSourceClosure } from "./deploy/release-unit-source-plan.mjs";
 
 const TASKS = {
   "action-contract": npmScript("action-contract:check", "Action contract"),
@@ -188,49 +186,7 @@ function lockedTsScript(script, label, options = {}) {
   };
 }
 
-function typecheckProjects(cwd) {
-  const projects = [];
-  const packagesDirectory = path.join(cwd, "packages");
-  for (const entry of fs.readdirSync(packagesDirectory, { withFileTypes: true })) {
-    if (entry.isDirectory() && fs.existsSync(path.join(packagesDirectory, entry.name, "tsconfig.json"))) {
-      projects.push({ scope: entry.name, project: `packages/${entry.name}` });
-    }
-  }
-  const appsDirectory = path.join(cwd, "apps");
-  if (fs.existsSync(appsDirectory)) {
-    for (const entry of fs.readdirSync(appsDirectory, { withFileTypes: true })) {
-      if (entry.isDirectory() && fs.existsSync(path.join(appsDirectory, entry.name, "tsconfig.json"))) {
-        projects.push({ scope: `app-${entry.name}`, project: `apps/${entry.name}` });
-      }
-    }
-  }
-  projects.push(
-    { scope: "app", project: "tsconfig.app.json" },
-    { scope: "prisma-client", project: "tsconfig.prisma-client.json" },
-    { scope: "tooling", project: "tsconfig.tooling.json" },
-  );
-  return projects.sort((left, right) => left.scope.localeCompare(right.scope));
-}
-
-function releaseUnitLintTask(task, releaseClosure) {
-  return {
-    ...task,
-    id: `lint-unit.${releaseClosure.targetId}`,
-    label: `Lint · deploy unit ${releaseClosure.targetId}`,
-    args: [
-      "run",
-      "lint",
-      "--",
-      "--no-warn-ignored",
-      "--max-warnings=0",
-      ...releaseClosure.lintRoots,
-    ],
-    covers: ["lint-changed"],
-    input: { kind: "files", roots: releaseClosure.lintRoots },
-  };
-}
-
-function expandTask(taskId, task, cwd, releaseClosure = null) {
+function expandTask(taskId, task, cwd) {
   if (taskId === "domain-architecture") {
     return DOMAIN_GATE_CHECK_NAMES.map((name) => ({
       ...task,
@@ -240,14 +196,6 @@ function expandTask(taskId, task, cwd, releaseClosure = null) {
     }));
   }
   if (taskId === "ui-architecture") {
-    if (releaseClosure) {
-      return [{
-        ...task,
-        id: "ui-architecture.unit",
-        label: `UI architecture · deploy unit ${releaseClosure.targetId}`,
-        input: { kind: "ui", roots: ["packages", "app"] },
-      }];
-    }
     return UI_GATE_CHECK_NAMES.map((name) => ({
       ...task,
       id: `ui-architecture.${name}`,
@@ -257,10 +205,7 @@ function expandTask(taskId, task, cwd, releaseClosure = null) {
   }
   if (taskId === "test-node") {
     const allTests = discoverNodeTests(cwd);
-    const selectedTests = releaseClosure
-      ? selectAffectedNodeTests(allTests, releaseClosure.node)
-      : allTests;
-    return groupNodeTestsByShard(selectedTests).map(({ key, files }) => ({
+    return groupNodeTestsByShard(allTests).map(({ key, files }) => ({
       id: `test-node.${key}`,
       label: `Node tests · ${key}`,
       command: "node",
@@ -269,24 +214,6 @@ function expandTask(taskId, task, cwd, releaseClosure = null) {
       testFiles: files,
     }));
   }
-  if (taskId === "typecheck-full") {
-    const projects = typecheckProjects(cwd);
-    const selectedProjects = releaseClosure
-      ? releaseClosure.typecheckScopes.map((scope) => {
-        const project = projects.find((candidate) => candidate.scope === scope);
-        if (!project) throw new Error(`deploy graph references unknown typecheck scope: ${scope}`);
-        return project;
-      })
-      : projects;
-    return selectedProjects.map(({ scope, project }) => ({
-      id: `typecheck.${scope}`,
-      label: `TypeScript · ${scope}`,
-      command: "npm",
-      args: ["run", "typecheck:scope", "--", scope],
-      project,
-    }));
-  }
-  if (taskId === "lint-full" && releaseClosure) return [releaseUnitLintTask(task, releaseClosure)];
   return [{ id: taskId, ...task }];
 }
 
@@ -327,13 +254,7 @@ function applyContextualCoverage(plan, changedFilesContext) {
   };
 }
 
-export function resolveCheckPlan(suiteNames, { cwd = process.cwd(), releaseTarget = "monolith", deployGraph } = {}) {
-  if (releaseTarget !== "monolith" && !/^[a-z][a-z0-9-]*$/.test(releaseTarget)) {
-    throw new Error(`invalid release validation target: ${releaseTarget}`);
-  }
-  const releaseClosure = releaseTarget === "monolith"
-    ? null
-    : resolveReleaseUnitSourceClosure({ cwd, targetId: releaseTarget, graph: deployGraph });
+export function resolveCheckPlan(suiteNames, { cwd = process.cwd() } = {}) {
   const tasks = [];
   const seenTasks = new Set();
   const activeSuites = new Set();
@@ -356,7 +277,7 @@ export function resolveCheckPlan(suiteNames, { cwd = process.cwd(), releaseTarge
         continue;
       }
       seenTasks.add(ref);
-      for (const expanded of expandTask(ref, task, cwd, releaseClosure)) {
+      for (const expanded of expandTask(ref, task, cwd)) {
         checkTaskInputContract(expanded);
         tasks.push(expanded);
       }
@@ -391,10 +312,7 @@ export function runCheckSuites(
     collectFailures = env.CHECK_SUITE_COLLECT_FAILURES === "1",
   } = {},
 ) {
-  let plan = resolveCheckPlan(suiteNames, {
-    cwd,
-    releaseTarget: env.RELEASE_VALIDATION_TARGET_ID?.trim() || "monolith",
-  });
+  let plan = resolveCheckPlan(suiteNames, { cwd });
   const suiteStartedAt = now();
   const warningFailures = [];
   const blockingFailures = [];
