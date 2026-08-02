@@ -73,8 +73,8 @@ cnb-release.sh verify
 - `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
 - 受保护的 main push Pipeline 在演练通过后固定注入 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
 - 受保护 Pipeline 版本化保存非敏感的生产根目录与回环健康地址，私有 env 只保存服务器、SSH 和生产凭据；
-- 生产服务器拉取私有镜像时使用 CNB Pipeline 内置的 `CNB_TOKEN_USER_NAME + CNB_TOKEN` 短期凭据，构建结束后自动失效；
-- 私有 CNB env import 提供 SSH、目标路径、health 和生产数据库/运行配置位置；
+- 生产服务器拉取私有镜像时，只使用私有 env 中的 `CNB_REGISTRY_USER + CNB_REGISTRY_TOKEN` 专用只读凭据；不使用 Pipeline 内置短期 token，不给予源码或镜像写权限；
+- 私有 CNB env import 提供 SSH、只读 Registry 凭据和生产数据库/运行配置位置；目标路径与 health 是受版本管理的非敏感 Pipeline 配置；
 - 生产镜像 ref/digest 与 `release.json` 完全一致。
 
 生产顺序固定为：
@@ -108,7 +108,7 @@ cnb-release.sh verify
 
 保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
 
-缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用；main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/types` 和 `.cache/tsbuild`，即使后续部署失败也不丢弃已完成的编译缓存；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
+缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用；main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
 
 ## Agent 闭环
 

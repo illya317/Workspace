@@ -125,7 +125,7 @@ fi
 missing_inputs=()
 [ "${PRODUCTION_IMAGE_DEPLOY_ENABLED:-}" = 1 ] \
   || missing_inputs+=("PRODUCTION_IMAGE_DEPLOY_ENABLED=1")
-for key in SERVER REMOTE_DIR HEALTHCHECK_URL CNB_TOKEN CNB_TOKEN_USER_NAME; do
+for key in SERVER REMOTE_DIR HEALTHCHECK_URL CNB_REGISTRY_TOKEN; do
   [ -n "${!key:-}" ] || missing_inputs+=("$key")
 done
 if [ -z "${KEY:-}" ] && [ -z "${KEY_CONTENT:-}" ]; then
@@ -140,6 +140,7 @@ fi
 REMOTE_RUNTIME_ENV_FILE="${REMOTE_RUNTIME_ENV_FILE:-$REMOTE_DIR/.workspace/runtime.env}"
 REMOTE_CONTROL_ENV_FILE="${REMOTE_CONTROL_ENV_FILE:-$REMOTE_DIR/.workspace/control-plane.env}"
 REMOTE_LEGACY_ENV_FILE="${REMOTE_LEGACY_ENV_FILE:-$REMOTE_DIR/.workspace/.env}"
+CNB_REGISTRY_USER="${CNB_REGISTRY_USER:-cnb}"
 if [ -n "${KEY:-}" ]; then
   SSH_KEY="$KEY"
 elif [ -n "${KEY_CONTENT:-}" ]; then
@@ -152,16 +153,16 @@ fi
 case "$REMOTE_DIR $REMOTE_RUNTIME_ENV_FILE $REMOTE_CONTROL_ENV_FILE" in
   *[!A-Za-z0-9_./\ -]*) fail "远端路径包含不安全字符" ;;
 esac
-case "$CNB_TOKEN_USER_NAME" in
-  *[!A-Za-z0-9_.@-]*) fail "CNB_TOKEN_USER_NAME 包含不安全字符" ;;
+case "$CNB_REGISTRY_USER" in
+  *[!A-Za-z0-9_.@-]*) fail "CNB_REGISTRY_USER 包含不安全字符" ;;
 esac
 ssh_options=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new)
 cleanup_key() { [ "${KEY:-}" = "$SSH_KEY" ] || rm -f "$SSH_KEY"; }
 trap cleanup_key EXIT
 
 remote_registry="${DEPLOY_IMAGE_REF%%/*}"
-printf '%s' "$CNB_TOKEN" | ssh "${ssh_options[@]}" "$SERVER" \
-  "mkdir -p '$REMOTE_DIR/.workspace/docker-auth' && docker --config '$REMOTE_DIR/.workspace/docker-auth' login '$remote_registry' -u '$CNB_TOKEN_USER_NAME' --password-stdin >/dev/null"
+printf '%s' "$CNB_REGISTRY_TOKEN" | ssh "${ssh_options[@]}" "$SERVER" \
+  "mkdir -p '$REMOTE_DIR/.workspace/docker-auth' && docker --config '$REMOTE_DIR/.workspace/docker-auth' login '$remote_registry' -u '$CNB_REGISTRY_USER' --password-stdin >/dev/null"
 ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releases'"
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 

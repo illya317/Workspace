@@ -19,6 +19,7 @@ main:
           sync: "true"
         volumes:
           - main:/workspace/.next/cache:copy-on-write-read-only
+          - main:/workspace/.cache/eslint:copy-on-write-read-only
           - main:/workspace/.cache/types:copy-on-write-read-only
           - main:/workspace/.cache/tsbuild:copy-on-write-read-only
       env:
@@ -111,6 +112,7 @@ main:
           sync: "true"
         volumes:
           - main:/workspace/.next/cache:read-write
+          - main:/workspace/.cache/eslint:read-write
           - main:/workspace/.cache/types:read-write
           - main:/workspace/.cache/tsbuild:read-write
       imports:

@@ -79,6 +79,9 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 2);
   assert.match(cnb, /copy-on-write-read-only/);
   assert.match(cnb, /main:\/workspace\/\.next\/cache:read-write/);
+  assert.match(cnb, /main:\/workspace\/\.cache\/eslint:read-write/);
+  assert.match(cnb, /main:\/workspace\/\.cache\/types:read-write/);
+  assert.match(cnb, /main:\/workspace\/\.cache\/tsbuild:read-write/);
   assert.match(cnb, /key: main-cnb-delivery-cache[\s\S]*wait: true/);
   assert.match(cnb, /ln -s \/opt\/workspace-deps\/node_modules node_modules/);
   assert.match(cnbCi, /run-node-tests\.mjs bucket/);
@@ -146,8 +149,10 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 2);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);
-  assert.match(deployImage, /CNB_TOKEN_USER_NAME/);
-  assert.match(deployImage, /login '\$remote_registry' -u '\$CNB_TOKEN_USER_NAME' --password-stdin/);
+  assert.match(deployImage, /CNB_REGISTRY_TOKEN/);
+  assert.match(deployImage, /CNB_REGISTRY_USER="\$\{CNB_REGISTRY_USER:-cnb\}"/);
+  assert.match(deployImage, /login '\$remote_registry' -u '\$CNB_REGISTRY_USER' --password-stdin/);
+  assert.doesNotMatch(deployImage, /CNB_TOKEN_USER_NAME|printf '%s' "\$CNB_TOKEN"/);
   assert.doesNotMatch(deployImage, /login '\$remote_registry' -u cnb/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
