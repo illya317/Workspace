@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
-import { spawnSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 
 const read = (relative) => readFileSync(new URL(relative, import.meta.url), "utf8");
@@ -26,6 +28,26 @@ const runCnbReleaseStage = read("./run-cnb-release-stage.sh");
 const deployTarget = read("./deploy-cnb-release-target.sh");
 const deployArtifact = read("./deploy/artifact.sh");
 const databaseReplacement = read("./publish-database-replacement.sh");
+
+function isolatedController(t) {
+  const repository = path.resolve(import.meta.dirname, "..");
+  const root = mkdtempSync(path.join(os.tmpdir(), "workspace-publish-contract-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  const trackedOps = execFileSync("git", ["ls-files", "-z", "ops"], {
+    cwd: repository,
+    encoding: "utf8",
+  }).split("\0").filter(Boolean);
+  for (const file of trackedOps) {
+    const destination = path.join(root, file);
+    mkdirSync(path.dirname(destination), { recursive: true });
+    cpSync(path.join(repository, file), destination);
+  }
+  return {
+    publish: path.join(root, "ops/publish.sh"),
+    publishCnb: path.join(root, "ops/publish-cnb.sh"),
+    ledger: path.join(root, ".cache/release-deploy-attempts"),
+  };
+}
 
 test("public production code release keeps ci to Ready to deploy with a separate controller proof", () => {
   assert.match(publish, /正式应用生命周期保持 ci -> Ready -> deploy/);
@@ -261,13 +283,14 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);
 });
 
-test("sourced deploy preflight helpers report independent failures and blocked probes in one run", () => {
+test("sourced deploy preflight helpers aggregate failures in an isolated controller ledger", (t) => {
+  const controller = isolatedController(t);
   const environment = {
     ...process.env,
     WORKSPACE_REPO_RUNTIME_READY: "1",
     OPS_ENV_FILE: "/dev/null",
   };
-  const publishResult = spawnSync("bash", [new URL("./publish.sh", import.meta.url).pathname, "deploy"], {
+  const publishResult = spawnSync("bash", [controller.publish, "deploy"], {
     encoding: "utf8",
     env: environment,
   });
@@ -283,8 +306,10 @@ test("sourced deploy preflight helpers report independent failures and blocked p
   ]) {
     assert.match(publishOutput, new RegExp(message));
   }
+  assert.ok(publishOutput.includes(controller.ledger));
+  assert.equal(readdirSync(path.join(controller.ledger, "admissions")).length, 1);
 
-  const cnbResult = spawnSync("bash", [new URL("./publish-cnb.sh", import.meta.url).pathname, "--direct"], {
+  const cnbResult = spawnSync("bash", [controller.publishCnb, "--direct"], {
     encoding: "utf8",
     env: environment,
   });

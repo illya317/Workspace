@@ -15,6 +15,7 @@ const RUN_PATTERN = /^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/;
 const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
 export const ARTIFACT_PREFLIGHT_CHECKS = [
   "clean-candidate-identity",
+  "operations-source-growth",
   "exact-generated-app",
   "real-next-config-loader",
   "next-config-target-roots",
@@ -184,6 +185,29 @@ export function runExactConfigProbe(repository, targetId, env = process.env) {
   catch { throw new Error("exact Next config preflight returned invalid JSON"); }
 }
 
+export function inspectOperationsGrowth(repository, env = process.env) {
+  const repositoryRoot = path.resolve(repository);
+  const runner = path.join(repositoryRoot, "scripts/arch/source-code-analysis/operations-size-policy.ts");
+  const result = spawnSync(process.execPath, ["--import", "tsx", runner, "--repository", repositoryRoot], {
+    cwd: repositoryRoot,
+    env,
+    encoding: "utf8",
+  });
+  let report;
+  try { report = JSON.parse(result.stdout.trim()); }
+  catch { report = undefined; }
+  if (result.error || result.signal || result.status !== 0 || !report) {
+    const violations = report?.violations?.map((item) => `${item.path} ${item.lines} > ${item.limit}`).join(", ");
+    throw new Error(`operations source growth check failed: ${violations || result.stderr.trim()
+      || result.error?.message || result.signal || "invalid report"}`);
+  }
+  return {
+    checkedFiles: report.checkedFiles,
+    defaultMaxLines: report.policy?.defaultMaxLines,
+    legacyCapCount: Object.keys(report.policy?.legacyCaps ?? {}).length,
+  };
+}
+
 function receiptIdentity(receipt) {
   return {
     runId: receipt?.runId,
@@ -213,6 +237,13 @@ export function validateArtifactPreflightReceipt(receipt, options) {
     || JSON.stringify(receiptIdentity(receipt)) !== JSON.stringify(expected)
     || receipt.identityDigest !== identityDigest(expected)
     || JSON.stringify(receipt.checks) !== JSON.stringify(ARTIFACT_PREFLIGHT_CHECKS)
+    || !Array.isArray(receipt.findings) || receipt.findings.length !== ARTIFACT_PREFLIGHT_CHECKS.length
+    || receipt.findings.some((finding, index) => finding?.check !== ARTIFACT_PREFLIGHT_CHECKS[index]
+      || finding?.status !== "passed")
+    || !Number.isInteger(receipt.operationsGrowth?.checkedFiles) || receipt.operationsGrowth.checkedFiles < 1
+    || !Number.isInteger(receipt.operationsGrowth?.defaultMaxLines)
+    || receipt.operationsGrowth.defaultMaxLines < 100
+    || !Number.isInteger(receipt.operationsGrowth?.legacyCapCount) || receipt.operationsGrowth.legacyCapCount < 0
     || !new Set(["repository-local", "trusted-sibling-symlink"]).has(receipt.dependencyBoundary?.kind)
     || !DIGEST_PATTERN.test(receipt.dependencyBoundary?.packageLockSha256 ?? "")
     || !nodeMajor || receipt.toolchain?.nodeEngine !== `${nodeMajor}.x`
@@ -274,19 +305,38 @@ export function runArtifactPreflight(options = {}) {
   }
   const now = options.now ?? (() => Date.now());
   const startedAtMs = now();
-  let receipt;
-  try {
-    (options.verifyCandidateFn ?? verifyCandidate)(repository, identity);
-    const dependencies = (options.inspectDependencyFn ?? inspectDependencyBoundary)(repository);
-    const toolchain = (options.inspectToolchainFn ?? inspectToolchain)(repository, options.env);
-    const nextConfig = (options.configProbeFn ?? runExactConfigProbe)(repository, identity.target.id, options.env);
-    const disk = (options.assertBuildSpaceFn ?? assertBuildSpace)({
+  const findings = [];
+  const results = {};
+  const runChecks = (checks, key, operation) => {
+    try {
+      results[key] = operation();
+      findings.push(...checks.map((check) => ({ check, status: "passed" })));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      findings.push(...checks.map((check) => ({ check, status: "failed", error: message })));
+    }
+  };
+  runChecks(["clean-candidate-identity"], "candidate", () => (
+    options.verifyCandidateFn ?? verifyCandidate)(repository, identity));
+  runChecks(["operations-source-growth"], "operationsGrowth", () => (
+    options.inspectOperationsGrowthFn ?? inspectOperationsGrowth)(repository, options.env));
+  runChecks(["exact-generated-app", "real-next-config-loader", "next-config-target-roots"], "nextConfig", () => (
+    options.configProbeFn ?? runExactConfigProbe)(repository, identity.target.id, options.env));
+  runChecks(["dependency-lock-boundary"], "dependencies", () => (
+    options.inspectDependencyFn ?? inspectDependencyBoundary)(repository));
+  runChecks(["node-next-npm-toolchain"], "toolchain", () => (
+    options.inspectToolchainFn ?? inspectToolchain)(repository, options.env));
+  runChecks(["build-space-watermark"], "disk", () => (
+    options.assertBuildSpaceFn ?? assertBuildSpace)({
       repositoryRoot: repository,
       contentDigest: identity.source.contentDigest,
       targetId: identity.target.id,
       env: options.env,
-    });
-    const completedAtMs = now();
+    }));
+  const completedAtMs = now();
+  const failed = findings.filter((finding) => finding.status === "failed");
+  let receipt;
+  if (failed.length === 0) {
     receipt = {
       schemaVersion: 1,
       kind: "workspace-artifact-preflight",
@@ -295,20 +345,22 @@ export function runArtifactPreflight(options = {}) {
       ...identity,
       identityDigest: identityDigest(identity),
       checks: ARTIFACT_PREFLIGHT_CHECKS,
-      dependencyBoundary: dependencies,
-      toolchain,
-      nextConfig,
+      findings,
+      operationsGrowth: results.operationsGrowth,
+      dependencyBoundary: results.dependencies,
+      toolchain: results.toolchain,
+      nextConfig: results.nextConfig,
       disk: {
-        usagePercent: disk.diskUsagePercent,
-        retainedBytes: disk.totalBytes,
-        evictedEntries: disk.removed.length,
-        inaccessibleEntries: disk.issues.length,
+        usagePercent: results.disk.diskUsagePercent,
+        retainedBytes: results.disk.totalBytes,
+        evictedEntries: results.disk.removed.length,
+        inaccessibleEntries: results.disk.issues.length,
       },
       completedAt: new Date(completedAtMs).toISOString(),
       durationMs: Math.max(0, completedAtMs - startedAtMs),
     };
-  } catch (error) {
-    const completedAtMs = now();
+  } else {
+    const message = failed.map((finding) => `${finding.check}: ${finding.error}`).join("; ");
     receipt = {
       schemaVersion: 1,
       kind: "workspace-artifact-preflight",
@@ -317,11 +369,14 @@ export function runArtifactPreflight(options = {}) {
       ...identity,
       identityDigest: identityDigest(identity),
       checks: ARTIFACT_PREFLIGHT_CHECKS,
-      error: error instanceof Error ? error.message : String(error),
+      findings,
+      error: message,
       completedAt: new Date(completedAtMs).toISOString(),
       durationMs: Math.max(0, completedAtMs - startedAtMs),
     };
     writeImmutableArtifactPreflightReceipt(output, receipt);
+    const error = new Error(`artifact preflight failed: ${message}`);
+    error.findings = findings;
     throw error;
   }
   writeImmutableArtifactPreflightReceipt(output, receipt);
