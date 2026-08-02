@@ -31,6 +31,7 @@ const EXACT_CONTROL_FILES = new Set([
   "scripts/arch/source-code-analysis/operations-size-policy.json",
 ]);
 const CONTROL_PREFIXES = [
+  "ops/deploy-",
   "ops/deploy/",
   "ops/release/control/",
   "ops/release/deploy/",

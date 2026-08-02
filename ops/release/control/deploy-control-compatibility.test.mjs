@@ -70,6 +70,8 @@ test("uncommitted controller changes fail closed", (t) => {
 test("receipt, preflight, injection, and their tests are explicit deploy-control paths", () => {
   for (const file of [
     "ops/cnb-builder-contract.test.mjs",
+    "ops/deploy-unit.sh",
+    "ops/deploy-unit-contract.test.mjs",
     "ops/production-deploy-preflight.mjs",
     "ops/production-deploy-preflight.test.mjs",
     "ops/release-receipt.mjs",
