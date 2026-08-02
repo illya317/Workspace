@@ -26,7 +26,7 @@ prepare() {
   login_ghcr
   manifest_image="${RELEASE_MANIFEST_URL#docker://}"
   docker pull "$manifest_image"
-  manifest_container="$(docker create "$manifest_image")"
+  manifest_container="$(docker create --entrypoint /release.json "$manifest_image")"
   trap 'docker rm -f "$manifest_container" >/dev/null 2>&1 || true' RETURN
   docker cp "$manifest_container:/release.json" "$release_file"
   docker rm -f "$manifest_container" >/dev/null
