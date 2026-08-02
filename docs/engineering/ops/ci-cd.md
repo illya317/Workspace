@@ -41,7 +41,7 @@ PR 到此结束，不导入生产环境、不构建镜像、不部署。
 1. 校验 checkout `HEAD == CNB_COMMIT`，取得 Git tree 与 content digest。
 2. 解包已经通过 E2E 的 standalone。
 3. `ops/image.Dockerfile` 只复制 runtime 与 release evidence；禁止依赖安装、测试或 Next build。
-4. 只执行一次 `docker buildx build --platform linux/amd64 --push`，并以 CNB Registry 中独立的 `-buildcache:main` 镜像读写 BuildKit cache。
+4. 只执行一次 `docker buildx build --platform linux/amd64 --push`，并以同一已授权 CNB Registry 仓库的 `:buildcache-main` tag 读写 BuildKit cache；不创建额外 cache 仓库。
 5. 镜像写入 `${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:sha-<full-sha>`。
 6. tag 只用于检索；演练和生产必须使用 `${IMAGE_REF}@${IMAGE_DIGEST}`。
 

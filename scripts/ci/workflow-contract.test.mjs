@@ -120,6 +120,8 @@ test("main packages and publishes one linux amd64 application image", () => {
   assert.match(cnb, /rootlessBuildkitd:/);
   assert.equal((cnbRelease.match(/--file ops\/image\.Dockerfile/g) ?? []).length, 1);
   assert.match(cnbRelease, /--platform linux\/amd64/);
+  assert.match(cnbRelease, /cache_ref="\$\{image_ref\}:buildcache-main"/);
+  assert.doesNotMatch(cnbRelease, /\$\{CNB_REPO_SLUG_LOWERCASE\}-buildcache/);
   assert.match(cnbRelease, /--cache-from "type=registry,ref=\$\{cache_ref\}"/);
   assert.match(cnbRelease, /--cache-to "type=registry,ref=\$\{cache_ref\},mode=max"/);
   assert.match(cnbRelease, /--provenance=false/);

@@ -42,7 +42,7 @@ build_and_publish() {
 
   image_ref="${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}"
   image_tag="${image_ref}:sha-${source_sha}"
-  cache_ref="${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}-buildcache:main"
+  cache_ref="${image_ref}:buildcache-main"
   context="$STATE_DIR/image-context"
   metadata="$STATE_DIR/image-metadata.json"
   rm -rf "$STATE_DIR"
