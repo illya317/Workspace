@@ -16,7 +16,7 @@
     "build:next:after-typecheck": "env WORKSPACE_NEXT_TYPECHECK_AUTHORITY=external npm run build:next",
     "build:next:inner": "node ops/release/candidate/source-snapshot.mjs ensure && npm run output-tracing:prepare && env NODE_OPTIONS=--max-old-space-size=8192 next build && npm run output-tracing:check",
     "start": "next start",
-    "lint": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- eslint --cache --cache-location .cache/eslint/.eslintcache",
+    "lint": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- eslint --cache --cache-strategy content --cache-location .cache/eslint/.eslintcache",
     "check:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
     "check:history-policy": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-history-policy-registry.ts",
     "hr:temporal:preflight": "node --conditions=react-server --import tsx scripts/check/hr-business-temporal-preflight.ts",

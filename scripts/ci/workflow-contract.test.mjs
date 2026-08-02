@@ -98,6 +98,7 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCi, /for lane in setup static-policy static-domain static-ui static-lint node-0 node-1 node-2 node-3 typecheck build database e2e/);
   assert.match(cnbCi, /npm run test:e2e:smoke/);
   assert.match(cnbCi, /CNB required failed lanes/);
+  assert.match(packageJson.scripts.lint, /--cache-strategy content/);
   assert.match(cnbCi, /CNB_PULL_REQUEST_MERGE_SHA/);
   assert.match(cnbCi, /git status --porcelain=v1 --untracked-files=all/);
   assert.match(cnbCi, /CNB 必须从干净 checkout 开始/);

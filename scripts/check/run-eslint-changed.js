@@ -6,7 +6,13 @@ const path = require("node:path");
 const { changedFileSets } = require("./changed-files");
 
 const ESLINT_EXTENSIONS = /\.(cjs|cts|js|jsx|mjs|mts|ts|tsx)$/i;
-const ESLINT_CACHE_ARGS = ["--cache", "--cache-location", ".cache/eslint/.eslintcache"];
+const ESLINT_CACHE_ARGS = [
+  "--cache",
+  "--cache-strategy",
+  "content",
+  "--cache-location",
+  ".cache/eslint/.eslintcache",
+];
 const ESLINT_BATCH_SIZE = 200;
 const repoRoot = path.resolve(__dirname, "../..");
 
