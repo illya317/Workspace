@@ -150,9 +150,6 @@ jobs:
         with:
           name: workspace-runtime-${{ github.sha }}
           path: |
-            .next/BUILD_ID
-            .next/standalone
-            .next/static
             .next/workspace-standalone.tgz
             .next/workspace-standalone.manifest.json
           include-hidden-files: true
@@ -181,13 +178,15 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: workspace-runtime-${{ github.sha }}
-          path: .
+          path: .next
       - run: PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
       - run: npx prisma migrate deploy --schema=./prisma
       - run: npm run db:seed:resources
       - run: npx playwright install --with-deps chromium
       - name: Run E2E against the exact packaged build
-        env: { PLAYWRIGHT_STANDALONE_SKIP_BUILD: "1" }
+        env:
+          PLAYWRIGHT_STANDALONE_ARCHIVE: .next/workspace-standalone.tgz
+          PLAYWRIGHT_STANDALONE_MANIFEST: .next/workspace-standalone.manifest.json
         run: npm run test:e2e:smoke
       - if: ${{ always() }}
         run: npm run playwright:processes:check
@@ -225,7 +224,7 @@ jobs:
       - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: workspace-runtime-${{ github.sha }}
-          path: .
+          path: .next
       - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
       - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
         with:
@@ -243,7 +242,7 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p .release/image-context/runtime .release/image-context/release
-          cp -a .next/standalone/. .release/image-context/runtime/
+          tar -xzf .next/workspace-standalone.tgz -C .release/image-context/runtime
           cp .next/workspace-standalone.tgz .next/workspace-standalone.manifest.json .release/image-context/release/
       - name: Publish the only application image
         id: app_image

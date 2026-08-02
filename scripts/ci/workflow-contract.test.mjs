@@ -37,12 +37,23 @@ test("changed checks stay static while PostgreSQL owns the database migration di
   assert.match(postgresql, /npm run check:data/);
 });
 
-test("E2E consumes the exact packaged build without a second Next build", () => {
+test("E2E consumes the canonical archive without a second Next build", () => {
   const e2e = workflow.slice(workflow.indexOf("  e2e:"), workflow.indexOf("  required:"));
   assert.match(e2e, /actions\/download-artifact@/);
-  assert.match(e2e, /PLAYWRIGHT_STANDALONE_SKIP_BUILD: "1"/);
+  assert.match(e2e, /path: \.next/);
+  assert.match(e2e, /PLAYWRIGHT_STANDALONE_ARCHIVE: \.next\/workspace-standalone\.tgz/);
+  assert.match(e2e, /PLAYWRIGHT_STANDALONE_MANIFEST: \.next\/workspace-standalone\.manifest\.json/);
   assert.match(e2e, /npm run test:e2e:smoke/);
   assert.doesNotMatch(e2e, /npm run build/);
+});
+
+test("the portable runtime artifact is uploaded once in canonical archive form", () => {
+  const build = workflow.slice(workflow.indexOf("  build:"), workflow.indexOf("  e2e:"));
+  const image = workflow.slice(workflow.indexOf("  image:"), workflow.indexOf("  cnb:"));
+  assert.match(build, /\.next\/workspace-standalone\.tgz/);
+  assert.match(build, /\.next\/workspace-standalone\.manifest\.json/);
+  assert.doesNotMatch(build, /\.next\/standalone\n|\.next\/static\n|\.next\/BUILD_ID/);
+  assert.match(image, /tar -xzf \.next\/workspace-standalone\.tgz/);
 });
 
 test("only protected main publishes and dispatches an exact CNB release", () => {
