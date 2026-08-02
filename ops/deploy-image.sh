@@ -125,7 +125,7 @@ fi
 missing_inputs=()
 [ "${PRODUCTION_IMAGE_DEPLOY_ENABLED:-}" = 1 ] \
   || missing_inputs+=("PRODUCTION_IMAGE_DEPLOY_ENABLED=1")
-for key in SERVER REMOTE_DIR HEALTHCHECK_URL; do
+for key in SERVER REMOTE_DIR HEALTHCHECK_URL CNB_TOKEN CNB_TOKEN_USER_NAME; do
   [ -n "${!key:-}" ] || missing_inputs+=("$key")
 done
 if [ -z "${KEY:-}" ] && [ -z "${KEY_CONTENT:-}" ]; then
@@ -152,15 +152,16 @@ fi
 case "$REMOTE_DIR $REMOTE_RUNTIME_ENV_FILE $REMOTE_CONTROL_ENV_FILE" in
   *[!A-Za-z0-9_./\ -]*) fail "远端路径包含不安全字符" ;;
 esac
+case "$CNB_TOKEN_USER_NAME" in
+  *[!A-Za-z0-9_.@-]*) fail "CNB_TOKEN_USER_NAME 包含不安全字符" ;;
+esac
 ssh_options=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new)
 cleanup_key() { [ "${KEY:-}" = "$SSH_KEY" ] || rm -f "$SSH_KEY"; }
 trap cleanup_key EXIT
 
 remote_registry="${DEPLOY_IMAGE_REF%%/*}"
-if [ -n "${CNB_TOKEN:-}" ]; then
-  printf '%s' "$CNB_TOKEN" | ssh "${ssh_options[@]}" "$SERVER" \
-    "mkdir -p '$REMOTE_DIR/.workspace/docker-auth' && docker --config '$REMOTE_DIR/.workspace/docker-auth' login '$remote_registry' -u cnb --password-stdin >/dev/null"
-fi
+printf '%s' "$CNB_TOKEN" | ssh "${ssh_options[@]}" "$SERVER" \
+  "mkdir -p '$REMOTE_DIR/.workspace/docker-auth' && docker --config '$REMOTE_DIR/.workspace/docker-auth' login '$remote_registry' -u '$CNB_TOKEN_USER_NAME' --password-stdin >/dev/null"
 ssh "${ssh_options[@]}" "$SERVER" "mkdir -p '$REMOTE_DIR/.workspace/image-releases'"
 scp "${ssh_options[@]}" "$RELEASE_MANIFEST_FILE" "$SERVER:$REMOTE_DIR/.workspace/image-releases/${IMAGE_DIGEST#sha256:}.json" >/dev/null
 

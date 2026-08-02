@@ -145,6 +145,9 @@ test("the same CNB digest is verified, rehearsed, deployed and rollback protecte
   assert.equal((cnb.match(/HEALTHCHECK_URL: http:\/\/127\.0\.0\.1:3000\/workspace\/api\/internal\/health/g) ?? []).length, 2);
   assert.match(deployImage, /缺少生产部署输入/);
   assert.match(deployImage, /KEY or KEY_CONTENT/);
+  assert.match(deployImage, /CNB_TOKEN_USER_NAME/);
+  assert.match(deployImage, /login '\$remote_registry' -u '\$CNB_TOKEN_USER_NAME' --password-stdin/);
+  assert.doesNotMatch(deployImage, /login '\$remote_registry' -u cnb/);
   assert.match(deployImage, /pg_dump/);
   assert.match(deployImage, /flock -n/);
   assert.match(deployImage, /online image digest mismatch/);

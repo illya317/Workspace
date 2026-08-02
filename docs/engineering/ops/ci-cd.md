@@ -73,6 +73,7 @@ cnb-release.sh verify
 - `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
 - 受保护的 main push Pipeline 在演练通过后固定注入 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
 - 受保护 Pipeline 版本化保存非敏感的生产根目录与回环健康地址，私有 env 只保存服务器、SSH 和生产凭据；
+- 生产服务器拉取私有镜像时使用 CNB Pipeline 内置的 `CNB_TOKEN_USER_NAME + CNB_TOKEN` 短期凭据，构建结束后自动失效；
 - 私有 CNB env import 提供 SSH、目标路径、health 和生产数据库/运行配置位置；
 - 生产镜像 ref/digest 与 `release.json` 完全一致。
 
