@@ -82,6 +82,8 @@ test("CNB is thin CD: mirror, rehearsal, production and rollback only", () => {
   assert.doesNotMatch(`${cnb}\n${cnbImageRelease}`, /npm ci|typecheck|test:e2e|npm run build|docker build/);
   assert.match(cnbImageRelease, /pushed_digest.*IMAGE_DIGEST/s);
   assert.match(cnbImageRelease, /docker create --entrypoint \/release\.json/);
+  assert.match(cnbImageRelease, /skopeo copy.*--all --preserve-digests/s);
+  assert.doesNotMatch(cnbImageRelease, /docker push/);
   assert.doesNotMatch(cnbImageRelease, /CNB_COMMIT.*SOURCE_SHA/);
   assert.match(deployImage, /PRODUCTION_IMAGE_DEPLOY_ENABLED/);
   assert.match(deployImage, /pg_dump/);

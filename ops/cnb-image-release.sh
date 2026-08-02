@@ -13,12 +13,14 @@ case "$RELEASE_MANIFEST_URL" in docker://*) ;; *) fail "RELEASE_MANIFEST_URL 必
 
 cache_dir=".cache/cnb-image-release"
 release_file="$cache_dir/release.json"
+registry_auth_file="$cache_dir/registry-auth.json"
 cnb_image_ref="${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:sha-${SOURCE_SHA}"
 mkdir -p "$cache_dir"
 
 login_ghcr() {
   if [ -n "${GHCR_READ_USERNAME:-}" ] && [ -n "${GHCR_READ_TOKEN:-}" ]; then
     printf '%s' "$GHCR_READ_TOKEN" | docker login ghcr.io -u "$GHCR_READ_USERNAME" --password-stdin >/dev/null
+    printf '%s' "$GHCR_READ_TOKEN" | skopeo login --authfile "$registry_auth_file" -u "$GHCR_READ_USERNAME" --password-stdin ghcr.io >/dev/null
   fi
 }
 
@@ -34,11 +36,12 @@ prepare() {
   docker pull "${IMAGE_REF}@${IMAGE_DIGEST}"
   RELEASE_MANIFEST_FILE="$release_file" DEPLOY_IMAGE_REF="$IMAGE_REF" APPROVED_IMAGE_REF="$IMAGE_REF" \
     bash ./ops/deploy-image.sh verify
-  printf '%s' "$CNB_TOKEN" | docker login "$CNB_DOCKER_REGISTRY" -u "${CNB_TOKEN_USER_NAME:-cnb}" --password-stdin >/dev/null
-  docker tag "${IMAGE_REF}@${IMAGE_DIGEST}" "$cnb_image_ref"
-  push_output="$(docker push "$cnb_image_ref")"
-  pushed_digest="$(printf '%s\n' "$push_output" | sed -n 's/^.*digest: \(sha256:[0-9a-f]\{64\}\).*$/\1/p' | tail -n 1)"
+  printf '%s' "$CNB_TOKEN" | skopeo login --authfile "$registry_auth_file" -u "${CNB_TOKEN_USER_NAME:-cnb}" --password-stdin "$CNB_DOCKER_REGISTRY" >/dev/null
+  skopeo copy --authfile "$registry_auth_file" --all --preserve-digests \
+    "docker://${IMAGE_REF}@${IMAGE_DIGEST}" "docker://${cnb_image_ref}"
+  pushed_digest="sha256:$(skopeo inspect --authfile "$registry_auth_file" --raw "docker://${cnb_image_ref}" | sha256sum | awk '{print $1}')"
   [ "$pushed_digest" = "$IMAGE_DIGEST" ] || fail "CNB Registry digest 与 GHCR 不一致"
+  printf '%s' "$CNB_TOKEN" | docker login "$CNB_DOCKER_REGISTRY" -u "${CNB_TOKEN_USER_NAME:-cnb}" --password-stdin >/dev/null
   docker pull "${cnb_image_ref%@*}@${IMAGE_DIGEST}"
   printf '%s\n' "$cnb_image_ref" > "$cache_dir/cnb-image-ref"
   echo "CNB Registry mirror verified: $IMAGE_DIGEST"
