@@ -6,6 +6,10 @@ import {
   DeployBlockerError, assertDeployRetry, classifyDeployBlocker, inspectDeployBlockers,
   patrolDeployBlockers, recordDeployAttempt, resolveSystemicDeployBlocker,
 } from "./deploy-blocker-contract.mjs";
+import { recordDeployAdmission } from "./deploy-admission-contract.mjs";
+import {
+  createDeployRetryFenceReceipt, verifyDeployRetryFenceReceipt,
+} from "./deploy-retry-fence-contract.mjs";
 
 function fail(message) {
   throw new Error(message);
@@ -35,12 +39,36 @@ function integer(values, key) {
   return value;
 }
 
+function csv(values, key) {
+  return (values.get(key) ?? "").split(",").filter(Boolean);
+}
+
 async function main(argv) {
   const [command, ...tokens] = argv;
   const values = parse(tokens);
   const common = { root: required(values, "root") };
   let result;
-  if (command === "record") {
+  if (command === "record-admission") {
+    result = await recordDeployAdmission({
+      ...common,
+      repository: required(values, "repository"),
+      attemptId: required(values, "attempt-id"),
+      target: required(values, "target"),
+      targetMode: required(values, "target-mode"),
+      source: {
+        commit: values.get("source-commit") ?? "",
+        tree: values.get("source-tree") ?? "",
+        contentDigest: values.get("source-content") ?? "",
+      },
+      controller: { commit: values.get("controller-commit") ?? "" },
+      startedAt: required(values, "started-at"),
+      completedAt: required(values, "completed-at"),
+      status: required(values, "status"),
+      failureCodes: csv(values, "failure-codes"),
+      blockedCodes: csv(values, "blocked-codes"),
+      log: required(values, "log"),
+    });
+  } else if (command === "record") {
     result = await recordDeployAttempt({
       ...common,
       repository: required(values, "repository"),
@@ -83,8 +111,8 @@ async function main(argv) {
       fixturePath: required(values, "fixture"),
       gateReceipt: required(values, "gate-receipt"),
     });
-  } else if (command === "assert-clear") {
-    result = await assertDeployRetry({
+  } else if (command === "assert-clear" || command === "verify-clear") {
+    const retry = {
       ...common,
       repository: required(values, "repository"),
       target: required(values, "target"),
@@ -92,13 +120,21 @@ async function main(argv) {
       sourceContentDigest: required(values, "source-content"),
       sourceCommit: required(values, "source-commit"),
       controllerCommit: required(values, "controller-commit"),
+    };
+    result = await assertDeployRetry(retry);
+    const groups = await inspectDeployBlockers({
+      root: retry.root, target: retry.target, targetMode: retry.targetMode,
     });
+    const receipt = required(values, "receipt");
+    result.retryFence = command === "assert-clear"
+      ? await createDeployRetryFenceReceipt({ ...retry, groups, file: receipt })
+      : await verifyDeployRetryFenceReceipt({ ...retry, groups, file: receipt });
   } else if (command === "status") {
     result = await inspectDeployBlockers({ ...common, target: values.get("target"), targetMode: values.get("target-mode") });
   } else if (command === "patrol") {
     result = await patrolDeployBlockers(common);
   } else {
-    fail("expected record, classify, resolve, assert-clear, status, or patrol");
+    fail("expected record-admission, record, classify, resolve, assert-clear, verify-clear, status, or patrol");
   }
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }

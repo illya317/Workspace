@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 release_deploy_attempt_tool() {
-  printf '%s/release/attempts/deploy-blocker.mjs' "${RELEASE_SCRIPT_DIR:?release script directory missing}"
+  printf '%s/release/attempts/deploy-blocker.mjs' "${RELEASE_SCRIPT_DIR:-${SCRIPT_DIR:?release script directory missing}}"
 }
 
 release_deploy_attempt_run() {

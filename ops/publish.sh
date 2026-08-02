@@ -298,46 +298,48 @@ case "${1:-}" in
   deploy)
     shift
     parse_ready_selector deploy 0 "$@"
+    begin_deploy_entry_preflight
     release_worktree_ready=1
     configuration_ready=1
     ready_receipt_ready=1
     controller_receipt_ready=1
     if ! load_ready_worktree; then
-      deploy_preflight_fail "release worktree/candidate identity 无效"
+      deploy_preflight_fail candidate-identity "release worktree/candidate identity 无效"
       release_worktree_ready=0
     fi
     if [ "$release_worktree_ready" = 1 ]; then
       if ! capture_release_configuration_identity \
         || ! printf '%s' "${RELEASE_CONFIGURATION_DIGEST:-}" | grep -Eq '^[0-9a-f]{64}$'; then
-        deploy_preflight_fail "tenant configuration digest 无法计算"
+        deploy_preflight_fail tenant-configuration "tenant configuration digest 无法计算"
         configuration_ready=0
       fi
     else
-      deploy_preflight_fail "tenant configuration digest blocked：candidate worktree 无效"
+      deploy_preflight_block tenant-configuration "tenant configuration digest blocked：candidate worktree 无效"
       configuration_ready=0
     fi
     if ! validate_local_deploy_credentials; then
-      deploy_preflight_fail "本地部署凭据/目标配置无效"
+      deploy_preflight_fail deploy-credentials "本地部署凭据/目标配置无效"
     fi
     if [ "$release_worktree_ready" = 1 ] && [ "$configuration_ready" = 1 ]; then
       if ! load_selected_ready; then
-        deploy_preflight_fail "Application Ready receipt/identity 无效"
+        deploy_preflight_fail application-ready "Application Ready receipt/identity 无效"
         ready_receipt_ready=0
       fi
     else
-      deploy_preflight_fail "Application Ready receipt blocked：candidate/config identity 无效"
+      deploy_preflight_block application-ready "Application Ready receipt blocked：candidate/config identity 无效"
       ready_receipt_ready=0
     fi
     if [ "$ready_receipt_ready" = 1 ]; then
       if ! load_controller_ready; then
-        deploy_preflight_fail "Controller Ready receipt/identity 无效"
+        deploy_preflight_fail controller-ready "Controller Ready receipt/identity 无效"
         controller_receipt_ready=0
       fi
     else
-      deploy_preflight_fail "Controller Ready receipt blocked：Application Ready 无效"
+      deploy_preflight_block controller-ready "Controller Ready receipt blocked：Application Ready 无效"
       controller_receipt_ready=0
     fi
     deploy_attempt_root="$RELEASE_WORKTREE/.cache/release-deploy-attempts"
+    retry_fence_file="$deploy_attempt_root/retry-fence/$deploy_entry_attempt_id.json"
     if [ "$controller_receipt_ready" = 1 ]; then
       if ! node "$(release_deploy_attempt_tool)" assert-clear \
         --root "$deploy_attempt_root" \
@@ -346,11 +348,11 @@ case "${1:-}" in
         --target-mode "$SELECTED_READY_MODE" \
         --source-content "$RELEASE_CONTENT_DIGEST" \
         --source-commit "$RELEASE_SOURCE_SHA" \
-        --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA"; then
-        deploy_preflight_fail "deploy blocker ledger 未清空"
+        --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" --receipt "$retry_fence_file"; then
+        deploy_preflight_block retry-fence "deploy blocker ledger 未清空"
       fi
     else
-      deploy_preflight_fail "deploy blocker ledger blocked：Controller Ready 无效"
+      deploy_preflight_block retry-fence "deploy blocker ledger blocked：Controller Ready 无效"
     fi
     if [ "$ready_receipt_ready" = 1 ]; then
       export RELEASE_SOURCE_DIR="$RELEASE_WORKTREE"
@@ -365,12 +367,13 @@ case "${1:-}" in
         [ "$target_mode" = activate ] && target_args=(--deploy-unit "$target_id") || target_args=(--shadow-unit "$target_id")
       fi
       if ! (cd "$RELEASE_WORKTREE" && bash ./ops/cnb-release-artifact-cache.sh restore); then
-        deploy_preflight_fail "Ready artifact cache 恢复/复验失败"
+        deploy_preflight_fail artifact-cache "Ready artifact cache 恢复/复验失败"
       fi
     else
-      deploy_preflight_fail "Ready artifact cache blocked：Application Ready 无效"
+      deploy_preflight_block artifact-cache "Ready artifact cache blocked：Application Ready 无效"
     fi
     if ! finish_deploy_entry_preflight; then exit 1; fi
+    export RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE="$retry_fence_file"
     export RELEASE_CONTROLLER_READY_RECEIPT_FILE="$controller_ready_file"
     database_args=()
     if [ -n "${DATABASE_REPLACEMENT_RECEIPT_FILE:-}" ]; then

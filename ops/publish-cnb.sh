@@ -193,10 +193,12 @@ if ! prepare_server_read_key; then
   credential_probe_ready=0
 fi
 if [ "$input_probe_ready" = 1 ]; then
+  probe_deploy_retry_fence || publish_preflight_fail "Deploy Retry Fence Ready 复验失败"
   probe_candidate_ready_artifact || publish_preflight_fail "Application Ready/artifact 复验失败"
   probe_controller_ready || publish_preflight_fail "Controller Ready 复验失败"
   probe_tenant_config || publish_preflight_fail "tenant config dry-run 失败"
 else
+  publish_preflight_fail "Deploy Retry Fence Ready blocked：入口输入无效"
   publish_preflight_fail "Application Ready/artifact blocked：入口输入无效"
   publish_preflight_fail "Controller Ready blocked：入口输入无效"
   publish_preflight_fail "tenant config dry-run blocked：入口输入无效"

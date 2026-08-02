@@ -8,13 +8,19 @@
 
 ```text
 .cache/release-deploy-attempts/
+  admissions/<attempt-id>.json
   attempts/<attempt-id>.json
   classifications/<fingerprint>/<decision-id>.json
   resolutions/<fingerprint>/<resolution-id>.json
+  gate-evidence/<fingerprint>/<resolution-id>.json
   <attempt-id>.log
 ```
 
 日志创建时权限为 `0600`，采集完成后收紧为只读 `0400`；Deploy Preflight 的逐检查日志保持 `0600`。JSON receipt 使用 exclusive-create、内容 digest 和只读 mode，不允许覆盖或原地补字段。receipt 只保存 log path/digest、稳定 command ID、source/controller identity、target/mode、时间和结果；不得保存环境变量、请求头、token、secret-bearing command line 或日志正文。
+
+`publish.sh deploy` 从入口聚合预检开始就生成 admission id。入口检查失败时，所有独立失败与 blocked 依赖同轮写入 immutable admission receipt；真实失败生成稳定 fingerprint，必须分类，blocked 只证明本次请求被既有前置条件拒绝，不制造新的 blocker。通过 retry fence 后进入生产执行器的成功、失败或取消继续写普通 deploy attempt。因此“入口拒绝”和“生产尝试失败”都有独立日志，且不会把 retry fence 自身的正确拒绝递归变成新故障。
+
+retry fence 通过时还会签发绑定 exact target/mode/source/controller 与完整 ledger digest 的 immutable Retry Fence Ready。`publish-cnb.sh --direct` 必须在零写入 preflight 中重新运行 `assert-clear` 并复验该 receipt；没有 receipt、identity 不符或 admission 后 ledger 变化都会在 mutation barrier 前阻断。因此下层 internal CLI 不能仅靠齐全环境变量绕过分类围栏。
 
 生产 deploy 日志必须足以回答：当前阶段、阶段耗时、最慢阶段、failed/blocked 清单、是否越过 mutation barrier、是否执行 rollback、最终 health/version/content/deployment identity。敏感输出不能依赖事后清理；调用命令本身不得打印 secrets。
 
@@ -34,7 +40,7 @@ systemic blocker 只有同时具备以下四项证据才算关闭：
 1. full Git `fixingCommit`，且当前 Application Ready source 或 Controller Ready controller 覆盖该 commit；
 2. `fixingCommit` 中真实 tracked 的复现/回归 fixture，不能只给计划、日志或未提交文件；
 3. 明确 gate owner：应用/artifact/runtime 合同进入 `application-ready`，deploy-control/锁/远端工具合同进入 `controller-ready`；
-4. 对应 gate receipt 的路径、digest 和 mode 证据；ledger 会复验 receipt 的真实 Application/Controller Ready schema、status、内部 digest（如适用）以及 gate commit 确实覆盖 fixing commit，任意普通 JSON 文件不能冒充 gate receipt。
+4. 对应 gate receipt 的路径、digest 和 mode 证据；resolution 创建时把已验证的真实 Application/Controller Ready 冻结到 gitignored immutable gate-evidence snapshot。每次 retry 都重新校验 snapshot receipt digest、Ready schema/status、内部 digest（如适用）以及 gate commit 确实覆盖 fixing commit，任意普通 JSON 文件不能冒充 gate receipt，证据损坏也不能继续。
 
 仅在生产脚本里临时加文件、chmod、修改 manifest 或延长等待时间，不构成 resolution。关闭后再次出现相同 fingerprint，或 candidate-specific fingerprint 跨候选复发，retry fence 与 patrol 都必须以 P1/退出码 `42` 阻断。
 

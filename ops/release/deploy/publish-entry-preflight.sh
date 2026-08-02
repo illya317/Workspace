@@ -1,15 +1,59 @@
 #!/usr/bin/env bash
 
 deploy_preflight_failures=()
+deploy_preflight_failure_codes=()
+deploy_preflight_blocked=()
+deploy_preflight_blocked_codes=()
+
+begin_deploy_entry_preflight() {
+  deploy_entry_started_at="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+  deploy_entry_repository="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
+  deploy_entry_attempt_id="admission-$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%04x%04x' "$RANDOM" "$RANDOM")"
+  deploy_entry_root="$deploy_entry_repository/.cache/release-deploy-attempts"
+  deploy_entry_log="$deploy_entry_root/${deploy_entry_attempt_id}.log"
+}
 
 deploy_preflight_fail() {
-  deploy_preflight_failures+=("$1")
+  deploy_preflight_failure_codes+=("$1")
+  deploy_preflight_failures+=("$2")
+}
+
+deploy_preflight_block() {
+  deploy_preflight_blocked_codes+=("$1")
+  deploy_preflight_blocked+=("$2")
 }
 
 finish_deploy_entry_preflight() {
-  [ "${#deploy_preflight_failures[@]}" -eq 0 ] && return 0
-  echo "[错误] deploy 入口预检发现 ${#deploy_preflight_failures[@]} 项失败：" >&2
-  printf '  - %s\n' "${deploy_preflight_failures[@]}" >&2
+  [ "${#deploy_preflight_failures[@]}" -eq 0 ] && [ "${#deploy_preflight_blocked[@]}" -eq 0 ] && return 0
+  echo "[错误] deploy 入口预检发现 failed=${#deploy_preflight_failures[@]} blocked=${#deploy_preflight_blocked[@]}；production mutation=0" >&2
+  [ "${#deploy_preflight_failures[@]}" -eq 0 ] || printf '  failed: %s\n' "${deploy_preflight_failures[@]}" >&2
+  [ "${#deploy_preflight_blocked[@]}" -eq 0 ] || printf '  blocked: %s\n' "${deploy_preflight_blocked[@]}" >&2
+  if [ -z "${deploy_entry_repository:-}" ] || [ ! -d "$deploy_entry_repository" ]; then
+    echo "[错误] deploy admission 无法写回执：release repository 无效" >&2
+    return 1
+  fi
+  mkdir -p "$deploy_entry_root" || return 1
+  if ! (set -o noclobber; : > "$deploy_entry_log") 2>/dev/null; then
+    echo "[错误] deploy admission log 已存在: $deploy_entry_log" >&2
+    return 1
+  fi
+  chmod 600 "$deploy_entry_log" || return 1
+  [ "${#deploy_preflight_failures[@]}" -eq 0 ] || printf 'failed:%s\n' "${deploy_preflight_failure_codes[@]}" >> "$deploy_entry_log"
+  [ "${#deploy_preflight_blocked[@]}" -eq 0 ] || printf 'blocked:%s\n' "${deploy_preflight_blocked_codes[@]}" >> "$deploy_entry_log"
+  local failure_csv blocked_csv status=blocked completed_at
+  failure_csv="$(IFS=,; printf '%s' "${deploy_preflight_failure_codes[*]}")"
+  blocked_csv="$(IFS=,; printf '%s' "${deploy_preflight_blocked_codes[*]}")"
+  [ "${#deploy_preflight_failures[@]}" -eq 0 ] || status=failed
+  completed_at="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+  chmod 400 "$deploy_entry_log" || return 1
+  node "$(release_deploy_attempt_tool)" record-admission \
+    --root "$deploy_entry_root" --repository "$deploy_entry_repository" \
+    --attempt-id "$deploy_entry_attempt_id" --target "$SELECTED_READY_TARGET" --target-mode "$SELECTED_READY_MODE" \
+    --source-commit "${RELEASE_SOURCE_SHA:-}" --source-tree "${RELEASE_SOURCE_TREE:-}" \
+    --source-content "${RELEASE_CONTENT_DIGEST:-}" --controller-commit "${DEPLOY_CONTROL_SOURCE_SHA:-}" \
+    --started-at "$deploy_entry_started_at" --completed-at "$completed_at" --status "$status" \
+    --failure-codes "$failure_csv" --blocked-codes "$blocked_csv" --log "$deploy_entry_log" >/dev/null || return 1
+  echo "[Deploy Admission] immutable attempt: $deploy_entry_root/admissions/$deploy_entry_attempt_id.json" >&2
   return 1
 }
 

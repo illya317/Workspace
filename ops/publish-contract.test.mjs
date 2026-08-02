@@ -99,7 +99,9 @@ test("deploy retry is fenced by immutable classified blocker history", () => {
   assert.match(deployCase, /release_deploy_attempt_run --/);
   assert.match(deployAttemptShell, /\.cache\/release-deploy-attempts/);
   assert.match(deployAttemptShell, /chmod 400 "\$log_file"/);
-  for (const command of ["record", "classify", "resolve", "assert-clear", "patrol"]) {
+  assert.match(deployCase, /--receipt "\$retry_fence_file"/);
+  assert.match(deployCase, /RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE/);
+  for (const command of ["record-admission", "record", "classify", "resolve", "assert-clear", "verify-clear", "patrol"]) {
     assert.match(deployBlocker, new RegExp(`command === "${command}"`));
   }
 });
@@ -197,6 +199,7 @@ test("publish deploy preflight aggregates before any fail-fast release mutation"
   assert.match(publish, /^#!\/usr\/bin\/env bash\nset -uo pipefail/m);
   assert.doesNotMatch(publish, /^set -euo pipefail/m);
   assert.match(publishSources, /deploy_preflight_failures=\(\)/);
+  assert.match(publishSources, /begin_deploy_entry_preflight[\s\S]*?record-admission/);
   assert.match(publishSources, /finish_deploy_entry_preflight/);
   for (const failure of [
     "release worktree/candidate identity 无效",
@@ -210,6 +213,7 @@ test("publish deploy preflight aggregates before any fail-fast release mutation"
     assert.match(publishSources, new RegExp(failure));
   }
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.ok(deployCase.indexOf("begin_deploy_entry_preflight") < deployCase.indexOf("load_ready_worktree"));
   assert.doesNotMatch(deployCase, /set -(?:e|[A-Za-z]*e[A-Za-z]*)|set -o errexit/);
 });
 
@@ -218,6 +222,7 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   assert.match(publishCnbSources, /publish_preflight_failures=\(\)/);
   for (const probe of [
     "probe_publish_inputs",
+    "probe_deploy_retry_fence",
     "probe_candidate_ready_artifact",
     "probe_controller_ready",
     "probe_production_state",
@@ -228,6 +233,7 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   const barrier = "# workspace-errexit-role: mutation-barrier";
   const barrierIndex = publishCnb.indexOf(barrier);
   assert.ok(barrierIndex > publishCnb.indexOf("finish_publish_preflight"));
+  assert.match(publishCnbSources, /deploy-blocker\.mjs" verify-clear/);
   assert.doesNotMatch(publishCnb.slice(0, barrierIndex), /(?:^|\n)\s*set\s+(?:-[A-Za-z]*e[A-Za-z]*|-o\s+errexit)(?:\s|$)/);
   assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);
 });
@@ -245,7 +251,7 @@ test("sourced deploy preflight helpers report independent failures and blocked p
   assert.equal(publishResult.status, 1);
   const publishOutput = `${publishResult.stdout}${publishResult.stderr}`;
   for (const message of [
-    "deploy 入口预检发现 7 项失败",
+    "deploy 入口预检发现 failed=2 blocked=5；production mutation=0",
     "本地部署凭据/目标配置无效",
     "Application Ready receipt blocked",
     "Controller Ready receipt blocked",
@@ -262,7 +268,8 @@ test("sourced deploy preflight helpers report independent failures and blocked p
   assert.equal(cnbResult.status, 1);
   const cnbOutput = `${cnbResult.stdout}${cnbResult.stderr}`;
   for (const message of [
-    "deploy 零写入预检发现 6 项失败",
+    "deploy 零写入预检发现 7 项失败",
+    "Deploy Retry Fence Ready blocked",
     "Application Ready/artifact blocked",
     "Controller Ready blocked",
     "tenant config dry-run blocked",

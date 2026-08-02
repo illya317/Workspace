@@ -6,10 +6,12 @@ import {
   assert, assertDigest, assertIdentifier, canonicalJson, digestEvidence, failureFingerprint,
   normalizeLaneLog, nowIso, safeRepositoryPath, sha256, writeFinal,
 } from "./ci-attempt-contract.mjs";
+import { readDeployAdmissions } from "./deploy-admission-contract.mjs";
 
 export const DEPLOY_ATTEMPT_SCHEMA = "workspace.deploy-attempt/v1";
 export const DEPLOY_CLASSIFICATION_SCHEMA = "workspace.deploy-blocker-classification/v1";
 export const DEPLOY_RESOLUTION_SCHEMA = "workspace.deploy-blocker-resolution/v1";
+export const DEPLOY_GATE_EVIDENCE_SCHEMA = "workspace.deploy-gate-evidence/v1";
 export const DEPLOY_BLOCKED_EXIT_CODE = 43;
 export const DEPLOY_RECURRENCE_EXIT_CODE = 42;
 const CLASSIFICATIONS = new Set(["candidate-specific", "systemic"]);
@@ -102,14 +104,7 @@ function isAncestor(repository, ancestor, descendant) {
   }
 }
 
-async function verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt }) {
-  const safe = safeRepositoryPath(repository, gateReceipt);
-  let receipt;
-  try {
-    receipt = JSON.parse(await readFile(safe.absolute, "utf8"));
-  } catch (error) {
-    throw new Error(`gate receipt is missing or invalid JSON: ${error.message}`);
-  }
+function validateGateReceipt({ repository, fixingCommit, gate, receipt }) {
   let gateCommit;
   if (gate === "application-ready") {
     assert(receipt?.schemaVersion === 1 && receipt.kind === "workspace-ready-artifact"
@@ -126,8 +121,61 @@ async function verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt }
   }
   requireCommit(gateCommit, `${gate} gate commit`);
   assert(isAncestor(repository, fixingCommit, gateCommit), `${gate} gate receipt does not contain the fixing commit`);
+}
+
+async function verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt }) {
+  const safe = safeRepositoryPath(repository, gateReceipt);
+  let receipt;
+  try {
+    receipt = JSON.parse(await readFile(safe.absolute, "utf8"));
+  } catch (error) {
+    throw new Error(`gate receipt is missing or invalid JSON: ${error.message}`);
+  }
+  validateGateReceipt({ repository, fixingCommit, gate, receipt });
   const [evidence] = await digestEvidence(repository, [`${gate}-receipt:${gateReceipt}`]);
+  return { evidence, receipt };
+}
+
+async function createGateEvidenceSnapshot({
+  root, repository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
+}) {
+  const verified = await verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt });
+  const snapshot = {
+    schema: DEPLOY_GATE_EVIDENCE_SCHEMA,
+    kind: "workspace-deploy-gate-evidence",
+    fingerprint,
+    resolutionId,
+    fixingCommit,
+    gate,
+    sourceEvidence: verified.evidence,
+    gateReceipt: verified.receipt,
+    receiptDigest: null,
+  };
+  snapshot.receiptDigest = receiptDigest(snapshot);
+  const file = path.join(root, "gate-evidence", fingerprint, `${resolutionId}.json`);
+  await writeFinal(file, snapshot);
+  const [evidence] = await digestEvidence(repository, [`deploy-gate-evidence:${file}`]);
   return evidence;
+}
+
+async function verifyGateEvidenceSnapshot({ repository, resolution }) {
+  const safe = safeRepositoryPath(repository, resolution.gateEvidence?.path);
+  const snapshot = await readReceipt(safe.absolute, DEPLOY_GATE_EVIDENCE_SCHEMA);
+  assert(snapshot.fingerprint === resolution.fingerprint
+    && snapshot.resolutionId === resolution.resolutionId
+    && snapshot.fixingCommit === resolution.fixingCommit
+    && snapshot.gate === resolution.gate,
+  "gate evidence snapshot does not match resolution");
+  const body = await readFile(safe.absolute);
+  assert(sha256(body) === resolution.gateEvidence.sha256
+    && body.length === resolution.gateEvidence.sizeBytes,
+  "gate evidence snapshot digest mismatch");
+  validateGateReceipt({
+    repository,
+    fixingCommit: resolution.fixingCommit,
+    gate: resolution.gate,
+    receipt: snapshot.gateReceipt,
+  });
 }
 
 export async function recordDeployAttempt(options) {
@@ -187,7 +235,15 @@ export async function classifyDeployBlocker(options) {
   assertIdentifier(reasonCode, "classification reason code");
   assertIdentifier(decisionId, "classification decision id");
   const attempts = await listReceipts(path.join(root, "attempts"), DEPLOY_ATTEMPT_SCHEMA);
-  assert(attempts.some((attempt) => attempt.failure?.fingerprint === fingerprint), "classification fingerprint has no deploy failure");
+  const admissions = await readDeployAdmissions(root);
+  assert(attempts.some((attempt) => attempt.failure?.fingerprint === fingerprint)
+    || admissions.some((attempt) => attempt.failures.some((failure) => failure.fingerprint === fingerprint)),
+  "classification fingerprint has no deploy failure");
+  if (classification === "candidate-specific") {
+    assert(!admissions.some((attempt) => !attempt.source?.contentDigest
+      && attempt.failures.some((failure) => failure.fingerprint === fingerprint)),
+    "candidate-specific classification requires exact candidate identity");
+  }
   const prior = (await listReceipts(path.join(root, "classifications", fingerprint), DEPLOY_CLASSIFICATION_SCHEMA))
     .sort((left, right) => left.classifiedAt.localeCompare(right.classifiedAt));
   const current = prior.at(-1)?.classification;
@@ -221,7 +277,9 @@ export async function resolveSystemicDeployBlocker(options) {
   assert(classifications.at(-1)?.classification === "systemic", "only a systemic blocker can be resolved");
   git(repository, ["cat-file", "-e", `${fixingCommit}^{commit}`]);
   const fixture = assertTrackedAtCommit(repository, fixingCommit, fixturePath);
-  const gateEvidence = await verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt });
+  const gateEvidence = await createGateEvidenceSnapshot({
+    root, repository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
+  });
   const receipt = {
     schema: DEPLOY_RESOLUTION_SCHEMA,
     kind: "workspace-deploy-blocker-resolution",
@@ -241,6 +299,7 @@ export async function resolveSystemicDeployBlocker(options) {
 
 async function ledgerState(root) {
   const attempts = await listReceipts(path.join(root, "attempts"), DEPLOY_ATTEMPT_SCHEMA);
+  const admissions = await readDeployAdmissions(root);
   const classifications = await listReceipts(path.join(root, "classifications"), DEPLOY_CLASSIFICATION_SCHEMA);
   const resolutions = await listReceipts(path.join(root, "resolutions"), DEPLOY_RESOLUTION_SCHEMA);
   const latestClassification = new Map();
@@ -251,7 +310,7 @@ async function ledgerState(root) {
   for (const item of resolutions.sort((left, right) => left.resolvedAt.localeCompare(right.resolvedAt))) {
     latestResolution.set(item.fingerprint, item);
   }
-  return { attempts, latestClassification, latestResolution };
+  return { attempts, admissions, latestClassification, latestResolution };
 }
 
 export async function inspectDeployBlockers(options) {
@@ -263,12 +322,28 @@ export async function inspectDeployBlockers(options) {
   const grouped = new Map();
   for (const failure of failures) {
     const fingerprint = failure.failure.fingerprint;
-    grouped.set(fingerprint, [...(grouped.get(fingerprint) ?? []), failure]);
+    grouped.set(fingerprint, [...(grouped.get(fingerprint) ?? []), {
+      attemptId: failure.attemptId,
+      contentDigest: failure.source.contentDigest,
+      completedAt: failure.completedAt,
+    }]);
+  }
+  for (const admission of state.admissions.filter((attempt) => (
+    attempt.status === "failed" && (!target || attempt.target === target) && (!targetMode || attempt.targetMode === targetMode)
+  ))) {
+    for (const failure of admission.failures) {
+      grouped.set(failure.fingerprint, [...(grouped.get(failure.fingerprint) ?? []), {
+        attemptId: admission.attemptId,
+        contentDigest: admission.source?.contentDigest ?? null,
+        completedAt: admission.completedAt,
+      }]);
+    }
   }
   return [...grouped.entries()].map(([fingerprint, items]) => ({
     fingerprint,
     attempts: items.map((item) => item.attemptId),
-    contents: [...new Set(items.map((item) => item.source.contentDigest))].sort(),
+    contents: [...new Set(items.map((item) => item.contentDigest).filter(Boolean))].sort(),
+    hasUnboundCandidate: items.some((item) => !item.contentDigest),
     classification: state.latestClassification.get(fingerprint) ?? null,
     resolution: state.latestResolution.get(fingerprint) ?? null,
     lastFailedAt: items.map((item) => item.completedAt).sort().at(-1),
@@ -294,7 +369,8 @@ export async function assertDeployRetry(options) {
       continue;
     }
     if (classification === "candidate-specific") {
-      if (group.contents.length > 1) recurrences.push({ fingerprint: group.fingerprint, reason: "candidate-specific-recurred-across-candidates" });
+      if (group.hasUnboundCandidate) blockers.push({ fingerprint: group.fingerprint, reason: "candidate-specific-missing-candidate-identity" });
+      else if (group.contents.length > 1) recurrences.push({ fingerprint: group.fingerprint, reason: "candidate-specific-recurred-across-candidates" });
       else if (group.contents.includes(sourceContentDigest)) blockers.push({ fingerprint: group.fingerprint, reason: "same-candidate-retry" });
       continue;
     }
@@ -314,6 +390,12 @@ export async function assertDeployRetry(options) {
       blockers.push({ fingerprint: group.fingerprint, reason: "fixture-proof-invalid" });
       continue;
     }
+    try {
+      await verifyGateEvidenceSnapshot({ repository, resolution });
+    } catch {
+      blockers.push({ fingerprint: group.fingerprint, reason: "gate-receipt-proof-invalid" });
+      continue;
+    }
     if (group.lastFailedAt > resolution.resolvedAt) {
       recurrences.push({ fingerprint: group.fingerprint, reason: "resolved-systemic-blocker-recurred" });
     }
@@ -327,7 +409,7 @@ export async function patrolDeployBlockers({ root }) {
   const groups = await inspectDeployBlockers({ root });
   const unresolved = groups.filter((group) => !group.classification || (
     group.classification.classification === "systemic" && !group.resolution
-  ));
+  ) || (group.classification?.classification === "candidate-specific" && group.hasUnboundCandidate));
   const recurrences = groups.filter((group) => (
     (group.classification?.classification === "candidate-specific" && group.contents.length > 1)
     || (group.resolution && group.lastFailedAt > group.resolution.resolvedAt)

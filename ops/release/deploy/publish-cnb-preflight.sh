@@ -18,7 +18,7 @@ probe_publish_inputs() {
   for name in SOURCE_DIR RELEASE_BRANCH CNB_REPO WORKSPACE_CONFIG_DIR DEPLOY_CONTROL_SOURCE_SHA \
     DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST DEPLOY_CONTROL_RECEIPT_DIGEST \
     RELEASE_CONTROLLER_READY_RECEIPT_FILE RELEASE_READY_RECEIPT_FILE RELEASE_CONFIGURATION_DIGEST \
-    SERVER REMOTE_DIR HEALTHCHECK_URL; do
+    RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE SERVER REMOTE_DIR HEALTHCHECK_URL; do
     eval "value=\${$name:-}"
     if [ -z "$value" ]; then
       echo "[错误] $name not set in $OPS_ENV_FILE" >&2
@@ -33,6 +33,20 @@ probe_publish_inputs() {
   case "$DEPLOY_REVIEW_SECONDS" in ''|*[!0-9]*) return 1 ;; esac
   [ "$DEPLOY_REVIEW_SECONDS" -ge 1 ] || return 1
   [ -f "$CNB_REAL_CNB_YML" ] || return 1
+}
+
+probe_deploy_retry_fence() {
+  local source_sha candidate_identity source_content
+  source_sha="$(git -C "$SOURCE_DIR" rev-parse HEAD)" || return 1
+  candidate_identity="$(node "$SCRIPT_DIR/release/candidate/identity.mjs" capture \
+    --repository "$SOURCE_DIR" --revision HEAD)" || return 1
+  source_content="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).contentDigest)' "$candidate_identity")" || return 1
+  node "$SCRIPT_DIR/release/attempts/deploy-blocker.mjs" verify-clear \
+    --root "$SOURCE_DIR/.cache/release-deploy-attempts" --repository "$SOURCE_DIR" \
+    --target "${DEPLOY_UNIT_ID:-monolith}" --target-mode "${DEPLOY_UNIT_MODE:-activate}" \
+    --source-content "$source_content" --source-commit "$source_sha" \
+    --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" \
+    --receipt "$RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE" >/dev/null
 }
 
 probe_candidate_ready_artifact() {
