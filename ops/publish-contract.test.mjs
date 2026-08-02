@@ -97,13 +97,32 @@ test("deploy retry is fenced by immutable classified blocker history", () => {
   assert.match(deployCase, /assert-clear/);
   assert.ok(deployCase.indexOf("assert-clear") < deployCase.indexOf("publish-cnb.sh"));
   assert.match(deployCase, /release_deploy_attempt_run --/);
-  assert.match(deployAttemptShell, /\.cache\/release-deploy-attempts/);
+  assert.match(deployAttemptShell, /DEPLOY_ATTEMPT_ROOT/);
   assert.match(deployAttemptShell, /chmod 400 "\$log_file"/);
+  assert.match(deployAttemptShell, /consume-clear[\s\S]*?RELEASE_DEPLOY_ATTEMPT_PARENT_PID/);
+  const singleFlight = deployAttemptShell.indexOf('flock -x "$lock_fd"');
+  const consumeFence = deployAttemptShell.indexOf('consume-clear', singleFlight);
+  const mutationBarrier = deployAttemptShell.indexOf('mutation_started=1', consumeFence);
+  const blockedAdmission = deployAttemptShell.indexOf('record-admission \\', mutationBarrier);
+  const blockedAdmissionReturn = deployAttemptShell.indexOf('return "$exit_code"', blockedAdmission);
+  const recordAttempt = deployAttemptShell.indexOf('record \\', consumeFence);
+  const releaseSingleFlight = deployAttemptShell.indexOf('exec {lock_fd}>&-', recordAttempt);
+  assert.ok(singleFlight > 0 && consumeFence > singleFlight && mutationBarrier > consumeFence);
+  assert.ok(blockedAdmission > mutationBarrier && blockedAdmissionReturn > blockedAdmission);
+  assert.ok(recordAttempt > blockedAdmissionReturn && releaseSingleFlight > recordAttempt);
+  assert.match(deployAttemptShell, /if \[ "\$mutation_started" -eq 0 \]; then[\s\S]*?record-admission[\s\S]*?return "\$exit_code"/);
+  assert.match(deployAttemptShell, /exit_code" -eq 43[\s\S]*?admission_status=blocked[\s\S]*?admission_blocked_codes=deploy-retry-fence-blocked/);
   assert.match(deployCase, /--receipt "\$retry_fence_file"/);
   assert.match(deployCase, /RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE/);
-  for (const command of ["record-admission", "record", "classify", "resolve", "assert-clear", "verify-clear", "patrol"]) {
-    assert.match(deployBlocker, new RegExp(`command === "${command}"`));
+  for (const command of ["record-admission", "record", "classify", "resolve", "assert-clear", "verify-clear", "consume-clear", "verify-consumed", "patrol"]) {
+    assert.match(deployBlocker, new RegExp(`"${command}"`));
   }
+  assert.match(deployBlocker, /LOCKED_MUTATIONS = new Set\(\[[\s\S]*?"record-admission", "record", "classify", "resolve", "assert-clear", "consume-clear"/);
+  assert.match(deployBlocker, /\.deploy-singleflight\.lock/);
+  assert.match(deployBlocker, /flock[\s\S]*?WORKSPACE_DEPLOY_LEDGER_LOCK_FD/);
+  assert.match(deployBlocker, /realpathSync\(`\/proc\/self\/fd\/\$\{inheritedFd\}`\)[\s\S]*?realpathSync\(lockFile\)/);
+  assert.match(deployAttemptShell, /WORKSPACE_DEPLOY_LEDGER_LOCK_FD="\$lock_fd" node[\s\S]*?consume-clear/);
+  assert.match(publishEntryPreflight, /WORKSPACE_DEPLOY_LEDGER_LOCK_FD="\$admission_lock_fd" node[\s\S]*?record-admission/);
 });
 
 test("Ready binds preflight, aggregate source, frozen task graph, config, and artifact", () => {
@@ -200,6 +219,8 @@ test("publish deploy preflight aggregates before any fail-fast release mutation"
   assert.doesNotMatch(publish, /^set -euo pipefail/m);
   assert.match(publishSources, /deploy_preflight_failures=\(\)/);
   assert.match(publishSources, /begin_deploy_entry_preflight[\s\S]*?record-admission/);
+  assert.match(publishEntryPreflight, /\.deploy-singleflight\.lock/);
+  assert.ok(publishEntryPreflight.indexOf('flock -x "$admission_lock_fd"') < publishEntryPreflight.indexOf('record-admission'));
   assert.match(publishSources, /finish_deploy_entry_preflight/);
   for (const failure of [
     "release worktree/candidate identity 无效",
@@ -213,6 +234,7 @@ test("publish deploy preflight aggregates before any fail-fast release mutation"
     assert.match(publishSources, new RegExp(failure));
   }
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
+  assert.ok(deployCase.indexOf("begin_deploy_entry_preflight") < deployCase.indexOf("parse_ready_selector"));
   assert.ok(deployCase.indexOf("begin_deploy_entry_preflight") < deployCase.indexOf("load_ready_worktree"));
   assert.doesNotMatch(deployCase, /set -(?:e|[A-Za-z]*e[A-Za-z]*)|set -o errexit/);
 });
@@ -234,6 +256,7 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   const barrierIndex = publishCnb.indexOf(barrier);
   assert.ok(barrierIndex > publishCnb.indexOf("finish_publish_preflight"));
   assert.match(publishCnbSources, /deploy-blocker\.mjs" verify-clear/);
+  assert.match(publishCnb.slice(0, barrierIndex), /verify_consumed_deploy_retry_fence/);
   assert.doesNotMatch(publishCnb.slice(0, barrierIndex), /(?:^|\n)\s*set\s+(?:-[A-Za-z]*e[A-Za-z]*|-o\s+errexit)(?:\s|$)/);
   assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);
 });

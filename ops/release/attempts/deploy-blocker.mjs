@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-import { pathToFileURL } from "node:url";
+import { spawnSync } from "node:child_process";
+import { mkdirSync, realpathSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import {
   DeployBlockerError, assertDeployRetry, classifyDeployBlocker, inspectDeployBlockers,
@@ -8,7 +11,8 @@ import {
 } from "./deploy-blocker-contract.mjs";
 import { recordDeployAdmission } from "./deploy-admission-contract.mjs";
 import {
-  createDeployRetryFenceReceipt, verifyDeployRetryFenceReceipt,
+  consumeDeployRetryFenceReceipt, createDeployRetryFenceReceipt,
+  verifyConsumedDeployRetryFence, verifyDeployRetryFenceReceipt,
 } from "./deploy-retry-fence-contract.mjs";
 
 function fail(message) {
@@ -41,6 +45,44 @@ function integer(values, key) {
 
 function csv(values, key) {
   return (values.get(key) ?? "").split(",").filter(Boolean);
+}
+
+const LOCKED_MUTATIONS = new Set([
+  "record-admission", "record", "classify", "resolve", "assert-clear", "consume-clear",
+]);
+
+function rerunMutationWithLedgerLock(argv) {
+  const [command, ...tokens] = argv;
+  if (!LOCKED_MUTATIONS.has(command)) return null;
+  const values = parse(tokens);
+  const root = path.resolve(required(values, "root"));
+  mkdirSync(root, { recursive: true });
+  const lockFile = path.join(root, ".deploy-singleflight.lock");
+  const inheritedFd = process.env.WORKSPACE_DEPLOY_LEDGER_LOCK_FD;
+  if (inheritedFd != null) {
+    if (!/^[1-9][0-9]*$/.test(inheritedFd) || Number(inheritedFd) <= 2) fail("deploy ledger lock fd is invalid");
+    if (realpathSync(`/proc/self/fd/${inheritedFd}`) !== realpathSync(lockFile)) fail("deploy ledger lock fd path mismatch");
+    const inheritedNumber = Number(inheritedFd);
+    const stdio = Array.from({ length: inheritedNumber + 1 }, (_, index) => (index < 3 ? "inherit" : "ignore"));
+    stdio[inheritedNumber] = inheritedNumber;
+    const acquired = spawnSync("flock", ["-x", inheritedFd], { stdio });
+    if (acquired.error) throw acquired.error;
+    if (acquired.status !== 0) fail("deploy ledger inherited lock acquisition failed");
+    return null;
+  }
+  const lockScript = [
+    'lock_file="$1"', "shift", 'exec {ledger_fd}>> "$lock_file"', 'flock -x "$ledger_fd"',
+    'export WORKSPACE_DEPLOY_LEDGER_LOCK_FD="$ledger_fd"', 'exec "$@"',
+  ].join("; ");
+  const child = spawnSync("bash", [
+    "-c", lockScript, "deploy-ledger-lock", lockFile,
+    process.execPath, fileURLToPath(import.meta.url), ...argv,
+  ], {
+    stdio: "inherit",
+    env: process.env,
+  });
+  if (child.error) throw child.error;
+  return child.status ?? 1;
 }
 
 async function main(argv) {
@@ -101,9 +143,11 @@ async function main(argv) {
       decisionId: required(values, "decision-id"),
     });
   } else if (command === "resolve") {
+    const repository = required(values, "repository");
     result = await resolveSystemicDeployBlocker({
       ...common,
-      repository: required(values, "repository"),
+      repository,
+      gateRepository: values.get("gate-repository") ?? repository,
       fingerprint: required(values, "fingerprint"),
       resolutionId: required(values, "resolution-id"),
       fixingCommit: required(values, "fixing-commit"),
@@ -111,7 +155,7 @@ async function main(argv) {
       fixturePath: required(values, "fixture"),
       gateReceipt: required(values, "gate-receipt"),
     });
-  } else if (command === "assert-clear" || command === "verify-clear") {
+  } else if (["assert-clear", "verify-clear", "consume-clear", "verify-consumed"].includes(command)) {
     const retry = {
       ...common,
       repository: required(values, "repository"),
@@ -120,27 +164,46 @@ async function main(argv) {
       sourceContentDigest: required(values, "source-content"),
       sourceCommit: required(values, "source-commit"),
       controllerCommit: required(values, "controller-commit"),
+      attemptId: required(values, "attempt-id"),
     };
     result = await assertDeployRetry(retry);
     const groups = await inspectDeployBlockers({
       root: retry.root, target: retry.target, targetMode: retry.targetMode,
     });
     const receipt = required(values, "receipt");
-    result.retryFence = command === "assert-clear"
-      ? await createDeployRetryFenceReceipt({ ...retry, groups, file: receipt })
-      : await verifyDeployRetryFenceReceipt({ ...retry, groups, file: receipt });
+    const fenceOptions = { ...retry, groups, file: receipt };
+    if (command === "assert-clear") result.retryFence = await createDeployRetryFenceReceipt(fenceOptions);
+    else if (command === "verify-clear") result.retryFence = await verifyDeployRetryFenceReceipt(fenceOptions);
+    else if (command === "consume-clear") {
+      result.retryFence = await consumeDeployRetryFenceReceipt({
+        ...fenceOptions, parentPid: integer(values, "parent-pid"),
+      });
+    } else {
+      result.retryFence = await verifyConsumedDeployRetryFence({
+        ...fenceOptions, parentPid: integer(values, "parent-pid"),
+      });
+    }
   } else if (command === "status") {
     result = await inspectDeployBlockers({ ...common, target: values.get("target"), targetMode: values.get("target-mode") });
   } else if (command === "patrol") {
     result = await patrolDeployBlockers(common);
   } else {
-    fail("expected record-admission, record, classify, resolve, assert-clear, verify-clear, status, or patrol");
+    fail("expected record-admission, record, classify, resolve, assert-clear, verify-clear, consume-clear, verify-consumed, status, or patrol");
   }
   process.stdout.write(`${JSON.stringify(result)}\n`);
 }
 
+async function runCli(argv) {
+  const lockedStatus = rerunMutationWithLedgerLock(argv);
+  if (lockedStatus != null) {
+    process.exitCode = lockedStatus;
+    return;
+  }
+  await main(argv);
+}
+
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main(process.argv.slice(2)).catch((error) => {
+  runCli(process.argv.slice(2)).catch((error) => {
     process.stderr.write(`${error.message}\n`);
     if (error instanceof DeployBlockerError) {
       process.stderr.write(`${JSON.stringify(error.blockers)}\n`);

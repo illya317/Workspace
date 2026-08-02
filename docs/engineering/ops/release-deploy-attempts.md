@@ -4,7 +4,7 @@
 
 ## 私有存储与证据
 
-所有文件位于 Git 忽略的目录：
+所有文件位于 controller repository 的稳定 Git 忽略目录；不得把 ledger 根绑定到可能不存在或正在切换的 candidate/release worktree：
 
 ```text
 .cache/release-deploy-attempts/
@@ -20,7 +20,7 @@
 
 `publish.sh deploy` 从入口聚合预检开始就生成 admission id。入口检查失败时，所有独立失败与 blocked 依赖同轮写入 immutable admission receipt；真实失败生成稳定 fingerprint，必须分类，blocked 只证明本次请求被既有前置条件拒绝，不制造新的 blocker。通过 retry fence 后进入生产执行器的成功、失败或取消继续写普通 deploy attempt。因此“入口拒绝”和“生产尝试失败”都有独立日志，且不会把 retry fence 自身的正确拒绝递归变成新故障。
 
-retry fence 通过时还会签发绑定 exact target/mode/source/controller 与完整 ledger digest 的 immutable Retry Fence Ready。`publish-cnb.sh --direct` 必须在零写入 preflight 中重新运行 `assert-clear` 并复验该 receipt；没有 receipt、identity 不符或 admission 后 ledger 变化都会在 mutation barrier 前阻断。因此下层 internal CLI 不能仅靠齐全环境变量绕过分类围栏。
+retry fence 通过时还会签发绑定 exact deploy attempt id、target/mode/source/controller 与完整 ledger digest 的 immutable Retry Fence Ready。唯一 attempt wrapper 先取得 controller-side single-flight lock，并把该锁持有到最终 attempt receipt 持久化完成；所有会改变 ledger/fence 的写命令（`record-admission`、`record`、`classify`、`resolve`、`assert-clear`、`consume-clear`）都必须取得同一把锁，不能在已消费 fence 与 production mutation barrier 之间改变 ledger。锁内原子消费一次 fence 并绑定不可重放的 parent PID。`publish-cnb.sh --direct` 在零写入 preflight 先重跑 `assert-clear`，紧邻 mutation barrier 再复验 consumption、parent 与最新 ledger。并发 deploy 必须等前一 attempt 落账后再消费自己的 fence；没有 receipt、重复消费、identity/parent 不符或 admission 后 ledger 变化都会阻断。因此下层 internal CLI 不能仅靠齐全环境变量、并发窗口或重放旧 fence 绕过分类与 attempt 回执。
 
 生产 deploy 日志必须足以回答：当前阶段、阶段耗时、最慢阶段、failed/blocked 清单、是否越过 mutation barrier、是否执行 rollback、最终 health/version/content/deployment identity。敏感输出不能依赖事后清理；调用命令本身不得打印 secrets。
 
@@ -38,7 +38,7 @@ retry fence 通过时还会签发绑定 exact target/mode/source/controller 与�
 systemic blocker 只有同时具备以下四项证据才算关闭：
 
 1. full Git `fixingCommit`，且当前 Application Ready source 或 Controller Ready controller 覆盖该 commit；
-2. `fixingCommit` 中真实 tracked 的复现/回归 fixture，不能只给计划、日志或未提交文件；
+2. `fixingCommit` 与当前 Application/Controller gate commit 中都真实 tracked 的复现/回归 fixture，不能只给计划、日志、已被后续删除的旧文件或未提交文件；
 3. 明确 gate owner：应用/artifact/runtime 合同进入 `application-ready`，deploy-control/锁/远端工具合同进入 `controller-ready`；
 4. 对应 gate receipt 的路径、digest 和 mode 证据；resolution 创建时把已验证的真实 Application/Controller Ready 冻结到 gitignored immutable gate-evidence snapshot。每次 retry 都重新校验 snapshot receipt digest、Ready schema/status、内部 digest（如适用）以及 gate commit 确实覆盖 fixing commit，任意普通 JSON 文件不能冒充 gate receipt，证据损坏也不能继续。
 

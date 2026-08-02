@@ -123,8 +123,8 @@ function validateGateReceipt({ repository, fixingCommit, gate, receipt }) {
   assert(isAncestor(repository, fixingCommit, gateCommit), `${gate} gate receipt does not contain the fixing commit`);
 }
 
-async function verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt }) {
-  const safe = safeRepositoryPath(repository, gateReceipt);
+async function verifyGateReceipt({ repository, gateRepository = repository, fixingCommit, gate, gateReceipt }) {
+  const safe = safeRepositoryPath(gateRepository, gateReceipt);
   let receipt;
   try {
     receipt = JSON.parse(await readFile(safe.absolute, "utf8"));
@@ -132,14 +132,14 @@ async function verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt }
     throw new Error(`gate receipt is missing or invalid JSON: ${error.message}`);
   }
   validateGateReceipt({ repository, fixingCommit, gate, receipt });
-  const [evidence] = await digestEvidence(repository, [`${gate}-receipt:${gateReceipt}`]);
+  const [evidence] = await digestEvidence(gateRepository, [`${gate}-receipt:${gateReceipt}`]);
   return { evidence, receipt };
 }
 
 async function createGateEvidenceSnapshot({
-  root, repository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
+  root, repository, gateRepository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
 }) {
-  const verified = await verifyGateReceipt({ repository, fixingCommit, gate, gateReceipt });
+  const verified = await verifyGateReceipt({ repository, gateRepository, fixingCommit, gate, gateReceipt });
   const snapshot = {
     schema: DEPLOY_GATE_EVIDENCE_SCHEMA,
     kind: "workspace-deploy-gate-evidence",
@@ -278,7 +278,7 @@ export async function resolveSystemicDeployBlocker(options) {
   git(repository, ["cat-file", "-e", `${fixingCommit}^{commit}`]);
   const fixture = assertTrackedAtCommit(repository, fixingCommit, fixturePath);
   const gateEvidence = await createGateEvidenceSnapshot({
-    root, repository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
+    root, repository, gateRepository: options.gateRepository, fingerprint, resolutionId, fixingCommit, gate, gateReceipt,
   });
   const receipt = {
     schema: DEPLOY_RESOLUTION_SCHEMA,
@@ -329,7 +329,8 @@ export async function inspectDeployBlockers(options) {
     }]);
   }
   for (const admission of state.admissions.filter((attempt) => (
-    attempt.status === "failed" && (!target || attempt.target === target) && (!targetMode || attempt.targetMode === targetMode)
+    attempt.status === "failed" && (!target || attempt.target === target || attempt.target === "all")
+      && (!targetMode || attempt.targetMode === targetMode || attempt.targetMode === "all")
   ))) {
     for (const failure of admission.failures) {
       grouped.set(failure.fingerprint, [...(grouped.get(failure.fingerprint) ?? []), {
@@ -386,6 +387,7 @@ export async function assertDeployRetry(options) {
     }
     try {
       assertTrackedAtCommit(repository, resolution.fixingCommit, resolution.fixture);
+      assertTrackedAtCommit(repository, gateCommit, resolution.fixture);
     } catch {
       blockers.push({ fingerprint: group.fingerprint, reason: "fixture-proof-invalid" });
       continue;

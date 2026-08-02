@@ -1,10 +1,11 @@
 import { readFile } from "node:fs/promises";
 
 import {
-  assert, assertDigest, canonicalJson, safeRepositoryPath, sha256, writeFinal,
+  assert, assertDigest, assertIdentifier, canonicalJson, safeRepositoryPath, sha256, writeFinal,
 } from "./ci-attempt-contract.mjs";
 
 export const DEPLOY_RETRY_FENCE_SCHEMA = "workspace.deploy-retry-fence-ready/v1";
+export const DEPLOY_RETRY_FENCE_CONSUMPTION_SCHEMA = "workspace.deploy-retry-fence-consumption/v1";
 const GIT_OBJECT_ID = /^[a-f0-9]{40}$/;
 
 function receiptDigest(receipt) {
@@ -17,12 +18,14 @@ function identity(options) {
   assertDigest(options.sourceContentDigest, "retry fence source content digest");
   assert(GIT_OBJECT_ID.test(options.sourceCommit), "retry fence source commit is invalid");
   assert(GIT_OBJECT_ID.test(options.controllerCommit), "retry fence controller commit is invalid");
+  assertIdentifier(options.attemptId, "retry fence deploy attempt id");
   return {
     target: options.target,
     targetMode: options.targetMode,
     sourceContentDigest: options.sourceContentDigest,
     sourceCommit: options.sourceCommit,
     controllerCommit: options.controllerCommit,
+    attemptId: options.attemptId,
   };
 }
 
@@ -61,5 +64,41 @@ export async function verifyDeployRetryFenceReceipt(options) {
     assert(receipt[key] === value, `deploy retry fence ${key} mismatch`);
   }
   assert(receipt.ledgerDigest === deployLedgerDigest(options.groups), "deploy retry fence ledger changed after admission");
+  return receipt;
+}
+
+function consumptionFile(file) {
+  return `${file}.consumed.json`;
+}
+
+export async function consumeDeployRetryFenceReceipt(options) {
+  const fence = await verifyDeployRetryFenceReceipt(options);
+  assert(Number.isInteger(options.parentPid) && options.parentPid > 1, "deploy retry fence parent pid is invalid");
+  const safe = safeRepositoryPath(options.repository, consumptionFile(options.file));
+  const receipt = {
+    schema: DEPLOY_RETRY_FENCE_CONSUMPTION_SCHEMA,
+    kind: "workspace-deploy-retry-fence-consumption",
+    attemptId: options.attemptId,
+    parentPid: options.parentPid,
+    fenceReceiptDigest: fence.receiptDigest,
+    consumedAt: new Date().toISOString(),
+    receiptDigest: null,
+  };
+  receipt.receiptDigest = receiptDigest(receipt);
+  await writeFinal(safe.absolute, receipt);
+  return receipt;
+}
+
+export async function verifyConsumedDeployRetryFence(options) {
+  const fence = await verifyDeployRetryFenceReceipt(options);
+  const safe = safeRepositoryPath(options.repository, consumptionFile(options.file));
+  const receipt = JSON.parse(await readFile(safe.absolute, "utf8"));
+  assert(receipt?.schema === DEPLOY_RETRY_FENCE_CONSUMPTION_SCHEMA
+    && receipt.kind === "workspace-deploy-retry-fence-consumption",
+  "deploy retry fence consumption contract is invalid");
+  assert(receipt.receiptDigest === receiptDigest(receipt), "deploy retry fence consumption digest mismatch");
+  assert(receipt.attemptId === options.attemptId && receipt.parentPid === options.parentPid
+    && receipt.fenceReceiptDigest === fence.receiptDigest,
+  "deploy retry fence consumption identity mismatch");
   return receipt;
 }

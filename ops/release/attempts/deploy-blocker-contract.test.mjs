@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync, spawnSync } from "node:child_process";
-import {
-  copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync,
-} from "node:fs";
+import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -203,6 +201,7 @@ test("retry fence receipt binds the exact candidate, controller, and immutable l
     sourceContentDigest: current.source.contentDigest,
     sourceCommit: current.source.commit,
     controllerCommit: current.controller.commit,
+    attemptId: "deploy-one",
     groups: [],
   };
   const created = await h.retryFence.createDeployRetryFenceReceipt(options);
@@ -215,6 +214,17 @@ test("retry fence receipt binds the exact candidate, controller, and immutable l
   await assert.rejects(
     h.retryFence.verifyDeployRetryFenceReceipt({ ...options, controllerCommit: "f".repeat(40) }),
     /controllerCommit mismatch/,
+  );
+  const consumption = await h.retryFence.consumeDeployRetryFenceReceipt({ ...options, parentPid: 1234 });
+  assert.equal(consumption.parentPid, 1234);
+  assert.equal((await h.retryFence.verifyConsumedDeployRetryFence({ ...options, parentPid: 1234 })).attemptId, "deploy-one");
+  await assert.rejects(
+    h.retryFence.consumeDeployRetryFenceReceipt({ ...options, parentPid: 1234 }),
+    /exist/i,
+  );
+  await assert.rejects(
+    h.retryFence.verifyConsumedDeployRetryFence({ ...options, parentPid: 1235 }),
+    /identity mismatch/,
   );
 });
 
@@ -271,7 +281,7 @@ test("systemic resolution requires a fixing commit, tracked fixture, and gate re
   });
   assert.equal(resolution.fixture, fixture);
   assert.equal(resolution.gateEvidence.label, "deploy-gate-evidence");
-  const current = identity(h.repository, "d".repeat(64));
+  let current = identity(h.repository, "d".repeat(64));
   rmSync(gateReceipt);
   assert.equal((await h.contract.assertDeployRetry({ root: h.ledger, repository: h.repository, target: "monolith", targetMode: "activate", sourceContentDigest: current.source.contentDigest, sourceCommit: current.source.commit, controllerCommit: current.controller.commit })).checked, 1);
 
@@ -283,6 +293,19 @@ test("systemic resolution requires a fixing commit, tracked fixture, and gate re
     (error) => error.exitCode === 43 && error.blockers[0].reason === "gate-receipt-proof-invalid",
   );
   writeFileSync(immutableGateEvidence, validGateEvidence);
+
+  git(h.repository, "rm", "-q", fixture);
+  git(h.repository, "commit", "-qm", "regression: delete systemic fixture");
+  current = identity(h.repository, "e".repeat(64));
+  await assert.rejects(
+    h.contract.assertDeployRetry({ root: h.ledger, repository: h.repository, target: "monolith", targetMode: "activate", sourceContentDigest: current.source.contentDigest, sourceCommit: current.source.commit, controllerCommit: current.controller.commit }),
+    (error) => error.exitCode === 43 && error.blockers[0].reason === "fixture-proof-invalid",
+  );
+  mkdirSync(path.dirname(path.join(h.repository, fixture)), { recursive: true });
+  writeFileSync(path.join(h.repository, fixture), "fixture\n");
+  git(h.repository, "add", fixture);
+  git(h.repository, "commit", "-qm", "fix: restore systemic fixture");
+  current = identity(h.repository, "f".repeat(64));
 
   await failedAttempt(h, { attemptId: "systemic-recurrence", message: "systemic failure", contentDigest: "d".repeat(64), startedAt: "2026-08-01T00:19:00.000Z", completedAt: "2026-08-01T00:20:00.000Z" });
   await assert.rejects(
@@ -326,7 +349,7 @@ test("entry-preflight shell writes one immutable admission with failed and block
     source "$DEPLOY_ATTEMPT_SHELL"
     source "$DEPLOY_ENTRY_PREFLIGHT"
     SCRIPT_DIR="$OPS_ROOT"
-    RELEASE_SOURCE_DIR="$REPOSITORY"
+    REPOSITORY_ROOT="$REPOSITORY"
     SELECTED_READY_TARGET=monolith
     SELECTED_READY_MODE=activate
     begin_deploy_entry_preflight
@@ -349,4 +372,32 @@ test("entry-preflight shell writes one immutable admission with failed and block
   assert.equal(admissions[0].status, "failed");
   assert.deepEqual(admissions[0].failures.map((item) => item.errorCode), ["candidate-identity"]);
   assert.deepEqual(admissions[0].blocked, ["application-ready"]);
+});
+
+test("entry-preflight EXIT trap records invocation failure before candidate worktree exists", async (context) => {
+  const h = await harness(context);
+  const result = spawnSync("bash", ["-c", `
+    source "$DEPLOY_ATTEMPT_SHELL"
+    source "$DEPLOY_ENTRY_PREFLIGHT"
+    SCRIPT_DIR="$OPS_ROOT"
+    REPOSITORY_ROOT="$REPOSITORY"
+    begin_deploy_entry_preflight
+    SELECTED_READY_TARGET=""
+    SELECTED_READY_MODE="not valid"
+    exit 2
+  `], {
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      DEPLOY_ATTEMPT_SHELL: path.join(sourceRoot, "deploy-attempt-shell.sh"),
+      DEPLOY_ENTRY_PREFLIGHT: path.join(sourceRoot, "..", "deploy", "publish-entry-preflight.sh"),
+      OPS_ROOT: path.resolve(sourceRoot, "..", ".."),
+      REPOSITORY: h.repository,
+    },
+  });
+  assert.equal(result.status, 2);
+  const [admission] = await h.admission.readDeployAdmissions(h.ledger);
+  assert.equal(`${admission.target}:${admission.targetMode}`, "all:all");
+  assert.deepEqual(admission.failures.map((item) => item.errorCode), ["deploy-invocation"]);
+  assert.equal((await h.contract.inspectDeployBlockers({ root: h.ledger, target: "finance", targetMode: "shadow" })).length, 1);
 });

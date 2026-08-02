@@ -18,7 +18,8 @@ probe_publish_inputs() {
   for name in SOURCE_DIR RELEASE_BRANCH CNB_REPO WORKSPACE_CONFIG_DIR DEPLOY_CONTROL_SOURCE_SHA \
     DEPLOY_CONTROL_TREE_ID DEPLOY_CONTROL_DIGEST DEPLOY_CONTROL_RECEIPT_DIGEST \
     RELEASE_CONTROLLER_READY_RECEIPT_FILE RELEASE_READY_RECEIPT_FILE RELEASE_CONFIGURATION_DIGEST \
-    RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE SERVER REMOTE_DIR HEALTHCHECK_URL; do
+    RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE RELEASE_DEPLOY_ATTEMPT_ID RELEASE_DEPLOY_ATTEMPT_PARENT_PID \
+    DEPLOY_ATTEMPT_ROOT DEPLOY_ATTEMPT_REPOSITORY SERVER REMOTE_DIR HEALTHCHECK_URL; do
     eval "value=\${$name:-}"
     if [ -z "$value" ]; then
       echo "[错误] $name not set in $OPS_ENV_FILE" >&2
@@ -42,10 +43,27 @@ probe_deploy_retry_fence() {
     --repository "$SOURCE_DIR" --revision HEAD)" || return 1
   source_content="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).contentDigest)' "$candidate_identity")" || return 1
   node "$SCRIPT_DIR/release/attempts/deploy-blocker.mjs" verify-clear \
-    --root "$SOURCE_DIR/.cache/release-deploy-attempts" --repository "$SOURCE_DIR" \
+    --root "$DEPLOY_ATTEMPT_ROOT" --repository "$DEPLOY_ATTEMPT_REPOSITORY" \
     --target "${DEPLOY_UNIT_ID:-monolith}" --target-mode "${DEPLOY_UNIT_MODE:-activate}" \
     --source-content "$source_content" --source-commit "$source_sha" \
     --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" \
+    --attempt-id "$RELEASE_DEPLOY_ATTEMPT_ID" \
+    --receipt "$RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE" >/dev/null
+}
+
+verify_consumed_deploy_retry_fence() {
+  [ "$PPID" = "$RELEASE_DEPLOY_ATTEMPT_PARENT_PID" ] || return 1
+  local source_sha candidate_identity source_content
+  source_sha="$(git -C "$SOURCE_DIR" rev-parse HEAD)" || return 1
+  candidate_identity="$(node "$SCRIPT_DIR/release/candidate/identity.mjs" capture \
+    --repository "$SOURCE_DIR" --revision HEAD)" || return 1
+  source_content="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).contentDigest)' "$candidate_identity")" || return 1
+  node "$SCRIPT_DIR/release/attempts/deploy-blocker.mjs" verify-consumed \
+    --root "$DEPLOY_ATTEMPT_ROOT" --repository "$DEPLOY_ATTEMPT_REPOSITORY" \
+    --target "${DEPLOY_UNIT_ID:-monolith}" --target-mode "${DEPLOY_UNIT_MODE:-activate}" \
+    --source-content "$source_content" --source-commit "$source_sha" \
+    --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" --attempt-id "$RELEASE_DEPLOY_ATTEMPT_ID" \
+    --parent-pid "$RELEASE_DEPLOY_ATTEMPT_PARENT_PID" \
     --receipt "$RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE" >/dev/null
 }
 

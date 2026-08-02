@@ -297,8 +297,9 @@ case "${1:-}" in
     ;;
   deploy)
     shift
-    parse_ready_selector deploy 0 "$@"
     begin_deploy_entry_preflight
+    parse_ready_selector deploy 0 "$@"
+    bind_deploy_entry_selector
     release_worktree_ready=1
     configuration_ready=1
     ready_receipt_ready=1
@@ -338,7 +339,7 @@ case "${1:-}" in
       deploy_preflight_block controller-ready "Controller Ready receipt blocked：Application Ready 无效"
       controller_receipt_ready=0
     fi
-    deploy_attempt_root="$RELEASE_WORKTREE/.cache/release-deploy-attempts"
+    deploy_attempt_root="$REPOSITORY_ROOT/.cache/release-deploy-attempts"
     retry_fence_file="$deploy_attempt_root/retry-fence/$deploy_entry_attempt_id.json"
     if [ "$controller_receipt_ready" = 1 ]; then
       if ! node "$(release_deploy_attempt_tool)" assert-clear \
@@ -348,7 +349,8 @@ case "${1:-}" in
         --target-mode "$SELECTED_READY_MODE" \
         --source-content "$RELEASE_CONTENT_DIGEST" \
         --source-commit "$RELEASE_SOURCE_SHA" \
-        --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" --receipt "$retry_fence_file"; then
+        --controller-commit "$DEPLOY_CONTROL_SOURCE_SHA" --attempt-id "$deploy_entry_attempt_id" \
+        --receipt "$retry_fence_file"; then
         deploy_preflight_block retry-fence "deploy blocker ledger 未清空"
       fi
     else
@@ -373,7 +375,8 @@ case "${1:-}" in
       deploy_preflight_block artifact-cache "Ready artifact cache blocked：Application Ready 无效"
     fi
     if ! finish_deploy_entry_preflight; then exit 1; fi
-    export RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE="$retry_fence_file"
+    export RELEASE_DEPLOY_RETRY_FENCE_RECEIPT_FILE="$retry_fence_file" RELEASE_DEPLOY_ATTEMPT_ID="$deploy_entry_attempt_id"
+    export DEPLOY_ATTEMPT_ROOT="$deploy_attempt_root" DEPLOY_ATTEMPT_REPOSITORY="$REPOSITORY_ROOT"
     export RELEASE_CONTROLLER_READY_RECEIPT_FILE="$controller_ready_file"
     database_args=()
     if [ -n "${DATABASE_REPLACEMENT_RECEIPT_FILE:-}" ]; then
@@ -402,7 +405,6 @@ case "${1:-}" in
     exit 2
     ;;
 esac
-
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
 DEVELOPMENT_BRANCH="${DEVELOPMENT_BRANCH:-main}"

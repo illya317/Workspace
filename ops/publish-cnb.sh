@@ -668,6 +668,7 @@ if (process.env.DATABASE_REPLACEMENT_RECEIPT_FILE) {
 }
 fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
 NODE
+verify_consumed_deploy_retry_fence || { echo "[错误] Deploy Retry Fence consumption/parent/ledger 复验失败" >&2; exit 1; }
 # workspace-errexit-role: mutation-barrier
 set -e
 record_release_event running 0

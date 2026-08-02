@@ -6,11 +6,30 @@ deploy_preflight_blocked=()
 deploy_preflight_blocked_codes=()
 
 begin_deploy_entry_preflight() {
+  deploy_entry_finalized=0
   deploy_entry_started_at="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
-  deploy_entry_repository="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
-  deploy_entry_attempt_id="admission-$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%04x%04x' "$RANDOM" "$RANDOM")"
+  deploy_entry_repository="${REPOSITORY_ROOT:?controller repository root missing}"
+  deploy_entry_attempt_id="deploy-$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%04x%04x' "$RANDOM" "$RANDOM")"
   deploy_entry_root="$deploy_entry_repository/.cache/release-deploy-attempts"
   deploy_entry_log="$deploy_entry_root/${deploy_entry_attempt_id}.log"
+  deploy_entry_ledger_target=all
+  deploy_entry_ledger_mode=all
+  SELECTED_READY_TARGET="${SELECTED_READY_TARGET:-monolith}"
+  SELECTED_READY_MODE="${SELECTED_READY_MODE:-activate}"
+  trap 'finalize_deploy_entry_on_exit "$?"' EXIT
+}
+
+bind_deploy_entry_selector() {
+  deploy_entry_ledger_target="$SELECTED_READY_TARGET"
+  deploy_entry_ledger_mode="$SELECTED_READY_MODE"
+}
+
+finalize_deploy_entry_on_exit() {
+  local exit_code="$1"
+  [ "${deploy_entry_finalized:-0}" = 0 ] || return "$exit_code"
+  deploy_preflight_fail deploy-invocation "deploy invocation exited before admission completed (status=$exit_code)"
+  finish_deploy_entry_preflight >/dev/null 2>&1 || true
+  return "$exit_code"
 }
 
 deploy_preflight_fail() {
@@ -24,7 +43,11 @@ deploy_preflight_block() {
 }
 
 finish_deploy_entry_preflight() {
-  [ "${#deploy_preflight_failures[@]}" -eq 0 ] && [ "${#deploy_preflight_blocked[@]}" -eq 0 ] && return 0
+  if [ "${#deploy_preflight_failures[@]}" -eq 0 ] && [ "${#deploy_preflight_blocked[@]}" -eq 0 ]; then
+    deploy_entry_finalized=1
+    trap - EXIT
+    return 0
+  fi
   echo "[错误] deploy 入口预检发现 failed=${#deploy_preflight_failures[@]} blocked=${#deploy_preflight_blocked[@]}；production mutation=0" >&2
   [ "${#deploy_preflight_failures[@]}" -eq 0 ] || printf '  failed: %s\n' "${deploy_preflight_failures[@]}" >&2
   [ "${#deploy_preflight_blocked[@]}" -eq 0 ] || printf '  blocked: %s\n' "${deploy_preflight_blocked[@]}" >&2
@@ -40,19 +63,30 @@ finish_deploy_entry_preflight() {
   chmod 600 "$deploy_entry_log" || return 1
   [ "${#deploy_preflight_failures[@]}" -eq 0 ] || printf 'failed:%s\n' "${deploy_preflight_failure_codes[@]}" >> "$deploy_entry_log"
   [ "${#deploy_preflight_blocked[@]}" -eq 0 ] || printf 'blocked:%s\n' "${deploy_preflight_blocked_codes[@]}" >> "$deploy_entry_log"
-  local failure_csv blocked_csv status=blocked completed_at
+  local failure_csv blocked_csv status=blocked completed_at admission_lock_fd
   failure_csv="$(IFS=,; printf '%s' "${deploy_preflight_failure_codes[*]}")"
   blocked_csv="$(IFS=,; printf '%s' "${deploy_preflight_blocked_codes[*]}")"
   [ "${#deploy_preflight_failures[@]}" -eq 0 ] || status=failed
   completed_at="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
   chmod 400 "$deploy_entry_log" || return 1
-  node "$(release_deploy_attempt_tool)" record-admission \
+  exec {admission_lock_fd}>> "$deploy_entry_root/.deploy-singleflight.lock" || return 1
+  if ! flock -x "$admission_lock_fd"; then
+    exec {admission_lock_fd}>&-
+    return 1
+  fi
+  if ! WORKSPACE_DEPLOY_LEDGER_LOCK_FD="$admission_lock_fd" node "$(release_deploy_attempt_tool)" record-admission \
     --root "$deploy_entry_root" --repository "$deploy_entry_repository" \
-    --attempt-id "$deploy_entry_attempt_id" --target "$SELECTED_READY_TARGET" --target-mode "$SELECTED_READY_MODE" \
+    --attempt-id "$deploy_entry_attempt_id" --target "$deploy_entry_ledger_target" --target-mode "$deploy_entry_ledger_mode" \
     --source-commit "${RELEASE_SOURCE_SHA:-}" --source-tree "${RELEASE_SOURCE_TREE:-}" \
     --source-content "${RELEASE_CONTENT_DIGEST:-}" --controller-commit "${DEPLOY_CONTROL_SOURCE_SHA:-}" \
     --started-at "$deploy_entry_started_at" --completed-at "$completed_at" --status "$status" \
-    --failure-codes "$failure_csv" --blocked-codes "$blocked_csv" --log "$deploy_entry_log" >/dev/null || return 1
+    --failure-codes "$failure_csv" --blocked-codes "$blocked_csv" --log "$deploy_entry_log" >/dev/null; then
+    exec {admission_lock_fd}>&-
+    return 1
+  fi
+  exec {admission_lock_fd}>&-
+  deploy_entry_finalized=1
+  trap - EXIT
   echo "[Deploy Admission] immutable attempt: $deploy_entry_root/admissions/$deploy_entry_attempt_id.json" >&2
   return 1
 }
