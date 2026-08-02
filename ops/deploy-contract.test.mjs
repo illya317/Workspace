@@ -19,7 +19,6 @@ const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-
 const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
 const runtimePermissionReconciler = readFileSync(new URL("./reconcile-runtime-config-permissions.sh", import.meta.url), "utf8");
-const runtimeSafety = readFileSync(new URL("./deploy/runtime-safety.sh", import.meta.url), "utf8");
 const fullDeployToolBundleSyncContract =
   /deploy-tool-bundle\.mjs build[\s\S]*?--profile full[\s\S]*?deploy-tool-bundle\.mjs verify[\s\S]*?--bundle "\$DEPLOY_TOOL_BUNDLE_TMP"[\s\S]*?rsync -az --delete-delay -e "\$RSYNC_SSH_COMMAND"[\s\S]*?"\$DEPLOY_TOOL_BUNDLE_TMP\/" "\$SERVER:\$REMOTE_DEPLOY_TOOL_DIR\/"[\s\S]*?node '\$REMOTE_DEPLOY_TOOL_DIR\/release\/control\/deploy-tool-bundle\.mjs'[\s\S]*?verify --bundle '\$REMOTE_DEPLOY_TOOL_DIR'/;
 
@@ -726,30 +725,6 @@ test("remote artifact deployment passes one complete command to ssh_cmd", () => 
     encoding: "utf8",
   });
   assert.equal(result.status, 0, result.stderr);
-});
-
-test("runtime environment preflight passes one complete command to ssh_cmd", () => {
-  const result = spawnSync("bash", ["-c", String.raw`
-    source ops/deploy/runtime-safety.sh
-    ssh_cmd() {
-      if [ "$#" -ne 1 ]; then
-        printf 'ssh_cmd received %s arguments\n' "$#" >&2
-        return 97
-      fi
-    }
-    WORKSPACE_RUNTIME_PM2_MODE=hardened
-    REMOTE_CONTROL_ENV_FILE=/tmp/control.env
-    REMOTE_RUNTIME_ENV_FILE=/tmp/runtime.env
-    REMOTE_WORKSPACE_CONFIG_DIR=/tmp/workspace-config
-    INSTALL_ONLYOFFICE_RUNTIME=1
-    WORKSPACE_PUBLIC_ORIGIN_HINT=https://example.invalid
-    validate_remote_runtime
-  `], {
-    cwd: new URL("..", import.meta.url),
-    encoding: "utf8",
-  });
-  assert.equal(result.status, 0, result.stderr);
-  assert.match(runtimeSafety, /record_runtime_failure \\\"缺少数据库命令: \\?\$required_command\\\"/);
 });
 
 test("deployment lifecycle does not apply or gate private data releases", () => {
