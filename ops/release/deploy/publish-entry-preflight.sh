@@ -119,8 +119,19 @@ load_selected_ready() {
 
 load_controller_ready() {
   controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
+  controller_ready_lock_file="$REPOSITORY_ROOT/.cache/release-control/controller-ready.lock"
+  mkdir -p "$(dirname "$controller_ready_lock_file")" || return 1
+  exec {controller_ready_lock_fd}>> "$controller_ready_lock_file" || return 1
+  if ! flock -s -n "$controller_ready_lock_fd"; then
+    exec {controller_ready_lock_fd}>&-
+    echo "Controller Ready qualification is in progress" >&2
+    return 2
+  fi
   controller_ready_json="$(node "$SCRIPT_DIR/release/control/controller-ready.mjs" verify \
-    --repository "$REPOSITORY_ROOT" --ready-source "$ready_source" --file "$controller_ready_file")" || return 1
+    --repository "$REPOSITORY_ROOT" --ready-source "$ready_source" --file "$controller_ready_file")" || {
+      exec {controller_ready_lock_fd}>&-
+      return 1
+    }
   DEPLOY_CONTROL_SOURCE_SHA="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.sourceSha)' "$controller_ready_json")" || return 1
   DEPLOY_CONTROL_TREE_ID="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.treeId)' "$controller_ready_json")" || return 1
   DEPLOY_CONTROL_DIGEST="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).controller.controlDigest)' "$controller_ready_json")" || return 1

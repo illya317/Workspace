@@ -268,8 +268,13 @@ case "${1:-}" in
     [ "$ready_source" = "$RELEASE_SOURCE_SHA" ] && [ "$ready_tree" = "$RELEASE_SOURCE_TREE" ] \
       && [ "$ready_content" = "$RELEASE_CONTENT_DIGEST" ] || {
         echo "[错误] 当前 release source 没有 Application Ready；先运行 ci" >&2; exit 1;
-      }
+    }
     controller_ready_file="${DEPLOY_CONTROLLER_READY_RECEIPT_FILE:-$REPOSITORY_ROOT/.cache/release-control/controller-ready.json}"
+    controller_ready_lock_file="$REPOSITORY_ROOT/.cache/release-control/controller-ready.lock"
+    mkdir -p "$(dirname "$controller_ready_lock_file")"
+    exec {controller_ready_lock_fd}>> "$controller_ready_lock_file"
+    echo "==> 等待 Controller Ready/Deploy 单飞锁"
+    flock -x "$controller_ready_lock_fd"
     node "$SCRIPT_DIR/release/control/controller-ready.mjs" qualify \
       --repository "$REPOSITORY_ROOT" \
       --ready-source "$ready_source" \
@@ -331,8 +336,15 @@ case "${1:-}" in
       ready_receipt_ready=0
     fi
     if [ "$ready_receipt_ready" = 1 ]; then
-      if ! load_controller_ready; then
-        deploy_preflight_fail controller-ready "Controller Ready receipt/identity 无效"
+      if load_controller_ready; then
+        :
+      else
+        controller_ready_status=$?
+        if [ "$controller_ready_status" = 2 ]; then
+          deploy_preflight_block controller-ready "Controller Ready 正在签发；本次 deploy 未进入 mutation"
+        else
+          deploy_preflight_fail controller-ready "Controller Ready receipt/identity 无效"
+        fi
         controller_receipt_ready=0
       fi
     else
