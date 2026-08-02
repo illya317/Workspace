@@ -8,13 +8,20 @@ const MAX_RESPONSE_BYTES = 1_000_000;
 const MAX_REDIRECTS = 3;
 
 type ProviderFetch = (url: URL, init: RequestInit) => Promise<Response>;
+type NewsProviderEnvironment = {
+  NEWS_PROVIDER_URL?: string;
+  WORKSPACE_PUBLIC_ORIGIN?: string;
+};
 
 function isSafeProviderUrl(url: URL) {
   const loopback = url.hostname === "localhost" || url.hostname === "127.0.0.1" || url.hostname === "::1";
   return url.protocol === "https:" || (url.protocol === "http:" && loopback);
 }
 
-export function resolveNewsProviderUrl(env: Partial<Pick<NodeJS.ProcessEnv, "NEWS_PROVIDER_URL" | "WORKSPACE_PUBLIC_ORIGIN">> = process.env) {
+export function resolveNewsProviderUrl(env: NewsProviderEnvironment = {
+  NEWS_PROVIDER_URL: process.env.NEWS_PROVIDER_URL,
+  WORKSPACE_PUBLIC_ORIGIN: process.env.WORKSPACE_PUBLIC_ORIGIN,
+}) {
   const configured = env.NEWS_PROVIDER_URL?.trim();
   const base = configured || env.WORKSPACE_PUBLIC_ORIGIN?.trim();
   if (!base) return null;

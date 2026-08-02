@@ -51,6 +51,7 @@ jobs:
           printf 'base=%s\nhead=%s\n' "$base_sha" "$head_sha" >> "$GITHUB_OUTPUT"
       - name: Check changed files and declared dependencies
         env:
+          PRISMA_MIGRATION_CHECK_MODE: static
           WORKSPACE_DIFF_BASE: ${{ steps.range.outputs.base }}
           WORKSPACE_DIFF_HEAD: ${{ steps.range.outputs.head }}
         run: npm run check:changed

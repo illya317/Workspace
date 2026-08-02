@@ -29,6 +29,14 @@ test("GitHub is the only CI and application-image builder", () => {
   assert.match(workflow, /ghcr\.io/);
 });
 
+test("changed checks stay static while PostgreSQL owns the database migration diff", () => {
+  const changed = workflow.slice(workflow.indexOf("  changed:"), workflow.indexOf("  node:"));
+  const postgresql = workflow.slice(workflow.indexOf("  postgresql:"), workflow.indexOf("  build:"));
+  assert.match(changed, /PRISMA_MIGRATION_CHECK_MODE: static/);
+  assert.match(postgresql, /services:\n\s+postgres:/);
+  assert.match(postgresql, /npm run check:data/);
+});
+
 test("E2E consumes the exact packaged build without a second Next build", () => {
   const e2e = workflow.slice(workflow.indexOf("  e2e:"), workflow.indexOf("  required:"));
   assert.match(e2e, /actions\/download-artifact@/);

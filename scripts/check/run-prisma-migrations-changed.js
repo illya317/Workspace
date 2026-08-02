@@ -28,7 +28,16 @@ if (relevantFiles.length === 0) {
 
 process.stdout.write(`Prisma migration inputs changed:\n${relevantFiles.map((file) => `  - ${file}`).join("\n")}\n`);
 
-const result = spawnSync("node", ["scripts/check/check-prisma-migrations.js"], {
+const migrationCheckMode = process.env.PRISMA_MIGRATION_CHECK_MODE?.trim() || "full";
+if (!new Set(["full", "static"]).has(migrationCheckMode)) {
+  process.stderr.write("PRISMA_MIGRATION_CHECK_MODE must be full or static.\n");
+  process.exit(2);
+}
+
+const migrationCheckArgs = ["scripts/check/check-prisma-migrations.js"];
+if (migrationCheckMode === "static") migrationCheckArgs.push("--static");
+
+const result = spawnSync("node", migrationCheckArgs, {
   cwd: repoRoot,
   stdio: "inherit",
   env: process.env,
