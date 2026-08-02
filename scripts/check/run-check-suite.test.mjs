@@ -112,7 +112,11 @@ test("domain full scan covers changed validation only when both see the same wor
 test("CNB static lane keeps warning checks visible but removes work already covered by the UI gate", () => {
   const plan = resolveCheckPlan(["cnb-static"]);
   const ids = plan.tasks.map((task) => task.id);
+  const bucketIds = ["policy", "domain", "ui", "lint"]
+    .flatMap((bucket) => resolveCheckPlan([`cnb-static-${bucket}`]).tasks.map((task) => task.id));
 
+  assert.deepEqual([...new Set(bucketIds)].sort(), [...ids].sort());
+  assert.equal(bucketIds.length, ids.length);
   assert.equal(ids.includes("surface-page-adoption-warning"), false);
   assert.equal(ids.includes("surface-boundaries-warning"), true);
   assert.equal(ids.includes("surface-visualization-adoption-warning"), true);

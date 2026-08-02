@@ -42,9 +42,18 @@ main:
           script: bash ./ops/cnb-ci.sh setup
         - name: collect-all-independent-errors
           jobs:
-            static:
+            static-policy:
               allowFailure: true
-              script: bash ./ops/cnb-ci.sh lane static
+              script: bash ./ops/cnb-ci.sh lane static-policy
+            static-domain:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-domain
+            static-ui:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-ui
+            static-lint:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-lint
             node-0:
               allowFailure: true
               script: bash ./ops/cnb-ci.sh lane node-0
@@ -74,6 +83,11 @@ main:
 
   push:
     - name: build-and-deploy-exact-image
+      lock:
+        key: main-cnb-delivery-cache
+        expires: 3600
+        wait: true
+        timeout: 3600
       runner:
         cpus: 16
       services:
@@ -96,9 +110,9 @@ main:
             - ops/cnb-ci-cache.Dockerfile
           sync: "true"
         volumes:
-          - main:/workspace/.next/cache:copy-on-write
-          - main:/workspace/.cache/types:copy-on-write
-          - main:/workspace/.cache/tsbuild:copy-on-write
+          - main:/workspace/.next/cache:read-write
+          - main:/workspace/.cache/types:read-write
+          - main:/workspace/.cache/tsbuild:read-write
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
@@ -125,9 +139,18 @@ main:
           script: bash ./ops/cnb-ci.sh setup
         - name: collect-all-independent-errors
           jobs:
-            static:
+            static-policy:
               allowFailure: true
-              script: bash ./ops/cnb-ci.sh lane static
+              script: bash ./ops/cnb-ci.sh lane static-policy
+            static-domain:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-domain
+            static-ui:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-ui
+            static-lint:
+              allowFailure: true
+              script: bash ./ops/cnb-ci.sh lane static-lint
             node-0:
               allowFailure: true
               script: bash ./ops/cnb-ci.sh lane node-0

@@ -71,7 +71,8 @@ source_identity() {
 
 run_static() {
   source_identity
-  CHECK_LOCK=0 CHECK_SUITE_COLLECT_FAILURES=1 node scripts/check/run-check-suite.mjs cnb-static
+  suite="cnb-${LANE}"
+  CHECK_LOCK=0 CHECK_SUITE_COLLECT_FAILURES=1 node scripts/check/run-check-suite.mjs "$suite"
 }
 
 run_node_bucket() {
@@ -112,7 +113,7 @@ run_e2e() {
 run_lane() {
   mkdir -p "$RESULT_DIR"
   case "$LANE" in
-    static) command=(run_static) ;;
+    static-policy|static-domain|static-ui|static-lint) command=(run_static) ;;
     node-0|node-1|node-2|node-3) command=(run_node_bucket) ;;
     typecheck) command=(run_typecheck) ;;
     build) command=(run_build_and_package) ;;
@@ -129,7 +130,7 @@ run_lane() {
 
 summary() {
   failures=()
-  for lane in setup static node-0 node-1 node-2 node-3 typecheck build database e2e; do
+  for lane in setup static-policy static-domain static-ui static-lint node-0 node-1 node-2 node-3 typecheck build database e2e; do
     file="$RESULT_DIR/$lane.status"
     if [ ! -s "$file" ] || [ "$(sed -n '1p' "$file")" != 0 ]; then failures+=("$lane"); fi
   done
