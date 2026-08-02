@@ -80,7 +80,8 @@ run_node_bucket() {
 }
 
 run_typecheck() {
-  CHECK_LOCK=0 node scripts/check/run-typecheck.js --build --pretty false
+  NODE_OPTIONS=--max-old-space-size=8192 \
+    CHECK_LOCK=0 node scripts/check/run-typecheck.js --build --pretty false
 }
 
 run_build_and_package() {

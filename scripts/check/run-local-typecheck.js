@@ -74,14 +74,15 @@ function directScopeForFile(file, availableScopes) {
 
 function reduceRedundantScopes(scopes) {
   const selected = new Set(scopes);
-  for (const scope of [...selected]) {
-    if (!scope.startsWith("app-")) continue;
-    const packageScope = scope.slice("app-".length);
-    if (BUSINESS_PACKAGE_SCOPES.has(packageScope)) selected.delete(packageScope);
+  if (selected.has("app")) {
+    for (const scope of [...selected]) {
+      if (scope !== "app" && scope !== "tooling") selected.delete(scope);
+    }
+    return [...selected].sort();
   }
 
   const hasPackageConsumer = [...selected].some((scope) => (
-    BUSINESS_PACKAGE_SCOPES.has(scope) || scope.startsWith("app-")
+    BUSINESS_PACKAGE_SCOPES.has(scope)
   ));
   if (hasPackageConsumer) {
     selected.delete("platform");

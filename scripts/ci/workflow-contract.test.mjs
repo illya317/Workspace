@@ -82,7 +82,7 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnb, /ln -s \/opt\/workspace-deps\/node_modules node_modules/);
   assert.match(cnbCi, /run-node-tests\.mjs bucket/);
   assert.match(cnbCi, /run-check-suite\.mjs cnb-static/);
-  assert.match(cnbCi, /run-typecheck\.js --build/);
+  assert.match(cnbCi, /NODE_OPTIONS=--max-old-space-size=8192[\s\\]+CHECK_LOCK=0 node scripts\/check\/run-typecheck\.js --build/);
   assert.match(cnbCi, /STANDALONE_SKIP_NEXT_BUILD=1/);
   assert.match(cnbCi, /npm run test:integration:postgresql/);
   assert.match(cnbCi, /npm run db:generate:inner/);
