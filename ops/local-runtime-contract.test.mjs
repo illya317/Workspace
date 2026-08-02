@@ -76,9 +76,7 @@ test("standalone artifact carries the governed external-party importer", () => {
 
 test("standalone data release importers resolve the traced Next runtime", () => {
   const packager = read("ops/build-standalone-artifact.sh");
-  assert.match(packager, /release_next_runtime="\.next\/standalone\/node_modules\/next"/);
-  assert.match(packager, /ln -s "\$next_runtime_link" "\$release_next_runtime"/);
-  assert.match(packager, /require\.resolve\("next\/server", \{ paths: \[path\.join\(root, "packages\/platform\/server"\)\] \}\)/);
+  assert.match(packager, /link-data-release-next-runtime\.mjs \.next\/standalone/);
 });
 
 test("Playwright process cleanup skips only a sandbox EPERM", () => {

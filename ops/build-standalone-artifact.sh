@@ -274,24 +274,7 @@ copy_data_release_files() {
   test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs
-  mapfile -t next_runtime_candidates < <(
-    find .next/standalone -type f -path '*/node_modules/next/package.json' -print
-  )
-  [ "${#next_runtime_candidates[@]}" -eq 1 ] || {
-    echo "[错误] 数据发布执行器要求 artifact 恰好包含一个 Next 运行时" >&2
-    exit 1
-  }
-  release_next_runtime=".next/standalone/node_modules/next"
-  if [ ! -e "$release_next_runtime" ]; then
-    next_runtime="$(dirname "${next_runtime_candidates[0]}")"
-    next_runtime_link="$(realpath --relative-to="$(dirname "$release_next_runtime")" "$next_runtime")"
-    ln -s "$next_runtime_link" "$release_next_runtime"
-  fi
-  STANDALONE_ROOT=".next/standalone" node <<'NODE'
-const path = require("node:path");
-const root = path.resolve(process.env.STANDALONE_ROOT);
-require.resolve("next/server", { paths: [path.join(root, "packages/platform/server")] });
-NODE
+  node ops/release/artifact/link-data-release-next-runtime.mjs .next/standalone
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
     cmp .cnb-release.json .next/standalone/.cnb-release.json
   fi
