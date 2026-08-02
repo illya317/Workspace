@@ -8,6 +8,7 @@ export const DEFAULT_LANES = Object.freeze([
   "candidate-freeze",
   "artifact-preflight",
   "database",
+  "candidate-evidence",
   "source",
   "artifact-build",
   "static-acceptance",

@@ -52,7 +52,9 @@ function findUnsafeTreeEntry(directory) {
 }
 
 function driftReason(stored, expected) {
+  if (canonicalJson(stored.target) !== canonicalJson(expected.target)) return "target-drift";
   if (canonicalJson(stored.runtime) !== canonicalJson(expected.runtime)) return "runtime-drift";
+  if (canonicalJson(stored.buildEnvironment) !== canonicalJson(expected.buildEnvironment)) return "build-environment-drift";
   if (canonicalJson(stored.nextPackage) !== canonicalJson(expected.nextPackage)) return "next-package-drift";
   const storedFiles = new Map(stored.files.map((entry) => [entry.key, entry]));
   const expectedFiles = new Map(expected.files.map((entry) => [entry.key, entry]));
@@ -97,10 +99,13 @@ export function inspectCompilerCache({ cacheRoot, input } = {}) {
   } catch {
     return { status: "miss", reason: "receipt-invalid" };
   }
-  if (receipt.unitId !== input.unitId) return { status: "miss", reason: "unit-drift" };
+  if (canonicalJson(receipt.target) !== canonicalJson(input.target)) {
+    return { status: "miss", reason: "target-drift" };
+  }
   const expectedInput = {
-    unitId: input.unitId,
+    target: input.target,
     runtime: input.runtime,
+    buildEnvironment: input.buildEnvironment,
     nextPackage: input.nextPackage,
     files: input.files,
   };
@@ -110,10 +115,10 @@ export function inspectCompilerCache({ cacheRoot, input } = {}) {
   return { status: "hit", reason: "receipt-matched", receipt };
 }
 
-function quarantineCache(cacheRoot, quarantineRoot, unitId) {
+function quarantineCache(cacheRoot, quarantineRoot, targetId) {
   if (!pathExists(cacheRoot)) return null;
   mkdirSync(quarantineRoot, { recursive: true, mode: 0o700 });
-  const destination = path.join(quarantineRoot, `${unitId}-${Date.now()}-${process.pid}-${randomUUID()}`);
+  const destination = path.join(quarantineRoot, `${targetId}-${Date.now()}-${process.pid}-${randomUUID()}`);
   renameSync(cacheRoot, destination);
   return destination;
 }
@@ -129,12 +134,13 @@ function evidenceEntry(inputDigest, inspection, quarantinePath = null, extra = {
   };
 }
 
-function writeEvidence(evidenceFile, unitId, inputDigest, phase, entry) {
+function writeEvidence(evidenceFile, target, inputDigest, phase, entry) {
   let previous = null;
   if (pathExists(evidenceFile)) {
     try {
       const value = JSON.parse(readFileSync(evidenceFile, "utf8"));
-      if (value.kind === NEXT_COMPILER_CACHE_EVIDENCE_KIND && value.unitId === unitId
+      if (value.kind === NEXT_COMPILER_CACHE_EVIDENCE_KIND
+        && canonicalJson(value.target) === canonicalJson(target)
         && value.inputDigest === inputDigest) previous = value;
     } catch {
       previous = null;
@@ -143,7 +149,7 @@ function writeEvidence(evidenceFile, unitId, inputDigest, phase, entry) {
   const evidence = {
     schemaVersion: NEXT_COMPILER_CACHE_SCHEMA_VERSION,
     kind: NEXT_COMPILER_CACHE_EVIDENCE_KIND,
-    unitId,
+    target,
     inputDigest,
     ...(previous?.prepare ? { prepare: previous.prepare } : {}),
     ...(previous?.store ? { store: previous.store } : {}),
@@ -163,7 +169,7 @@ function cacheInput(options) {
 function inspectAndQuarantine(options, input) {
   const inspection = inspectCompilerCache({ cacheRoot: options.cacheRoot, input });
   const quarantinePath = inspection.status === "miss" && inspection.reason !== "absent"
-    ? quarantineCache(options.cacheRoot, options.quarantineRoot, input.unitId)
+    ? quarantineCache(options.cacheRoot, options.quarantineRoot, input.target.id)
     : null;
   return { inspection, quarantinePath };
 }
@@ -180,14 +186,14 @@ export function prepareCompilerCache(options = {}) {
     });
   }
   const entry = evidenceEntry(input.inputDigest, inspection, quarantinePath);
-  writeEvidence(options.evidenceFile, input.unitId, input.inputDigest, "prepare", entry);
+  writeEvidence(options.evidenceFile, input.target, input.inputDigest, "prepare", entry);
   return entry;
 }
 
 function replaceStoredCache(options, input, buildCache) {
   const cacheParent = path.dirname(options.cacheRoot);
   mkdirSync(cacheParent, { recursive: true });
-  const staging = mkdtempSync(path.join(cacheParent, `.${input.unitId}.store-`));
+  const staging = mkdtempSync(path.join(cacheParent, `.${input.target.id}.store-`));
   const previous = `${options.cacheRoot}.previous-${process.pid}-${randomUUID()}`;
   let movedPrevious = false;
   try {
@@ -225,14 +231,14 @@ export function storeCompilerCache(options = {}) {
   if (!pathExists(buildCache)) {
     const miss = { status: "miss", reason: "build-cache-absent" };
     const entry = evidenceEntry(input.inputDigest, miss, quarantinePath, { stored: false });
-    writeEvidence(options.evidenceFile, input.unitId, input.inputDigest, "store", entry);
+    writeEvidence(options.evidenceFile, input.target, input.inputDigest, "store", entry);
     return entry;
   }
   assertRealDirectory(buildCache, "Next build compiler cache");
   if (findUnsafeTreeEntry(buildCache)) throw new Error("Next build compiler cache contains a symlink or non-file entry");
   replaceStoredCache(options, input, buildCache);
   const entry = evidenceEntry(input.inputDigest, inspection, quarantinePath, { stored: true });
-  writeEvidence(options.evidenceFile, input.unitId, input.inputDigest, "store", entry);
+  writeEvidence(options.evidenceFile, input.target, input.inputDigest, "store", entry);
   return entry;
 }
 
@@ -249,19 +255,24 @@ function cliPath(argv, flag) {
   return path.resolve(value);
 }
 
+function optionalCliPath(argv, flag) {
+  return argv.includes(flag) ? cliPath(argv, flag) : undefined;
+}
+
 function cliOptions(argv) {
   const repositoryRoot = cliPath(argv, "--repository-root");
   return {
     repositoryRoot,
-    unitId: requiredOption(argv, "--unit"),
+    targetId: requiredOption(argv, "--target"),
     appRoot: requiredOption(argv, "--app-root"),
     outputRoot: resolveOutputRoot(repositoryRoot, requiredOption(argv, "--output-root")),
-    contractFile: cliPath(argv, "--contract"),
-    navigationManifestFile: cliPath(argv, "--navigation"),
+    contractFile: optionalCliPath(argv, "--contract"),
+    navigationManifestFile: optionalCliPath(argv, "--navigation"),
     cacheRoot: cliPath(argv, "--cache-root"),
     quarantineRoot: cliPath(argv, "--quarantine-root"),
     buildDirectory: cliPath(argv, "--build-directory"),
     evidenceFile: cliPath(argv, "--evidence"),
+    buildProfile: argv.includes("--build-profile") ? requiredOption(argv, "--build-profile") : undefined,
   };
 }
 

@@ -19,7 +19,7 @@ release_ci_attempt_begin() {
   local run_id="$2"
   local target="$3"
   local target_mode="$4"
-  local required_lanes="${5:-candidate-freeze,artifact-preflight,database,source,artifact-build,static-acceptance,rehearsal,application-ready}"
+  local required_lanes="${5:-candidate-freeze,artifact-preflight,database,candidate-evidence,source,artifact-build,static-acceptance,rehearsal,application-ready}"
 
   if [[ ! "${run_id}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$ ]] ||
     [[ ! "${target}" =~ ^[A-Za-z0-9][A-Za-z0-9._-]{0,95}$ ]] ||

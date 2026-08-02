@@ -14,7 +14,7 @@ import {
 import { assertDeployUnitArtifact } from "../../deploy-unit-release.mjs";
 import { verifyArtifactManifest } from "../../../scripts/ci/verify-artifact-manifest.mjs";
 import { validateFrozenTaskGraph } from "../validation/full-source-validation.mjs";
-import { inspectArchive } from "./artifact-inspection.mjs";
+import { validateCandidateSourceSnapshot } from "../candidate/source-snapshot.mjs";
 import { validateArtifactRehearsal } from "./rehearse-artifact.mjs";
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
@@ -23,6 +23,7 @@ const TARGET_PATTERN = /^(monolith|[a-z][a-z0-9-]*)$/;
 const RUN_PATTERN = /^ci-[0-9]{8}T[0-9]{6}Z-[0-9a-f]{12}-[0-9a-f]{8}$/;
 const CHECKS = [
   "artifact-preflight-identity",
+  "candidate-source-snapshot",
   "aggregate-source-proof",
   "artifact-content-identity",
   "archive-path-safety",
@@ -178,10 +179,20 @@ function prove(options) {
     target,
     targetMode,
   });
-  validateArtifactRehearsal(readReceipt(options.rehearsal), {
+  const sourceSnapshotFile = path.resolve(options.sourceSnapshot);
+  const sourceSnapshot = validateCandidateSourceSnapshot(readReceipt(sourceSnapshotFile), {
+    repository,
+    snapshot: path.join(repository, ".cache/source-code-analysis/snapshot.json"),
+    output: sourceSnapshotFile,
+    source: source.commitSha,
+    tree: source.treeId,
+    content: source.contentDigest,
+  });
+  const rehearsal = validateArtifactRehearsal(readReceipt(options.rehearsal), {
     repository,
     artifact,
     manifest: manifestFile,
+    staticAcceptance: path.resolve(options.staticAcceptance),
     source: source.commitSha,
     tree: source.treeId,
     content: source.contentDigest,
@@ -204,10 +215,13 @@ function prove(options) {
       ...artifactPreflightProof,
       sourceReceiptSha256: digestFile(options.sourceReceipt),
       ...sourceProof,
+      sourceSnapshotReceiptSha256: digestFile(sourceSnapshotFile),
+      sourceSnapshotSha256: sourceSnapshot.snapshot.sha256,
+      staticAcceptanceReceiptSha256: digestFile(options.staticAcceptance),
       rehearsalReceiptSha256: digestFile(options.rehearsal),
       artifactReceiptSha256: digestFile(artifactReceiptFile),
     },
-    runtime: inspectArchive({ artifact, manifest, target }),
+    runtime: rehearsal.staticAcceptance.inspection,
   };
 }
 
@@ -364,7 +378,9 @@ function parse(argv) {
     contract: raw.contract,
     sourceReceipt: raw.source_receipt,
     sourceResult: raw.source_result,
+    sourceSnapshot: raw.source_snapshot,
     taskGraph: raw.task_graph,
+    staticAcceptance: raw.static_acceptance,
     rehearsal: raw.rehearsal,
     artifactPreflight: raw.artifact_preflight,
     artifactReceipt: raw.artifact_receipt,

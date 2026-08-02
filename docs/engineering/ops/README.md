@@ -10,6 +10,13 @@ failures, builds or restores the exact target artifact independently, starts tha
 isolated production runtime rehearsal, and signs one Ready receipt. Deploy only verifies and consumes
 that receipt. `prepare`, `validate`, `build`, fast mode, Release Plan, and `--new-plan` are removed.
 
+Warm single-unit releases share one frozen candidate snapshot and preserve a target-scoped Turbopack
+production compiler cache. Source validation and artifact build run concurrently only when the delta
+from that target's last successful deploy is entirely inside its private roots; otherwise they run
+serially. Dev,
+monolith release, and each deploy unit have disjoint cache roots. Static archive acceptance runs once
+and its exact receipt is consumed by rehearsal and Ready; deploy never reopens CI or build work.
+
 Successful task evidence is keyed by exact input/command/runtime digests. After a failed CI, the next CI
 reuses unchanged successes and reruns only invalidated tasks; corrupt derived cache entries are quarantined
 instead of permanently blocking the same task. GitHub PR/CI remains a collaboration boundary but is not

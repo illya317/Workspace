@@ -24,7 +24,9 @@ test("unit builder uses governed typecheck and one exact Linux standalone artifa
   assert.match(build, /NEXT_BUILD_ID_FILE="\$BUILD_DIRECTORY\/BUILD_ID"/);
   assert.match(build, /--build-id "\$NEXT_BUILD_ID"/);
   assert.match(build, /--deployment-id "\$DEPLOYMENT_ID"/);
-  assert.match(build, /npm run source-code-analysis:snapshot/);
+  assert.match(build, /release\/candidate\/source-snapshot\.mjs ensure/);
+  assert.match(build, /next_compiler_cache_unit prepare/);
+  assert.match(build, /next_compiler_cache_unit store/);
   assert.match(build, /禁止组装 deploy-unit artifact/);
   assert.doesNotMatch(build, /source-code-analysis:snapshot:optional/);
   assert.match(build, /\.workspace\/source-code-analysis\/snapshot\.json/);

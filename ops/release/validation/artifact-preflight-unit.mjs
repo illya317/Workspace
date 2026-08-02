@@ -49,6 +49,10 @@ export async function inspectExactNextConfig({ repository, target }) {
   if (path.resolve(config.turbopack?.root ?? "") !== expectedRoot) {
     throw new Error(`Next Turbopack root does not match target ${target}`);
   }
+  if (config.experimental?.turbopackFileSystemCacheForDev !== false
+    || config.experimental?.turbopackFileSystemCacheForBuild !== true) {
+    throw new Error(`Next filesystem cache isolation does not match release target ${target}`);
+  }
   const configuredUnit = config.env?.NEXT_PUBLIC_DEPLOY_UNIT_ID;
   if (target === "monolith" ? configuredUnit !== undefined : configuredUnit !== target) {
     throw new Error(`Next config deploy-unit identity does not match target ${target}`);
@@ -63,6 +67,7 @@ export async function inspectExactNextConfig({ repository, target }) {
     outputFileTracingRootRelation: expectedRoot === repositoryRoot ? "repository" : "repository-parent",
     turbopackRoot: expectedRoot,
     turbopackRootRelation: expectedRoot === repositoryRoot ? "repository" : "repository-parent",
+    filesystemCache: { development: "disabled", productionBuild: "enabled" },
     generatedAppCheck: target === "monolith" ? "not-applicable" : "exact-unit-passed",
   };
 }

@@ -4,6 +4,8 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PROJECT_PARENT="$(dirname "$PROJECT_ROOT")"
 cd "$PROJECT_ROOT"
+# shellcheck source=ops/release/artifact/next-compiler-cache-shell.sh
+source ./ops/release/artifact/next-compiler-cache-shell.sh
 
 UNIT_ID="${1:-}"
 if [ -z "$UNIT_ID" ] || [[ ! "$UNIT_ID" =~ ^[a-z][a-z0-9-]*$ ]]; then
@@ -61,7 +63,6 @@ OUTPUT_ROOT="$(node ops/release/artifact/next-compiler-cache.mjs resolve-output-
 CONTRACT_FILE="$OUTPUT_ROOT/deploy-unit-contract.json"
 DEPLOY_GRAPH_FILE="$OUTPUT_ROOT/deploy-graph.json"
 NAVIGATION_MANIFEST_FILE="$OUTPUT_ROOT/deploy-navigation-manifest.json"
-NEXT_COMPILER_CACHE_EVIDENCE_FILE="$OUTPUT_ROOT/next-compiler-cache.json"
 ARTIFACT_FILE="${DEPLOY_UNIT_ARTIFACT_PATH:-$OUTPUT_ROOT/$UNIT_ID-standalone.tgz}"
 MANIFEST_FILE="${DEPLOY_UNIT_MANIFEST_PATH:-$OUTPUT_ROOT/$UNIT_ID-standalone.manifest.json}"
 RESOURCE_MANIFEST_FILE="$OUTPUT_ROOT/resource-defs.json"
@@ -112,8 +113,6 @@ ENGINE="$(read_contract_field runtime.engine)"
 BASE_PATH="$(read_contract_field build.basePath)"
 ASSET_PREFIX="$(node -e 'const c=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); process.stdout.write(c.build.assetPrefix ?? "")' "$CONTRACT_FILE")"
 NAVIGATION_MANIFEST="$(tr -d '\n' < "$NAVIGATION_MANIFEST_FILE")"
-NEXT_CACHE_ROOT=".cache/next-units/$UNIT_ID"
-NEXT_CACHE_QUARANTINE_ROOT=".cache/quarantine/next-units"
 
 if [ "$ENGINE" != "next-standalone" ]; then
   echo "[错误] $UNIT_ID 使用 $ENGINE；请走对应 headless runtime builder" >&2
@@ -134,7 +133,7 @@ for (const scope of c.compiler.typecheckScopes) console.log(scope);
 ' "$CONTRACT_FILE")
 fi
 
-npm run source-code-analysis:snapshot
+node ops/release/candidate/source-snapshot.mjs ensure
 test -s .cache/source-code-analysis/snapshot.json || {
   echo "[错误] 源码分析 snapshot 未生成，禁止组装 deploy-unit artifact" >&2
   exit 1
@@ -142,17 +141,8 @@ test -s .cache/source-code-analysis/snapshot.json || {
 
 BUILD_DIRECTORY="$APP_ROOT/.next"
 rm -rf "$BUILD_DIRECTORY"
-node ops/release/artifact/next-compiler-cache.mjs prepare \
-  --repository-root "$PROJECT_ROOT" \
-  --unit "$UNIT_ID" \
-  --app-root "$APP_ROOT" \
-  --output-root "$OUTPUT_ROOT" \
-  --contract "$CONTRACT_FILE" \
-  --navigation "$NAVIGATION_MANIFEST_FILE" \
-  --cache-root "$NEXT_CACHE_ROOT" \
-  --quarantine-root "$NEXT_CACHE_QUARANTINE_ROOT" \
-  --build-directory "$BUILD_DIRECTORY" \
-  --evidence "$NEXT_COMPILER_CACHE_EVIDENCE_FILE"
+next_compiler_cache_unit prepare "$PROJECT_ROOT" "$UNIT_ID" "$APP_ROOT" \
+  "$OUTPUT_ROOT" "$CONTRACT_FILE" "$NAVIGATION_MANIFEST_FILE"
 NEXT_PUBLIC_BASE_PATH="$BASE_PATH" \
 NEXT_PUBLIC_ASSET_PREFIX="$ASSET_PREFIX" \
 NEXT_PUBLIC_DEPLOY_UNIT_ID="$UNIT_ID" \
@@ -171,17 +161,8 @@ if [[ ! "$NEXT_BUILD_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
   echo "[错误] $UNIT_ID Next BUILD_ID 非法" >&2
   exit 1
 fi
-node ops/release/artifact/next-compiler-cache.mjs store \
-  --repository-root "$PROJECT_ROOT" \
-  --unit "$UNIT_ID" \
-  --app-root "$APP_ROOT" \
-  --output-root "$OUTPUT_ROOT" \
-  --contract "$CONTRACT_FILE" \
-  --navigation "$NAVIGATION_MANIFEST_FILE" \
-  --cache-root "$NEXT_CACHE_ROOT" \
-  --quarantine-root "$NEXT_CACHE_QUARANTINE_ROOT" \
-  --build-directory "$BUILD_DIRECTORY" \
-  --evidence "$NEXT_COMPILER_CACHE_EVIDENCE_FILE"
+next_compiler_cache_unit store "$PROJECT_ROOT" "$UNIT_ID" "$APP_ROOT" \
+  "$OUTPUT_ROOT" "$CONTRACT_FILE" "$NAVIGATION_MANIFEST_FILE"
 
 STANDALONE_ROOT="$BUILD_DIRECTORY/standalone"
 [ -d "$STANDALONE_ROOT" ] || { echo "[错误] $UNIT_ID 未生成 standalone 目录" >&2; exit 1; }

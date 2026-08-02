@@ -19,7 +19,9 @@ const ciAttemptSources = `${ciAttempt}\n${ciAttemptContract}`;
 const ciAttemptShell = read("./release/attempts/ci-attempt-shell.sh");
 const deployAttemptShell = read("./release/attempts/deploy-attempt-shell.sh");
 const deployBlocker = read("./release/attempts/deploy-blocker.mjs");
+const deployedBaseline = read("./release/candidate/deployed-baseline.mjs");
 const artifactStaticAcceptance = read("./release/readiness/artifact-static-acceptance.mjs");
+const artifactRehearsal = read("./release/readiness/rehearse-artifact.mjs");
 const publishCnb = read("./publish-cnb.sh");
 const publishCnbPreflight = read("./release/deploy/publish-cnb-preflight.sh");
 const publishCnbSources = `${publishCnb}\n${publishCnbPreflight}`;
@@ -28,6 +30,7 @@ const runCnbReleaseStage = read("./run-cnb-release-stage.sh");
 const deployTarget = read("./deploy-cnb-release-target.sh");
 const deployArtifact = read("./deploy/artifact.sh");
 const databaseReplacement = read("./publish-database-replacement.sh");
+const moduleChecks = read("../scripts/arch/modules.ts");
 
 function isolatedController(t) {
   const repository = path.resolve(import.meta.dirname, "..");
@@ -70,9 +73,13 @@ test("Stage-2 preflight fails before database, source CI, or artifact build", ()
   assert.ok(runReleaseCi.indexOf('artifact-preflight.mjs" verify') < runReleaseCi.indexOf("run-cnb-release-gate.sh"));
   assert.ok(runReleaseCi.indexOf('artifact-preflight.mjs" verify') < runReleaseCi.indexOf("build-cnb-release-target.sh"));
   assert.match(publish, /RELEASE_CI_PREFLIGHT_STATUS/);
-  assert.match(runReleaseCi, /set \+e[\s\S]*?run-cnb-release-gate\.sh[\s\S]*?build-cnb-release-target\.sh[\s\S]*?set -e/);
-  assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS database=\$DATABASE_STATUS source=\$source_status artifact=\$artifact_status/);
-  assert.ok(runReleaseCi.indexOf("source_status=$?") < runReleaseCi.indexOf("build-cnb-release-target.sh"));
+  assert.match(runReleaseCi, /release\/candidate\/source-snapshot\.mjs" create/);
+  assert.match(moduleChecks, /RELEASE_SOURCE_SNAPSHOT_RECEIPT_FILE[\s\S]*?source-snapshot\.mjs", "verify"/);
+  assert.match(moduleChecks, /source-code-analysis\/cli\.ts", "--check", "--write"/);
+  assert.match(runReleaseCi, /preflight=\$PREFLIGHT_STATUS database=\$DATABASE_STATUS candidate-evidence=\$candidate_evidence_status source=\$source_status artifact=\$artifact_status/);
+  assert.match(runReleaseCi, /if \[ "\$source_artifact_strategy" = parallel \][\s\S]*?capture_lane_status source[\s\S]*?&[\s\S]*?capture_lane_status artifact-build[\s\S]*?&/);
+  assert.match(runReleaseCi, /release-execution-plan\.mjs/);
+  assert.match(runReleaseCi, /--baseline-root "\$SOURCE_DIR\/\.cache\/release-baselines"/);
   assert.ok(runReleaseCi.indexOf("build-cnb-release-target.sh") < runReleaseCi.indexOf("ready-artifact.mjs\" create"));
 });
 
@@ -93,13 +100,13 @@ test("every CI exit finalizes one run-scoped immutable attempt receipt", () => {
   assert.doesNotMatch(ciAttemptSources, /rawOutput:|stdout:|stderr:|environment:|commandLine:/);
 });
 
-test("CI records all eight lane boundaries without reusing CI attempts during deploy", () => {
+test("CI records all nine lane boundaries without reusing CI attempts during deploy", () => {
   const ciCase = publish.slice(publish.indexOf("  ci)"), publish.indexOf("  controller-ready)"));
   const deployCase = publish.slice(publish.indexOf("  deploy)"), publish.indexOf("  data)"));
   for (const lane of ["candidate-freeze", "artifact-preflight", "database"]) {
     assert.match(ciCase, new RegExp(`release_ci_attempt_lane_(?:start|pass|fail) ${lane}`));
   }
-  for (const lane of ["database", "source", "artifact-build", "static-acceptance", "rehearsal", "application-ready"]) {
+  for (const lane of ["database", "candidate-evidence", "source", "artifact-build", "static-acceptance", "rehearsal", "application-ready"]) {
     assert.match(runReleaseCi, new RegExp(`release_ci_attempt_lane_(?:start|pass|fail|block) ${lane}`));
   }
   assert.match(runReleaseCi, /release_ci_attempt_lane_start source[\s\S]*?run-cnb-release-gate\.sh[\s\S]*?release_ci_attempt_lane_(?:pass|fail) source/);
@@ -107,8 +114,15 @@ test("CI records all eight lane boundaries without reusing CI attempts during de
   assert.match(runReleaseCi, /release_ci_attempt_capture source/);
   assert.match(runReleaseCi, /release_ci_attempt_capture artifact-build/);
   assert.match(runReleaseCi, /artifact-static-acceptance\.mjs/);
-  assert.match(runReleaseCi, /deploy-unit-release\.mjs" artifact-assert/);
+  assert.match(runReleaseCi, /static-acceptance-receipt:\$STATIC_ACCEPTANCE_FILE/);
+  assert.match(runReleaseCi, /--static-acceptance "\$STATIC_ACCEPTANCE_FILE"/);
+  assert.match(runReleaseCi, /--source-snapshot "\$SOURCE_SNAPSHOT_RECEIPT"/);
   assert.match(artifactStaticAcceptance, /inspectArchive\(\{ artifact, manifest: parsedManifest, target \}\)/);
+  assert.match(artifactStaticAcceptance, /assertDeployUnitArtifact/);
+  assert.match(runReleaseCi, /artifact-static-acceptance\.mjs[\s\S]*?"\$\{CONTRACT_ARGS\[@\]\}"/);
+  assert.doesNotMatch(artifactRehearsal, /inspectArchive/);
+  assert.doesNotMatch(readyArtifact, /inspectArchive/);
+  assert.match(artifactRehearsal, /validateArtifactStaticAcceptance/);
   assert.doesNotMatch(deployCase, /release_ci_attempt_(?:begin|finalize|lane_|patrol)|ci-attempt\.mjs/);
 });
 
@@ -119,6 +133,10 @@ test("deploy retry is fenced by immutable classified blocker history", () => {
   assert.match(deployCase, /assert-clear/);
   assert.ok(deployCase.indexOf("assert-clear") < deployCase.indexOf("publish-cnb.sh"));
   assert.match(deployCase, /release_deploy_attempt_run --/);
+  assert.match(deployAttemptShell, /release_deploy_record_success_baseline\(\)[\s\S]*?deployed-baseline\.mjs/);
+  assert.match(deployAttemptShell, /\[ "\$exit_code" != 0 \] \|\| release_deploy_record_success_baseline[\s\S]*?return "\$exit_code"/);
+  assert.match(deployedBaseline, /status !== "succeeded"|status !== 'succeeded'/);
+  assert.match(deployedBaseline, /deploy attempt and Application Ready do not identify the same baseline/);
   assert.match(deployAttemptShell, /DEPLOY_ATTEMPT_ROOT/);
   assert.match(deployAttemptShell, /chmod 400 "\$log_file"/);
   assert.match(deployAttemptShell, /consume-clear[\s\S]*?RELEASE_DEPLOY_ATTEMPT_PARENT_PID/);

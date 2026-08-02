@@ -2,6 +2,8 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+# shellcheck source=ops/release/artifact/next-compiler-cache-shell.sh
+source ./ops/release/artifact/next-compiler-cache-shell.sh
 
 ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
 ALLOW_CNB_RELEASE_INJECTION="${ALLOW_CNB_RELEASE_INJECTION:-0}"
@@ -288,16 +290,7 @@ if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
   npm run output-tracing:check
 else
   echo "==> 构建 Next standalone 产物..."
-  ensure_build_deps
-  if [ "${STANDALONE_EXTERNAL_TYPECHECK:-0}" = "1" ]; then
-    run_artifact_stage next.build \
-      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
-      bash -c 'npm run db:generate:inner && npm run build:next:after-typecheck'
-  else
-    run_artifact_stage next.build \
-      env NEXT_PUBLIC_BUILD_VERSION="$CONTENT_DIGEST" BUILD_VERSION="$CONTENT_DIGEST" \
-      npm run build
-  fi
+  next_compiler_cache_monolith_build "$PWD" "$CONTENT_DIGEST" "${STANDALONE_EXTERNAL_TYPECHECK:-0}"
 fi
 
 if [ ! -f .cache/source-code-analysis/snapshot.json ]; then

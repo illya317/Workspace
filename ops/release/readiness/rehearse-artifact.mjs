@@ -9,7 +9,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { inspectArchive } from "./artifact-inspection.mjs";
+import { validateArtifactStaticAcceptance } from "./artifact-static-acceptance.mjs";
 import { deployUnitRuntimeVersion } from "../contracts/deploy-unit-build-identity.mjs";
 import { ensureInternalUnitIdentity } from "../../internal-unit-identity.mjs";
 
@@ -30,6 +30,7 @@ export const DEPLOY_UNIT_REHEARSAL_ENVIRONMENT_KEYS = [
 ];
 
 const FATAL_RUNTIME_CONTRACT = /WORKSPACE_(?:DEPLOY|INTERNAL)_[A-Z_]+[^\n]{0,240}(?:must|required|missing|invalid)/i;
+const FATAL_RUNTIME_STARTUP = /(?:Cannot find module|MODULE_NOT_FOUND|PrismaClientInitializationError|\bP10\d{2}\b|EACCES|permission denied|address already in use|EADDRINUSE)/i;
 
 const sha256File = (file) => createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 
@@ -48,6 +49,9 @@ function readJson(file) {
 
 export function artifactRehearsalExpectation(options) {
   const manifest = readJson(options.manifest);
+  const staticAcceptance = options.staticAcceptance
+    ? validateArtifactStaticAcceptance(readJson(options.staticAcceptance), options)
+    : null;
   const monolith = options.target === "monolith";
   const artifactSha256 = monolith ? manifest.artifact?.sha256 : manifest.artifact?.sha256;
   const basePath = monolith ? "/workspace" : manifest.build?.basePath;
@@ -72,6 +76,12 @@ export function artifactRehearsalExpectation(options) {
       manifestSha256: sha256File(options.manifest),
     },
     runtime: { basePath, healthPath, versionPath, version },
+    ...(staticAcceptance ? {
+      staticAcceptance: {
+        receiptDigest: staticAcceptance.receiptDigest,
+        inspection: staticAcceptance.inspection,
+      },
+    } : {}),
   };
 }
 
@@ -105,6 +115,10 @@ export async function probeRuntimeEndpoint(url, validate, child, logs, controls 
     if (child.exitCode !== null || child.signalCode !== null) {
       throw new Error(`artifact runtime exited before readiness: ${logs()}`);
     }
+    const runtimeLogs = logs();
+    if (FATAL_RUNTIME_STARTUP.test(runtimeLogs)) {
+      throw new Error(`artifact runtime startup failed at ${url}: ${runtimeLogs}`);
+    }
     let response;
     let text;
     try {
@@ -117,8 +131,9 @@ export async function probeRuntimeEndpoint(url, validate, child, logs, controls 
     }
     if (response.ok && validate(text)) return text;
     lastError = `${response.status} ${text.slice(0, 300)}`;
-    const runtimeLogs = logs();
-    if (response.status >= 500 && FATAL_RUNTIME_CONTRACT.test(`${text}\n${runtimeLogs}`)) {
+    if (response.status >= 500
+      && (FATAL_RUNTIME_CONTRACT.test(`${text}\n${runtimeLogs}`)
+        || FATAL_RUNTIME_STARTUP.test(`${text}\n${runtimeLogs}`))) {
       throw new Error(`artifact runtime contract failed at ${url}: ${lastError}; ${runtimeLogs}`);
     }
     await sleep(250);
@@ -231,11 +246,11 @@ async function executeRuntime(options, runtime) {
     await probeRuntimeEndpoint(`${origin}${runtime.healthPath}`, (text) => {
       try { const value = JSON.parse(text); return value.status === "ok" && value.version === runtime.version; }
       catch { return false; }
-    }, child, () => output);
+    }, child, () => output, { timeoutMs: options.target === "monolith" ? 90_000 : 30_000 });
     await probeRuntimeEndpoint(`${origin}${runtime.versionPath}`, (text) => {
       try { return JSON.parse(text).version === runtime.version; }
       catch { return false; }
-    }, child, () => output);
+    }, child, () => output, { timeoutMs: 5_000 });
   } finally {
     try { await terminateRuntimeChild(child); }
     finally { rehearsal.cleanup(); }
@@ -251,8 +266,6 @@ export async function rehearseArtifact(options) {
       return receipt;
     } catch { /* invalid derived evidence is replaced */ }
   }
-  const manifest = readJson(options.manifest);
-  inspectArchive({ artifact: options.artifact, manifest, target: options.target });
   await executeRuntime(options, body.runtime);
   const receipt = { ...body, completedAt: new Date().toISOString() };
   atomicJson(options.output, receipt);
@@ -270,6 +283,7 @@ function parse(argv) {
   return {
     repository: path.resolve(options.repository), output: path.resolve(options.output),
     artifact: path.resolve(options.artifact), manifest: path.resolve(options.manifest),
+    staticAcceptance: options.static_acceptance ? path.resolve(options.static_acceptance) : undefined,
     source: options.source, tree: options.tree, content: options.content,
     configuration: options.configuration, target: options.target, targetMode: options.target_mode,
   };

@@ -232,7 +232,10 @@ const nextConfig: NextConfig = {
   },
   deploymentId,
   images: { unoptimized: true },
-  experimental: { turbopackFileSystemCacheForDev: false },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+    turbopackFileSystemCacheForBuild: true,
+  },
   serverExternalPackages: ["pinyin-pro"],
   basePath,
   assetPrefix,

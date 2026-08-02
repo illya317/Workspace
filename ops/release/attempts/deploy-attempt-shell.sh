@@ -4,6 +4,21 @@ release_deploy_attempt_tool() {
   printf '%s/release/attempts/deploy-blocker.mjs' "${RELEASE_SCRIPT_DIR:-${SCRIPT_DIR:?release script directory missing}}"
 }
 
+release_deploy_record_success_baseline() {
+  local controller_dir="${SCRIPT_DIR:-}" worktree="${RELEASE_WORKTREE:-}"
+  local attempt_root="${DEPLOY_ATTEMPT_ROOT:-}" attempt_id="${RELEASE_DEPLOY_ATTEMPT_ID:-}"
+  local ready_receipt="${RELEASE_READY_RECEIPT_FILE:-}"
+  if [ -z "$controller_dir" ] || [ -z "$worktree" ] || [ -z "$attempt_root" ] \
+    || [ -z "$attempt_id" ] || [ -z "$ready_receipt" ] \
+    || ! node "$controller_dir/release/candidate/deployed-baseline.mjs" \
+      --root "$worktree/.cache/release-baselines" \
+      --deploy-attempt "$attempt_root/attempts/$attempt_id.json" \
+      --ready "$ready_receipt"; then
+    echo "[警告] 生产部署已成功，但快速发布基线未写入；下次 CI 将安全降级为串行" >&2
+  fi
+  return 0
+}
+
 release_deploy_attempt_run() {
   if [ "$#" -lt 2 ] || [ "$1" != -- ]; then
     echo "usage: release_deploy_attempt_run -- command [args...]" >&2
@@ -118,5 +133,6 @@ release_deploy_attempt_run() {
     return 1
   fi
   exec {lock_fd}>&-
+  [ "$exit_code" != 0 ] || release_deploy_record_success_baseline
   return "$exit_code"
 }

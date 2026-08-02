@@ -146,6 +146,24 @@ test("runtime probe fails immediately on a deploy identity contract error", asyn
   assert.equal(requests, 1);
 });
 
+test("runtime probe fails before the long timeout on an unrecoverable startup error", async () => {
+  let requests = 0;
+  await assert.rejects(() => probeRuntimeEndpoint(
+    "http://127.0.0.1:4312/workspace/api/internal/health",
+    () => false,
+    { exitCode: null, signalCode: null },
+    () => "Error: Cannot find module './missing-runtime.js' (MODULE_NOT_FOUND)",
+    {
+      fetchImpl: async () => {
+        requests += 1;
+        return new Response("Internal Server Error", { status: 500 });
+      },
+      sleep: async () => assert.fail("fatal startup errors must not sleep"),
+    },
+  ), /runtime startup failed.*Cannot find module/);
+  assert.equal(requests, 0);
+});
+
 test("unit rehearsal creates and removes a real temporary identity", () => {
   const prepared = prepareArtifactRehearsalRuntime({
     manifest: { runtime: { capacity: { databasePoolMax: 7 } } },

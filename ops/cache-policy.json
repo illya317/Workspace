@@ -17,6 +17,7 @@
     "compiler-cache": {
       "roots": [
         ".next/cache",
+        ".cache/next-targets",
         ".cache/next-units",
         ".cache/types",
         ".cache/tsbuild",

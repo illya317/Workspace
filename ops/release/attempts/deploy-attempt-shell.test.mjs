@@ -60,3 +60,19 @@ esac
   assert.equal(existsSync(deployFailureMarker), false);
   assert.equal(existsSync(mutationMarker), false);
 });
+
+test("derived baseline recording can never turn a successful deploy into failure", () => {
+  const result = spawnSync("bash", ["-c", `
+    set -uo pipefail
+    source "$DEPLOY_ATTEMPT_SHELL"
+    release_deploy_record_success_baseline
+  `], {
+    encoding: "utf8",
+    env: {
+      PATH: process.env.PATH,
+      DEPLOY_ATTEMPT_SHELL: path.join(sourceRoot, "deploy-attempt-shell.sh"),
+    },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stderr, /快速发布基线未写入/);
+});

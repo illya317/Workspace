@@ -26,13 +26,16 @@ The required full-release lanes are:
 1. `candidate-freeze`
 2. `artifact-preflight`
 3. `database`
-4. `source`
-5. `artifact-build`
-6. `static-acceptance`
-7. `rehearsal`
-8. `application-ready`
+4. `candidate-evidence`
+5. `source`
+6. `artifact-build`
+7. `static-acceptance`
+8. `rehearsal`
+9. `application-ready`
 
 `source` and `artifact-build` have independent state and receipts. One lane failing must not erase evidence already produced by the other lane. Dependency skips are recorded as `blocked`; an unchanged exact receipt may be recorded as `reused`.
+
+The `candidate-evidence` lane also writes the execution plan. Parallel source/artifact execution is allowed only for a unit-private delta from `.cache/release-baselines/<target>/<mode>/current.json`, which advances only after a successful deploy matching the exact Application Ready. Missing, invalid, non-ancestor, shared, unknown, or monolith baselines select the serial strategy.
 
 The CI entrypoint sources `ops/release/attempts/ci-attempt-shell.sh`, calls `release_ci_attempt_begin` immediately after selector parsing, and then starts/binds/finishes lanes at their existing boundaries. The installed `EXIT` trap is the single finalization path. Do not add a second finalizer to child scripts.
 
@@ -80,4 +83,4 @@ node --test ops/publish-contract.test.mjs
 bash -n ops/release/attempts/ci-attempt-shell.sh
 ```
 
-The tests cover immutable success/failure receipts, lane timing and evidence digests, blocked lanes, secret-field rejection, exact blocker resolution, same-exit-code failure separation, recurrence P1, real archive static acceptance, all eight published lane boundaries, and the shell `EXIT` trap.
+The tests cover immutable success/failure receipts, lane timing and evidence digests, blocked lanes, secret-field rejection, exact blocker resolution, same-exit-code failure separation, recurrence P1, one candidate snapshot receipt, real archive static acceptance, all nine published lane boundaries, and the shell `EXIT` trap.

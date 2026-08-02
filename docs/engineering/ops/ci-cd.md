@@ -16,15 +16,15 @@ ci -> Ready -> deploy
 
 1. **Candidate/config freeze**：固定 source SHA/tree/content、tenant configuration、target/mode，并只生成一次 `RELEASE_CI_RUN_ID`。
 2. **Stage-2 Artifact preflight**：在任何 DB reset、完整 Source CI 或 Next build 前，以真实 Next config loader 检查 exact target、生成 App、Node/npm/Next/package-lock、受控 `node_modules` symlink、PATH 工具和 build-space，写 run-scoped immutable receipt。
-3. **Source CI + artifact build**：CI database sandbox 是共同运行依赖；source lane 与 artifact lane 各写独立 result/receipt。本机 3 CPU/10 GiB 环境为避免争抢而串行，资源隔离充分的 runner 可并行。
-4. **Artifact static acceptance**：复验 builder、manifest、SBOM 和 archive；rehearsal 在启动前先运行 `inspectArchive`。
-5. **Isolated startup**：用同轮 CI database 启动 exact archive；单 unit 必须创建临时 Ed25519 identity，并注入与生产 `start_release` 相同的 unit/slot/state/signing/trust/replay/origin/pool/application-name 环境面，验证 health/version 后清理。生产启动环境面新增或删除字段而 rehearsal 未同步时，契约测试直接失败；日志或响应命中明确的部署身份环境错误时秒级失败并保留运行日志，普通可恢复 5xx 仍继续等待 readiness。演练的 internal origin 刻意指向隔离进程自身，不冒充生产 Gateway；签名、audience、trust 与 replay 行为由 Platform source contract 覆盖，真实 Gateway 路由由 Controller Ready 与 deploy 现场验证负责。
+3. **Candidate evidence + Source CI/artifact build**：源码分析 snapshot 对同一冻结候选只生成一次并写 exact receipt，source 与 artifact 共同消费，禁止 builder 各自重算。CI database sandbox 是共同运行依赖；source lane 与 artifact lane 各写独立 result/receipt。3 CPU/10 GiB 环境下，只有相对该 target 上次成功 deploy 基线的纯 unit 私有变更才并行；共享/未知变更、缺少成功部署基线和 monolith 重构建都保持串行。
+4. **Artifact static acceptance**：统一复验 builder、manifest、SBOM 和 archive并签发 exact static receipt；unit 与 monolith 使用同一入口。
+5. **Isolated startup**：只消费同一 static receipt并启动 exact archive，不再重复 `inspectArchive`；单 unit 必须创建临时 Ed25519 identity，并注入与生产 `start_release` 相同的 unit/slot/state/signing/trust/replay/origin/pool/application-name 环境面，验证 health/version 后清理。unit 健康启动预算为 30 秒，version 二次探测为 5 秒；缺模块、Prisma 初始化、凭据、权限或端口等明确不可恢复错误立即失败并保留日志，普通可恢复 5xx 仍继续等待 readiness。演练的 internal origin 刻意指向隔离进程自身，不冒充生产 Gateway；签名、audience、trust 与 replay 行为由 Platform source contract 覆盖，真实 Gateway 路由由 Controller Ready 与 deploy 现场验证负责。
 6. **Application Ready**：绑定 Stage-2、source、artifact、static acceptance 与 startup proof。
 7. **Controller Ready → Deploy**：独立签发 Controller Ready；deploy 只复验两份 Ready 并执行生产现场安全动作。
 
 Stage-2 失败立即停止后续重任务。只有有依赖的阶段不可越过；source/artifact 两条 lane 的执行并行度由受控资源决定，不能牺牲独立结果或回执。
 
-Artifact 权限属于制品合同，不是生产现场修复项。Monolith 与 unit builder 在打包前调用同一 runtime-tree normalizer：目录固定为 `0755`，普通只读文件固定为 `0444`，原本需要执行的文件固定为 `0555`；escaping/broken symlink、hardlink 和特殊文件直接失败。共享 `inspectArchive` 从 tar metadata 复验同一 exact mode，因此 `umask 077` 形成的 `0700/0600` archive 会在 static acceptance、rehearsal 和 Ready 之前被拒绝，不能等生产隔离用户启动时才表现为“server.js 不存在”。
+Artifact 权限属于制品合同，不是生产现场修复项。Monolith 与 unit builder 在打包前调用同一 runtime-tree normalizer：目录固定为 `0755`，普通只读文件固定为 `0444`，原本需要执行的文件固定为 `0555`；escaping/broken symlink、hardlink 和特殊文件直接失败。共享 `inspectArchive` 从 tar metadata 复验同一 exact mode并签发 static receipt，因此 `umask 077` 形成的 `0700/0600` archive 会在启动前被拒绝；rehearsal 与 Ready 复验 receipt/artifact digest，不再重复展开 archive，也不能等生产隔离用户启动时才表现为“server.js 不存在”。
 
 ## 边界
 
@@ -35,10 +35,10 @@ Artifact 权限属于制品合同，不是生产现场修复项。Monolith 与 u
 1. 校验仓库外租户/CNB 输入、计算配置摘要并冻结同轮 run id。
 2. 执行 Stage-2 Artifact 预检并写不可变回执；失败时不启动 database/source/build。
 3. 对 `_ci` database 获取 advisory lock，验证 owner，清空并迁移 schema，再证明 runtime role 可读。
-4. 冻结并运行 target-aware source task graph，聚合独立 source failures。
-5. 独立恢复或构建 exact target artifact；source 失败不改写 artifact 结果。
-6. 对 exact artifact 做离线启动演练并探测 health/version。
-7. 复验 preflight/database/source/artifact/rehearsal 的 exact identity 后签发 Ready Artifact。
+4. 一次性生成并绑定候选源码 snapshot；随后冻结 target-aware source task graph，聚合独立 source failures。
+5. 独立恢复或构建 exact target artifact；符合成功部署基线与私有变更条件的 unit 才与 source 并行，任一失败不改写另一条 lane 的结果。
+6. 对 exact artifact 签发 static receipt，再做离线启动演练并探测 health/version。
+7. 复验 preflight/database/candidate-evidence/source/artifact/static/rehearsal 的 exact identity 后签发 Ready Artifact。
 
 source task graph 按 Ready 目标冻结。`monolith` 继续执行完整 `release-source`：完整 `release-static`、全部 Node shards 与全部 TypeScript scopes。显式 deploy unit 仍保留同一套 `release-static` 安全合同，只把三个可安全缩小的叶子换成 deploy graph 派生闭包：ESLint 扫描目标私有根、compiler closure 的共享/目标根和生成 App 根；Node 运行 compiler packages、`app`、`scripts/check`、`scripts/deploy`，并从 `unit.privateSourceRoots` 派生 `scripts/*` 等非 package 测试区（`ops` shard 由独立 Controller Ready 覆盖）；TypeScript 只运行 `unit.checks.typecheckScopes`。每个叶子仍按 exact input/command/runtime 缓存，未知 unit 或 graph scope 直接失败，不回退为猜测集合。
 
@@ -165,7 +165,7 @@ taskKey + taskContractVersion + inputDigest + commandDigest + runtimeDigest
 
 成功任务进入持久回执库；failed、cancelled 和未声明可复用的 warning 不进入。修复后再次运行 `ci` 时，精确输入未变化的任务直接复用，只执行失效任务。因此第一次可能是 100%，第二次接近变更闭包，后续继续缩小，而不是每轮重跑全量。
 
-每次 `ci` 无论成功或失败，都会在 gitignored `.cache/release-attempts` 写入一份 run-scoped immutable attempt receipt，并为八个 lane 保留 `0600` 日志、耗时、证据摘要和稳定故障指纹。后续同责任 lane 通过时，回执记录修复 commit；已关闭指纹再次出现会以 P1 和退出码 `42` 阻止 Ready。字段、巡检命令和敏感信息边界见 [Release CI attempt receipts](./release-ci-attempts.md)。
+每次 `ci` 无论成功或失败，都会在 gitignored `.cache/release-attempts` 写入一份 run-scoped immutable attempt receipt，并为九个 lane 保留 `0600` 日志、耗时、证据摘要和稳定故障指纹。后续同责任 lane 通过时，回执记录修复 commit；已关闭指纹再次出现会以 P1 和退出码 `42` 阻止 Ready。字段、巡检命令和敏感信息边界见 [Release CI attempt receipts](./release-ci-attempts.md)。
 
 每次 deploy 同样必须在 controller repository 的 gitignored `.cache/release-deploy-attempts` 留下 run-scoped 日志和不可变 attempt，不能依赖可能失效的 candidate worktree；selector 尚未验证时以 `all:all` 记录，并阻断任意目标。入口聚合预检失败写 admission attempt；retry fence 的正确拒绝只记 blocked，不递归制造新 blocker；fence 通过后签发绑定 exact attempt/candidate/controller/ledger digest 的 Retry Fence Ready。唯一 attempt wrapper 持有 controller single-flight lock直到最终回执落盘，所有会改变 ledger/fence 的写命令也使用同一把锁，锁内只消费一次并绑定 parent，避免在 consumption 与 mutation barrier 之间改变 ledger；下层 `publish-cnb.sh --direct` 在 mutation barrier 前重验 consumption 与最新 ledger。进入生产执行器后无论成功、失败或取消都写 deploy attempt。失败 fingerprint 在下一次 deploy 前必须分类为 `candidate-specific` 或 `systemic`；未分类、同候选重试、未解决 systemic blocker 都禁止重试。systemic resolution 必须绑定 fixing commit、当前 gate commit 仍保留的 tracked fixture、Application Ready 或 Controller Ready gate 及其 immutable evidence snapshot；每次 retry 重新复验。已解决问题复发，或 candidate-specific 问题跨候选复发，均按 P1/退出码 `42` 处理。完整合同见 [Deploy attempts and blocker ledger](./release-deploy-attempts.md)。
 
@@ -175,7 +175,11 @@ Controller Ready 采用相同的精确复用原则，但不把 application sourc
 
 derived task receipt 损坏时会先移入 quarantine，再把任务改为 pending 重算；不能因一个坏缓存永久 blocked。artifact cache 损坏时，未被 production/rollback pin 的目录同样先隔离再重建；被 pin 的目录拒绝自动移动并要求人工审计。
 
-Deploy-unit 的 `.next/cache` 是可丢弃的编译器缓存，不是 artifact。其 receipt 位于 `.cache/next-units/<unit>/receipt.json`，只绑定 Node 平台/版本、Next package、lockfile、真实 unit Next config、相关 tsconfig 和稳定 deploy-unit graph/generator 输入；app 文案源码刻意不进入该 receipt，使第二次小改能复用编译器增量数据。路径、unit、工具链或配置漂移会把旧 cache 移入 `.cache/quarantine/next-units` 并记录明确 miss reason；每次 changed app 仍必须真实执行 Next build、生成新 BUILD_ID/artifact 并完成 static acceptance/rehearsal。
+Next cache 分三条互不共享的生命周期。Dev 启动继续删除开发 checkout 的整个 `source/.next`；monolith release 只在独立 release worktree 清理 `.next/standalone`，把受治理 cache 存在 `.cache/next-targets/monolith`；unit release 删除 `apps/<unit>/.next` 候选输出，只从 `.cache/next-units/<unit>` 恢复该 unit 的兼容 cache。Next 16 的 `turbopackFileSystemCacheForBuild` 对 root 与所有生成 unit config 强制开启，Dev filesystem cache 强制关闭；真实 Next loader 在 Stage-2 同时验证这两个值。该能力来自 Next 官方的 [CI build caching](https://nextjs.org/docs/app/guides/ci-build-caching) 与 [Turbopack filesystem cache](https://nextjs.org/docs/app/api-reference/turbopack) 合同。
+
+Compiler cache 是可丢弃加速数据，不是 artifact。schema-v2 receipt 绑定 target/appRoot、Node 平台/版本、Next package、lockfile、真实 Next config、相关 tsconfig、build profile 和 unit graph/generator 输入；app 文案源码刻意不进入 receipt，由 Turbopack 自己做增量失效，使第二次小改能复用编译数据。路径、target、工具链或配置漂移会把旧 cache 移入对应 `.cache/quarantine/next-targets` 或 `.cache/quarantine/next-units` 并记录明确 miss reason。`ops/cache-policy.json` 同时治理两类 release cache 的容量、磁盘水位和 retention；CNB 为两者配置独立持久卷。每个 changed app 仍必须真实执行 Next build、生成新 BUILD_ID/artifact 并完成 static acceptance/rehearsal。
+
+unit 并行判定只读取 `.cache/release-baselines/<target>/<mode>/current.json`。该 derived pointer 只有 exact deploy attempt 已成功、且与本次消费的 Application Ready 完全一致后才会推进；Ready 已签发但 deploy 失败的候选不能成为下一轮差异基线。基线缺失、损坏或无法证明 ancestry 时安全降级为串行，不影响部署已经成功的事实。
 
 Task input contract v3 不再把每个检查统一绑定整个 `scripts/check`。每个 task 绑定自己的 detector import closure 和实际 raw source roots；schema、lock、Core、Platform、Ops 和未知路径继续 fail closed。不得在中央缓存层复制 detector 的正则/AST 语义来隐藏文案差异；只有 detector 自己提供版本化 semantic-input API 后，才允许进一步缩小其 raw input。
 
@@ -211,7 +215,7 @@ Local 和 CNB 只是执行渠道，不是不同的 CI/CD 模型。任何渠道�
 1. 保存本轮完整 failed/blocked/preflight/artifact/rehearsal 汇总。
 2. Agent 一次性审计完整清单和依赖链，集中修复。
 3. 用针对性命令验证修改点；不要把正式 CI 当逐错调试器。
-4. 再运行 `ci`。它复用成功的 exact-input 回执和 exact artifact/rehearsal，只执行增量。
+4. 再运行 `ci`。它复用成功的 exact-input task/artifact/compiler-cache/static 回执，只执行增量；同轮数据库被重置后 rehearsal 仍真实启动一次，不复用旧运行证明。
 5. 只有新的 Ready Artifact 签发后才能 deploy。
 
 一次 `deploy` 失败后，不得直接再按同一命令试一次：先保存完整 deploy attempt，分类 blocker；candidate-specific 必须形成新候选，systemic 必须把复现 fixture 和 gate 前移到 Application Ready 或 Controller Ready 并绑定修复回执。retry fence 通过后才允许重新生成 Deploy Preflight Ready。Ops patrol 同时巡视 CI 与 deploy 历史，任何已关闭 fingerprint 复发都先作为 P1 处理，而不是在生产脚本里再次临时补文件、chmod 或修改 manifest。
@@ -220,7 +224,7 @@ Local 和 CNB 只是执行渠道，不是不同的 CI/CD 模型。任何渠道�
 
 ## 小改 hot path 与正式验收
 
-main 已有成功生产基线后，文字或少量模块代码修改的目标路径是：冻结新候选 → 复用 exact-input source/task receipts → 只运行受影响 unit/closure → 复用 compiler cache 但真实生成新的 Next `BUILD_ID`/artifact → static acceptance/rehearsal → Application Ready → 复用未变化的 controller qualification 并重签 binding → 秒级聚合 deploy preflight → 共享锁内复验并原子切换。deploy 不能回头运行 CI、测试或 build。
+main 已有该 target 的成功部署基线后，文字或少量模块私有代码修改的目标路径是：冻结新候选 → 一次生成 candidate evidence → 复用 exact-input source/task receipts → source 与 changed unit artifact 并行 → 复用 compiler cache 但真实生成新的 Next `BUILD_ID`/artifact → 一次 static acceptance + isolated rehearsal → Application Ready → 复用未变化的 controller qualification并重签 binding → 秒级聚合 deploy preflight → 共享锁内复验并原子切换。deploy 不能回头运行 CI、测试或 build。
 
 这里不设脱离环境的硬性三分钟阈值，但“几行文字改动仍重复 15–30 分钟完整 Source CI/Controller qualification，或靠多次 deploy fail 才找全问题”明确不合理。缓存命中不豁免真实 artifact build、static acceptance、isolated rehearsal 和生产安全检查；它只消除与本次输入无关的重复工作。
 

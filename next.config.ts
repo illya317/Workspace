@@ -81,6 +81,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbopackFileSystemCacheForDev: false,
+    turbopackFileSystemCacheForBuild: true,
   },
   serverExternalPackages: ["pinyin-pro"],
   basePath,

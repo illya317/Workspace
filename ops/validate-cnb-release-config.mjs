@@ -6,7 +6,7 @@ import { parse } from "yaml";
 
 const REQUIRED_VOLUMES = [
   "workspace-release-npm-v1:/root/.npm:copy-on-write",
-  "workspace-release-next-v1:./.next/cache:copy-on-write",
+  "workspace-release-next-targets-v1:./.cache/next-targets:copy-on-write",
   "workspace-release-next-units-v1:./.cache/next-units:copy-on-write",
   "workspace-release-types-v1:./.cache/types:copy-on-write",
   "workspace-release-tsbuild-v1:./.cache/tsbuild:copy-on-write",

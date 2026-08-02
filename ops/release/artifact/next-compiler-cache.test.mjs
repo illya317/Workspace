@@ -48,7 +48,7 @@ function fixture() {
   write(navigationManifestFile, JSON.stringify({ schemaVersion: 1, units: [{ id: "finance" }] }));
   const options = {
     repositoryRoot: root,
-    unitId: "finance",
+    targetId: "finance",
     appRoot,
     outputRoot,
     contractFile,
@@ -56,6 +56,31 @@ function fixture() {
     cacheRoot: path.join(root, ".cache/next-units/finance"),
     quarantineRoot: path.join(root, ".cache/quarantine/next-units"),
     buildDirectory: path.join(root, appRoot, ".next"),
+    evidenceFile: path.join(outputRoot, "next-compiler-cache.json"),
+    runtime: BASE_RUNTIME,
+  };
+  return { root, options };
+}
+
+function monolithFixture() {
+  const root = mkdtempSync(path.join(tmpdir(), "next-compiler-cache-monolith-"));
+  write(path.join(root, "package-lock.json"), "lock-v1\n");
+  write(path.join(root, "package.json"), '{"scripts":{"build":"next build"}}\n');
+  write(path.join(root, "node_modules/next/package.json"), JSON.stringify({ name: "next", version: "16.0.0" }));
+  write(path.join(root, "next.config.ts"), "export default { output: 'standalone' };\n");
+  write(path.join(root, "tsconfig.base.json"), "{}\n");
+  write(path.join(root, "tsconfig.app.json"), '{"extends":"./tsconfig.base.json"}\n');
+  write(path.join(root, "scripts/check/prepare-standalone-output.js"), "// remove standalone only\n");
+  const outputRoot = path.join(root, ".cache/release-check/monolith");
+  mkdirSync(outputRoot, { recursive: true });
+  const options = {
+    repositoryRoot: root,
+    targetId: "monolith",
+    appRoot: ".",
+    outputRoot,
+    cacheRoot: path.join(root, ".cache/next-targets/monolith"),
+    quarantineRoot: path.join(root, ".cache/quarantine/next-targets"),
+    buildDirectory: path.join(root, ".next"),
     evidenceFile: path.join(outputRoot, "next-compiler-cache.json"),
     runtime: BASE_RUNTIME,
   };
@@ -92,6 +117,7 @@ test("an absent cache is a clean miss and writes prepare evidence", () => {
     assert.equal(result.reason, "absent");
     assert.equal(result.quarantined, false);
     const evidence = JSON.parse(readFileSync(options.evidenceFile, "utf8"));
+    assert.deepEqual(evidence.target, { kind: "unit", id: "finance", appRoot: "apps/finance" });
     assert.equal(evidence.inputDigest, result.inputDigest);
     assert.deepEqual(evidence.prepare, result);
   } finally {
@@ -99,7 +125,7 @@ test("an absent cache is a clean miss and writes prepare evidence", () => {
   }
 });
 
-test("store creates a schema-v1 receipt that the next prepare can hit", () => {
+test("store creates a governed receipt that the next prepare can hit", () => {
   const { root, options } = fixture();
   try {
     buildCache(options);
@@ -116,8 +142,34 @@ test("store creates a schema-v1 receipt that the next prepare can hit", () => {
     assert.equal(prepared.reason, "receipt-matched");
     assert.equal(readFileSync(path.join(options.buildDirectory, "cache/compiler.bin"), "utf8"), "compiled-v1");
     const receipt = JSON.parse(readFileSync(path.join(options.cacheRoot, "receipt.json"), "utf8"));
-    assert.equal(receipt.schemaVersion, 1);
+    assert.equal(receipt.schemaVersion, 2);
+    assert.deepEqual(receipt.target, { kind: "unit", id: "finance", appRoot: "apps/finance" });
+    assert.deepEqual(receipt.input.buildEnvironment, {
+      buildProfile: "unit-standalone-default",
+      cacheEngine: "turbopack-filesystem-build-v1",
+      nodeEnv: "production",
+      outputMode: "standalone",
+      targetKind: "unit",
+    });
     assert.equal(receipt.inputDigest, prepared.inputDigest);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("monolith uses its own governed cache without sharing dev or unit roots", () => {
+  const { root, options } = monolithFixture();
+  try {
+    buildCache(options, "monolith-compiled-v1");
+    storeCompilerCache(options);
+    rmSync(options.buildDirectory, { recursive: true, force: true });
+    write(path.join(root, "app/page.tsx"), "export default function Page() { return 'copy changed'; }\n");
+    const prepared = prepareCompilerCache(options);
+    assert.equal(prepared.status, "hit");
+    assert.equal(readFileSync(path.join(options.buildDirectory, "cache/compiler.bin"), "utf8"), "monolith-compiled-v1");
+    const receipt = JSON.parse(readFileSync(path.join(options.cacheRoot, "receipt.json"), "utf8"));
+    assert.deepEqual(receipt.target, { kind: "monolith", id: "monolith", appRoot: "." });
+    assert.equal(existsSync(path.join(root, ".cache/next-units/monolith")), false);
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
@@ -143,7 +195,7 @@ test("a custom normalized in-repository output root reuses the same logical inpu
   }
 });
 
-test("config, lock, and runtime drift miss and quarantine the stale derived cache", async (t) => {
+test("config, lock, runtime, and build-profile drift miss and quarantine the stale derived cache", async (t) => {
   const cases = [
     {
       name: "config",
@@ -159,6 +211,11 @@ test("config, lock, and runtime drift miss and quarantine the stale derived cach
       name: "runtime",
       reason: "runtime-drift",
       mutate: ({ options }) => { options.runtime = { ...BASE_RUNTIME, nodeVersion: "v22.18.0" }; },
+    },
+    {
+      name: "build profile",
+      reason: "build-environment-drift",
+      mutate: ({ options }) => { options.buildProfile = "unit-standalone-external-typecheck"; },
     },
   ];
   for (const driftCase of cases) {
@@ -192,7 +249,7 @@ test("missing or tampered receipts are quarantined instead of reused", async (t)
         rmSync(options.buildDirectory, { recursive: true, force: true });
         const receiptFile = path.join(options.cacheRoot, "receipt.json");
         if (receiptCase === "missing") rmSync(receiptFile);
-        else write(receiptFile, '{"schemaVersion":1,"kind":"workspace-next-compiler-cache"}\n');
+        else write(receiptFile, '{"schemaVersion":2,"kind":"workspace-next-compiler-cache"}\n');
         const result = prepareCompilerCache(options);
         assert.equal(result.status, "miss");
         assert.equal(result.reason, receiptCase === "missing" ? "receipt-missing" : "receipt-invalid");
@@ -311,7 +368,7 @@ test("a wrong-unit generated contract is rejected", () => {
       build: { appRoot: options.appRoot },
       compiler: { projects: ["packages/core/tsconfig.json"] },
     }));
-    assert.throws(() => prepareCompilerCache(options), /contract unit does not match/);
+    assert.throws(() => prepareCompilerCache(options), /contract target does not match/);
     assert.equal(existsSync(options.cacheRoot), false);
   } finally {
     rmSync(root, { recursive: true, force: true });

@@ -49,7 +49,7 @@
     {
       "name": "release-readiness",
       "include": ["ops/release/readiness/"],
-      "allowedDependencies": ["release-artifact", "release-contracts", "release-validation"]
+      "allowedDependencies": ["release-artifact", "release-candidate", "release-contracts", "release-validation"]
     },
     {
       "name": "release-worktree",
