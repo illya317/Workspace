@@ -80,7 +80,8 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   const remoteStagingWrite = client.indexOf("mkdir -p '$REMOTE_STAGING'", sharedLock);
   assert.ok(artifactPreflight >= 0 && sharedLock > artifactPreflight);
   assert.ok(remoteToolWrite > sharedLock && remoteStagingWrite > sharedLock);
-  assert.ok(client.indexOf("sync-tenant-config.sh", sharedLock) > sharedLock);
+  assert.doesNotMatch(client.slice(sharedLock), /sync-tenant-config\.sh --source-sha/);
+  assert.match(client.slice(0, sharedLock), /tenant-config\.production-baseline/);
   assert.match(client, /DEPLOY_LOCK_TOKEN='\$REMOTE_DEPLOY_LOCK_TOKEN'/);
   assert.match(unitLockQualification, /apply-deploy-unit 只能消费已获取的共享 deploy\.lock/);
   assert.match(apply, /qualify_apply_deploy_unit_lock "\$CONFIG_ROOT" "\$LOCK_FILE" "\$LOCK_OWNER_FILE"/);
@@ -111,10 +112,10 @@ test("unit deploy aggregates zero-write diagnostics and crosses one lock-held mu
   const compare = client.indexOf('unit-preflight.mjs" snapshot-compare', lockedSnapshot);
   const marker = client.indexOf("# workspace-errexit-role: mutation-barrier", compare);
   const errexit = client.indexOf("set " + "-e", marker);
-  const tenantWrite = client.indexOf("./ops/sync-tenant-config.sh --source-sha", errexit);
   assert.ok(summary > 0 && record < summary && verifyReady > summary && lock > verifyReady);
   assert.ok(lockedSnapshot > lock && compare > lockedSnapshot);
-  assert.ok(marker > compare && errexit > marker && tenantWrite > errexit);
+  assert.ok(marker > compare && errexit > marker);
+  assert.doesNotMatch(client.slice(marker), /sync-tenant-config\.sh --source-sha/);
   assert.doesNotMatch(client.slice(0, marker), /mkdir -p '\$REMOTE_TOOL_ROOT'|mkdir -p '\$REMOTE_STAGING'/);
   assert.match(client, /set -o errexit[\s\S]*?exec 9>>'\$lock_file'/);
 });

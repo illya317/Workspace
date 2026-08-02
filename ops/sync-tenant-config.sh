@@ -157,8 +157,9 @@ ssh "${SSH_OPTIONS[@]}" "$SERVER" "
   node \"\$tool\" verify --root '$REMOTE_WORKSPACE_CONFIG_DIR' --manifest \"\$manifest\"
   rm -rf '$REMOTE_STAGING_ROOT'
   find '$REMOTE_DIR/.workspace.backups/tenant-config' -mindepth 1 -maxdepth 1 -type d \
-    -printf '%f\\n' | sort -r | tail -n +6 | while IFS= read -r stale; do
-      rm -rf '$REMOTE_DIR/.workspace.backups/tenant-config/'\"\$stale\"
+    -printf '%T@ %p\\0' | sort -z -nr | tail -z -n +6 | while IFS= read -r -d '' stale_entry; do
+      stale_path=\"\${stale_entry#* }\"
+      case \"\$stale_path\" in '$REMOTE_DIR/.workspace.backups/tenant-config/'*) rm -rf -- \"\$stale_path\" ;; esac
     done
 "
 echo "==> 租户配置同步完成并通过服务器摘要校验: $TENANT_CONFIG_DIGEST"

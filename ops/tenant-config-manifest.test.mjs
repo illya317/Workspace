@@ -13,6 +13,11 @@ import {
 const fixtureRoot = resolve("scripts/check/fixtures/tenant-workspace");
 const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
 
+test("tenant config backup retention sorts by modification time instead of SHA-prefixed names", () => {
+  assert.match(syncTenantConfig, /-printf '%T@ %p\\\\0' \| sort -z -nr \| tail -z -n \+6/);
+  assert.doesNotMatch(syncTenantConfig, /-printf '%f\\\\n' \| sort -r/);
+});
+
 function copyFixture(target) {
   cpSync(fixtureRoot, target, { recursive: true });
 }

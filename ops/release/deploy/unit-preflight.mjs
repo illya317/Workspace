@@ -111,7 +111,7 @@ export async function buildUnitDeployBindings(context, { strict = false } = {}) 
     deployInput: {
       operation: context.operation, deployGraphDigest: graphDigest, executionMode: context.executionMode, mode: context.mode,
       remoteRootDigest: requireDigest(context.remoteRootDigest, "remote root digest"), serverIdentityDigest: requireDigest(context.serverIdentityDigest, "server identity digest"),
-      target: context.unitId, tenantManifestDigest: safeDigest(ready?.configurationDigest, "configuration digest"),
+      target: context.unitId, tenantManifestDigest: snapshot.tenantManifestDigest,
     },
     productionSnapshot: snapshot,
   });

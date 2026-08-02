@@ -361,6 +361,16 @@ if [ "$transport_ready" = 1 ]; then
     preflight_fail "runtime.remote-contract"
   fi
   if [ "$remote_contract_ready" = 1 ]; then
+    if ! ssh "${SSH_OPTIONS[@]}" "$SERVER" "node -e '
+      const fs = require(\"node:fs\");
+      const receipt = JSON.parse(fs.readFileSync(process.argv[1], \"utf8\"));
+      const manifest = JSON.parse(fs.readFileSync(process.argv[2], \"utf8\"));
+      if (receipt.inputs?.tenantConfigDigest !== manifest.digest) {
+        throw new Error(\"unit deploy requires an internally consistent installed control plane; run monolith/control-plane deploy first\");
+      }
+    ' '$REMOTE_DIR/.workspace/control-plane-release.json' '$REMOTE_DIR/.workspace/.deployment/tenant-config-manifest.json'"; then
+      preflight_fail "tenant-config.production-baseline"
+    fi
     if ! capture_unit_production_snapshot "$DEPLOY_PREFLIGHT_SNAPSHOT_FILE"; then
       preflight_fail "production.semantic-snapshot"
     fi
@@ -404,9 +414,6 @@ fi
 # workspace-errexit-role: mutation-barrier
 set -e
 
-OPS_ENV_FILE="${OPS_ENV_FILE:?OPS_ENV_FILE is required}" \
-  ./ops/sync-tenant-config.sh --source-sha "${RELEASE_SOURCE_SHA:?RELEASE_SOURCE_SHA is required}" \
-    --lock-token "$REMOTE_DEPLOY_LOCK_TOKEN"
 ssh "${SSH_OPTIONS[@]}" "$SERVER" "mkdir -p '$REMOTE_TOOL_ROOT'"
 rsync -az --delete-delay -e "$RSYNC_SSH" \
   "$DEPLOY_TOOL_BUNDLE_TMP/" "$SERVER:$REMOTE_TOOL_ROOT/"
