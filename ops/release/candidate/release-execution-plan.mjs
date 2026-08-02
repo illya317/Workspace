@@ -7,6 +7,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { resolveDeployGraph } from "../../../scripts/deploy/deploy-graph";
+import { isDeployControlPath } from "../control/deploy-control-compatibility.mjs";
 
 const SHA = /^[0-9a-f]{40}$/;
 const TARGET = /^(?:monolith|[a-z][a-z0-9-]*)$/;
@@ -83,6 +84,7 @@ export function createReleaseExecutionPlan({
   let reason = target === "monolith" ? "monolith-resource-boundary" : "unit-baseline-required";
   let baselineSource = null;
   let files = [];
+  let controllerFiles = [];
   let privateSourceRoots = [];
   if (target !== "monolith") {
     const baseline = currentDeployedBaseline(path.resolve(baselineRoot), target, mode);
@@ -93,7 +95,9 @@ export function createReleaseExecutionPlan({
       const unit = deployGraph.units.find((entry) => entry.id === target);
       if (!unit) throw new Error(`release execution target is not a deploy unit: ${target}`);
       privateSourceRoots = [...unit.privateSourceRoots].map((entry) => entry.replace(/\/$/, "")).sort();
-      files = changedFiles(root, baselineSource, source);
+      const candidateFiles = changedFiles(root, baselineSource, source);
+      controllerFiles = candidateFiles.filter(isDeployControlPath);
+      files = candidateFiles.filter((file) => !isDeployControlPath(file));
       if (files.length === 0) reason = "candidate-has-no-delta";
       else if (files.every((file) => privateSourceRoots.some((rootPath) => withinRoot(file, rootPath)))) {
         strategy = "parallel";
@@ -109,6 +113,7 @@ export function createReleaseExecutionPlan({
     target: { id: target, mode },
     baselineSource,
     changedFiles: files,
+    controllerChangedFiles: controllerFiles,
     privateSourceRoots,
     sourceArtifactStrategy: strategy,
     reason,

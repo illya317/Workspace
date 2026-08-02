@@ -63,6 +63,19 @@ test("a private unit delta is the only plan allowed to parallelize source and ar
   assert.equal(plan.sourceArtifactStrategy, "parallel");
   assert.equal(plan.reason, "private-unit-delta");
   assert.deepEqual(plan.changedFiles, ["app/(modules)/news/page.tsx"]);
+  assert.deepEqual(plan.controllerChangedFiles, []);
+});
+
+test("controller-only drift is audited without downgrading a private unit delta", (t) => {
+  const value = fixture(t);
+  fs.mkdirSync(path.join(value.root, "ops"), { recursive: true });
+  fs.writeFileSync(path.join(value.root, "ops/publish.sh"), "controller changed\n");
+  fs.writeFileSync(path.join(value.root, "app/(modules)/news/page.tsx"), "copy changed\n");
+  const source = commit(value.root, "controller and copy");
+  const plan = createReleaseExecutionPlan({ repository: value.root, baselineRoot: value.baselineRoot, source, target: "news", targetMode: "shadow", graph: value.graph });
+  assert.equal(plan.sourceArtifactStrategy, "parallel");
+  assert.deepEqual(plan.changedFiles, ["app/(modules)/news/page.tsx"]);
+  assert.deepEqual(plan.controllerChangedFiles, ["ops/publish.sh"]);
 });
 
 test("shared changes, missing baseline, and monolith remain serial", async (t) => {

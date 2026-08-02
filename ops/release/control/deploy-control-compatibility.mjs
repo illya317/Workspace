@@ -23,6 +23,8 @@ const EXACT_CONTROL_FILES = new Set([
   "ops/reconcile-runtime-config-permissions.sh",
   "ops/release-receipt.mjs",
   "ops/release-receipt.test.mjs",
+  "ops/release/candidate/release-execution-plan.mjs",
+  "ops/release/candidate/release-execution-plan.test.mjs",
   "ops/release/readiness/rehearse-artifact.test.mjs",
   "ops/run-cnb-release-stage.sh",
   "ops/run-local-release-action.sh",

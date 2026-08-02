@@ -79,6 +79,8 @@ test("receipt, preflight, injection, and their tests are explicit deploy-control
     "ops/postgresql/production-security.test.mjs",
     "ops/release-receipt.mjs",
     "ops/release-receipt.test.mjs",
+    "ops/release/candidate/release-execution-plan.mjs",
+    "ops/release/candidate/release-execution-plan.test.mjs",
     "ops/release/readiness/rehearse-artifact.test.mjs",
     "ops/release/deploy/publish-entry-preflight.sh",
     "ops/run-cnb-release-stage.sh",
