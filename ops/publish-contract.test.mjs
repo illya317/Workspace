@@ -297,6 +297,8 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   const barrierIndex = publishCnb.indexOf(barrier);
   assert.ok(barrierIndex > publishCnb.indexOf("finish_publish_preflight"));
   assert.match(publishCnbSources, /deploy-blocker\.mjs" verify-clear/);
+  assert.match(publishCnbPreflight, /probe_candidate_ready_artifact\(\)[\s\S]*?--source-snapshot[\s\S]*?candidate-source-snapshot-\$run_id\.json/);
+  assert.match(publishCnbPreflight, /probe_candidate_ready_artifact\(\)[\s\S]*?--static-acceptance[\s\S]*?static-acceptance-\$ready_target-\$ready_mode-\$run_id\.json/);
   assert.match(publishCnb.slice(0, barrierIndex), /verify_consumed_deploy_retry_fence/);
   assert.doesNotMatch(publishCnb.slice(0, barrierIndex), /(?:^|\n)\s*set\s+(?:-[A-Za-z]*e[A-Za-z]*|-o\s+errexit)(?:\s|$)/);
   assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);

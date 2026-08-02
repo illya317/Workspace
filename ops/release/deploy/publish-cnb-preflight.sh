@@ -103,8 +103,10 @@ NODE
     --configuration "$RELEASE_CONFIGURATION_DIGEST" --target "$ready_target" --target-mode "$ready_mode"
     --source-receipt "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/source-validation-$ready_target-$run_id.json"
     --source-result "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/source-$run_id.json"
+    --source-snapshot "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/candidate-source-snapshot-$run_id.json"
     --task-graph "$SOURCE_DIR/.cache/release-task-graphs/$run_id.json"
     --artifact-preflight "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/artifact-preflight-$ready_target-$ready_mode-$run_id.json"
+    --static-acceptance "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/static-acceptance-$ready_target-$ready_mode-$run_id.json"
     --rehearsal "$SOURCE_DIR/.cache/release-artifacts/evidence/$source_content/rehearsal-$ready_target-$ready_mode-$run_id-$RELEASE_CONFIGURATION_DIGEST.json"
     --artifact-receipt "$SOURCE_DIR/.cache/release-check/release-artifact.json"
   )
