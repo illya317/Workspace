@@ -8,6 +8,7 @@ if ! PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)" \
   exit 1
 fi
 source "$PROJECT_ROOT/ops/release/deploy/unit-preflight.sh"
+source "$PROJECT_ROOT/ops/release/deploy/unit-production-invariants.sh"
 if ! unit_preflight_initialize; then
   echo "[错误] 无法初始化 Unit Deploy Preflight evidence" >&2
   exit 1
@@ -426,18 +427,10 @@ ssh "${SSH_OPTIONS[@]}" "$SERVER" \
 rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
 DEPLOY_TOOL_BUNDLE_TMP=""
 
-verify_remote_monolith_invariants() {
-  ssh "${SSH_OPTIONS[@]}" "$SERVER" \
-    "sudo -n -- runuser -u workspace-runtime -- test -x '$REMOTE_DIR/.workspace' && curl --silent --show-error 'http://127.0.0.1:3000/workspace/api/internal/health' | node -e 'let body=\"\"; process.stdin.on(\"data\", (chunk) => body += chunk).on(\"end\", () => { let health; try { health = JSON.parse(body); } catch { console.error(\"monolith health response is invalid\"); process.exit(1); } if (health.status !== \"ok\" || health.unitId !== \"workspace-monolith\") { console.error(\"monolith health invariant failed\"); process.exit(1); } });'"
-}
-
 if [ "$COMMAND" = "rollback" ]; then
   ssh "${SSH_OPTIONS[@]}" "$SERVER" \
     "DEPLOY_LOCK_TOKEN='$REMOTE_DEPLOY_LOCK_TOKEN' REMOTE_DIR='$REMOTE_DIR' WORKSPACE_RUNTIME_PM2_RUNNER='$WORKSPACE_RUNTIME_PM2_RUNNER' WORKSPACE_GATEWAY_NGINX_SITE='$WORKSPACE_GATEWAY_NGINX_SITE' WORKSPACE_MONOLITH_WECOM_PROCESS_NAME='$WORKSPACE_MONOLITH_WECOM_PROCESS_NAME' DEPLOY_PACKAGE_VERSION='$DEPLOY_PACKAGE_VERSION' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_STARTED_EPOCH_SECONDS' '$REMOTE_TOOL_ROOT/apply-deploy-unit.sh' rollback '$UNIT_ID'"
-  verify_remote_monolith_invariants || {
-    echo "[错误] Unit rollback 后共享 runtime ACL 或 monolith health 不满足生产不变量" >&2
-    exit 1
-  }
+  require_remote_monolith_invariants
   exit 0
 fi
 
@@ -450,8 +443,5 @@ rsync -az -e "$RSYNC_SSH" "$CONTRACT_FILE" "$SERVER:$REMOTE_STAGING/deploy-unit-
 rsync -az -e "$RSYNC_SSH" "$GRAPH_FILE" "$SERVER:$REMOTE_STAGING/deploy-graph.json"
 ssh "${SSH_OPTIONS[@]}" "$SERVER" \
   "DEPLOY_LOCK_TOKEN='$REMOTE_DEPLOY_LOCK_TOKEN' REMOTE_DIR='$REMOTE_DIR' WORKSPACE_RUNTIME_PM2_RUNNER='$WORKSPACE_RUNTIME_PM2_RUNNER' WORKSPACE_GATEWAY_NGINX_SITE='$WORKSPACE_GATEWAY_NGINX_SITE' WORKSPACE_MONOLITH_WECOM_PROCESS_NAME='$WORKSPACE_MONOLITH_WECOM_PROCESS_NAME' DEPLOY_PROFILE_PREPARED_STATE_ROOT='${DEPLOY_PROFILE_PREPARED_STATE_ROOT:-}' DEPLOY_PACKAGE_VERSION='$DEPLOY_PACKAGE_VERSION' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_STARTED_EPOCH_SECONDS' DEPLOY_RELEASE_PROCESS_SECONDS='$DEPLOY_RELEASE_PROCESS_SECONDS' DEPLOY_RELEASE_ATTEMPT_COUNT='$DEPLOY_RELEASE_ATTEMPT_COUNT' DEPLOY_RELEASE_PROCESS_STARTED_AT='$DEPLOY_RELEASE_PROCESS_STARTED_AT' DEPLOY_CNB_STAGES_BASE64='$DEPLOY_CNB_STAGES_BASE64' '$REMOTE_TOOL_ROOT/apply-deploy-unit.sh' deploy '$UNIT_ID' '$REMOTE_STAGING' '$MODE'"
-verify_remote_monolith_invariants || {
-  echo "[错误] Unit deploy 后共享 runtime ACL 或 monolith health 不满足生产不变量" >&2
-  exit 1
-}
+require_remote_monolith_invariants
 ssh "${SSH_OPTIONS[@]}" "$SERVER" "rm -rf '$REMOTE_STAGING'"

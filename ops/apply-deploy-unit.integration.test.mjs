@@ -241,8 +241,7 @@ function fixture(activeUnitId = "finance") {
   const nginxSite = path.join(root, "workspace.conf");
   const preparedStateRoot = path.join(remoteDir, ".workspace", "gateway", "profile-preparations", "test-rollout");
   const deployLockToken = "apply-deploy-unit-integration";
-  mkdirSync(path.join(remoteDir, ".workspace", ".deployment"), { recursive: true });
-  chmodSync(path.join(remoteDir, ".workspace"), 0o710);
+  mkdirSync(path.join(remoteDir, ".workspace", ".deployment"), { recursive: true }); chmodSync(path.join(remoteDir, ".workspace"), 0o710);
   mkdirSync(fakeBin);
   mkdirSync(runtimeRoot);
   const control = tenantAndControlPlane(path.join(root, "control"));
@@ -432,7 +431,6 @@ function captureAssistantOwner(gatewayRoot) {
     gatewayRoot,
   ], { encoding: "utf8" });
 }
-
 function activateFallbackGateway(files) {
   const graphFile = path.join(files.root, "fallback-deploy-graph.json");
   writePrivateJson(graphFile, files.graph);
@@ -472,8 +470,7 @@ test("prepare starts the inactive slot and writes a proposed state without switc
   const files = fixture();
   const staging = buildStaging(files, "finance-profile-v1", "5");
   const prepared = apply(files, ["deploy", "finance", staging, "prepare"]);
-  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
-  assert.equal(statSync(path.join(files.remoteDir, ".workspace")).mode & 0o777, 0o710);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`); assert.equal(statSync(path.join(files.remoteDir, ".workspace")).mode & 0o777, 0o710);
   assert.match(prepared.stdout, /profile-prepared/);
   const state = readDeployUnitState(path.join(files.preparedStateRoot, "finance.json"));
   assert.equal(state.active.slot, "blue");
