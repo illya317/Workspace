@@ -15,6 +15,7 @@ const PROFILES = Object.freeze({
     "ops/reconcile-runtime-config-permissions.sh",
     "ops/postgresql/production-finance-bot-hook.sh",
     "ops/postgresql/production-finance-bot-deploy-renderer.py",
+    "ops/postgresql/production-finance-bot.conf",
   ]),
   "deploy-unit-tools": Object.freeze([
     "ops/release/control/deploy-tool-bundle.mjs",
@@ -22,6 +23,7 @@ const PROFILES = Object.freeze({
     "ops/postgresql/production-runtime-pm2.sh",
     "ops/postgresql/production-finance-bot-hook.sh",
     "ops/postgresql/production-finance-bot-deploy-renderer.py",
+    "ops/postgresql/production-finance-bot.conf",
     "ops/release/deploy/unit-lock-qualification.sh",
     "ops/release/deploy/unit-runtime-pm2.sh",
     "ops/deploy-unit-sidecar.sh",

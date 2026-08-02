@@ -41,12 +41,15 @@ test("versioned profiles cover every release entry and current second-level depe
     "ops/postgresql/production-runtime-pm2.sh",
     "ops/postgresql/production-finance-bot-hook.sh",
     "ops/postgresql/production-finance-bot-deploy-renderer.py",
+    "ops/postgresql/production-finance-bot.conf",
     "ops/release/deploy/unit-lock-qualification.sh",
     "ops/release/deploy/unit-runtime-pm2.sh",
     "ops/promote-deploy-profile.sh",
     "ops/rollback-deploy-profile.sh",
   ]) assert.ok(unitEntries.includes(entry));
-  assert.ok(deployToolProfileEntries("full").includes("ops/release/control/deploy-tool-bundle.mjs"));
+  const fullEntries = deployToolProfileEntries("full");
+  assert.ok(fullEntries.includes("ops/release/control/deploy-tool-bundle.mjs"));
+  assert.ok(fullEntries.includes("ops/postgresql/production-finance-bot.conf"));
   const closure = collectDeployToolClosure(root, unitEntries);
   assert.ok(closure.files.includes("deploy-unit-release.mjs"));
   assert.ok(closure.files.includes("release/readiness/artifact-inspection.mjs"));
