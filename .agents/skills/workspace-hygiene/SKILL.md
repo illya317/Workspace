@@ -24,7 +24,7 @@ Hygiene 是简单清道夫：负责周期性巡检细碎治理、简单历史债
 
 ## 职责
 
-- 至少每周复查一次 `npm run check:hygiene`；GitHub 定时 CI 每晚以 strict 模式执行并在发现问题时失败，Hygiene 对失败的分类、清零或回交负责。
+- 至少每周复查一次 `npm run check:hygiene`；CNB 定时 Pipeline 每晚以 strict 模式执行并在发现问题时失败，Hygiene 对失败的分类、清零或回交负责。
 - 日常/CI 的 `npm run check:hygiene:warn` 只用于提示，不作为清债完成依据。
 - 检查 `scripts/arch/*baseline*.json` 是否只减少简单历史债，禁止为了新违规扩写 baseline。
 - 运行或阅读 `arch:structure:hygiene` 的简单清扫 ratchet。

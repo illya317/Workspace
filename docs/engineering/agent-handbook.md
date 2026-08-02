@@ -42,7 +42,7 @@ git push cnb <branch>
 
 生产 stage 前的 rehearsal 必须证明 CNB Registry digest 拉取、disposable PostgreSQL migration、非生产启动、健康/version 和回滚启动。`PRODUCTION_IMAGE_DEPLOY_ENABLED` 不为 `1` 时生产 stage 必须拒绝。
 
-生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
+生产服务器与 SSH 凭据只由 CNB 私有密钥项目 `illya317/env` 的 `server-prod.yaml` 维护，应用仓库通过 `imports` 引用；生产服务器根目录与回环健康地址作为非敏感值版本化保存在受保护 Pipeline。本机私有 ops 只用于已授权的只读诊断，不中转凭据、镜像或生产部署。
 
 风险分级、artifact 命名、migration maintenance 和分支保护状态以 [`ops/ci-cd.md`](ops/ci-cd.md) 为准。新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `$PRIVATE_OPS_DIR/AGENTS.md`；私有部署细节见 `$PRIVATE_OPS_DIR/docs/deploy.md` 和 `$PRIVATE_OPS_DIR/docs/environment.md`。
 

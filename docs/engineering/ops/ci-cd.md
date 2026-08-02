@@ -15,7 +15,7 @@ Mac/remote debug -> Mac commit -> CNB source repository
 - Mac 只复核、提交并推送源码，不中转制品、不连接生产部署。
 - `workspace-dev` 只做调试，不保存 provider push 凭据。
 - 生产服务器不 checkout 源码、不运行 `npm ci`、不测试、不编译、不构建镜像。
-- GitHub workflow、GHCR、跨 Registry mirror、provider adapter 和本地发布控制面均不存在。
+- 第二源码/构建 provider、外部 Registry mirror、provider adapter 和本地发布控制面均不存在。
 - 本地工作区是否有未提交改动与部署无关；CNB 只 checkout 已推送 commit，Pipeline 首步验证工作区干净且 HEAD 等于本次 push SHA（PR 则等于 CNB 预合并 SHA）。
 - CI/CD 逻辑必须是版本化、可重复的长期合同；禁止按日期、Build ID 或某次事故临时分支执行，也禁止重新引入一次性 receipt/DAG 控制面。
 
@@ -99,7 +99,7 @@ cnb-release.sh verify
 
 正式源码不再包含：
 
-- GitHub Actions、GHCR、CNB trigger token 或 provider 间 mirror；
+- 第二 provider workflow、外部 Registry、provider trigger token 或 provider 间 mirror；
 - `ops/publish.sh`、本地 push/promotion/deploy 包装器；
 - Ready/controller、blocker ledger、retry fence、Profile/Fleet、单 unit 发布器；
 - 本地 CI receipt、production bootstrap receipt、跨 job result adapter；

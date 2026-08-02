@@ -5,9 +5,9 @@ dependencies once, compiles one standalone, runs PostgreSQL and exact-build E2E,
 `linux/amd64` image directly to CNB Registry, then rehearses and deploys that same digest.
 
 Production performs migration, lock, backup, candidate health, cutover, `deployed-image.json` receipt and
-previous-digest rollback. It never installs application dependencies, tests, compiles or builds. GitHub,
-GHCR, cross-provider adapters and the former local Ready/controller/Profile/Fleet/unit-release control
-planes have been deleted.
+previous-digest rollback. It never installs application dependencies, tests, compiles or builds. There is
+no second source/build provider, external Registry mirror, Mac artifact relay, or local
+Ready/controller/Profile/Fleet/unit-release control plane.
 
 Repository-owned runtime dependency contracts:
 
