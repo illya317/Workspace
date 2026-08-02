@@ -68,8 +68,8 @@ test("unit rehearsal injects the same runtime identity surface as apply-deploy-u
   });
   const apply = fs.readFileSync(path.join(repositoryRoot, "ops/apply-deploy-unit.sh"), "utf8");
   const startReleaseEnvironment = apply.slice(
-    apply.indexOf("  load_runtime_environment\n", apply.indexOf("start_release()")),
-    apply.indexOf("    pm2 start", apply.indexOf("start_release()")),
+    apply.indexOf("  runtime_pm2 delete", apply.indexOf("start_release()")),
+    apply.indexOf("    runtime_pm2 start", apply.indexOf("start_release()")),
   );
   const appliedEnvironmentKeys = [...startReleaseEnvironment.matchAll(/(?:^|\s)([A-Z][A-Z0-9_]*)=/gm)]
     .map((match) => match[1]);

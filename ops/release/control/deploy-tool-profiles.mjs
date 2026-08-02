@@ -19,6 +19,7 @@ const PROFILES = Object.freeze({
     "ops/apply-deploy-unit.sh",
     "ops/postgresql/production-runtime-pm2.sh",
     "ops/release/deploy/unit-lock-qualification.sh",
+    "ops/release/deploy/unit-runtime-pm2.sh",
     "ops/deploy-unit-sidecar.sh",
     "ops/internal-unit-identity.mjs",
     "ops/internal-rpc-deployment-guard.mjs",

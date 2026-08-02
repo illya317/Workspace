@@ -40,6 +40,7 @@ test("versioned profiles cover every release entry and current second-level depe
     "ops/apply-deploy-unit.sh",
     "ops/postgresql/production-runtime-pm2.sh",
     "ops/release/deploy/unit-lock-qualification.sh",
+    "ops/release/deploy/unit-runtime-pm2.sh",
     "ops/promote-deploy-profile.sh",
     "ops/rollback-deploy-profile.sh",
   ]) assert.ok(unitEntries.includes(entry));

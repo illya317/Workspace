@@ -84,7 +84,9 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.match(client.slice(0, sharedLock), /tenant-config\.production-baseline/);
   assert.match(client, /DEPLOY_LOCK_TOKEN='\$REMOTE_DEPLOY_LOCK_TOKEN'/);
   assert.match(client, /install -o root -g root -m 0755[\s\S]*?production-runtime-pm2\.sh[\s\S]*?WORKSPACE_RUNTIME_PM2_RUNNER/);
-  assert.match(apply, /runtime_pm2\(\)[\s\S]*?runner_environment=\(WORKSPACE_RUNTIME_PM2_TARGET=unit\)[\s\S]*?sudo -n -- env "\$\{runner_environment\[@\]\}"/);
+  const unitRuntimePm2 = readFileSync("ops/release/deploy/unit-runtime-pm2.sh", "utf8");
+  assert.match(apply, /source "\$SCRIPT_DIR\/release\/deploy\/unit-runtime-pm2\.sh"/);
+  assert.match(unitRuntimePm2, /runtime_pm2\(\)[\s\S]*?runner_environment=\(WORKSPACE_RUNTIME_PM2_TARGET=unit\)[\s\S]*?sudo -n -- env "\$\{runner_environment\[@\]\}"/);
   assert.match(apply, /runtime_pm2 start "\$release_dir\/\$server_entry"/);
   assert.doesNotMatch(apply, /load_runtime_environment/);
   assert.match(unitLockQualification, /apply-deploy-unit 只能消费已获取的共享 deploy\.lock/);

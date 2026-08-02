@@ -6,12 +6,13 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/deploy-unit-sidecar.sh"
 # shellcheck source=ops/release/deploy/unit-lock-qualification.sh
 source "$SCRIPT_DIR/release/deploy/unit-lock-qualification.sh"
+# shellcheck source=ops/release/deploy/unit-runtime-pm2.sh
+source "$SCRIPT_DIR/release/deploy/unit-runtime-pm2.sh"
 COMMAND="${1:-}"
 UNIT_ID="${2:-}"
 STAGING_DIR="${3:-}"
 MODE="${4:-shadow}"
 REMOTE_DIR="${REMOTE_DIR:-}"
-RUNTIME_PM2_RUNNER="${WORKSPACE_RUNTIME_PM2_RUNNER:-/usr/local/sbin/workspace-runtime-pm2}"
 PREPARED_STATE_ROOT="${DEPLOY_PROFILE_PREPARED_STATE_ROOT:-}"
 DEPLOY_EVENT_FILE="${DEPLOY_EVENT_FILE:-$HOME/.finance-bot-deploy-event.json}"
 DEPLOY_PACKAGE_VERSION="${DEPLOY_PACKAGE_VERSION:-unknown}"
@@ -71,28 +72,7 @@ LOCK_FILE="$CONFIG_ROOT/deploy.lock"
 LOCK_OWNER_FILE="$CONFIG_ROOT/deploy-lock.owner"
 
 qualify_apply_deploy_unit_lock "$CONFIG_ROOT" "$LOCK_FILE" "$LOCK_OWNER_FILE"
-case "$RUNTIME_PM2_RUNNER" in
-  /*) ;;
-  *) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 必须是绝对路径" >&2; exit 1 ;;
-esac
-case "$RUNTIME_PM2_RUNNER" in
-  *[!A-Za-z0-9_./-]*) echo "[错误] WORKSPACE_RUNTIME_PM2_RUNNER 包含不安全字符" >&2; exit 1 ;;
-esac
-sudo -n -- test -x "$RUNTIME_PM2_RUNNER" \
-  || { echo "[错误] hardened runtime PM2 runner 不可执行" >&2; exit 1; }
-
-runtime_pm2() {
-  local key value
-  local runner_environment=(WORKSPACE_RUNTIME_PM2_TARGET=unit)
-  for key in PORT HOSTNAME BUILD_VERSION NEXT_PUBLIC_BUILD_VERSION NEXT_PUBLIC_BASE_PATH PG_POOL_MAX PG_APPLICATION_NAME \
-    WORKSPACE_CONFIG_DIR WORKSPACE_DEPLOY_UNIT_ID WORKSPACE_DEPLOY_SLOT WORKSPACE_DEPLOY_CURRENT_STATE_FILE \
-    WORKSPACE_INTERNAL_ORIGIN WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE \
-    WORKSPACE_INTERNAL_REPLAY_DIRECTORY WECHAT_BOT_BRIDGE_URL PROJECT_NOTIFICATION_SCHEDULER_DISABLED; do
-    value="${!key-}"
-    [ -z "$value" ] || runner_environment+=("$key=$value")
-  done
-  sudo -n -- env "${runner_environment[@]}" "$RUNTIME_PM2_RUNNER" "$@"
-}
+unit_runtime_pm2_initialize || exit 1
 
 mkdir -p "$CONFIG_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
 chmod 700 "$CONFIG_ROOT" "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
@@ -250,7 +230,6 @@ start_release() {
     --unit "$UNIT_ID" >/dev/null
   runtime_pm2 delete "$process_name" >/dev/null 2>&1 || true
   PORT="$port" HOSTNAME=127.0.0.1 BUILD_VERSION="$deployment_id" NEXT_PUBLIC_BUILD_VERSION="$deployment_id" \
-    WORKSPACE_CONFIG_DIR="$CONFIG_ROOT" \
     WORKSPACE_INTERNAL_ORIGIN="${WORKSPACE_INTERNAL_ORIGIN:-${WORKSPACE_PUBLIC_ORIGIN:-http://127.0.0.1}}" \
     WORKSPACE_DEPLOY_UNIT_ID="$UNIT_ID" \
     WORKSPACE_DEPLOY_SLOT="$slot" \
