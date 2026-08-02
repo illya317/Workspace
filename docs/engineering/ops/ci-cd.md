@@ -133,7 +133,7 @@ Deploy Preflight Ready 必须精确绑定：
 `shell:errexit:check` 扫描全部 Git tracked 源码中的实际 `set -e*` / `set -o errexit`，并要求每个出现位置按路径、命令、数量和必要时的行号精确登记。当前基线为：
 
 ```text
-total=110 execution=76 dependent=8 structural=26 diagnostic=0
+total=111 execution=76 dependent=8 structural=27 diagnostic=0
 ```
 
 四类含义如下：

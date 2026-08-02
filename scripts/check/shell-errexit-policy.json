@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "diagnosticPolicy": "prohibited",
-  "expectedOccurrenceCount": 110,
+  "expectedOccurrenceCount": 111,
   "entries": [
     { "path": ".github/workflows/ci.yml", "command": "set -euo", "counts": { "dependent": 1 }, "reason": "Trusted diff range resolution is one dependent chain." },
     { "path": ".github/workflows/promote-candidate.yml", "command": "set -euo", "counts": { "execution": 1 }, "reason": "Candidate branch promotion must stop before any later mutation." },
@@ -67,6 +67,7 @@
     { "path": "ops/release-timing.test.mjs", "command": "set -euo", "counts": { "structural": 3 }, "reason": "Shell fixtures exercise timing wrapper behavior." },
     { "path": "ops/release-to-cnb.sh", "command": "set -euo", "counts": { "structural": 1 }, "reason": "Retired entrypoint is an inert fail-closed tombstone." },
     { "path": "ops/release/attempts/ci-attempt-shell.sh", "command": "set -e", "counts": { "structural": 2 }, "reason": "Restores the caller errexit state around captured lane commands." },
+    { "path": "ops/release/attempts/deploy-attempt-shell.sh", "command": "set -e", "counts": { "structural": 1 }, "reason": "Restores the caller errexit state after sealing one immutable deploy attempt log." },
     { "path": "ops/release/attempts/ci-attempt.test.mjs", "command": "set -e", "counts": { "structural": 1 }, "reason": "Inline shell fixture verifies failed lane capture." },
     { "path": "ops/release/control/runtime-permission-bootstrap.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "Verified remote ACL payload execution mutates permissions." },
     { "path": "ops/release/control/runtime-permission-bootstrap.test.mjs", "command": "set -euo", "counts": { "structural": 3 }, "reason": "Inline shell fixtures verify bootstrap payload behavior." },

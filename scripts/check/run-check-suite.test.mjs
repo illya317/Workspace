@@ -31,6 +31,10 @@ test("overlapping suite requests resolve to one stable task plan", () => {
   assert.ok(overlapping.duplicateReferences > 0);
 });
 
+test("precommit scans staged new shell sources for unclassified errexit", () => {
+  assert.equal(resolveCheckPlan(["precommit"]).tasks[0].id, "shell-errexit-policy");
+});
+
 test("suite runner executes each resolved task once and stops on the first failure", () => {
   const calls = [];
   const status = runCheckSuites(["contracts", "contracts"], {
@@ -315,6 +319,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "playwright-processes",
   ]);
   assert.deepEqual(resolveCheckPlan(["precommit"]).tasks.map((task) => task.id), [
+    "shell-errexit-policy",
     "lint-changed",
     "domain-changed",
     "db-migration-changed",

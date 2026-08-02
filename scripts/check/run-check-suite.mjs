@@ -126,7 +126,7 @@ const SUITES = {
     "db-migration-changed",
     "playwright-processes",
   ],
-  precommit: ["lint-changed", "domain-changed", "db-migration-changed"],
+  precommit: ["shell-errexit-policy", "lint-changed", "domain-changed", "db-migration-changed"],
   refactor: ["split-quality", "lint-changed", "@contracts"],
   data: ["db-validate", "schema", "db-migration-check", "data-release", "import-reference", "docs-editor-templates"],
   docs: [
