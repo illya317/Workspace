@@ -76,7 +76,7 @@ test("standalone artifact carries the governed external-party importer", () => {
 
 test("standalone data release importers resolve the traced Next runtime", () => {
   const packager = read("ops/build-standalone-artifact.sh");
-  assert.match(packager, /link-data-release-next-runtime\.mjs \.next\/standalone/);
+  assert.match(packager, /link-data-release-next-runtime\.mjs \.next\/standalone node_modules\/next/);
 });
 
 test("Playwright process cleanup skips only a sandbox EPERM", () => {

@@ -274,7 +274,7 @@ copy_data_release_files() {
   test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
   test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs
-  node ops/release/artifact/link-data-release-next-runtime.mjs .next/standalone
+  node ops/release/artifact/link-data-release-next-runtime.mjs .next/standalone node_modules/next
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
     cmp .cnb-release.json .next/standalone/.cnb-release.json
   fi

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { createRequire } from "node:module";
-import { lstatSync, mkdirSync, readdirSync, realpathSync, symlinkSync } from "node:fs";
+import { copyFileSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, symlinkSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
 
@@ -33,14 +33,21 @@ function findNextRuntimes(root) {
   return results.sort();
 }
 
-export function linkDataReleaseNextRuntime(standaloneRoot) {
+export function linkDataReleaseNextRuntime(standaloneRoot, sourceNextRoot) {
   const root = realpathSync(path.resolve(standaloneRoot));
+  const sourceNext = realpathSync(path.resolve(sourceNextRoot));
+  const sourcePackage = JSON.parse(readFileSync(path.join(sourceNext, "package.json"), "utf8"));
+  if (sourcePackage.name !== "next") throw new Error("data release Next source is not the Next package");
   const candidates = findNextRuntimes(root);
   if (candidates.length !== 1 || !inside(root, candidates[0])) {
     throw new Error(`data release artifact requires exactly one internal Next runtime; found ${candidates.length}`);
   }
   const releaseNodeModules = path.join(root, "node_modules");
   const releaseNext = path.join(releaseNodeModules, "next");
+  const tracedEntry = path.join(candidates[0], "server.js");
+  const sourceEntry = path.join(sourceNext, "server.js");
+  if (!pathExists(tracedEntry)) copyFileSync(sourceEntry, tracedEntry);
+  else if (!readFileSync(tracedEntry).equals(readFileSync(sourceEntry))) throw new Error("data release Next entry conflicts with build dependency");
   mkdirSync(releaseNodeModules, { recursive: true });
   if (pathExists(releaseNext)) {
     if (realpathSync(releaseNext) !== realpathSync(candidates[0])) throw new Error("data release Next runtime target conflicts with traced runtime");
@@ -48,13 +55,18 @@ export function linkDataReleaseNextRuntime(standaloneRoot) {
     symlinkSync(path.relative(releaseNodeModules, candidates[0]), releaseNext);
   }
   const importer = path.join(root, "packages/platform/server/api.ts");
-  const resolved = createRequire(importer).resolve("next/server");
+  const importerRequire = createRequire(importer);
+  const resolved = importerRequire.resolve("next/server");
   if (!inside(root, realpathSync(resolved))) throw new Error("data release Next runtime resolves outside artifact");
+  importerRequire("next/server");
   return { releaseNext, resolved };
 }
 
 if (process.argv[1] && pathToFileURL(process.argv[1]).href === import.meta.url) {
   const standaloneRoot = process.argv[2];
-  if (!standaloneRoot || process.argv.length !== 3) throw new Error("usage: link-data-release-next-runtime.mjs STANDALONE_ROOT");
-  linkDataReleaseNextRuntime(standaloneRoot);
+  const sourceNextRoot = process.argv[3];
+  if (!standaloneRoot || !sourceNextRoot || process.argv.length !== 4) {
+    throw new Error("usage: link-data-release-next-runtime.mjs STANDALONE_ROOT SOURCE_NEXT_ROOT");
+  }
+  linkDataReleaseNextRuntime(standaloneRoot, sourceNextRoot);
 }
