@@ -76,6 +76,8 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCiCache, /playwright install --with-deps chromium/);
   assert.match(cnbCiCache, new RegExp(`FROM node:${nodeVersion}-bookworm@sha256:[0-9a-f]{64}`));
   assert.match(cnb, /package-lock\.json[\s\S]*ops\/cnb-ci-cache\.Dockerfile/);
+  assert.equal((cnb.match(/versionBy:\n\s+- \.node-version\n\s+- package-lock\.json\n\s+- ops\/cnb-ci-cache\.Dockerfile/g) ?? []).length, 2);
+  assert.doesNotMatch(cnb, /versionBy:\n(?:\s+- .+\n)*\s+- package\.json/);
   assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 2);
   assert.match(cnb, /copy-on-write-read-only/);
   assert.match(cnb, /main:\/workspace\/\.next\/cache:read-write/);

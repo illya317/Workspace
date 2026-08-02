@@ -13,7 +13,6 @@ main:
             - ops/cnb-ci-cache.Dockerfile
           versionBy:
             - .node-version
-            - package.json
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
           sync: "true"
@@ -106,7 +105,6 @@ main:
             - ops/cnb-ci-cache.Dockerfile
           versionBy:
             - .node-version
-            - package.json
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
           sync: "true"

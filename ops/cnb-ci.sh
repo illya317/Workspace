@@ -84,8 +84,8 @@ run_typecheck() {
   cache_key="$({
     printf '%s\n' 'cnb-typecheck-result-v1' 'NODE_OPTIONS=--max-old-space-size=8192' 'tsc --build --pretty false'
     git ls-files -s -- \
-      '*.ts' '*.tsx' '*.mts' '*.cts' '*.js' '*.jsx' '*.mjs' '*.cjs' \
-      '*.json' '*.prisma' '.node-version' 'ops/cnb-ci.sh'
+      '*.ts' '*.tsx' '*.mts' '*.cts' '*.json' '*.prisma' '.node-version' \
+      'scripts/arch/gate-check-contracts.mjs' 'ops/cnb-ci.sh'
   } | git hash-object --stdin)"
   cache_dir=".cache/tsbuild/cnb-typecheck-results"
   cache_marker="$cache_dir/$cache_key.ok"
