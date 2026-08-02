@@ -62,9 +62,6 @@ const eslintConfig = defineConfig([
     ".claude/**",
     // Local check snapshots and caches are generated artifacts, not source.
     ".cache/**",
-    // Deploy-unit apps are deterministic mirrors of app/ plus generated runtime
-    // wiring. Their byte-for-byte contract is checked by deploy:apps:check.
-    "apps/**",
     // Temporary research/scrape artifacts are not product or tooling source.
     "tmp/**",
   ]),

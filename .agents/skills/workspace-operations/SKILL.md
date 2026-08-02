@@ -43,7 +43,6 @@ Mac push CNB -> required CI -> one Next standalone build
 - 维护部署锁、备份、migration、候选健康、原子切换、线上 digest 回执和 previous-digest 回滚。
 - 区分 PR CI 与真实部署检查；租户私有配置、生产数据库和部署凭据不进入 PR CI。
 - 维护 CI、检查、构建、运行和部署文档，使其与 `package.json`、workflow 和脚本一致。
-- 保持生成 App/deploy graph 作为源码所有权和编译闭包契约；它们不构成第二套生产构建或单元发布控制面。
 
 ## Agent 闭环
 

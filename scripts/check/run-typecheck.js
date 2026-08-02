@@ -14,17 +14,8 @@ function listPackageScopes() {
     .sort();
 }
 
-function listDeployAppScopes() {
-  const appsDirectory = path.join(repoRoot, "apps");
-  if (!fs.existsSync(appsDirectory)) return [];
-  return fs.readdirSync(appsDirectory, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory() && fs.existsSync(path.join(appsDirectory, entry.name, "tsconfig.json")))
-    .map((entry) => [`app-${entry.name}`, `apps/${entry.name}`]);
-}
-
 function scopeProjects() {
   const projects = new Map(listPackageScopes().map((scope) => [scope, `packages/${scope}`]));
-  for (const [scope, project] of listDeployAppScopes()) projects.set(scope, project);
   projects.set("app", "tsconfig.app.json");
   projects.set("prisma-client", "tsconfig.prisma-client.json");
   projects.set("tooling", "tsconfig.tooling.json");
@@ -57,6 +48,7 @@ function processIsAlive(pid) {
 }
 
 function assertOwnedCheckLock(environment = process.env) {
+  if (environment.CI === "true" && environment.CNB_BUILD_ID && environment.CHECK_LOCK === "0") return;
   const ownerPid = Number(environment.CHECK_LOCK_OWNER_PID);
   const snapshotKey = environment.CHECK_WORKSPACE_SNAPSHOT_KEY ?? "";
   let metadata = null;
@@ -107,4 +99,4 @@ if (require.main === module) {
   if (Number.isInteger(status)) process.exitCode = status;
 }
 
-module.exports = { assertOwnedCheckLock, listDeployAppScopes, listPackageScopes, main, resolveCompilerArguments, scopeProjects };
+module.exports = { assertOwnedCheckLock, listPackageScopes, main, resolveCompilerArguments, scopeProjects };

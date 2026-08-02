@@ -11,7 +11,6 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.filter((id) => id === "business-code-hardcoding").length, 1);
   assert.equal(ids.filter((id) => id === "history-policy").length, 1);
   assert.equal(ids.filter((id) => id === "business-temporal").length, 1);
-  assert.equal(ids.filter((id) => id === "deploy-graph").length, 1);
   assert.equal(ids.filter((id) => id === "workspace-analysis-sources").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-entrypoints").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-project-references").length, 1);
@@ -19,7 +18,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.includes("domain-changed"), true);
   assert.ok(ids.filter((id) => id.startsWith("domain-architecture.")).length > 1);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(plan.duplicateReferences, 10);
+  assert.equal(plan.duplicateReferences, 8);
   assert.equal(plan.coveredTaskReferences, 0);
 });
 
@@ -38,7 +37,6 @@ test("precommit scans staged new shell sources for unclassified errexit", () => 
 test("suite runner executes each resolved task once and stops on the first failure", () => {
   const calls = [];
   const status = runCheckSuites(["contracts", "contracts"], {
-    createTaskCache: () => ({ read() { return null; }, write() {} }),
     spawn: (command, args) => {
       calls.push([command, args]);
       return { status: calls.length === 2 ? 9 : 0 };
@@ -52,28 +50,10 @@ test("suite runner executes each resolved task once and stops on the first failu
   assert.equal(calls.length, 2);
 });
 
-test("release source suite is the complete CI gate without duplicate artifact build or E2E cleanup", () => {
-  const staticIds = resolveCheckPlan(["release-static"]).tasks.map((task) => task.id);
-  const sourceIds = resolveCheckPlan(["release-source"]).tasks.map((task) => task.id);
-  const ciIds = resolveCheckPlan(["ci"]).tasks.map((task) => task.id);
-
-  assert.deepEqual(ciIds, [...sourceIds, "build-next", "playwright-processes"]);
-  assert.deepEqual(sourceIds.slice(0, staticIds.length), staticIds);
-  assert.ok(sourceIds.filter((id) => id.startsWith("test-node.")).length > 1);
-  assert.equal(sourceIds.filter((id) => id === "typecheck-full").length, 1);
-  const firstTypecheck = sourceIds.findIndex((id) => id === "typecheck-full");
-  const lastNodeShard = sourceIds.findLastIndex((id) => id.startsWith("test-node."));
-  assert.ok(firstTypecheck > lastNodeShard);
-  assert.ok(sourceIds.includes("docs-action-contracts"));
-  assert.ok(sourceIds.includes("lint-full"));
-  assert.ok(sourceIds.includes("shell-errexit-policy"));
-});
-
 test("aggregate suite mode runs every independent task and summarizes all blocking failures", () => {
   const calls = [];
   const output = [];
   const status = runCheckSuites(["contracts"], {
-    createTaskCache: () => ({ read() { return null; }, write() {} }),
     spawn: () => {
       calls.push(calls.length + 1);
       return { status: calls.length === 2 ? 7 : calls.length === 5 ? 9 : 0 };
@@ -93,7 +73,6 @@ test("release environment enables aggregate suite mode without a caller-only opt
   const output = [];
   const status = runCheckSuites(["contracts"], {
     env: { ...process.env, CHECK_SUITE_COLLECT_FAILURES: "1" },
-    createTaskCache: () => ({ read() { return null; }, write() {} }),
     spawn: () => {
       calls.push(calls.length + 1);
       return { status: calls.length === 1 || calls.length === 3 ? 8 : 0 };
@@ -108,34 +87,6 @@ test("release environment enables aggregate suite mode without a caller-only opt
 });
 
 
-test("suite runner skips reusable tasks and preserves cached warning semantics", () => {
-  const calls = [];
-  const writes = [];
-  const output = [];
-  const status = runCheckSuites(["hygiene-warning"], {
-    createTaskCache: () => ({
-      read(task) {
-        if (task.id === "structure-hygiene-warning") return { status: "warning", durationMs: 900 };
-        if (task.id === "surface-boundaries-warning") return { status: "passed", durationMs: 1200 };
-        return null;
-      },
-      write(task, result) { writes.push([task.id, result]); },
-    }),
-    spawn: (command, args) => {
-      calls.push([command, args]);
-      return { status: 0 };
-    },
-    stdout: { write(value) { output.push(value); } },
-    stderr: { write(value) { output.push(value); } },
-  });
-
-  assert.equal(status, 0);
-  assert.equal(calls.length, 3);
-  assert.equal(writes.length, 3);
-  assert.match(output.join(""), /Reused warning result/);
-  assert.match(output.join(""), /warning-only findings: Structure hygiene ratchet/);
-});
-
 test("domain full scan covers changed validation only when both see the same worktree", () => {
   for (const hasStagedChanges of [false, true]) {
     const calls = [];
@@ -145,7 +96,6 @@ test("domain full scan covers changed validation only when both see the same wor
         hasStagedChanges,
         source: hasStagedChanges ? "staged" : "worktree",
       }),
-      createTaskCache: () => ({ read() { return null; }, write() {} }),
       spawn: (command, args) => {
         calls.push([command, args]);
         return { status: 0 };
@@ -159,8 +109,8 @@ test("domain full scan covers changed validation only when both see the same wor
   }
 });
 
-test("ci keeps warning checks visible but removes work already covered by the UI gate", () => {
-  const plan = resolveCheckPlan(["ci"]);
+test("CNB static lane keeps warning checks visible but removes work already covered by the UI gate", () => {
+  const plan = resolveCheckPlan(["cnb-static"]);
   const ids = plan.tasks.map((task) => task.id);
 
   assert.equal(ids.includes("surface-page-adoption-warning"), false);
@@ -175,7 +125,6 @@ test("warning-only tasks do not block the suite and timings are reported", () =>
   const output = [];
   let currentTime = 0;
   const status = runCheckSuites(["hygiene-warning"], {
-    createTaskCache: () => ({ read() { return null; }, write() {} }),
     spawn: (command, args) => {
       calls.push([command, args]);
       return { status: calls.length === 2 ? 7 : 0 };
@@ -194,21 +143,15 @@ test("warning-only tasks do not block the suite and timings are reported", () =>
   assert.match(output.join(""), /Check suite completed in/);
 });
 
-test("an interrupted warning task blocks and is never cached as a finding", () => {
-  const writes = [];
+test("an interrupted warning task blocks the suite", () => {
   const output = [];
   const status = runCheckSuites(["hygiene-warning"], {
-    createTaskCache: () => ({
-      read() { return null; },
-      write(task, result) { writes.push([task.id, result]); },
-    }),
     spawn: () => ({ status: null, signal: "SIGTERM" }),
     stdout: { write(value) { output.push(value); } },
     stderr: { write(value) { output.push(value); } },
   });
 
   assert.equal(status, 1);
-  assert.deepEqual(writes, []);
   assert.match(output.join(""), /interrupted by SIGTERM/);
 });
 
@@ -221,8 +164,6 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "history-policy",
     "import-reference",
     "business-temporal",
-    "deploy-graph",
-    "deploy-unit-apps",
     "workspace-analysis-sources",
     "typecheck-entrypoints",
     "typecheck-project-references",
@@ -246,8 +187,6 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "history-policy",
     "import-reference",
     "business-temporal",
-    "deploy-graph",
-    "deploy-unit-apps",
     "workspace-analysis-sources",
     "typecheck-entrypoints",
     "typecheck-project-references",
@@ -268,43 +207,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
   assert.ok(pushIds.filter((id) => id.startsWith("ui-architecture.")).length > 1);
   assert.ok(pushIds.filter((id) => id.startsWith("test-node.")).length > 1);
   assert.equal(resolveCheckPlan(["refactor"]).tasks.some((task) => task.id === "typecheck-quick"), false);
-  assert.equal(resolveCheckPlan(["ci"]).tasks.some((task) => task.id === "typecheck-full"), true);
-});
-
-test("CI runs the authoritative full typecheck before a Next build that skips only the duplicate traversal", () => {
-  const tasks = resolveCheckPlan(["ci"]).tasks;
-  const typecheckIndexes = tasks.flatMap((task, index) => task.id === "typecheck-full" ? [index] : []);
-  const buildIndex = tasks.findIndex((task) => task.id === "build-next");
-  assert.equal(typecheckIndexes.length, 1);
-  assert.ok(buildIndex > Math.max(...typecheckIndexes));
-  assert.deepEqual(tasks[buildIndex]?.args, ["run", "build:next:after-typecheck"]);
-});
-
-test("a blocked task remains visible while every independent task still runs", () => {
-  const output = [];
-  let calls = 0;
-  const tasks = resolveCheckPlan(["contracts"]).tasks;
-  const status = runCheckSuites(["contracts"], {
-    collectFailures: true,
-    createTaskCache: () => ({
-      freezeTaskGraph(graphTasks) {
-        return {
-          mode: "standard",
-          graphDigest: "a".repeat(64),
-          tasks: graphTasks.map((task, index) => ({ taskKey: task.id, status: index === 0 ? "blocked" : "pending" })),
-        };
-      },
-      read() { return null; },
-      write() {},
-    }),
-    spawn: () => { calls += 1; return { status: 0 }; },
-    stdout: { write(value) { output.push(value); } },
-    stderr: { write(value) { output.push(value); } },
-  });
-  assert.equal(status, 2);
-  assert.equal(calls, tasks.length - 1);
-  assert.match(output.join(""), /blocked inputs; independent tasks will still run/);
-  assert.match(output.join(""), /blocking failure\(s\)/);
+  assert.equal(resolveCheckPlan(["cnb-static"]).tasks.some((task) => task.id === "typecheck-full"), false);
 });
 
 test("unknown suites fail before any command can run", () => {

@@ -50,7 +50,7 @@
 | 生产 Agent 文档目录 | `docs/generated/agent-doc-catalog.md`；线上 `/docs/company`；机器入口 `/api/modules/docs/company/documents` | Architecture / Agent / Docs Feature |
 | 环境、检查与 CI/CD | `docs/engineering/checks.md`, `docs/engineering/ops/README.md`, `docs/engineering/ops/ci-cd.md` | Operations |
 | 远端开发与 Codex SSH 项目 | `docs/engineering/ops/remote-development.md` | Operations |
-| 独立部署单元与数据发布 | `docs/engineering/ops/deploy-units.md`, `docs/engineering/ops/data-releases.md` | Operations / Data |
+| 数据发布 | `docs/engineering/ops/data-releases.md` | Operations / Data |
 | Production/QC 数据和 layout 参考 | `docs/engineering/reference/qc-dev-mode.md` | Data |
 | Docs Editor 模板空间和权限 | `docs/engineering/reference/docs-editor-template-spaces.md` | Platform Docs / Feature |
 | Docs Editor 外部依赖 | `docs/engineering/reference/docs-editor-dependencies.md` | Platform Docs / Feature |

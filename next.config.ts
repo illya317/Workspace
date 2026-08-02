@@ -52,7 +52,6 @@ const agentRuntimeSourceTraceExcludes = [
 // whole checkout into every Library route trace.
 const libraryRuntimeSourceTraceExcludes = [
   "app/**/*",
-  "apps/**/*",
   "docs/**/*",
   "e2e/**/*",
   "generated/**/*",

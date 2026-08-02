@@ -8,7 +8,6 @@ import {
   createMessageSection,
   createMetricsSection,
   createPageBody,
-  createPageTableSection,
   type BodySurfaceSectionSpec,
   type SelectorSurfaceStructuredTreeItemSpec,
 } from "@workspace/core/ui";
@@ -25,7 +24,7 @@ type StatusTone = "success" | "warning" | "muted";
 interface ModuleTreeNode {
   key: string;
   name: string;
-  nodeKind: "product-view" | "module" | "resource" | "deployment-view" | "deploy-unit" | "source-view";
+  nodeKind: "product-view" | "module" | "resource" | "source-view";
   hidden?: boolean;
   enabled?: boolean;
   disabledReason?: string | null;
@@ -34,29 +33,6 @@ interface ModuleTreeNode {
   statusInteractive?: boolean;
   statusDisabled?: boolean;
   children?: ModuleTreeNode[];
-}
-
-interface DeployUnitDependency {
-  unitId: string;
-  requirement: "required" | "optional";
-  protocol: "gateway-http" | "signed-internal-rpc";
-  reason: string;
-}
-
-interface DeployUnitNode {
-  id: string;
-  kind: "business-l1" | "headless-runtime" | "platform-l1" | "workspace-shell";
-  maturity: "active" | "candidate" | "planned";
-  moduleKeys: string[];
-  moduleLabels: string[];
-  runtimeDependencies: DeployUnitDependency[];
-  productionState: {
-    availability: "unavailable";
-    ready: null;
-    gatewayActive: null;
-    activeSlot: null;
-    version: null;
-  };
 }
 
 interface ModuleNode {
@@ -97,7 +73,6 @@ interface ModuleManagementResponse {
   rule: string;
   modules: ModuleNode[];
   auxiliaryResources: AuxiliaryResource[];
-  deployUnits: DeployUnitNode[];
   sourceCodeAnalysis: SourceCodeAnalysisSnapshot | null;
 }
 
@@ -217,21 +192,6 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
         children: moduleTree,
       },
       {
-        key: "view:deployment",
-        name: "部署单元",
-        nodeKind: "deployment-view",
-        statusLabel: `${data.deployUnits.length} 个 unit`,
-        statusTone: "success",
-        children: data.deployUnits.map((unit) => ({
-          key: `deploy:${unit.id}`,
-          name: unit.id,
-          nodeKind: "deploy-unit" as const,
-          statusLabel: unit.maturity,
-          statusTone: unit.maturity === "active" ? "success" as const : "warning" as const,
-          children: [],
-        })),
-      },
-      {
         key: "view:source",
         name: "源码治理",
         nodeKind: "source-view",
@@ -329,63 +289,6 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
     ]);
   }
 
-  function deploymentDetailBody() {
-    if (!data) return createPageBody([]);
-    const selectedUnit = selectedNavigationKey.startsWith("deploy:")
-      ? data.deployUnits.find((unit) => `deploy:${unit.id}` === selectedNavigationKey) ?? null
-      : null;
-    if (!selectedUnit) {
-      return createPageBody([
-        createMetricsSection("deploy-unit-summary", {
-          metrics: [
-            { key: "units", label: "部署单元", value: data.deployUnits.length },
-            { key: "active", label: "active 资格", value: data.deployUnits.filter((unit) => unit.maturity === "active").length },
-            { key: "required-dependencies", label: "必需依赖", value: data.deployUnits.reduce((sum, unit) => sum + unit.runtimeDependencies.filter((dependency) => dependency.requirement === "required").length, 0) },
-            { key: "dependencies", label: "运行依赖", value: data.deployUnits.reduce((sum, unit) => sum + unit.runtimeDependencies.length, 0) },
-          ],
-        }),
-        createMessageSection("deploy-unit-state-boundary", {
-          tone: "warning",
-          content: "active 表示具备正式单模块 CI/CD 资格，不代表该 unit 当前正在承载生产流量。",
-        }),
-      ]);
-    }
-    const requiredCount = selectedUnit.runtimeDependencies.filter((dependency) => dependency.requirement === "required").length;
-    const dependencyColumns = [
-      { key: "unit", label: "依赖 unit", required: true, cell: (row: DeployUnitDependency) => row.unitId },
-      { key: "requirement", label: "强度", cell: (row: DeployUnitDependency) => row.requirement === "required" ? "必需" : "可选" },
-      { key: "protocol", label: "协议", cell: (row: DeployUnitDependency) => row.protocol },
-    ];
-    return createPageBody([
-      createMetricsSection("deploy-unit-detail-summary", {
-        metrics: [
-          { key: "maturity", label: "代码资格", value: selectedUnit.maturity },
-          { key: "required", label: "必需依赖", value: requiredCount },
-          { key: "optional", label: "可选依赖", value: selectedUnit.runtimeDependencies.length - requiredCount },
-        ],
-      }),
-      {
-        ...createFieldsSection("deploy-unit-fields", [
-          { kind: "readonly", key: "id", label: "Deploy unit", value: selectedUnit.id, fontRole: "mono" },
-          { kind: "readonly", key: "kind", label: "类型", value: selectedUnit.kind, fontRole: "mono" },
-          { kind: "readonly", key: "modules", label: "承载模块", value: selectedUnit.moduleLabels.join("、") || "平台运行边界" },
-        ], { kind: "detail", layout: { columns: 2, density: "compact" } }),
-        header: { title: selectedUnit.id },
-      },
-      {
-        ...createPageTableSection("deploy-unit-dependencies", {
-          rows: selectedUnit.runtimeDependencies,
-          columns: dependencyColumns,
-          visibleColumns: dependencyColumns.map((column) => column.key),
-          rowKey: (row) => `${row.unitId}:${row.protocol}`,
-          presentation: { density: "compact", cellWrap: "wrap" },
-          emptyText: "无跨 unit 运行依赖",
-        }),
-        header: { title: "运行依赖" },
-      },
-    ]);
-  }
-
   const detailBody = selectedNavigationKey === "view:source"
     ? createPageBody([createSourceCodeAnalysisSection(data?.sourceCodeAnalysis ?? null, {
         expandedGroupKey: expandedAnalysisGroupKey,
@@ -400,9 +303,7 @@ export function useModuleManagementSection({ showToast, enabled = true }: Props)
         },
         onHoverCell: selectedAnalysisCell ? undefined : setHoveredAnalysisCell,
       })])
-    : selectedNavigationKey === "view:deployment" || selectedNavigationKey.startsWith("deploy:")
-      ? deploymentDetailBody()
-      : productDetailBody();
+    : productDetailBody();
 
   return {
     key: "module-management",

@@ -46,6 +46,7 @@ const clientReactTests = new Set([
   "packages/core/ui/internal/body/body-surface-page-create-placement.test.ts",
   "packages/core/ui/internal/data/DataSurface.display.test.tsx",
   "packages/core/ui/internal/data/DataTable.disclosure.test.tsx",
+  "packages/core/ui/internal/page/antd-page.contract.test.tsx",
   "packages/core/ui/internal/form/FormStyles.test.ts",
   "packages/core/ui/internal/input/input-surface-textarea.test.ts",
   "packages/finance/ui/assets/asset-location.test.ts",
@@ -166,6 +167,20 @@ export function selectNodeTests(allTests, suite, context = {}) {
       if (!/^[a-z0-9][a-z0-9.-]*$/.test(context.shard ?? "")) throw new Error("Node test shard key is invalid");
       return allTests.filter((file) => nodeTestShardKey(file) === context.shard);
     }
+    case "bucket": {
+      const bucket = Number(context.bucket);
+      const bucketCount = Number(context.bucketCount);
+      if (!Number.isInteger(bucket) || !Number.isInteger(bucketCount) || bucket < 0 || bucket >= bucketCount) {
+        throw new Error("Node test bucket must be <index>/<count>");
+      }
+      const buckets = Array.from({ length: bucketCount }, () => ({ size: 0, files: [] }));
+      for (const group of groupNodeTestsByShard(allTests).sort((a, b) => b.files.length - a.files.length)) {
+        const target = buckets.reduce((best, candidate) => candidate.size < best.size ? candidate : best);
+        target.files.push(...group.files);
+        target.size += group.files.length;
+      }
+      return buckets[bucket].files.sort();
+    }
     case "affected":
       return selectAffectedNodeTests(allTests, context);
     default:
@@ -185,6 +200,8 @@ export function main(
       changedFiles: jsonStringArray(process.env.WORKSPACE_CHANGED_FILES_JSON, "WORKSPACE_CHANGED_FILES_JSON"),
       affectedModules: jsonStringArray(process.env.WORKSPACE_AFFECTED_MODULES_JSON, "WORKSPACE_AFFECTED_MODULES_JSON"),
       shard: argv[1],
+      bucket: suite === "bucket" ? argv[1] : undefined,
+      bucketCount: suite === "bucket" ? argv[2] : undefined,
     });
   } catch (error) {
     stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);

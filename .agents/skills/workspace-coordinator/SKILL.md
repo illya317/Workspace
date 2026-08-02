@@ -77,5 +77,5 @@ npm run check:push
 npm run check:hygiene
 ```
 
-Coordinator 负责跨 agent 集成时的最终检查，但不垄断收口。每个 agent 都可以收口自己的任务；同一台机器上的 lint/typecheck/gate 结果按代码快照共享，谁先跑通都可以，后续同快照直接复用，不要实际重复跑同类检查。`npm run check:ci` 只用于 CI/发布、明确全量收口或无法界定影响面的高风险变更，不是 Coordinator 的日常放心检查。
+Coordinator 负责跨 agent 集成时的最终检查，但不垄断收口。每个 agent 都可以收口自己的任务；同一台机器上的 lint/typecheck/gate 结果按代码快照共享，谁先跑通都可以，后续同快照不要重复跑同类检查。完整 CI 只在 CNB 原生并行 lanes 中执行，不保留本地全量 CI 入口。
 `check:changed` 不含净增行 gate。清债/重构收口需要额外跑 `check:refactor`；多 agent 并行时如果 line budget 因其他未提交 untracked 文件失败，收口者需要区分当前任务净增和旁路工作区净增。

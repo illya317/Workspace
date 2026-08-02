@@ -1,29 +1,80 @@
 import "server-only";
 
-import {
-  authenticateWorkspaceInternalRequest,
-  consumeWorkspaceInternalRequestPrincipal,
-  createWorkspaceInternalIdentityHeaders,
-} from "./internal-unit-identity";
+import { createHash, createHmac, randomUUID, timingSafeEqual } from "node:crypto";
 
 const MAX_CLOCK_SKEW_MS = 60_000;
 const DEFAULT_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+const PROTOCOL_VERSION = "workspace-internal-api-v1";
+const ID_PATTERN = /^[a-z][a-z0-9-]*$/;
+const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
+const replayClaims = new Map<string, number>();
 
-type InternalRpcEnvironment = Partial<Pick<
+const INTERNAL_CALLER_HEADER = "x-workspace-internal-caller";
+const INTERNAL_AUDIENCE_HEADER = "x-workspace-internal-audience";
+const INTERNAL_REQUEST_ID_HEADER = "x-workspace-internal-request-id";
+const INTERNAL_TIMESTAMP_HEADER = "x-workspace-internal-timestamp";
+const INTERNAL_SIGNATURE_HEADER = "x-workspace-internal-signature";
+const INTERNAL_PROTOCOL_HEADER = "x-workspace-internal-protocol";
+
+type InternalApiEnvironment = Partial<Pick<
   NodeJS.ProcessEnv,
-  "NODE_ENV" | "PORT" | "WORKSPACE_INTERNAL_ORIGIN" | "WORKSPACE_PUBLIC_ORIGIN"
+  "PORT" | "WORKSPACE_INTERNAL_ORIGIN"
 >>;
 
-export function workspaceInternalOrigin(env: InternalRpcEnvironment = process.env) {
+function internalSecret() {
+  const secret = process.env.WORKSPACE_INTERNAL_SERVICE_SECRET?.trim()
+    || process.env.NEXTAUTH_SECRET?.trim();
+  if (!secret) throw new Error("WORKSPACE_INTERNAL_SERVICE_SECRET or NEXTAUTH_SECRET is required for internal API calls");
+  return secret;
+}
+
+function canonicalPathname(pathname: string) {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH?.trim() || "/workspace";
+  if (basePath === "/") return pathname;
+  return pathname === basePath
+    ? "/"
+    : pathname.startsWith(`${basePath}/`)
+      ? pathname.slice(basePath.length)
+      : pathname;
+}
+
+function requestSignature(input: {
+  audience: string;
+  body: string;
+  caller: string;
+  method: string;
+  pathname: string;
+  requestId: string;
+  search: string;
+  timestamp: string;
+}) {
+  const payload = [
+    PROTOCOL_VERSION,
+    input.caller,
+    input.audience,
+    input.timestamp,
+    input.requestId,
+    input.method.toUpperCase(),
+    canonicalPathname(input.pathname),
+    input.search,
+    createHash("sha256").update(input.body).digest("hex"),
+  ].join("\n");
+  return createHmac("sha256", internalSecret()).update(payload).digest("hex");
+}
+
+function validRequestId(value: string) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(value);
+}
+
+function safeEqualHex(left: string, right: string) {
+  return DIGEST_PATTERN.test(left)
+    && DIGEST_PATTERN.test(right)
+    && timingSafeEqual(Buffer.from(left, "hex"), Buffer.from(right, "hex"));
+}
+
+export function workspaceInternalOrigin(env: InternalApiEnvironment = process.env) {
   const configured = env.WORKSPACE_INTERNAL_ORIGIN?.trim();
   if (configured) return configured;
-  if (env.NODE_ENV === "production") {
-    // Production internal RPC must pass through the managed Gateway so an
-    // independently activated unit receives its owned API routes. The bare
-    // loopback origin can select an unrelated default Nginx vhost and fail
-    // before the signed request reaches Workspace.
-    return env.WORKSPACE_PUBLIC_ORIGIN?.trim() || "http://127.0.0.1";
-  }
   return `http://127.0.0.1:${env.PORT?.trim() || "3000"}`;
 }
 
@@ -43,17 +94,28 @@ export function workspaceInternalRequestHeaders(input: {
   timestamp?: string;
 }) {
   const method = input.method ?? "POST";
+  const requestId = input.requestId ?? randomUUID();
+  const timestamp = input.timestamp ?? String(Date.now());
+  if (!ID_PATTERN.test(input.callerUnitId) || !ID_PATTERN.test(input.audienceUnitId)) {
+    throw new Error("Internal API caller or audience is invalid");
+  }
+  if (!validRequestId(requestId)) throw new Error("Internal API request id is invalid");
   return {
     "Content-Type": "application/json",
-    ...createWorkspaceInternalIdentityHeaders({
-      audienceUnitId: input.audienceUnitId,
+    [INTERNAL_PROTOCOL_HEADER]: PROTOCOL_VERSION,
+    [INTERNAL_CALLER_HEADER]: input.callerUnitId,
+    [INTERNAL_AUDIENCE_HEADER]: input.audienceUnitId,
+    [INTERNAL_REQUEST_ID_HEADER]: requestId,
+    [INTERNAL_TIMESTAMP_HEADER]: timestamp,
+    [INTERNAL_SIGNATURE_HEADER]: requestSignature({
+      audience: input.audienceUnitId,
       body: input.body,
-      callerUnitId: input.callerUnitId,
+      caller: input.callerUnitId,
       method,
       pathname: input.url.pathname,
+      requestId,
       search: input.url.search,
-      requestId: input.requestId,
-      timestamp: input.timestamp,
+      timestamp,
     }),
   };
 }
@@ -66,15 +128,46 @@ export function isWorkspaceInternalRequestAuthorized(
     audienceUnitId: string;
   },
 ) {
-  const principal = authenticateWorkspaceInternalRequest({
-    audienceUnitId: options.audienceUnitId,
-    body,
-    maxClockSkewMs: MAX_CLOCK_SKEW_MS,
-    request,
-  });
-  return principal !== null
-    && options.allowedCallerUnitIds.includes(principal.callerUnitId)
-    && consumeWorkspaceInternalRequestPrincipal(principal);
+  try {
+    const protocol = request.headers.get(INTERNAL_PROTOCOL_HEADER) ?? "";
+    const caller = request.headers.get(INTERNAL_CALLER_HEADER) ?? "";
+    const audience = request.headers.get(INTERNAL_AUDIENCE_HEADER) ?? "";
+    const requestId = request.headers.get(INTERNAL_REQUEST_ID_HEADER) ?? "";
+    const timestamp = request.headers.get(INTERNAL_TIMESTAMP_HEADER) ?? "";
+    const signature = request.headers.get(INTERNAL_SIGNATURE_HEADER) ?? "";
+    const timestampMs = Number(timestamp);
+    if (protocol !== PROTOCOL_VERSION
+      || !ID_PATTERN.test(caller)
+      || !ID_PATTERN.test(audience)
+      || audience !== options.audienceUnitId
+      || !options.allowedCallerUnitIds.includes(caller)
+      || !validRequestId(requestId)
+      || !Number.isFinite(timestampMs)
+      || Math.abs(Date.now() - timestampMs) > MAX_CLOCK_SKEW_MS) return false;
+    const url = new URL(request.url);
+    const expected = requestSignature({
+      audience,
+      body,
+      caller,
+      method: request.method,
+      pathname: url.pathname,
+      requestId,
+      search: url.search,
+      timestamp,
+    });
+    if (!safeEqualHex(signature, expected)) return false;
+
+    const now = Date.now();
+    for (const [claim, expiresAt] of replayClaims) {
+      if (expiresAt <= now) replayClaims.delete(claim);
+    }
+    const claim = createHash("sha256").update(`${caller}\n${audience}\n${requestId}`).digest("hex");
+    if (replayClaims.has(claim)) return false;
+    replayClaims.set(claim, timestampMs + MAX_CLOCK_SKEW_MS);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 export class WorkspaceInternalRpcError extends Error {

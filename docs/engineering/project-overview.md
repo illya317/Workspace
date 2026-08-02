@@ -23,11 +23,8 @@ sourceOfTruth:
   - tsconfig.prisma-client.json
   - tsconfig.tooling.json
   - packages/platform/module-registry.ts
-  - scripts/deploy/deploy-unit-spec.ts
-  - scripts/deploy/deploy-unit-app-generator.ts
   - docs/engineering/architecture-governance.md
   - docs/engineering/checks.md
-  - docs/engineering/ops/deploy-units.md
   - docs/engineering/security/rbac.md
   - docs/engineering/schema-governance.md
   - docs/engineering/core-ui-governance.md
@@ -41,7 +38,7 @@ sourceOfTruth:
 staleWhen:
   - any sourceOfTruth file changed after lastVerifiedCommit or is dirty
   - package scripts or module registry changed
-  - deploy-unit spec, generated Next app config, or canonical route ownership changed
+  - canonical route ownership changed
   - role skills or docs ownership changed in a way that affects routing
   - major module boundary, RBAC, CI, schema, or Core UI rules changed
 ```
@@ -53,8 +50,8 @@ Git is still the history source, but agents should not guess freshness from `git
 ```bash
 verified_commit="$(sed -n 's/^lastVerifiedCommit: //p' docs/engineering/project-overview.md | head -1)"
 test -n "$verified_commit"
-git diff --name-only "$verified_commit"..HEAD -- AGENTS.md CLAUDE.md .agents/skills .claude/skills docs/README.md docs/OWNERS.md docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
-git status --short -- AGENTS.md CLAUDE.md .agents/skills .claude/skills docs/README.md docs/OWNERS.md docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' 'apps/*/next.config.ts' 'apps/*/tsconfig.json' packages/platform/module-registry.ts scripts/deploy/deploy-unit-spec.ts scripts/deploy/deploy-unit-app-generator.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/ops/deploy-units.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
+git diff --name-only "$verified_commit"..HEAD -- AGENTS.md CLAUDE.md .agents/skills .claude/skills docs/README.md docs/OWNERS.md docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' packages/platform/module-registry.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
+git status --short -- AGENTS.md CLAUDE.md .agents/skills .claude/skills docs/README.md docs/OWNERS.md docs/generated/README.md docs/planning/README.md docs/reference/README.md package.json tsconfig.base.json tsconfig.json tsconfig.app.json tsconfig.prisma-client.json tsconfig.tooling.json 'packages/*/tsconfig.json' packages/platform/module-registry.ts docs/engineering/architecture-governance.md docs/engineering/checks.md docs/engineering/security/rbac.md docs/engineering/schema-governance.md docs/engineering/core-ui-governance.md 'app/**/page.tsx' 'app/(modules)/docs/ARCHITECTURE.md' 'app/(modules)/*/ARCHITECTURE.md' 'app/(modules)/*/*/ARCHITECTURE.md' 'app/(modules)/*/MODULE.md' 'app/(system)/*/ARCHITECTURE.md' 'app/(system)/*/*/ARCHITECTURE.md'
 ```
 
 If a source-of-truth file is dirty, treat the related section here as possibly stale and inspect that file directly. Do not update this metadata to cover uncommitted facts unless the owning agent has explicitly confirmed that the dirty file is the intended source of truth.
@@ -63,7 +60,7 @@ If a source-of-truth file is dirty, treat the related section here as possibly s
 
 Workspace is an internal management system. It is not a single HR app; it is a modular platform for HR, finance, work/project management, product/QC, inventory, administration contracts, capital and external relationships, library/documents, external news briefings, user-facing docs, settings, and governed Agent runtimes. HR virtual-employee records describe organizational identity; only an explicit runtime binding makes that identity executable on Workspace, local Codex, CI, or servers.
 
-The repository now has two distinct application views. The canonical `app/` tree remains the editable route/API shell source and the local monolith compatibility app. Generated `apps/*` roots are independent Next standalone application projects for the deploy-unit graph. Core and Platform are shared compilation inputs, not implicit runtimes or deploy units; Platform-owned Portal/Auth/System pages and the independent Settings L1 run in the explicit `workspace-shell` unit.
+The canonical `app/` tree is the single editable Next route/API shell and the only production application root. Core and Platform are shared compilation inputs; product modules remain package boundaries inside one application image.
 
 The current product modules are registered in `packages/platform/module-registry.ts`. That registry is the source of truth for module keys, labels, routes, resource keys, API prefixes, headless modules, and module disable behavior.
 
@@ -76,8 +73,8 @@ The current product modules are registered in `packages/platform/module-registry
 | Database | Prisma ORM 7 + PostgreSQL 15+ via `@prisma/adapter-pg` |
 | Auth | JWT Cookie sessions for web; Open API Bearer clients for `/api/open/v1/**` |
 | Runtime config | `.env` and workspace runtime paths such as `WORKSPACE_CONFIG_DIR` |
-| App topology | Editable canonical `app/`; generated standalone Next roots under `apps/*`; the development Next process retains internal port 3000, while host-exposed ports follow the active environment entry |
-| Deploy topology | 13 declared units for 13 normal L1 packages; Settings is hosted by `workspace-shell` and Agent by `assistant`; route/API ownership is derived rather than copied |
+| App topology | One canonical `app/` root and one Next standalone image; the development Next process retains internal port 3000 |
+| Deploy topology | One immutable `linux/amd64` OCI image built and deployed by CNB |
 | Checks | npm scripts in `package.json`, with TypeScript project references and heavy checks serialized through `scripts/check/with-check-lock.js` |
 
 Do not rely on framework memory for Next.js details. `AGENTS.md` requires reading the relevant Next.js guide from `node_modules/next/dist/docs/` before writing code that depends on changed framework behavior.
@@ -98,14 +95,11 @@ packages/<l1>
 app/*
   canonical editable Next route/API shells: auth, permission, prefetch, mount package UI, return DTO
 
-apps/*
-  generated deploy-unit Next roots with an owned route/API slice, next.config.ts and tsconfig.json
-
 prisma/
   Prisma models, migrations and seed data; lifecycle remains centrally coordinated
 
-scripts/check + scripts/deploy
-  CI/architecture/data/docs gates plus the derived deploy graph and generated app contracts
+scripts/check
+  architecture, data, docs and local focused checks
 
 tsconfig.json
   solution-only compiler graph: Core -> Platform -> domain packages -> canonical App/tooling
@@ -122,9 +116,7 @@ canonical or generated app shell
 
 `packages/core` must not depend on Platform, Apps, Prisma, permissions, or business facts. Platform must not import a domain package. Business packages must not directly import each other. Cross-module behavior belongs in a Platform contract/RPC or a Core primitive, depending on whether it carries system/runtime semantics or is a pure generic UI/helper capability.
 
-The same direction is compiler-enforced. Each package owns a composite `tsconfig.json`; generated Prisma types are a separate upstream project; `tsconfig.app.json` owns the canonical monolith route shells; every `apps/<unit>/tsconfig.json` owns only that generated unit shell and its compiler closure; `tsconfig.tooling.json` preserves scripts, E2E, and config-file checking. Root `tsconfig.json` owns no source files. Use `npm run typecheck:scope -- <package>` for a package plus its upstream projects, `npm run typecheck:affected` when the deploy graph should select package/App scopes, and `npm run typecheck:full` for the complete canonical solution.
-
-`scripts/deploy/deploy-unit-spec.ts` declares the 13 app roots and non-derivable runtime facts. All 13 blueprints have maturity `active`, so every unit is eligible for the formal public release protocol; this is source eligibility, not proof of current production traffic. Live Gateway activation must be read from deployment state and receipts. Files under `apps/*` carry a generated banner and are drift evidence, not a second fact source: change the canonical `app/`, registry, or deploy spec, validate all mirrors with `npm run deploy:apps:check`, and use `npm run deploy:unit:app -- --unit <id> --write` only when an explicit refresh is required.
+The same direction is compiler-enforced. Each package owns a composite `tsconfig.json`; generated Prisma types are a separate upstream project; `tsconfig.app.json` owns the canonical route shells; `tsconfig.tooling.json` preserves scripts, E2E, and config-file checking. Root `tsconfig.json` owns no source files. Use `npm run typecheck:scope -- <package>` for a package plus its upstream projects and `npm run typecheck:full` for the complete canonical solution.
 
 ## 4. Role-owned entry points
 
@@ -189,7 +181,7 @@ real app route / URL href / resourceKey + RBAC / API contract + guard
 
 Pages under `app/(modules)` and `app/(system)` are route shells. Do not add real UI implementations, hooks, table logic, Prisma writes, business calculations, or local auth/RBAC decisions there.
 
-The root `app/` tree is the editable authority for those shells. Matching files under `apps/<unit>/app` are generated deploy slices, not a second implementation surface. Never fix a route in `apps/*` alone; update the canonical shell and regenerate the owning unit so monolith and independent artifacts remain identical.
+The root `app/` tree is the only authority for those shells.
 
 Business UI defaults to Feature work and must compose Core/Platform primitives. Only Architecture/UI-system work should change `packages/core/ui/**`, Core UI contracts, registry, or the Settings UI declaration page, and only with explicit authorization.
 
@@ -212,11 +204,7 @@ Company-specific facts such as identity, company names/codes, management systems
 | Target only business/system or structural UI blockers | `npm run gate:domain` / `npm run gate:ui` |
 | Prisma model, schema, migration and governed data release | `npm run check:data` |
 | Public/generated docs contracts | `npm run docs:check` |
-| Deploy graph ownership, compiler closure, route/asset and capacity contract | `npm run deploy:graph:check` |
-| Inspect one derived unit contract | `npm run deploy:unit:contract -- --unit <id>` |
-| Validate all generated Next app mirrors | `npm run deploy:apps:check` |
-| Inspect one generated app or explicitly refresh it | `npm run deploy:unit:app -- --unit <id>`; add `--write` only to regenerate |
-| CNB required CI executor | `npm run check:ci`（由 `ops/cnb-ci.sh` 调用） |
+| CNB required CI executor | `.cnb.yml` + `ops/cnb-ci.sh` 原生并行 lanes |
 | Package and publish the exact standalone image | `ops/cnb-release.sh build`（仅 CNB `main push`） |
 | Verify/rehearse/deploy the same digest | `ops/cnb-release.sh verify|rehearsal|production`（仅 CNB Pipeline） |
 | Strict historical debt patrol | `npm run check:hygiene` |
@@ -233,8 +221,7 @@ Small execution agents usually do not run full npm checks during multi-agent wor
 | What role should handle this? | `.agents/skills/workspace-role-router/SKILL.md` |
 | Is this overview fresh? | Metadata at the top of this file, then the `git diff` / `git status` commands above |
 | What modules/routes/resources exist? | `packages/platform/module-registry.ts` |
-| Which independent runtime owns a route or API? | `scripts/deploy/deploy-unit-spec.ts`, then `docs/engineering/ops/deploy-units.md` |
-| Where should a Next route shell be edited? | Canonical root `app/`; `apps/*` is generated and validated with `deploy:apps:check` |
+| Where should a Next route shell be edited? | Canonical root `app/` |
 | Where does this module's business logic belong? | `app/(modules)/<module>/ARCHITECTURE.md`; for Work also `MODULE.md` |
 | What are package boundaries and API rules? | `docs/engineering/architecture-governance.md` |
 | Who owns this doc, and must I update docs? | `docs/OWNERS.md` |
@@ -260,7 +247,7 @@ Refresh this file when any of these changes land:
 - `packages/platform/module-registry.ts` changes L1/L2, resources, API prefixes, headless modules, or capabilities.
 - `docs/OWNERS.md` changes ownership, must-document triggers, stale rules, or reference/planning placement.
 - `package.json` changes check scripts, framework version, or runtime scripts.
-- The deploy-unit spec, generated app contract, route ownership, or App `tsconfig` closure changes.
+- Route ownership or App `tsconfig` closure changes.
 - Architecture, RBAC, schema, Core UI, route shell, or CI rules change.
 - A module `ARCHITECTURE.md` or `MODULE.md` changes the business boundary of a domain.
 - Role skills change how agents route work.

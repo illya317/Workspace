@@ -2809,27 +2809,6 @@
       "occurrences": 1
     },
     {
-      "sourcePath": "packages/platform/server/deploy-unit-runtime.ts",
-      "targetPath": "packages/platform/server/data-quality-scheduler.ts",
-      "kind": "dynamicImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
-      "sourcePath": "packages/platform/server/deploy-unit-runtime.ts",
-      "targetPath": "packages/platform/server/internal-unit-identity.ts",
-      "kind": "dynamicImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
-      "sourcePath": "packages/platform/server/deploy-unit-runtime.ts",
-      "targetPath": "packages/platform/server/permission-review-scheduler.ts",
-      "kind": "dynamicImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
       "sourcePath": "packages/platform/server/docs-editor-space-adapter.ts",
       "targetPath": "packages/platform/server/business-space-permissions.ts",
       "kind": "valueImport",
@@ -4000,7 +3979,7 @@
     },
     {
       "sourcePath": "packages/platform/ui/NotificationBell.tsx",
-      "targetPath": "packages/platform/ui/useDeployUnitNavigation.ts",
+      "targetPath": "packages/platform/ui/useWorkspaceNavigation.ts",
       "kind": "valueImport",
       "reason": "crossBranchImplementationDependency",
       "occurrences": 1
@@ -4021,7 +4000,7 @@
     },
     {
       "sourcePath": "packages/platform/ui/UserMenu.tsx",
-      "targetPath": "packages/platform/ui/useDeployUnitNavigation.ts",
+      "targetPath": "packages/platform/ui/useWorkspaceNavigation.ts",
       "kind": "valueImport",
       "reason": "crossBranchImplementationDependency",
       "occurrences": 1
@@ -4133,7 +4112,7 @@
     },
     {
       "sourcePath": "packages/platform/ui/index.ts",
-      "targetPath": "packages/platform/ui/useDeployUnitNavigation.ts",
+      "targetPath": "packages/platform/ui/useWorkspaceNavigation.ts",
       "kind": "reExport",
       "reason": "crossBranchImplementationDependency",
       "occurrences": 1

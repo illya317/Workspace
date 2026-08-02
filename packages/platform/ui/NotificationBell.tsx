@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Inbox } from "lucide-react";
 import { workspacePath } from "@workspace/core/routing";
-import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+import { useWorkspaceNavigation } from "./useWorkspaceNavigation";
 
 type NotificationSummaryResponse = {
   unreadCount: number;
@@ -23,7 +23,7 @@ export default function NotificationBell({
   onBeforeNavigate?: (href: string) => boolean | Promise<boolean>;
   variant?: "icon" | "nav";
 }) {
-  const navigate = useDeployUnitNavigation();
+  const navigate = useWorkspaceNavigation();
   const [count, setCount] = useState(0);
 
   const load = useCallback(async () => {

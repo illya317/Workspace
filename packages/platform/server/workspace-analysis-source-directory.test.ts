@@ -207,7 +207,7 @@ test("rejects source definitions that do not belong to the provider", async () =
   assert.deepEqual(result.providers, [{ ownerUnitId: "hr", status: "unavailable", sourceCount: 0 }]);
 });
 
-test("accepts a canonical kebab deploy unit for a camel-cased module owner", async () => {
+test("accepts a canonical kebab prefix for a camel-cased module owner", async () => {
   const capitalSource = {
     ...source("capital-securities.companies", ["personal"]),
     ownerModuleKey: "capitalSecurities",

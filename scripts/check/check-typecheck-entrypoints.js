@@ -66,7 +66,7 @@ function main() {
   for (const violation of violations) {
     console.error(`- ${violation.relativePath}: ${violation.match}`);
   }
-  console.error("Use `npm run typecheck:scope -- <scope>`, `npm run typecheck:affected`, `npm run typecheck:quick`, or `npm run typecheck:full`.");
+  console.error("Use `npm run typecheck:scope -- <scope>`, `npm run typecheck:quick`, or `npm run typecheck:full`.");
   return 1;
 }
 

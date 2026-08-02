@@ -1,5 +1,5 @@
-import { deployUnitHealthResponse } from "@workspace/platform/server/deploy-unit-runtime";
+import { releaseHealthResponse } from "@workspace/platform/server/release-runtime";
 
 export function GET() {
-  return deployUnitHealthResponse();
+  return releaseHealthResponse();
 }

@@ -146,7 +146,7 @@ human/code intent
 - 产品包内的源码模块树声明在 `scripts/arch/source-code-analysis/capabilities.ts`。节点只声明稳定的 `key / parentKey / include / interface`，层级由父链计算，不保存写死的 L2/L3 枚举；因此 L3、L4 以及更深节点遵守同一 contract。文件同时命中祖先和后代时归最深节点，同一深度命中多个兄弟节点仍按多重归属失败。`entry` 是产品 L1 的组合/输入边界，不是额外业务模块。
 - 同一递归节点内可以访问自己的 Implementation；跨分支或子模块访问祖先时，只能依赖目标节点公开的 Interface（显式 `interface` 路径，或 contract/assembly role）。祖先只有 composition/assembly/input/UI 边界可以组装后代 Implementation，普通 application/domain 代码不得反向深入子模块。现存跨分支 Implementation 直连按 `sourcePath + targetPath + import kind + reason + occurrences` 精确登记在 `capability-contract-baseline.json`：新增边、同一边增加次数以及已消除债务未同步收缩 baseline 都会阻断检查。
 - 默认使用集中式路径声明，而不是在每个文件写可漂移的注释标签；只有路径无法稳定表达所有权时，才收窄或增加显式声明规则。
-- 自动生成源码和 `apps/*` 部署镜像不进入人工源码统计，避免重复或生成噪声淹没真实实现。
+- 自动生成源码不进入人工源码统计，避免生成噪声淹没真实实现。
 - snapshot 统计非空、非纯注释源码行，并同时保留 `module + role -> module + role` 的源码 import 边、跨模块依赖、模块级循环和生产文件强连通分量。文件 SCC 才是“无法单向排序”的权威事实；role 两侧都出现 import 只叫聚合互引，用于发现仍需细分的 source unit，不能冒充真实循环。这些数字和关系是诊断证据，不是 depth score。
 - 管理矩阵的全部代码体量统一使用“万行”：零值显示 `—`，1–999 行显示 `<0.1`，1000 行及以上保留两位小数，例如 `0.12 / 1.12 / 5.23`；文件数和依赖数必须明确作为数量展示，不能与代码行混用。两位小数采用只影响显示的守恒舍入：原始整数行数不变，表内分配 0.01 万行的舍入尾差，使每一行的总代码等于右侧职责之和，末行每列等于上方模块之和，且末行总代码同时等于末行职责之和；`<0.1` 是区间提示，不参与肉眼小数加总。
 - snapshot 继续保存全部原始 role，治理、门禁和下钻不得消费合并后的展示值。管理矩阵按默认依赖方向从左到右聚合为：`入口 = 组合壳 + UI + 输入` -> `业务 = 业务实现 + 领域校验` -> `适配 = 数据访问 + 外部集成` -> `契约`，最后单列 `保障 = 模块测试 + 工程实现`。可展开的聚合列在列头声明下钻动作：点击保留聚合列并在其右侧展开原始 role，同一时间只展开一组，再次点击收起。聚合只影响显示，不改变后端事实。
@@ -164,7 +164,7 @@ npm run source-code-analysis:snapshot:ensure
 npm run source-code-analysis:report
 ```
 
-`npm run dev` 会在数据库预检之前自动、原子地写入 `.cache/source-code-analysis/snapshot.json`，production build 同样强制生成；缺失父目录由生成器递归建立。Full 与独立 deploy-unit artifact 必须把同一非空 snapshot 放到运行入口旁，否则组装失败。平台治理 `/settings/governance` 的“模块管理”右栏只读取该不可变 snapshot，不在请求时扫描生产文件系统。
+`npm run dev` 会在数据库预检之前自动、原子地写入 `.cache/source-code-analysis/snapshot.json`，production build 同样强制生成；缺失父目录由生成器递归建立。standalone artifact 必须把同一非空 snapshot 放到运行入口旁，否则组装失败。平台治理 `/settings/governance` 的“模块管理”只读取该不可变 snapshot，不在请求时扫描生产文件系统。
 
 快照生命周期按阶段分层：有完整源码的 dev、build 和 artifact 组装属于生成门禁，生成、contract 校验或复制失败必须阻断该阶段，不能交付缺失快照；生产运行时只读已装配的不可变文件，意外读取失败保持 fail-open，只让源码分析区域不可用，不拖垮运行时请求或左侧模块管理。内容层的声明遗漏、循环依赖和未解耦混合职责仍由显式 `source-code-analysis:check`（以及包含它的 `gate:domain`）严格失败；检查通过后同一 gate 原子刷新 snapshot，因而干净 CI 工作区也会从源码自动建立目录和 JSON。业务代码不得依赖 snapshot 才能工作。
 

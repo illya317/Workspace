@@ -28,7 +28,6 @@ test("repository-owned commands and active instructions use governed typecheck e
     assert.match(scripts[name], /with-check-lock\.js -- node scripts\/check\/run-typecheck\.js/);
   }
   assert.match(scripts["typecheck:quick"], /with-check-lock\.js -- node scripts\/check\/run-local-typecheck\.js/);
-  assert.match(scripts["typecheck:affected"], /with-check-lock\.js -- node .*run-affected-typecheck\.ts/);
 });
 
 test("scoped typecheck maps package names to governed build projects", () => {
@@ -41,12 +40,6 @@ test("scoped typecheck maps package names to governed build projects", () => {
   assert.deepEqual(resolveCompilerArguments(["--scope", "app"]), [
     "--build",
     "tsconfig.app.json",
-    "--pretty",
-    "false",
-  ]);
-  assert.deepEqual(resolveCompilerArguments(["--scope", "app-workspace-shell"]), [
-    "--build",
-    "apps/workspace-shell",
     "--pretty",
     "false",
   ]);

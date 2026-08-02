@@ -64,7 +64,13 @@ export function scanTrackedErrexit(repositoryRoot) {
   for (const relativePath of trackedFiles(repositoryRoot)) {
     if (relativePath === POLICY_FILE) continue;
     const absolute = path.join(repositoryRoot, relativePath);
-    const stat = fs.lstatSync(absolute);
+    let stat;
+    try {
+      stat = fs.lstatSync(absolute);
+    } catch (error) {
+      if (error?.code === "ENOENT") continue;
+      throw error;
+    }
     if (!stat.isFile() || !isTextCandidate(repositoryRoot, relativePath)) continue;
     const source = fs.readFileSync(absolute, "utf8");
     if (source.includes("\0")) continue;

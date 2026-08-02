@@ -50,34 +50,6 @@ function localChangedFiles({ cwd = process.cwd(), environment = process.env } = 
 }
 
 function appScope(file) {
-  const generatedApp = file.match(/^apps\/([a-z][a-z0-9-]*)\//);
-  if (generatedApp) return `app-${generatedApp[1]}`;
-
-  if (file.startsWith("app/(modules)/agent/") || file.startsWith("app/api/agent/") || file.startsWith("app/api/integrations/")) {
-    return "app-assistant";
-  }
-  if (file.startsWith("app/(modules)/settings/")) return "app-workspace-shell";
-
-  const businessModule = file.match(/^app\/\(modules\)\/([a-z][a-z0-9-]*)\//);
-  if (businessModule) return `app-${businessModule[1]}`;
-
-  const businessApi = file.match(/^app\/api\/modules\/([^/]+)\//);
-  if (businessApi) {
-    const unit = businessApi[1] === "capitalSecurities" ? "capital-securities" : businessApi[1];
-    return `app-${unit}`;
-  }
-
-  if (
-    file.startsWith("app/(auth)/")
-    || file.startsWith("app/(system)/")
-    || file.startsWith("app/api/auth/")
-    || file.startsWith("app/api/settings/")
-    || file === "app/error.tsx"
-    || file === "app/layout.tsx"
-    || file === "app/page.tsx"
-  ) {
-    return "app-workspace-shell";
-  }
   return "app";
 }
 
@@ -88,7 +60,7 @@ function directScopeForFile(file, availableScopes) {
   const packageMatch = file.match(/^packages\/([a-z][a-z0-9-]*)\//);
   if (packageMatch && availableScopes.has(packageMatch[1])) return packageMatch[1];
 
-  if (file.startsWith("app/") || file.startsWith("apps/")) return appScope(file);
+  if (file.startsWith("app/")) return appScope(file);
   if (
     file.startsWith("scripts/")
     || file.startsWith("ops/")

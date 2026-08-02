@@ -136,5 +136,4 @@ Level 1/1.5 只有一个硬门禁入口：
 1. Core：继续收口通用字段输入、日期、FK 搜索、tag 输入、表格、筛选、确认弹窗和 typed Surface；业务包只声明语义，不复制 renderer 或布局算法。
 2. Platform：继续拥有登录、权限、资源树、导航、审计、用户账号、Portal、共享目录和运行时 contract；新增资源先进入对应 package `resourceDefs`，再由 Platform 聚合。
 3. Domain packages：HR、Production、Finance、Work、Administration、Library、Inventory、External、Capital Securities 已各自拥有 UI/server/types 边界。后续只迁移残余 route-shell 债务，不把业务实现写回 `app/*`，也不以跨业务 import 解决联动。
-4. Generated apps：`apps/*` 是部署图生成的独立 Next App 镜像，不是第二份源码事实源；页面/API 所有权仍来自 module registry，编译闭包来自 project references，生成一致性由 `npm run deploy:apps:check` 阻断。
-5. Deploy units：12 个运行单元的构建、成熟度、Gateway、control-plane、Profile 和生产激活状态以 `docs/engineering/ops/deploy-units.md` 及其代码事实源为准。进程拆分不改变共享 PostgreSQL 的中央 migration ownership，也不放宽 Core / Platform / domain 的依赖方向。
+4. Production artifact：所有模块进入同一个 Next standalone 与一个不可变 OCI digest；模块边界不再派生独立构建或部署控制面。

@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { scanErrexitSource, validateErrexitPolicy } from "./check-shell-errexit-policy.mjs";
-import { checkTaskInputContract } from "./check-task-contracts.mjs";
 
 const enable = `set ${"-euo"}`;
 const enableLine = `${enable} pipefail`;
@@ -124,12 +123,4 @@ test("diagnostic filenames cannot bypass the ban by claiming execution", () => {
   const result = validateErrexitPolicy({ policy: policyFor([entry], 1), occurrences });
   assert.equal(result.ok, false);
   assert.match(result.violations.join("\n"), /diagnostic path cannot enable errexit/);
-});
-
-test("release task input contract binds the scanner, policy, and tracked source inventory", () => {
-  const contract = checkTaskInputContract({ id: "shell-errexit-policy" });
-
-  assert.deepEqual(contract.detectors, ["scripts/check/check-shell-errexit-policy.mjs"]);
-  assert.deepEqual(contract.files, ["scripts/check/shell-errexit-policy.json"]);
-  assert.deepEqual(contract.patterns, ["^(?!scripts/check/shell-errexit-policy\\.json$).+"]);
 });

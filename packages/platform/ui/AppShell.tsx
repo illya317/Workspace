@@ -16,7 +16,7 @@ import {
   headerShortcutsForUser,
 } from "./portal-preferences";
 import { resolveMobileExperience } from "../mobile-experience";
-import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+import { useWorkspaceNavigation } from "./useWorkspaceNavigation";
 import { useTenantConfig } from "./tenant-config";
 interface NavLinkDef {
   label: string;
@@ -52,7 +52,7 @@ export default function AppShell({
   children
 }: AppShellProps) {
   const tenantConfig = useTenantConfig();
-  const navigateToDeployUnit = useDeployUnitNavigation();
+  const navigateToWorkspace = useWorkspaceNavigation();
   const pathname = usePathname();
   const feedback = useFeedback({ unsavedChanges: hasUnsavedChanges });
   const [portalSlots, setPortalSlots] = useState<PortalSlot[]>(() => initialPortalSlots ?? defaultSlotsForUser(user));
@@ -66,7 +66,7 @@ export default function AppShell({
   const activeDesktopMode = "personalized";
   async function navigate(href: string) {
     if (!(await feedback.confirmLeave())) return;
-    navigateToDeployUnit(href);
+    navigateToWorkspace(href);
   }
   async function logout() {
     if (loggingOut || !(await feedback.confirmLeave())) return;

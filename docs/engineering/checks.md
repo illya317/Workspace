@@ -2,24 +2,21 @@
 
 本项目把检查分成静态 lint、类型、架构/契约 gate、行为测试、真实依赖集成测试和浏览器 E2E。命令可以在 CI 中串起来，但每类检查只负责自己的边界，失败时应能直接判断是代码质量、结构契约还是运行行为出了问题。
 
-`apps/*` 是由部署图生成的独立 Next App 镜像，不是第二份源码事实源。ESLint 只扫描 `app/`、`packages/` 和工具源码；生成 App 由 `deploy:apps:check` 做逐字一致性校验，避免 full lint 重复扫描每个 L1 及其 `.next` 构建目录。
+本地多 agent 并行时，重检查通过 `scripts/check/with-check-lock.js` 串行，避免争用 `.next`、TypeScript build info 和开发运行时。pre-commit 把 index 写成临时 Git tree/commit，并在 detached 临时 worktree 内执行；后续 worktree 修改和其他 agent 的文件从执行内容中物理隔离。
 
-本地多 agent 并行时，确定性的静态检查和 Node 测试以“同一台机器、同一候选内容、同一命令成功一次”为准。`scripts/check/with-check-lock.js` 默认只计算 HEAD tree、exact staged diff 和受治理环境；unstaged、untracked、PATH、Node 内存参数及 base/head commit SHA 不进入 key。pre-commit 把 index 写成临时 Git tree/commit，并在 detached 临时 worktree 内执行；后续 worktree 修改和其他 agent 的文件从执行内容中物理隔离。
+复合检查由 `scripts/check/run-check-suite.mjs` 展开为有序列表。嵌套 suite 会被摊平，相同叶子只执行一次，全量 lint/UI gate 会覆盖对应增量步骤；多个 structure gate 共享一次结构报告。不要同时在本机启动多个重检查，锁包装器会串行并在终止时清理整棵子进程树。
 
-复合检查统一由 `scripts/check/run-check-suite.mjs` 展开为有序 DAG。一个 suite 在整个执行期只持有一次项目检查锁；嵌套 suite 会被摊平，相同叶子只执行一次，全量 lint/type/UI gate 会覆盖对应增量步骤；full domain 只有在没有 staged-only 视图、两者读取同一 worktree 时才覆盖 changed domain。changed lint、domain 和 migration 共享一次文件集合计算，多个 structure gate 共享一次结构报告。只要快照没漂移，即使后续步骤失败，之前成功的部分结果也会留下供下一轮复用。不要同时启动 `check:blockers`、`gate:domain`、`gate:ui` 或 `arch:structure:*` 来“加速”，总入口已经包含对应叶子，额外启动只会等待 suite 锁。收到终止信号时，锁包装器会终止整棵子进程树并释放锁。
+CNB 使用原生并行 jobs 同轮执行全部独立 lane；随后尝试 exact standalone E2E，并由最终 summary 一次列完所有失败。日常单项命令可以 fail-fast，但不得用正式全量门禁逐个发现错误。
 
-CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失败模式：同轮执行全部独立叶子并一次列完 blocking failures；前置失败导致无法安全执行的后续步骤必须显示为 blocked。日常单项命令可以 fail-fast，但不得用正式全量门禁逐个发现错误。第一次正式失败后先按 `ops/ci-cd.md` 完成全图诊断与集中修复，再运行一次最终门禁。
-
-正式 CNB required CI 固定执行 monolith `release-static + test:node + typecheck:full + build-next`。Deploy graph 继续约束源码 ownership、生成 App 与编译闭包，但不再派生独立 unit CI/CD、Ready 或 controller 回执。
+正式 CNB required CI 固定并行执行 monolith static、四个 Node bucket、完整 type、唯一 Next+standalone build 和 PostgreSQL，再运行 exact-build E2E。
 
 ## 常用命令
 
 | 场景 | 命令 | 说明 |
 |---|---|---|
 | 局部 TS/TSX 改动 | `npm run check:changed` | 跑 Playwright 生命周期、changed ESLint、静态 contract 和 domain/migration changed；日常开发不自动跑全库 TypeScript，也不检查净增行。 |
-| 单个 TypeScript 工程 | `npm run typecheck:scope -- <package>` | 只构建指定 package 及其上游引用；也支持 `app`、`tooling`、`prisma-client` 以及生成 App 的 `app-<unit>` scope。 |
+| 单个 TypeScript 工程 | `npm run typecheck:scope -- <package>` | 只构建指定 package 及其上游引用；也支持 `app`、`tooling`、`prisma-client`。 |
 | 当前改动的直接 TypeScript 工程 | `npm run typecheck:quick` | 只选择直接 package/App scope，不展开所有下游消费者；编译器/构建输入变化时直接拒绝，不会暗中升级到全图。 |
-| 受影响 TypeScript 闭包 | `WORKSPACE_CHANGED_FILES_JSON='[...]' npm run typecheck:affected` | 按 deploy graph 选择 owner unit 及其反向消费者的 package/App scopes；未知、共享或部署协议变化 fail closed 到全部受治理 scopes。 |
 | TypeScript 工程图治理 | `npm run typecheck:references:check` | 锁定根 project references、源码 ownership 与 CI 声明/build-info 成对缓存契约；不执行编译。 |
 | 本地提交默认检查 | `npm run check:precommit` | 只验证 exact staged tree 的 changed lint、domain 与 migration；不读取未 stage 内容，不自动加全量或 TypeScript 门禁。 |
 | Agent 针对性检查 | `npm run check:agent -- --plan <file>` | Agent 显式声明 staged 文件、依赖文件和命令；执行器只验证 evidence 并执行，不做风险分类或自动追加门禁。 |
@@ -43,8 +40,6 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 显式全量源码 CI | `npm run check:ci` | 普通开发不运行；CNB required CI 用它汇总完整 static、Node、type 与唯一 Next build。 |
-| 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检租户硬编码和简单 structure hygiene 债务；active baseline 固定为零，定时 CI 每晚 strict 执行，Hygiene 至少每周复查结果。 |
 | 业务编码治理 | `npm run business-code:check` | 校验编码对象/模板 registry、自动生成文档和页面唯一入口，并阻断未登记对象及 baseline 之外的新硬编码；所有权与 baseline 收缩见 `business-code-governance.md`。 |
@@ -60,9 +55,6 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 | Action contract 覆盖 | `npm run action-contract:check` | 强制每个 BusinessAction 具备唯一 `ActionContract`，校验 domain 符号可导出、API 引用存在真实 handler，并双向约束 BusinessAction route 与 Contract command/direct route；允许 direct override 的流程必须同时声明 active persistence 与 direct form mode。Contract 按 `write/lifecycle/governance/workflow/exchange` 声明；mutation/import 必须有 persistence，纯 export 明确声明输出且不得伪造 persistence。 |
 | 跨仓库静态 contract | `npm run check:contracts` | 检查 API 响应格式、history policy registry 和 TypeScript 检查入口；这是静态契约 gate，不属于 ESLint，也不执行产品行为。 |
 | TypeScript 入口治理 | `npm run typecheck:entrypoints:check` | 快速扫描仓库脚本和现行工程文档，禁止绕过项目锁直接启动编译器；不执行类型检查。 |
-| Deploy graph 契约 | `npm run deploy:graph:check` | 从产品 registry、project references、E2E impact map 与最小 runtime blueprint 解析部署图，阻断 ownership、route/asset、blue/green 端口、容量和 contributor 漂移。 |
-| 生成 Deploy App 契约 | `npm run deploy:apps:check` | 从根 `app/`、registry 与 deploy graph 重算全部现存 `apps/<unit>`，逐字阻断缺失、漂移和 stale generated wrapper；不构建 Next。 |
-| 单元部署 contract | `npm run deploy:unit:contract -- --unit <id>` | 只打印/写出派生 contract，不构建或部署；用于核对公开路由、compiler closure、控制平面 floor 与独立部署 blocker。 |
 | OKR 计划治理 | `npm run work-plan-governance:check` | 只做静态治理：强制 WorkPlan 创建时绑定流程/日期版本，审批单记录来源版本，OKR 设置只能增量写策略且不能批量清空。对应行为由 `test:domain:work-plan-governance` 执行。 |
 | Action contract 文档 | `npm run docs:action-contracts` / `npm run docs:action-contracts:check` | 从 canonical registry 生成或校验 `docs/generated/action-contracts.md`；`docs:check` 会阻断漂移。 |
 | API Agent 使用手册 | `npm run docs:api-agent-guide` / `npm run docs:api-agent-guide:check` | 生成或校验 `docs/generated/api-agent-guide.md` 及租户 Docs 副本，并确认模板 BusinessAction/API route 仍已注册；`docs:check` 会阻断漂移。 |
@@ -77,7 +69,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 `lint:changed` 只跑 changed ESLint，不再隐式执行 API response format 或 history policy。后两者属于跨仓库静态契约，由 `check:contracts` 显式执行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
 
-并行开发时不要让每个 agent 都实际跑一遍 `lint:changed`。同一快照已有通过记录时，锁脚本会直接复用；需要重新跑的信号是代码快照、命令参数或相关环境变量发生变化。
+并行开发时不要让每个 agent 都同时跑 `lint:changed`。锁脚本只负责串行重检查并验证执行期间源码快照未漂移，不维护本地 CI receipt 或任务缓存。
 
 `complexity:line-budget` 的公式是 `tracked additions - tracked deletions + untracked source lines`；有 staged diff 时只看 staged 内容，没有 staged diff 时看工作区 changed + untracked。默认 `NET_LINE_GROWTH_LIMIT=0`，用于手动检查本次总行数预算。
 
@@ -85,9 +77,9 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 ### typecheck
 
-`typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 继承 base 供仓库 `tsx` 运行时解析 alias，但保持 `files: []`，不拥有源码。Core 没有 Workspace 上游；Platform 只引用 Core 和生成的 Prisma Client；每个业务 package 只引用 Core 和 Platform；App 与 tooling 引用全部 package。每个生成的 `apps/<unit>/tsconfig.json` 另形成 `app-<unit>` deploy scope，由 deploy contract/builder 显式消费，不手工并入根 solution。`typecheck:references:check` 锁定根工程图、源码 ownership 和缓存契约，禁止通过新增 reference 合法化反向或跨业务依赖，也禁止新增无人负责检查的 TS/TSX/MTS/CTS；生成 App 的文件精确性另由 `deploy:apps:check` 负责，已退出运行面的 `scripts/migrate/sqlite-legacy/` 是唯一显式源码排除。
+`typecheck` 负责 TypeScript 类型正确性。Workspace 的根编译 solution 由 `tsconfig.json`、公共 `tsconfig.base.json`、各 `packages/*/tsconfig.json`、`tsconfig.app.json`、`tsconfig.prisma-client.json` 和 `tsconfig.tooling.json` 组成。根 solution 不拥有源码；Core 没有 Workspace 上游，Platform 只引用 Core 和生成的 Prisma Client，每个业务 package 只引用 Core 与 Platform，App 与 tooling 引用全部 package。`typecheck:references:check` 锁定根工程图和源码 ownership。
 
-`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope；`typecheck:affected` 从可信 changed-files evidence 选择 owner unit 及反向消费者，供变更诊断使用。正式 CNB release 只运行一次 `typecheck:full`，让 TypeScript build mode 按 project references 自己完成拓扑构建，禁止把同一引用图拆成几十次串行 scope。所有入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量。
+`npm run typecheck:scope -- production` 只构建目标工程及其上游；`typecheck:quick` 选择直接 package/App scope。正式 CNB release 只运行一个完整 type lane，让 TypeScript build mode 按 project references 完成拓扑构建。所有入口共享 `.cache/types/` 与 `.cache/tsbuild/`，本地 Node old-space 硬上限为 `8192 MiB`。
 
 根 monolith 的 Next 通过 `tsconfig.app.json` 检查路由壳，但不能替代 project-reference 类型权威。正式 release source graph 先完成一次完整 project-reference build；artifact builder 随后使用跳过重复 TypeScript traversal 的构建入口。
 
@@ -97,7 +89,7 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 ### blockers
 
-`check:blockers` 是当前改动必须自己修掉的阻断项，不是给 Hygiene Role 的后续任务池。它由两类 gate 组成，并通过 suite DAG 复用二者的叶子检查；不要在运行 blockers 时再并行启动任一子 gate。
+`check:blockers` 是当前改动必须自己修掉的阻断项，不是给 Hygiene Role 的后续任务池。它由两类 gate 组成，并通过扁平任务计划去重叶子检查；不要在运行 blockers 时再并行启动任一子 gate。
 
 ### gate:domain
 
@@ -148,19 +140,19 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再强制生成并校验源码分析 snapshot，然后执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 snapshot + Next 生产构建，避免重复 generate。本地两个入口都固定给 Next 构建进程 `8192 MiB` Node old-space，与开发应用容器 `10 GiB` 上限保留运行时余量；检查锁会拒绝更高配置。若构建需要更多时间，只能提高 `CHECK_LOCK_TIMEOUT_MS` 或调用端等待时间，不能提高内存；在上限内仍无法完成时停止本地重试并交由 CI/发布门禁。Full 与 deploy-unit packager 必须把非空 snapshot 复制到实际 `server.js` 入口旁，否则 artifact 组装失败；运行时不扫描源码。Agent/企微路由不携带源码读取依赖；standalone 只能包含模型 runtime、会话存储和受保护业务 API connector 所需闭包。
+`build` 负责生产构建。单独执行 `npm run build` 时先生成 Prisma Client，再生成并校验源码分析 snapshot，然后执行 `next build`。CNB 的 build lane 生成唯一 Next standalone，packager 只装配该结果，不二次编译。构建进程固定为 `8192 MiB` Node old-space。
 
 ### tests
 
 测试回答“给定输入实际会发生什么”，不替代全库静态 gate：
 
-- `test:node` 是统一聚合入口，递归发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS Node test；新增 Node 测试不需要再手工追加到 `check:ci`。
+- `test:node` 是统一聚合入口，递归发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS Node test；CNB 将相同测试清单稳定分配到四个并行 bucket。
 - `test:behavior` 聚合产品/领域/runtime 行为，`test:tooling` 聚合 `scripts/` checker/scanner、`ops/` CI/CD contract 与测试基础设施自测。gate 扫描整个仓库回答“是否存在结构违规”，tooling test 用正反 fixture 回答“scanner 会不会正确识别违规”，并锁定 E2E 数据库 guard、发布证据和部署顺序等安全契约。
-- `test:contract` 和 `test:domain:work-plan-governance` 是聚焦入口，便于局部开发；其中的测试同时已被 `test:node` 覆盖，不进入静态 `gate:domain`，也不在 `check:ci` 重复串行执行。`work-plan-governance:check` 只运行静态治理扫描。
+- `test:contract` 和 `test:domain:work-plan-governance` 是聚焦入口，便于局部开发；其中的测试同时已被 `test:node` 覆盖，不进入静态 `gate:domain`，也不在 CNB 并行 lane 中重复执行。`work-plan-governance:check` 只运行静态治理扫描。
 - PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
 - 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
 
-CNB 是唯一 CI/CD 平台。版本化的 `ops/cnb-ci-cache.Dockerfile` 一次安装 `node_modules` 与 Chromium，Pipeline 只恢复依赖；`ops/cnb-ci.sh` 不执行 `npm ci`。`npm run check:ci` 聚合 static、Node、完整 type 和唯一 Next production build。随后同一 checkout 打包 standalone，运行 PostgreSQL integration，并让 Playwright 启动这个 exact archive，禁止重建。
+CNB 是唯一 CI/CD 平台。版本化的 `ops/cnb-ci-cache.Dockerfile` 一次安装 `node_modules` 与 Chromium，Pipeline 通过软链复用；`ops/cnb-ci.sh` 不执行 `npm ci`。CNB 原生并行 jobs 跑完整 static、Node buckets、type、唯一 Next+standalone 和 PostgreSQL，最终汇总全部 lane 失败；Playwright 只启动 exact archive。
 
 受保护 `main` 成功后，`ops/cnb-release.sh` 只把该 standalone 包装为一个 `linux/amd64` OCI 应用镜像并直接推送 CNB Registry。`release.json` 绑定 commit、tree、content digest、artifact digest、migration set、CNB Build ID 和 image digest。演练与生产只消费该 digest。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 

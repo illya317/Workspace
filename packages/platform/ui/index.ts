@@ -3,7 +3,7 @@ export { default as WorkspacePageAssistantProvider } from "./PageAssistantProvid
 export { default as LoginClient } from "./LoginClient";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
-export { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+export { useWorkspaceNavigation } from "./useWorkspaceNavigation";
 export { default as PortalClient } from "./PortalClient";
 export {
   createCategoryDirectItemSection,

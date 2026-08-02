@@ -4,8 +4,7 @@ import { randomUUID } from "node:crypto";
 
 const CACHE_SCHEMA_VERSION = 1;
 const SNAPSHOT_KEY_PATTERN = /^[0-9a-f]{64}$/;
-const DEFAULT_CACHE_DIR = path.resolve(__dirname, "../../.cache/check-results/structure-reports");
-const DEFAULT_PENDING_ROOT = path.resolve(__dirname, "../../.cache/check-results-pending");
+const DEFAULT_CACHE_DIR = path.resolve(__dirname, "../../.cache/structure-reports");
 
 type StructureReportCacheEnvelope<T> = {
   schemaVersion: typeof CACHE_SCHEMA_VERSION;
@@ -65,16 +64,6 @@ function writeCachedReport<T>(cacheFile: string, snapshotKey: string, report: T)
   }
 }
 
-function pendingStructureReportDirectory(cacheDir: string, env: CheckEnvironment) {
-  if (path.resolve(cacheDir) !== DEFAULT_CACHE_DIR) return null;
-  const value = env.CHECK_CACHE_PENDING_DIR?.trim();
-  if (!value) return null;
-  const resolved = path.resolve(value);
-  const relative = path.relative(DEFAULT_PENDING_ROOT, resolved);
-  if (relative.startsWith("..") || path.isAbsolute(relative)) return null;
-  return path.join(resolved, "structure-reports");
-}
-
 export function loadOrCreateStructureReport<T>({
   createReport,
   validateReport,
@@ -86,14 +75,11 @@ export function loadOrCreateStructureReport<T>({
     return createReport();
   }
 
-  const pendingDir = pendingStructureReportDirectory(cacheDir, env);
   const cacheFile = structureReportCacheFile(cacheDir, snapshotKey);
-  const pendingFile = pendingDir ? structureReportCacheFile(pendingDir, snapshotKey) : null;
-  const cached = (pendingFile ? readCachedReport(pendingFile, snapshotKey, validateReport) : null)
-    ?? readCachedReport(cacheFile, snapshotKey, validateReport);
+  const cached = readCachedReport(cacheFile, snapshotKey, validateReport);
   if (cached) return cached;
 
   const report = createReport();
-  writeCachedReport(pendingFile ?? cacheFile, snapshotKey, report);
+  writeCachedReport(cacheFile, snapshotKey, report);
   return report;
 }

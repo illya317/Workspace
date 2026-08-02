@@ -423,16 +423,11 @@ process.stdout.write(hash.digest("hex"));
 NODE
 )"
 
-DEPLOY_GRAPH_PATH="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
-node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts --json > "$DEPLOY_GRAPH_PATH"
-deploy_graph_sha="$(hash_file "$DEPLOY_GRAPH_PATH")"
-
 SOURCE_SHA="$SOURCE_SHA" \
 SOURCE_TREE="$SOURCE_TREE" \
 CONTENT_DIGEST="$CONTENT_DIGEST" \
 PACKAGE_LOCK_SHA="$package_lock_sha" \
 MIGRATION_SET_SHA="$migration_set_sha" \
-DEPLOY_GRAPH_SHA="$deploy_graph_sha" \
 ARTIFACT_PATH="$ARTIFACT_PATH" \
 ARTIFACT_SHA="$artifact_sha" \
 MANIFEST_PATH="$MANIFEST_PATH" \
@@ -450,7 +445,6 @@ const manifest = {
   inputs: {
     packageLockSha256: process.env.PACKAGE_LOCK_SHA,
     migrationSetSha256: process.env.MIGRATION_SET_SHA,
-    deployGraphSha256: process.env.DEPLOY_GRAPH_SHA,
   },
   artifact: {
     fileName: basename(process.env.ARTIFACT_PATH),

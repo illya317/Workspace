@@ -3,11 +3,11 @@
 import { usePathname } from "next/navigation";
 import type { MouseEvent, ReactNode } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+import { useWorkspaceNavigation } from "./useWorkspaceNavigation";
 
 export default function NavLink({ href, children }: { href: string; children: ReactNode }) {
   const pathname = usePathname();
-  const navigate = useDeployUnitNavigation();
+  const navigate = useWorkspaceNavigation();
   const isActive = pathname === href;
   function handleClick(event: MouseEvent<HTMLAnchorElement>) {
     if (event.defaultPrevented

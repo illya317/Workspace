@@ -20,24 +20,31 @@ test("CNB is the only source CI, image builder, registry and CD platform", () =>
   assert.doesNotMatch(`${cnb}\n${cnbCi}\n${cnbRelease}`, /github|ghcr\.io|GITHUB_|GHCR_|skopeo/i);
 });
 
-test("PR and main restore the versioned dependency image and share one required CI interface", () => {
+test("PR and main restore the versioned dependency image and aggregate native parallel jobs", () => {
   assert.equal((cnb.match(/restore-dependencies/g) ?? []).length, 2);
   assert.equal((cnb.match(/cnb-ci\.sh setup/g) ?? []).length, 2);
-  assert.equal((cnb.match(/cnb-ci\.sh required/g) ?? []).length, 2);
+  assert.equal((cnb.match(/cnb-ci\.sh lane/g) ?? []).length, 18);
+  assert.equal((cnb.match(/cnb-ci\.sh summary/g) ?? []).length, 2);
+  assert.equal((cnb.match(/allowFailure: true/g) ?? []).length, 18);
   assert.doesNotMatch(cnbCi, /npm ci|playwright install/);
   assert.equal((cnbCiCache.match(/npm ci --no-audit/g) ?? []).length, 1);
   assert.match(cnbCiCache, /PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright/);
   assert.match(cnbCiCache, /playwright install --with-deps chromium/);
   assert.match(cnb, /package-lock\.json[\s\S]*ops\/cnb-ci-cache\.Dockerfile/);
+  assert.equal((cnb.match(/sync: "true"/g) ?? []).length, 2);
   assert.match(cnb, /copy-on-write-read-only/);
   assert.match(cnb, /main:\/workspace\/\.next\/cache:copy-on-write/);
-  assert.match(cnbCi, /npm run check:ci/);
+  assert.match(cnb, /ln -s \/opt\/workspace-deps\/node_modules node_modules/);
+  assert.match(cnbCi, /run-node-tests\.mjs bucket/);
+  assert.match(cnbCi, /run-check-suite\.mjs cnb-static/);
+  assert.match(cnbCi, /run-typecheck\.js --build/);
   assert.match(cnbCi, /STANDALONE_SKIP_NEXT_BUILD=1/);
   assert.match(cnbCi, /npm run test:integration:postgresql/);
+  assert.match(cnbCi, /npm run db:generate:inner/);
   assert.match(cnbCi, /PLAYWRIGHT_STANDALONE_ARCHIVE=/);
+  assert.match(cnbCi, /for lane in setup static node-0 node-1 node-2 node-3 typecheck build database e2e/);
   assert.match(cnbCi, /npm run test:e2e:smoke/);
-  assert.match(cnbCi, /CNB required summary/);
-  assert.match(cnbCi, /blocked:/);
+  assert.match(cnbCi, /CNB required failed lanes/);
 });
 
 test("main packages and publishes one linux amd64 application image", () => {

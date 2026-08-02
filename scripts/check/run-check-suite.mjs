@@ -8,8 +8,6 @@ import { pathToFileURL } from "node:url";
 import { DOMAIN_GATE_CHECK_NAMES, UI_GATE_CHECK_NAMES } from "../arch/gate-check-contracts.mjs";
 import { discoverNodeTests, groupNodeTestsByShard } from "../testing/run-node-tests.mjs";
 import { prepareChangedFilesManifest } from "./changed-files-manifest.mjs";
-import { createCheckTaskCache } from "./check-task-cache.mjs";
-import { checkTaskInputContract } from "./check-task-contracts.mjs";
 
 const TASKS = {
   "action-contract": npmScript("action-contract:check", "Action contract"),
@@ -19,7 +17,6 @@ const TASKS = {
   "business-code-hardcoding": npmScript("business-code:check", "Business code registry and hardcoding"),
   "business-identity": npmScript("gate:business-identity", "Business identity boundary"),
   "business-temporal": npmScript("business-temporal:check", "Business Temporal registry and write seams"),
-  "build-next": npmScript("build:next:after-typecheck", "Next production build", { cacheable: false }),
   "company-hardcoding-warning": npmScript("company:check", "Company hardcoding", {
     severity: "warning",
     reusableWarning: true,
@@ -37,8 +34,6 @@ const TASKS = {
   "docs-api-agent-guide": npmScript("docs:api-agent-guide:check", "Generated API Agent guide"),
   "docs-production-agent": npmScript("docs:production-agent:check", "Production Agent Docs catalog and copies"),
   "docs-permission-actions": npmScript("docs:permission-actions:check", "Generated permission action docs"),
-  "deploy-graph": npmScript("deploy:graph:check", "Deploy unit graph"),
-  "deploy-unit-apps": npmScript("deploy:apps:check", "Deploy unit apps"),
   "docs-architecture": lockedNodeScript("scripts/check/check-architecture-docs.js", "Architecture docs"),
   "docs-editor-templates": npmScript("docs-editor:official-templates:check", "Official document templates"),
   "domain-architecture": lockedTsScript("scripts/arch/domain-gate.ts", "Domain architecture", {
@@ -80,7 +75,6 @@ const TASKS = {
   "shell-errexit-policy": npmScript("shell:errexit:check", "Shell errexit policy"),
   "typecheck-entrypoints": npmScript("typecheck:entrypoints:check", "TypeScript entrypoint policy"),
   "typecheck-project-references": npmScript("typecheck:references:check", "TypeScript project references"),
-  "typecheck-full": npmScript("typecheck:full", "Full typecheck", { covers: ["typecheck-quick"] }),
   "typecheck-quick": npmScript("typecheck:quick", "Quick typecheck"),
   "ui-architecture": lockedTsScript("scripts/arch/ui-gate.ts", "UI architecture", {
     covers: ["surface-page-adoption-warning"],
@@ -99,8 +93,6 @@ const SUITES = {
     "history-policy",
     "import-reference",
     "business-temporal",
-    "deploy-graph",
-    "deploy-unit-apps",
     "workspace-analysis-sources",
     "typecheck-entrypoints",
     "typecheck-project-references",
@@ -144,23 +136,15 @@ const SUITES = {
   ],
   quick: ["env", "@changed"],
   push: ["@blockers", "@changed", "test-node"],
-  "release-static": [
+  "cnb-static": [
     "playwright-lifecycle",
     "shell-errexit-policy",
     "@blockers",
     "env",
     "db-path",
     "@docs",
-    "@data",
-    "db-generate",
     "lint-full",
     "@hygiene-warning",
-  ],
-  "release-source": ["@release-static", "test-node", "typecheck-full"],
-  ci: [
-    "@release-source",
-    "build-next",
-    "playwright-processes",
   ],
 };
 
@@ -277,10 +261,7 @@ export function resolveCheckPlan(suiteNames, { cwd = process.cwd() } = {}) {
         continue;
       }
       seenTasks.add(ref);
-      for (const expanded of expandTask(ref, task, cwd)) {
-        checkTaskInputContract(expanded);
-        tasks.push(expanded);
-      }
+      tasks.push(...expandTask(ref, task, cwd));
     }
     activeSuites.delete(suiteName);
   };
@@ -303,7 +284,6 @@ export function runCheckSuites(
   {
     cwd = process.cwd(),
     env = process.env,
-    createTaskCache = createCheckTaskCache,
     prepareChangedFiles = prepareChangedFilesManifest,
     spawn = spawnSync,
     now = () => performance.now(),
@@ -316,7 +296,6 @@ export function runCheckSuites(
   const suiteStartedAt = now();
   const warningFailures = [];
   const blockingFailures = [];
-  const taskCache = createTaskCache({ cwd, env });
   let executionEnv = env;
   let changedFilesContext = null;
   try {
@@ -329,37 +308,6 @@ export function runCheckSuites(
   }
   plan = applyContextualCoverage(plan, changedFilesContext);
 
-  const taskGraph = taskCache.freezeTaskGraph?.(plan.tasks, {
-    file: env.CHECK_TASK_GRAPH_FILE?.trim() || null,
-    sourceRunId: env.CHECK_SOURCE_RUN_ID?.trim() || null,
-  }) ?? null;
-  const blockedTasks = taskGraph?.tasks.filter((task) => task.status === "blocked") ?? [];
-  if (blockedTasks.length > 0) {
-    stderr.write(`Check task graph contains blocked inputs; independent tasks will still run: ${blockedTasks.map((task) => task.taskKey).join(", ")}\n`);
-  }
-  const cachedTasks = new Map();
-  const graphBlockedTasks = new Set();
-  for (const task of plan.tasks) {
-    const graphTask = taskGraph?.tasks.find((item) => item.taskKey === task.id);
-    if (graphTask?.status === "blocked") graphBlockedTasks.add(task.id);
-    if (taskGraph && graphTask?.status !== "reused") continue;
-    const receipt = taskCache.read(task);
-    if (taskGraph && !receipt) {
-      throw new Error(`frozen task graph marked ${task.id} reused without a valid receipt`);
-    }
-    if (receipt) cachedTasks.set(task.id, receipt);
-  }
-  if (taskGraph) {
-    const counts = taskGraph.tasks.reduce((result, task) => {
-      result[task.status] = (result[task.status] ?? 0) + 1;
-      return result;
-    }, {});
-    stdout.write(
-      `Frozen task graph ${taskGraph.graphDigest}: reused=${counts.reused ?? 0}, pending=${counts.pending ?? 0}, blocked=${counts.blocked ?? 0}.\n`,
-    );
-  }
-  executionEnv = { ...executionEnv, CHECK_TASK_RECEIPTS_ACTIVE: "1" };
-
   const reductions = [
     plan.duplicateReferences > 0 ? `${plan.duplicateReferences} duplicate reference(s)` : null,
     plan.coveredTaskReferences > 0 ? `${plan.coveredTaskReferences} covered step(s)` : null,
@@ -370,24 +318,6 @@ export function runCheckSuites(
   for (const [index, task] of plan.tasks.entries()) {
     const executable = process.platform === "win32" && task.command === "npm" ? "npm.cmd" : task.command;
     stdout.write(`\n[${index + 1}/${plan.tasks.length}] ${task.label}\n`);
-    if (graphBlockedTasks.has(task.id)) {
-      stdout.write(`⇥ ${task.label} input could not be resolved and remains visibly blocked.\n`);
-      blockingFailures.push({ label: `${task.label} (blocked input)`, status: 2 });
-      continue;
-    }
-    const cached = cachedTasks.get(task.id);
-    if (cached) {
-      const originalDuration = Number.isFinite(cached.durationMs)
-        ? `; original run ${formatDuration(cached.durationMs)}`
-        : "";
-      if (cached.status === "warning") {
-        warningFailures.push(task.label);
-        stdout.write(`↻ Reused warning result for ${task.label}${originalDuration}.\n`);
-      } else {
-        stdout.write(`↻ Reused successful result for ${task.label}${originalDuration}.\n`);
-      }
-      continue;
-    }
     const taskStartedAt = now();
     const result = spawn(executable, task.args, { cwd, env: executionEnv, stdio: "inherit" });
     const durationMs = Math.max(0, now() - taskStartedAt);
@@ -402,7 +332,6 @@ export function runCheckSuites(
     }
     if (result.status !== 0 && task.severity === "warning") {
       warningFailures.push(task.label);
-      taskCache.write(task, "warning", durationMs);
       stdout.write(`⚠ ${task.label} reported warning-only findings in ${duration}.\n`);
       continue;
     }
@@ -415,7 +344,6 @@ export function runCheckSuites(
       blockingFailures.push({ label: task.label, status: result.status ?? 1 });
       continue;
     }
-    taskCache.write(task, "passed", durationMs);
     stdout.write(`✓ ${task.label} completed in ${duration}.\n`);
   }
 
@@ -427,7 +355,7 @@ export function runCheckSuites(
     for (const failure of blockingFailures) {
       stderr.write(`  - ${failure.label} (exit ${failure.status})\n`);
     }
-    stderr.write("Fix the complete list above, then rerun; successful exact-input tasks remain reusable.\n");
+    stderr.write("Fix the complete list above, then rerun the affected lane.\n");
     return blockingFailures[0].status;
   }
   stdout.write(`\n✓ Check suite completed in ${formatDuration(Math.max(0, now() - suiteStartedAt))}${warningNote}.\n`);

@@ -11,22 +11,12 @@ const {
   workspaceInternalRequestHeaders,
 } = await import("./internal-unit-rpc");
 
-test("production internal RPC uses the managed public Gateway when no explicit origin is configured", () => {
+test("internal API uses loopback unless an explicit origin is configured", () => {
   assert.equal(workspaceInternalOrigin({
-    NODE_ENV: "production",
-    WORKSPACE_PUBLIC_ORIGIN: "https://workspace.example.test",
-  }), "https://workspace.example.test");
-  assert.equal(workspaceInternalOrigin({
-    NODE_ENV: "production",
     WORKSPACE_INTERNAL_ORIGIN: "http://127.0.0.1:3180",
-    WORKSPACE_PUBLIC_ORIGIN: "https://workspace.example.test",
   }), "http://127.0.0.1:3180");
-});
-
-test("internal RPC keeps deterministic loopback fallbacks outside the managed production Gateway", () => {
-  assert.equal(workspaceInternalOrigin({ NODE_ENV: "production" }), "http://127.0.0.1");
-  assert.equal(workspaceInternalOrigin({ NODE_ENV: "development", PORT: "3012" }), "http://127.0.0.1:3012");
-  assert.equal(workspaceInternalOrigin({ NODE_ENV: "test" }), "http://127.0.0.1:3000");
+  assert.equal(workspaceInternalOrigin({ PORT: "3012" }), "http://127.0.0.1:3012");
+  assert.equal(workspaceInternalOrigin({}), "http://127.0.0.1:3000");
 });
 
 test("internal unit RPC signs the exact method, path, caller, audience and body", () => {

@@ -2,7 +2,7 @@
 
 import { UserRound } from "lucide-react";
 import type { SessionUser } from "../types";
-import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+import { useWorkspaceNavigation } from "./useWorkspaceNavigation";
 
 export default function UserMenu({
   user,
@@ -13,7 +13,7 @@ export default function UserMenu({
   onBeforeNavigate?: (href: string) => boolean | Promise<boolean>;
   variant?: "icon" | "nav";
 }) {
-  const navigate = useDeployUnitNavigation();
+  const navigate = useWorkspaceNavigation();
   const displayName = user?.employeeName || user?.username;
 
   async function openAccountProfile() {

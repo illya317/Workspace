@@ -19,8 +19,6 @@ test("production runtime owns ops and release/runtime script source", () => {
   assert.deepEqual(declaredModuleKeys("scripts/import/import-product-master.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/repair/repair-finance-consolidation-entry.mjs"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/check/check-prisma-deploy-status.js"), ["operations"]);
-  assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-unit-app-generator.ts"), ["operations"]);
-  assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-graph.ts"), ["operations"]);
   assert.deepEqual(declaredModuleKeys("scripts/testing/module-impact-map.ts"), ["operations"]);
 });
 
@@ -32,7 +30,6 @@ test("every registered production script resolves only to production runtime", (
 
 test("development governance owns the remaining scripts, e2e, and engineering config", () => {
   assert.deepEqual(declaredModuleKeys("scripts/check/check-domain.js"), ["tooling"]);
-  assert.deepEqual(declaredModuleKeys("scripts/deploy/deploy-unit-impact.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("scripts/runtime/start-local-dev.mjs"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("e2e/settings/module-management.spec.ts"), ["tooling"]);
   assert.deepEqual(declaredModuleKeys("next.config.ts"), ["tooling"]);

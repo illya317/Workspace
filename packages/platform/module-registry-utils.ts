@@ -34,7 +34,7 @@ export function apiRoutes(
 
 export function systemApiRoutes(): ApiRouteRegistration[] {
   return [
-    { method: "GET", pathPrefix: "/api/internal/health", access: "internal", notes: "Loopback readiness endpoint for monolith and deploy-unit process probes; Gateway does not expose unit-local copies." },
+    { method: "GET", pathPrefix: "/api/internal/health", access: "internal", notes: "Loopback readiness endpoint for the Workspace application." },
     { method: "POST", pathPrefix: "/api/auth/dev-login", access: "public", notes: "Production personal API Key login entry; credential verification is followed by settings.account.apiAccess capability enforcement." },
     { method: "DELETE", pathPrefix: "/api/auth/dev-login", access: "public", notes: "Unauthenticated session-cookie cleanup for the production login surface." },
     { method: "GET", pathPrefix: "/api/auth/gateway-check", access: "protected", notes: "Session gateway check; verifies login state without reading business resources." },

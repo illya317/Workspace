@@ -107,9 +107,6 @@ function findUnownedTypeScriptSources() {
       const segments = relativePath.split("/");
       const ownedPackageSource = segments[0] === "packages" && packageNames.includes(segments[1]);
       const ownedAppSource = segments[0] === "app";
-      const ownedDeployAppSource = segments[0] === "apps"
-        && Boolean(segments[1])
-        && fs.existsSync(path.join(repoRoot, "apps", segments[1], "tsconfig.json"));
       const ownedToolingSource = ["e2e", "scripts"].includes(segments[0])
         && /\.(?:[mc]?ts)$/.test(relativePath);
       const ownedGeneratedSource = relativePath.startsWith("generated/prisma/") && relativePath.endsWith(".ts");
@@ -117,7 +114,6 @@ function findUnownedTypeScriptSources() {
         !ownedTopLevelFiles.has(relativePath)
         && !ownedPackageSource
         && !ownedAppSource
-        && !ownedDeployAppSource
         && !ownedToolingSource
         && !ownedGeneratedSource
       ) {

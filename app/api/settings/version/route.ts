@@ -1,5 +1,5 @@
-import { deployUnitVersionResponse } from "@workspace/platform/server/deploy-unit-runtime";
+import { releaseVersionResponse } from "@workspace/platform/server/release-runtime";
 
 export async function GET() {
-  return deployUnitVersionResponse();
+  return releaseVersionResponse();
 }

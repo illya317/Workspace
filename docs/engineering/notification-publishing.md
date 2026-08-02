@@ -239,11 +239,9 @@ the former first, otherwise derives only the safe HTTP(S) origin from the latter
 and fragment are rejected, while deployment base paths remain controlled by
 `NEXT_PUBLIC_BASE_PATH`.
 
-The Bot runs as an Assistant deploy-unit sidecar only for the committed active slot. Fallback keeps
-the monolith Bot definition inactive and recoverable. Deployment fails before handoff when the
-independent bridge secret is missing/short, Gateway ownership is ambiguous, or the runtime descriptor
-drifts. The Bot process receives an explicit environment allow-list and must not receive database,
-NextAuth, OnlyOffice or control-plane credentials.
+The Bot runs as a separate worker process beside the monolith. Deployment fails before handoff when
+the independent bridge secret is missing or too short. The Bot process receives an explicit
+environment allow-list and must not receive database, NextAuth, OnlyOffice or deployment credentials.
 
 Delivery is system-level at-least-once, not provider-level exactly-once. If the provider accepted a
 message but the process crashes before the durable result receipt, the expired delivery lease may
