@@ -9,7 +9,7 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 
 ## 角色确认
 
-- 开工前确认根 `AGENTS.md` 的环境与 Role Gate，声明 `主角色: Operations`。
+- 开工前确认根 `AGENTS.md` 的环境与 Role Gate，并确认读取 router 后的第一条角色声明更新已写明 `主角色: Operations`。
 - 在 Mac 正式仓库、远端开发和生产之间先选定环境；不得把一个环境的命令套到另一个环境。
 - 业务功能、schema、架构契约和历史清债分别交给对应角色。
 
