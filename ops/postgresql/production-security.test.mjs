@@ -358,7 +358,7 @@ test("production tooling installer pins root ownership and postgres-readable SQL
   const installer = read("production-install.sh");
   assert.match(installer, /TOOL_ROOT="\/usr\/local\/lib\/workspace-postgresql"/);
   assert.match(installer, /install -d -o root -g root -m 0755 "\$TOOL_ROOT"/);
-  assert.match(installer, /\*\.sql\|\*\.service\|\*\.conf\) mode=0644/);
+  assert.match(installer, /\*\.sql\|\*\.service\|\*\.conf\|\*\.py\) mode=0644/);
   assert.match(installer, /install -o root -g root -m "\$mode"/);
   assert.match(installer, /runuser -u postgres -- test -r "\$sql"/);
   assert.match(installer, /mv -Tf -- "\$temporary" "\$destination"/);
@@ -366,11 +366,13 @@ test("production tooling installer pins root ownership and postgres-readable SQL
 
 test("finance bot keeps trusted OS user while taking only the monitor URL", () => {
   const hook = read("production-finance-bot-hook.sh");
-  const unit = read("production-finance-bot.conf");
+  const renderer = read("production-finance-bot-deploy-renderer.py"), unit = read("production-finance-bot.conf");
   assert.match(hook, /finance bot 必须保留 User=ubuntu/);
   assert.match(hook, /os\.environ\.get\("WORKSPACE_DATABASE_URL"/);
   assert.match(hook, /finance-bot\.py\.before/);
   assert.match(hook, /systemctl restart "\$SERVICE"/);
+  assert.match(hook, /production-finance-bot-deploy-renderer\.py[\s\S]*WORKSPACE_VERSIONED_DEPLOY_RENDERER = 1[\s\S]*PHASE" = refresh-renderer[\s\S]*prepare[\s\S]*apply[\s\S]*verify[\s\S]*rollback/);
+  assert.match(renderer, /def deploy_total_seconds\(event\):[\s\S]*endToEndDurationSeconds[\s\S]*def should_send_deploy_event\(event\):[\s\S]*def format_deploy_message\(event\):[\s\S]*mutationDurationSeconds/);
   assert.doesNotMatch(unit, /^User=/m);
   assert.match(unit, /EnvironmentFile=\/etc\/workspace\/finance-bot\.env/);
   assert.match(unit, /workspace-security\/finance-bot\.py/);

@@ -7,7 +7,7 @@ deploy_preflight_blocked_codes=()
 
 begin_deploy_entry_preflight() {
   deploy_entry_finalized=0
-  deploy_entry_started_at="$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+  deploy_entry_started_at="${DEPLOY_REQUESTED_AT:-$(date -u +%Y-%m-%dT%H:%M:%S.000Z)}"
   deploy_entry_repository="${REPOSITORY_ROOT:?controller repository root missing}"
   deploy_entry_attempt_id="deploy-$(date -u +%Y%m%dT%H%M%SZ)-$(printf '%04x%04x' "$RANDOM" "$RANDOM")"
   deploy_entry_root="$deploy_entry_repository/.cache/release-deploy-attempts"

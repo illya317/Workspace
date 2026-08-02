@@ -235,9 +235,16 @@ test("remote deploy event preserves the existing home directory mode", () => {
       RELEASE_STAGE: "deploy",
       DEPLOY_STATUS: "succeeded",
       DEPLOY_TRANSPORT: "local",
-      DEPLOY_STARTED_EPOCH_SECONDS: "1785582067",
-      DEPLOY_DURATION_SECONDS: "244",
-      RELEASE_PROCESS_STARTED_AT: "2026-08-01T11:00:00Z",
+      DEPLOY_REQUESTED_AT: "2026-08-01T10:00:00Z",
+      DEPLOY_MUTATION_STARTED_AT: "2026-08-01T10:03:26Z",
+      DEPLOY_FINISHED_AT: "2026-08-01T10:04:04Z",
+      DEPLOY_END_TO_END_DURATION_SECONDS: "244",
+      DEPLOY_MUTATION_DURATION_SECONDS: "38",
+      DEPLOY_CURRENT_PHASE: "health.final",
+      DEPLOY_TARGET_ID: "monolith",
+      DEPLOY_TARGET_MODE: "activate",
+      DEPLOY_SOFT_THRESHOLD_EXCEEDED: "0",
+      RELEASE_PROCESS_STARTED_AT: "2026-08-01T09:59:00Z",
       DEPLOY_CONTROL_SOURCE_SHA: "c".repeat(40),
       DEPLOY_CONTROL_TREE_ID: "d".repeat(40),
       DEPLOY_CONTROL_DIGEST: "e".repeat(64),
@@ -248,8 +255,46 @@ test("remote deploy event preserves the existing home directory mode", () => {
   assert.deepEqual(JSON.parse(readFileSync(path.join(home, ".finance-bot-deploy-event.json"), "utf8")).control, {
     sourceSha: "c".repeat(40), treeId: "d".repeat(40), digest: "e".repeat(64),
   });
+  const event = JSON.parse(readFileSync(path.join(home, ".finance-bot-deploy-event.json"), "utf8"));
+  assert.equal(event.schemaVersion, 4);
+  assert.equal(event.deployRequestedAt, "2026-08-01T10:00:00Z");
+  assert.equal(event.startedAt, event.deployRequestedAt);
+  assert.equal(event.mutationStartedAt, "2026-08-01T10:03:26Z");
+  assert.equal(event.finishedAt, "2026-08-01T10:04:04Z");
+  assert.equal(event.endToEndDurationSeconds, 244);
+  assert.equal(event.mutationDurationSeconds, 38);
+  assert.equal(Object.hasOwn(event, "durationSeconds"), false);
   assert.equal(statSync(path.join(home, ".finance-bot-deploy-event.json")).mode & 0o777, 0o600);
   assert.equal(statSync(path.join(home, ".finance-bot-deploy-events", "pending")).mode & 0o777, 0o700);
+});
+
+test("versioned Neko renderer sends one concise terminal message with explicit timing", () => {
+  const renderer = fileURLToPath(new URL("./postgresql/production-finance-bot-deploy-renderer.py", import.meta.url));
+  const program = String.raw`
+import json, runpy, sys
+def duration(value):
+    minutes, seconds = divmod(int(value), 60)
+    return f"{minutes}分{seconds}秒" if minutes else f"{seconds}秒"
+namespace = runpy.run_path(sys.argv[1], init_globals={
+    "format_duration": duration,
+    "format_deploy_modules": lambda event: "",
+})
+event = {
+    "status": "succeeded",
+    "deploymentKind": "full",
+    "endToEndDurationSeconds": 143,
+    "mutationDurationSeconds": 38,
+}
+print(namespace["format_deploy_message"](event))
+print(namespace["should_send_deploy_event"](event))
+`;
+  const result = spawnSync("python3", ["-c", program, renderer], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /Workspace Full 全量部署完成/);
+  assert.match(result.stdout, /端到端耗时：\*\*2分23秒\*\*/);
+  assert.match(result.stdout, /生产变更窗口：\*\*38秒\*\*/);
+  assert.match(result.stdout, /health\/version\/content digest 验收通过/);
+  assert.match(result.stdout, /\nTrue\n$/);
 });
 
 test("deploy event history keeps an append-only index and per-event evidence", () => {

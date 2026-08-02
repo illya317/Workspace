@@ -23,8 +23,8 @@ const deployedBaseline = read("./release/candidate/deployed-baseline.mjs");
 const artifactStaticAcceptance = read("./release/readiness/artifact-static-acceptance.mjs");
 const artifactRehearsal = read("./release/readiness/rehearse-artifact.mjs");
 const publishCnb = read("./publish-cnb.sh");
-const publishCnbPreflight = read("./release/deploy/publish-cnb-preflight.sh");
-const publishCnbSources = `${publishCnb}\n${publishCnbPreflight}`;
+const publishCnbPreflight = read("./release/deploy/publish-cnb-preflight.sh"), deployNotificationShell = read("./release/diagnostics/deploy-notification-shell.sh");
+const publishCnbSources = `${publishCnb}\n${publishCnbPreflight}\n${deployNotificationShell}`;
 const runLocalReleaseAction = read("./run-local-release-action.sh");
 const runCnbReleaseStage = read("./run-cnb-release-stage.sh");
 const deployTarget = read("./deploy-cnb-release-target.sh");
@@ -301,15 +301,20 @@ test("publish-cnb aggregates zero-write probes and enables errexit only at mutat
   assert.match(publishCnbPreflight, /probe_candidate_ready_artifact\(\)[\s\S]*?--static-acceptance[\s\S]*?static-acceptance-\$ready_target-\$ready_mode-\$run_id\.json/);
   assert.match(publishCnb.slice(0, barrierIndex), /verify_consumed_deploy_retry_fence/);
   assert.doesNotMatch(publishCnb.slice(0, barrierIndex), /(?:^|\n)\s*set\s+(?:-[A-Za-z]*e[A-Za-z]*|-o\s+errexit)(?:\s|$)/);
-  assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e\nrecord_release_event running 0/);
+  assert.match(publishCnb.slice(barrierIndex), /mutation-barrier\nset -e/);
+  assert.doesNotMatch(publishCnb.slice(barrierIndex, barrierIndex + 120), /record_release_event running/);
+  assert.match(publishCnb, /DEPLOY_SLOW_NOTICE_SECONDS="\$\{DEPLOY_SLOW_NOTICE_SECONDS:-300\}"/);
+  assert.match(publishCnb, /start_deploy_slow_notification/);
+  assert.match(publishCnbSources, /DEPLOY_END_TO_END_DURATION_SECONDS[\s\S]*DEPLOY_MUTATION_DURATION_SECONDS/);
 });
-
 test("sourced deploy preflight helpers aggregate failures in an isolated controller ledger", (t) => {
   const controller = isolatedController(t);
   const environment = {
     ...process.env,
     WORKSPACE_REPO_RUNTIME_READY: "1",
     OPS_ENV_FILE: "/dev/null",
+    DEPLOY_REQUESTED_EPOCH_SECONDS: "1785578400",
+    DEPLOY_REQUESTED_AT: "2026-08-01T10:00:00.000Z",
   };
   const publishResult = spawnSync("bash", [controller.publish, "deploy"], {
     encoding: "utf8",
@@ -397,9 +402,9 @@ test("deploy binds full Controller Ready metadata while Application Ready remain
   assert.match(publishSources, /DEPLOY_CONTROL_RECEIPT_DIGEST/);
   assert.match(publishSources, /RELEASE_CONTROLLER_READY_RECEIPT_FILE/);
   assert.match(publishCnbSources, /controller-ready\.mjs" verify/);
-  assert.match(publishCnb, /DEPLOY_CONTROL_SOURCE_SHA='\$DEPLOY_CONTROL_SOURCE_SHA'/);
-  assert.match(publishCnb, /DEPLOY_CONTROL_TREE_ID='\$DEPLOY_CONTROL_TREE_ID'/);
-  assert.match(publishCnb, /DEPLOY_CONTROL_DIGEST='\$DEPLOY_CONTROL_DIGEST'/);
+  assert.match(publishCnbSources, /DEPLOY_CONTROL_SOURCE_SHA='\$DEPLOY_CONTROL_SOURCE_SHA'/);
+  assert.match(publishCnbSources, /DEPLOY_CONTROL_TREE_ID='\$DEPLOY_CONTROL_TREE_ID'/);
+  assert.match(publishCnbSources, /DEPLOY_CONTROL_DIGEST='\$DEPLOY_CONTROL_DIGEST'/);
   assert.match(publishCnb, /const controllerReady = JSON\.parse/);
   assert.match(publishCnb, /schemaVersion: 3,[\s\S]*?releaseReady,[\s\S]*?controllerReady,/);
   assert.match(runLocalReleaseAction, /worktree add --detach "\$injection_worktree" "\$RELEASE_CONTROLLER_SOURCE_SHA"/);

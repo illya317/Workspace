@@ -89,6 +89,7 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.match(unitProductionInvariants, /health\.status !== .*ok.* \|\| health\.unitId !== .*workspace-monolith/);
   assert.equal((client.match(/require_remote_monolith_invariants/g) ?? []).length, 2);
   assert.match(client, /install -o root -g root -m 0755[\s\S]*?production-runtime-pm2\.sh[\s\S]*?WORKSPACE_RUNTIME_PM2_RUNNER/);
+  assert.match(client, /production-finance-bot-hook\.sh[\s\S]*?refresh-renderer/);
   const unitRuntimePm2 = readFileSync("ops/release/deploy/unit-runtime-pm2.sh", "utf8");
   assert.match(apply, /source "\$SCRIPT_DIR\/release\/deploy\/unit-runtime-pm2\.sh"/);
   assert.match(unitRuntimePm2, /runtime_pm2\(\)[\s\S]*?runner_environment=\(WORKSPACE_RUNTIME_PM2_TARGET=unit\)[\s\S]*?sudo -n -- env "\$\{runner_environment\[@\]\}"/);

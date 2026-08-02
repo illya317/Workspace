@@ -357,6 +357,7 @@ if [ "$transport_ready" = 1 ]; then
     command -v sha256sum >/dev/null 2>&1 || { echo '[错误] sha256sum 不可用' >&2; remote_status=1; }
     command -v node >/dev/null 2>&1 || { echo '[错误] node 不可用' >&2; remote_status=1; }
     sudo -n -- test -x '$WORKSPACE_RUNTIME_PM2_RUNNER' || { echo '[错误] hardened runtime PM2 runner 不可执行' >&2; remote_status=1; }
+    if systemctl cat finance-bot.service >/dev/null 2>&1; then test -f /usr/local/bin/finance-bot.py && test -f /usr/local/lib/workspace-security/finance-bot.py && test -f /etc/workspace/finance-bot.env && test \"\$(systemctl show finance-bot.service -p User --value)\" = ubuntu && sudo -n true || { echo '[错误] Neko renderer 安装前置不完整' >&2; remote_status=1; }; fi
     exit \"\$remote_status\"
   "; then
     remote_contract_ready=1
@@ -384,7 +385,6 @@ else
   preflight_block "runtime.remote-contract:transport.connect"
   preflight_block "production.semantic-snapshot:transport.connect"
 fi
-
 if ! unit_preflight_finalize_evidence; then
   echo "[错误] Unit Deploy Preflight attempt 无法签发；production mutation=0" >&2
   exit 1
@@ -414,6 +414,9 @@ if ! node "$PROJECT_ROOT/ops/release/deploy/unit-preflight.mjs" snapshot-compare
   echo "[错误] Unit deploy 获取锁期间 production semantic snapshot 漂移；production mutation=0" >&2
   exit 1
 fi
+if [ -n "${DEPLOY_TIMING_STATE_FILE:-}" ]; then
+  node "$PROJECT_ROOT/ops/release/diagnostics/deploy-timing-state.mjs" mutation-start --file "$DEPLOY_TIMING_STATE_FILE" --phase deploy.tools || exit "$?"
+fi
 # workspace-errexit-role: mutation-barrier
 set -e
 
@@ -423,7 +426,7 @@ rsync -az --delete-delay -e "$RSYNC_SSH" \
 ssh "${SSH_OPTIONS[@]}" "$SERVER" \
   "node '$REMOTE_TOOL_ROOT/release/control/deploy-tool-bundle.mjs' verify --bundle '$REMOTE_TOOL_ROOT' >/dev/null"
 ssh "${SSH_OPTIONS[@]}" "$SERVER" \
-  "sudo -n -- install -o root -g root -m 0755 '$REMOTE_TOOL_ROOT/postgresql/production-runtime-pm2.sh' '$WORKSPACE_RUNTIME_PM2_RUNNER'"
+  "sudo -n -- install -o root -g root -m 0755 '$REMOTE_TOOL_ROOT/postgresql/production-runtime-pm2.sh' '$WORKSPACE_RUNTIME_PM2_RUNNER'; if systemctl cat finance-bot.service >/dev/null 2>&1; then sudo -n -- '$REMOTE_TOOL_ROOT/postgresql/production-finance-bot-hook.sh' refresh-renderer /etc/workspace/finance-bot.env; fi"
 rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
 DEPLOY_TOOL_BUNDLE_TMP=""
 

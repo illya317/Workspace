@@ -39,6 +39,8 @@ test("versioned profiles cover every release entry and current second-level depe
     "ops/release/control/deploy-tool-bundle.mjs",
     "ops/apply-deploy-unit.sh",
     "ops/postgresql/production-runtime-pm2.sh",
+    "ops/postgresql/production-finance-bot-hook.sh",
+    "ops/postgresql/production-finance-bot-deploy-renderer.py",
     "ops/release/deploy/unit-lock-qualification.sh",
     "ops/release/deploy/unit-runtime-pm2.sh",
     "ops/promote-deploy-profile.sh",

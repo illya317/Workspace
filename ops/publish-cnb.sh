@@ -40,7 +40,9 @@ RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-}"
 TMP_DIR=""
 TMP_KEY=""
 SERVER_READ_KEY=""
-DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS=""
+DEPLOY_TIMING_STATE_FILE=""
+DEPLOY_SLOW_NOTICE_PID=""
+DEPLOY_SLOW_NOTICE_SECONDS="${DEPLOY_SLOW_NOTICE_SECONDS:-300}"
 RELEASE_TERMINAL_EVENT_RECORDED=0
 
 usage() {
@@ -69,29 +71,15 @@ usage() {
 EOF
 }
 
-record_release_event() {
-  local status="$1" exit_code="${2:-0}"
-  [ "$PRINT_COMMAND_ONLY" = "0" ] || return 0
-  [ "$status" = "running" ] || [ "$RELEASE_TERMINAL_EVENT_RECORDED" = "0" ] || return 0
-  [ -n "${SERVER_READ_KEY:-}" ] && [ -f "$SERVER_READ_KEY" ] || return 0
-  [ -n "${SOURCE_SHA:-}" ] && [ -n "${DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS:-}" ] \
-    && [ -n "${RELEASE_PLAN_ID:-}" ] && [ -n "${RELEASE_PROCESS_STARTED_AT:-}" ] || return 0
-  local duration_seconds="$(($(date +%s) - DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS))"
-  [ "$duration_seconds" -ge 0 ] || duration_seconds=0
-  if ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_CONTROL_SOURCE_SHA='$DEPLOY_CONTROL_SOURCE_SHA' DEPLOY_CONTROL_TREE_ID='$DEPLOY_CONTROL_TREE_ID' DEPLOY_CONTROL_DIGEST='$DEPLOY_CONTROL_DIGEST' RELEASE_PLAN_ID='$RELEASE_PLAN_ID' RELEASE_STAGE='$RELEASE_ACTION' RELEASE_PROCESS_STARTED_AT='$RELEASE_PROCESS_STARTED_AT' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 -" \
-    < "$SCRIPT_DIR/release/diagnostics/record-deploy-attempt.py"; then
-    [ "$status" = "running" ] || RELEASE_TERMINAL_EVENT_RECORDED=1
-  else
-    echo "[警告] $RELEASE_ACTION/$status 事件未能写入 Neko 队列；阶段结果不受影响" >&2
-  fi
-}
-
 cleanup() {
   local exit_code=$?
   if [ "$exit_code" -ne 0 ]; then
     local status="failed"; case "$exit_code" in 130|143) status="cancelled" ;; esac
     record_release_event "$status" "$exit_code" || true
+  fi
+  if [ -n "${DEPLOY_SLOW_NOTICE_PID:-}" ]; then
+    kill "$DEPLOY_SLOW_NOTICE_PID" >/dev/null 2>&1 || true
+    wait "$DEPLOY_SLOW_NOTICE_PID" >/dev/null 2>&1 || true
   fi
   rm -rf "${TMP_DIR:-}"
   rm -f "${TMP_KEY:-}"
@@ -115,6 +103,8 @@ prepare_server_read_key() {
 
 # shellcheck source=ops/release/deploy/publish-cnb-preflight.sh
 source "$SCRIPT_DIR/release/deploy/publish-cnb-preflight.sh"
+# shellcheck source=ops/release/diagnostics/deploy-notification-shell.sh
+source "$SCRIPT_DIR/release/diagnostics/deploy-notification-shell.sh"
 
 format_duration() {
   local total_seconds="$1"
@@ -132,10 +122,14 @@ print_deploy_timing_summary() {
   local total_seconds="$1"
   local cnb_status_file="$2"
   local ops_total_seconds="$((RELEASE_PROCESS_SECONDS + total_seconds))"
+  local mutation_epoch mutation_text="未进入"
+  mutation_epoch="$(node "$SCRIPT_DIR/release/diagnostics/deploy-timing-state.mjs" lines --file "$DEPLOY_TIMING_STATE_FILE" | sed -n '3p')"
+  [ -z "$mutation_epoch" ] || mutation_text="$(format_duration "$((PUBLISH_STARTED_EPOCH_SECONDS + total_seconds - mutation_epoch))")"
   echo "==> Ops 总耗时: $(format_duration "$ops_total_seconds") (${ops_total_seconds}s)"
   echo "==> Ops 耗时拆分（main 处理与 CI 已排除）:"
   echo "    release 流程处理 $(format_duration "$RELEASE_PROCESS_SECONDS")（${RELEASE_ATTEMPT_COUNT} 次尝试）"
-  echo "    生产部署        $(format_duration "$total_seconds")"
+  echo "    deploy 端到端   $(format_duration "$total_seconds")"
+  echo "    生产变更窗口    $mutation_text"
   echo "    租户配置同步    $(format_duration "$TENANT_SYNC_DURATION_SECONDS")"
   echo "    CNB 注入与触发  $(format_duration "$RELEASE_TRIGGER_DURATION_SECONDS")"
   if ! node ops/cnb-build-timing-summary.mjs --input "$cnb_status_file"; then
@@ -182,6 +176,18 @@ while [ "$#" -gt 0 ]; do
 done
 
 TMP_DIR="$(mktemp -d)"
+case "${DEPLOY_REQUESTED_EPOCH_SECONDS:-}" in
+  ''|*[!0-9]*) echo "[错误] deploy 缺少有效的命令入口权威起点" >&2; exit 1 ;;
+esac
+case "$DEPLOY_SLOW_NOTICE_SECONDS" in
+  ''|*[!0-9]*|0) echo "[错误] DEPLOY_SLOW_NOTICE_SECONDS 必须是正整数" >&2; exit 1 ;;
+esac
+: "${DEPLOY_REQUESTED_AT:?deploy requires DEPLOY_REQUESTED_AT from ops/publish.sh}"
+DEPLOY_TIMING_STATE_FILE="$TMP_DIR/deploy-timing-state.json"
+export DEPLOY_TIMING_STATE_FILE
+node "$SCRIPT_DIR/release/diagnostics/deploy-timing-state.mjs" initialize \
+  --file "$DEPLOY_TIMING_STATE_FILE" --requested-at "$DEPLOY_REQUESTED_AT" \
+  --requested-epoch "$DEPLOY_REQUESTED_EPOCH_SECONDS"
 input_probe_ready=1
 credential_probe_ready=1
 if ! probe_publish_inputs; then
@@ -358,9 +364,8 @@ if [ -n "$DATABASE_REPLACEMENT_RECEIPT_FILE" ]; then
     --source "$SOURCE_SHA" --tree "$SOURCE_TREE" --file "$DATABASE_REPLACEMENT_RECEIPT_FILE" >/dev/null
   echo "==> 已验证当前 source/tree 绑定的整库替换 receipt"
 fi
-DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"
-PUBLISH_STARTED_EPOCH_SECONDS="$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS"
-PUBLISH_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
+PUBLISH_STARTED_EPOCH_SECONDS="$DEPLOY_REQUESTED_EPOCH_SECONDS"
+PUBLISH_STARTED_AT="$DEPLOY_REQUESTED_AT"
 export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$SOURCE_DIR/.cache/release-process-timing.json}"
 if [ ! -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
@@ -508,6 +513,7 @@ RELEASE_PROCESS_STARTED_AT="$(node -e 'process.stdout.write(JSON.parse(process.a
 echo "==> release 流程准备完成：累计 $(format_duration "$RELEASE_PROCESS_SECONDS")，${RELEASE_ATTEMPT_COUNT} 次尝试（main 处理与 CI 已排除）"
 
 RELEASE_PLAN_ID="$RELEASE_RUN_ID"
+start_deploy_slow_notification
 
 METADATA_FILE="$TMP_DIR/cnb-release.json"
 RESULT_FILE="$TMP_DIR/cnb-trigger.json"
@@ -671,7 +677,6 @@ NODE
 verify_consumed_deploy_retry_fence || { echo "[错误] Deploy Retry Fence consumption/parent/ledger 复验失败" >&2; exit 1; }
 # workspace-errexit-role: mutation-barrier
 set -e
-record_release_event running 0
 
 if [ "$DIRECT_RELEASE" = "1" ]; then
   RELEASE_VALIDATION_RUNTIME=local \

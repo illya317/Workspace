@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
-
+if [ "${1:-}" = deploy ]; then DEPLOY_REQUESTED_EPOCH_SECONDS="${DEPLOY_REQUESTED_EPOCH_SECONDS:-$(date +%s)}"; DEPLOY_REQUESTED_AT="${DEPLOY_REQUESTED_AT:-$(date -u --date="@$DEPLOY_REQUESTED_EPOCH_SECONDS" +%Y-%m-%dT%H:%M:%S.000Z)}"; export DEPLOY_REQUESTED_EPOCH_SECONDS DEPLOY_REQUESTED_AT; fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then

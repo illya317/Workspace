@@ -1,6 +1,10 @@
 run_deploy_stage() {
   local stage="$1"
   shift
+  if [ -n "${DEPLOY_TIMING_STATE_FILE:-}" ]; then
+    node "$SCRIPT_DIR/release/diagnostics/deploy-timing-state.mjs" phase \
+      --file "$DEPLOY_TIMING_STATE_FILE" --value "$stage" || return 1
+  fi
   if [ "$RELEASE_TIMING_ENABLED" != "1" ]; then
     "$@"
     return
@@ -353,6 +357,14 @@ sync_remote_deploy_tools() {
   else
     echo "[警告] 远程 release timing 工具不可用；部署继续并保留外层 server.deploy 计时" >&2
   fi
+}
+
+reconcile_remote_neko_renderer() {
+  ssh_cmd "if systemctl cat finance-bot.service >/dev/null 2>&1; then sudo -n -- '$REMOTE_DEPLOY_TOOL_DIR/postgresql/production-finance-bot-hook.sh' refresh-renderer /etc/workspace/finance-bot.env; fi"
+}
+
+verify_remote_neko_renderer_inputs() {
+  ssh_cmd "if systemctl cat finance-bot.service >/dev/null 2>&1; then test -f /usr/local/bin/finance-bot.py && test -f /usr/local/lib/workspace-security/finance-bot.py && test -f /etc/workspace/finance-bot.env && test \"\$(systemctl show finance-bot.service -p User --value)\" = ubuntu && sudo -n true; fi"
 }
 
 acquire_remote_deploy_lock() {

@@ -347,12 +347,14 @@ transport_status="$DEPLOY_PREFLIGHT_LAST_STATUS"
 if [ "$transport_status" -eq 0 ]; then
   run_zero_write_preflight_check transport.remote-smoke ssh_cmd "echo CONNECTED && whoami && test -d '$REMOTE_DIR'"
   run_zero_write_preflight_check runtime.pm2-contract verify_remote_runtime_pm2
+  run_zero_write_preflight_check runtime.neko-renderer verify_remote_neko_renderer_inputs
   run_zero_write_preflight_check runtime.environment validate_remote_runtime
   run_zero_write_preflight_check production.semantic-snapshot \
     capture_production_semantic_snapshot "$DEPLOY_PREFLIGHT_SNAPSHOT_FILE"
 else
   record_zero_write_preflight_blocked transport.remote-smoke transport.connect
   record_zero_write_preflight_blocked runtime.pm2-contract transport.connect
+  record_zero_write_preflight_blocked runtime.neko-renderer transport.connect
   record_zero_write_preflight_blocked runtime.environment transport.connect
   record_zero_write_preflight_blocked production.semantic-snapshot transport.connect
 fi
@@ -410,12 +412,17 @@ node "$SCRIPT_DIR/release/deploy/full-preflight.mjs" snapshot-compare \
     echo "[错误] 获取部署锁期间 production 语义状态漂移；production mutation=0" >&2
     exit 1
   }
+if [ -n "${DEPLOY_TIMING_STATE_FILE:-}" ]; then
+  node "$SCRIPT_DIR/release/diagnostics/deploy-timing-state.mjs" mutation-start \
+    --file "$DEPLOY_TIMING_STATE_FILE" --phase deploy.tenant-config || exit "$?"
+fi
 # workspace-errexit-role: mutation-barrier
 set -e
 run_deploy_stage deploy.tenant-config env OPS_ENV_FILE="${OPS_ENV_FILE:?OPS_ENV_FILE is required}" \
   "$SCRIPT_DIR/sync-tenant-config.sh" --source-sha "$RELEASE_SOURCE_SHA" --lock-token "$REMOTE_DEPLOY_LOCK_TOKEN"
 run_deploy_stage runtime.permissions reconcile_remote_runtime_permissions
 run_deploy_stage deploy.tools sync_remote_deploy_tools
+run_deploy_stage runtime.neko-renderer reconcile_remote_neko_renderer
 run_deploy_stage deploy.reconcile reconcile_completed_deploy_markers
 verify_release_order
 

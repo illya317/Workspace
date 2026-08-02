@@ -20,7 +20,7 @@ for source in "$SOURCE_DIR"/production-*; do
   case "$(basename "$source")" in
     *.test.mjs) continue ;;
     *.sh|*.mjs) mode=0755 ;;
-    *.sql|*.service|*.conf) mode=0644 ;;
+    *.sql|*.service|*.conf|*.py) mode=0644 ;;
     *) echo "[错误] 未知 production tooling 类型: $source" >&2; exit 1 ;;
   esac
   destination="$TOOL_ROOT/$(basename "$source")"
