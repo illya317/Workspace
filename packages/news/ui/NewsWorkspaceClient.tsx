@@ -252,7 +252,7 @@ export default function NewsWorkspaceClient() {
         setMobileDetailActive(false);
       },
     },
-    { kind: "text", key: "news-count", content: `展示 ${filteredItems.length} / ${workspace.briefing.items.length} 条` },
+    { kind: "text", key: "news-count", content: `共 ${filteredItems.length} / ${workspace.briefing.items.length} 条` },
     { kind: "action-group", key: "news-actions", actions: [
       { key: "refresh", kind: "refresh", label: "刷新资讯", disabled: loading, onClick: () => void loadWorkspace() },
       ...(workspace.briefing.sourceUrl ? [{ key: "source", kind: "open" as const, label: "打开资讯来源", onClick: () => openExternal(workspace.briefing.sourceUrl) }] : []),
