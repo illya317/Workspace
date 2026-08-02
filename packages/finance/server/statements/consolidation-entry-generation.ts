@@ -1,17 +1,15 @@
 import { createHash } from "node:crypto";
 
-import type {
-  ConsolidationVoucherMatchGroup,
-} from "../domain/consolidation-entry-generation";
+import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-entry-generation";
 import {
   buildGenerateConsolidationEntriesCommand,
   type GenerateConsolidationEntriesCommand,
 } from "../domain/consolidation-entry-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";
-import { loadConsolidationBatchRow } from "./consolidation-dto";
+import { consolidationBatchSnapshot, loadConsolidationBatchRow } from "./consolidation-dto";
 import {
   appendConsolidationBatchEvent,
   claimConsolidationBatchRevision,
@@ -20,7 +18,9 @@ import {
 import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-matches";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 import { loadConsolidationCompanyDirectory } from "./consolidation-company-directory";
-
+import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
+import { buildNonControllingInterestEntriesForBatch } from "./consolidation-nci-entries";
+import { groupVoucherNumber, nextGroupVoucherSequence } from "./group-voucher-numbering";
 class GenerationError extends Error {
   constructor(message: string, readonly status = 400) {
     super(message);
@@ -51,7 +51,7 @@ function groupFingerprint(group: ConsolidationVoucherMatchGroup) {
     amounts: [group.leftNetAmount, group.rightNetAmount, group.matchedAmount, group.differenceAmount],
     matchingVersion: group.matchingVersion,
     sources: [...group.leftFacts, ...group.rightFacts]
-      .map((fact) => [fact.itemId, fact.signedAmount, fact.lineCode, fact.sourceFingerprint])
+      .map((fact) => [fact.itemId, fact.signedAmount, fact.matchedSignedAmount, fact.lineCode, fact.sourceFingerprint])
       .sort((left, right) => Number(left[0]) - Number(right[0])),
   });
 }
@@ -71,10 +71,12 @@ function groupSources(
     return {
       entitySnapshotId: entity.id,
       counterpartyEntitySnapshotId: counterparty?.id ?? null,
-      voucherItemId: fact.itemId,
+      sourceKind: fact.sourceKind ?? "voucher",
+      voucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+      auxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
       matchSide: side,
       sourceAmount: fact.signedAmount,
-      allocatedAmount: Math.abs(fact.signedAmount),
+      allocatedAmount: Math.abs(fact.matchedSignedAmount ?? fact.signedAmount),
       currencyCode: fact.currencyCode,
       sourceFingerprint: fact.sourceFingerprint,
     };
@@ -91,35 +93,42 @@ function entryLines(
   return [
     ...group.leftFacts.map((fact) => ({ fact, side: "left" as const, entity: leftEntity, counterparty: rightEntity })),
     ...group.rightFacts.map((fact) => ({ fact, side: "right" as const, entity: rightEntity, counterparty: leftEntity })),
-  ].map(({ fact, side, entity, counterparty }, index) => {
-    if (!fact.lineCode) throw new GenerationError("已匹配凭证存在未映射报表项目", 409);
-    const consolidationAmount = fact.consolidationAmount ?? fact.signedAmount;
-    const amount = Math.abs(Math.round(consolidationAmount * 100) / 100);
-    const entryCurrency = fact.consolidationAmount === undefined ? fact.currencyCode : "CNY";
-    return {
-      lineNo: index + 1,
-      entitySnapshotId: entity.id,
-      companyId: entity.companyId,
-      companyCode: entity.companyCode,
-      statementType: "balanceSheet",
-      lineCode: fact.lineCode,
-      accountCode: fact.accountCode,
-      debit: consolidationAmount < 0 ? amount : 0,
-      credit: consolidationAmount > 0 ? amount : 0,
-      currencyCode: entryCurrency,
-      periodBasis: "current",
-      note: `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
-      matchSide: side,
-      sourceKind: "voucher",
-      sourceId: `voucher:${fact.itemId}`,
-      sourceFingerprint: fact.sourceFingerprint,
-      sourceAmount: Math.abs(Math.round(fact.signedAmount * 100) / 100),
-      sourceCurrency: fact.currencyCode,
-      counterpartyEntitySnapshotId: counterparty.id,
-      counterpartyCompanyId: counterparty.companyId,
-      sourceVoucherItemId: fact.itemId,
-    };
-  });
+  ].filter(({ fact }) => Math.round((fact.matchedSignedAmount ?? fact.signedAmount) * 100) !== 0)
+    .map(({ fact, side, entity, counterparty }, index) => {
+      if (!fact.lineCode) throw new GenerationError("已匹配凭证存在未映射报表项目", 409);
+      const matchedSignedAmount = fact.matchedSignedAmount ?? fact.signedAmount;
+      const amount = Math.abs(Math.round(matchedSignedAmount * 100) / 100);
+      return {
+        lineNo: index + 1,
+        entitySnapshotId: entity.id,
+        companyId: entity.companyId,
+        companyCode: entity.companyCode,
+        statementType: "balanceSheet",
+        lineCode: fact.lineCode,
+        accountCode: fact.accountCode,
+        debit: matchedSignedAmount < 0 ? amount : 0,
+        credit: matchedSignedAmount > 0 ? amount : 0,
+        currencyCode: fact.currencyCode,
+        periodBasis: "current",
+        note: fact.sourceKind === "auxiliaryBalance"
+          ? `${fact.voucherDate} 期末辅助余额 · ${fact.accountCode} ${fact.accountName}`
+          : `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
+        matchSide: side,
+        sourceKind: fact.sourceKind ?? "voucher",
+        sourceId: `${fact.sourceKind ?? "voucher"}:${fact.itemId}`,
+        sourceFingerprint: fact.sourceFingerprint,
+        sourceAmount: Math.abs(Math.round(fact.signedAmount * 100) / 100),
+        sourceCurrency: fact.currencyCode,
+        counterpartyEntitySnapshotId: counterparty.id,
+        counterpartyCompanyId: counterparty.companyId,
+        sourceVoucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+        sourceAuxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
+      };
+    });
+}
+
+function groupGeneratesEntry(group: ConsolidationVoucherMatchGroup) {
+  return group.status === "matched" || group.category === "intercompanyBalance" && Math.round(group.matchedAmount * 100) > 0;
 }
 
 function entryData(
@@ -130,11 +139,13 @@ function entryData(
 ) {
   const sourceCount = group.leftFacts.length + group.rightFacts.length;
   return {
-    entryNo: `${group.category === "investmentEquity" ? "AUTO-INV" : "AUTO-IC"}-${fingerprint(group.generationKey).slice(0, 10).toUpperCase()}`,
     entryType: group.category,
     title: entryTitle(group, entityByCompanyId),
-    description: `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配；未使用期末余额替代凭证。`,
-    evidence: `${group.matchingRule}；来源凭证明细 ID：${[...group.leftFacts, ...group.rightFacts].map((fact) => fact.itemId).join("、")}`,
+    description: group.category === "intercompanyBalance"
+      ? `按 ${sourceCount} 条期末辅助余额形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`
+      : `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`,
+    evidence: `${group.matchingRule}；来源记录：${[...group.leftFacts, ...group.rightFacts]
+      .map((fact) => `${fact.sourceKind ?? "voucher"}:${fact.itemId}`).join("、")}`,
     matchDifference: group.differenceAmount,
     differenceResolution: group.differenceResolution ?? "双方凭证明细净额一致",
     origin: "system",
@@ -149,6 +160,10 @@ function persistedStatus(group: ConsolidationVoucherMatchGroup, existing: { stat
   return existing && existing.sourceFingerprint === groupFingerprint(group) && ["accepted", "rejected"].includes(existing.status)
     ? existing.status
     : group.status;
+}
+
+function batchPostingDate(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
 }
 
 export async function generateConsolidationEntries(rawCommand: GenerateConsolidationEntriesCommand) {
@@ -176,24 +191,67 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     });
     if (!direct.ok) return direct;
 
+    const directoryCompanyCodes = [...new Set(batch.entities.map((entity) => entity.companyCode))];
     const [groups, companyDirectory] = await Promise.all([
       loadConsolidationVoucherMatchGroups(batch),
-      loadConsolidationCompanyDirectory(batch.entities.map((entity) => entity.companyCode)),
+      loadConsolidationCompanyDirectory(directoryCompanyCodes),
     ]);
     const entityByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, {
       ...entity,
       companyName: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
     }]));
+    const batchSnapshot = consolidationBatchSnapshot(batch);
+    const nciEntries = await buildNonControllingInterestEntriesForBatch(batchSnapshot);
+    if (!nciEntries.ok) throw new GenerationError(nciEntries.issue.message, nciEntries.issue.status);
+    const policyEntries = [...buildRemittanceFxEntries(batchSnapshot, groups), ...nciEntries.data];
     const existingGroups = await prisma.financeConsolidationMatchGroup.findMany({
       where: { batchId: batch.id },
-      include: { entry: { select: { id: true, status: true, generationFingerprint: true } }, sources: { select: { id: true } } },
+      include: {
+        entry: {
+          select: {
+            id: true,
+            entryNo: true,
+            status: true,
+            generationFingerprint: true,
+          },
+        },
+        sources: { select: { id: true } },
+      },
     });
+    const existingPolicyEntries = await prisma.financeConsolidationEntry.findMany({
+      where: {
+        batchId: batch.id,
+        OR: [
+          { generationKey: { startsWith: "policy:opening-capital-reclassification:" } },
+          { generationKey: { startsWith: "policy:remittance-fx:" } },
+          { generationKey: { startsWith: "policy:nci:" } },
+        ],
+      },
+      select: {
+        id: true,
+        entryNo: true,
+        status: true,
+        generationKey: true,
+        generationFingerprint: true,
+      },
+    });
+    const existingPolicyByKey = new Map(existingPolicyEntries.flatMap((entry) =>
+      entry.generationKey ? [[entry.generationKey, entry] as const] : [],
+    ));
+    const policyCandidates = policyEntries.map((entry) => {
+      const existing = existingPolicyByKey.get(entry.generationKey);
+      return { entry, existing, changed: !existing || existing.generationFingerprint !== entry.generationFingerprint };
+    });
+    const activePolicyKeys = new Set(policyEntries.map((entry) => entry.generationKey));
+    const stalePolicyEntries = existingPolicyEntries.filter((entry) =>
+      !entry.generationKey || !activePolicyKeys.has(entry.generationKey),
+    );
     const existingByKey = new Map(existingGroups.map((group) => [group.generationKey, group]));
     const candidates = groups.map((group) => {
       const sourceFingerprint = groupFingerprint(group);
       const existing = existingByKey.get(group.generationKey);
       const status = persistedStatus(group, existing);
-      const entryChanged = group.status === "matched"
+      const entryChanged = groupGeneratesEntry(group)
         ? !existing?.entry || existing.entry.generationFingerprint !== sourceFingerprint
         : Boolean(existing?.entry);
       const changed = !existing
@@ -204,17 +262,43 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     });
     const activeKeys = new Set(groups.map((group) => group.generationKey));
     const staleGroups = existingGroups.filter((group) => !activeKeys.has(group.generationKey));
-    const protectedMutation = [...candidates.filter((item) => item.changed).map((item) => item.existing), ...staleGroups]
+    const protectedMatchMutation = [...candidates.filter((item) => item.changed).map((item) => item.existing), ...staleGroups]
       .find((group) => group?.entry && group.entry.status !== "draft");
-    if (protectedMutation) {
+    const protectedPolicyMutation = [
+      ...policyCandidates.filter((item) => item.changed).map((item) => item.existing),
+      ...stalePolicyEntries,
+    ].find((entry) => entry && entry.status !== "draft");
+    if (protectedMatchMutation || protectedPolicyMutation) {
       throw new GenerationError("来源凭证已变化，但已有提交或批准的系统抵销分录；请新建合并批次版本后重新生成", 409);
     }
     const changedCandidates = candidates.filter((item) => item.changed);
-    if (changedCandidates.length === 0 && staleGroups.length === 0) {
+    const changedPolicyCandidates = policyCandidates.filter((item) => item.changed);
+    const generatedTypes = new Set([
+      ...groups.filter(groupGeneratesEntry).map((group) => group.category),
+      ...policyEntries.map((entry) => entry.entryType),
+    ]);
+    const automaticDecisionConclusion = "当前来源未形成可入账的合并凭证";
+    const automaticDecisionEvidence = "系统根据合并凭证生成结果自动记录；单边、差额或缺少外币流水的事项保留来源例外，不进入合并数";
+    const automaticEntryTypes = ["investmentEquity", "nonControllingInterest", "intercompanyBalance"] as const;
+    const automaticDecisionsChanged = automaticEntryTypes.some((entryType) => {
+      const controlKey = `elimination:${entryType}` as const;
+      const current = batch.controlDecisions.find((decision) => decision.controlKey === controlKey);
+      if (generatedTypes.has(entryType)) return current?.evidence.startsWith("系统根据合并凭证生成结果") ?? false;
+      if (!current) return true;
+      if (!current.evidence.startsWith("系统根据合并凭证生成结果")) return false;
+      return current.decision !== "notApplicable"
+        || current.conclusion !== automaticDecisionConclusion
+        || current.evidence !== automaticDecisionEvidence;
+    });
+    if (changedCandidates.length === 0
+      && staleGroups.length === 0
+      && changedPolicyCandidates.length === 0
+      && stalePolicyEntries.length === 0
+      && !automaticDecisionsChanged) {
       return serviceOk({
         created: 0,
         updated: 0,
-        unchanged: groups.filter((group) => group.status === "matched").length,
+        unchanged: groups.filter(groupGeneratesEntry).length + policyEntries.length,
         exceptions: groups.filter((group) => group.status !== "matched").length,
         sourceItems: groups.reduce((sum, group) => sum + group.leftFacts.length + group.rightFacts.length, 0),
         batchRevision: batch.revision,
@@ -232,6 +316,20 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
       if (!batchRevision) throw new GenerationError("合并批次已被提交或被其他人修改，请刷新后重试", 409);
       let created = 0;
       let updated = 0;
+      const existingEntryNumbers = await tx.financeConsolidationEntry.findMany({
+        where: { batchId: batch.id },
+        select: { entryNo: true },
+      });
+      let nextEntrySequence = nextGroupVoucherSequence(
+        existingEntryNumbers.map((entry) => entry.entryNo),
+        batch.year,
+        batch.month,
+      );
+      const allocateEntryNumber = () => groupVoucherNumber(
+        batch.year,
+        batch.month,
+        nextEntrySequence++,
+      );
       for (const stale of staleGroups) {
         if (stale.entry) {
           await tx.financeConsolidationMatchGroup.update({ where: { id: stale.id }, data: { entryId: null } });
@@ -239,12 +337,17 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
         }
         await tx.financeConsolidationMatchGroup.delete({ where: { id: stale.id } });
       }
+      if (stalePolicyEntries.length > 0) {
+        await tx.financeConsolidationEntry.deleteMany({
+          where: { id: { in: stalePolicyEntries.map((entry) => entry.id) } },
+        });
+      }
       for (const candidate of changedCandidates) {
         const { group, sourceFingerprint, status, existing } = candidate;
         const leftEntity = entityByCompanyId.get(group.leftCompanyId);
         const rightEntity = group.rightCompanyId ? entityByCompanyId.get(group.rightCompanyId) : null;
         if (!leftEntity) throw new GenerationError("匹配组主体不在当前合并范围", 409);
-        if (existing?.entry && group.status !== "matched") {
+        if (existing?.entry && !groupGeneratesEntry(group)) {
           await tx.financeConsolidationMatchGroup.update({ where: { id: existing.id }, data: { entryId: null } });
           await tx.financeConsolidationEntry.delete({ where: { id: existing.entry.id } });
         }
@@ -283,8 +386,9 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
             data: sources.map((source) => ({ matchGroupId: matchGroup.id, ...source })),
           });
         }
-        if (group.status !== "matched") continue;
+        if (!groupGeneratesEntry(group)) continue;
         const data = entryData(group, sourceFingerprint, command.userId, entityByCompanyId);
+        const postingDate = batchPostingDate(batch.year, batch.month);
         const lines = entryLines(group, entityByCompanyId);
         const currentEntry = existing?.entry;
         let entryId: number;
@@ -292,13 +396,30 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
           await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: currentEntry.id } });
           await tx.financeConsolidationEntry.update({
             where: { id: currentEntry.id },
-            data: { ...data, lines: { create: lines } },
+            data: {
+              ...data,
+              entryNo: currentEntry.entryNo.startsWith("AUTO-")
+                ? allocateEntryNumber()
+                : currentEntry.entryNo,
+              postingDate,
+              documentType: "elimination",
+              postingLevel: "20",
+              lines: { create: lines },
+            },
           });
           entryId = currentEntry.id;
           updated += 1;
         } else {
           const entry = await tx.financeConsolidationEntry.create({
-            data: { batchId: batch.id, ...data, lines: { create: lines } },
+            data: {
+              batchId: batch.id,
+              entryNo: allocateEntryNumber(),
+              ...data,
+              postingDate,
+              documentType: "elimination",
+              postingLevel: "20",
+              lines: { create: lines },
+            },
             select: { id: true },
           });
           entryId = entry.id;
@@ -306,13 +427,95 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
         }
         await tx.financeConsolidationMatchGroup.update({ where: { id: matchGroup.id }, data: { entryId } });
       }
+      for (const candidate of changedPolicyCandidates) {
+        const data = {
+          entryType: candidate.entry.entryType,
+          title: candidate.entry.title,
+          description: candidate.entry.description,
+          evidence: candidate.entry.evidence,
+          matchDifference: candidate.entry.matchDifference,
+          differenceResolution: candidate.entry.differenceResolution,
+          origin: "system",
+          generationKey: candidate.entry.generationKey,
+          generationFingerprint: candidate.entry.generationFingerprint,
+          generatedAt: new Date(),
+          preparedBy: command.userId,
+          postingDate: batchPostingDate(batch.year, batch.month),
+          documentType: candidate.entry.documentType,
+          postingLevel: candidate.entry.postingLevel,
+        };
+        if (candidate.existing) {
+          await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: candidate.existing.id } });
+          await tx.financeConsolidationEntry.update({
+            where: { id: candidate.existing.id },
+            data: {
+              ...data,
+              entryNo: candidate.existing.entryNo.startsWith("AUTO-")
+                ? allocateEntryNumber()
+                : candidate.existing.entryNo,
+              lines: { create: candidate.entry.lines },
+            },
+          });
+          updated += 1;
+        } else {
+          await tx.financeConsolidationEntry.create({
+            data: {
+              batchId: batch.id,
+              entryNo: allocateEntryNumber(),
+              ...data,
+              lines: { create: candidate.entry.lines },
+            },
+          });
+          created += 1;
+        }
+      }
+      for (const entryType of automaticEntryTypes) {
+        const controlKey = `elimination:${entryType}` as const;
+        const currentDecision = batch.controlDecisions.find((decision) => decision.controlKey === controlKey);
+        if (generatedTypes.has(entryType)) {
+          await tx.financeConsolidationControlDecision.deleteMany({
+            where: {
+              batchId: batch.id,
+              controlKey,
+              evidence: { startsWith: "系统根据合并凭证生成结果" },
+            },
+          });
+          continue;
+        }
+        if (currentDecision && !currentDecision.evidence.startsWith("系统根据合并凭证生成结果")) continue;
+        if (currentDecision
+          && currentDecision.decision === "notApplicable"
+          && currentDecision.conclusion === automaticDecisionConclusion
+          && currentDecision.evidence === automaticDecisionEvidence) continue;
+        const decisionData = {
+          decision: "notApplicable" as const,
+          conclusion: automaticDecisionConclusion,
+          evidence: automaticDecisionEvidence,
+          decidedBy: command.userId,
+          decidedAt: new Date(),
+        };
+        if (currentDecision) {
+          await tx.financeConsolidationControlDecision.update({
+            where: { id: currentDecision.id },
+            data: decisionData,
+          });
+        } else {
+          await tx.financeConsolidationControlDecision.create({
+            data: {
+              batchId: batch.id,
+              controlKey,
+              ...decisionData,
+            },
+          });
+        }
+      }
       await appendConsolidationBatchEvent(tx, {
         batchId: batch.id,
         eventType: "mutation",
         action: "entry.generate",
         fromStatus: "draft",
         toStatus: "draft",
-        note: `按凭证明细自动匹配：新增 ${created}，更新 ${updated}，待复核 ${groups.filter((group) => group.status !== "matched").length}`,
+        note: `生成合并凭证：新增 ${created}，更新 ${updated}，来源待补 ${groups.filter((group) => group.status !== "matched").length}`,
         actorUserId: command.userId,
         actorName,
         batchRevision,
@@ -322,13 +525,18 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
             status: group.status,
             sourceVoucherItemIds: [...group.leftFacts, ...group.rightFacts].map((fact) => fact.itemId),
           })),
+          policyEntries: policyEntries.map((entry) => ({
+            generationKey: entry.generationKey,
+            generationFingerprint: entry.generationFingerprint,
+          })),
         }),
       });
       return { created, updated, batchRevision };
     });
     return serviceOk({
       ...result,
-      unchanged: candidates.filter((item) => !item.changed && item.group.status === "matched").length,
+      unchanged: candidates.filter((item) => !item.changed && groupGeneratesEntry(item.group)).length
+        + policyCandidates.filter((item) => !item.changed).length,
       exceptions: groups.filter((group) => group.status !== "matched").length,
       sourceItems: groups.reduce((sum, group) => sum + group.leftFacts.length + group.rightFacts.length, 0),
     });

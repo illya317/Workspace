@@ -1,17 +1,19 @@
 # Engineering Docs
 
-这里放项目架构、开发规范、CI/check、RBAC、DB、Core UI、部署运行态和 agent 工程工作流。最终用户操作说明不要放在这里。
+这里放给工程维护者阅读、也可被 agent 按需引用的项目架构、开发规范、CI/check、RBAC、DB、Core UI 和部署运行态。Coding agent 的开工与角色工作流在根 `AGENTS.md` 和 `.agents/skills/workspace-*`；最终用户操作说明不要放在这里。
 
 ## 入口
 
 | 主题 | 文档 | Owner |
 |---|---|---|
 | 项目总览和新鲜度 | `project-overview.md` | Coordinator / Architecture |
-| 开工和交接 | `agent-startup.md`, `subagent.md`, `agent-handbook.md` | Coordinator |
+| 跨专题工程手册 | `agent-handbook.md` | Coordinator / 各专题 owner |
 | 架构和包边界 | `architecture-governance.md`, `module-boundaries.md` | Architecture |
 | Structure 迁移执行 | `structure-agent-execution.md` | Architecture |
 | Core UI / Toolbar / reusable components | `core-ui-governance.md`, `core-toolbar.md`, `reusable-components.md` | Architecture / UI-system |
 | 通用审批链 | `approvals.md` | Platform / Architecture |
+| 配置化通知与开放 API | `notification-publishing.md` | Platform / Architecture |
+| 业务有效时间与生命周期 | `business-temporal.md` | Architecture / Platform / Data |
 | 新模块和现有模块能力 | `new-module-checklist.md`, `new-domain-template.md`, `existing-module-feature-checklist.md` | Architecture / Feature |
 | Schema 和 DB | `schema-governance.md`, `database.md` | Data |
 | RBAC 和权限矩阵 | `security/rbac.md`, `security/permission-matrix.md` | Architecture |

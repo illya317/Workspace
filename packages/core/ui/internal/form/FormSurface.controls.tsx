@@ -9,6 +9,7 @@ import FkFieldInput from "../input/FkFieldInput";
 import TagListInput from "../input/TagListInput";
 import TagPill from "../input/TagPill";
 import { renderCommands } from "./form-surface-commands";
+import { isFormSurfaceFieldRequired, resolveFormSurfaceInputSpec } from "./form-surface-required";
 export { renderCommands };
 import type {
   FormSurfaceFieldSpec,
@@ -29,10 +30,20 @@ export function isInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSur
   return !("kind" in field) || field.kind === "field";
 }
 
+export function isMultilineInputField<T>(field: FormSurfaceItemSpec<T>): field is FormSurfaceFieldSpec {
+  return isInputField(field) && field.spec.multiline === true;
+}
+
+export function resolveFormSurfaceFieldSpan<T>(
+  field: Exclude<FormSurfaceItemSpec<T>, { kind: "note" | "groupTitle" | "section" | "repeatable" }>,
+) {
+  return isMultilineInputField(field) ? "full" : field.span;
+}
+
 export function renderControl(field: FormSurfaceFieldSpec, density: InputSurfaceProps["density"]) {
   return (
     <InputSurface
-      spec={field.spec}
+      spec={resolveFormSurfaceInputSpec(field)}
       value={field.value}
       displayValue={field.displayValue}
       onChange={field.onChange}
@@ -54,10 +65,10 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       disabled={field.disabled}
       readOnly={field.readOnly}
       ariaLabel={field.ariaLabel}
-      dataFieldKey={field.dataFieldKey}
+      dataFieldKey={field.dataFieldKey ?? field.key}
       title={field.title}
       textAlign={field.textAlign}
-      visualState={field.visualState}
+      visualState={field.error ? "error" : field.visualState}
       choiceType={field.choiceType}
       choiceName={field.choiceName}
       accept={field.accept}
@@ -263,14 +274,14 @@ function TagAppendReferenceCreatePanel({
           {create.description ? <div className="text-xs leading-5 text-slate-500">{create.description}</div> : null}
         </div>
       )}
-      <FieldGrid columns={layout.columns ?? 2} mode={layout.mode ?? "mixed"}>
+      <FieldGrid columns={layout.columns ?? 2} mode={layout.mode ?? "mixed"} fieldLayout={layout.fieldLayout ?? "inline"}>
         {create.fields.map((field) => (
           <FieldGrid.Cell
             key={field.key}
             label={field.label}
-            required={field.required}
-            hint={field.hint ?? field.error}
-            span={field.span}
+            required={isFormSurfaceFieldRequired(field)}
+            hint={field.error ?? field.hint}
+            span={resolveFormSurfaceFieldSpan(field)}
             rowSpan={field.rowSpan}
             mode={layout.mode ?? "mixed"}
           >

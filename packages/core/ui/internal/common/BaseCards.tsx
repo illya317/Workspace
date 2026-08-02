@@ -71,7 +71,7 @@ export function EmptyStateCard({ children, className = "", compact = false }: Em
   return (
     <div
       className={joinClassNames(
-        "rounded-md border border-dashed border-slate-200 px-3 text-center text-sm text-slate-400",
+        "rounded-lg border border-slate-200 bg-white px-3 text-center text-sm text-slate-500 shadow-sm",
         compact ? "py-6" : "py-10",
         className,
       )}

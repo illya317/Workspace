@@ -125,7 +125,7 @@ const checks: Check[] = [
     ],
   },
   {
-    file: "packages/platform/ui/admin/tabs/WorkflowPoliciesTab.tsx",
+    file: "packages/settings/ui/admin/tabs/WorkflowPoliciesTab.tsx",
     excludes: ["accessMode === \"workflow\" ? workflowNodes : []"],
   },
   {

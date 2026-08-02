@@ -1,34 +1,50 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { createPageBody, BodySurface, type CreateSurfaceToolbarProps, type FormSurfaceItemSpec } from "@workspace/core/ui";
+import { useEffect, useMemo, useState } from "react";
+import { createPageBody, BodySurface, type FormSurfaceItemSpec, type PageSurfaceCreateSpec } from "@workspace/core/ui";
 import { departmentCodeEditableSegment } from "./department-code-input";
-import { postJson } from "@workspace/platform/ui/api-client";
+import { postDirectCommandJson } from "@workspace/platform/ui/api-client";
 import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { useDepartmentDescriptionCreateSections } from "./department-descriptions-panel";
 import { sanitizeDepartmentDescriptionDetails } from "./draft-utils";
 import { canUseDepartmentAsParentForHierarchy, isOperatingCommittee, serializeAlias } from "./utils";
-import type { Department, DepartmentDescriptionDraft } from "./types";
+import type { Department, DepartmentDescriptionDraft, OrganizationCodeConfig } from "./types";
 import { suggestDepartmentCodeInput } from "./utils";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
-function deriveCreateCode(hierarchyKind: "G" | "M", level: 1 | 2 | 3, parentId: number | null, departmentById: Map<number, Department>): string {
+function deriveCreateCode(
+  hierarchyKind: "G" | "M",
+  level: 1 | 2 | 3,
+  parentId: number | null,
+  departmentById: Map<number, Department>,
+  codeConfig: OrganizationCodeConfig | null,
+): string {
+  if (!codeConfig) return "";
   const allDepartments = Array.from(departmentById.values());
   const draft = { hierarchyKind, level, parentId, code: "", name: "" };
-  const suggestion = suggestDepartmentCodeInput(draft, allDepartments);
+  const suggestion = suggestDepartmentCodeInput(draft, allDepartments, codeConfig);
   if (hierarchyKind === "G") return suggestion;
-  if (level === 1) return `${suggestion}001`;
+  if (level === 1) {
+    return `${suggestion}${codeConfig.department.separator}${codeConfig.department.managementRootSuffix}`;
+  }
   const parent = parentId == null ? undefined : departmentById.get(parentId);
-  const prefix = parent?.code.slice(0, 3) || suggestion.slice(0, 3) || "ORG";
-  if (level === 2) return `${prefix}${suggestion}00`;
-  const parentNumber = parent?.code.slice(3) || "100";
-  const stem = parentNumber.slice(0, -2) || "1";
-  return `${prefix}${stem}${suggestion}`;
+  const identifierLength = codeConfig.department.identifierLength;
+  const prefix = parent?.code.slice(0, identifierLength)
+    || suggestion.slice(0, identifierLength)
+    || codeConfig.department.functionalPrefix;
+  if (level === 2) {
+    return `${prefix}${codeConfig.department.separator}${suggestion}${codeConfig.department.level2Suffix}`;
+  }
+  const parentNumber = parent?.code.slice(identifierLength + codeConfig.department.separator.length)
+    || `1${codeConfig.department.level2Suffix}`;
+  const stem = parentNumber.slice(0, -codeConfig.department.level2Suffix.length) || "1";
+  return `${prefix}${codeConfig.department.separator}${stem}${suggestion}`;
 }
 
 type DepartmentCreatePanelProps = {
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
@@ -37,13 +53,14 @@ type DepartmentCreatePanelProps = {
 
 export function useDepartmentCreateSurface({
   departments,
+  codeConfig,
   departmentById,
   onCancel,
   onCreated,
   actionRuntime,
   open,
   onOpenChange,
-}: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }): CreateSurfaceToolbarProps {
+}: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }): PageSurfaceCreateSpec & { presentation: "block" } {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
   const defaultManagementRootParentId = useMemo(
     () => Array.from(departmentById.values()).find((department) => isOperatingCommittee(department, operatingCommitteeCode))?.id ?? null,
@@ -55,7 +72,7 @@ export function useDepartmentCreateSurface({
   const hierarchyKind = "M" as const;
   const [level, setLevel] = useState<1 | 2 | 3>(1);
   const [parentId, setParentId] = useState<number | null>(defaultManagementRootParentId);
-  const [code, setCode] = useState(() => deriveCreateCode("M", 1, defaultManagementRootParentId, departmentById));
+  const [code, setCode] = useState(() => deriveCreateCode("M", 1, defaultManagementRootParentId, departmentById, codeConfig));
   const [descriptionDraft, setDescriptionDraft] = useState<DepartmentDescriptionDraft>({
     id: null,
     code,
@@ -64,6 +81,12 @@ export function useDepartmentCreateSurface({
     codeRaw: "",
     details: JSON.stringify({ "基本信息": { "部门名称": "" } }, null, 2),
   });
+  useEffect(() => {
+    if (code || !codeConfig) return;
+    const generated = deriveCreateCode(hierarchyKind, level, parentId, departmentById, codeConfig);
+    setCode(generated);
+    setDescriptionDraft((current) => ({ ...current, code: generated }));
+  }, [code, codeConfig, departmentById, hierarchyKind, level, parentId]);
 
   const parentOptions = useMemo(() => {
     return [
@@ -78,7 +101,7 @@ export function useDepartmentCreateSurface({
     const effectiveParentId = hierarchyKind === "M" && nextLevel === 1 ? (nextParentId ?? defaultManagementRootParentId) : nextParentId;
     setLevel(nextLevel);
     setParentId(effectiveParentId);
-    setCode(deriveCreateCode(hierarchyKind, nextLevel, effectiveParentId, departmentById));
+    setCode(deriveCreateCode(hierarchyKind, nextLevel, effectiveParentId, departmentById, codeConfig));
   }
 
   function updateDraftName(nextName: string) {
@@ -112,7 +135,7 @@ export function useDepartmentCreateSurface({
     if (!name.trim() || !code.trim() || !actionRuntime) return;
     setSubmitting(true);
     try {
-      await postJson<{ executionMode: "direct" | "workflow" }>(
+      await postDirectCommandJson<{ executionMode: "direct" | "workflow" }>(
         "/api/modules/hr/roster/departments",
         buildPayload(),
         "新建组织失败",
@@ -147,7 +170,7 @@ export function useDepartmentCreateSurface({
               spec: {
                 valueType: "string" as const,
                 control: "text" as const,
-                mask: { kind: "editableSegment" as const, ...departmentCodeEditableSegment(level, hierarchyKind) },
+                mask: { kind: "editableSegment" as const, ...departmentCodeEditableSegment(level, hierarchyKind, codeConfig) },
                 state: !canEditDraft ? "disabled" as const : "normal" as const,
               },
               value: code,
@@ -212,7 +235,6 @@ export function useDepartmentCreateSurface({
 
   return {
     id: "department-create",
-    trigger: "toolbar",
     presentation: "block",
     title: "新建组织",
     open,
@@ -232,6 +254,6 @@ export function useDepartmentCreateSurface({
 export function DepartmentCreatePanel(props: DepartmentCreatePanelProps & { open: boolean; onOpenChange: (open: boolean) => void }) {
   const create = useDepartmentCreateSurface(props);
   return (
-    <BodySurface {...createPageBody([{ key: "department-create", body: { kind: "create", create } }])} />
+    <BodySurface {...createPageBody([{ key: "department-create", body: { kind: "create", create: { ...create, trigger: "surface" } } }])} />
   );
 }

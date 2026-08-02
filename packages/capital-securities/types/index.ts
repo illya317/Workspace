@@ -50,6 +50,7 @@ export type CompanyRecord = {
   id: number;
   partyId: number;
   partyVersion: number;
+  legalFactRevision: number;
   code: string;
   name: string;
   fullName: string | null;
@@ -106,6 +107,17 @@ export type OwnershipInterestRecord = {
   sourceType: string | null;
   sourceLabel: string | null;
   sourceReference: string | null;
+  sourceEventId: number | null;
+  sourceEventName: string | null;
+  sourceEventEffectiveDate: string | null;
+  closedByEventId: number | null;
+  closedByEventName: string | null;
+  projectionRunId: number | null;
+  projectionGeneration: number | null;
+  projectorKey: string | null;
+  projectorVersion: number | null;
+  ledgerHash: string | null;
+  projectedAt: string | null;
   version: number;
 };
 
@@ -174,12 +186,78 @@ export type ShareCapitalEventRecord = {
 export type ShareholderPosition = {
   partyId: number;
   name: string;
+  fullName: string | null;
+  subjectType: "organization" | "individual";
+  identityNumberMasked: string;
+  legalRepresentative: string | null;
   confirmedSubscribedCapitalYuan: number | null;
   pendingCapitalDeltaYuan: number | null;
   projectedSubscribedCapitalYuan: number | null;
   shareRatio: number | null;
   firstEventDate: string | null;
   latestEventDate: string | null;
+  profile: InvestorShareholderProfileRecord | null;
+};
+
+export type InvestorCategory =
+  | "founder"
+  | "employee_platform"
+  | "institutional"
+  | "strategic"
+  | "financial"
+  | "individual"
+  | "other";
+
+export type InvestorRelationshipStatus = "active" | "priority" | "monitoring" | "dormant";
+
+export type InvestorShareholderProfileRecord = {
+  id: number;
+  issuerCompanyId: number;
+  shareholderPartyId: number;
+  investorCategory: InvestorCategory | null;
+  contactName: string | null;
+  contactTitle: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  relationshipOwner: string | null;
+  relationshipStatus: InvestorRelationshipStatus;
+  communicationPreference: string | null;
+  notes: string | null;
+  version: number;
+};
+
+export type InvestorDueDiligenceType =
+  | "comprehensive"
+  | "business"
+  | "financial"
+  | "legal"
+  | "technical"
+  | "hr"
+  | "esg"
+  | "other";
+
+export type InvestorDueDiligenceRecord = {
+  id: number;
+  issuerCompanyId: number;
+  investorPartyId: number | null;
+  investorOrganization: string;
+  visitorName: string;
+  visitorTitle: string | null;
+  phone: string | null;
+  email: string | null;
+  diligenceDate: string;
+  diligenceType: InvestorDueDiligenceType;
+  visitMethod: "onsite" | "remote" | "hybrid";
+  status: "planned" | "in_progress" | "completed" | "cancelled";
+  hostName: string | null;
+  ndaStatus: "not_required" | "pending" | "signed";
+  dataRoomStatus: "not_opened" | "open" | "closed";
+  focusAreas: string | null;
+  followUpAction: string | null;
+  nextFollowUpDate: string | null;
+  notes: string | null;
+  version: number;
 };
 
 export type CaptableRound = {
@@ -280,6 +358,7 @@ export type InvestorRelationshipView = {
   captableRounds: CaptableRound[];
   captableRows: CaptableShareholderRow[];
   financingRounds: FinancingRound[];
+  dueDiligenceRecords: InvestorDueDiligenceRecord[];
   ownershipStructure: OwnershipStructureGraph | null;
   metrics: {
     shareholderCount: number;
@@ -287,3 +366,6 @@ export type InvestorRelationshipView = {
     pendingEventCount: number;
   };
 };
+
+export * from "./market-intelligence";
+export type * from "./investment-enterprises";

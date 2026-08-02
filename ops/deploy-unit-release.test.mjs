@@ -35,16 +35,10 @@ function writeJson(file, value) {
 
 function controlPlaneFixture(root) {
   const resourceManifestFile = path.join(root, "resource-defs.json");
-  const dataReleaseDir = path.join(root, "data-releases");
   const tenantManifestFile = path.join(root, "tenant-config-manifest.json");
   const lifecycleRoot = path.join(root, "lifecycle");
-  mkdirSync(dataReleaseDir, { recursive: true });
   for (const relativePath of [
     "node_modules/prisma/package.json",
-    "ops/apply-data-release.mjs",
-    "ops/data-release.mjs",
-    "ops/data-release-handlers.mjs",
-    "ops/data-release-transfer.mjs",
     "ops/prisma-genesis-cutover.mjs",
     "scripts/check/check-permission-action-grants.mjs",
     "scripts/check/check-prisma-deploy-status.js",
@@ -59,7 +53,6 @@ function controlPlaneFixture(root) {
     writeFileSync(file, `${relativePath}\n`);
   }
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
-  writeFileSync(path.join(dataReleaseDir, "release.json"), "{\"id\":\"release\"}\n");
   const tenantFiles = [
     { path: "manifest.json", size: 2, sha256: sha256("{}") },
     { path: "config/tenant/profile.json", size: 2, sha256: sha256("{}") },
@@ -79,7 +72,6 @@ function controlPlaneFixture(root) {
     sourceTree: "b".repeat(40),
     migrationSetSha256: "c".repeat(64),
     resourceManifestFile,
-    dataReleaseDir,
     tenantManifestFile,
     lifecycleRoot,
     completedAt: "2026-07-25T00:00:00.000Z",
@@ -143,7 +135,6 @@ function fixture(contractOverrides = {}) {
     inputs: {
       migrationSetSha256: controlPlaneReceipt.inputs.migrationSetSha256,
       resourceManifestSha256: controlPlaneReceipt.inputs.resourceManifestSha256,
-      dataReleaseManifestSetSha256: controlPlaneReceipt.inputs.dataReleaseManifestSetSha256,
       lifecycleToolSetSha256: controlPlaneReceipt.inputs.lifecycleToolSetSha256,
     },
     createdAt: "2026-07-25T00:30:00.000Z",
@@ -159,12 +150,12 @@ function fixture(contractOverrides = {}) {
   };
 }
 
-function createManifest(files, deploymentId = "finance-a1") {
+function createManifest(files, deploymentId = "finance-a1", buildId = "build-finance-a1") {
   return createDeployUnitArtifactManifest({
     ...files,
     sourceSha: "1".repeat(40),
     sourceTree: "2".repeat(40),
-    buildId: deploymentId,
+    buildId,
     deploymentId,
     serverEntry: "server.js",
     controlPlaneRequirementsFile: files.controlPlaneRequirementsFile,
@@ -172,12 +163,13 @@ function createManifest(files, deploymentId = "finance-a1") {
   });
 }
 
-test("artifact manifest binds the exact contract, graph, source, deployment id, and bytes", () => {
+test("artifact manifest keeps Next build identity separate from deployment identity", () => {
   const files = fixture();
   const manifest = createManifest(files);
   writePrivateJson(files.manifestFile, manifest, normalizeDeployUnitArtifactManifest);
   assert.equal(assertDeployUnitArtifact(files).unit.id, "finance");
-  assert.equal(manifest.build.buildId, manifest.build.deploymentId);
+  assert.equal(manifest.build.buildId, "build-finance-a1");
+  assert.equal(manifest.build.deploymentId, "finance-a1");
   assert.equal(manifest.runtime.slots.green.port, 3301);
   writeFileSync(files.artifactFile, "tampered\n");
   assert.throws(() => assertDeployUnitArtifact(files), /artifact digest mismatch/);
@@ -204,6 +196,8 @@ test("shadow-ready receipt binds the control-plane floor before activation", () 
     slot: "blue",
     deployedAt: "2026-07-25T02:00:00.000Z",
   });
+  assert.equal(receipt.build.buildId, "build-finance-a1");
+  assert.equal(receipt.build.deploymentId, "finance-a1");
   writePrivateJson(receiptFile, receipt);
   const activation = createDeployUnitActivation(receiptFile, "2026-07-25T02:01:00.000Z");
   assert.equal(activation.port, 3201);

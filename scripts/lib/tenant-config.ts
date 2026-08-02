@@ -2,7 +2,11 @@ import "dotenv/config";
 
 import fs from "node:fs";
 import path from "node:path";
-import type { TenantFinanceImportConfig, TenantProfile } from "../../packages/platform/tenant-config";
+import type {
+  TenantCompanySeed,
+  TenantFinanceImportConfig,
+  TenantProfile,
+} from "../../packages/platform/tenant-config";
 
 function workspaceConfigDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
@@ -29,4 +33,10 @@ export function loadTenantFinanceImports(): TenantFinanceImportConfig {
   const root = workspaceConfigDir();
   const profile = readWorkspaceJson<TenantProfile>(root, "config/tenant/profile.json");
   return readWorkspaceJson<TenantFinanceImportConfig>(root, profile.files.financeImports);
+}
+
+export function loadTenantCompanies(): TenantCompanySeed[] {
+  const root = workspaceConfigDir();
+  const profile = readWorkspaceJson<TenantProfile>(root, "config/tenant/profile.json");
+  return readWorkspaceJson<TenantCompanySeed[]>(root, profile.files.companies);
 }

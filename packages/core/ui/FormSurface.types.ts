@@ -10,6 +10,7 @@ import type { ReferenceOption, SurfaceLifecycleScope } from "./SurfaceContractTy
 export type FormSurfaceKind = "fields" | "filters" | "detail" | "login";
 export type FormSurfaceLooseItem = ReturnType<typeof JSON.parse>;
 export type FormSurfaceLayoutFlow = "grid" | "inline" | "single";
+export type FormSurfaceFieldLayout = "inline" | "stack";
 export type FormSurfaceSectionChrome = "card" | "divider" | "plain";
 
 export interface FormSurfaceLayoutSpec {
@@ -17,6 +18,7 @@ export interface FormSurfaceLayoutSpec {
   columns?: 1 | 2 | 3 | 4 | 6;
   mode?: FieldGridMode;
   density?: InputSurfaceProps["density"];
+  fieldLayout?: FormSurfaceFieldLayout;
 }
 
 export interface FormSurfaceFilterLayoutSpec extends FormSurfaceLayoutSpec {
@@ -118,7 +120,7 @@ export interface FormSurfaceTagListAppendSpec {
       title?: ReactNode;
       description?: ReactNode;
       fields: FormSurfaceFieldSpec[];
-      layout?: Pick<FormSurfaceLayoutSpec, "columns" | "mode" | "density">;
+      layout?: Pick<FormSurfaceLayoutSpec, "columns" | "mode" | "density" | "fieldLayout">;
       submit: FormSurfaceCommandSpec;
       actions?: FormSurfaceCommandSpec[];
     };

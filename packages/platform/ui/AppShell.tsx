@@ -2,7 +2,7 @@
 
 import { usePathname, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, Home } from "lucide-react";
+import { ArrowLeft, Home, Power } from "lucide-react";
 import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
@@ -17,6 +17,7 @@ import {
 } from "./portal-preferences";
 import { resolveMobileExperience } from "../mobile-experience";
 import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
+import { useTenantConfig } from "./tenant-config";
 interface NavLinkDef {
   label: string;
   href: string;
@@ -35,6 +36,7 @@ export interface AppShellProps {
   navLinks?: NavLinkDef[];
   headerSelector?: NavigationSurfaceSelectorSpec | null;
   hasUnsavedChanges?: boolean;
+  initialPortalSlots?: PortalSlot[];
   user: SessionUser;
   children?: ReactNode;
 }
@@ -45,13 +47,16 @@ export default function AppShell({
   navLinks,
   headerSelector,
   hasUnsavedChanges = false,
+  initialPortalSlots,
   user,
   children
 }: AppShellProps) {
+  const tenantConfig = useTenantConfig();
   const navigateToDeployUnit = useDeployUnitNavigation();
   const pathname = usePathname();
   const feedback = useFeedback({ unsavedChanges: hasUnsavedChanges });
-  const [portalSlots, setPortalSlots] = useState<PortalSlot[]>(() => defaultSlotsForUser(user));
+  const [portalSlots, setPortalSlots] = useState<PortalSlot[]>(() => initialPortalSlots ?? defaultSlotsForUser(user));
+  const [loggingOut, setLoggingOut] = useState(false);
   const headerShortcuts = headerShortcutsForUser(user, portalSlots);
   const currentPath = workspaceBasePath && pathname.startsWith(`${workspaceBasePath}/`)
     ? pathname.slice(workspaceBasePath.length)
@@ -62,6 +67,21 @@ export default function AppShell({
   async function navigate(href: string) {
     if (!(await feedback.confirmLeave())) return;
     navigateToDeployUnit(href);
+  }
+  async function logout() {
+    if (loggingOut || !(await feedback.confirmLeave())) return;
+    setLoggingOut(true);
+    try {
+      const response = await fetch(workspacePath("/api/auth/dev-login"), {
+        method: "DELETE",
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("logout_failed");
+      window.location.assign(workspacePath("/login"));
+    } catch {
+      setLoggingOut(false);
+      feedback.error("退出登录失败，请稍后重试");
+    }
   }
   useEffect(() => {
     let cancelled = false;
@@ -94,7 +114,7 @@ export default function AppShell({
             className="hidden flex-shrink-0 items-center border-0 bg-transparent p-0 shadow-none hover:bg-transparent sm:flex"
           >
             <Image
-              src={workspacePath("/company/logo.png")}
+              src={workspacePath(tenantConfig.brand.logoPath)}
               alt="Logo"
               width={76}
               height={28}
@@ -146,6 +166,17 @@ export default function AppShell({
           ))}
 
           <div className="hidden shrink-0 items-center gap-2 sm:flex">
+            <button
+              type="button"
+              aria-label="退出登录"
+              title="退出登录"
+              aria-busy={loggingOut}
+              disabled={loggingOut}
+              onClick={() => void logout()}
+              className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 disabled:cursor-wait disabled:opacity-50"
+            >
+              <Power aria-hidden="true" size={21} strokeWidth={2} />
+            </button>
             <NotificationBell onBeforeNavigate={() => feedback.confirmLeave()} />
             <UserMenu user={user} onBeforeNavigate={() => feedback.confirmLeave()} />
           </div>

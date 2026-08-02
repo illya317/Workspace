@@ -18,6 +18,7 @@ export function WorkflowRequestModal({
   return (
     <BodySurface {...createPageBody([
         createPageModalSection("workflow-request", {
+          purpose: "workflow-action",
           open,
           title: typeof viewModel.title === "string" ? viewModel.title : "流程请求",
           onClose,

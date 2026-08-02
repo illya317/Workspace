@@ -5,7 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { execFileSync } = require("node:child_process");
 
-const SNAPSHOT_VERSION = "workspace-snapshot-v3";
+const SNAPSHOT_VERSION = "workspace-snapshot-v4";
 const INHERITED_SNAPSHOT_KEY_PATTERN = /^[0-9a-f]{64}$/;
 const DEFAULT_CORE_UI_REQUEST_PATH = process.env.WORKSPACE_CONFIG_DIR
   ? path.join(process.env.WORKSPACE_CONFIG_DIR, "config/engineering/core-ui-change-request.md")
@@ -13,26 +13,8 @@ const DEFAULT_CORE_UI_REQUEST_PATH = process.env.WORKSPACE_CONFIG_DIR
 const SNAPSHOT_ENV_KEYS = [
   "CI",
   "CORE_UI_CHANGE",
-  "DATABASE_URL",
-  "DIRECT_DATABASE_URL",
-  "DIRECT_URL",
-  "GITHUB_ACTIONS",
-  "NET_LINE_GROWTH_LIMIT",
-  "NEXTAUTH_SECRET",
-  "NEXTAUTH_URL",
   "NEXT_PUBLIC_BASE_PATH",
   "NODE_ENV",
-  "NODE_OPTIONS",
-  "PATH",
-  "PLAYWRIGHT_BROWSERS_PATH",
-  "PRE_COMMIT_FULL",
-  "PRE_PUSH_FULL",
-  "PRISMA_SCHEMA_DISABLE_ADVISORY_LOCK",
-  "SHADOW_DATABASE_URL",
-  "TEST_CONCURRENCY",
-  "TZ",
-  "WORKSPACE_DIFF_BASE",
-  "WORKSPACE_DIFF_HEAD",
   "WORKSPACE_CONFIG_DIR",
 ];
 const EXCLUDED_DIRECTORY_PREFIXES = [
@@ -50,10 +32,6 @@ function runGit(cwd, args, options = {}) {
     encoding: options.encoding ?? "buffer",
     maxBuffer: options.maxBuffer ?? 200 * 1024 * 1024,
   });
-}
-
-function splitNull(value) {
-  return value.toString("utf8").split("\0").filter(Boolean);
 }
 
 function addHashPart(hash, label, value) {
@@ -76,32 +54,6 @@ function shouldIncludeSnapshotFile(file) {
     || normalized === ".DS_Store"
     || normalized.endsWith("/.DS_Store")
   );
-}
-
-function hashUntrackedFiles(cwd, files) {
-  const hash = crypto.createHash("sha256");
-  addHashPart(hash, "untracked.version", "v1");
-
-  for (const file of files.filter(shouldIncludeSnapshotFile).sort()) {
-    const absolutePath = path.join(cwd, file);
-    addHashPart(hash, "untracked.path", file);
-    try {
-      const stat = fs.lstatSync(absolutePath);
-      addHashPart(hash, "untracked.mode", String(stat.mode));
-      if (stat.isSymbolicLink()) {
-        addHashPart(hash, "untracked.symlink", fs.readlinkSync(absolutePath));
-      } else if (stat.isFile()) {
-        addHashPart(hash, "untracked.file", fs.readFileSync(absolutePath));
-      } else {
-        addHashPart(hash, "untracked.kind", "unsupported");
-      }
-    } catch (error) {
-      if (error?.code !== "ENOENT") throw error;
-      addHashPart(hash, "untracked.missing", "true");
-    }
-  }
-
-  return hash.digest("hex");
 }
 
 function hashEnvironment(env) {
@@ -142,17 +94,13 @@ function captureWorkspaceSnapshot({
   coreUiRequestPath = DEFAULT_CORE_UI_REQUEST_PATH,
 } = {}) {
   if (!cwd) throw new Error("workspace snapshot requires cwd");
-  const snapshotScope = env.CHECK_WORKSPACE_SNAPSHOT_SCOPE?.trim() || "workspace";
-  if (!["workspace", "committed"].includes(snapshotScope)) {
-    throw new Error("CHECK_WORKSPACE_SNAPSHOT_SCOPE must be workspace or committed");
+  const snapshotScope = env.CHECK_WORKSPACE_SNAPSHOT_SCOPE?.trim() || "staged";
+  if (!["staged", "committed"].includes(snapshotScope)) {
+    throw new Error("CHECK_WORKSPACE_SNAPSHOT_SCOPE must be staged or committed");
   }
 
-  const [headCommit, headTree] = runGit(
-    cwd,
-    ["rev-parse", "HEAD^{commit}", "HEAD^{tree}"],
-    { encoding: "utf8" },
-  ).trim().split(/\r?\n/);
-  const stagedDiff = runGit(cwd, [
+  const headTree = runGit(cwd, ["rev-parse", "HEAD^{tree}"], { encoding: "utf8" }).trim();
+  const stagedDiff = snapshotScope === "committed" ? "excluded" : runGit(cwd, [
     "diff",
     "--no-ext-diff",
     "--no-renames",
@@ -164,27 +112,11 @@ function captureWorkspaceSnapshot({
     ".",
     ...EXCLUDED_PATHSPECS,
   ]);
-  const unstagedDiff = snapshotScope === "committed" ? "excluded" : runGit(cwd, [
-    "diff",
-    "--no-ext-diff",
-    "--no-renames",
-    "--no-textconv",
-    "--binary",
-    "--",
-    ".",
-    ...EXCLUDED_PATHSPECS,
-  ]);
-  const untrackedFiles = snapshotScope === "committed"
-    ? []
-    : splitNull(runGit(cwd, ["ls-files", "--others", "--exclude-standard", "-z"]));
-
   const parts = {
-    head: digest("head", `${headCommit}\0${headTree}`),
+    head: digest("head-tree", headTree),
     index: digest("index", stagedDiff),
-    unstaged: digest("unstaged", unstagedDiff),
-    untracked: snapshotScope === "committed"
-      ? digest("untracked", "excluded")
-      : hashUntrackedFiles(cwd, untrackedFiles),
+    unstaged: digest("unstaged", "excluded"),
+    untracked: digest("untracked", "excluded"),
     environment: hashEnvironment(env),
     external: digest("external", JSON.stringify({
       coreUiRequest: coreUiRequestPath && fs.existsSync(coreUiRequestPath) ? "exists" : "missing",

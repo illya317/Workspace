@@ -7,7 +7,7 @@ This is the special bucket for durable reference material that does not fit agen
 - Every file or folder must declare an owner, purpose, and intended users near the top or in a local README.
 - Reference material cannot replace `docs/engineering/*` as the authority for engineering rules.
 - Temporary plans, proposals, task notes, and investigation logs belong in the Git-ignored `.planning/` workspace, not here.
-- User-facing instructions belong in `docs/product/*` or `app/(docs)/docs/*`.
+- User-facing instructions belong in `docs/product/*` or `app/(modules)/docs/*`.
 - Module business boundaries belong in `app/(modules)/*/ARCHITECTURE.md` or `MODULE.md`.
 - If a reference has no inbound link or active owner for more than 90 days, Hygiene should ask the owner whether to delete it.
 

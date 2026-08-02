@@ -4,6 +4,7 @@ import {
   buildHrRouteCommand,
   listPositionReportOverrides,
   savePositionReportOverrides,
+  organizationStructureLifecycleMetaFromRequest,
 } from "@workspace/hr/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const nullablePositiveInt = z.preprocess(
   (value) => value === "" || value === undefined ? null : value,
@@ -20,6 +21,8 @@ const reportOverridesQuerySchema = z.object({
 }).passthrough();
 
 const reportOverrideRowSchema = z.object({
+  id: z.coerce.number().int().positive().optional().nullable(),
+  version: z.coerce.number().int().min(0).optional().nullable(),
   companyId: z.coerce.number().int().positive(),
   departmentId: z.coerce.number().int().positive(),
   reportToPositionId: nullablePositiveInt.optional(),
@@ -30,6 +33,12 @@ const reportOverrideRowSchema = z.object({
 const reportOverrideBodySchema = z.object({
   positionId: z.coerce.number().int().positive(),
   overrides: z.array(reportOverrideRowSchema),
+  lifecycle: z.object({
+    kind: z.enum(["schedule", "correct", "end-date", "cancel-future"]).optional(),
+    effectiveOn: z.string().optional(),
+    reason: z.string().optional().nullable(),
+    targetVersionId: z.coerce.number().int().positive().optional().nullable(),
+  }).optional(),
 });
 
 export const GET = createCommandRoute({
@@ -42,7 +51,11 @@ export const GET = createCommandRoute({
 export const PUT = createCommandRoute({
   bodySchema: reportOverrideBodySchema,
   bodyError: "特殊汇报配置无效",
-  buildCommand: ({ body, user }) => buildHrRouteCommand({ ...body, userId: user.userId }),
-  action: ({ positionId, overrides, userId }) =>
-    savePositionReportOverrides({ positionId, overrides }, userId),
+  buildCommand: ({ request, body, user }) => buildHrRouteCommand({
+    ...body,
+    lifecycle: organizationStructureLifecycleMetaFromRequest(request, { ...body.lifecycle, expectedSequence: 0 }),
+    userId: user.userId,
+  }),
+  action: ({ positionId, overrides, lifecycle, userId }) =>
+    savePositionReportOverrides({ positionId, overrides, lifecycle }, userId),
 });

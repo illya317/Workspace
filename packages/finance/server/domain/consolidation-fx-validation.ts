@@ -34,6 +34,27 @@ function validRateDate(targetDate: string, rateDate: string) {
   return Number.isFinite(difference) && difference >= 0 && difference <= 7;
 }
 
+function monthEndDates(targetDate: string) {
+  const match = /^(\d{4})-(\d{2})-\d{2}$/.exec(targetDate);
+  if (!match) return [];
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  return Array.from({ length: month }, (_, index) => (
+    new Date(Date.UTC(year, index + 1, 0)).toISOString().slice(0, 10)
+  ));
+}
+
+function cashPointDates(targetDate: string) {
+  const match = /^(\d{4})-(\d{2})-\d{2}$/.exec(targetDate);
+  if (!match) return [];
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  return [...new Set([
+    `${year - 1}-12-31`,
+    new Date(Date.UTC(year, month - 1, 0)).toISOString().slice(0, 10),
+  ])];
+}
+
 export function validateConsolidationFxFacts(
   facts: ConsolidationFxValidationFacts,
 ): DomainValidationResult<{ ready: true }> {
@@ -92,6 +113,36 @@ export function validateConsolidationFxFacts(
           "rateApplications",
         );
       }
+      for (const flowDate of monthEndDates(targetDate)) {
+        const flowAverage = rateApplications.filter(({ application }) => (
+          application.applicationType === "flowAverage"
+          && application.periodBasis === periodBasis
+          && application.entitySnapshotId === entity.id
+          && application.targetDate === flowDate
+        ));
+        if (flowAverage.length !== 1
+          || flowAverage[0]!.rate.rateKind !== "monthlyAverage"
+          || flowAverage[0]!.rate.rateDate !== flowDate
+          || flowAverage[0]!.application.voucherItemId !== null
+          || flowAverage[0]!.application.voucher !== null) {
+          return failCommand("CAD 利润表和现金流量表必须逐月绑定唯一的月平均汇率", 409, "rateApplications");
+        }
+      }
+      for (const cashDate of cashPointDates(targetDate)) {
+        const cashPoint = rateApplications.filter(({ application }) => (
+          application.applicationType === "cashPoint"
+          && application.periodBasis === periodBasis
+          && application.entitySnapshotId === entity.id
+          && application.targetDate === cashDate
+        ));
+        if (cashPoint.length !== 1
+          || (cashPoint[0]!.rate.rateKind !== "closing" && cashPoint[0]!.rate.rateKind !== "centralParity")
+          || !validRateDate(cashDate, cashPoint[0]!.rate.rateDate)
+          || cashPoint[0]!.application.voucherItemId !== null
+          || cashPoint[0]!.application.voucher !== null) {
+          return failCommand("CAD 现金流量表期初和月初现金必须绑定对应时点汇率", 409, "rateApplications");
+        }
+      }
     }
   }
 
@@ -109,9 +160,11 @@ export function validateConsolidationFxFacts(
     if (application.periodBasis !== "current" && application.periodBasis !== "comparative") {
       return failCommand("汇率应用缺少有效的本期或比较期口径", 409, "rateApplications");
     }
-    if (application.applicationType === "closing") continue;
+    if (application.applicationType === "closing"
+      || application.applicationType === "flowAverage"
+      || application.applicationType === "cashPoint") continue;
     if (application.applicationType === "historicalCapital") {
-      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.targetDate}`;
+      const key = `${application.entitySnapshotId}:${application.periodBasis}:${application.targetDate}:${application.capitalLineCode ?? "unclassified"}`;
       if (historicalCapitalKeys.has(key)) {
         return failCommand("同一境外实体、期间口径和资本发生日只能绑定一条权益资本历史汇率", 409, "rateApplications");
       }
@@ -120,6 +173,10 @@ export function validateConsolidationFxFacts(
         || application.voucher !== null
         || !application.capitalOriginalAmount
         || application.capitalOriginalAmount <= 0
+        || application.capitalLineCode !== undefined
+          && application.capitalLineCode !== null
+          && application.capitalLineCode !== "paidInCapital"
+          && application.capitalLineCode !== "capitalReserve"
         || !validRateDate(application.targetDate, rate.rateDate)
         || application.periodBasis === "comparative" && application.targetDate > facts.comparativePeriodEnd) {
         return failCommand("境外权益资本必须绑定出资日或此前7日内的历史牌价及正数原币金额", 409, "rateApplications");
@@ -135,7 +192,7 @@ export function validateConsolidationFxFacts(
       || voucher.currencyCode?.toUpperCase() !== "CAD"
       || voucher.originalAmount === null
       || !validRateDate(application.targetDate, rate.rateDate)) {
-      return failCommand("投资款必须绑定投资日或此前7日内的人民币汇率中间价及原币凭证", 409, "rateApplications");
+      return failCommand("投资款必须绑定凭证匹配的历史折算率，或投资日及此前7日内的人民币汇率中间价，并保留原币凭证", 409, "rateApplications");
     }
     if (!requiredInvestmentIds.has(application.voucherItemId)) {
       return failCommand("投资日汇率绑定了当前批次不适用的凭证明细", 409, "rateApplications");

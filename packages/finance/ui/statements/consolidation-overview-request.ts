@@ -9,6 +9,15 @@ export interface ConsolidationOverviewSelection {
   batchId: number | null;
 }
 
+export function consolidationPeriodSelectionRequiresReload(
+  current: Pick<ConsolidationOverviewSelection, "year" | "month" | "batchId">,
+  next: Pick<ConsolidationOverviewSelection, "year" | "month">,
+) {
+  return current.year !== next.year
+    || current.month !== next.month
+    || current.batchId !== null;
+}
+
 export function consolidationOverviewMatchesSelection(
   overview: ConsolidationOverview,
   selection: ConsolidationOverviewSelection,

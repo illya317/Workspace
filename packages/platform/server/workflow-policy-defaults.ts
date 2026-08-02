@@ -4,7 +4,7 @@ import type {
   WorkflowPolicyMode,
   WorkflowSeparationPolicy,
 } from "./workflow-types";
-import type { WorkflowPolicyNodeDefinition } from "./workflow-policy-nodes";
+import type { WorkflowPolicyNodeDefinition } from "./workflow-policy-node-contract";
 
 export type WorkflowPolicyDefaults = {
   businessActionKey?: string | null;

@@ -28,7 +28,7 @@ const ACCOUNT_IDENTITY_PREFIXES = [
   "packages/platform/types/session.ts",
   "packages/platform/ui/UserMenu.tsx",
   "packages/platform/ui/PortalClient.tsx",
-  "packages/platform/ui/settings/",
+  "packages/settings/ui/settings/",
 ];
 
 const BUSINESS_IDENTITY_PREFIXES = [
@@ -41,7 +41,7 @@ const BUSINESS_IDENTITY_PREFIXES = [
   "packages/platform/server/audit-log.ts",
   "packages/platform/server/business-space-natural-users.ts",
   "packages/platform/server/business-space-permissions.ts",
-  "packages/platform/server/docs-editor/permissions.ts",
+  "packages/docs/server/permissions.ts",
   "packages/platform/server/fk-search.ts",
   "packages/platform/server/history.ts",
   "packages/platform/server/notifications.ts",

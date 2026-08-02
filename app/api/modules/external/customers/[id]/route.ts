@@ -1,34 +1,47 @@
+import { z } from "zod";
+
 import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   executeDeleteExternalPartyCommand,
   executeUpdateExternalPartyCommand,
+  externalDirectCommandId,
+  externalDirectRoleEndInput,
   ExternalPartyUpdateSchema,
 } from "@workspace/external/server";
+
+const directEndSchema = z.object({
+  effectiveOn: z.iso.date().optional(),
+  reason: z.string().trim().max(500).optional().nullable(),
+}).default({});
 
 export const PATCH = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   bodySchema: ExternalPartyUpdateSchema,
   paramsError: "无效ID",
   buildCommand: ({ params, body, request, user }) => okCommand({
-    category: "customer" as const,
-    id: params.id,
-    body,
-    userId: user.userId,
-    expectedVersion: readRequestExpectedVersion(request),
-  }),
+      category: "customer" as const,
+      id: params.id,
+      body,
+      userId: user.userId,
+      expectedVersion: readRequestExpectedVersion(request),
+      idempotencyKey: externalDirectCommandId(request),
+    }),
   action: executeUpdateExternalPartyCommand,
 });
 
 export const DELETE = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
+  bodySchema: directEndSchema,
   paramsError: "无效ID",
-  buildCommand: ({ params, request, user }) => okCommand({
-    category: "customer" as const,
-    id: params.id,
-    userId: user.userId,
-    expectedVersion: readRequestExpectedVersion(request),
-  }),
+  buildCommand: ({ params, body, request, user }) => okCommand({
+      category: "customer" as const,
+      id: params.id,
+      body: externalDirectRoleEndInput("customer", body),
+      userId: user.userId,
+      expectedVersion: readRequestExpectedVersion(request),
+      idempotencyKey: externalDirectCommandId(request),
+    }),
   action: executeDeleteExternalPartyCommand,
 });

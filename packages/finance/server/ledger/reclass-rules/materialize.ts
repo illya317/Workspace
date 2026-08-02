@@ -1,6 +1,6 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 
-import { buildMaterializeReclassAdjustmentsCommand } from "../../domain/finance-validation";
+import { buildMaterializeReclassAdjustmentsCommand } from "../validation";
 import { archiveBalanceReclassAdjustment, hasSameBalanceReclassResult } from "../balance-reclass/history";
 import { loadFinanceGroupAccountMapByAccountIdsAtInTransaction } from "../group-accounts/resolve";
 import { loadApplicableRulesByPeriod } from "./applicability";

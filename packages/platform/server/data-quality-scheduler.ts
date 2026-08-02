@@ -54,19 +54,12 @@ async function pollMutationRequests() {
   }
 }
 
-export function refreshDataQualitySchedule() {
-  if (schedulerState.__workspaceDataQualityDailyTimer) {
-    clearTimeout(schedulerState.__workspaceDataQualityDailyTimer);
-    schedulerState.__workspaceDataQualityDailyTimer = undefined;
-  }
-  if (process.env.NODE_ENV === "production" && process.env.DATA_QUALITY_SCHEDULER_DISABLED !== "1") {
-    void scheduleNextDailyRun();
-  }
+export function dataQualitySchedulerEnabled() {
+  return process.env.NODE_ENV !== "test" && process.env.DATA_QUALITY_SCHEDULER_DISABLED !== "1";
 }
 
 export function startDataQualityScheduler() {
-  if (process.env.NODE_ENV !== "production") return;
-  if (process.env.DATA_QUALITY_SCHEDULER_DISABLED === "1") return;
+  if (!dataQualitySchedulerEnabled()) return;
   if (!schedulerState.__workspaceDataQualityDailyTimer) void scheduleNextDailyRun();
   if (!schedulerState.__workspaceDataQualityMutationTimer) {
     schedulerState.__workspaceDataQualityMutationTimer = setInterval(() => void pollMutationRequests(), 60_000);

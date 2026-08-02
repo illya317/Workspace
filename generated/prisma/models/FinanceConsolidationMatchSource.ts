@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceConsolidationMatchSource
- * 合并抵销匹配组的凭证分录来源（事实；allocatedAmount 允许同一来源在不同组中拆分）。
+ * 合并抵销匹配组来源（事实；资产负债表往来使用期末辅助余额，投资权益仍可使用凭证明细）。
  */
 export type FinanceConsolidationMatchSourceModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceConsolidationMatchSourcePayload>
 
@@ -32,6 +32,7 @@ export type FinanceConsolidationMatchSourceAvgAggregateOutputType = {
   entitySnapshotId: number | null
   counterpartyEntitySnapshotId: number | null
   voucherItemId: number | null
+  auxiliaryBalanceId: number | null
   sourceAmount: runtime.Decimal | null
   allocatedAmount: runtime.Decimal | null
 }
@@ -42,6 +43,7 @@ export type FinanceConsolidationMatchSourceSumAggregateOutputType = {
   entitySnapshotId: number | null
   counterpartyEntitySnapshotId: number | null
   voucherItemId: number | null
+  auxiliaryBalanceId: number | null
   sourceAmount: runtime.Decimal | null
   allocatedAmount: runtime.Decimal | null
 }
@@ -51,7 +53,9 @@ export type FinanceConsolidationMatchSourceMinAggregateOutputType = {
   matchGroupId: number | null
   entitySnapshotId: number | null
   counterpartyEntitySnapshotId: number | null
+  sourceKind: string | null
   voucherItemId: number | null
+  auxiliaryBalanceId: number | null
   matchSide: string | null
   sourceAmount: runtime.Decimal | null
   allocatedAmount: runtime.Decimal | null
@@ -65,7 +69,9 @@ export type FinanceConsolidationMatchSourceMaxAggregateOutputType = {
   matchGroupId: number | null
   entitySnapshotId: number | null
   counterpartyEntitySnapshotId: number | null
+  sourceKind: string | null
   voucherItemId: number | null
+  auxiliaryBalanceId: number | null
   matchSide: string | null
   sourceAmount: runtime.Decimal | null
   allocatedAmount: runtime.Decimal | null
@@ -79,7 +85,9 @@ export type FinanceConsolidationMatchSourceCountAggregateOutputType = {
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId: number
+  sourceKind: number
   voucherItemId: number
+  auxiliaryBalanceId: number
   matchSide: number
   sourceAmount: number
   allocatedAmount: number
@@ -96,6 +104,7 @@ export type FinanceConsolidationMatchSourceAvgAggregateInputType = {
   entitySnapshotId?: true
   counterpartyEntitySnapshotId?: true
   voucherItemId?: true
+  auxiliaryBalanceId?: true
   sourceAmount?: true
   allocatedAmount?: true
 }
@@ -106,6 +115,7 @@ export type FinanceConsolidationMatchSourceSumAggregateInputType = {
   entitySnapshotId?: true
   counterpartyEntitySnapshotId?: true
   voucherItemId?: true
+  auxiliaryBalanceId?: true
   sourceAmount?: true
   allocatedAmount?: true
 }
@@ -115,7 +125,9 @@ export type FinanceConsolidationMatchSourceMinAggregateInputType = {
   matchGroupId?: true
   entitySnapshotId?: true
   counterpartyEntitySnapshotId?: true
+  sourceKind?: true
   voucherItemId?: true
+  auxiliaryBalanceId?: true
   matchSide?: true
   sourceAmount?: true
   allocatedAmount?: true
@@ -129,7 +141,9 @@ export type FinanceConsolidationMatchSourceMaxAggregateInputType = {
   matchGroupId?: true
   entitySnapshotId?: true
   counterpartyEntitySnapshotId?: true
+  sourceKind?: true
   voucherItemId?: true
+  auxiliaryBalanceId?: true
   matchSide?: true
   sourceAmount?: true
   allocatedAmount?: true
@@ -143,7 +157,9 @@ export type FinanceConsolidationMatchSourceCountAggregateInputType = {
   matchGroupId?: true
   entitySnapshotId?: true
   counterpartyEntitySnapshotId?: true
+  sourceKind?: true
   voucherItemId?: true
+  auxiliaryBalanceId?: true
   matchSide?: true
   sourceAmount?: true
   allocatedAmount?: true
@@ -244,7 +260,9 @@ export type FinanceConsolidationMatchSourceGroupByOutputType = {
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId: number | null
-  voucherItemId: number
+  sourceKind: string
+  voucherItemId: number | null
+  auxiliaryBalanceId: number | null
   matchSide: string
   sourceAmount: runtime.Decimal
   allocatedAmount: runtime.Decimal
@@ -281,7 +299,9 @@ export type FinanceConsolidationMatchSourceWhereInput = {
   matchGroupId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   entitySnapshotId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   counterpartyEntitySnapshotId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
-  voucherItemId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
+  sourceKind?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
+  voucherItemId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
+  auxiliaryBalanceId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
   matchSide?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
   sourceAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -291,7 +311,8 @@ export type FinanceConsolidationMatchSourceWhereInput = {
   matchGroup?: Prisma.XOR<Prisma.FinanceConsolidationMatchGroupScalarRelationFilter, Prisma.FinanceConsolidationMatchGroupWhereInput>
   entity?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotScalarRelationFilter, Prisma.FinanceConsolidationEntitySnapshotWhereInput>
   counterpartyEntity?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotNullableScalarRelationFilter, Prisma.FinanceConsolidationEntitySnapshotWhereInput> | null
-  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput>
+  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  auxiliaryBalance?: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceNullableScalarRelationFilter, Prisma.FinanceAuxiliaryBalanceWhereInput> | null
 }
 
 export type FinanceConsolidationMatchSourceOrderByWithRelationInput = {
@@ -299,7 +320,9 @@ export type FinanceConsolidationMatchSourceOrderByWithRelationInput = {
   matchGroupId?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
-  voucherItemId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
+  voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   matchSide?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
@@ -310,18 +333,22 @@ export type FinanceConsolidationMatchSourceOrderByWithRelationInput = {
   entity?: Prisma.FinanceConsolidationEntitySnapshotOrderByWithRelationInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotOrderByWithRelationInput
   voucherItem?: Prisma.FinanceVoucherItemOrderByWithRelationInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceOrderByWithRelationInput
 }
 
 export type FinanceConsolidationMatchSourceWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   matchGroupId_voucherItemId?: Prisma.FinanceConsolidationMatchSourceMatchGroupIdVoucherItemIdCompoundUniqueInput
+  matchGroupId_auxiliaryBalanceId?: Prisma.FinanceConsolidationMatchSourceMatchGroupIdAuxiliaryBalanceIdCompoundUniqueInput
   AND?: Prisma.FinanceConsolidationMatchSourceWhereInput | Prisma.FinanceConsolidationMatchSourceWhereInput[]
   OR?: Prisma.FinanceConsolidationMatchSourceWhereInput[]
   NOT?: Prisma.FinanceConsolidationMatchSourceWhereInput | Prisma.FinanceConsolidationMatchSourceWhereInput[]
   matchGroupId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   entitySnapshotId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   counterpartyEntitySnapshotId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
-  voucherItemId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
+  sourceKind?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
+  voucherItemId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
+  auxiliaryBalanceId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
   matchSide?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
   sourceAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -331,15 +358,18 @@ export type FinanceConsolidationMatchSourceWhereUniqueInput = Prisma.AtLeast<{
   matchGroup?: Prisma.XOR<Prisma.FinanceConsolidationMatchGroupScalarRelationFilter, Prisma.FinanceConsolidationMatchGroupWhereInput>
   entity?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotScalarRelationFilter, Prisma.FinanceConsolidationEntitySnapshotWhereInput>
   counterpartyEntity?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotNullableScalarRelationFilter, Prisma.FinanceConsolidationEntitySnapshotWhereInput> | null
-  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput>
-}, "id" | "matchGroupId_voucherItemId">
+  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  auxiliaryBalance?: Prisma.XOR<Prisma.FinanceAuxiliaryBalanceNullableScalarRelationFilter, Prisma.FinanceAuxiliaryBalanceWhereInput> | null
+}, "id" | "matchGroupId_voucherItemId" | "matchGroupId_auxiliaryBalanceId">
 
 export type FinanceConsolidationMatchSourceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   matchGroupId?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrderInput | Prisma.SortOrder
-  voucherItemId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
+  voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrderInput | Prisma.SortOrder
   matchSide?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
@@ -361,7 +391,9 @@ export type FinanceConsolidationMatchSourceScalarWhereWithAggregatesInput = {
   matchGroupId?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number
   entitySnapshotId?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number
   counterpartyEntitySnapshotId?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number | null
-  voucherItemId?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number
+  sourceKind?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationMatchSource"> | string
+  voucherItemId?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number | null
+  auxiliaryBalanceId?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationMatchSource"> | number | null
   matchSide?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationMatchSource"> | string
   sourceAmount?: Prisma.DecimalWithAggregatesFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalWithAggregatesFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -371,6 +403,7 @@ export type FinanceConsolidationMatchSourceScalarWhereWithAggregatesInput = {
 }
 
 export type FinanceConsolidationMatchSourceCreateInput = {
+  sourceKind?: string
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -380,7 +413,8 @@ export type FinanceConsolidationMatchSourceCreateInput = {
   matchGroup: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutSourcesInput
   entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedCreateInput = {
@@ -388,7 +422,9 @@ export type FinanceConsolidationMatchSourceUncheckedCreateInput = {
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -398,6 +434,7 @@ export type FinanceConsolidationMatchSourceUncheckedCreateInput = {
 }
 
 export type FinanceConsolidationMatchSourceUpdateInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -407,7 +444,8 @@ export type FinanceConsolidationMatchSourceUpdateInput = {
   matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneRequiredWithoutSourcesNestedInput
   entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedUpdateInput = {
@@ -415,7 +453,9 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateInput = {
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -429,7 +469,9 @@ export type FinanceConsolidationMatchSourceCreateManyInput = {
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -439,6 +481,7 @@ export type FinanceConsolidationMatchSourceCreateManyInput = {
 }
 
 export type FinanceConsolidationMatchSourceUpdateManyMutationInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -452,7 +495,9 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyInput = {
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -476,12 +521,19 @@ export type FinanceConsolidationMatchSourceMatchGroupIdVoucherItemIdCompoundUniq
   voucherItemId: number
 }
 
+export type FinanceConsolidationMatchSourceMatchGroupIdAuxiliaryBalanceIdCompoundUniqueInput = {
+  matchGroupId: number
+  auxiliaryBalanceId: number
+}
+
 export type FinanceConsolidationMatchSourceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   matchGroupId?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrder
   matchSide?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
@@ -496,6 +548,7 @@ export type FinanceConsolidationMatchSourceAvgOrderByAggregateInput = {
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
 }
@@ -505,7 +558,9 @@ export type FinanceConsolidationMatchSourceMaxOrderByAggregateInput = {
   matchGroupId?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrder
   matchSide?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
@@ -519,7 +574,9 @@ export type FinanceConsolidationMatchSourceMinOrderByAggregateInput = {
   matchGroupId?: Prisma.SortOrder
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrder
   matchSide?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
@@ -534,6 +591,7 @@ export type FinanceConsolidationMatchSourceSumOrderByAggregateInput = {
   entitySnapshotId?: Prisma.SortOrder
   counterpartyEntitySnapshotId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  auxiliaryBalanceId?: Prisma.SortOrder
   sourceAmount?: Prisma.SortOrder
   allocatedAmount?: Prisma.SortOrder
 }
@@ -664,6 +722,48 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpart
   deleteMany?: Prisma.FinanceConsolidationMatchSourceScalarWhereInput | Prisma.FinanceConsolidationMatchSourceScalarWhereInput[]
 }
 
+export type FinanceConsolidationMatchSourceCreateNestedManyWithoutAuxiliaryBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput> | Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput[] | Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput[]
+  createMany?: Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInputEnvelope
+  connect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+}
+
+export type FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutAuxiliaryBalanceInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput> | Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput[] | Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput[]
+  createMany?: Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInputEnvelope
+  connect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+}
+
+export type FinanceConsolidationMatchSourceUpdateManyWithoutAuxiliaryBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput> | Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput[] | Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput[]
+  upsert?: Prisma.FinanceConsolidationMatchSourceUpsertWithWhereUniqueWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpsertWithWhereUniqueWithoutAuxiliaryBalanceInput[]
+  createMany?: Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInputEnvelope
+  set?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationMatchSourceUpdateWithWhereUniqueWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpdateWithWhereUniqueWithoutAuxiliaryBalanceInput[]
+  updateMany?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutAuxiliaryBalanceInput[]
+  deleteMany?: Prisma.FinanceConsolidationMatchSourceScalarWhereInput | Prisma.FinanceConsolidationMatchSourceScalarWhereInput[]
+}
+
+export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput> | Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput[] | Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput[]
+  connectOrCreate?: Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput[]
+  upsert?: Prisma.FinanceConsolidationMatchSourceUpsertWithWhereUniqueWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpsertWithWhereUniqueWithoutAuxiliaryBalanceInput[]
+  createMany?: Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInputEnvelope
+  set?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  disconnect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  delete?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  connect?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput | Prisma.FinanceConsolidationMatchSourceWhereUniqueInput[]
+  update?: Prisma.FinanceConsolidationMatchSourceUpdateWithWhereUniqueWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpdateWithWhereUniqueWithoutAuxiliaryBalanceInput[]
+  updateMany?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutAuxiliaryBalanceInput[]
+  deleteMany?: Prisma.FinanceConsolidationMatchSourceScalarWhereInput | Prisma.FinanceConsolidationMatchSourceScalarWhereInput[]
+}
+
 export type FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput = {
   create?: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutVoucherItemInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutVoucherItemInput> | Prisma.FinanceConsolidationMatchSourceCreateWithoutVoucherItemInput[] | Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutVoucherItemInput[]
   connectOrCreate?: Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutVoucherItemInput | Prisma.FinanceConsolidationMatchSourceCreateOrConnectWithoutVoucherItemInput[]
@@ -707,6 +807,7 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItem
 }
 
 export type FinanceConsolidationMatchSourceCreateWithoutMatchGroupInput = {
+  sourceKind?: string
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -715,14 +816,17 @@ export type FinanceConsolidationMatchSourceCreateWithoutMatchGroupInput = {
   createdAt?: Date | string
   entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedCreateWithoutMatchGroupInput = {
   id?: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -765,7 +869,9 @@ export type FinanceConsolidationMatchSourceScalarWhereInput = {
   matchGroupId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   entitySnapshotId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
   counterpartyEntitySnapshotId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
-  voucherItemId?: Prisma.IntFilter<"FinanceConsolidationMatchSource"> | number
+  sourceKind?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
+  voucherItemId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
+  auxiliaryBalanceId?: Prisma.IntNullableFilter<"FinanceConsolidationMatchSource"> | number | null
   matchSide?: Prisma.StringFilter<"FinanceConsolidationMatchSource"> | string
   sourceAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFilter<"FinanceConsolidationMatchSource"> | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -775,6 +881,7 @@ export type FinanceConsolidationMatchSourceScalarWhereInput = {
 }
 
 export type FinanceConsolidationMatchSourceCreateWithoutEntityInput = {
+  sourceKind?: string
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -783,14 +890,17 @@ export type FinanceConsolidationMatchSourceCreateWithoutEntityInput = {
   createdAt?: Date | string
   matchGroup: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutSourcesInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedCreateWithoutEntityInput = {
   id?: number
   matchGroupId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -810,6 +920,7 @@ export type FinanceConsolidationMatchSourceCreateManyEntityInputEnvelope = {
 }
 
 export type FinanceConsolidationMatchSourceCreateWithoutCounterpartyEntityInput = {
+  sourceKind?: string
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -818,14 +929,17 @@ export type FinanceConsolidationMatchSourceCreateWithoutCounterpartyEntityInput 
   createdAt?: Date | string
   matchGroup: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutSourcesInput
   entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedCreateWithoutCounterpartyEntityInput = {
   id?: number
   matchGroupId: number
   entitySnapshotId: number
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -876,7 +990,8 @@ export type FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutCounterpart
   data: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceUpdateManyMutationInput, Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityInput>
 }
 
-export type FinanceConsolidationMatchSourceCreateWithoutVoucherItemInput = {
+export type FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput = {
+  sourceKind?: string
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -886,6 +1001,62 @@ export type FinanceConsolidationMatchSourceCreateWithoutVoucherItemInput = {
   matchGroup: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutSourcesInput
   entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput
+}
+
+export type FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput = {
+  id?: number
+  matchGroupId: number
+  entitySnapshotId: number
+  counterpartyEntitySnapshotId?: number | null
+  sourceKind?: string
+  voucherItemId?: number | null
+  matchSide: string
+  sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  sourceFingerprint: string
+  createdAt?: Date | string
+}
+
+export type FinanceConsolidationMatchSourceCreateOrConnectWithoutAuxiliaryBalanceInput = {
+  where: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput>
+}
+
+export type FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInputEnvelope = {
+  data: Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInput | Prisma.FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceConsolidationMatchSourceUpsertWithWhereUniqueWithoutAuxiliaryBalanceInput = {
+  where: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceUpdateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedUpdateWithoutAuxiliaryBalanceInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceCreateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedCreateWithoutAuxiliaryBalanceInput>
+}
+
+export type FinanceConsolidationMatchSourceUpdateWithWhereUniqueWithoutAuxiliaryBalanceInput = {
+  where: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceUpdateWithoutAuxiliaryBalanceInput, Prisma.FinanceConsolidationMatchSourceUncheckedUpdateWithoutAuxiliaryBalanceInput>
+}
+
+export type FinanceConsolidationMatchSourceUpdateManyWithWhereWithoutAuxiliaryBalanceInput = {
+  where: Prisma.FinanceConsolidationMatchSourceScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationMatchSourceUpdateManyMutationInput, Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceInput>
+}
+
+export type FinanceConsolidationMatchSourceCreateWithoutVoucherItemInput = {
+  sourceKind?: string
+  matchSide: string
+  sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  sourceFingerprint: string
+  createdAt?: Date | string
+  matchGroup: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutSourcesInput
+  entity: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput
+  counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceCreateNestedOneWithoutConsolidationMatchSourcesInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedCreateWithoutVoucherItemInput = {
@@ -893,6 +1064,8 @@ export type FinanceConsolidationMatchSourceUncheckedCreateWithoutVoucherItemInpu
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
+  sourceKind?: string
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -931,7 +1104,9 @@ export type FinanceConsolidationMatchSourceCreateManyMatchGroupInput = {
   id?: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -941,6 +1116,7 @@ export type FinanceConsolidationMatchSourceCreateManyMatchGroupInput = {
 }
 
 export type FinanceConsolidationMatchSourceUpdateWithoutMatchGroupInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -949,14 +1125,17 @@ export type FinanceConsolidationMatchSourceUpdateWithoutMatchGroupInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutMatchGroupInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -969,7 +1148,9 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutMatchGroupI
   id?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -982,7 +1163,9 @@ export type FinanceConsolidationMatchSourceCreateManyEntityInput = {
   id?: number
   matchGroupId: number
   counterpartyEntitySnapshotId?: number | null
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -995,7 +1178,9 @@ export type FinanceConsolidationMatchSourceCreateManyCounterpartyEntityInput = {
   id?: number
   matchGroupId: number
   entitySnapshotId: number
-  voucherItemId: number
+  sourceKind?: string
+  voucherItemId?: number | null
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1005,6 +1190,7 @@ export type FinanceConsolidationMatchSourceCreateManyCounterpartyEntityInput = {
 }
 
 export type FinanceConsolidationMatchSourceUpdateWithoutEntityInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1013,14 +1199,17 @@ export type FinanceConsolidationMatchSourceUpdateWithoutEntityInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneRequiredWithoutSourcesNestedInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutEntityInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1033,7 +1222,9 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityInput
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1043,6 +1234,7 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityInput
 }
 
 export type FinanceConsolidationMatchSourceUpdateWithoutCounterpartyEntityInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1051,14 +1243,17 @@ export type FinanceConsolidationMatchSourceUpdateWithoutCounterpartyEntityInput 
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneRequiredWithoutSourcesNestedInput
   entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutCounterpartyEntityInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1071,7 +1266,68 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpart
   id?: Prisma.IntFieldUpdateOperationsInput | number
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchSide?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationMatchSourceCreateManyAuxiliaryBalanceInput = {
+  id?: number
+  matchGroupId: number
+  entitySnapshotId: number
+  counterpartyEntitySnapshotId?: number | null
+  sourceKind?: string
+  voucherItemId?: number | null
+  matchSide: string
+  sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: string
+  sourceFingerprint: string
+  createdAt?: Date | string
+}
+
+export type FinanceConsolidationMatchSourceUpdateWithoutAuxiliaryBalanceInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  matchSide?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneRequiredWithoutSourcesNestedInput
+  entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput
+  counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutConsolidationMatchSourcesNestedInput
+}
+
+export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutAuxiliaryBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
+  entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
+  counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchSide?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutAuxiliaryBalanceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
+  entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
+  counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1085,6 +1341,8 @@ export type FinanceConsolidationMatchSourceCreateManyVoucherItemInput = {
   matchGroupId: number
   entitySnapshotId: number
   counterpartyEntitySnapshotId?: number | null
+  sourceKind?: string
+  auxiliaryBalanceId?: number | null
   matchSide: string
   sourceAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1094,6 +1352,7 @@ export type FinanceConsolidationMatchSourceCreateManyVoucherItemInput = {
 }
 
 export type FinanceConsolidationMatchSourceUpdateWithoutVoucherItemInput = {
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1103,6 +1362,7 @@ export type FinanceConsolidationMatchSourceUpdateWithoutVoucherItemInput = {
   matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneRequiredWithoutSourcesNestedInput
   entity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput
   counterpartyEntity?: Prisma.FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput
+  auxiliaryBalance?: Prisma.FinanceAuxiliaryBalanceUpdateOneWithoutConsolidationMatchSourcesNestedInput
 }
 
 export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutVoucherItemInput = {
@@ -1110,6 +1370,8 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateWithoutVoucherItemInpu
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1123,6 +1385,8 @@ export type FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItem
   matchGroupId?: Prisma.IntFieldUpdateOperationsInput | number
   entitySnapshotId?: Prisma.IntFieldUpdateOperationsInput | number
   counterpartyEntitySnapshotId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  auxiliaryBalanceId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchSide?: Prisma.StringFieldUpdateOperationsInput | string
   sourceAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   allocatedAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1138,7 +1402,9 @@ export type FinanceConsolidationMatchSourceSelect<ExtArgs extends runtime.Types.
   matchGroupId?: boolean
   entitySnapshotId?: boolean
   counterpartyEntitySnapshotId?: boolean
+  sourceKind?: boolean
   voucherItemId?: boolean
+  auxiliaryBalanceId?: boolean
   matchSide?: boolean
   sourceAmount?: boolean
   allocatedAmount?: boolean
@@ -1148,7 +1414,8 @@ export type FinanceConsolidationMatchSourceSelect<ExtArgs extends runtime.Types.
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationMatchSource"]>
 
 export type FinanceConsolidationMatchSourceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1156,7 +1423,9 @@ export type FinanceConsolidationMatchSourceSelectCreateManyAndReturn<ExtArgs ext
   matchGroupId?: boolean
   entitySnapshotId?: boolean
   counterpartyEntitySnapshotId?: boolean
+  sourceKind?: boolean
   voucherItemId?: boolean
+  auxiliaryBalanceId?: boolean
   matchSide?: boolean
   sourceAmount?: boolean
   allocatedAmount?: boolean
@@ -1166,7 +1435,8 @@ export type FinanceConsolidationMatchSourceSelectCreateManyAndReturn<ExtArgs ext
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationMatchSource"]>
 
 export type FinanceConsolidationMatchSourceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1174,7 +1444,9 @@ export type FinanceConsolidationMatchSourceSelectUpdateManyAndReturn<ExtArgs ext
   matchGroupId?: boolean
   entitySnapshotId?: boolean
   counterpartyEntitySnapshotId?: boolean
+  sourceKind?: boolean
   voucherItemId?: boolean
+  auxiliaryBalanceId?: boolean
   matchSide?: boolean
   sourceAmount?: boolean
   allocatedAmount?: boolean
@@ -1184,7 +1456,8 @@ export type FinanceConsolidationMatchSourceSelectUpdateManyAndReturn<ExtArgs ext
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationMatchSource"]>
 
 export type FinanceConsolidationMatchSourceSelectScalar = {
@@ -1192,7 +1465,9 @@ export type FinanceConsolidationMatchSourceSelectScalar = {
   matchGroupId?: boolean
   entitySnapshotId?: boolean
   counterpartyEntitySnapshotId?: boolean
+  sourceKind?: boolean
   voucherItemId?: boolean
+  auxiliaryBalanceId?: boolean
   matchSide?: boolean
   sourceAmount?: boolean
   allocatedAmount?: boolean
@@ -1201,24 +1476,27 @@ export type FinanceConsolidationMatchSourceSelectScalar = {
   createdAt?: boolean
 }
 
-export type FinanceConsolidationMatchSourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchGroupId" | "entitySnapshotId" | "counterpartyEntitySnapshotId" | "voucherItemId" | "matchSide" | "sourceAmount" | "allocatedAmount" | "currencyCode" | "sourceFingerprint" | "createdAt", ExtArgs["result"]["financeConsolidationMatchSource"]>
+export type FinanceConsolidationMatchSourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "matchGroupId" | "entitySnapshotId" | "counterpartyEntitySnapshotId" | "sourceKind" | "voucherItemId" | "auxiliaryBalanceId" | "matchSide" | "sourceAmount" | "allocatedAmount" | "currencyCode" | "sourceFingerprint" | "createdAt", ExtArgs["result"]["financeConsolidationMatchSource"]>
 export type FinanceConsolidationMatchSourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }
 export type FinanceConsolidationMatchSourceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }
 export type FinanceConsolidationMatchSourceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   matchGroup?: boolean | Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>
   entity?: boolean | Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>
   counterpartyEntity?: boolean | Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>
+  auxiliaryBalance?: boolean | Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>
 }
 
 export type $FinanceConsolidationMatchSourcePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1227,14 +1505,17 @@ export type $FinanceConsolidationMatchSourcePayload<ExtArgs extends runtime.Type
     matchGroup: Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>
     entity: Prisma.$FinanceConsolidationEntitySnapshotPayload<ExtArgs>
     counterpartyEntity: Prisma.$FinanceConsolidationEntitySnapshotPayload<ExtArgs> | null
-    voucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs>
+    voucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs> | null
+    auxiliaryBalance: Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     matchGroupId: number
     entitySnapshotId: number
     counterpartyEntitySnapshotId: number | null
-    voucherItemId: number
+    sourceKind: string
+    voucherItemId: number | null
+    auxiliaryBalanceId: number | null
     matchSide: string
     sourceAmount: runtime.Decimal
     allocatedAmount: runtime.Decimal
@@ -1638,7 +1919,8 @@ export interface Prisma__FinanceConsolidationMatchSourceClient<T, Null = never, 
   matchGroup<T extends Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationMatchGroupDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationMatchGroupClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   entity<T extends Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshotDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationEntitySnapshotClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntitySnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   counterpartyEntity<T extends Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationEntitySnapshotClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntitySnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  voucherItem<T extends Prisma.FinanceVoucherItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  voucherItem<T extends Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  auxiliaryBalance<T extends Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs>>): Prisma.Prisma__FinanceAuxiliaryBalanceClient<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1672,7 +1954,9 @@ export interface FinanceConsolidationMatchSourceFieldRefs {
   readonly matchGroupId: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Int'>
   readonly entitySnapshotId: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Int'>
   readonly counterpartyEntitySnapshotId: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Int'>
+  readonly sourceKind: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'String'>
   readonly voucherItemId: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Int'>
+  readonly auxiliaryBalanceId: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Int'>
   readonly matchSide: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'String'>
   readonly sourceAmount: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Decimal'>
   readonly allocatedAmount: Prisma.FieldRef<"FinanceConsolidationMatchSource", 'Decimal'>
@@ -2096,6 +2380,44 @@ export type FinanceConsolidationMatchSource$counterpartyEntityArgs<ExtArgs exten
    */
   include?: Prisma.FinanceConsolidationEntitySnapshotInclude<ExtArgs> | null
   where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+/**
+ * FinanceConsolidationMatchSource.voucherItem
+ */
+export type FinanceConsolidationMatchSource$voucherItemArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceVoucherItem
+   */
+  select?: Prisma.FinanceVoucherItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceVoucherItem
+   */
+  omit?: Prisma.FinanceVoucherItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
+  where?: Prisma.FinanceVoucherItemWhereInput
+}
+
+/**
+ * FinanceConsolidationMatchSource.auxiliaryBalance
+ */
+export type FinanceConsolidationMatchSource$auxiliaryBalanceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAuxiliaryBalance
+   */
+  select?: Prisma.FinanceAuxiliaryBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAuxiliaryBalance
+   */
+  omit?: Prisma.FinanceAuxiliaryBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAuxiliaryBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAuxiliaryBalanceWhereInput
 }
 
 /**

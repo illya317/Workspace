@@ -1,0 +1,20 @@
+/// 单体报表来源例外：保留凭证，只从指定报表口径排除
+model FinanceStatementVoucherExclusion {
+  id            Int      @id @default(autoincrement())
+  voucherId     Int
+  companyCode   String
+  companyId Int?
+  statementType String // balance | income | cashflow
+  enabled       Boolean  @default(true)
+  sourceType    String   @default("reference_workpaper")
+  note          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @default(now()) @updatedAt
+
+  voucher FinanceVoucher @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+
+  @@unique([voucherId, statementType])
+  @@index([companyCode, statementType, enabled])
+  @@index([companyId])
+}

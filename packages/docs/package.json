@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/docs",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./company-documents": "./company-documents.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./ui": "./ui/index.ts"
+  }
+}

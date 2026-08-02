@@ -4,7 +4,7 @@ import type {
   WorkspaceAnalysisSourceDefinition,
   WorkspaceSourcesOperationalAnalysisDefinition,
 } from "./workspace-analysis-source-contract";
-import { PERMISSION_ACTION_KEYS } from "./permission-actions";
+import { PERMISSION_ACTION_REGISTRY_KEYS as PERMISSION_ACTION_KEYS } from "./action-registry";
 
 const memberKeySchema = z.string().trim().min(1).max(60).regex(
   /^[a-z][a-zA-Z0-9]*$/,

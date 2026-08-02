@@ -9,6 +9,7 @@ import {
   createPageBody,
   useFeedback,
   type SelectorSurfaceProps,
+  type PageSurfaceCreateSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type { ExternalParty, ExternalPartyCategory, ExternalPartyDraft } from "@workspace/external/types";
@@ -158,17 +159,13 @@ export default function ExternalPartyClient({
   async function deleteSelected() {
     if (!selected) return;
     const confirmed = await feedback.confirmDelete({
-      message: `确定移除“${selected.name}”的${labels.singular}角色吗？若主体还有其他往来角色将继续保留。`,
+      message: `确定从今天起结束“${selected.name}”的${labels.singular}角色吗？主体资料和其他往来角色将继续保留。`,
     });
     if (!confirmed) return;
-    const removedId = selected.id;
     const result = await data.remove(selected);
     if (!result.ok) return feedback.error(result.error);
-    const next = data.items.find((item) => item.id !== removedId) ?? null;
-    setSelected(next);
-    setDetailDraft(next ? { ...next } : null);
     setDirty(false);
-    feedback.success("角色已移除");
+    feedback.success("角色已结束");
   }
 
   const selector: SelectorSurfaceProps<ExternalParty> = {
@@ -216,38 +213,32 @@ export default function ExternalPartyClient({
     { kind: "text", key: "total", content: `共 ${data.total} 条` },
   ];
 
-  const createSection = {
-    key: "external-party-create",
-    body: {
-      kind: "create" as const,
-      create: {
-        id: `external-${category}-create`,
-        trigger: "toolbar" as const,
-        presentation: "block" as const,
-        title: `新增${labels.singular}`,
-        open: Boolean(createDraft),
-        canCreate,
-        disabled: saving,
-        content: {
-          kind: "sections" as const,
-          sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
-            existingCandidates: otherApiPath
-              ? candidates.items.filter((party) => !party.roles.includes(category))
-              : undefined,
-            candidatesLoading: candidates.loading,
-            candidatesError: candidates.error,
-            onExistingPartyChange: selectExistingParty,
-          }),
-        },
-        submission: {
-          action: "save" as const,
-          disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim() || !createDraft.identityNumber.trim(),
-          execute: saveCreate,
-        },
-        onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
-        onCancel: () => setCreateDraft(null),
-      },
+  const pageCreate: PageSurfaceCreateSpec = {
+    id: `external-${category}-create`,
+    presentation: "block",
+    title: `新增${labels.singular}`,
+    open: Boolean(createDraft),
+    canCreate,
+    disabled: saving,
+    content: {
+      kind: "sections",
+      sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
+        autoGenerateCode: true,
+        existingCandidates: otherApiPath
+          ? candidates.items.filter((party) => !party.roles.includes(category))
+          : undefined,
+        candidatesLoading: candidates.loading,
+        candidatesError: candidates.error,
+        onExistingPartyChange: selectExistingParty,
+      }),
     },
+    submission: {
+      action: "save",
+      disabled: saving || !createDraft?.name.trim() || !createDraft.identityNumber.trim(),
+      execute: saveCreate,
+    },
+    onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
+    onCancel: () => setCreateDraft(null),
   };
 
   const detailSection = detailDraft && selected
@@ -264,7 +255,7 @@ export default function ExternalPartyClient({
             { key: "reset", action: "reset" as const, label: "撤销修改", disabled: saving || !dirty, onClick: resetDetail },
             { key: "save", action: "save" as const, label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !detailDraft.code.trim() || !detailDraft.name.trim() || !detailDraft.identityNumber.trim(), onClick: () => void saveDetail() },
           ] : []),
-          ...(canDelete ? [{ key: "delete", action: "delete" as const, label: `移除${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
+          ...(canDelete && selected.isActive ? [{ key: "delete", action: "delete" as const, label: `结束${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
         ],
         submit: canUpdate ? { onSubmit: () => void saveDetail() } : undefined,
       })
@@ -276,13 +267,11 @@ export default function ExternalPartyClient({
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({
         master: { label: `${labels.singular}目录`, presentation: "compact", body: { kind: "selector", selector } },
-        detail: createPageBody([
-          createSection,
-          ...(createDraft ? [] : [detailSection]),
-        ]),
+        detail: createPageBody(createDraft ? [] : [detailSection]),
         desktop: { ratio: [1, 3] },
       })}
       footer={{

@@ -1,14 +1,14 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { isDepartmentResponsiblePositionUser } from "@workspace/platform/server/business-space-permissions";
-import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { currentEmploymentDateWhere } from "@workspace/platform/server/relation-registry";
-import { canUserActAsActiveEmployee } from "@workspace/platform/server/user-identity";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import { isCompletedStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import type { ProjectCreateInput } from "../schemas";
 import {
   canDeleteProjectAction,
   canManageProject,
   canUpdateProjectAction,
+  getUserEmployeeIds,
   isSystemAdminUser,
 } from "../access";
 import {
@@ -26,6 +26,12 @@ import {
   parseDate,
 } from "../project-normalization";
 import { employeesFitProjectMemberDepartmentScope } from "../project-member-department-scope";
+import { projectMemberHasActiveEmploymentOnDate } from "../project-access-temporal";
+import {
+  countEmployeeReferences,
+  findProjectUpdateReference,
+  listProjectRascMemberReferences,
+} from "../project-reference-adapter";
 
 export type ProjectFieldUpdateCommand =
   | { kind: "field"; data: Record<string, unknown>; enablingDepartmentIds?: number[] };
@@ -72,11 +78,9 @@ export async function buildProjectCreateCommand(
   if (input.completionPercent !== null && input.completionPercent !== undefined && input.completionPercent < 0) return failCommand("完成度不能小于 0");
 
   const projectType = normalizeProjectType(input.projectType);
-  const actorEmployee = await prisma.employee.findFirst({
-    where: { userId, employments: { some: currentEmploymentDateWhere() } },
-    select: { id: true },
-  });
-  if (!actorEmployee && !(await canUserActAsActiveEmployee(userId))) return failCommand("只有在职员工或管理员可以发起项目", 403);
+  const actorEmployeeId = (await getUserEmployeeIds(userId))[0] ?? null;
+  const actorEmployee = actorEmployeeId ? { id: actorEmployeeId } : null;
+  if (!actorEmployee && !(await isSystemAdminUser(userId))) return failCommand("只有在职员工或管理员可以发起项目", 403);
   const enablingDepartmentResult = await normalizeEnablingDepartmentIds(
     input.enablingDepartmentIds,
   );
@@ -97,7 +101,7 @@ export async function buildProjectCreateCommand(
   const memberIds = requestedMembers.map((member) => member.employeeId);
   if (new Set(memberIds).size !== memberIds.length) return failCommand("同一项目人员不能重复承担多个角色");
   if (requestedMembers.filter((member) => member.role === "负责人").length > 1) return failCommand("项目只能设置一名负责人");
-  const existingMembers = memberIds.length ? await prisma.employee.count({ where: { id: { in: memberIds } } }) : 0;
+  const existingMembers = await countEmployeeReferences(memberIds);
   if (existingMembers !== memberIds.length) return failCommand("项目人员不存在");
   const scopedMemberIds = requestedMembers
     .filter((member) => member.role !== "知会")
@@ -175,19 +179,7 @@ export async function buildProjectFieldUpdateCommand(input: {
     });
   }
 
-  const project = await prisma.project.findUnique({
-    where: { id: projectId },
-    select: {
-      id: true,
-      status: true,
-      plannedStartDate: true,
-      plannedEndDate: true,
-      actualStartDate: true,
-      actualEndDate: true,
-      projectType: true,
-      leadingDepartmentId: true,
-    },
-  });
+  const project = await findProjectUpdateReference(projectId);
   if (!project) return failCommand("记录不存在", 404);
   const projectType = normalizeProjectType(project.projectType);
   let systemDerivedData: { leadingDepartmentId?: number | null } = {};
@@ -271,12 +263,12 @@ export async function validateProjectDeleteCommand(
 }
 
 async function projectRascMembersFitDepartments(projectId: number, projectType: string, departmentIds: number[], actorUserId: number) {
-  const members = await prisma.employeeProject.findMany({
-    where: { projectId, role: { in: ["负责人", "项目负责人", "执行负责", "支持协作", "咨询参与"] } },
-    select: { employeeId: true },
-  });
+  const members = await listProjectRascMemberReferences(projectId);
+  const asOfDate = workspaceBusinessDate(new Date());
   return employeesFitProjectMemberDepartmentScope({
-    employeeIds: members.map((member) => member.employeeId),
+    employeeIds: members
+      .filter((member) => projectMemberHasActiveEmploymentOnDate(member, member.employee.employments, asOfDate))
+      .map((member) => member.employeeId),
     actorUserId,
     projectType,
     departmentIds,

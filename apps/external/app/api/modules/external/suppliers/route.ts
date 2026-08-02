@@ -3,6 +3,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   executeCreateExternalPartyCommand,
+  externalDirectCommandId,
   ExternalPartyCreateSchema,
   ExternalPartyQuerySchema,
   listExternalParties,
@@ -16,6 +17,11 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: ExternalPartyCreateSchema,
-  buildCommand: ({ body, user }) => okCommand({ category: "supplier" as const, body, userId: user.userId }),
+  buildCommand: ({ body, user, request }) => okCommand({
+    category: "supplier" as const,
+    body,
+    userId: user.userId,
+    idempotencyKey: externalDirectCommandId(request),
+  }),
   action: executeCreateExternalPartyCommand,
 });

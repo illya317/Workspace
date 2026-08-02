@@ -1,0 +1,8 @@
+import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+import { listNotificationSubscriptionCatalog } from "@workspace/platform/server/notification-subscriptions";
+
+export const GET = createApiRouteHandler({
+  handler: async ({ user }) => ({
+    items: await listNotificationSubscriptionCatalog(user.userId),
+  }),
+});

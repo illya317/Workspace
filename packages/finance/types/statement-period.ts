@@ -39,6 +39,15 @@ export function isStatementPeriodEnd(
   return period.month >= 1 && period.month <= 12;
 }
 
+export function statementPeriodStartMonth(
+  month: number,
+  kind: StatementPeriodKind,
+) {
+  if (kind === "year") return 1;
+  if (kind === "quarter") return month - 2;
+  return month;
+}
+
 export function formatStatementPeriodEndLabel(input: StatementPeriodEndInput) {
   const explicit = parseIsoDate(input.endDate);
   if (explicit) {

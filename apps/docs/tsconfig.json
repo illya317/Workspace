@@ -28,6 +28,9 @@
       "path": "../../packages/core"
     },
     {
+      "path": "../../packages/docs"
+    },
+    {
       "path": "../../packages/platform"
     },
     {

@@ -1,7 +1,56 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { aggregateHistoricalCapitalFacts } from "./consolidation-rate-applications";
+import {
+  aggregateHistoricalCapitalFacts,
+  cadAmountFromDescription,
+  parseVoucherMatchingEvidence,
+  resolveCadInvestmentOriginalAmount,
+} from "./consolidation-rate-applications";
+
+test("reads CAD remittance amounts only from explicit original-currency evidence", () => {
+  assert.equal(cadAmountFromDescription("付投资款（321462.29加币）"), 321_462.29);
+  assert.equal(cadAmountFromDescription("CAD 20,000.50 investment"), 20_000.5);
+  assert.equal(cadAmountFromDescription("付投资款 107949.00 元"), null);
+  assert.equal(resolveCadInvestmentOriginalAmount({
+    investment: {
+      originalDebit: null,
+      originalCredit: null,
+      currencyCode: null,
+      description: "付加拿大投资款",
+    },
+    voucherDescription: "",
+    voucherItems: [{
+      originalDebit: null,
+      originalCredit: { toString: () => "20000" } as never,
+      currencyCode: "CAD",
+    }],
+  }), 20_000);
+});
+
+test("reads an explicit consolidation match from voucher evidence", () => {
+  assert.deepEqual(parseVoucherMatchingEvidence({
+    kind: "finance-consolidation-voucher",
+    evidence: {
+      matching: {
+        label: "加拿大公司实收资本",
+        companyCode: "05",
+        lineCode: "paidInCapital",
+        currencyCode: "CAD",
+        originalAmount: 100_000,
+        historicalRate: 5.05056,
+      },
+    },
+  }), {
+    label: "加拿大公司实收资本",
+    companyCode: "05",
+    lineCode: "paidInCapital",
+    currencyCode: "CAD",
+    originalAmount: 100_000,
+    historicalRate: 5.05056,
+  });
+  assert.equal(parseVoucherMatchingEvidence({ evidence: { matching: { label: "加拿大" } } }), null);
+});
 
 test("aggregates opening capital and posted capital movements by company and occurrence date", () => {
   const facts = aggregateHistoricalCapitalFacts({
@@ -52,11 +101,12 @@ test("aggregates opening capital and posted capital movements by company and occ
     targetDate: fact.targetDate,
     originalAmount: fact.originalAmount,
   })), [
-    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 421_462.29 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 100_000 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 321_462.29 },
     { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6 },
   ]);
   assert.match(facts[0]!.evidence, /最早可用账期期初余额/);
-  assert.match(facts[1]!.evidence, /2024-04-记-0004/);
+  assert.match(facts[2]!.evidence, /2024-04-记-0004/);
 });
 
 test("ignores debit-side reductions and zero capital facts in the current additive policy", () => {

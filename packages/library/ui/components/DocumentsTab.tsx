@@ -19,14 +19,14 @@ import {
   PageSurface,
   useFeedback,
 } from "@workspace/core/ui";
-import type { DataSurfaceProps, BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { DataSurfaceProps, BodySurfaceSectionSpec, PageSurfaceCreateSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { DirectoryNode, LibraryDocumentItem } from "@workspace/library/types";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS,
   LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS,
 } from "./library-document-options";
 import { declareDirectoryTreeItems } from "./directory-selector";
-import { createLibraryUploadModal } from "./library-upload-modal";
+import { createLibraryUploadSection } from "./library-upload-section";
 import { createLibraryDocumentColumns } from "./library-document-columns";
 import { deleteDocumentPermanently } from "../hooks/useLibraryDocuments";
 
@@ -111,6 +111,8 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   };
 
   const openUpload = () => {
+    setFolderEditor(null);
+    setFolderName("");
     resetUpload();
     setUploadDirectoryPath(filters.directoryPath || "");
     setUploadOpen(true);
@@ -262,7 +264,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
     toolbarItems.push({
       kind: "action-group",
       key: "library-upload",
-      actions: [{ key: "upload", kind: "upload", label: "上传文件", onClick: openUpload }],
+      actions: [{ key: "upload", kind: "upload", label: "上传文件", disabled: uploadOpen, onClick: openUpload }],
     });
   }
   toolbarItems.push(
@@ -313,15 +315,9 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
     deletingDocumentId,
     onDelete: (document) => void deleteDocument(document),
   });
-  const sections: BodySurfaceSectionSpec[] = [
-    ...(canConfigure ? [{
-      key: "library-folder-create",
-      body: {
-        kind: "create" as const,
-        create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = canConfigure ? {
           id: "library-folder-create",
-          trigger: "toolbar" as const,
-          presentation: "modal" as const,
+          presentation: "block",
           title: "新建文件夹",
           open: folderEditor?.mode === "create",
           content: { kind: "form" as const, form: { layout: { columns: 1 as const }, items: [{
@@ -336,9 +332,8 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
           submission: { action: "save" as const, disabled: !folderName.trim(), execute: createFolder },
           feedback: { saved: "文件夹已创建" },
           onOpenChange: (open: boolean) => { if (open) openCreateFolder(); else closeFolderEditor(); },
-        },
-      },
-    }] : []),
+        } : undefined;
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error
       ? [createEmptySection("error", {
           compact: true,
@@ -361,8 +356,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
       } satisfies DataSurfaceProps<LibraryDocumentItem>) as DataSurfaceProps },
     },
   ];
-  const uploadModal = createLibraryUploadModal({
-    open: uploadOpen,
+  const uploadSection = createLibraryUploadSection({
     saving: uploadSaving,
     file: uploadFile,
     title: uploadTitle,
@@ -385,6 +379,7 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
   return (
     <>
       <PageSurface kind="standard"
+        create={uploadOpen ? undefined : pageCreate}
         toolbar={{ items: toolbarItems }}
         body={createPageBody([{
           key: "library-documents-workspace",
@@ -427,9 +422,10 @@ export default function DocumentsTab({ canImport, canExport, canConfigure }: Pro
               emptyText: dirError ? `目录加载失败: ${dirError}` : "暂无目录",
             },
           } },
-          detail: createPageBody(sections),
+          detail: createPageBody(uploadOpen ? [uploadSection] : sections),
+          mobile: { detailActive: uploadOpen, onNavigateToList: closeUpload },
           }),
-        }, uploadModal])}
+        }])}
         footer={totalPages > 1 ? {
           pagination: {
             page,

@@ -4,6 +4,7 @@ import { runRegisteredWorkspaceAnalysisSource } from "@workspace/platform/server
 import { WorkspaceAnalysisRuntimeError, type WorkspaceAnalysisSourceLoadRequest } from "@workspace/platform/server/workspace-analysis-runtime";
 
 import { listExternalParties } from "./external-party-service";
+import { listExternalRelatedParties } from "./related-parties";
 import {
   buildExternalWorkspaceAnalysisSourceCatalog,
   canDiscoverExternalWorkspaceAnalysisSource,
@@ -24,6 +25,16 @@ export function loadExternalWorkspaceAnalysisSource(request: WorkspaceAnalysisSo
     loadPage: async ({ registration, requesterId, parameters, page, pageSize, signal }) => {
       if (signal.aborted) throw new WorkspaceAnalysisRuntimeError("cancelled", "经营分析运行已取消", request.sourceKey);
       const sourceKey = registration.definition.sourceKey;
+      if (sourceKey === "external.related-parties") {
+        const result = await listExternalRelatedParties({
+          keyword: typeof parameters.keyword === "string" ? parameters.keyword : undefined,
+          relatedPartyType: relatedPartyTypeParameter(parameters.relatedPartyType),
+          asOfDate: typeof parameters.asOfDate === "string" ? parameters.asOfDate : undefined,
+          page,
+          pageSize,
+        });
+        return { rows: result.items, totalRows: result.total };
+      }
       const category = sourceKey === "external.customers" || sourceKey === "external.customer-roles"
         ? "customer"
         : sourceKey === "external.suppliers" || sourceKey === "external.supplier-roles"
@@ -52,6 +63,16 @@ export function loadExternalWorkspaceAnalysisSource(request: WorkspaceAnalysisSo
       return { rows: result.items, totalRows: result.total };
     },
   });
+}
+
+function relatedPartyTypeParameter(value: string | number | boolean | undefined) {
+  return value === "group"
+    || value === "joint_venture_associate"
+    || value === "investor_influence"
+    || value === "key_management_related"
+    || value === "other_related"
+    ? value
+    : undefined;
 }
 
 async function loadVisiblePartyRoleRows(input: {

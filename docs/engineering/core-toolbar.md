@@ -40,6 +40,7 @@ Toolbar 只能用标准 item 表达常见能力：
 | 筛选区短标题 | `label` |
 | 紧凑分组筛选 | `option-group` |
 | 二段式字段筛选 | `field-filter` |
+| 多组低频枚举筛选 | `filter-panel` |
 | 列显隐 | `column-toggle` |
 | 条/页 | `page-size` |
 | 文本元信息 | `text` |
@@ -65,6 +66,9 @@ primary -> search -> filter -> edit/action -> meta/view
 - `search` 自动进入搜索区。
 - 每个 Toolbar 只允许一个 `search`；需要多条件时合并为页面级搜索，或把字段条件声明为 `field-filter` 等结构化筛选。Core runtime 与 architecture gate 都会阻断多个 `search`。
 - `select`、`grouped-select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
+- `filter-panel` 把多组低频枚举条件收进一个桌面弹层；业务只声明字段、选项、当前值和变更回调。Core 根据非默认值生成数量与可清除摘要，移动端直接展开到“筛选条件”底部面板。
+- `filter-panel` 的桌面入口只显示筛选图标，生效数量使用角标；字段名称和值只在展开面板和生效条件摘要中显示。
+- `filter-panel` 的桌面弹层使用 intrinsic 宽度随内容收缩，内容过宽时才受统一上限与视口边界约束；业务不得声明或覆盖弹层宽度。
 - `period mode="nav"` 默认提供上一期/下一期；需要跨期跳转时声明 `picker`，中间期间即可按 `year / quarter / month / week` 打开对应选择面板。业务页不得另画年份、季度、月份或周选择弹层。
 - `icon-button`、`action-group`、`edit-group` 自动进入动作区。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
@@ -90,6 +94,8 @@ Toolbar 动作按钮只能来自 Core `ActionGlyph` 封闭集合。
   - `ACTION_GLYPH_ORDER`
 
 ## 5. 短筛选平铺与 Micro 手风琴
+
+筛选数量超过工具栏合理宽度时，不继续平铺多个 `select`。保留搜索、关键期间或版本等高频上下文，将其余固定枚举声明为一个 `filter-panel`。默认值不生成摘要；非默认值由 Core 在触发器旁回显并允许逐项清除。
 
 Toolbar 内的 `option-group` 由 Core 自动选择展示方式：
 
@@ -130,7 +136,7 @@ Toolbar 承载工具、筛选、动作和元信息；TabBar 承载页面内平�
 已收口入口：
 
 - `PageSurface.toolbar.items?: ToolbarItem[]`
-- 页面级搜索、筛选、刷新、导出和分页必须上移到 `PageSurface.toolbar` / `PageSurface.footer.pagination`。标准新建用 `CreateSurface trigger="toolbar"` 派生唯一 Toolbar `+`；`presentation="inline"` 时新建行固定在 Page Toolbar 正下方，block/modal 则仍在声明位置或弹窗呈现。局部 section `+` 通过 `BodySurfaceSectionHeaderSpec.create` 声明，其 block 由 Core 固定在该 header 正下方、section body 正上方，不允许业务自配 anchor；需要直接追加可编辑表格行时使用 section header 的 `presentation: "row"` 变种。业务侧显式 toolbar `kind: "create"` 和手工 section `+` 已禁止，由 `arch:create-surface-entry` 阻断。
+- 页面级搜索、筛选、刷新和导出必须上移到 `PageSurface.toolbar`；全宽分页放在 `PageSurface.footer.pagination`，split 主列表分页放在 `createMasterDetailBody().master.footer.pagination`。标准页面级新建只能声明单值 `PageSurface.create`，由 PageSurface 派生唯一 Toolbar `+`；普通正文的 `presentation="inline"` 固定在 Page Toolbar 正下方，block/modal 也由 PageSurface 统一承载。body 含 split 时，inline/block 固定进入右侧详情区且新建期间锁定主栏可见，禁止横跨左右两栏。局部 section `+` 通过 `BodySurfaceSectionHeaderSpec.create` 或 `BodySurface kind="create" trigger="surface"` 声明。业务侧 `trigger="toolbar"`、显式 toolbar `kind: "create"` 和手工 section `+` 已禁止，由 `arch:create-surface-entry` 阻断。
 - 一个 PageSurface 只能渲染一条 page toolbar。BodySurface split 的侧栏开关只提供状态与回调，由 PageSurface integration 合并进该 toolbar；Body/Data/Form/Create 等正文 Surface 禁止 import 或渲染 `<Toolbar>`。`surfaceOwnsPageChrome` gate 同时检查类型 contract 与 Surface runtime JSX。
 - 根表单的保存、提交、取消、归档/取消归档、批准、拒绝等生命周期动作必须声明在 `FormSurface.actions`，由 FormSurface 固定渲染在表单顶部动作栏；包含表单的父 Section、Page toolbar 和 DataSurface 不得代管这些动作。
 - `FormSurfaceActionSpec` 只允许业务声明 `key / action / label / disabled / onClick`。业务不得声明 `icon / variant / size / presentation / section / order / commandPlacement`；Core 按 `ACTION_GLYPH_ACTIONS` 选择图标和样式，并按 `ACTION_GLYPH_ORDER` 排序。

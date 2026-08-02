@@ -76,6 +76,26 @@ export interface VisualizationComparisonBarsSpec {
   legend?: VisualizationLegendSpec[];
 }
 
+export interface VisualizationCandlestickPointSpec {
+  key: string;
+  label: string;
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume?: number | null;
+}
+
+export interface VisualizationCandlestickSpec {
+  kind: "candlestick";
+  points: VisualizationCandlestickPointSpec[];
+  movingAveragePeriods?: number[];
+  directionConvention?: "red-up" | "green-up";
+  height?: number;
+  emptyText?: string;
+  volumeLabel?: string;
+}
+
 export interface VisualizationTreeBadgeSpec {
   key: string;
   label: string;
@@ -136,13 +156,28 @@ export interface VisualizationNetworkGroupSpec {
   layoutOrder?: number;
 }
 
+export interface VisualizationNetworkBackNavigationSpec {
+  label: string;
+  onActivate: () => void;
+}
+
+export interface VisualizationNetworkEdgeDirectionLegendSpec {
+  outgoingLabel: string;
+  incomingLabel: string;
+  selfReferenceLabel?: string;
+}
+
 export interface VisualizationNetworkSpec {
   kind: "network";
+  presentation?: "diagram" | "map";
   layout?: VisualizationNetworkLayoutSpec;
   groups?: VisualizationNetworkGroupSpec[];
   nodes: VisualizationNetworkNodeSpec[];
   edges: VisualizationNetworkEdgeSpec[];
   focusNodeKey?: string;
+  onNodeSelect?: (nodeKey: string) => void;
+  backNavigation?: VisualizationNetworkBackNavigationSpec;
+  edgeDirectionLegend?: VisualizationNetworkEdgeDirectionLegendSpec;
   emptyText?: string;
   height?: number;
 }
@@ -151,6 +186,7 @@ export type VisualizationSpec =
   | VisualizationBarChartSpec
   | VisualizationGroupedBarChartSpec
   | VisualizationComparisonBarsSpec
+  | VisualizationCandlestickSpec
   | VisualizationTreeSpec
   | VisualizationNetworkSpec;
 

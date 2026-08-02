@@ -22,7 +22,7 @@ const entries: PortalEntry[] = [
 
 const validKeys = new Set(entries.map((entry) => entry.key));
 
-test("previous 9+2 preferences migrate to 12+2 without turning shortcuts into cards", () => {
+test("previous 9+2 preferences migrate to 13+2 without turning shortcuts into cards", () => {
   const normalized = normalizePortalSlots([
     { key: "quality", pinned: false },
     { key: "work.plan", pinned: false },
@@ -34,7 +34,7 @@ test("previous 9+2 preferences migrate to 12+2 without turning shortcuts into ca
 
   assert.equal(normalized.length, MAX_PORTAL_SLOTS);
   assert.deepEqual(normalized.slice(0, MAX_PRIMARY_PORTAL_SLOTS).map((slot) => slot.key), [
-    "quality", "work.plan", "hr", null, null, null, null, null, null, null, null, null,
+    "quality", "work.plan", "hr", null, null, null, null, null, null, null, null, null, null,
   ]);
   assert.deepEqual(normalized.slice(MAX_PRIMARY_PORTAL_SLOTS).map((slot) => slot.key), ["hr.performance", "admin"]);
 });
@@ -65,7 +65,7 @@ test("personalized desktop contains only selected card positions", () => {
   assert.deepEqual(cards.filter(({ slot }) => slot.pinned).map(({ entry }) => entry.key), ["work.plan"]);
 });
 
-test("default configuration contains at most twelve L1 cards and two shortcuts", () => {
+test("default configuration contains at most thirteen L1 cards and two shortcuts", () => {
   const manyEntries: PortalEntry[] = [
     ...Array.from({ length: 15 }, (_, index): PortalEntry => ({
       key: `module-${index + 1}`,

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Data"
+  short_description: "Change Workspace schema, migrations, and data flows"
+  default_prompt: "Use $workspace-data to implement this Workspace schema or governed data change."

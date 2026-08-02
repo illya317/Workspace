@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { createMeeting, listMeetings } from "@workspace/work/server";
+import { createMeeting, listMeetings } from "@workspace/work/server/meetings";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

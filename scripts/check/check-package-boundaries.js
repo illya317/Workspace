@@ -3,138 +3,51 @@
 const fs = require("fs");
 const path = require("path");
 const {
+  WORKSPACE_EXPORT_SOURCE_ROOTS,
   isWorkspacePackageRootAlias,
   resolveExportTarget,
   resolveRelativePackageBoundary,
   shouldEnforceRelativePackageBoundary,
 } = require("./workspace-package-boundaries");
+const {
+  PACKAGE_NAMES,
+  isPackageDependencyAllowed,
+  packageNameFromWorkspaceSpecifier,
+  workspacePackageAlias,
+} = require("../arch/package-dependency-policy.cjs");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const PACKAGES_DIR = path.join(ROOT, "packages");
-const WORKSPACE_PACKAGES = {
-  "@workspace/core": "core",
-  "@workspace/platform": "platform",
-  "@workspace/administration": "administration",
-  "@workspace/library": "library",
-  "@workspace/hr": "hr",
-  "@workspace/inventory": "inventory",
-  "@workspace/production": "production",
-  "@workspace/finance": "finance",
-  "@workspace/capital-securities": "capital-securities",
-  "@workspace/external": "external",
-  "@workspace/work": "work",
-};
+const WORKSPACE_PACKAGES = Object.fromEntries(
+  PACKAGE_NAMES.map((packageName) => [workspacePackageAlias(packageName), packageName]),
+);
 
 const API_MODULE_OWNERS = {
   administration: "administration",
+  docs: "docs",
   capitalSecurities: "capital-securities",
   external: "external",
   finance: "finance",
   hr: "hr",
   inventory: "inventory",
   library: "library",
+  news: "news",
   production: "production",
   work: "work",
 };
 
-const PACKAGE_RULES = {
-  core: {
-    forbidden: [
-      { pattern: /^@workspace\/(platform|administration|library|hr|inventory|production|finance|capital-securities|external|work)(\/|$)/, reason: "core must not depend on platform or domain packages" },
-      { pattern: /^@\//, reason: "core must not import app/server/lib aliases" },
-    ],
-  },
-  platform: {
-    forbidden: [
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "platform package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain packages" },
-      { pattern: /^@\/app\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain UI directly" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "platform must not import domain services directly" },
-    ],
-  },
-  administration: {
-    forbidden: [
-      { pattern: /^@workspace\/(library|hr|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "administration must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "administration package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(library|hr|finance|production|capital-securities|external|work)(\/|$)/, reason: "administration must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(library|hr|finance|production|capital-securities|external|work)(\/|$)/, reason: "administration must not import other domain services" },
-    ],
-  },
-  library: {
-    forbidden: [
-      { pattern: /^@workspace\/(hr|inventory|finance|production|capital-securities|external|work|administration)(\/|$)/, reason: "library must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "library package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(hr|finance|production|capital-securities|external|work|administration)(\/|$)/, reason: "library must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(hr|finance|production|capital-securities|external|work|administration)(\/|$)/, reason: "library must not import other domain services" },
-    ],
-  },
-  hr: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|inventory|finance|production|capital-securities|external|work)(\/|$)/, reason: "hr must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "hr package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|finance|production|capital-securities|external|work)(\/|$)/, reason: "hr must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|finance|production|capital-securities|external|work)(\/|$)/, reason: "hr must not import other domain services" },
-    ],
-  },
-  finance: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|inventory|production|capital-securities|external|work)(\/|$)/, reason: "finance must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "finance package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|production|capital-securities|external|work)(\/|$)/, reason: "finance must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|production|capital-securities|external|work)(\/|$)/, reason: "finance must not import other domain services" },
-    ],
-  },
-  production: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|capital-securities|external|work)(\/|$)/, reason: "production must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "production package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|capital-securities|external|work)(\/|$)/, reason: "production must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|capital-securities|external|work)(\/|$)/, reason: "production must not import other domain services" },
-    ],
-  },
-  external: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|production|capital-securities|work)(\/|$)/, reason: "external must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "external package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production|capital-securities|work)(\/|$)/, reason: "external must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|capital-securities|work)(\/|$)/, reason: "external must not import other domain services" },
-    ],
-  },
-  "capital-securities": {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|production|external|work)(\/|$)/, reason: "capital-securities must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "capital-securities package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production|external|work)(\/|$)/, reason: "capital-securities must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|external|work)(\/|$)/, reason: "capital-securities must not import other domain services" },
-    ],
-  },
-  inventory: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|finance|production|capital-securities|external|work)(\/|$)/, reason: "inventory must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "inventory package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production|capital-securities|external|work)(\/|$)/, reason: "inventory must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|capital-securities|external|work)(\/|$)/, reason: "inventory must not import other domain services" },
-    ],
-  },
-  work: {
-    forbidden: [
-      { pattern: /^@workspace\/(administration|library|hr|inventory|finance|production|capital-securities|external)(\/|$)/, reason: "work must not depend on other domain packages" },
-      { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
-      { pattern: /^@\/(lib|server|generated)(\/|$)/, reason: "work package must use package-owned contracts instead of app-root runtime aliases" },
-      { pattern: /^@\/app\/(administration|library|hr|finance|production|capital-securities|external)(\/|$)/, reason: "work must not import other domain UI" },
-      { pattern: /^@\/server\/services\/(administration|library|hr|finance|production|capital-securities|external)(\/|$)/, reason: "work must not import other domain services" },
-    ],
-  },
-};
+const PACKAGES_WITH_STRICT_APP_ROOT_IMPORTS = new Set(["agent", "core", "docs", "settings"]);
+const PACKAGE_RULES = Object.fromEntries(PACKAGE_NAMES.map((packageName) => [packageName, {
+  forbidden: PACKAGES_WITH_STRICT_APP_ROOT_IMPORTS.has(packageName)
+    ? [{ pattern: /^@\//, reason: `${packageName} package must not import app-root aliases` }]
+    : [
+        { pattern: /^@\/app\//, reason: "packages must not import Next app route shells" },
+        {
+          pattern: /^@\/(lib|server|generated)(\/|$)/,
+          reason: `${packageName} package must use package-owned contracts instead of app-root runtime aliases`,
+        },
+      ],
+}]));
 
 function walk(dir, files = []) {
   if (!fs.existsSync(dir)) return files;
@@ -167,6 +80,10 @@ function stripComments(text) {
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
+function stripQuotedStringLiterals(text) {
+  return text.replace(/(["'])(?:\\.|(?!\1)[^\\\r\n])*\1/g, '""');
+}
+
 function referencedApiModuleOwners(text) {
   const owners = new Set();
   const pattern = /\/api\/modules\/([A-Za-z][A-Za-z0-9_-]*)/g;
@@ -192,10 +109,12 @@ const UI_PRIMITIVE_RULES = [
   },
   {
     pattern: /\bwindow\.confirm\s*\(/,
+    ignoreQuotedStrings: true,
     reason: "packages must use @workspace/core/ui useFeedback instead of window.confirm",
   },
   {
     pattern: /\b(?:window\.)?alert\s*\(/,
+    ignoreQuotedStrings: true,
     reason: "packages must use a shared toast/error surface instead of browser alert",
   },
   {
@@ -244,7 +163,7 @@ for (const rule of FORBIDDEN_LEGACY_FILES) {
   }
 }
 
-for (const packageName of Object.keys(PACKAGE_RULES)) {
+for (const packageName of PACKAGE_NAMES) {
   const packageDir = path.join(PACKAGES_DIR, packageName);
   const files = walk(packageDir);
   for (const file of files) {
@@ -269,6 +188,33 @@ for (const packageName of Object.keys(PACKAGE_RULES)) {
       }
     }
     for (const specifier of imports) {
+      let targetPackage = null;
+      try {
+        targetPackage = packageNameFromWorkspaceSpecifier(specifier);
+      } catch (error) {
+        violations.push({
+          file: path.relative(ROOT, file).replace(/\\/g, "/"),
+          specifier,
+          reason: error instanceof Error ? error.message : String(error),
+        });
+        continue;
+      }
+      if (targetPackage && !isPackageDependencyAllowed(packageName, targetPackage)) {
+        violations.push({
+          file: path.relative(ROOT, file).replace(/\\/g, "/"),
+          specifier,
+          reason: `package policy does not allow ${packageName} to depend on ${targetPackage}`,
+        });
+        continue;
+      }
+      if (targetPackage && targetPackage !== packageName && specifier === workspacePackageAlias(targetPackage)) {
+        violations.push({
+          file: path.relative(ROOT, file).replace(/\\/g, "/"),
+          specifier,
+          reason: "implementation code must use an explicit exported subpath instead of a cross-package root barrel",
+        });
+        continue;
+      }
       for (const rule of PACKAGE_RULES[packageName].forbidden) {
         if (rule.pattern.test(specifier)) {
           violations.push({
@@ -281,7 +227,8 @@ for (const packageName of Object.keys(PACKAGE_RULES)) {
     }
 
     for (const rule of UI_PRIMITIVE_RULES) {
-      if (rule.pattern.test(code)) {
+      const scanText = rule.ignoreQuotedStrings ? stripQuotedStringLiterals(code) : code;
+      if (rule.pattern.test(scanText)) {
         violations.push({
           file: path.relative(ROOT, file).replace(/\\/g, "/"),
           specifier: "native UI primitive",
@@ -311,7 +258,8 @@ for (const packageName of Object.keys(PACKAGE_RULES)) {
 for (const file of walk(path.join(ROOT, "app"))) {
   const code = stripComments(fs.readFileSync(file, "utf8"));
   for (const rule of UI_PRIMITIVE_RULES) {
-    if (rule.pattern.test(code)) {
+    const scanText = rule.ignoreQuotedStrings ? stripQuotedStringLiterals(code) : code;
+    if (rule.pattern.test(scanText)) {
       violations.push({
         file: path.relative(ROOT, file).replace(/\\/g, "/"),
         specifier: "native UI primitive",
@@ -335,7 +283,7 @@ function getWorkspacePackageSpecifier(specifier) {
 }
 
 function sourceFilesForExportCheck() {
-  const roots = ["app", "e2e", "lib", "server", "scripts", "packages"]
+  const roots = WORKSPACE_EXPORT_SOURCE_ROOTS
     .map((name) => path.join(ROOT, name))
     .filter((dir) => fs.existsSync(dir));
   const rootProjectFiles = [

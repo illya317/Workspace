@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { parseAgentMarkdown, parseAgentMarkdownInline } from "./agent-markdown";
+import { parseAgentMarkdown, parseAgentMarkdownInline } from "@workspace/platform/ui/agent-markdown";
 
 test("Agent Markdown parses bold text instead of exposing markers", () => {
   const tokens = parseAgentMarkdownInline("这是 **重点内容**。");

@@ -1,6 +1,6 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 
-import { buildArchiveBalanceReclassAdjustmentCommand } from "../../domain/finance-validation";
+import { buildArchiveBalanceReclassAdjustmentCommand } from "../validation";
 
 export interface BalanceReclassAdjustmentSnapshot {
   id: number;

@@ -1,14 +1,17 @@
 import type { StatementExchangeRateSnapshot } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
+  buildMonthlyAverageExchangeRateCommand,
   buildRefreshStatementExchangeRateCommand,
+  buildVoucherHistoricalInvestmentRateCommand,
   type RefreshStatementExchangeRateCommand,
 } from "../domain/statement-exchange-rate-validation";
 import {
   ChinaMoneyRateError,
   fetchChinaMoneyCentralParity,
+  fetchChinaMoneyMonthlyAverage,
 } from "./chinamoney-exchange-rates";
 import {
   chinaMoneyHistorySourceCoversTargetDate,
@@ -120,6 +123,94 @@ export async function ensureChinaMoneyCentralParityRate(input: {
         ...data,
       },
     });
+  });
+}
+
+export async function ensureChinaMoneyMonthlyAverageRate(input: {
+  currencyCode: string;
+  year: number;
+  month: number;
+  userId: number;
+}) {
+  const validated = buildMonthlyAverageExchangeRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const command = validated.data;
+  const rateDate = new Date(Date.UTC(command.year, command.month, 0)).toISOString().slice(0, 10);
+  const cached = await prisma.financeStatementExchangeRate.findFirst({
+    where: {
+      baseCurrency: command.currencyCode,
+      quoteCurrency: "CNY",
+      rateKind: "monthlyAverage",
+      rateDate,
+    },
+    orderBy: [{ version: "desc" }, { capturedAt: "desc" }, { id: "desc" }],
+  });
+  if (cached) return cached;
+  const quote = await fetchChinaMoneyMonthlyAverage({
+    currencyCode: command.currencyCode,
+    year: command.year,
+    month: command.month,
+  });
+  return prisma.financeStatementExchangeRate.create({
+    data: {
+      baseCurrency: quote.baseCurrency,
+      quoteCurrency: quote.quoteCurrency,
+      rateKind: "monthlyAverage",
+      rateDate: quote.rateDate,
+      rate: quote.rate,
+      sourceName: "中国外汇交易中心",
+      sourceField: `${quote.sourcePair} 人民币汇率中间价月度算术平均（每 ${quote.sourceUnit} ${quote.baseCurrency}）`,
+      sourceUrl: quote.sourceUrl,
+      publishedAt: null,
+      capturedAt: new Date(),
+      note: JSON.stringify({
+        month: quote.month,
+        observationCount: quote.observations.length,
+        observations: quote.observations,
+      }),
+      version: 1,
+      updatedBy: command.userId,
+    },
+  });
+}
+
+export async function ensureVoucherHistoricalInvestmentRate(input: {
+  voucherItemId: number;
+  voucherDate: string;
+  rate: number;
+  matchingLabel: string;
+  userId: number;
+}) {
+  const validated = buildVoucherHistoricalInvestmentRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const command = validated.data;
+  const existing = await prisma.financeStatementExchangeRate.findMany({
+    where: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+    },
+    orderBy: [{ version: "desc" }, { id: "desc" }],
+  });
+  const sameRate = existing.find((row) => Number(row.rate) === command.rate);
+  if (sameRate) return sameRate;
+  return prisma.financeStatementExchangeRate.create({
+    data: {
+      baseCurrency: "CAD",
+      quoteCurrency: "CNY",
+      rateKind: "historicalInvestment",
+      rateDate: command.voucherDate,
+      rate: command.rate,
+      sourceName: "Workspace 合并凭证",
+      sourceField: "凭证匹配历史折算率",
+      sourceUrl: `workspace://finance/voucher-items/${command.voucherItemId}`,
+      publishedAt: null,
+      capturedAt: new Date(),
+      note: `匹配：${command.matchingLabel}`,
+      version: (existing[0]?.version ?? 0) + 1,
+      updatedBy: command.userId,
+    },
   });
 }
 

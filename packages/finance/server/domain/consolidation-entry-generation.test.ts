@@ -4,6 +4,7 @@ import test from "node:test";
 import {
   buildIntercompanyVoucherMatchGroups,
   buildInvestmentVoucherMatchGroups,
+  intercompanyPresentationAccountCode,
   type ConsolidationVoucherMatchFact,
 } from "./consolidation-entry-generation";
 
@@ -29,10 +30,47 @@ function fact(
     currencyCode: overrides.currencyCode ?? "CNY",
     sourceFingerprint: `source-${itemId}`,
     investmentRole: overrides.investmentRole,
-    investmentMatchingPolicy: overrides.investmentMatchingPolicy,
-    consolidationAmount: overrides.consolidationAmount,
   };
 }
+
+test("routes abnormal intercompany balances to the approved reclassified presentation account", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "224101",
+    reclassTargetAccountCode: "122101",
+    balanceDirection: "credit",
+    signedAmount: 61_892_926.1,
+  }), "122101");
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: "224101",
+    balanceDirection: "debit",
+    signedAmount: -61_892_926.1,
+  }), "224101");
+});
+
+test("keeps normal intercompany balances on their source presentation account", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: "224101",
+    balanceDirection: "debit",
+    signedAmount: 89_924.65,
+  }), "122101");
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "224101",
+    reclassTargetAccountCode: "122101",
+    balanceDirection: "credit",
+    signedAmount: -89_924.65,
+  }), "224101");
+});
+
+test("does not reroute an abnormal balance without an approved presentation target", () => {
+  assert.equal(intercompanyPresentationAccountCode({
+    sourceAccountCode: "122101",
+    reclassTargetAccountCode: null,
+    balanceDirection: "debit",
+    signedAmount: -100,
+  }), "122101");
+});
 
 test("matches all voucher lines for one company pair as an N:N group", () => {
   const result = buildIntercompanyVoucherMatchGroups([
@@ -51,9 +89,25 @@ test("keeps voucher facts visible when counterpart amount differs", () => {
     fact(1, 8, 9, 100), fact(2, 9, 8, -99),
   ]);
   assert.equal(group?.status, "difference");
+  assert.equal(group?.matchedAmount, 99);
   assert.equal(group?.differenceAmount, 1);
   assert.equal(group?.leftFacts.length, 1);
   assert.equal(group?.rightFacts.length, 1);
+  assert.equal(group?.leftFacts[0]?.matchedSignedAmount, 99);
+  assert.equal(group?.rightFacts[0]?.matchedSignedAmount, -99);
+});
+
+test("allocates matched balances while keeping an unmatched row as a source exception", () => {
+  const [group] = buildIntercompanyVoucherMatchGroups([
+    fact(1, 8, 13, 42_000),
+    fact(2, 13, 8, -42_000),
+    fact(3, 13, 8, -3_543.33),
+  ]);
+  assert.equal(group?.status, "difference");
+  assert.equal(group?.matchedAmount, 42_000);
+  assert.equal(group?.differenceAmount, 3_543.33);
+  assert.deepEqual(group?.rightFacts.map((item) => item.matchedSignedAmount), [-42_000, 0]);
+  assert.match(group?.differenceResolution ?? "", /已匹配抵销 42000\.00 元/);
 });
 
 test("does not generate a match when a voucher line lacks report mapping", () => {
@@ -94,24 +148,33 @@ test("keeps all N:N voucher evidence and blocks a cross-currency non-wholly-owne
   assert.match(groups[0]?.differenceResolution ?? "", /历史汇率/);
 });
 
-test("matches reviewed cross-currency contribution vouchers by the investor CNY carrying amount", () => {
+test("does not mirror cross-currency equity vouchers to the investor CNY carrying amount", () => {
   const groups = buildInvestmentVoucherMatchGroups([
     fact(1, 2, 5, 600, {
       investmentRole: "investment", currencyCode: "CNY",
-      investmentMatchingPolicy: "aggregateCnyMirror",
     }),
     fact(2, 2, 5, 400, {
       investmentRole: "investment", currencyCode: "CNY",
-      investmentMatchingPolicy: "aggregateCnyMirror",
     }),
     fact(3, 5, null, -150, { investmentRole: "equity", currencyCode: "CAD" }),
     fact(4, 5, null, -50, { investmentRole: "equity", currencyCode: "CAD" }),
   ], [{ investorCompanyId: 2, investeeCompanyId: 5, shareRatio: 0.75 }]);
-  assert.equal(groups[0]?.status, "matched");
+  assert.equal(groups[0]?.status, "unresolved");
   assert.equal(groups[0]?.leftNetAmount, 1000);
-  assert.equal(groups[0]?.rightNetAmount, -1000);
-  assert.deepEqual(groups[0]?.rightFacts.map((item) => item.consolidationAmount), [-750, -250]);
-  assert.match(groups[0]?.matchingRule ?? "", /人民币账面成本汇总镜像/);
+  assert.equal(groups[0]?.rightNetAmount, -200);
+  assert.deepEqual(groups[0]?.requiredActions, ["translateToCny", "allocateNonControllingInterest"]);
+  assert.match(groups[0]?.matchingRule ?? "", /不按一侧账面成本镜像/);
+  assert.match(groups[0]?.differenceResolution ?? "", /历史汇率/);
+});
+
+test("requires CNY translation even when both source ledgers use the same foreign currency", () => {
+  const [group] = buildIntercompanyVoucherMatchGroups([
+    fact(1, 8, 9, 100, { currencyCode: "CAD" }),
+    fact(2, 9, 8, -100, { currencyCode: "CAD" }),
+  ]);
+  assert.equal(group?.status, "unresolved");
+  assert.equal(group?.comparisonCurrencyCode, null);
+  assert.deepEqual(group?.requiredActions, ["translateToCny"]);
 });
 
 test("does not infer an investee when multiple direct relationships have evidence", () => {

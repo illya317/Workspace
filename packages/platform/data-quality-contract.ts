@@ -24,6 +24,7 @@ export const dataQualityFindingSchema = z.object({
   summary: z.string().trim().min(1),
   count: z.number().int().positive(),
   resourceKey: z.string().trim().min(1).nullable().optional(),
+  departmentId: z.number().int().positive().nullable().optional(),
   href: z.string().trim().startsWith("/").nullable().optional(),
   samples: z.array(z.object({
     key: z.string().trim().min(1),

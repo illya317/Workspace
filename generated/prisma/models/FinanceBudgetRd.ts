@@ -30,6 +30,7 @@ export type FinanceBudgetRdAvgAggregateOutputType = {
   id: number | null
   versionId: number | null
   year: number | null
+  projectId: number | null
   accountId: number | null
   total: number | null
   month1: number | null
@@ -50,6 +51,7 @@ export type FinanceBudgetRdSumAggregateOutputType = {
   id: number | null
   versionId: number | null
   year: number | null
+  projectId: number | null
   accountId: number | null
   total: number | null
   month1: number | null
@@ -70,7 +72,7 @@ export type FinanceBudgetRdMinAggregateOutputType = {
   id: number | null
   versionId: number | null
   year: number | null
-  companyCode: string | null
+  projectId: number | null
   project: string | null
   category: string | null
   accountId: number | null
@@ -97,7 +99,7 @@ export type FinanceBudgetRdMaxAggregateOutputType = {
   id: number | null
   versionId: number | null
   year: number | null
-  companyCode: string | null
+  projectId: number | null
   project: string | null
   category: string | null
   accountId: number | null
@@ -124,7 +126,7 @@ export type FinanceBudgetRdCountAggregateOutputType = {
   id: number
   versionId: number
   year: number
-  companyCode: number
+  projectId: number
   project: number
   category: number
   accountId: number
@@ -153,6 +155,7 @@ export type FinanceBudgetRdAvgAggregateInputType = {
   id?: true
   versionId?: true
   year?: true
+  projectId?: true
   accountId?: true
   total?: true
   month1?: true
@@ -173,6 +176,7 @@ export type FinanceBudgetRdSumAggregateInputType = {
   id?: true
   versionId?: true
   year?: true
+  projectId?: true
   accountId?: true
   total?: true
   month1?: true
@@ -193,7 +197,7 @@ export type FinanceBudgetRdMinAggregateInputType = {
   id?: true
   versionId?: true
   year?: true
-  companyCode?: true
+  projectId?: true
   project?: true
   category?: true
   accountId?: true
@@ -220,7 +224,7 @@ export type FinanceBudgetRdMaxAggregateInputType = {
   id?: true
   versionId?: true
   year?: true
-  companyCode?: true
+  projectId?: true
   project?: true
   category?: true
   accountId?: true
@@ -247,7 +251,7 @@ export type FinanceBudgetRdCountAggregateInputType = {
   id?: true
   versionId?: true
   year?: true
-  companyCode?: true
+  projectId?: true
   project?: true
   category?: true
   accountId?: true
@@ -361,7 +365,7 @@ export type FinanceBudgetRdGroupByOutputType = {
   id: number
   versionId: number
   year: number
-  companyCode: string | null
+  projectId: number | null
   project: string
   category: string
   accountId: number | null
@@ -411,7 +415,7 @@ export type FinanceBudgetRdWhereInput = {
   id?: Prisma.IntFilter<"FinanceBudgetRd"> | number
   versionId?: Prisma.IntFilter<"FinanceBudgetRd"> | number
   year?: Prisma.IntFilter<"FinanceBudgetRd"> | number
-  companyCode?: Prisma.StringNullableFilter<"FinanceBudgetRd"> | string | null
+  projectId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
   project?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   category?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
@@ -433,6 +437,7 @@ export type FinanceBudgetRdWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceBudgetRd"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceBudgetRd"> | Date | string
   version?: Prisma.XOR<Prisma.FinanceBudgetVersionScalarRelationFilter, Prisma.FinanceBudgetVersionWhereInput>
+  projectRef?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }
 
@@ -440,7 +445,7 @@ export type FinanceBudgetRdOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   project?: Prisma.SortOrder
   category?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -462,6 +467,7 @@ export type FinanceBudgetRdOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   version?: Prisma.FinanceBudgetVersionOrderByWithRelationInput
+  projectRef?: Prisma.ProjectOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
 }
 
@@ -473,7 +479,7 @@ export type FinanceBudgetRdWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceBudgetRdWhereInput | Prisma.FinanceBudgetRdWhereInput[]
   versionId?: Prisma.IntFilter<"FinanceBudgetRd"> | number
   year?: Prisma.IntFilter<"FinanceBudgetRd"> | number
-  companyCode?: Prisma.StringNullableFilter<"FinanceBudgetRd"> | string | null
+  projectId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
   project?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   category?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
@@ -495,6 +501,7 @@ export type FinanceBudgetRdWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceBudgetRd"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceBudgetRd"> | Date | string
   version?: Prisma.XOR<Prisma.FinanceBudgetVersionScalarRelationFilter, Prisma.FinanceBudgetVersionWhereInput>
+  projectRef?: Prisma.XOR<Prisma.ProjectNullableScalarRelationFilter, Prisma.ProjectWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }, "id" | "versionId_project_category">
 
@@ -502,7 +509,7 @@ export type FinanceBudgetRdOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectId?: Prisma.SortOrderInput | Prisma.SortOrder
   project?: Prisma.SortOrder
   category?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -537,7 +544,7 @@ export type FinanceBudgetRdScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceBudgetRd"> | number
   versionId?: Prisma.IntWithAggregatesFilter<"FinanceBudgetRd"> | number
   year?: Prisma.IntWithAggregatesFilter<"FinanceBudgetRd"> | number
-  companyCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceBudgetRd"> | string | null
+  projectId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBudgetRd"> | number | null
   project?: Prisma.StringWithAggregatesFilter<"FinanceBudgetRd"> | string
   category?: Prisma.StringWithAggregatesFilter<"FinanceBudgetRd"> | string
   accountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBudgetRd"> | number | null
@@ -562,7 +569,6 @@ export type FinanceBudgetRdScalarWhereWithAggregatesInput = {
 
 export type FinanceBudgetRdCreateInput = {
   year: number
-  companyCode?: string | null
   project: string
   category: string
   total?: number
@@ -583,6 +589,7 @@ export type FinanceBudgetRdCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version: Prisma.FinanceBudgetVersionCreateNestedOneWithoutRdBudgetsInput
+  projectRef?: Prisma.ProjectCreateNestedOneWithoutFinanceBudgetRowsInput
   account?: Prisma.FinanceAccountCreateNestedOneWithoutRdBudgetsInput
 }
 
@@ -590,7 +597,7 @@ export type FinanceBudgetRdUncheckedCreateInput = {
   id?: number
   versionId: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   accountId?: number | null
@@ -615,7 +622,6 @@ export type FinanceBudgetRdUncheckedCreateInput = {
 
 export type FinanceBudgetRdUpdateInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   total?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -636,6 +642,7 @@ export type FinanceBudgetRdUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.FinanceBudgetVersionUpdateOneRequiredWithoutRdBudgetsNestedInput
+  projectRef?: Prisma.ProjectUpdateOneWithoutFinanceBudgetRowsNestedInput
   account?: Prisma.FinanceAccountUpdateOneWithoutRdBudgetsNestedInput
 }
 
@@ -643,7 +650,7 @@ export type FinanceBudgetRdUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   versionId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -670,7 +677,7 @@ export type FinanceBudgetRdCreateManyInput = {
   id?: number
   versionId: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   accountId?: number | null
@@ -695,7 +702,6 @@ export type FinanceBudgetRdCreateManyInput = {
 
 export type FinanceBudgetRdUpdateManyMutationInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   total?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -721,7 +727,7 @@ export type FinanceBudgetRdUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   versionId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -764,7 +770,7 @@ export type FinanceBudgetRdCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   project?: Prisma.SortOrder
   category?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
@@ -791,6 +797,7 @@ export type FinanceBudgetRdAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   total?: Prisma.SortOrder
   month1?: Prisma.SortOrder
@@ -811,7 +818,7 @@ export type FinanceBudgetRdMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   project?: Prisma.SortOrder
   category?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
@@ -838,7 +845,7 @@ export type FinanceBudgetRdMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   project?: Prisma.SortOrder
   category?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
@@ -865,6 +872,7 @@ export type FinanceBudgetRdSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   versionId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  projectId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   total?: Prisma.SortOrder
   month1?: Prisma.SortOrder
@@ -965,9 +973,50 @@ export type FinanceBudgetRdUncheckedUpdateManyWithoutAccountNestedInput = {
   deleteMany?: Prisma.FinanceBudgetRdScalarWhereInput | Prisma.FinanceBudgetRdScalarWhereInput[]
 }
 
+export type FinanceBudgetRdCreateNestedManyWithoutProjectRefInput = {
+  create?: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput> | Prisma.FinanceBudgetRdCreateWithoutProjectRefInput[] | Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput[]
+  connectOrCreate?: Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput | Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput[]
+  createMany?: Prisma.FinanceBudgetRdCreateManyProjectRefInputEnvelope
+  connect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+}
+
+export type FinanceBudgetRdUncheckedCreateNestedManyWithoutProjectRefInput = {
+  create?: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput> | Prisma.FinanceBudgetRdCreateWithoutProjectRefInput[] | Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput[]
+  connectOrCreate?: Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput | Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput[]
+  createMany?: Prisma.FinanceBudgetRdCreateManyProjectRefInputEnvelope
+  connect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+}
+
+export type FinanceBudgetRdUpdateManyWithoutProjectRefNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput> | Prisma.FinanceBudgetRdCreateWithoutProjectRefInput[] | Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput[]
+  connectOrCreate?: Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput | Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput[]
+  upsert?: Prisma.FinanceBudgetRdUpsertWithWhereUniqueWithoutProjectRefInput | Prisma.FinanceBudgetRdUpsertWithWhereUniqueWithoutProjectRefInput[]
+  createMany?: Prisma.FinanceBudgetRdCreateManyProjectRefInputEnvelope
+  set?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  delete?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  connect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  update?: Prisma.FinanceBudgetRdUpdateWithWhereUniqueWithoutProjectRefInput | Prisma.FinanceBudgetRdUpdateWithWhereUniqueWithoutProjectRefInput[]
+  updateMany?: Prisma.FinanceBudgetRdUpdateManyWithWhereWithoutProjectRefInput | Prisma.FinanceBudgetRdUpdateManyWithWhereWithoutProjectRefInput[]
+  deleteMany?: Prisma.FinanceBudgetRdScalarWhereInput | Prisma.FinanceBudgetRdScalarWhereInput[]
+}
+
+export type FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput> | Prisma.FinanceBudgetRdCreateWithoutProjectRefInput[] | Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput[]
+  connectOrCreate?: Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput | Prisma.FinanceBudgetRdCreateOrConnectWithoutProjectRefInput[]
+  upsert?: Prisma.FinanceBudgetRdUpsertWithWhereUniqueWithoutProjectRefInput | Prisma.FinanceBudgetRdUpsertWithWhereUniqueWithoutProjectRefInput[]
+  createMany?: Prisma.FinanceBudgetRdCreateManyProjectRefInputEnvelope
+  set?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  delete?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  connect?: Prisma.FinanceBudgetRdWhereUniqueInput | Prisma.FinanceBudgetRdWhereUniqueInput[]
+  update?: Prisma.FinanceBudgetRdUpdateWithWhereUniqueWithoutProjectRefInput | Prisma.FinanceBudgetRdUpdateWithWhereUniqueWithoutProjectRefInput[]
+  updateMany?: Prisma.FinanceBudgetRdUpdateManyWithWhereWithoutProjectRefInput | Prisma.FinanceBudgetRdUpdateManyWithWhereWithoutProjectRefInput[]
+  deleteMany?: Prisma.FinanceBudgetRdScalarWhereInput | Prisma.FinanceBudgetRdScalarWhereInput[]
+}
+
 export type FinanceBudgetRdCreateWithoutVersionInput = {
   year: number
-  companyCode?: string | null
   project: string
   category: string
   total?: number
@@ -987,13 +1036,14 @@ export type FinanceBudgetRdCreateWithoutVersionInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  projectRef?: Prisma.ProjectCreateNestedOneWithoutFinanceBudgetRowsInput
   account?: Prisma.FinanceAccountCreateNestedOneWithoutRdBudgetsInput
 }
 
 export type FinanceBudgetRdUncheckedCreateWithoutVersionInput = {
   id?: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   accountId?: number | null
@@ -1049,7 +1099,7 @@ export type FinanceBudgetRdScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceBudgetRd"> | number
   versionId?: Prisma.IntFilter<"FinanceBudgetRd"> | number
   year?: Prisma.IntFilter<"FinanceBudgetRd"> | number
-  companyCode?: Prisma.StringNullableFilter<"FinanceBudgetRd"> | string | null
+  projectId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
   project?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   category?: Prisma.StringFilter<"FinanceBudgetRd"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBudgetRd"> | number | null
@@ -1074,7 +1124,6 @@ export type FinanceBudgetRdScalarWhereInput = {
 
 export type FinanceBudgetRdCreateWithoutAccountInput = {
   year: number
-  companyCode?: string | null
   project: string
   category: string
   total?: number
@@ -1095,13 +1144,14 @@ export type FinanceBudgetRdCreateWithoutAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   version: Prisma.FinanceBudgetVersionCreateNestedOneWithoutRdBudgetsInput
+  projectRef?: Prisma.ProjectCreateNestedOneWithoutFinanceBudgetRowsInput
 }
 
 export type FinanceBudgetRdUncheckedCreateWithoutAccountInput = {
   id?: number
   versionId: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   total?: number
@@ -1149,10 +1199,87 @@ export type FinanceBudgetRdUpdateManyWithWhereWithoutAccountInput = {
   data: Prisma.XOR<Prisma.FinanceBudgetRdUpdateManyMutationInput, Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutAccountInput>
 }
 
+export type FinanceBudgetRdCreateWithoutProjectRefInput = {
+  year: number
+  project: string
+  category: string
+  total?: number
+  month1?: number
+  month2?: number
+  month3?: number
+  month4?: number
+  month5?: number
+  month6?: number
+  month7?: number
+  month8?: number
+  month9?: number
+  month10?: number
+  month11?: number
+  month12?: number
+  sourceFile?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version: Prisma.FinanceBudgetVersionCreateNestedOneWithoutRdBudgetsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutRdBudgetsInput
+}
+
+export type FinanceBudgetRdUncheckedCreateWithoutProjectRefInput = {
+  id?: number
+  versionId: number
+  year: number
+  project: string
+  category: string
+  accountId?: number | null
+  total?: number
+  month1?: number
+  month2?: number
+  month3?: number
+  month4?: number
+  month5?: number
+  month6?: number
+  month7?: number
+  month8?: number
+  month9?: number
+  month10?: number
+  month11?: number
+  month12?: number
+  sourceFile?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceBudgetRdCreateOrConnectWithoutProjectRefInput = {
+  where: Prisma.FinanceBudgetRdWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput>
+}
+
+export type FinanceBudgetRdCreateManyProjectRefInputEnvelope = {
+  data: Prisma.FinanceBudgetRdCreateManyProjectRefInput | Prisma.FinanceBudgetRdCreateManyProjectRefInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBudgetRdUpsertWithWhereUniqueWithoutProjectRefInput = {
+  where: Prisma.FinanceBudgetRdWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBudgetRdUpdateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedUpdateWithoutProjectRefInput>
+  create: Prisma.XOR<Prisma.FinanceBudgetRdCreateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedCreateWithoutProjectRefInput>
+}
+
+export type FinanceBudgetRdUpdateWithWhereUniqueWithoutProjectRefInput = {
+  where: Prisma.FinanceBudgetRdWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBudgetRdUpdateWithoutProjectRefInput, Prisma.FinanceBudgetRdUncheckedUpdateWithoutProjectRefInput>
+}
+
+export type FinanceBudgetRdUpdateManyWithWhereWithoutProjectRefInput = {
+  where: Prisma.FinanceBudgetRdScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBudgetRdUpdateManyMutationInput, Prisma.FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefInput>
+}
+
 export type FinanceBudgetRdCreateManyVersionInput = {
   id?: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   accountId?: number | null
@@ -1177,7 +1304,6 @@ export type FinanceBudgetRdCreateManyVersionInput = {
 
 export type FinanceBudgetRdUpdateWithoutVersionInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   total?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1197,13 +1323,14 @@ export type FinanceBudgetRdUpdateWithoutVersionInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  projectRef?: Prisma.ProjectUpdateOneWithoutFinanceBudgetRowsNestedInput
   account?: Prisma.FinanceAccountUpdateOneWithoutRdBudgetsNestedInput
 }
 
 export type FinanceBudgetRdUncheckedUpdateWithoutVersionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1229,7 +1356,7 @@ export type FinanceBudgetRdUncheckedUpdateWithoutVersionInput = {
 export type FinanceBudgetRdUncheckedUpdateManyWithoutVersionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1256,7 +1383,7 @@ export type FinanceBudgetRdCreateManyAccountInput = {
   id?: number
   versionId: number
   year: number
-  companyCode?: string | null
+  projectId?: number | null
   project: string
   category: string
   total?: number
@@ -1280,7 +1407,6 @@ export type FinanceBudgetRdCreateManyAccountInput = {
 
 export type FinanceBudgetRdUpdateWithoutAccountInput = {
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   total?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1301,13 +1427,14 @@ export type FinanceBudgetRdUpdateWithoutAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   version?: Prisma.FinanceBudgetVersionUpdateOneRequiredWithoutRdBudgetsNestedInput
+  projectRef?: Prisma.ProjectUpdateOneWithoutFinanceBudgetRowsNestedInput
 }
 
 export type FinanceBudgetRdUncheckedUpdateWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   versionId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
   total?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1333,9 +1460,112 @@ export type FinanceBudgetRdUncheckedUpdateManyWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   versionId?: Prisma.IntFieldUpdateOperationsInput | number
   year?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   project?: Prisma.StringFieldUpdateOperationsInput | string
   category?: Prisma.StringFieldUpdateOperationsInput | string
+  total?: Prisma.FloatFieldUpdateOperationsInput | number
+  month1?: Prisma.FloatFieldUpdateOperationsInput | number
+  month2?: Prisma.FloatFieldUpdateOperationsInput | number
+  month3?: Prisma.FloatFieldUpdateOperationsInput | number
+  month4?: Prisma.FloatFieldUpdateOperationsInput | number
+  month5?: Prisma.FloatFieldUpdateOperationsInput | number
+  month6?: Prisma.FloatFieldUpdateOperationsInput | number
+  month7?: Prisma.FloatFieldUpdateOperationsInput | number
+  month8?: Prisma.FloatFieldUpdateOperationsInput | number
+  month9?: Prisma.FloatFieldUpdateOperationsInput | number
+  month10?: Prisma.FloatFieldUpdateOperationsInput | number
+  month11?: Prisma.FloatFieldUpdateOperationsInput | number
+  month12?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBudgetRdCreateManyProjectRefInput = {
+  id?: number
+  versionId: number
+  year: number
+  project: string
+  category: string
+  accountId?: number | null
+  total?: number
+  month1?: number
+  month2?: number
+  month3?: number
+  month4?: number
+  month5?: number
+  month6?: number
+  month7?: number
+  month8?: number
+  month9?: number
+  month10?: number
+  month11?: number
+  month12?: number
+  sourceFile?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceBudgetRdUpdateWithoutProjectRefInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  project?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  total?: Prisma.FloatFieldUpdateOperationsInput | number
+  month1?: Prisma.FloatFieldUpdateOperationsInput | number
+  month2?: Prisma.FloatFieldUpdateOperationsInput | number
+  month3?: Prisma.FloatFieldUpdateOperationsInput | number
+  month4?: Prisma.FloatFieldUpdateOperationsInput | number
+  month5?: Prisma.FloatFieldUpdateOperationsInput | number
+  month6?: Prisma.FloatFieldUpdateOperationsInput | number
+  month7?: Prisma.FloatFieldUpdateOperationsInput | number
+  month8?: Prisma.FloatFieldUpdateOperationsInput | number
+  month9?: Prisma.FloatFieldUpdateOperationsInput | number
+  month10?: Prisma.FloatFieldUpdateOperationsInput | number
+  month11?: Prisma.FloatFieldUpdateOperationsInput | number
+  month12?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.FinanceBudgetVersionUpdateOneRequiredWithoutRdBudgetsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutRdBudgetsNestedInput
+}
+
+export type FinanceBudgetRdUncheckedUpdateWithoutProjectRefInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  project?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  total?: Prisma.FloatFieldUpdateOperationsInput | number
+  month1?: Prisma.FloatFieldUpdateOperationsInput | number
+  month2?: Prisma.FloatFieldUpdateOperationsInput | number
+  month3?: Prisma.FloatFieldUpdateOperationsInput | number
+  month4?: Prisma.FloatFieldUpdateOperationsInput | number
+  month5?: Prisma.FloatFieldUpdateOperationsInput | number
+  month6?: Prisma.FloatFieldUpdateOperationsInput | number
+  month7?: Prisma.FloatFieldUpdateOperationsInput | number
+  month8?: Prisma.FloatFieldUpdateOperationsInput | number
+  month9?: Prisma.FloatFieldUpdateOperationsInput | number
+  month10?: Prisma.FloatFieldUpdateOperationsInput | number
+  month11?: Prisma.FloatFieldUpdateOperationsInput | number
+  month12?: Prisma.FloatFieldUpdateOperationsInput | number
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBudgetRdUncheckedUpdateManyWithoutProjectRefInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionId?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  project?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   total?: Prisma.FloatFieldUpdateOperationsInput | number
   month1?: Prisma.FloatFieldUpdateOperationsInput | number
   month2?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1361,7 +1591,7 @@ export type FinanceBudgetRdSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   versionId?: boolean
   year?: boolean
-  companyCode?: boolean
+  projectId?: boolean
   project?: boolean
   category?: boolean
   accountId?: boolean
@@ -1383,6 +1613,7 @@ export type FinanceBudgetRdSelect<ExtArgs extends runtime.Types.Extensions.Inter
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBudgetRd"]>
 
@@ -1390,7 +1621,7 @@ export type FinanceBudgetRdSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   versionId?: boolean
   year?: boolean
-  companyCode?: boolean
+  projectId?: boolean
   project?: boolean
   category?: boolean
   accountId?: boolean
@@ -1412,6 +1643,7 @@ export type FinanceBudgetRdSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBudgetRd"]>
 
@@ -1419,7 +1651,7 @@ export type FinanceBudgetRdSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   versionId?: boolean
   year?: boolean
-  companyCode?: boolean
+  projectId?: boolean
   project?: boolean
   category?: boolean
   accountId?: boolean
@@ -1441,6 +1673,7 @@ export type FinanceBudgetRdSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   updatedAt?: boolean
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }, ExtArgs["result"]["financeBudgetRd"]>
 
@@ -1448,7 +1681,7 @@ export type FinanceBudgetRdSelectScalar = {
   id?: boolean
   versionId?: boolean
   year?: boolean
-  companyCode?: boolean
+  projectId?: boolean
   project?: boolean
   category?: boolean
   accountId?: boolean
@@ -1471,17 +1704,20 @@ export type FinanceBudgetRdSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceBudgetRdOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "versionId" | "year" | "companyCode" | "project" | "category" | "accountId" | "total" | "month1" | "month2" | "month3" | "month4" | "month5" | "month6" | "month7" | "month8" | "month9" | "month10" | "month11" | "month12" | "sourceFile" | "importedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBudgetRd"]>
+export type FinanceBudgetRdOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "versionId" | "year" | "projectId" | "project" | "category" | "accountId" | "total" | "month1" | "month2" | "month3" | "month4" | "month5" | "month6" | "month7" | "month8" | "month9" | "month10" | "month11" | "month12" | "sourceFile" | "importedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBudgetRd"]>
 export type FinanceBudgetRdInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }
 export type FinanceBudgetRdIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }
 export type FinanceBudgetRdIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   version?: boolean | Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>
+  projectRef?: boolean | Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBudgetRd$accountArgs<ExtArgs>
 }
 
@@ -1489,13 +1725,17 @@ export type $FinanceBudgetRdPayload<ExtArgs extends runtime.Types.Extensions.Int
   name: "FinanceBudgetRd"
   objects: {
     version: Prisma.$FinanceBudgetVersionPayload<ExtArgs>
+    projectRef: Prisma.$ProjectPayload<ExtArgs> | null
     account: Prisma.$FinanceAccountPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     versionId: number
     year: number
-    companyCode: string | null
+    projectId: number | null
+    /**
+     * 导入原文快照；运行时项目身份以 projectId 为准
+     */
     project: string
     category: string
     accountId: number | null
@@ -1911,6 +2151,7 @@ readonly fields: FinanceBudgetRdFieldRefs;
 export interface Prisma__FinanceBudgetRdClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   version<T extends Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBudgetVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceBudgetVersionClient<runtime.Types.Result.GetResult<Prisma.$FinanceBudgetVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  projectRef<T extends Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBudgetRd$projectRefArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceBudgetRd$accountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBudgetRd$accountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1944,7 +2185,7 @@ export interface FinanceBudgetRdFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceBudgetRd", 'Int'>
   readonly versionId: Prisma.FieldRef<"FinanceBudgetRd", 'Int'>
   readonly year: Prisma.FieldRef<"FinanceBudgetRd", 'Int'>
-  readonly companyCode: Prisma.FieldRef<"FinanceBudgetRd", 'String'>
+  readonly projectId: Prisma.FieldRef<"FinanceBudgetRd", 'Int'>
   readonly project: Prisma.FieldRef<"FinanceBudgetRd", 'String'>
   readonly category: Prisma.FieldRef<"FinanceBudgetRd", 'String'>
   readonly accountId: Prisma.FieldRef<"FinanceBudgetRd", 'Int'>
@@ -2363,6 +2604,25 @@ export type FinanceBudgetRdDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many FinanceBudgetRds to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceBudgetRd.projectRef
+ */
+export type FinanceBudgetRd$projectRefArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Project
+   */
+  select?: Prisma.ProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Project
+   */
+  omit?: Prisma.ProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectInclude<ExtArgs> | null
+  where?: Prisma.ProjectWhereInput
 }
 
 /**

@@ -17,6 +17,10 @@ export interface CadInvestmentVoucherFact {
   bookedAmountCny: number;
   currencyCode: string | null;
   originalAmount: number | null;
+  historicalRate: number | null;
+  matchingCompanyCode: string | null;
+  matchingLineCode: "paidInCapital" | "capitalReserve" | null;
+  matchingLabel: string | null;
 }
 
 export interface HistoricalCapitalFact {
@@ -24,6 +28,8 @@ export interface HistoricalCapitalFact {
   targetDate: string;
   originalAmount: number;
   evidence: string;
+  basis: "opening" | "movement";
+  lineCode: "paidInCapital" | "capitalReserve";
 }
 
 export interface ConsolidationCurrencyPolicyFact {
@@ -34,12 +40,14 @@ export interface ConsolidationCurrencyPolicyFact {
 
 export interface ConsolidationRateApplicationFact {
   exchangeRateId: number;
-  applicationType: "closing" | "historicalInvestment" | "historicalCapital";
+  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment" | "historicalCapital";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
+  targetDate?: string;
   voucherItemId?: number | null;
   capitalContributionDate?: string | null;
   capitalOriginalAmount?: number | null;
+  capitalLineCode?: "paidInCapital" | "capitalReserve" | null;
   evidence: string;
 }
 
@@ -63,6 +71,7 @@ export function buildHistoricalCapitalRateApplications(input: {
       voucherItemId: null,
       capitalContributionDate: fact.targetDate,
       capitalOriginalAmount: fact.originalAmount,
+      capitalLineCode: fact.lineCode,
       evidence: `ERP 资本明细自动识别；${fact.evidence}`,
     };
     return [
@@ -107,15 +116,19 @@ export function aggregateHistoricalCapitalFacts(input: {
     targetDate: string;
     originalAmount: number;
     evidence: string[];
+    basis: "opening" | "movement";
+    lineCode: "paidInCapital" | "capitalReserve";
   }>();
   const append = (fact: HistoricalCapitalFact) => {
     if (fact.originalAmount <= 0.004) return;
-    const key = `${fact.companyCode}:${fact.targetDate}`;
+    const key = `${fact.companyCode}:${fact.targetDate}:${fact.basis}:${fact.lineCode}`;
     const current = grouped.get(key) ?? {
       companyCode: fact.companyCode,
       targetDate: fact.targetDate,
       originalAmount: 0,
       evidence: [],
+      basis: fact.basis,
+      lineCode: fact.lineCode,
     };
     current.originalAmount = money(current.originalAmount + fact.originalAmount);
     current.evidence.push(fact.evidence);
@@ -127,6 +140,10 @@ export function aggregateHistoricalCapitalFacts(input: {
       targetDate: row.targetDate,
       originalAmount: money(row.openingCredit - row.openingDebit),
       evidence: `${row.accountCode} ${row.accountName}：最早可用账期期初余额，原出资日缺失，以该账期起始日作为可复核历史折算日`,
+      basis: "opening",
+      lineCode: row.accountName.includes("实收资本") || row.accountName.includes("股本")
+        ? "paidInCapital"
+        : "capitalReserve",
     });
   }
   for (const row of input.movements) {
@@ -135,6 +152,10 @@ export function aggregateHistoricalCapitalFacts(input: {
       targetDate: row.targetDate,
       originalAmount: money(row.credit - row.debit),
       evidence: `${row.voucherNo} · ${row.accountCode} ${row.accountName}${row.description ? ` · ${row.description}` : ""}`,
+      basis: "movement",
+      lineCode: row.accountName.includes("实收资本") || row.accountName.includes("股本")
+        ? "paidInCapital"
+        : "capitalReserve",
     });
   }
   return [...grouped.values()]
@@ -237,6 +258,69 @@ function originalAmount(row: { originalDebit: Prisma.Decimal | null; originalCre
   return amount > 0 ? amount : null;
 }
 
+export function cadAmountFromDescription(...values: Array<string | null | undefined>) {
+  for (const value of values) {
+    const normalized = value?.replaceAll(",", "").trim();
+    if (!normalized) continue;
+    const match = /(?:CAD\s*)?([0-9]+(?:\.[0-9]+)?)\s*(?:加元|加币|CAD)/i.exec(normalized)
+      ?? /(?:加元|加币|CAD)\s*([0-9]+(?:\.[0-9]+)?)/i.exec(normalized);
+    const amount = match ? Number(match[1]) : 0;
+    if (Number.isFinite(amount) && amount > 0) return money(amount);
+  }
+  return null;
+}
+
+export function resolveCadInvestmentOriginalAmount(input: {
+  investment: { originalDebit: Prisma.Decimal | null; originalCredit: Prisma.Decimal | null; currencyCode: string | null; description: string | null };
+  voucherDescription: string;
+  voucherItems: Array<{ originalDebit: Prisma.Decimal | null; originalCredit: Prisma.Decimal | null; currencyCode: string | null }>;
+}) {
+  const direct = input.investment.currencyCode?.toUpperCase() === "CAD"
+    ? originalAmount(input.investment)
+    : null;
+  if (direct) return direct;
+  const bankFlow = input.voucherItems.find((item) => item.currencyCode?.toUpperCase() === "CAD" && originalAmount(item));
+  return bankFlow ? originalAmount(bankFlow) : cadAmountFromDescription(input.investment.description, input.voucherDescription);
+}
+
+interface VoucherMatchingEvidence {
+  label: string;
+  companyCode: string;
+  lineCode: "paidInCapital" | "capitalReserve";
+  currencyCode: "CAD";
+  originalAmount: number;
+  historicalRate: number;
+}
+
+function jsonRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMatchingEvidence | null {
+  const metadata = jsonRecord(sourceMetadata);
+  const evidence = jsonRecord(metadata?.evidence);
+  const matching = jsonRecord(evidence?.matching);
+  if (!matching
+    || typeof matching.label !== "string" || !matching.label.trim()
+    || typeof matching.companyCode !== "string" || !matching.companyCode.trim()
+    || (matching.lineCode !== "paidInCapital" && matching.lineCode !== "capitalReserve")
+    || matching.currencyCode !== "CAD"
+    || typeof matching.originalAmount !== "number" || !Number.isFinite(matching.originalAmount) || matching.originalAmount <= 0
+    || typeof matching.historicalRate !== "number" || !Number.isFinite(matching.historicalRate) || matching.historicalRate <= 0) {
+    return null;
+  }
+  return {
+    label: matching.label.trim(),
+    companyCode: matching.companyCode.trim(),
+    lineCode: matching.lineCode,
+    currencyCode: matching.currencyCode,
+    originalAmount: money(matching.originalAmount),
+    historicalRate: matching.historicalRate,
+  };
+}
+
 export async function loadCadInvestmentVoucherFacts(
   companyCodes: string[],
   periodEnd: string,
@@ -244,7 +328,6 @@ export async function loadCadInvestmentVoucherFacts(
   if (companyCodes.length === 0) return [];
   const rows = await prisma.financeVoucherItem.findMany({
     where: {
-      currencyCode: "CAD",
       account: { code: { startsWith: "1511" } },
       voucher: { companyCode: { in: companyCodes }, date: { lte: periodEnd } },
     },
@@ -256,22 +339,46 @@ export async function loadCadInvestmentVoucherFacts(
       currencyCode: true,
       originalDebit: true,
       originalCredit: true,
+      sourceMetadata: true,
       account: { select: { code: true } },
-      voucher: { select: { companyCode: true, voucherNo: true, date: true, description: true } },
+      voucher: {
+        select: {
+          companyCode: true,
+          voucherNo: true,
+          date: true,
+          description: true,
+          sourceMetadata: true,
+          items: { select: { currencyCode: true, originalDebit: true, originalCredit: true } },
+        },
+      },
     },
     orderBy: [{ voucher: { date: "asc" } }, { id: "asc" }],
   });
-  return rows.map((row) => ({
-    id: row.id,
-    companyCode: row.voucher.companyCode,
-    voucherNo: row.voucher.voucherNo,
-    voucherDate: row.voucher.date,
-    description: row.description || row.voucher.description,
-    accountCode: row.account.code,
-    bookedAmountCny: Math.max(Math.abs(row.debit), Math.abs(row.credit)),
-    currencyCode: row.currencyCode,
-    originalAmount: originalAmount(row),
-  }));
+  return rows.flatMap((row) => {
+    const matching = parseVoucherMatchingEvidence(row.sourceMetadata)
+      ?? parseVoucherMatchingEvidence(row.voucher.sourceMetadata);
+    const amount = matching?.originalAmount ?? resolveCadInvestmentOriginalAmount({
+      investment: row,
+      voucherDescription: row.voucher.description,
+      voucherItems: row.voucher.items,
+    });
+    if (!amount) return [];
+    return [{
+      id: row.id,
+      companyCode: row.voucher.companyCode,
+      voucherNo: row.voucher.voucherNo,
+      voucherDate: row.voucher.date,
+      description: row.description || row.voucher.description,
+      accountCode: row.account.code,
+      bookedAmountCny: Math.max(Math.abs(row.debit), Math.abs(row.credit)),
+      currencyCode: "CAD",
+      originalAmount: amount,
+      historicalRate: matching?.historicalRate ?? null,
+      matchingCompanyCode: matching?.companyCode ?? null,
+      matchingLineCode: matching?.lineCode ?? null,
+      matchingLabel: matching?.label ?? null,
+    }];
+  });
 }
 
 export function parseConsolidationRateApplications(value: unknown): ConsolidationRateApplicationSnapshot[] {
@@ -281,6 +388,7 @@ export function parseConsolidationRateApplications(value: unknown): Consolidatio
 export async function applyConsolidationRatePolicies(input: {
   periodEnd: string;
   requiredComparativeEntityIds: number[];
+  requiredInvestmentVoucherIds: number[];
   companyCodes: string[];
   entities: { id: number }[];
   currencyPolicies: ConsolidationCurrencyPolicyFact[];
@@ -297,6 +405,7 @@ export async function applyConsolidationRatePolicies(input: {
   const rateById = new Map(input.rateFacts.map((rate) => [rate.exchangeRateId, rate]));
   const investments = await loadCadInvestmentVoucherFacts(input.companyCodes, input.periodEnd);
   const investmentById = new Map(investments.map((investment) => [investment.id, investment]));
+  const requiredInvestmentVoucherIds = input.requiredInvestmentVoucherIds.filter((id) => investmentById.has(id));
   const applicationsByRateId = new Map<number, ConsolidationRateApplicationSnapshot[]>();
   for (const application of input.rateApplications) {
     const entityPolicy = policyByEntityId.get(application.entitySnapshotId);
@@ -316,10 +425,12 @@ export async function applyConsolidationRatePolicies(input: {
       entitySnapshotId: application.entitySnapshotId,
       voucherItemId: voucher?.id ?? null,
       targetDate: voucher?.voucherDate
+        ?? application.targetDate
         ?? application.capitalContributionDate
         ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
       evidence: application.evidence,
       capitalOriginalAmount: application.capitalOriginalAmount ?? null,
+      capitalLineCode: application.capitalLineCode ?? null,
       voucher: voucher ? {
         companyCode: voucher.companyCode,
         voucherNo: voucher.voucherNo,
@@ -329,6 +440,8 @@ export async function applyConsolidationRatePolicies(input: {
         bookedAmountCny: voucher.bookedAmountCny,
         currencyCode: voucher.currencyCode,
         originalAmount: voucher.originalAmount,
+        matchingLineCode: voucher.matchingLineCode,
+        matchingLabel: voucher.matchingLabel,
       } : null,
     };
     const current = applicationsByRateId.get(rate.exchangeRateId) ?? [];
@@ -355,7 +468,7 @@ export async function applyConsolidationRatePolicies(input: {
       recordedAt: rate.recordedAt.toISOString(),
       applications: parseConsolidationRateApplications(rate.applications),
     })),
-    requiredInvestmentVoucherIds: [],
+    requiredInvestmentVoucherIds,
     requiredComparativeEntityIds: input.requiredComparativeEntityIds,
   });
   if (!validation.ok) throw new ConsolidationSnapshotError(validation.issue.message, validation.issue.status);

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { z } from "zod";
 import type { TenantPermissionReviewPolicy } from "../permission-review-policy";
-import { PERMISSION_ACTION_KEYS } from "../permission-actions";
+import { PERMISSION_ACTION_REGISTRY_KEYS as PERMISSION_ACTION_KEYS } from "../action-registry";
 import type {
   TenantAgentWorkforceConfig,
   TenantCompanySeed,
@@ -39,11 +39,15 @@ const companyDocumentSchema = z.object({
   title: nonEmptyString,
   description: nonEmptyString,
   format: z.enum(["office", "paper"]),
-  source: z.enum(["tenant-file", "permission-actions"]),
+  source: z.enum(["tenant-file", "permission-actions", "api-agent-guide", "agent-doc-catalog", "product-guide"]),
   file: relativeConfigPath,
 }).superRefine((value, context) => {
-  if (value.source === "permission-actions" && value.format !== "paper") {
-    context.addIssue({ code: "custom", path: ["format"], message: "permission-actions must use paper format" });
+  if (value.source !== "tenant-file" && value.format !== "paper") {
+    context.addIssue({
+      code: "custom",
+      path: ["format"],
+      message: `${value.source} must use paper format`,
+    });
   }
   if (value.source === "tenant-file" && value.format !== "office") {
     context.addIssue({ code: "custom", path: ["format"], message: "tenant-file company documents must use office format" });
@@ -53,6 +57,7 @@ const companyDocumentSchema = z.object({
 const companySchema = z.object({
   code: nonEmptyString,
   name: nonEmptyString,
+  aliases: z.array(nonEmptyString).default([]),
   managementGroup: nonEmptyString,
   codePoolCode: nonEmptyString.nullable(),
   isActive: z.boolean(),
@@ -104,6 +109,16 @@ const profileSchema = z.object({
     defaultAnalysisYear: z.number().int().min(2000).max(2200),
     openingBalanceBaselineYear: z.number().int().min(2000).max(2200),
   }),
+  financeConsolidationPolicies: z.object({
+    retainedEarningsOpeningBalances: z.array(z.object({
+      key: nonEmptyString,
+      foreignCompanyCode: nonEmptyString,
+      openingDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      presentationCurrencyCode: nonEmptyString,
+      openingAmount: z.number().finite(),
+      evidence: nonEmptyString,
+    })),
+  }).optional(),
   work: z.object({
     companyProjectCodePrefix: nonEmptyString,
     companyProjectSequenceStart: z.number().int().positive(),
@@ -284,19 +299,6 @@ const permissionReviewSchema = z.object({
   duplicate(value.separationOfDuties, (item) => item.key, "separationOfDuties");
 });
 
-const manifestSchema = z.object({
-  name: nonEmptyString,
-  version: z.number().int().positive(),
-  sourceRepository: nonEmptyString,
-  productionTarget: z.object({
-    domain: nonEmptyString,
-    serverHost: nonEmptyString,
-    remoteDir: nonEmptyString,
-    pm2Name: nonEmptyString,
-    workspaceConfigDir: nonEmptyString,
-  }),
-});
-
 let cached: { signature: string; value: TenantRuntimeConfig } | null = null;
 
 function workspaceConfigDir() {
@@ -344,12 +346,11 @@ function fileSignature(files: string[]) {
 function readTenantConfig(): { signature: string; value: TenantRuntimeConfig } {
   const root = workspaceConfigDir();
   const profilePath = resolveWorkspaceFile(root, "config/tenant/profile.json");
-  const manifestPath = resolveWorkspaceFile(root, "manifest.json");
   const profile = parseConfig(profileSchema, readJson(profilePath), "tenant profile") as TenantProfile;
   const files = Object.fromEntries(
     Object.entries(profile.files).map(([key, value]) => [key, resolveWorkspaceFile(root, value)]),
   ) as Record<keyof TenantProfile["files"], string>;
-  const signature = fileSignature([profilePath, manifestPath, ...Object.values(files)]);
+  const signature = fileSignature([profilePath, ...Object.values(files)]);
   if (cached?.signature === signature) return cached;
 
   const ethnicities = parseConfig(z.object({ ethnicities: stringList, commonEthnicities: stringList }), readJson(files.hrEthnicities), "HR ethnicity config");
@@ -373,7 +374,6 @@ function readTenantConfig(): { signature: string; value: TenantRuntimeConfig } {
     agentWorkforce: parseConfig(agentWorkforceSchema, readJson(files.agentWorkforce), "tenant Agent workforce") as TenantAgentWorkforceConfig,
     permissionReview: parseConfig(permissionReviewSchema, readJson(files.permissionReview), "tenant permission review") as TenantPermissionReviewPolicy,
     financeImports: parseConfig(financeImportsSchema, readJson(files.financeImports), "tenant finance imports") as TenantFinanceImportConfig,
-    manifest: parseConfig(manifestSchema, readJson(manifestPath), "workspace manifest"),
   };
   return { signature, value };
 }
@@ -408,11 +408,23 @@ export function getTenantFinanceImports(): TenantFinanceImportConfig {
   return getTenantConfig().financeImports;
 }
 
+function tenantBrandLogoPath() {
+  const root = workspaceConfigDir();
+  for (const file of ["logo.png", "logo.svg"]) {
+    const absolutePath = path.join(root, "assets/brand/company", file);
+    if (fs.existsSync(absolutePath) && fs.statSync(absolutePath).isFile() && fs.statSync(absolutePath).size > 0) {
+      return `/company/${file}`;
+    }
+  }
+  return "/assets/brand/default-company-logo.svg";
+}
+
 export function getTenantPublicConfig(): TenantPublicConfig {
   const { profile, hrCatalogs } = getTenantConfig();
   const { companyDocuments: _companyDocuments, ...publicDocs } = profile.docs;
   return {
     key: profile.key,
+    brand: { logoPath: tenantBrandLogoPath() },
     identity: profile.identity,
     localization: profile.localization,
     organization: profile.organization,

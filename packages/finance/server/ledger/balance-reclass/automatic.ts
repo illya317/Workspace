@@ -1,6 +1,6 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 
-import { buildMaterializeAutomaticReclassAdjustmentsCommand } from "../../domain/finance-validation";
+import { buildMaterializeAutomaticReclassAdjustmentsCommand } from "../validation";
 import { loadFinanceGroupAccountMapByAccountIdsAtInTransaction } from "../group-accounts/resolve";
 import { loadApplicableRulesByPeriod } from "../reclass-rules/applicability";
 import {

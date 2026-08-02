@@ -9,6 +9,7 @@ import {
   createMessageSection,
   PageSurface,
   type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
@@ -216,14 +217,8 @@ export default function EmployeeDirectory({
     onChange: (value) => setCreateName(String(value ?? "")),
   };
 
-  const sections: BodySurfaceSectionSpec[] = [
-    ...(canCreate ? [{
-      key: "employee-create",
-      body: {
-        kind: "create" as const,
-        create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = canCreate ? {
           id: "employee-create",
-          trigger: "toolbar" as const,
           presentation: "inline" as const,
           title: "新增员工",
           open: createName !== null,
@@ -240,9 +235,8 @@ export default function EmployeeDirectory({
           },
           onOpenChange: (open: boolean) => setCreateName(open ? "" : null),
           onCancel: () => setCreateName(null),
-        },
-      },
-    }] : []),
+        } : undefined;
+  const sections: BodySurfaceSectionSpec[] = [
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     {
       key: "employees",
@@ -282,6 +276,7 @@ export default function EmployeeDirectory({
   return (
     <PageSurface kind="standard"
       {...(surface ?? {})}
+      create={pageCreate}
       toolbar={{ items: toolbarItems }}
       body={createPageBody(sections)}
       footer={footer}

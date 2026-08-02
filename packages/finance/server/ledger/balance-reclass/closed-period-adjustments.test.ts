@@ -6,7 +6,7 @@ const mockModule = (mock as unknown as { module: MockModule }).module.bind(mock)
 
 const creates: Array<Record<string, unknown>> = [];
 
-mockModule("@workspace/platform/server/api", {
+mockModule("@workspace/platform/service-result", {
   namedExports: {
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),
     serviceOk: (data: unknown) => ({ ok: true, data }),
@@ -50,7 +50,7 @@ mockModule("@workspace/platform/server/prisma", {
     },
   },
 });
-mockModule("../../domain/finance-validation", {
+mockModule("../validation", {
   namedExports: {
     buildSaveBalanceReclassAdjustmentChangeSetCommand: (input: unknown) => ({ ok: true, data: { input } }),
   },

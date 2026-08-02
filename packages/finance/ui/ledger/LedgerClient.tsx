@@ -10,7 +10,7 @@ import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import CounterpartyBalanceTab from "./CounterpartyBalanceTab";
 import ReclassTab from "./ReclassTab";
-import AssetScheduleTab from "./AssetScheduleTab";
+import CloseTab from "./CloseTab";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 export default function LedgerClient({
@@ -19,8 +19,9 @@ export default function LedgerClient({
   canDelete,
   canRevise,
   canExport,
-  canApprove,
+  canApproveLedger,
   defaultScope,
+  initialTab,
   user,
 }: {
   canCreate: boolean;
@@ -28,16 +29,26 @@ export default function LedgerClient({
   canDelete: boolean;
   canRevise: boolean;
   canExport: boolean;
-  canApprove: boolean;
+  canApproveLedger: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
+  initialTab?: string;
   user: SessionUser;
 }) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("ledger", user), [user]);
-  const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "accounts");
-  const [activeNestedChild, setActiveNestedChild] = useState(activeChildTabs[0]?.children?.[0]?.key ?? "");
+  const initialChild = ledgerTab(activeChildTabs, initialTab);
+  const [activeChild, setActiveChild] = useState(initialChild.key);
+  const [activeNestedChild, setActiveNestedChild] = useState(initialChild.children?.[0]?.key ?? "");
   useEffect(() => {
-    setActiveChild(activeChildTabs[0]?.key ?? "accounts");
-    setActiveNestedChild(activeChildTabs[0]?.children?.[0]?.key ?? "");
+    setActiveChild((current) => activeChildTabs.some((tab) => tab.key === current) ? current : ledgerTab(activeChildTabs, initialTab).key);
+  }, [activeChildTabs, initialTab]);
+  useEffect(() => {
+    const applyLocation = () => {
+      const next = ledgerTab(activeChildTabs, new URLSearchParams(window.location.search).get("tab") ?? undefined);
+      setActiveChild(next.key);
+      setActiveNestedChild((current) => next.children?.some((child) => child.key === current) ? current : next.children?.[0]?.key ?? "");
+    };
+    window.addEventListener("popstate", applyLocation);
+    return () => window.removeEventListener("popstate", applyLocation);
   }, [activeChildTabs]);
   const activeTab = activeChild;
   const activeTabDefinition = activeChildTabs.find((tab) => tab.key === activeTab);
@@ -47,6 +58,7 @@ export default function LedgerClient({
     activeChild: activeTabDefinition?.children?.length ? activeNestedChild : undefined,
     onChange: (key) => {
       setActiveChild(key);
+      writeLedgerTabLocation(key);
       const children = activeChildTabs.find((tab) => tab.key === key)?.children ?? [];
       if (children.length > 0 && !children.some((child) => child.key === activeNestedChild)) {
         setActiveNestedChild(children[0]?.key ?? "");
@@ -60,17 +72,39 @@ export default function LedgerClient({
   return (
     <>
       {activeTab === "accounts" && activeNestedChild === "group-accounts"
-        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApprove} {...pageChrome} />
+        ? <GroupAccountTab canRevise={canRevise} canDelete={canDelete} canApprove={canApproveLedger} canExport={canExport} {...pageChrome} />
         : activeTab === "accounts"
           ? <AccountTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
           : null}
-      {activeTab === "vouchers" && <VoucherTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "ledger" && <LedgerTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "vouchers"
+        ? <VoucherTab
+            canExport={canExport}
+            defaultScope={defaultScope}
+            voucherKind={activeNestedChild === "consolidation" ? "group" : "standard"}
+            {...pageChrome}
+          />
+        : null}
+      {activeTab === "ledger" && activeNestedChild === "reclassification"
+        ? <ReclassTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
+        : activeTab === "ledger"
+          ? <LedgerTab canExport={canExport} defaultScope={defaultScope} {...pageChrome} />
+          : null}
       {activeTab === "counterparty" && <CounterpartyBalanceTab canExport={canExport} category={counterpartyCategory(activeNestedChild)} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canUpdate={canUpdate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "closing" && <CloseTab canCreate={canCreate} canUpdate={canUpdate} canApprove={canApproveLedger} defaultScope={defaultScope} userId={user.id} {...pageChrome} />}
     </>
   );
+}
+
+function ledgerTab<T extends { key: string }>(tabs: T[], requested?: string) {
+  return tabs.find((tab) => tab.key === requested) ?? tabs[0] ?? ({ key: "accounts" } as T);
+}
+
+function writeLedgerTabLocation(tab: string) {
+  const params = new URLSearchParams(window.location.search);
+  params.set("tab", tab);
+  const query = params.toString();
+  const next = `${window.location.pathname}${query ? `?${query}` : ""}`;
+  if (`${window.location.pathname}${window.location.search}` !== next) window.history.pushState(null, "", next);
 }
 
 function counterpartyCategory(value: string) {

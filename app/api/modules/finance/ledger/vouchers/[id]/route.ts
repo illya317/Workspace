@@ -4,7 +4,7 @@ import {
   buildUpdateVoucherCommand,
   executeDeleteVoucherCommand,
   executeUpdateVoucherCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";const itemSchema = z.object({

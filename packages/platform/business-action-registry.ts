@@ -12,6 +12,7 @@ export type BusinessActionWriteKind =
   | "update"
   | "delete"
   | "archive"
+  | "publish"
   | "revise"
   | "reverse"
   | "submit"
@@ -418,19 +419,7 @@ export const BUSINESS_ACTION_REGISTRATIONS = [
     apiRoutes: [route("PUT", "/api/modules/hr/roster/employees")],
     notes: "Employee table edits are submitted as one page-level change set. The action remains permission-only until the HR approval adapter and inline status UI land.",
   },
-  { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.employeeProfile.contracts.save", label: "保存员工详情合同", writeKind: "save", targetKind: "EmployeeProfileContractRows", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/hr/roster/employee-profiles/:id/contracts")], notes: "Registered for business-action visibility. Current API remains direct write until HR profile workflow adapter lands." },
-  { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.employeeProfile.edps.save", label: "保存员工详情部门岗位", writeKind: "save", targetKind: "EmployeeProfileDepartmentPositionRows", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/hr/roster/employee-profiles/:id/edps")], notes: "Registered for business-action visibility. This form should be promoted to workflow only together with inline status UI and route guard." },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.employeeProfile.lifecycle.record", label: "登记员工生命周期变更", writeKind: "save", targetKind: "EmployeeLifecycleEvent", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/hr/roster/employee-profiles/:id/lifecycle")], notes: "One effective-dated command atomically updates Employment/EDP periods and appends the immutable lifecycle event ledger." },
-  {
-    ...HR_ROSTER,
-    ...PERMISSION_ONLY,
-    key: "hr.roster.employee.delete",
-    label: "删除员工档案",
-    writeKind: "delete",
-    targetKind: "Employee",
-    directPermissionAction: "delete",
-    apiRoutes: [route("DELETE", "/api/modules/hr/roster/employees/:id")],
-  },
   {
     ...HR_ROSTER,
     ...OPTIONAL_APPROVAL_AUTO,

@@ -1,4 +1,4 @@
-import type { SurfaceNavigationTabSpec } from "@workspace/core/ui";
+import type { SurfaceNavigationTabSpec } from "@workspace/core/surface-navigation-contract";
 import type { PageStyleRouteModule, PageViewDefinition, PageViewNode } from "@workspace/core/page-style-preview";
 import { effectiveModuleDefinitions } from "./effective-module-registry";
 import { applyRouteRuntimeLabel, getRouteRuntimeMeta, type RouteRuntimeMeta } from "./route-runtime-labels";
@@ -21,7 +21,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "chart", label: "架构图" },
         ],
       },
-      { key: "department-position", label: "部门岗位", children: [{ key: "active", label: "现用" }, { key: "archived", label: "归档" }, { key: "workflow", label: "流程记录" }] },
+      { key: "department-position", label: "部门岗位", children: [{ key: "active", label: "现用" }, { key: "archived", label: "归档" }] },
       {
         key: "bulk",
         label: "员工信息表",
@@ -89,11 +89,25 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "group-accounts", label: "集团科目" },
         ],
       },
-      { key: "vouchers", label: "凭证明细" },
-      { key: "ledger", label: "余额表" },
+      {
+        key: "vouchers",
+        label: "凭证明细",
+        children: [
+          { key: "company", label: "公司明细" },
+          { key: "consolidation", label: "合并明细" },
+        ],
+      },
+      {
+        key: "ledger",
+        label: "科目余额",
+        children: [
+          { key: "balances", label: "账面余额" },
+          { key: "reclassification", label: "重分类" },
+        ],
+      },
       {
         key: "counterparty",
-        label: "应收应付",
+        label: "往来款项",
         children: [
           { key: "ar", label: "应收" },
           { key: "ap", label: "应付" },
@@ -101,24 +115,46 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "otherAp", label: "其他应付" },
         ],
       },
+      { key: "closing", label: "关账" },
+    ],
+  },
+  {
+    route: "/finance/assets",
+    moduleKey: "finance",
+    label: "资产会计",
+    views: [
       {
-        key: "reclass",
-        label: "重分类",
+        key: "policies",
+        label: "核算政策",
         children: [
-          { key: "rules", label: "科目规则" },
-          { key: "adjustments", label: "重分类调整" },
+          { key: "group", label: "集团" },
+          { key: "company", label: "公司" },
         ],
       },
-      {
-        key: "depreciation",
-        label: "折旧摊销",
-        children: [
-          { key: "cards", label: "资产卡片" },
-          { key: "period", label: "月度折旧摊销" },
-          { key: "adjustments", label: "调整事项" },
-          { key: "reconciliation", label: "总账勾稽" },
-        ],
-      },
+      { key: "cards", label: "资产卡片" },
+      { key: "period", label: "月度折旧摊销" },
+      { key: "adjustments", label: "减值与处置" },
+    ],
+  },
+  {
+    route: "/finance/treasury",
+    moduleKey: "finance",
+    label: "资金管理",
+    views: [
+      { key: "bank-accounts", label: "银行账户" },
+      { key: "bank-reconciliation", label: "银行对账" },
+      { key: "loans", label: "借款" },
+      { key: "interest", label: "利息" },
+    ],
+  },
+  {
+    route: "/finance/tax",
+    moduleKey: "finance",
+    label: "税务管理",
+    views: [
+      { key: "accrual", label: "税费计提" },
+      { key: "filing-payment", label: "申报与缴纳" },
+      { key: "reconciliation-evidence", label: "税务勾稽与证据" },
     ],
   },
   {
@@ -239,6 +275,19 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
+    route: "/capital-securities/investments",
+    moduleKey: "capitalSecurities",
+    label: "投资企业",
+    views: [
+      { key: "overview", label: "投资概览" },
+      { key: "meetings", label: "股东会" },
+      { key: "diligence", label: "尽调资料" },
+      { key: "contracts", label: "相关合同" },
+      { key: "monitoring", label: "投后监控" },
+      { key: "documents", label: "智能资料" },
+    ],
+  },
+  {
     route: "/capital-securities/governance",
     moduleKey: "capitalSecurities",
     label: "治理架构",
@@ -246,6 +295,16 @@ const basePageViewDefinitions: PageViewDefinition[] = [
       { key: "governance", label: "治理组织" },
       { key: "companies", label: "公司信息" },
       { key: "relations", label: "股权关系" },
+    ],
+  },
+  {
+    route: "/capital-securities/market-intelligence",
+    moduleKey: "capitalSecurities",
+    label: "市场情报",
+    views: [
+      { key: "watchlist", label: "我的订阅" },
+      { key: "catalog", label: "市场目录" },
+      { key: "analysis", label: "分析方法" },
     ],
   },
   {

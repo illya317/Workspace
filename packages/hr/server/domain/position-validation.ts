@@ -1,4 +1,4 @@
-import { Prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import {
   failCommand,
   okCommand,
@@ -7,8 +7,12 @@ import {
 import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { guardPositionArchive } from "../reference-guards";
 import { HR_FK_REGISTRY } from "../fk-registry";
-import { prisma } from "@workspace/platform/server/prisma";
 import { validatePositionInOrganizationScope } from "../position-organization-scope";
+import { findPositionDepartmentReference } from "../department-reference-adapter";
+import {
+  parseOrganizationLifecycleMeta,
+  type OrganizationLifecycleMeta,
+} from "./organization-effective-version";
 
 export const POSITION_ALLOWED_FIELDS = ["code", "name", "alias", "departmentId", "reportToPositionId", "isArchived", "archivedAt"];
 
@@ -21,6 +25,7 @@ export interface PositionInput {
   positionDescription?: PositionDescriptionInput | null;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
+  lifecycle?: unknown;
 }
 
 export interface PositionDescriptionInput {
@@ -36,10 +41,11 @@ export interface PositionDescriptionInput {
 export interface PositionCreateCommand {
   code: string;
   name: string;
-  alias?: string | null;
+  alias: string | null;
   departmentId: number | null;
   reportToPositionId: number | null;
   positionDescription?: PositionDescriptionCreateCommand | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 export interface PositionDescriptionCreateCommand {
@@ -56,6 +62,7 @@ export interface PositionUpdateCommand {
   id: number;
   data: Prisma.PositionUncheckedUpdateInput;
   positionDescription?: PositionDescriptionCreateCommand | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 async function validateDepartment(value: unknown) {
@@ -94,6 +101,14 @@ async function validateReportToPosition(value: unknown, departmentId: number | n
 function trimOptional(value: unknown) {
   const raw = typeof value === "string" ? value.trim() : "";
   return raw || null;
+}
+
+function normalizeLifecycleMeta(input: unknown) {
+  try {
+    return okCommand(parseOrganizationLifecycleMeta(input));
+  } catch (error) {
+    return failCommand(error instanceof Error ? error.message : "岗位生命周期命令无效", 400, "lifecycle");
+  }
 }
 
 async function validatePositionDescriptionCreate(
@@ -138,36 +153,44 @@ export async function buildPositionCreateCommand(input: PositionInput): Promise<
   if (!reportToPosition.ok) return reportToPosition;
   const descriptionCreate = await validatePositionDescriptionCreate(input.positionDescription);
   if (!descriptionCreate.ok) return descriptionCreate;
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (lifecycle.data.kind !== "schedule" || lifecycle.data.expectedSequence !== 0) return failCommand("新建岗位必须使用初始 schedule 命令", 409, "lifecycle");
   return okCommand({
     code: input.code,
     name: input.name,
-    alias: input.alias,
+    alias: trimOptional(input.alias),
     departmentId: department.data,
     reportToPositionId: reportToPosition.data,
     positionDescription: descriptionCreate.data,
+    lifecycle: lifecycle.data,
   });
 }
 
-export async function validatePositionFieldUpdate(field: string, value: unknown, id?: number) {
+export async function validatePositionFieldUpdate(
+  field: string,
+  value: unknown,
+  id?: number,
+): Promise<DomainValidationResult<{ field: string; value: unknown }>> {
   if (field === "departmentId") {
     const department = await validateDepartment(value);
-    if (!department.ok) return { error: department.issue.message, status: department.issue.status };
-    return { field, value: department.data };
+    if (!department.ok) return failCommand(department.issue.message, department.issue.status);
+    return okCommand({ field, value: department.data });
   }
   if (field === "reportToPositionId") {
-    const position = await prisma.position.findUnique({ where: { id }, select: { departmentId: true } });
-    if (!position) return { error: "岗位不存在", status: 404 };
+    const position = id ? await findPositionDepartmentReference(id) : null;
+    if (!position) return failCommand("岗位不存在", 404);
     const reportToPosition = await validateReportToPosition(value, position.departmentId, id);
-    if (!reportToPosition.ok) return { error: reportToPosition.issue.message, status: reportToPosition.issue.status };
-    return { field, value: reportToPosition.data };
+    if (!reportToPosition.ok) return failCommand(reportToPosition.issue.message, reportToPosition.issue.status);
+    return okCommand({ field, value: reportToPosition.data });
   }
   if (field === "isArchived") {
     const archived = Boolean(value);
     const validation = await validateArchive(id, archived);
-    if (!validation.ok) return { error: validation.issue.message, status: validation.issue.status };
-    return { field, value: archived };
+    if (!validation.ok) return failCommand(validation.issue.message, validation.issue.status);
+    return okCommand({ field, value: archived });
   }
-  return { field, value };
+  return okCommand({ field, value });
 }
 
 export async function buildPositionUpdateCommand(
@@ -190,10 +213,7 @@ export async function buildPositionUpdateCommand(
     data.isArchived = archived;
     data.archivedAt = archived ? new Date() : null;
   }
-  const position = await prisma.position.findUnique({
-    where: { id },
-    select: { departmentId: true },
-  });
+  const position = await findPositionDepartmentReference(id);
   if (!position) return failCommand("岗位不存在", 404);
   const effectiveDepartmentId = typeof data.departmentId === "number" ? data.departmentId : position.departmentId;
   if (body.reportToPositionId !== undefined) {
@@ -203,7 +223,11 @@ export async function buildPositionUpdateCommand(
   }
   const descriptionCreate = await validatePositionDescriptionCreate(body.positionDescription);
   if (!descriptionCreate.ok) return descriptionCreate;
-  return okCommand({ id, data, positionDescription: descriptionCreate.data });
+  const lifecycle = normalizeLifecycleMeta(body.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (Boolean(body.isArchived) && lifecycle.data.kind !== "end-date") return failCommand("归档岗位必须使用 end-date 命令", 409, "lifecycle");
+  if (body.isArchived === false && lifecycle.data.kind !== "schedule") return failCommand("恢复岗位必须使用 schedule 命令", 409, "lifecycle");
+  return okCommand({ id, data, positionDescription: descriptionCreate.data, lifecycle: lifecycle.data });
 }
 
 export async function validatePositionDelete(id: number, actionLabel = "删除岗位") {

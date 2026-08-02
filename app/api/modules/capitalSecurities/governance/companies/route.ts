@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createCompany, listCompanies, updateCompany } from "@workspace/capital-securities/server";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 
 const querySchema = z.object({
   keyword: z.string().catch(""),
@@ -14,6 +15,7 @@ const companyBodySchema = z.object({
   id: z.coerce.number().int().positive().optional(),
   version: z.coerce.number().int().nonnegative().optional(),
   partyVersion: z.coerce.number().int().nonnegative().optional(),
+  legalFactRevision: z.coerce.number().int().nonnegative().optional(),
   code: z.string().min(1),
   name: z.string().min(1),
   description: z.string().max(500).nullable().optional(),
@@ -32,7 +34,11 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: companyBodySchema,
-  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, body }),
+  buildCommand: ({ body, user, request }) => okCommand({
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+    body,
+  }),
   action: createCompany,
 });
 
@@ -41,7 +47,12 @@ export const PUT = createCommandRoute({
     id: z.coerce.number().int().positive(),
     version: z.coerce.number().int().nonnegative(),
     partyVersion: z.coerce.number().int().nonnegative(),
+    legalFactRevision: z.coerce.number().int().nonnegative(),
   }),
-  buildCommand: ({ body, user }) => okCommand({ userId: user.userId, body }),
+  buildCommand: ({ body, user, request }) => okCommand({
+    userId: user.userId,
+    idempotencyKey: directCommandId(request),
+    body,
+  }),
   action: updateCompany,
 });

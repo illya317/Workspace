@@ -131,6 +131,7 @@ export type CreateInventoryDocumentInput = {
   documentType: "receipt" | "issue" | "adjustment" | "transfer";
   documentDate: string;
   counterparty?: string | null;
+  counterpartyPartyId?: number | null;
   referenceNo?: string | null;
   note?: string | null;
   lines: Array<{ itemId: number; warehouseId: number; batchId?: number | null; quantity: number; unit: string; unitFactor?: number; unitPrice?: number | null }>;

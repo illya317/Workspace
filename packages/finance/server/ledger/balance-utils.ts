@@ -1,27 +1,7 @@
-import { buildSideBalanceAddCommand } from "../domain/finance-validation";
+import { buildSideBalanceAddCommand } from "./validation";
+import type { FinanceAccountLike, SideBalance } from "./balance-contract";
 
-export type SideBalance = {
-  debit: number;
-  credit: number;
-};
-
-export type ComputedBalance = {
-  accountId: number;
-  accountCode: string;
-  openingDebit: number;
-  openingCredit: number;
-  currentDebit: number;
-  currentCredit: number;
-  closingDebit: number;
-  closingCredit: number;
-};
-
-export type FinanceAccountLike = {
-  id: number;
-  code: string;
-  parentId: number | null;
-  balanceDirection: string;
-};
+export type { ComputedBalance, FinanceAccountLike, SideBalance } from "./balance-contract";
 
 // 基准年份不再硬编码，改为从 FinanceBalanceSnapshot 动态查询 isActive baseline
 

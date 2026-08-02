@@ -246,6 +246,7 @@ export async function commitErpDiligenceSaveCommand(command: ErpDiligenceSaveCom
         definitionVersion: command.definitionVersion,
         respondentUserId: command.userId,
         positionAssignmentId: command.positionAssignmentId,
+        departmentId: command.departmentId,
         respondentName,
         departmentName: command.departmentName,
         roleTitle: command.roleTitle,
@@ -261,6 +262,7 @@ export async function commitErpDiligenceSaveCommand(command: ErpDiligenceSaveCom
         definitionVersion: command.definitionVersion,
         respondentName,
         positionAssignmentId: command.positionAssignmentId,
+        departmentId: command.departmentId,
         departmentName: command.departmentName,
         roleTitle: command.roleTitle,
         primaryArea: command.primaryArea,
@@ -307,6 +309,7 @@ const saveAdapter = defineBusinessActionCommandAdapter({
     const command = buildErpDiligenceSaveCommand(input.body, input.userId, {
       positionSelection: selectedAssignment ? {
         id: selectedAssignment.id,
+        departmentId: selectedAssignment.departmentId,
         departmentName: selectedAssignment.departmentName,
         positionName: selectedAssignment.positionName,
       } : null,

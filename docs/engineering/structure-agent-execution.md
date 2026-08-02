@@ -32,7 +32,7 @@ git status --short --branch
 | Data | Prisma、migration、seed、导入脚本、生成脚本和生成物 | 通用 UI、页面体验、架构 gate |
 | Operations | CI、部署、环境、package scripts、运行态脚本 | 领域业务规则、页面 UI、service 业务逻辑 |
 
-如果任务会跨角色，先让 Architecture 或 Orchestrator 拆分；不要一个 agent 同时改 gate、业务 UI、schema 和 CI。
+如果任务会跨角色，先由 Coordinator 拆分，并标明 Architecture、Feature、Data、Operations 等执行边界；不要一个 agent 同时改 gate、业务 UI、schema 和 CI。
 
 ## 3. 任务包执行格式
 
@@ -88,13 +88,13 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 | `scripts/arch/*` | Architecture | `scripts/arch/<topic>.ts` | 拆 detector、baseline reader、formatter；保持 `arch:gate` 单入口 |
 | `packages/<domain>/ui/*` | Feature | 同 package 子目录 | 拆业务区块、业务 hook、领域 mapper；只能消费 Core/Platform 已注册入口 |
 | `packages/<domain>/server/*` | Feature/Data | 同 package server 子目录 | 拆 service、schema、DTO、repository adapter；不跨业务包 import |
-| data / generate scripts | Data/Ops | 原脚本同目录或 `.workspace/config/scripts` | 拆数据生成、校验、导入 helper；不改 UI/gate |
+| data / generate scripts | Data/Ops | 原脚本同目录或 `.workspace/tools/qc` | 拆数据生成、校验、导入 helper；不改 UI/gate |
 
 ### 5.1 拆出的函数是否需要注册
 
 通常不需要。只有下面三类需要进入 registry 或 gate 相关清单：
 
-1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`，公共声明入口补 `declares`，内部组合关系补 `composes`。`/settings/ui` 会自动收录有 `declares` 的封装组件。
+1. **新增 Core UI 公共入口**：从 `packages/core/ui/index.ts` 导出的组件、页面骨架、primitive，必须登记到 `packages/core/ui/registry/component-registry.ts`，填写中文 `description`，公共声明入口补 `declares`，内部组合关系补 `composes`。`/settings/governance` 的 UI Tab 会自动收录有 `declares` 的封装组件。
 2. **新增模块/API 权威入口**：模块定义、API contract、权限资源等必须通过 Platform registry 或 API registry 暴露。
 3. **新增 gate 例外或非组件导出**：只能由 Architecture 在对应脚本中显式说明，不能由 Feature/Data/Ops 私自补 allowlist。
 
@@ -132,7 +132,7 @@ baseline 是历史债锁，不是白名单。
 
 - Work 业务包是 `packages/work`，不是 `packages/project`。工作计划、项目管理、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
 - Work Feature 线程可能改 `/work`、`app/(modules)/work/*`、`app/api/modules/work/*`、`packages/work/*`，以及必要的 Core 分栏/页面骨架入口。其他 agent 避免提交这些范围。
-- Production/QC Data 线程可能改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
+- Production/QC Data 线程可能改 `.workspace/tools/qc/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
 - Architecture 线程改文档、gate、registry、API contract 和 baseline。Feature/Data/Operations 不要私自修改这些文件。
 
 ## 8. 收口验证
@@ -152,7 +152,7 @@ baseline 是历史债锁，不是白名单。
 | Data | `npm run arch:gate`; `npm run db:validate`; 涉及生成脚本时跑对应生成/审计命令 |
 | Operations | `npm run arch:gate`; 相关 CI/script dry run |
 
-本地 dev server 固定使用 3000 端口且全机只允许一个实例。统一运行 `npm run dev`，不得附加端口参数；3000 已占用时复用现有 Workspace 实例，不得改用其他端口。需要人工确认时运行：
+开发服务的启动方式和宿主端口服从当前环境入口。只有直接本地 checkout 才使用 `npm run dev` 的内部 3000 单实例；远端开发使用宿主入口声明的映射端口，绝不能把生产 3000 当作开发端口。直接本地 checkout 需要人工确认时运行：
 
 ```bash
 lsof -nP -iTCP:3000 -sTCP:LISTEN

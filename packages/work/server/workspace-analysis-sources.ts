@@ -7,7 +7,7 @@ import {
 } from "@workspace/platform/server/workspace-analysis-read-model";
 import type { WorkspaceAnalysisNestedValueRow } from "@workspace/platform/server/workspace-analysis-nested-values";
 
-import type { toMeetingSummaryDto } from "./meeting-dto";
+import type { toMeetingSummaryDto } from "./meetings/dto";
 import type { listProjectMembers } from "./project-members";
 import type { listProjects } from "./projects";
 import type { listWorkPlans } from "./work-plans";
@@ -29,7 +29,7 @@ import {
 } from "./workspace-analysis-report-sources";
 import { WORK_PERIOD_COLLECTION_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-period-collection-sources";
 import { WORK_PROJECT_GANTT_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-project-gantt-sources";
-import { WORK_MEETING_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-meeting-detail-sources";
+import { WORK_MEETING_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./meetings/analysis-sources";
 import { WORK_PROJECT_PLAN_DETAIL_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-project-plan-detail-sources";
 import { WORK_KPI_SCORECARD_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-kpi-scorecard-sources";
 import { WORK_KPI_RESULT_ANALYSIS_SOURCE_REGISTRATIONS } from "./workspace-analysis-kpi-result-sources";
@@ -343,7 +343,7 @@ export const WORK_PROJECT_MEMBERS_ANALYSIS_SOURCE = defineWorkspaceAnalysisReadM
   scopes: { project: { mode: "target", description: "只读取目标项目的成员。", query: { projectId: "scopeId" } } },
   parameters: [{ key: "keyword", queryKey: "keyword", label: "关键词", description: "按员工、项目或角色搜索。", kind: "text" }],
   fields: {
-    id: id("成员关系 ID", "项目成员关系稳定标识。"), version: id("成员关系版本", "项目成员公开读模型中的版本号。"), employeeId: id("员工 ID", "成员员工主键。"), employeeNumber: confidential("text", "工号", "成员业务工号。"), employeeName: confidential("text", "姓名", "成员姓名。"), projectId: id("项目 ID", "所属项目标识。"), projectName: confidential("text", "项目", "所属项目名称。"), role: field("text", "RASCI 角色", "成员在项目中的角色。"), startDate: field("date", "开始日期", "成员参与项目的开始日期。"), endDate: field("date", "结束日期", "成员参与项目的结束日期。"), confirmationStatus: field("text", "确认状态", "pending 或 confirmed。"),
+    id: id("成员关系 ID", "项目成员关系版本记录标识。"), version: id("成员关系版本", "项目成员公开读模型中的乐观并发版本号。"), membershipUid: field("text", "成员关系 UID", "跨版本稳定的项目成员关系标识。"), sequence: id("成员关系序号", "同一成员关系内的有效版本序号。"), recordState: field("text", "记录状态", "成员关系版本的 confirmed、superseded 或 cancelled 状态。"), temporalState: field("text", "时间状态", "成员关系相对查询业务日的当前、未来或历史分类。"), employeeId: id("员工 ID", "成员员工主键。"), employeeNumber: confidential("text", "工号", "成员业务工号。"), employeeName: confidential("text", "姓名", "成员姓名。"), projectId: id("项目 ID", "所属项目标识。"), projectName: confidential("text", "项目", "所属项目名称。"), role: field("text", "RASCI 角色", "成员在项目中的角色。"), startDate: field("date", "开始日期", "成员参与项目的开始日期。"), endDate: field("date", "结束日期", "成员参与项目的结束日期。"), confirmationStatus: field("text", "确认状态", "pending 或 confirmed。"),
   },
   pagination: { pageParam: "page", pageSizeParam: "pageSize", pageSize: 250, maxPages: 2 },
   limits: { ...STANDARD_LIMITS, maxRows: 500, maxPages: 2 },

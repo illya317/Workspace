@@ -177,6 +177,55 @@ export async function aggregateMappingBasedBalances(
     }
   }
 
+  // An approved group adjustment remains effective after its originating
+  // consolidation period. Later balance-sheet sources carry it forward from
+  // FinanceConsolidationEntry; the originating period still applies the entry
+  // in its own workpaper, so same-period entries are deliberately excluded.
+  const baseline = await prisma.financeBalanceSnapshot.findFirst({
+    where: {
+      companyCode,
+      snapshotType: "baseline",
+      isActive: true,
+      year: { lte: year },
+    },
+    select: { year: true },
+    orderBy: { year: "desc" },
+  });
+  if (baseline) {
+    const consolidationItems = await prisma.financeConsolidationEntryLine.findMany({
+      where: {
+        companyCode,
+        statementType: "balanceSheet",
+        periodBasis: "current",
+        entry: {
+          status: "approved",
+          documentType: "groupAdjustment",
+          entryType: "groupAdjustment",
+          batch: {
+            OR: [
+              { year: { lt: year } },
+              { year, month: { lt: month } },
+            ],
+          },
+        },
+      },
+      select: { accountCode: true, debit: true, credit: true },
+    });
+    for (const item of consolidationItems) {
+      if (!item.accountCode) continue;
+      const resolved = resolveMappedLineWithOperator(item.accountCode, parentMap, mappingMap, operatorMap);
+      const presentation = resolved;
+      if (!presentation) continue;
+      const side = lineSideMap.get(presentation.lineCode) || "debit";
+      const agg = byLine.get(presentation.lineCode) || { debit: 0, credit: 0, accountCodes: [] };
+      applyContribution(agg, {
+        debit: Number(item.debit),
+        credit: Number(item.credit),
+      }, side, presentation.operator, `consolidation:${item.accountCode}`);
+      byLine.set(presentation.lineCode, agg);
+    }
+  }
+
   // Reference workpapers may explicitly exclude a posted voucher from the
   // balance-sheet presentation without mutating the ledger. Reverse only the
   // mapped line contribution; the original voucher and balances stay intact.

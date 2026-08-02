@@ -1,220 +1,154 @@
-# CI/CD 与测试分级
+# Workspace CI/CD
 
-本文是 Workspace 合并和生产发布的执行真源。目标不是每次提交都跑全量，而是让风险判断可复现、未知变更默认从严，并让静态 gate、Node、PostgreSQL、build 与浏览器 E2E 各自给出独立证据。
-
-## 质量边界
-
-- 分类器读取完整 base..head diff，不读取提交信息，也不把代码里的“纯文案”当成可证明的文案变更。
-- 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
-- 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
-- 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁是当前 Git tree 的本地 `npm run check:ci` 凭证。CNB 从该 source parent 在 Linux 构建目标制品：Full 是 canonical monolith standalone，单 unit 是 graph 约束的独立 artifact；服务器都不从源码重建。
-
-## 风险等级
-
-| 等级 | 可证明范围 | 必需证据 |
-|---|---|---|
-| C0 文档 | 根目录约定文档、`docs/**/*.md(x)`、文本说明、模块内约定文档和 GitHub 模板；不包含 `.ts/.tsx` 中的文案，也不包含 `docs/generated/**` | dependency-free migration marker 与架构文档一致性、聚合门禁；不安装依赖，不跑 Node test、type、PostgreSQL、build、E2E，不生产运行包 |
-| C1 展示补丁 | 仅业务模块 `packages/<module>/ui/**` 下的 CSS、字体、图像等展示资源；不得涉及 Core、Platform、`app/`、`public/` 或代码 | PR 只做分类与聚合，main 发布候选才补 production build；不跑 static、Node、type、PostgreSQL 或 E2E。影响映射明确降到 C1 的代码仍跑 static、全部 Node 和 affected type，但普通 PR 不跑 build |
-| C2 已覆盖改动 | 受信任影响映射中有明确只读或写入覆盖的标准单模块改动 | static/changed lint、全部 Node、affected type 和 build；server/write 加 PostgreSQL；存在映射 suite 时运行目标 E2E |
-| C3 全量 | 高风险、跨模块、未知、未覆盖或超过规模阈值的变更 | full static/lint、全部 Node、full type、PostgreSQL、build、全部已注册 Playwright |
-
-以下任一条件会升级到 C3：
-
-- Prisma schema/migration、认证、RBAC、共享 Core/Platform、CI/CD、测试 runner 或影响映射变化；
-- API/公开 contract 的新增、删除、重命名或形状变化，或者删除/移出测试；
-- 任意未映射模块路径，或可能写入但没有明确 `write`/`read-only` 归属的 UI、API、server 路径；
-- 同时影响至少两个业务模块；
-- 非测试、非生成源码超过 20 个文件，或非生成 diff 超过 500 行；
-- 单个展示资源 blob 超过 2 MiB、展示资源 blob 总变化超过 5 MiB，或展示资源超过 20 个文件；文本和二进制都计入；
-- 任意非展示二进制文件变化；这类产物无法用行数证明影响范围，直接全量；
-- base/head、生产基线或远端证据不能被严格证明；
-- 人工 `force_full`，用于指定 SHA 的完整 CI 诊断。
-
-阈值只负责升级，不负责降级。一行 migration 仍是 C3；大量生成文件不会单独把普通变更误判成大改。
-
-## 流水线
+## 责任边界
 
 ```text
-classify
-├── static       C0 无依赖 docs/migration policy；代码变更跑 lint / architecture / contracts
-├── node         packages / scripts / app / ops 的 Node 测试
-├── type         展示资源 C1 跳过；映射代码 C1/C2 affected；仅 C3/显式全量 full
-├── PostgreSQL   C2 server/write 或 C3：migration / seed / integration
-└── build        无 E2E/整站发布时按 deploy graph 构建受影响 unit；其余过渡车道构建 canonical monolith tgz
-      └── E2E    C2 映射 suite 或 C3：下载并启动同一个 canonical tgz
-
-所有预期结果 -> CI / required
-
-production: local full CI receipt -> CNB release injection -> Linux build -> artifact validation -> production
+Mac formal repository -> GitHub required CI -> one linux/amd64 OCI image
+                    -> GHCR digest + release.json
+                    -> CNB api_trigger -> CNB Registry same digest
+                    -> migration/backup/cutover/health/receipt/rollback
 ```
 
-同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
+- Mac `/Users/koito/Project/workspace/workspace` 是正式代码真源，只负责复核、提交和 push。
+- `workspace-dev` 只做远端调试，不保存 provider push 凭据。
+- GitHub 是唯一源码平台、CI 与应用构建平台。
+- CNB 是中国侧 Registry、CD、回滚与审计平台，不执行应用源码 CI 或构建。
+- 生产服务器不连接或 checkout GitHub，不现场安装依赖、不编译、不构建镜像。
 
-CI 缓存只加速输入：npm 下载缓存、project-reference 的 `.cache/types` + `.cache/tsbuild`、`.next/cache` 和 `.cache/next-units`。TypeScript 声明输出与 build info 必须成对恢复，避免增量状态命中但下游声明缺失。CI job 之间不复用 `node_modules`，Playwright 浏览器不缓存。PostgreSQL lane 运行时，schema/migration/data contract 由它唯一负责，static 不再重复；standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
+## GitHub required CI
 
-Build lane 会用同一 changed-files evidence 生成 `.ci/deploy-unit-build-plan.json`。没有 E2E 且不发布整站 artifact 时，`deploy:affected:build` 只构建 owner unit；Finance 私有变化不会重建其他 L1。Core、Platform、schema、lockfile、deploy protocol 或未知代码路径会选择全部 12 个 unit。需要当前 E2E 或过渡期整站发布时仍构建 canonical monolith，避免在生产 Gateway 尚未启用前伪装成 fleet E2E。
+`.github/workflows/ci.yml` 的质量线为：
 
-分模块生产运行使用 deploy graph 的独立 Next standalone unit、blue/green 端口和版本化 Gateway generation。`candidate` unit 只能进入 shadow；graph 明确标记为 `active` 的 unit 在既有 control-plane receipt 与 artifact 要求完全一致、inactive slot 的 health/version 通过后，允许通过唯一发布入口公开切换。当前代码侧 active unit 是 `external` 和 `finance`，其余 10 个 candidate unit 仍只能 shadow；maturity 是激活资格，不代表生产 Gateway 已经存在对应 override，线上事实必须读取 `current` generation/receipt。单 unit 激活只替换该 unit 的 Gateway state；Profile 先 prepare 全部目标 unit，再基于精确 release set、SLO/DR observation 和一次 Gateway generation 原子提交。Full 在 monolith 版本检查通过后生成 `activeUnits=[]`、无独立 routes 的不可变 Gateway generation 并原子切换 Nginx，撤销此前所有单 unit/Profile 公网 override；因此 Full 成功必须表示所有公网模块统一运行本次 monolith，后续独立部署再显式建立 override。单 unit 的 shadow/activate/rollback 都写 schema-v2 部署事件与历史，shadow 明确标记为 `deploymentMode=shadow`，不能被报告为“已上线”；事件包含 `deploymentKind`、`action` 和 `modules[].unitId/moduleKeys/moduleLabels`，服务器机器人据此描述本次真正变化的模块。Profile promotion 只报告 rollout `targetUnitIds`。旧单体 event 继续兼容。
+1. `CI / changed`：base/head 影响检查。
+2. `CI / node`：Node tests。
+3. `CI / type`：完整 project-reference typecheck。
+4. `CI / PostgreSQL`：migration、约束与真实 PostgreSQL integration。
+5. `CI / build once`：只编译一次 Next standalone，并组装 portable runtime artifact。
+6. `CI / E2E exact build`：下载并启动第 5 步的 exact build，不允许重建。
+7. `CI / required`：聚合以上结果；任一非 success 即失败。
 
-## 测试内容与当前缺口
+PR/Fork 只运行质量线，不获得 package write 或 CNB trigger 权限。只有受保护 `main` push 才运行 `Image / publish exact digest`。
 
-当前已注册浏览器证据包括：
+## 唯一应用镜像
 
-- 匿名访问与登录页；
-- 账户偏好保存、服务端读回、刷新后持久化和原值恢复；
-- Finance 分析与总账读取；
-- nightly 的 HR 花名册、Work 主入口/项目、Finance、Production QC、Inventory、Library、External、Administration 首屏 readiness；
-- readiness 流程的 navigation/resource timing、慢资源、失败请求和 5xx，并对 ready 时长设置阻断阈值。
+`Image / publish exact digest` 下载 `CI / build once` 的 portable runtime，使用 `ops/image.Dockerfile` 包装为唯一的 `linux/amd64` 应用镜像。Dockerfile 不运行 `npm ci`、Next build 或任何测试。
 
-当前只有“账户设置”具备确定性的浏览器写入 → 服务端读回 → 刷新持久化闭环。Finance 是只读断言，其余模块主要是首屏 readiness/延迟证据；C3 的“全部 Playwright”也只表示运行全部**已注册**浏览器流程，不代表 HR、Work、Production 等所有保存路径已经有 E2E。未映射路径会 fail closed 到 C3，但静态、Node、PostgreSQL 与全量现有 E2E 不能替代尚未编写的业务保存用例；新增稳定写入测试并登记影响映射后，才可把相应路径降到目标 C2。
+镜像推送到：
 
-常用本地命令：
-
-```bash
-# 查看某个完整 diff 的判定
-node scripts/ci/classify-risk.mjs \
-  --base <40-char-base-sha> \
-  --head <40-char-head-sha> \
-  --diff-mode three-dot
-
-# 本地静态 + Node + type + production build 全量诊断；不等同于远端 PostgreSQL/E2E lanes
-npm run ci
-
-# E2E 入口；必须提供已验证 standalone archive 或本地已验证 build
-npm run test:e2e:critical
-npm run test:e2e:nightly
-npm run test:e2e:latency
+```text
+ghcr.io/<owner>/<repository>:sha-<full-sha>
 ```
 
-## Migration 发布契约
+部署不能使用该 tag；tag 只便于检索。批准身份必须是：
 
-每个新增的 `prisma/migrations/*/migration.sql`，第一条非空行必须且只能声明一次。migration 一旦进入 trusted base 就不可再改：
-
-```sql
--- workspace:migration-mode=expand
--- workspace:migration-mode=maintenance
+```text
+ghcr.io/<owner>/<repository>@sha256:<digest>
 ```
 
-- `expand` 是“旧 writer 与新 schema 仍兼容”的声明，只适用于明确 allowlist 内的建新表、对既有表使用 `CREATE INDEX CONCURRENTLY` 的非唯一索引、nullable 列、安全非空默认和带顶层 `WHERE` 的受限数据更新等向前兼容变化。既有表普通/唯一索引、显式 transaction 内的 concurrent index、未知 statement/`ALTER`、权限收窄、trigger/rule/policy/constraint、`DO`/`CREATE OR REPLACE`、除 `DROP NOT NULL` 外的所有 `DROP` 都必须转为 `maintenance`。
-- `maintenance` 是对停机迁移的显式授权，不是普通注释。迁移文件和部署策略路径受 CODEOWNER 审批；只有确认旧版本不能与该 migration 并存时才使用。
-- PR/CI 只允许新增 migration，且目录名必须严格晚于 trusted base 的最大 migration；一旦进入受信任 base 就禁止修改、重命名或删除，避免生产不重跑、checksum 漂移或迟到回填。生产入口再检查 `last_deployed..candidate` 的累计差异，不能借由多个小提交绕过 maintenance 判断。
-- 普通 `expand` 发布先生成 PostgreSQL/runtime 可恢复备份，再在线迁移。存在 pending `maintenance` 或服务器已有未完成维护 marker 时，部署先写维护意图，停止并确认 candidate、Workspace 与企业微信 writer，执行 `pm2 save`，然后在不受普通 retention 清理的 pinned 目录生成唯一 migration 前 `pg_dump`；marker 原子记录精确 backup path 与 SHA-256 后才运行 migration。
-- migration 完成后、candidate 启动前执行 data-release gate。源码不声明租户批次；只有本次 release metadata 显式绑定的私有批次才会执行，并必须具有匹配 payload digest 的上传回执和现场只读断言。
-- 发布者传入 `--data-release <id>` 后，deploy agent 在 CNB trigger 前从 `WORKSPACE_CONFIG_DIR` 检查私有 manifest 与源文件 SHA-256、上传到服务器私有暂存区并逐文件复验。release metadata 精确绑定 `id + payloadDigest`，服务器在 migration 后再次复验、调用源码注册的幂等 handler、写 production 回执。任一步不一致都会阻断，部署脚本不接受 manifest 指定任意命令。
-- maintenance migration 一旦开始，失败处理不会重启不兼容的旧 release。重试只要检测到 marker，就先无条件停止并确认 candidate、Workspace 与企业微信 writer、执行 `pm2 save`，随后才解析 marker 和复验其 pinned 原始备份；marker/备份缺失、损坏或 digest 不符都直接保持停机。只有新 release 完成健康、版本与证据提交后才清除 marker；下一次正常发布才清理已解除 pin 的恢复点。
+GitHub 随后生成 `release.json`，至少绑定：
 
-## 从提交到发布
+- commit SHA 与 Git tree；
+- repository content digest；
+- `linux/amd64` GHCR image ref/digest；
+- standalone artifact/manifest digest；
+- migration head 与 migration-set digest；
+- GitHub Run ID、attempt、`CI / required=success` 与 build timestamp；
+- `releaseDigest` 自校验摘要。
 
-1. pre-commit 只检查 staged/changed 范围，不隐式运行全库 TypeScript；日常 changed/refactor/quick/push 同样不自动运行 TypeScript。普通局部改动不另跑类型检查；需要诊断时，单模块显式使用 `npm run typecheck:scope -- <package>`，多直接工程使用 `typecheck:quick`，CI/发布才使用 `typecheck:full`。hook 和 `npm run check:ci` 可执行入口都会先按 `.node-version` 自动选择 Node，并把一般运行时临时目录固定到工作区 `.cache/runtime-tmp`。TypeScript 检查通过受锁 runner 加载编译器，不启动 `tsx` CLI IPC server。显式设置 `PRE_COMMIT_FULL=1` 会运行全量并为 staged tree 写入发布可复用通过记录。
-2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
-3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
-4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 在无 E2E/整站发布请求时上传受影响 unit artifacts；需要 E2E 或整站 artifact 时上传 canonical monolith，并只在同一 CI run 内交给 E2E。这些 CI artifacts 不发布 prerelease，也不参与生产部署。
-5. `publish.sh deploy` 是 Full/单 unit 的唯一生产 operator 入口；Profile/Fleet 只经受信内部入口运行。开发集成使用 `main`，生产候选使用专用 worktree 的 `release`；私有配置以 `SOURCE_DIR` 指向日常 `main` 工作区，以 `RELEASE_SOURCE_DIR` 指向专用 worktree，以 `RELEASE_CI_ENV_FILE` 指向本机受控 CI 环境文件。入口读取 `main` ref 的已提交 HEAD，不检查也不打包日常 main worktree 的脏文件；需要随本次发布的变化必须先提交。release 仅通过被 Git 忽略且目标受校验的 `.env` 符号链接取得本机 CI/数据库配置，不复制 main 文件。入口只允许把干净的 `release` 从本地 `main` 快进，拒绝分叉、合并提交和覆盖历史。入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。发布先只读生产 schema-v3 receipt 和恢复 marker，以已部署 source 检查 candidate lineage，并对 `last_deployed..candidate` 执行累计 migration policy；这些检查必须早于本地 full CI 和 CNB trigger。当前 tree 没有有效通过记录时只运行一次 `npm run check:ci`，同一 tree 已通过时直接复用。通过记录不再绑定调用方 Node 完整版本、平台或架构，因为检查入口已经统一 Node 主版本，生产 Linux runtime 另由 CNB 对目标 artifact 的构建证明。入口会显示不能复用的具体原因，不再吞掉错误。全量检查通过后，入口根据 `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` 收集租户配置及其 HR/manifest 引用，先上传到服务器暂存目录、逐文件校验 SHA-256、保留旧文件备份并切换；任一文件缺失、引用越界、摘要漂移或服务器复验失败都会在 CNB trigger 前阻断。随后生成绑定 source SHA/tree、本地全量通过记录与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
-6. Git 跟踪的 `ops/cnb-release.yml` 只定义可复用流水线形状；租户实际的 CNB env import、服务器目录和健康检查地址由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 管理。发布脚本读取并校验该租户文件；`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
-7. CNB 在 injection checkout 中恢复或安装依赖，并按 release metadata 构建 Full canonical standalone 或单 unit artifact。packager 绑定 parent source SHA/tree、目标、BUILD_ID、contract/graph，生成 manifest/tgz；统一部署器在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
-8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。
-9. `publish.sh` 在专用 release worktree 维护跨候选、跨失败重试的追加式流程计时会话。首次 release 尝试开始计时，候选 SHA 或业务路径变化都不得清空已经发生的 Ops 时间；部署脚本修复与失败间隔持续进入“release 流程处理耗时”。需要处理中途业务 `main` 时，先运行 `ops/publish.sh timing pause`，业务提交完成后由下一次 `deploy` 自动 resume；这段暂停区间不计入 Ops。每次 CI 的实际运行时长也从会话中扣除。生产部署时间从配置同步和 release metadata 准备完成后开始，经 CNB 构建、传输/cutover，直到 Full 的生产 version、单 unit activate 的 Gateway active state，或 shadow 的 `shadow-ready` receipt 精确等于目标 SHA/tree。Full 与经 `publish.sh` 发起的单 unit event 保存 `releaseProcessSeconds`、`durationSeconds`（生产部署）与两者之和 `opsDurationSeconds`；直接 unit rollback 若没有 release metadata，只记录本次生产部署耗时。命令行和服务器 bot 展示部署范围（Full 或实际模块）、可用的 Ops 总耗时/尝试次数、生产部署耗时、CNB/生产关键 stage 与最慢 stage；不展示 main 或 CI 为 Ops 耗时。
-10. 当前部署历史覆盖 Full、单 unit shadow/activate/rollback 和 Profile promotion：事件追加到生产 `.workspace/deployment-history/deployments.ndjson`，同时保留逐次 JSON 与 `latest.json`。Profile promotion 当前只记录目标范围与本次 promotion duration，没有接入 `publish.sh` 的跨重试 release-process timing；Profile rollback 当前只切回上一 Gateway generation，尚未写部署事件或历史，这是通知/审计缺口，不能描述成已经完整留痕。Operations 不运行定时分析，只在用户要求时按需查询。生产记录按相应事件保存可用的 CNB/source/artifact/Gateway 证据，不创建 GitHub Deployment。
+动态 `release.json` 以一个只含该文件的 OCI metadata artifact 发布。它不是第二个应用 build，也不能替代应用镜像；`RELEASE_MANIFEST_URL` 始终带 metadata artifact digest。
 
-生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
+## GitHub -> CNB
 
-## 生产发布
+GitHub 只保存最小权限 `CNB_TRIGGER_TOKEN`。仓库变量：
 
-```bash
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
+- `CNB_REPOSITORY`：默认 `illya317/Workspace`；
+- `CNB_RELEASE_EVENT`：迁移期设为 `api_trigger_rehearsal`，演练通过后才改为 `api_trigger_deploy`。
 
-# active 单元公开部署并切换公网 Gateway
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy --deploy-unit external
+调用 CNB OpenAPI 时传递：
 
-# candidate/active 单元演练只进入 shadow
-OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy --shadow-unit finance
+```text
+SOURCE_SHA
+SOURCE_TREE
+IMAGE_REF
+IMAGE_DIGEST
+RELEASE_MANIFEST_URL
+GITHUB_RUN_ID
 ```
 
-- `--deploy-unit <unitId>` 只接受 deploy graph 中的 `active` 单元，把 `activate` 目标写入受 source/tree 约束的 release metadata，再动态生成本次 CNB injection；入口等待 CNB terminal success 与服务器 Gateway active state 同 SHA/tree 后才报告成功并写模块上线通知。`--shadow-unit <unitId>` 接受 candidate/active 单元，只等待同 SHA/tree 的 `shadow-ready` receipt，不切公网 Gateway，也不写“已上线”通知。私有 CNB 模板始终保持空目标，避免上一次模块残留污染下次发布。
-- Library/OCR、Qwen embedding 和 ONLYOFFICE provisioning 采用 source/config digest marker。marker 命中后仍运行轻量版本/文件/健康检查；检查失败、脚本或配置变化时自动回退到完整安装，Qwen 的完整 CPU semantic smoke 仍由首次安装或输入变化触发。
-- `config/tenant/profile.json`、其声明的配置文件和根 `manifest.json` 由 `publish.sh deploy` 自动同步；`--print-command` 只生成 CNB request，不改服务器租户配置。服务器切换前后均按部署 manifest 复验，历史版本保存在 `.workspace.backups/tenant-config/`。
-- CNB artifact 进入统一部署器后，必须通过 manifest/digest/migration 校验、互斥锁、PostgreSQL/runtime 备份、不可变 release 目录、PM2 切换、健康检查和回滚。`deployed-release.json` 绑定同一个 runtime/canonical source。
-- 已执行 migration 和已写入业务数据不会被后续代码部署自动回退；有持久化变化时，后续 source 必须保持兼容或提供明确的向前修正。
+CNB checkout 只承载受保护的部署控制代码，不是应用源码；应用身份只能来自 GitHub `release.json`。缺字段、SHA/tree/digest 格式错误、`releaseDigest` 不一致或 manifest 参数漂移全部 fail closed。
 
-## 分支保护初始化
+## CNB Registry 镜像
 
-截至 2026-07-16，独立 bootstrap `4f675923a5e672f718ad75bcc0a84cbd374883da` 已完成精确 SHA 全量 CI，GitHub `main` 已启用并回读确认保护：strict `CI / required` 绑定 GitHub Actions App，管理员同样受限，要求 CODEOWNERS、线性历史和 conversation resolution，禁止 force push/delete。后续功能只能通过受保护候选 PR 合入，不能再使用未保护 main 的 bootstrap 推送方式。
+`ops/cnb-image-release.sh prepare`：
 
-以下步骤保留为首次启用或灾难恢复时的 bootstrap 记录；本仓库本次初始化已经完成，不应重复执行：
+1. 按 digest 拉取 OCI metadata artifact 并读取 `release.json`。
+2. 按 digest 拉取唯一 GHCR 应用镜像。
+3. 运行 `ops/deploy-image.sh verify` 校验 release/SHA/tree/digest/platform。
+4. 将同一 image manifest 推送到 `${CNB_DOCKER_REGISTRY}/${CNB_REPO_SLUG_LOWERCASE}:sha-${SOURCE_SHA}`。
+5. 校验 push 返回的 CNB digest 必须逐字等于 GHCR digest，并按 digest 回拉验证。
 
-1. 记录当前未保护 `origin/main` 的完整 SHA，并从它创建隔离 worktree。
-2. 从最终 review 通过的纯 CI/CD 提交应用完整 workflow 及其所有运行依赖，但明确排除 `prisma/migrations/**`；staged diff 不得包含 `app/`、`packages/`、`prisma/migrations/` 或其他业务变更。
-3. 在隔离 worktree 运行本地完整 CI 验证，提交后以精确 lease 做一次受控快进 push；绝不先把 migration 推到未保护 main。
-4. 等待这个精确 bootstrap SHA 的 `CI / required` 成功。若失败，先把远端 `main` 精确恢复到原 bootstrap base，再从同一 base 制作修正版；禁止在失败的未保护 main 上继续追加修复提交：
+CNB 禁止运行：
 
-   ```bash
-   failed_sha="$(git ls-remote origin refs/heads/main | awk '{print $1}')"
-   git push origin --force-with-lease="refs/heads/main:$failed_sha" "$bootstrap_base:refs/heads/main"
-   test "$(git ls-remote origin refs/heads/main | awk '{print $1}')" = "$bootstrap_base"
-   ```
+- `npm ci`、lint、typecheck、Node/PostgreSQL/E2E；
+- Next build；
+- 第二次 Docker application build；
+- 可变 tag 部署。
 
-5. 先 dry-run，再 apply 并 read-back 远端保护；随后把现有功能提交 rebase/replay 到受保护 main，通过稳定 bot candidate PR 合并。
+## 演练门禁
 
-示例（`<ci-cd-commit>` 是本任务最终纯 CI/CD 提交）：
+首次生产启用前必须成功运行 `api_trigger_rehearsal`：
 
-```bash
-git fetch origin main
-bootstrap_base="$(git rev-parse origin/main)"
-bootstrap_dir="$(mktemp -d)/workspace-ci-bootstrap"
-git worktree add --detach "$bootstrap_dir" "$bootstrap_base"
-git diff --binary "<ci-cd-commit>^" "<ci-cd-commit>" -- . ':(exclude)prisma/migrations/**' > /tmp/workspace-ci-bootstrap.patch
-git -C "$bootstrap_dir" apply --index /tmp/workspace-ci-bootstrap.patch
-test -z "$(git -C "$bootstrap_dir" diff --cached --name-only -- app packages prisma/migrations)"
-git -C "$bootstrap_dir" commit -m "ci: bootstrap adaptive quality gates"
-npm --prefix "$bootstrap_dir" ci --no-audit --fund=false
-npm --prefix "$bootstrap_dir" run check:ci
-npm --prefix "$bootstrap_dir" run test:node
-bootstrap_sha="$(git -C "$bootstrap_dir" rev-parse HEAD)"
-git -C "$bootstrap_dir" push origin --force-with-lease="refs/heads/main:$bootstrap_base" HEAD:refs/heads/main
-gh run list --repo example-owner/example-repo --workflow CI --commit "$bootstrap_sha"
-```
+1. GHCR digest 拉取；
+2. CNB Registry 同 digest 镜像；
+3. disposable PostgreSQL migration；
+4. exact image 非生产启动；
+5. health 与 `/api/settings/version.imageDigest` 复验；
+6. 容器停止与上一 digest 启动路径演练。
 
-确认该精确 SHA 的 `CI / required` 成功后应用并复核保护：
+`PRODUCTION_IMAGE_DEPLOY_ENABLED` 缺失或不为 `1` 时，`ops/deploy-image.sh production` 必须拒绝。演练证据确认后才允许在 CNB 私有环境启用并把 GitHub 的 `CNB_RELEASE_EVENT` 切为 `api_trigger_deploy`。
 
-```bash
-node scripts/ci/configure-branch-protection.mjs --repo example-owner/example-repo
-node scripts/ci/configure-branch-protection.mjs --repo example-owner/example-repo --apply
-```
+## 生产部署
 
-脚本绑定远端当前 main、精确成功 check 和 `github-actions` App，并配置 strict/up-to-date、管理员 enforcement、线性历史、conversation resolution、禁止 force push/delete、无 PR bypass。通用 `required_approving_review_count` 为 0，`require_last_push_approval` 为 false；质量策略路径由 CODEOWNERS 要求 repository-owner 审批 bot-authored PR，不能描述成独立第二人批准。
+CNB 私有环境保存 GHCR read-only robot、生产 SSH/数据库和 CNB Registry 凭据。凭据不得进入仓库、日志、patch、截图或命令参数输出。
 
-## 现有生产的一次性接管
+生产只消费 `${CNB_IMAGE_REF}@${IMAGE_DIGEST}`，顺序为：
 
-当前旧生产没有 `deployed-release.json`，首次受治理发布必须显式提供一次性 receipt，不能伪造历史记录：
+1. 获取部署锁；
+2. 拉取并复验 `linux/amd64` digest；
+3. PostgreSQL `pg_dump`、`pg_restore --list` 与 checksum；
+4. 使用镜像内已冻结 Prisma schema/migrations 执行 migration；
+5. 启动隔离 candidate 并检查 health；
+6. 切换正式容器；失败则恢复上一容器/既有运行态；
+7. 检查公网 health 与 version 的 `imageDigest`；
+8. 原子写入 `deployed-image.json`，保存 current/previous digest 与 source identity；
+9. 清除临时 Registry 登录材料。
 
-```bash
-ops/publish.sh deploy \
-  --bootstrap-production-base 0a5485a68fbba0298bfe5c2ebdb456f4b140c359 \
-  --bootstrap-legacy-cnb-commit 515f986adae2a4bfe9c8ba3901d91765fb9549a7 \
-  --bootstrap-legacy-release-id 20260715164825-515f986a \
-  --bootstrap-legacy-cnb-build-sn cnb-8gh-1jtif23er \
-  --bootstrap-legacy-runtime-version local-1784105165477 \
-  --bootstrap-legacy-build-id local-1784105165133
-```
+生产路径不能 checkout 源码、安装应用依赖或构建。
 
-入口会验证旧 CNB anchor、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及生产 migration 的名称和 checksum 集合。锁内在首次 mutation 前写入 bootstrap marker，并只允许同一 receipt/candidate 续跑。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy` 对账同一 SHA，不要再次传 bootstrap 参数。
+## 回滚
 
-CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions artifact 或 release asset。它们只消费 CNB injection checkout，并在迁移和切换前确认 `deployed-release.json` 没有被并发修改。
+`.cnb/tag_deploy.yml` 的 production 环境要求 owner/master 权限和人工审批。`ops/rollback-image.sh` 只读取 `deployed-image.json.previous.imageDigest`，拒绝任意可变 tag；它复用同一部署入口和安全门禁。数据库 migration 只允许向前兼容，应用回滚不会自动执行 down migration。
 
-## 速度策略、预算与观察
+## Agent 闭环
 
-发布提速来自删除 GitHub promotion/remote CI/artifact 等待，并按 exact tree 复用本地全量凭证。artifact cache 未命中时，CNB 仍必须在 Linux 构建一次本次目标（Full monolith 或独立 unit）；这不是第二轮全量 CI，服务器也不重建。
+Agent 在每次 CI/CD 任务中必须：
 
-历史观测中，一次成功 CNB build 总耗时约 `405.55 s`（约 `6 分 46 秒`）；这是单次历史样本，不是中位数、p95 或当前 SLA。旧 GitHub 串行链路曾观测约 5 分 28 秒。拆分后的预算仍是 C0 约 1 分钟、局部补丁约 2 分钟获得主要反馈、C3 wall time 约 4–5 分钟；CNB 先以低于历史样本为优化方向，达到稳定 p50/p95 前不宣称 3–5 分钟已经实现。
+1. 开工查询 Mac、GitHub、CNB 与远端健康基线。
+2. push 前运行受影响快速检查。
+3. push 后跟踪 exact SHA 的 GitHub required lanes 与 image job。
+4. 记录 GHCR digest、release manifest digest、CNB Build ID 与 Registry mirror digest。
+5. 若进入部署，持续跟踪 migration/backup/cutover/health/receipt/rollback 阶段。
+6. 交付前重新读取 GitHub/CNB 状态，并只读验证生产 health 与线上 digest。
 
-### Stage 1 Builder、缓存与计时契约
+Agent 不能要求用户去 GitHub/CNB 查询后再转述。
 
-- CNB release 使用 `ops/cnb-builder.Dockerfile` 预装 Node 24 与 Linux 构建/传输工具；Node 基础镜像按 digest 固定，`.node-version` 与 Dockerfile 同时作为 Builder 版本输入。流水线开始时由 `ops/verify-cnb-builder.sh` 复验 Node 主版本和工具集合，不在每次发布热路径执行 `apt-get`。
-- 仓库模板和 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 都必须通过 `node ops/validate-cnb-release-config.mjs <path>`。校验器只允许一个 `deploy-prod` pipeline 和四个有序、精确命令的 stage，要求 npm、Next 和成对的 TypeScript declaration/build-info copy-on-write cache，拒绝额外 pipeline/stage、变体 volume、`node_modules`、standalone tgz 或冷安装工具阶段。
-- `server-prod.yaml` 只能由 `deploy-to-server` stage 导入。pipeline、Builder 验证、`npm ci` 和 Next build 均不得接触 SSH key、生产服务器地址或其他部署 secret；构建仅使用固定的非生产 Prisma generation 环境。
-- 缓存只影响性能，不能改变正确性或证据链。缓存完全缺失时仍执行真实 `npm ci`、目标对应的受治理 type/build、artifact digest 与服务器复验；cache volume、`.next/cache` 和 `.cache/types`/`.cache/tsbuild` 都不是生产回执。CNB 另保存按精确 source SHA/tree 和 target（monolith 或 unit）寻址的不可变 artifact cache；命中时必须重新验证 manifest、artifact SHA-256、大小、unit contract 与 deploy graph，完全一致后才可同时跳过 `npm ci` 和 build。任一字段不匹配即视为 miss 并执行真实构建，禁止跨 source/tree 猜测复用。普通编译缓存使用 `copy-on-write`，只在整条流水线成功后合并；artifact cache 使用无锁的内容寻址目录和原子 rename 发布到 `read-write` volume，并发写入者只接受可完整复验的现有缓存，使服务器阶段失败后的同 tree 重试也能复用已验证产物。
-- CNB stage、standalone 组装和服务器部署把无敏感参数的 NDJSON 事件写入 `.cache/release-timing/<source-sha>.ndjson`，日志使用稳定前缀 `WORKSPACE_RELEASE_TIMING`。本地细分阶段在成功、失败或取消时都保留原退出码；远程部署另在租户私有目录保留本次 release 的 `migration.provision`、`candidate.warmup`、`public.cutover` 三段记录，成功后必须同时匹配当前 release、`deploy.remote` scope 和这三个有序 stage 才汇入同一份本地 NDJSON。记录仅包含 release、scope、stage、状态、时间、duration 和退出码；不保存命令、参数或环境。
-- `node ops/release-timing.mjs validate --input <file>` 校验记录；`summary` 生成单次 release 摘要。至少收集 10 个生产样本并区分 cold/warm 后，才为下一阶段确定 p50、p95 与 cache-hit 预算。
+## 旧控制面的收口
 
-持续观察各 job 时长、排队时间、缓存命中、Playwright retry/flaky、被取消旧运行、CNB 状态、部署回滚和模块写入覆盖。只有新证据有明确 owner 时，才可以删除旧检查或扩大 C2 快车道。
+`ops/publish.sh`、CNB injection、Application Ready/Controller Ready、blocker ledger、retry fence 和跨渠道 build adapter 属于旧 artifact/PM2 发布控制面。新 GitHub/CNB 流程不得调用它们。它们只在镜像非生产演练与生产切换完成前保留为兼容/回滚依据；删除必须在以下证据齐备后进行：
+
+- 至少一次 CNB rehearsal 成功；
+- 一次受控 production image cutover 成功；
+- 一次 previous-digest rollback drill 成功；
+- 新 `deployed-image.json` 与旧生产回执完成归档。
+
+未满足这些条件前直接删除旧生产恢复代码会降低可恢复性，因此禁止把“代码行减少”置于可回滚性之前。

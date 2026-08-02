@@ -1,7 +1,7 @@
 import "dotenv/config";
 
 import { PrismaPg } from "@prisma/adapter-pg";
-import { loadTenantProfile } from "../lib/tenant-config";
+import { loadTenantCompanies } from "../lib/tenant-config";
 import fs from "node:fs";
 import path from "node:path";
 import { PrismaClient } from "../../generated/prisma/client";
@@ -16,20 +16,46 @@ const prisma = new PrismaClient({
 });
 
 async function main() {
-  const defaultManagementGroup = loadTenantProfile().organization.managementGroups.default;
-  await Promise.all(["01", "02", "03"].map((code, index) => prisma.$transaction(async (tx) => {
-    const identityNumber = `E2E-COMPANY-${code}`;
+  const companies = loadTenantCompanies();
+  await Promise.all(companies.map((company) => prisma.$transaction(async (tx) => {
+    const identityNumber = `E2E-COMPANY-${company.code}`;
     const party = await tx.party.upsert({
       where: { subjectType_identityNumber: { subjectType: "organization", identityNumber } },
-      update: { name: `E2E公司${code}` },
-      create: { subjectType: "organization", identityNumber, name: `E2E公司${code}` },
+      update: { name: company.name },
+      create: { subjectType: "organization", identityNumber, name: company.name },
     });
     await tx.company.upsert({
-      where: { code },
-      update: { partyId: party.id, isActive: true, sortOrder: index },
-      create: { code, partyId: party.id, managementGroup: defaultManagementGroup, isActive: true, sortOrder: index },
+      where: { code: company.code },
+      update: {
+        partyId: party.id,
+        managementGroup: company.managementGroup,
+        codePoolCode: company.codePoolCode,
+        isActive: company.isActive,
+        sortOrder: company.sortOrder,
+      },
+      create: {
+        code: company.code,
+        partyId: party.id,
+        managementGroup: company.managementGroup,
+        codePoolCode: company.codePoolCode,
+        isActive: company.isActive,
+        sortOrder: company.sortOrder,
+      },
     });
   })));
+
+  await prisma.financeAccountingPolicyVersion.upsert({
+    where: { code: "E2E-V1" },
+    update: { effectiveFrom: null, effectiveTo: null, status: "published" },
+    create: {
+      versionNo: 1,
+      code: "E2E-V1",
+      name: "E2E accounting policy",
+      effectiveFrom: null,
+      effectiveTo: null,
+      status: "published",
+    },
+  });
 
   const [admin, userAtId] = await Promise.all([
     prisma.user.findUnique({ where: { username: "admin" }, select: { id: true } }),
@@ -75,7 +101,7 @@ async function main() {
     }],
     origins: [],
   }, null, 2)}\n`, { mode: 0o600 });
-  process.stdout.write("E2E companies, admin identity, and signed browser session are ready.\n");
+  process.stdout.write("E2E tenant companies, finance policy, admin identity, and signed browser session are ready.\n");
 }
 
 main()

@@ -6,9 +6,31 @@ export const ExternalPartyQuerySchema = z.object({
   keyword: z.string().trim().max(120).optional(),
   page: z.coerce.number().int().positive().catch(1),
   pageSize: z.coerce.number().int().positive().max(1000).catch(50),
+  asOfDate: z.iso.date({ error: "基准日必须是有效的 YYYY-MM-DD 日期" }).optional(),
 });
 
-export const ExternalPartyCreateSchema = z.object({
+export const ExternalRelatedPartyQuerySchema = ExternalPartyQuerySchema.extend({
+  relatedPartyType: z.enum([
+    "group",
+    "joint_venture_associate",
+    "investor_influence",
+    "key_management_related",
+    "other_related",
+  ]).optional(),
+});
+
+export const ExternalRelatedPartyCreateSchema = z.object({
+  partyId: z.number().int().positive(),
+  relatedPartyType: z.enum([
+    "group",
+    "joint_venture_associate",
+    "investor_influence",
+    "key_management_related",
+    "other_related",
+  ]),
+}).strict();
+
+const ExternalPartyFieldsSchema = z.object({
   existingPartyId: z.number().int().positive().optional(),
   subjectType: z.enum(["organization", "individual"]).optional(),
   relatedPartyType: z.enum([
@@ -19,7 +41,7 @@ export const ExternalPartyCreateSchema = z.object({
     "key_management_related",
     "other_related",
   ]).optional(),
-  code: z.string().trim().min(1, "编码必填").max(64),
+  code: z.string().trim().max(64).optional(),
   name: z.string().trim().min(1, "名称必填").max(120),
   fullName: optionalText(200),
   classification: optionalText(80),
@@ -41,10 +63,50 @@ export const ExternalPartyCreateSchema = z.object({
   creditDays: z.number().int().nonnegative().max(3650).optional().nullable(),
   taxRate: z.number().finite().min(0).max(100).optional().nullable(),
   remark: optionalText(500),
-  isActive: z.boolean().optional(),
+  effectiveOn: z.iso.date({ error: "生效日必须是有效的 YYYY-MM-DD 日期" }).optional(),
+  legalFactReason: optionalText(500),
 });
 
-export const ExternalPartyUpdateSchema = ExternalPartyCreateSchema.partial();
+export const ExternalPartyCreateSchema = ExternalPartyFieldsSchema.extend({
+  availabilityFrom: z.iso.date({ error: "角色启用日必须是有效的 YYYY-MM-DD 日期" }).optional().nullable(),
+  availabilityThrough: z.iso.date({ error: "角色结束日必须是有效的 YYYY-MM-DD 日期" }).optional().nullable(),
+});
+
+export const ExternalPartyUpdateSchema = ExternalPartyFieldsSchema.partial().extend({
+  legalFactRevision: z.number().int().nonnegative().optional(),
+});
+
+const availabilityPeriodFields = {
+  validFrom: z.iso.date({ error: "角色启用日必须是有效的 YYYY-MM-DD 日期" }).nullable(),
+  validThrough: z.iso.date({ error: "角色结束日必须是有效的 YYYY-MM-DD 日期" }).nullable(),
+};
+
+export const ExternalPartyRoleAvailabilityCommandSchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("schedule"),
+    ...availabilityPeriodFields,
+    reason: optionalText(500),
+  }).strict(),
+  z.object({
+    kind: z.literal("correct"),
+    periodId: z.number().int().positive(),
+    ...availabilityPeriodFields,
+    reason: z.string().trim().min(1, "更正原因必填").max(500),
+  }).strict(),
+  z.object({
+    kind: z.literal("cancel-future"),
+    periodId: z.number().int().positive(),
+    reason: z.string().trim().min(1, "取消原因必填").max(500),
+  }).strict(),
+]);
+
+export const ExternalPartyRoleEndSchema = z.object({
+  effectiveOn: z.iso.date({ error: "停用生效日必须是有效的 YYYY-MM-DD 日期" }),
+  reason: z.string().trim().min(1, "停用原因必填").max(500),
+}).strict();
 
 export type ExternalPartyCreateInput = z.infer<typeof ExternalPartyCreateSchema>;
+export type ExternalRelatedPartyCreateInput = z.infer<typeof ExternalRelatedPartyCreateSchema>;
 export type ExternalPartyUpdateInput = z.infer<typeof ExternalPartyUpdateSchema>;
+export type ExternalPartyRoleAvailabilityCommandInput = z.infer<typeof ExternalPartyRoleAvailabilityCommandSchema>;
+export type ExternalPartyRoleEndInput = z.infer<typeof ExternalPartyRoleEndSchema>;

@@ -28,8 +28,10 @@ export type AggregateFinanceAssetAdjustment = {
 
 export type FinanceAssetAdjustmentAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   periodId: number | null
   assetId: number | null
+  accountId: number | null
   amount: runtime.Decimal | null
   reversedById: number | null
   voucherId: number | null
@@ -39,8 +41,10 @@ export type FinanceAssetAdjustmentAvgAggregateOutputType = {
 
 export type FinanceAssetAdjustmentSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   periodId: number | null
   assetId: number | null
+  accountId: number | null
   amount: runtime.Decimal | null
   reversedById: number | null
   voucherId: number | null
@@ -51,9 +55,11 @@ export type FinanceAssetAdjustmentSumAggregateOutputType = {
 export type FinanceAssetAdjustmentMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   periodId: number | null
   assetId: number | null
   accountCode: string | null
+  accountId: number | null
   amount: runtime.Decimal | null
   reason: string | null
   status: string | null
@@ -70,9 +76,11 @@ export type FinanceAssetAdjustmentMinAggregateOutputType = {
 export type FinanceAssetAdjustmentMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   periodId: number | null
   assetId: number | null
   accountCode: string | null
+  accountId: number | null
   amount: runtime.Decimal | null
   reason: string | null
   status: string | null
@@ -89,9 +97,11 @@ export type FinanceAssetAdjustmentMaxAggregateOutputType = {
 export type FinanceAssetAdjustmentCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   periodId: number
   assetId: number
   accountCode: number
+  accountId: number
   amount: number
   reason: number
   status: number
@@ -109,8 +119,10 @@ export type FinanceAssetAdjustmentCountAggregateOutputType = {
 
 export type FinanceAssetAdjustmentAvgAggregateInputType = {
   id?: true
+  companyId?: true
   periodId?: true
   assetId?: true
+  accountId?: true
   amount?: true
   reversedById?: true
   voucherId?: true
@@ -120,8 +132,10 @@ export type FinanceAssetAdjustmentAvgAggregateInputType = {
 
 export type FinanceAssetAdjustmentSumAggregateInputType = {
   id?: true
+  companyId?: true
   periodId?: true
   assetId?: true
+  accountId?: true
   amount?: true
   reversedById?: true
   voucherId?: true
@@ -132,9 +146,11 @@ export type FinanceAssetAdjustmentSumAggregateInputType = {
 export type FinanceAssetAdjustmentMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   assetId?: true
   accountCode?: true
+  accountId?: true
   amount?: true
   reason?: true
   status?: true
@@ -151,9 +167,11 @@ export type FinanceAssetAdjustmentMinAggregateInputType = {
 export type FinanceAssetAdjustmentMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   assetId?: true
   accountCode?: true
+  accountId?: true
   amount?: true
   reason?: true
   status?: true
@@ -170,9 +188,11 @@ export type FinanceAssetAdjustmentMaxAggregateInputType = {
 export type FinanceAssetAdjustmentCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   assetId?: true
   accountCode?: true
+  accountId?: true
   amount?: true
   reason?: true
   status?: true
@@ -276,9 +296,11 @@ export type FinanceAssetAdjustmentGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type FinanceAssetAdjustmentGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   periodId: number
   assetId: number | null
   accountCode: string
+  accountId: number | null
   amount: runtime.Decimal
   reason: string
   status: string
@@ -318,9 +340,11 @@ export type FinanceAssetAdjustmentWhereInput = {
   NOT?: Prisma.FinanceAssetAdjustmentWhereInput | Prisma.FinanceAssetAdjustmentWhereInput[]
   id?: Prisma.IntFilter<"FinanceAssetAdjustment"> | number
   companyCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   periodId?: Prisma.IntFilter<"FinanceAssetAdjustment"> | number
   assetId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   accountCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  accountId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   amount?: Prisma.DecimalFilter<"FinanceAssetAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
   status?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
@@ -333,16 +357,20 @@ export type FinanceAssetAdjustmentWhereInput = {
   createdBy?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetAdjustment"> | Date | string
   asset?: Prisma.XOR<Prisma.FinanceAssetCardNullableScalarRelationFilter, Prisma.FinanceAssetCardWhereInput> | null
+  account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   voucher?: Prisma.XOR<Prisma.FinanceVoucherNullableScalarRelationFilter, Prisma.FinanceVoucherWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceAssetAdjustmentOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrderInput | Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -355,8 +383,10 @@ export type FinanceAssetAdjustmentOrderByWithRelationInput = {
   createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   asset?: Prisma.FinanceAssetCardOrderByWithRelationInput
+  account?: Prisma.FinanceAccountOrderByWithRelationInput
   period?: Prisma.FinancePeriodOrderByWithRelationInput
   voucher?: Prisma.FinanceVoucherOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceAssetAdjustmentWhereUniqueInput = Prisma.AtLeast<{
@@ -366,9 +396,11 @@ export type FinanceAssetAdjustmentWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceAssetAdjustmentWhereInput[]
   NOT?: Prisma.FinanceAssetAdjustmentWhereInput | Prisma.FinanceAssetAdjustmentWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   periodId?: Prisma.IntFilter<"FinanceAssetAdjustment"> | number
   assetId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   accountCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  accountId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   amount?: Prisma.DecimalFilter<"FinanceAssetAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
   status?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
@@ -381,16 +413,20 @@ export type FinanceAssetAdjustmentWhereUniqueInput = Prisma.AtLeast<{
   createdBy?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetAdjustment"> | Date | string
   asset?: Prisma.XOR<Prisma.FinanceAssetCardNullableScalarRelationFilter, Prisma.FinanceAssetCardWhereInput> | null
+  account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
   voucher?: Prisma.XOR<Prisma.FinanceVoucherNullableScalarRelationFilter, Prisma.FinanceVoucherWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_sourceKey">
 
 export type FinanceAssetAdjustmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrderInput | Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -415,9 +451,11 @@ export type FinanceAssetAdjustmentScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceAssetAdjustmentScalarWhereWithAggregatesInput | Prisma.FinanceAssetAdjustmentScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceAssetAdjustment"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetAdjustment"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetAdjustment"> | number | null
   periodId?: Prisma.IntWithAggregatesFilter<"FinanceAssetAdjustment"> | number
   assetId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetAdjustment"> | number | null
   accountCode?: Prisma.StringWithAggregatesFilter<"FinanceAssetAdjustment"> | string
+  accountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAssetAdjustment"> | number | null
   amount?: Prisma.DecimalWithAggregatesFilter<"FinanceAssetAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringWithAggregatesFilter<"FinanceAssetAdjustment"> | string
   status?: Prisma.StringWithAggregatesFilter<"FinanceAssetAdjustment"> | string
@@ -445,16 +483,20 @@ export type FinanceAssetAdjustmentCreateInput = {
   createdBy?: number | null
   createdAt?: Date | string
   asset?: Prisma.FinanceAssetCardCreateNestedOneWithoutAdjustmentsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput
   voucher?: Prisma.FinanceVoucherCreateNestedOneWithoutAssetAdjustmentsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetAdjustmentsInput
 }
 
 export type FinanceAssetAdjustmentUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId: number
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -482,16 +524,20 @@ export type FinanceAssetAdjustmentUpdateInput = {
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneWithoutAssetAdjustmentsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetAdjustmentsNestedInput
 }
 
 export type FinanceAssetAdjustmentUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -508,9 +554,11 @@ export type FinanceAssetAdjustmentUncheckedUpdateInput = {
 export type FinanceAssetAdjustmentCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId: number
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -542,9 +590,11 @@ export type FinanceAssetAdjustmentUpdateManyMutationInput = {
 export type FinanceAssetAdjustmentUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -576,9 +626,11 @@ export type FinanceAssetAdjustmentCompanyCodeSourceKeyCompoundUniqueInput = {
 export type FinanceAssetAdjustmentCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -594,8 +646,10 @@ export type FinanceAssetAdjustmentCountOrderByAggregateInput = {
 
 export type FinanceAssetAdjustmentAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
@@ -606,9 +660,11 @@ export type FinanceAssetAdjustmentAvgOrderByAggregateInput = {
 export type FinanceAssetAdjustmentMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -625,9 +681,11 @@ export type FinanceAssetAdjustmentMaxOrderByAggregateInput = {
 export type FinanceAssetAdjustmentMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
   accountCode?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   reason?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -643,8 +701,10 @@ export type FinanceAssetAdjustmentMinOrderByAggregateInput = {
 
 export type FinanceAssetAdjustmentSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   assetId?: Prisma.SortOrder
+  accountId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   reversedById?: Prisma.SortOrder
   voucherId?: Prisma.SortOrder
@@ -691,6 +751,48 @@ export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetNestedInput = {
   connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
   update?: Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAssetInput | Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAssetInput[]
   updateMany?: Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAssetInput | Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAssetInput[]
+  deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
+}
+
+export type FinanceAssetAdjustmentCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput> | Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyAccountInputEnvelope
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput> | Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyAccountInputEnvelope
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceAssetAdjustmentUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput> | Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyAccountInputEnvelope
+  set?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAccountInput[]
+  deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput> | Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput[]
+  upsert?: Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutAccountInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyAccountInputEnvelope
+  set?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAccountInput[]
+  updateMany?: Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAccountInput | Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutAccountInput[]
   deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
 }
 
@@ -778,6 +880,48 @@ export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutVoucherNestedInput =
   deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
 }
 
+export type FinanceAssetAdjustmentCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+}
+
+export type FinanceAssetAdjustmentUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput> | Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput[] | Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput | Prisma.FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceAssetAdjustmentCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  delete?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  connect?: Prisma.FinanceAssetAdjustmentWhereUniqueInput | Prisma.FinanceAssetAdjustmentWhereUniqueInput[]
+  update?: Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceAssetAdjustmentUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
+}
+
 export type FinanceAssetAdjustmentCreateWithoutAssetInput = {
   companyCode: string
   accountCode: string
@@ -791,15 +935,19 @@ export type FinanceAssetAdjustmentCreateWithoutAssetInput = {
   sourceKey?: string | null
   createdBy?: number | null
   createdAt?: Date | string
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput
   voucher?: Prisma.FinanceVoucherCreateNestedOneWithoutAssetAdjustmentsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetAdjustmentsInput
 }
 
 export type FinanceAssetAdjustmentUncheckedCreateWithoutAssetInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId: number
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -845,9 +993,11 @@ export type FinanceAssetAdjustmentScalarWhereInput = {
   NOT?: Prisma.FinanceAssetAdjustmentScalarWhereInput | Prisma.FinanceAssetAdjustmentScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceAssetAdjustment"> | number
   companyCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   periodId?: Prisma.IntFilter<"FinanceAssetAdjustment"> | number
   assetId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   accountCode?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
+  accountId?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   amount?: Prisma.DecimalFilter<"FinanceAssetAdjustment"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
   status?: Prisma.StringFilter<"FinanceAssetAdjustment"> | string
@@ -859,6 +1009,71 @@ export type FinanceAssetAdjustmentScalarWhereInput = {
   sourceKey?: Prisma.StringNullableFilter<"FinanceAssetAdjustment"> | string | null
   createdBy?: Prisma.IntNullableFilter<"FinanceAssetAdjustment"> | number | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAssetAdjustment"> | Date | string
+}
+
+export type FinanceAssetAdjustmentCreateWithoutAccountInput = {
+  companyCode: string
+  accountCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  asset?: Prisma.FinanceAssetCardCreateNestedOneWithoutAdjustmentsInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput
+  voucher?: Prisma.FinanceVoucherCreateNestedOneWithoutAssetAdjustmentsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetAdjustmentsInput
+}
+
+export type FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  periodId: number
+  assetId?: number | null
+  accountCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  voucherId?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceAssetAdjustmentCreateOrConnectWithoutAccountInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput>
+}
+
+export type FinanceAssetAdjustmentCreateManyAccountInputEnvelope = {
+  data: Prisma.FinanceAssetAdjustmentCreateManyAccountInput | Prisma.FinanceAssetAdjustmentCreateManyAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateWithoutAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutAccountInput>
+}
+
+export type FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutAccountInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateWithoutAccountInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateWithoutAccountInput>
+}
+
+export type FinanceAssetAdjustmentUpdateManyWithWhereWithoutAccountInput = {
+  where: Prisma.FinanceAssetAdjustmentScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateManyMutationInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountInput>
 }
 
 export type FinanceAssetAdjustmentCreateWithoutPeriodInput = {
@@ -875,14 +1090,18 @@ export type FinanceAssetAdjustmentCreateWithoutPeriodInput = {
   createdBy?: number | null
   createdAt?: Date | string
   asset?: Prisma.FinanceAssetCardCreateNestedOneWithoutAdjustmentsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput
   voucher?: Prisma.FinanceVoucherCreateNestedOneWithoutAssetAdjustmentsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetAdjustmentsInput
 }
 
 export type FinanceAssetAdjustmentUncheckedCreateWithoutPeriodInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -936,15 +1155,19 @@ export type FinanceAssetAdjustmentCreateWithoutVoucherInput = {
   createdBy?: number | null
   createdAt?: Date | string
   asset?: Prisma.FinanceAssetCardCreateNestedOneWithoutAdjustmentsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput
   period: Prisma.FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceAssetAdjustmentsInput
 }
 
 export type FinanceAssetAdjustmentUncheckedCreateWithoutVoucherInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId: number
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -983,11 +1206,78 @@ export type FinanceAssetAdjustmentUpdateManyWithWhereWithoutVoucherInput = {
   data: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateManyMutationInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutVoucherInput>
 }
 
-export type FinanceAssetAdjustmentCreateManyAssetInput = {
+export type FinanceAssetAdjustmentCreateWithoutCompanyInput = {
+  companyCode: string
+  accountCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  asset?: Prisma.FinanceAssetCardCreateNestedOneWithoutAdjustmentsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutAssetAdjustmentsInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput
+  voucher?: Prisma.FinanceVoucherCreateNestedOneWithoutAssetAdjustmentsInput
+}
+
+export type FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput = {
   id?: number
   companyCode: string
   periodId: number
+  assetId?: number | null
   accountCode: string
+  accountId?: number | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  voucherId?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceAssetAdjustmentCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetAdjustmentCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceAssetAdjustmentCreateManyCompanyInput | Prisma.FinanceAssetAdjustmentCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAssetAdjustmentUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAssetAdjustmentCreateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceAssetAdjustmentUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateWithoutCompanyInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceAssetAdjustmentUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceAssetAdjustmentScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAssetAdjustmentUpdateManyMutationInput, Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceAssetAdjustmentCreateManyAssetInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  periodId: number
+  accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -1014,15 +1304,19 @@ export type FinanceAssetAdjustmentUpdateWithoutAssetInput = {
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  account?: Prisma.FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneWithoutAssetAdjustmentsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetAdjustmentsNestedInput
 }
 
 export type FinanceAssetAdjustmentUncheckedUpdateWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1039,7 +1333,88 @@ export type FinanceAssetAdjustmentUncheckedUpdateWithoutAssetInput = {
 export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetAdjustmentCreateManyAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  periodId: number
+  assetId?: number | null
+  accountCode: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  voucherId?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceAssetAdjustmentUpdateWithoutAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  asset?: Prisma.FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneWithoutAssetAdjustmentsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetAdjustmentsNestedInput
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateWithoutAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1057,8 +1432,10 @@ export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutAssetInput = {
 export type FinanceAssetAdjustmentCreateManyPeriodInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -1086,14 +1463,18 @@ export type FinanceAssetAdjustmentUpdateWithoutPeriodInput = {
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneWithoutAssetAdjustmentsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetAdjustmentsNestedInput
 }
 
 export type FinanceAssetAdjustmentUncheckedUpdateWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1110,8 +1491,10 @@ export type FinanceAssetAdjustmentUncheckedUpdateWithoutPeriodInput = {
 export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1128,9 +1511,11 @@ export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodInput = {
 export type FinanceAssetAdjustmentCreateManyVoucherInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId: number
   assetId?: number | null
   accountCode: string
+  accountId?: number | null
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   reason: string
   status?: string
@@ -1157,15 +1542,19 @@ export type FinanceAssetAdjustmentUpdateWithoutVoucherInput = {
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   asset?: Prisma.FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceAssetAdjustmentsNestedInput
 }
 
 export type FinanceAssetAdjustmentUncheckedUpdateWithoutVoucherInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1181,13 +1570,94 @@ export type FinanceAssetAdjustmentUncheckedUpdateWithoutVoucherInput = {
 export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutVoucherInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetAdjustmentCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  periodId: number
+  assetId?: number | null
+  accountCode: string
+  accountId?: number | null
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason: string
+  status?: string
+  reversedById?: number | null
+  voucherId?: number | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceKey?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+}
+
+export type FinanceAssetAdjustmentUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountCode?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   reason?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  asset?: Prisma.FinanceAssetCardUpdateOneWithoutAdjustmentsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutAssetAdjustmentsNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneWithoutAssetAdjustmentsNestedInput
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  assetId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  reason?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  reversedById?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1201,9 +1671,11 @@ export type FinanceAssetAdjustmentUncheckedUpdateManyWithoutVoucherInput = {
 export type FinanceAssetAdjustmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   assetId?: boolean
   accountCode?: boolean
+  accountId?: boolean
   amount?: boolean
   reason?: boolean
   status?: boolean
@@ -1216,16 +1688,20 @@ export type FinanceAssetAdjustmentSelect<ExtArgs extends runtime.Types.Extension
   createdBy?: boolean
   createdAt?: boolean
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetAdjustment"]>
 
 export type FinanceAssetAdjustmentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   assetId?: boolean
   accountCode?: boolean
+  accountId?: boolean
   amount?: boolean
   reason?: boolean
   status?: boolean
@@ -1238,16 +1714,20 @@ export type FinanceAssetAdjustmentSelectCreateManyAndReturn<ExtArgs extends runt
   createdBy?: boolean
   createdAt?: boolean
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetAdjustment"]>
 
 export type FinanceAssetAdjustmentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   assetId?: boolean
   accountCode?: boolean
+  accountId?: boolean
   amount?: boolean
   reason?: boolean
   status?: boolean
@@ -1260,16 +1740,20 @@ export type FinanceAssetAdjustmentSelectUpdateManyAndReturn<ExtArgs extends runt
   createdBy?: boolean
   createdAt?: boolean
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAssetAdjustment"]>
 
 export type FinanceAssetAdjustmentSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   assetId?: boolean
   accountCode?: boolean
+  accountId?: boolean
   amount?: boolean
   reason?: boolean
   status?: boolean
@@ -1283,36 +1767,46 @@ export type FinanceAssetAdjustmentSelectScalar = {
   createdAt?: boolean
 }
 
-export type FinanceAssetAdjustmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "periodId" | "assetId" | "accountCode" | "amount" | "reason" | "status" | "reversedById" | "voucherId" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "createdBy" | "createdAt", ExtArgs["result"]["financeAssetAdjustment"]>
+export type FinanceAssetAdjustmentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "periodId" | "assetId" | "accountCode" | "accountId" | "amount" | "reason" | "status" | "reversedById" | "voucherId" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceKey" | "createdBy" | "createdAt", ExtArgs["result"]["financeAssetAdjustment"]>
 export type FinanceAssetAdjustmentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }
 export type FinanceAssetAdjustmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }
 export type FinanceAssetAdjustmentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   asset?: boolean | Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>
+  account?: boolean | Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>
 }
 
 export type $FinanceAssetAdjustmentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAssetAdjustment"
   objects: {
     asset: Prisma.$FinanceAssetCardPayload<ExtArgs> | null
+    account: Prisma.$FinanceAccountPayload<ExtArgs> | null
     period: Prisma.$FinancePeriodPayload<ExtArgs>
     voucher: Prisma.$FinanceVoucherPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     periodId: number
     assetId: number | null
     accountCode: string
+    accountId: number | null
     amount: runtime.Decimal
     reason: string
     status: string
@@ -1719,8 +2213,10 @@ readonly fields: FinanceAssetAdjustmentFieldRefs;
 export interface Prisma__FinanceAssetAdjustmentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   asset<T extends Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetAdjustment$assetArgs<ExtArgs>>): Prisma.Prisma__FinanceAssetCardClient<runtime.Types.Result.GetResult<Prisma.$FinanceAssetCardPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  account<T extends Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetAdjustment$accountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   voucher<T extends Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetAdjustment$voucherArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAssetAdjustment$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1752,9 +2248,11 @@ export interface Prisma__FinanceAssetAdjustmentClient<T, Null = never, ExtArgs e
 export interface FinanceAssetAdjustmentFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceAssetAdjustment", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceAssetAdjustment", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceAssetAdjustment", 'Int'>
   readonly periodId: Prisma.FieldRef<"FinanceAssetAdjustment", 'Int'>
   readonly assetId: Prisma.FieldRef<"FinanceAssetAdjustment", 'Int'>
   readonly accountCode: Prisma.FieldRef<"FinanceAssetAdjustment", 'String'>
+  readonly accountId: Prisma.FieldRef<"FinanceAssetAdjustment", 'Int'>
   readonly amount: Prisma.FieldRef<"FinanceAssetAdjustment", 'Decimal'>
   readonly reason: Prisma.FieldRef<"FinanceAssetAdjustment", 'String'>
   readonly status: Prisma.FieldRef<"FinanceAssetAdjustment", 'String'>
@@ -2186,6 +2684,25 @@ export type FinanceAssetAdjustment$assetArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
+ * FinanceAssetAdjustment.account
+ */
+export type FinanceAssetAdjustment$accountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
  * FinanceAssetAdjustment.voucher
  */
 export type FinanceAssetAdjustment$voucherArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2202,6 +2719,25 @@ export type FinanceAssetAdjustment$voucherArgs<ExtArgs extends runtime.Types.Ext
    */
   include?: Prisma.FinanceVoucherInclude<ExtArgs> | null
   where?: Prisma.FinanceVoucherWhereInput
+}
+
+/**
+ * FinanceAssetAdjustment.company
+ */
+export type FinanceAssetAdjustment$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

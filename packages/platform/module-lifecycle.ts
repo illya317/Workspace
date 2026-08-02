@@ -1,5 +1,5 @@
-import type { ModuleLifecycleStatus } from "@workspace/core";
-import { MODULES } from "./module-nav";
+import type { ModuleLifecycleStatus } from "@workspace/core/module-contract";
+import { workspacePackages } from "./modules";
 
 export const MODULE_LIFECYCLE_LABELS: Record<ModuleLifecycleStatus, string> = {
   "workspace-owned": "Workspace 本地资料",
@@ -11,12 +11,12 @@ export const MODULE_LIFECYCLE_LABELS: Record<ModuleLifecycleStatus, string> = {
 
 export const MODULE_LIFECYCLE_BY_RESOURCE: Partial<Record<string, ModuleLifecycleStatus>> =
   Object.fromEntries(
-    MODULES.flatMap((moduleDef) => {
+    workspacePackages.flatMap(({ moduleDef }) => {
       const entries: [string, ModuleLifecycleStatus][] = [];
-      if (moduleDef.resourceKey && moduleDef.lifecycleStatus) {
+      if (moduleDef?.resourceKey && moduleDef.lifecycleStatus) {
         entries.push([moduleDef.resourceKey, moduleDef.lifecycleStatus]);
       }
-      for (const child of moduleDef.children ?? []) {
+      for (const child of moduleDef?.children ?? []) {
         if (child.resourceKey && child.lifecycleStatus) {
           entries.push([child.resourceKey, child.lifecycleStatus]);
         }

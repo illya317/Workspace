@@ -2,6 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  operationalAnalysisSourceDiscoveryQuerySchema,
+  operationalAnalysisTemplateDraftCreateBodySchema,
+  operationalAnalysisTemplateDraftUpdateBodySchema,
+  parseOperationalAnalysisSourceSelections,
   operationalAnalysisTemplateInputSchema,
   operationalAnalysisTemplateRuntimeInputSchema,
   storedWorkspaceSourcesOperationalAnalysisTemplateInputSchema,
@@ -27,7 +31,7 @@ test("accepts a declarative cost template and serializes its workspace code", ()
     },
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.equal(result.ok, true);
   if (!result.ok) return;
   assert.match(result.data.code, /"finance\.costStructure"/);
@@ -80,7 +84,7 @@ test("project workspace cannot claim an unavailable sales attribution", () => {
     },
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.deepEqual(result, { ok: false, error: "项目尚未建立销售归集关系，不能创建项目销售模板" });
 });
 
@@ -92,7 +96,7 @@ test("accepts a registered protected GET API as a generic analysis source", () =
     definition: WORKSPACE_ANALYSIS_HR_JOIN_DEFINITION_EXAMPLE,
   });
 
-  const result = validateOperationalAnalysisTemplate(parsed);
+  const result = validateOperationalAnalysisTemplate(parsed, validateWorkspaceAnalysisSourcePath);
   assert.equal(result.ok, true);
   if (result.ok) assert.match(result.data.code, /"workspace\.api"/);
 });
@@ -196,5 +200,59 @@ test("v3 proposal storage binds modification inputs to an exact base revision", 
   assert.equal(storedWorkspaceSourcesOperationalAnalysisTemplateInputSchema.safeParse({
     input: { ...input, templateId: undefined },
     expectedRevision: 4,
+  }).success, false);
+});
+
+test("standard draft API body derives scope and template identity only from the route", () => {
+  const createBody = {
+    name: "部门发货汇总",
+    definition: {
+      schemaVersion: 3,
+      dataset: "workspace.sources",
+      sources: [{ key: "shipments", sourceKey: "finance.shipments", sourceVersion: 1 }],
+      filters: [],
+      blocks: [{
+        key: "count",
+        kind: "metrics",
+        source: "shipments",
+        metrics: [{ key: "count", label: "发货笔数", operation: "count" }],
+      }],
+    },
+  };
+  assert.equal(operationalAnalysisTemplateDraftCreateBodySchema.safeParse(createBody).success, true);
+  assert.equal(operationalAnalysisTemplateDraftUpdateBodySchema.safeParse({
+    ...createBody,
+    expectedRevision: 4,
+  }).success, true);
+  assert.equal(operationalAnalysisTemplateDraftUpdateBodySchema.safeParse(createBody).success, false);
+  assert.equal(operationalAnalysisTemplateDraftCreateBodySchema.safeParse({
+    ...createBody,
+    scopeType: "department",
+    scopeId: 12,
+    templateId: 31,
+  }).success, false);
+});
+
+test("source discovery API requires a meaningful keyword and parses exact selections", () => {
+  const parsed = operationalAnalysisSourceDiscoveryQuerySchema.parse({
+    keyword: "财务成本",
+    page: "2",
+    pageSize: "10",
+    selected: "finance.cost.structure@1,hr.employments@1",
+  });
+  assert.deepEqual(parsed, {
+    keyword: "财务成本",
+    page: 2,
+    pageSize: 10,
+    selected: "finance.cost.structure@1,hr.employments@1",
+  });
+  assert.deepEqual(parseOperationalAnalysisSourceSelections(parsed.selected), [
+    { sourceKey: "finance.cost.structure", sourceVersion: 1 },
+    { sourceKey: "hr.employments", sourceVersion: 1 },
+  ]);
+  assert.equal(operationalAnalysisSourceDiscoveryQuerySchema.safeParse({ keyword: "" }).success, false);
+  assert.equal(operationalAnalysisSourceDiscoveryQuerySchema.safeParse({
+    keyword: "成本",
+    selected: "finance.cost.structure",
   }).success, false);
 });

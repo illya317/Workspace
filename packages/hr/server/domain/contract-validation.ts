@@ -3,8 +3,9 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { isValidCompanyName, isValidDateValue, validateContractOption } from "../field-validation";
+import { listEmployeeEmploymentReferences } from "../contract-reference-adapter";
 import {
   ALLOWED_CONTRACT_FIELDS,
   CONTRACT_DATE_FIELDS,
@@ -14,6 +15,7 @@ import {
   buildHrPageDraftEnvelopeCommand,
   type HrPageDraftInput,
 } from "./page-draft-validation";
+import { classifyEmploymentsByPreference } from "./employee-business-temporal";
 
 const CONTRACT_OPTION_FIELDS = ["legalRelation", "contractType", "employmentForm", "insuranceStatus"];
 const PROFILE_CONTRACT_FIELDS = [
@@ -120,15 +122,26 @@ export async function buildEmployeeProfileContractsCommand(
   if (!Number.isInteger(employeeId) || employeeId <= 0) return failCommand("员工ID无效");
   if (!Array.isArray(rows)) return failCommand("请求体无效");
 
-  const employments = await prisma.employment.findMany({
-    where: { employeeId },
-    orderBy: [{ isActive: "desc" }, { id: "desc" }],
-    select: { id: true },
-  });
+  const employments = await listEmployeeEmploymentReferences(employeeId);
   if (employments.length === 0) return failCommand("该员工无雇佣记录", 404);
 
   const employmentIds = new Set(employments.map((row) => row.id));
-  const fallbackEmploymentId = employments[0].id;
+  const needsFallbackEmployment = rows.some((row) => (
+    nullableNumber((row as Record<string, unknown>).employmentId) === null
+  ));
+  let fallbackEmploymentId = employments[0].id;
+  if (needsFallbackEmployment) {
+    const classifiedEmployments = classifyEmploymentsByPreference(
+      employments,
+      workspaceBusinessDate(new Date()),
+    );
+    if (classifiedEmployments.filter((item) => item.temporalState === "current").length > 1) {
+      return failCommand("该员工存在多条当前雇佣记录，请先修正资料", 409);
+    }
+    const fallbackEmployment = classifiedEmployments.find((item) => item.temporalState !== "invalid")?.employment;
+    if (!fallbackEmployment) return failCommand("该员工的雇佣期间日期异常，请先修正资料", 409);
+    fallbackEmploymentId = fallbackEmployment.id;
+  }
   const grouped = new Map<number, Record<string, unknown>[]>();
   let primarySeen = false;
 

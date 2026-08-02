@@ -2,7 +2,7 @@ import {
   buildSaveConsolidationControlDecisionCommand,
   type SaveConsolidationControlDecisionCommand,
 } from "../domain/consolidation-batch-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {

@@ -255,6 +255,14 @@ export const workspaceSourcesOperationalAnalysisTemplateInputSchema = z.object({
   definition: workspaceSourcesOperationalAnalysisDefinitionSchema,
 }).strict();
 
+export const operationalAnalysisTemplateDraftCreateBodySchema = workspaceSourcesOperationalAnalysisTemplateInputSchema
+  .omit({ scopeType: true, scopeId: true, templateId: true })
+  .strict();
+
+export const operationalAnalysisTemplateDraftUpdateBodySchema = operationalAnalysisTemplateDraftCreateBodySchema
+  .extend({ expectedRevision: z.number().int().positive() })
+  .strict();
+
 export const storedOperationalAnalysisTemplateInputSchema = z.object({
   input: operationalAnalysisTemplateInputSchema,
   expectedRevision: z.number().int().positive().optional(),
@@ -276,6 +284,34 @@ export const operationalAnalysisTemplateRouteParamsSchema = z.object({
   targetType: z.enum(["personal", "department", "project"]),
   targetId: z.coerce.number().int().positive(),
 });
+
+const operationalAnalysisSourceSelectionListSchema = z.string().trim().max(600).optional().default("")
+  .superRefine((value, context) => {
+    if (!value) return;
+    const selections = value.split(",").map((item) => item.trim()).filter(Boolean);
+    if (selections.length > 4) {
+      context.addIssue({ code: "custom", message: "一次最多展开 4 个数据源" });
+      return;
+    }
+    if (selections.some((selection) => !/^[a-z][a-z0-9-]*(?:\.[a-z][a-z0-9-]*)+@[1-9]\d*$/.test(selection))) {
+      context.addIssue({ code: "custom", message: "selected 必须是逗号分隔的 sourceKey@version" });
+    }
+  });
+
+export const operationalAnalysisSourceDiscoveryQuerySchema = z.object({
+  keyword: z.string().trim().min(1).max(120),
+  page: z.coerce.number().int().min(1).max(100).default(1),
+  pageSize: z.coerce.number().int().min(1).max(30).default(20),
+  selected: operationalAnalysisSourceSelectionListSchema,
+});
+
+export function parseOperationalAnalysisSourceSelections(value: string) {
+  if (!value) return [];
+  return value.split(",").map((selection) => {
+    const [sourceKey, rawVersion] = selection.trim().split("@");
+    return { sourceKey: sourceKey!, sourceVersion: Number(rawVersion) };
+  });
+}
 
 export const operationalAnalysisTemplateRuntimeParamsSchema = operationalAnalysisTemplateRouteParamsSchema.extend({
   templateId: z.coerce.number().int().positive(),

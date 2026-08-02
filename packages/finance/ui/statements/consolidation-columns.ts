@@ -1,10 +1,8 @@
 import type {
-  DataSurfaceCellSpec,
   DataSurfaceColumnSpec,
   DataSurfaceDisplaySpec,
 } from "@workspace/core/ui";
 import type {
-  ConsolidationAdjustmentComparison,
   ConsolidationEntityCoverage,
   ConsolidationInvestmentEvidence,
   ConsolidationReadinessCheck,
@@ -12,131 +10,6 @@ import type {
 } from "@workspace/finance/types";
 
 import type { ExchangeRateSummaryRow } from "./consolidation-fx-summary";
-
-function comparisonSide(
-  company: string,
-  account: string,
-  direction: "借" | "贷" | "—",
-  amount: number,
-): DataSurfaceDisplaySpec {
-  return {
-    kind: "stack",
-    gap: "xs",
-    items: [
-      { kind: "text", value: company, emphasis: "medium", wrap: "wrap" },
-      { kind: "text", value: `${account} · ${direction === "—" ? "无余额" : `${direction}方余额`}`, tone: "muted", wrap: "wrap" },
-      { kind: "amount", value: amount },
-    ],
-  };
-}
-
-type AdjustmentSource = ConsolidationAdjustmentComparison["leftSources"][number];
-
-type AdjustmentSourcePairRow = {
-  index: number;
-  left: AdjustmentSource | null;
-  right: AdjustmentSource | null;
-};
-
-function sourceVoucherCell(source: AdjustmentSource | null): DataSurfaceCellSpec {
-  if (!source) return { kind: "empty", content: "—" };
-  return { kind: "group", direction: "column", items: [
-    { kind: "text", value: source.voucherNo, emphasis: "medium", wrap: "wrap" },
-    { kind: "text", value: `${source.accountCode} ${source.accountName}${source.description ? ` · ${source.description}` : ""}`, tone: "muted", wrap: "wrap" },
-    { kind: "group", items: [
-      { kind: "badge", label: source.direction, tone: "gray" },
-      { kind: "amount", value: source.amount },
-      { kind: "text", value: source.currencyCode, tone: "muted" },
-    ] },
-    ...(source.consolidationAmountCny === undefined ? [] : [{
-      kind: "text" as const,
-      value: `抵销折合 CNY ${source.consolidationAmountCny.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      tone: "muted" as const,
-    }]),
-  ] };
-}
-
-export function adjustmentComparisonExpandedRow(row: ConsolidationAdjustmentComparison): DataSurfaceCellSpec {
-  const leftHistoricalSourceCount = row.leftHistoricalSourceCount ?? 0;
-  const rightHistoricalSourceCount = row.rightHistoricalSourceCount ?? 0;
-  const rows: AdjustmentSourcePairRow[] = Array.from({
-    length: Math.max(row.leftSources.length, row.rightSources.length),
-  }, (_, index) => ({
-    index,
-    left: row.leftSources[index] ?? null,
-    right: row.rightSources[index] ?? null,
-  }));
-  const columns: DataSurfaceColumnSpec<AdjustmentSourcePairRow>[] = [
-    { key: "left", label: `账面一｜${row.leftCompany}`, required: true, cell: (source) => sourceVoucherCell(source.left) },
-    { key: "right", label: `账面二｜${row.rightCompany}`, required: true, cell: (source) => sourceVoucherCell(source.right) },
-  ];
-  return { kind: "group", direction: "column", items: [
-    { kind: "text", value: row.sourceDisplayNote || "勾稽计算覆盖成立以来截至本期的全部凭证；下表仅显示当前选择年度。", tone: "muted", wrap: "wrap" },
-    ...((leftHistoricalSourceCount > 0 || rightHistoricalSourceCount > 0) ? [{
-      kind: "text" as const,
-      value: `已折叠以前年度凭证：账面一 ${leftHistoricalSourceCount} 笔，账面二 ${rightHistoricalSourceCount} 笔。`,
-      tone: "muted" as const,
-      wrap: "wrap" as const,
-    }] : []),
-    { kind: "data", data: {
-      kind: "table",
-      rows,
-      columns,
-      visibleColumns: columns.map((column) => column.key),
-      rowKey: (source) => source.index,
-      presentation: { density: "compact", cellWrap: "wrap", header: "plain" },
-      scroll: { y: "hidden" },
-      emptyText: "暂无来源凭证明细",
-    } },
-  ] };
-}
-
-type AdjustmentComparisonColumnInput = {
-  expandedKeys: Set<string>;
-};
-
-function comparisonReviewCell(
-  row: ConsolidationAdjustmentComparison,
-): DataSurfaceCellSpec {
-  const label = row.reviewStatus === "approved" ? "已通过"
-    : row.reviewStatus === "returned" ? "已退回"
-      : row.reviewStatus === "exception" ? "例外（不阻断）" : row.entryId ? "待审阅" : "正在生成";
-  const tone = row.reviewStatus === "approved" ? "green"
-    : row.reviewStatus === "returned" ? "red" : "amber";
-  const entryLines = row.entrySummary.split("；").filter(Boolean).map((line) => ({
-    kind: "text" as const,
-    value: line,
-    tone: row.status === "equal" ? "default" as const : "muted" as const,
-    wrap: "wrap" as const,
-  }));
-  return { kind: "group", direction: "column", items: [
-    { kind: "group", items: [
-      { kind: "text", value: "差额", tone: "muted", emphasis: "medium" },
-      { kind: "amount", value: row.difference },
-    ] },
-    { kind: "text", value: "拟抵销分录", tone: "muted", emphasis: "medium" },
-    ...entryLines,
-    { kind: "badge", label, tone },
-  ] };
-}
-
-export function createAdjustmentComparisonColumns(
-  input: AdjustmentComparisonColumnInput,
-): DataSurfaceColumnSpec<ConsolidationAdjustmentComparison>[] {
-  return [
-  { key: "entry", label: "事项", required: true, cell: (row) => ({ kind: "stack", gap: "xs", items: [
-    { kind: "disclosure", label: row.title, expanded: input.expandedKeys.has(row.key), emphasis: "medium" },
-    { kind: "text", value: `${row.displayPeriodLabel || "本期"}：账面一 ${row.leftSources.length} 笔，账面二 ${row.rightSources.length} 笔；以前年度各 ${row.leftHistoricalSourceCount ?? 0} / ${row.rightHistoricalSourceCount ?? 0} 笔已折叠`, tone: "muted" },
-  ] }) },
-  { key: "left", label: "账面一", required: true, cell: (row) => comparisonSide(
-    row.leftCompany, row.leftAccount, row.leftDirection, row.leftAmount,
-  ) },
-  { key: "right", label: "账面二", required: true, cell: (row) => comparisonSide(
-    row.rightCompany, row.rightAccount, row.rightDirection, row.rightAmount,
-  ) },
-  { key: "review", label: "抵销与审阅", required: true, cell: (row) => comparisonReviewCell(row) },
-  ];
-}
 
 function statusBadge(status: ConsolidationReadinessCheck["status"]): DataSurfaceDisplaySpec {
   if (status === "ready") return { kind: "badge", label: "已就绪", tone: "green" };
@@ -160,7 +33,12 @@ function sourceCell(source: StatementSourceCoverage): DataSurfaceDisplaySpec {
   };
 }
 
-export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEntityCoverage>[] = [
+export function createConsolidationEntityColumns(input: {
+  canUpdate: boolean;
+  busyRelationId: number | null;
+  onInclusionChange: (row: ConsolidationEntityCoverage, included: boolean) => void;
+}): DataSurfaceColumnSpec<ConsolidationEntityCoverage>[] {
+  return [
   {
     key: "company",
     label: "合并主体",
@@ -178,10 +56,40 @@ export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEnti
       ],
     }),
   },
+  {
+    key: "consolidated",
+    label: "本次并表",
+    required: true,
+    width: "sm",
+    cell: (row) => {
+      const disabled = !input.canUpdate
+          || row.role === "母公司"
+          || row.entitySnapshotId != null
+          || row.relationId === null
+          || row.relationVersion === null
+          || input.busyRelationId === row.relationId;
+      return {
+        kind: "action",
+        action: {
+          key: `consolidation-${row.relationId ?? row.companyId ?? row.code}`,
+          label: row.isConsolidated ? "本次纳入" : "本次不纳入",
+          title: disabled
+            ? row.isConsolidated ? "本次纳入" : "本次不纳入"
+            : row.isConsolidated ? "本次纳入，点击移出" : "本次不纳入，点击纳入",
+          icon: row.isConsolidated ? "check" : "x",
+          presentation: "glyph",
+          tone: row.isConsolidated ? "green" : "slate",
+          disabled,
+          onClick: () => input.onInclusionChange(row, !row.isConsolidated),
+        },
+      };
+    },
+  },
   { key: "balance", label: "资产负债表", required: true, width: "xl", cell: (row) => sourceCell(row.balanceSheet) },
   { key: "income", label: "利润表", required: true, width: "xl", cell: (row) => sourceCell(row.incomeStatement) },
   { key: "cash-flow", label: "现金流量表", required: true, width: "xl", cell: (row) => sourceCell(row.cashFlow) },
-];
+  ];
+}
 
 export const exchangeRateSummaryColumns: DataSurfaceColumnSpec<ExchangeRateSummaryRow>[] = [
   { key: "pair", label: "币种对", required: true, width: "md", emphasis: "medium", cell: (row) => ({ kind: "text", value: row.pair, font: "mono", emphasis: "strong" }) },

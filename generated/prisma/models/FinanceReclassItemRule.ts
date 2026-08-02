@@ -28,22 +28,31 @@ export type AggregateFinanceReclassItemRule = {
 
 export type FinanceReclassItemRuleAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
+  sourceAccountId: number | null
+  targetAccountId: number | null
 }
 
 export type FinanceReclassItemRuleSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   year: number | null
+  sourceAccountId: number | null
+  targetAccountId: number | null
 }
 
 export type FinanceReclassItemRuleMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   sourceAccountCode: string | null
+  sourceAccountId: number | null
   matchType: string | null
   matchValue: string | null
   targetAccountCode: string | null
+  targetAccountId: number | null
   enabled: boolean | null
   note: string | null
   createdAt: Date | null
@@ -53,11 +62,14 @@ export type FinanceReclassItemRuleMinAggregateOutputType = {
 export type FinanceReclassItemRuleMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   year: number | null
   sourceAccountCode: string | null
+  sourceAccountId: number | null
   matchType: string | null
   matchValue: string | null
   targetAccountCode: string | null
+  targetAccountId: number | null
   enabled: boolean | null
   note: string | null
   createdAt: Date | null
@@ -67,11 +79,14 @@ export type FinanceReclassItemRuleMaxAggregateOutputType = {
 export type FinanceReclassItemRuleCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   year: number
   sourceAccountCode: number
+  sourceAccountId: number
   matchType: number
   matchValue: number
   targetAccountCode: number
+  targetAccountId: number
   enabled: number
   note: number
   createdAt: number
@@ -82,22 +97,31 @@ export type FinanceReclassItemRuleCountAggregateOutputType = {
 
 export type FinanceReclassItemRuleAvgAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
+  sourceAccountId?: true
+  targetAccountId?: true
 }
 
 export type FinanceReclassItemRuleSumAggregateInputType = {
   id?: true
+  companyId?: true
   year?: true
+  sourceAccountId?: true
+  targetAccountId?: true
 }
 
 export type FinanceReclassItemRuleMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   matchType?: true
   matchValue?: true
   targetAccountCode?: true
+  targetAccountId?: true
   enabled?: true
   note?: true
   createdAt?: true
@@ -107,11 +131,14 @@ export type FinanceReclassItemRuleMinAggregateInputType = {
 export type FinanceReclassItemRuleMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   matchType?: true
   matchValue?: true
   targetAccountCode?: true
+  targetAccountId?: true
   enabled?: true
   note?: true
   createdAt?: true
@@ -121,11 +148,14 @@ export type FinanceReclassItemRuleMaxAggregateInputType = {
 export type FinanceReclassItemRuleCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   year?: true
   sourceAccountCode?: true
+  sourceAccountId?: true
   matchType?: true
   matchValue?: true
   targetAccountCode?: true
+  targetAccountId?: true
   enabled?: true
   note?: true
   createdAt?: true
@@ -222,11 +252,14 @@ export type FinanceReclassItemRuleGroupByArgs<ExtArgs extends runtime.Types.Exte
 export type FinanceReclassItemRuleGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId: number | null
   matchType: string
   matchValue: string
   targetAccountCode: string
+  targetAccountId: number | null
   enabled: boolean
   note: string | null
   createdAt: Date
@@ -259,29 +292,41 @@ export type FinanceReclassItemRuleWhereInput = {
   NOT?: Prisma.FinanceReclassItemRuleWhereInput | Prisma.FinanceReclassItemRuleWhereInput[]
   id?: Prisma.IntFilter<"FinanceReclassItemRule"> | number
   companyCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   year?: Prisma.IntFilter<"FinanceReclassItemRule"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   matchType?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
   matchValue?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
   targetAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   enabled?: Prisma.BoolFilter<"FinanceReclassItemRule"> | boolean
   note?: Prisma.StringNullableFilter<"FinanceReclassItemRule"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  sourceAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  targetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }
 
 export type FinanceReclassItemRuleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   matchType?: Prisma.SortOrder
   matchValue?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
+  sourceAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  targetAccount?: Prisma.FinanceAccountOrderByWithRelationInput
 }
 
 export type FinanceReclassItemRuleWhereUniqueInput = Prisma.AtLeast<{
@@ -291,25 +336,34 @@ export type FinanceReclassItemRuleWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceReclassItemRuleWhereInput[]
   NOT?: Prisma.FinanceReclassItemRuleWhereInput | Prisma.FinanceReclassItemRuleWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   year?: Prisma.IntFilter<"FinanceReclassItemRule"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   matchType?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
   matchValue?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
   targetAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
   enabled?: Prisma.BoolFilter<"FinanceReclassItemRule"> | boolean
   note?: Prisma.StringNullableFilter<"FinanceReclassItemRule"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  sourceAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  targetAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
 }, "id" | "companyCode_year_sourceAccountCode_matchType_matchValue">
 
 export type FinanceReclassItemRuleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   matchType?: Prisma.SortOrder
   matchValue?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -327,11 +381,14 @@ export type FinanceReclassItemRuleScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceReclassItemRuleScalarWhereWithAggregatesInput | Prisma.FinanceReclassItemRuleScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceReclassItemRule"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassItemRule"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceReclassItemRule"> | number | null
   year?: Prisma.IntWithAggregatesFilter<"FinanceReclassItemRule"> | number
   sourceAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassItemRule"> | string
+  sourceAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceReclassItemRule"> | number | null
   matchType?: Prisma.StringWithAggregatesFilter<"FinanceReclassItemRule"> | string
   matchValue?: Prisma.StringWithAggregatesFilter<"FinanceReclassItemRule"> | string
   targetAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassItemRule"> | string
+  targetAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceReclassItemRule"> | number | null
   enabled?: Prisma.BoolWithAggregatesFilter<"FinanceReclassItemRule"> | boolean
   note?: Prisma.StringNullableWithAggregatesFilter<"FinanceReclassItemRule"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceReclassItemRule"> | Date | string
@@ -349,16 +406,22 @@ export type FinanceReclassItemRuleCreateInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceReclassItemRulesInput
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleSourcesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleTargetsInput
 }
 
 export type FinanceReclassItemRuleUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId?: number | null
   matchType?: string
   matchValue: string
   targetAccountCode: string
+  targetAccountId?: number | null
   enabled?: boolean
   note?: string | null
   createdAt?: Date | string
@@ -376,16 +439,22 @@ export type FinanceReclassItemRuleUpdateInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceReclassItemRulesNestedInput
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleSourcesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleTargetsNestedInput
 }
 
 export type FinanceReclassItemRuleUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchType?: Prisma.StringFieldUpdateOperationsInput | string
   matchValue?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -395,11 +464,14 @@ export type FinanceReclassItemRuleUncheckedUpdateInput = {
 export type FinanceReclassItemRuleCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   year: number
   sourceAccountCode: string
+  sourceAccountId?: number | null
   matchType?: string
   matchValue: string
   targetAccountCode: string
+  targetAccountId?: number | null
   enabled?: boolean
   note?: string | null
   createdAt?: Date | string
@@ -422,15 +494,28 @@ export type FinanceReclassItemRuleUpdateManyMutationInput = {
 export type FinanceReclassItemRuleUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   matchType?: Prisma.StringFieldUpdateOperationsInput | string
   matchValue?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleListRelationFilter = {
+  every?: Prisma.FinanceReclassItemRuleWhereInput
+  some?: Prisma.FinanceReclassItemRuleWhereInput
+  none?: Prisma.FinanceReclassItemRuleWhereInput
+}
+
+export type FinanceReclassItemRuleOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceReclassItemRuleCompanyCodeYearSourceAccountCodeMatchTypeMatchValueCompoundUniqueInput = {
@@ -444,11 +529,14 @@ export type FinanceReclassItemRuleCompanyCodeYearSourceAccountCodeMatchTypeMatch
 export type FinanceReclassItemRuleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   matchType?: Prisma.SortOrder
   matchValue?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -457,17 +545,23 @@ export type FinanceReclassItemRuleCountOrderByAggregateInput = {
 
 export type FinanceReclassItemRuleAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
 }
 
 export type FinanceReclassItemRuleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   matchType?: Prisma.SortOrder
   matchValue?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -477,11 +571,14 @@ export type FinanceReclassItemRuleMaxOrderByAggregateInput = {
 export type FinanceReclassItemRuleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
   matchType?: Prisma.SortOrder
   matchValue?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -490,7 +587,516 @@ export type FinanceReclassItemRuleMinOrderByAggregateInput = {
 
 export type FinanceReclassItemRuleSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourceAccountId?: Prisma.SortOrder
+  targetAccountId?: Prisma.SortOrder
+}
+
+export type FinanceReclassItemRuleCreateNestedManyWithoutSourceAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManySourceAccountInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleCreateNestedManyWithoutTargetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyTargetAccountInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedCreateNestedManyWithoutSourceAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManySourceAccountInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedCreateNestedManyWithoutTargetAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyTargetAccountInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleUpdateManyWithoutSourceAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManySourceAccountInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutSourceAccountInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutSourceAccountInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleUpdateManyWithoutTargetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyTargetAccountInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutTargetAccountInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutTargetAccountInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutSourceAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManySourceAccountInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutSourceAccountInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutSourceAccountInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutSourceAccountInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput> | Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutTargetAccountInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyTargetAccountInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutTargetAccountInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutTargetAccountInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutTargetAccountInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput> | Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput> | Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+}
+
+export type FinanceReclassItemRuleUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput> | Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput> | Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput[] | Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput | Prisma.FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceReclassItemRuleCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  disconnect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  delete?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  connect?: Prisma.FinanceReclassItemRuleWhereUniqueInput | Prisma.FinanceReclassItemRuleWhereUniqueInput[]
+  update?: Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceReclassItemRuleUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+}
+
+export type FinanceReclassItemRuleCreateWithoutSourceAccountInput = {
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceReclassItemRulesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleTargetsInput
+}
+
+export type FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  targetAccountId?: number | null
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleCreateOrConnectWithoutSourceAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput>
+}
+
+export type FinanceReclassItemRuleCreateManySourceAccountInputEnvelope = {
+  data: Prisma.FinanceReclassItemRuleCreateManySourceAccountInput | Prisma.FinanceReclassItemRuleCreateManySourceAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceReclassItemRuleCreateWithoutTargetAccountInput = {
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceReclassItemRulesInput
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleSourcesInput
+}
+
+export type FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleCreateOrConnectWithoutTargetAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput>
+}
+
+export type FinanceReclassItemRuleCreateManyTargetAccountInputEnvelope = {
+  data: Prisma.FinanceReclassItemRuleCreateManyTargetAccountInput | Prisma.FinanceReclassItemRuleCreateManyTargetAccountInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceReclassItemRuleUpsertWithWhereUniqueWithoutSourceAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutSourceAccountInput>
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutSourceAccountInput>
+}
+
+export type FinanceReclassItemRuleUpdateWithWhereUniqueWithoutSourceAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutSourceAccountInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutSourceAccountInput>
+}
+
+export type FinanceReclassItemRuleUpdateManyWithWhereWithoutSourceAccountInput = {
+  where: Prisma.FinanceReclassItemRuleScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateManyMutationInput, Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountInput>
+}
+
+export type FinanceReclassItemRuleScalarWhereInput = {
+  AND?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+  OR?: Prisma.FinanceReclassItemRuleScalarWhereInput[]
+  NOT?: Prisma.FinanceReclassItemRuleScalarWhereInput | Prisma.FinanceReclassItemRuleScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceReclassItemRule"> | number
+  companyCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
+  year?: Prisma.IntFilter<"FinanceReclassItemRule"> | number
+  sourceAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  sourceAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
+  matchType?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  matchValue?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  targetAccountCode?: Prisma.StringFilter<"FinanceReclassItemRule"> | string
+  targetAccountId?: Prisma.IntNullableFilter<"FinanceReclassItemRule"> | number | null
+  enabled?: Prisma.BoolFilter<"FinanceReclassItemRule"> | boolean
+  note?: Prisma.StringNullableFilter<"FinanceReclassItemRule"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceReclassItemRule"> | Date | string
+}
+
+export type FinanceReclassItemRuleUpsertWithWhereUniqueWithoutTargetAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutTargetAccountInput>
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutTargetAccountInput>
+}
+
+export type FinanceReclassItemRuleUpdateWithWhereUniqueWithoutTargetAccountInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutTargetAccountInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutTargetAccountInput>
+}
+
+export type FinanceReclassItemRuleUpdateManyWithWhereWithoutTargetAccountInput = {
+  where: Prisma.FinanceReclassItemRuleScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateManyMutationInput, Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountInput>
+}
+
+export type FinanceReclassItemRuleCreateWithoutCompanyInput = {
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sourceAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleSourcesInput
+  targetAccount?: Prisma.FinanceAccountCreateNestedOneWithoutReclassItemRuleTargetsInput
+}
+
+export type FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  targetAccountId?: number | null
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceReclassItemRuleCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceReclassItemRuleCreateManyCompanyInput | Prisma.FinanceReclassItemRuleCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceReclassItemRuleUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceReclassItemRuleUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceReclassItemRuleWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateWithoutCompanyInput, Prisma.FinanceReclassItemRuleUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceReclassItemRuleUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceReclassItemRuleScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceReclassItemRuleUpdateManyMutationInput, Prisma.FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceReclassItemRuleCreateManySourceAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  targetAccountId?: number | null
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleCreateManyTargetAccountInput = {
+  id?: number
+  companyCode: string
+  companyId?: number | null
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleUpdateWithoutSourceAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceReclassItemRulesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleTargetsNestedInput
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateWithoutSourceAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutSourceAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleUpdateWithoutTargetAccountInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceReclassItemRulesNestedInput
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleSourcesNestedInput
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateWithoutTargetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutTargetAccountInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  year: number
+  sourceAccountCode: string
+  sourceAccountId?: number | null
+  matchType?: string
+  matchValue: string
+  targetAccountCode: string
+  targetAccountId?: number | null
+  enabled?: boolean
+  note?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceReclassItemRuleUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourceAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleSourcesNestedInput
+  targetAccount?: Prisma.FinanceAccountUpdateOneWithoutReclassItemRuleTargetsNestedInput
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceReclassItemRuleUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  matchType?: Prisma.StringFieldUpdateOperationsInput | string
+  matchValue?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -498,72 +1104,115 @@ export type FinanceReclassItemRuleSumOrderByAggregateInput = {
 export type FinanceReclassItemRuleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   matchType?: boolean
   matchValue?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   enabled?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeReclassItemRule"]>
 
 export type FinanceReclassItemRuleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   matchType?: boolean
   matchValue?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   enabled?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeReclassItemRule"]>
 
 export type FinanceReclassItemRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   matchType?: boolean
   matchValue?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   enabled?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
 }, ExtArgs["result"]["financeReclassItemRule"]>
 
 export type FinanceReclassItemRuleSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   year?: boolean
   sourceAccountCode?: boolean
+  sourceAccountId?: boolean
   matchType?: boolean
   matchValue?: boolean
   targetAccountCode?: boolean
+  targetAccountId?: boolean
   enabled?: boolean
   note?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceReclassItemRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "year" | "sourceAccountCode" | "matchType" | "matchValue" | "targetAccountCode" | "enabled" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeReclassItemRule"]>
+export type FinanceReclassItemRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "year" | "sourceAccountCode" | "sourceAccountId" | "matchType" | "matchValue" | "targetAccountCode" | "targetAccountId" | "enabled" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeReclassItemRule"]>
+export type FinanceReclassItemRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
+}
+export type FinanceReclassItemRuleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
+}
+export type FinanceReclassItemRuleIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>
+  sourceAccount?: boolean | Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>
+  targetAccount?: boolean | Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>
+}
 
 export type $FinanceReclassItemRulePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceReclassItemRule"
-  objects: {}
+  objects: {
+    company: Prisma.$CompanyPayload<ExtArgs> | null
+    sourceAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    targetAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     year: number
     sourceAccountCode: string
+    sourceAccountId: number | null
     matchType: string
     matchValue: string
     targetAccountCode: string
+    targetAccountId: number | null
     enabled: boolean
     note: string | null
     createdAt: Date
@@ -962,6 +1611,9 @@ readonly fields: FinanceReclassItemRuleFieldRefs;
  */
 export interface Prisma__FinanceReclassItemRuleClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.FinanceReclassItemRule$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceReclassItemRule$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceAccount<T extends Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceReclassItemRule$sourceAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  targetAccount<T extends Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceReclassItemRule$targetAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -993,11 +1645,14 @@ export interface Prisma__FinanceReclassItemRuleClient<T, Null = never, ExtArgs e
 export interface FinanceReclassItemRuleFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceReclassItemRule", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceReclassItemRule", 'Int'>
   readonly year: Prisma.FieldRef<"FinanceReclassItemRule", 'Int'>
   readonly sourceAccountCode: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
+  readonly sourceAccountId: Prisma.FieldRef<"FinanceReclassItemRule", 'Int'>
   readonly matchType: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
   readonly matchValue: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
   readonly targetAccountCode: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
+  readonly targetAccountId: Prisma.FieldRef<"FinanceReclassItemRule", 'Int'>
   readonly enabled: Prisma.FieldRef<"FinanceReclassItemRule", 'Boolean'>
   readonly note: Prisma.FieldRef<"FinanceReclassItemRule", 'String'>
   readonly createdAt: Prisma.FieldRef<"FinanceReclassItemRule", 'DateTime'>
@@ -1019,6 +1674,10 @@ export type FinanceReclassItemRuleFindUniqueArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceReclassItemRule to fetch.
    */
   where: Prisma.FinanceReclassItemRuleWhereUniqueInput
@@ -1037,6 +1696,10 @@ export type FinanceReclassItemRuleFindUniqueOrThrowArgs<ExtArgs extends runtime.
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceReclassItemRule to fetch.
    */
   where: Prisma.FinanceReclassItemRuleWhereUniqueInput
@@ -1054,6 +1717,10 @@ export type FinanceReclassItemRuleFindFirstArgs<ExtArgs extends runtime.Types.Ex
    * Omit specific fields from the FinanceReclassItemRule
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
   /**
    * Filter, which FinanceReclassItemRule to fetch.
    */
@@ -1103,6 +1770,10 @@ export type FinanceReclassItemRuleFindFirstOrThrowArgs<ExtArgs extends runtime.T
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  /**
    * Filter, which FinanceReclassItemRule to fetch.
    */
   where?: Prisma.FinanceReclassItemRuleWhereInput
@@ -1150,6 +1821,10 @@ export type FinanceReclassItemRuleFindManyArgs<ExtArgs extends runtime.Types.Ext
    * Omit specific fields from the FinanceReclassItemRule
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
   /**
    * Filter, which FinanceReclassItemRules to fetch.
    */
@@ -1199,6 +1874,10 @@ export type FinanceReclassItemRuleCreateArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  /**
    * The data needed to create a FinanceReclassItemRule.
    */
   data: Prisma.XOR<Prisma.FinanceReclassItemRuleCreateInput, Prisma.FinanceReclassItemRuleUncheckedCreateInput>
@@ -1232,6 +1911,10 @@ export type FinanceReclassItemRuleCreateManyAndReturnArgs<ExtArgs extends runtim
    */
   data: Prisma.FinanceReclassItemRuleCreateManyInput | Prisma.FinanceReclassItemRuleCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1246,6 +1929,10 @@ export type FinanceReclassItemRuleUpdateArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the FinanceReclassItemRule
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
   /**
    * The data needed to update a FinanceReclassItemRule.
    */
@@ -1298,6 +1985,10 @@ export type FinanceReclassItemRuleUpdateManyAndReturnArgs<ExtArgs extends runtim
    * Limit how many FinanceReclassItemRules to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1312,6 +2003,10 @@ export type FinanceReclassItemRuleUpsertArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the FinanceReclassItemRule
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
   /**
    * The filter to search for the FinanceReclassItemRule to update in case it exists.
    */
@@ -1339,6 +2034,10 @@ export type FinanceReclassItemRuleDeleteArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
+  /**
    * Filter which FinanceReclassItemRule to delete.
    */
   where: Prisma.FinanceReclassItemRuleWhereUniqueInput
@@ -1359,6 +2058,63 @@ export type FinanceReclassItemRuleDeleteManyArgs<ExtArgs extends runtime.Types.E
 }
 
 /**
+ * FinanceReclassItemRule.company
+ */
+export type FinanceReclassItemRule$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * FinanceReclassItemRule.sourceAccount
+ */
+export type FinanceReclassItemRule$sourceAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * FinanceReclassItemRule.targetAccount
+ */
+export type FinanceReclassItemRule$targetAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccount
+   */
+  select?: Prisma.FinanceAccountSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccount
+   */
+  omit?: Prisma.FinanceAccountOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
  * FinanceReclassItemRule without action
  */
 export type FinanceReclassItemRuleDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1370,4 +2126,8 @@ export type FinanceReclassItemRuleDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the FinanceReclassItemRule
    */
   omit?: Prisma.FinanceReclassItemRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReclassItemRuleInclude<ExtArgs> | null
 }

@@ -1,11 +1,11 @@
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 
 import {
   buildSaveReclassRuleChangeSetCommand,
   type SaveReclassRuleChangeSetInput,
-} from "../../domain/finance-validation";
+} from "../validation";
 import { AutomaticReclassConflictError } from "../balance-reclass/automatic";
 import { loadGroupAccountIdsWithAuxiliaryFacts } from "./candidates";
 import { materializeConfirmedReclassAdjustments } from "./materialize-confirmed";

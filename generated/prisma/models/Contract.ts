@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model Contract
- * 合同管理（事实：合同基本信息、金额、状态）
+ * 合同主数据（事实：身份、签约主体、期限、金额、状态与归档审计）
  */
 export type ContractModel = runtime.Types.Result.DefaultSelection<Prisma.$ContractPayload>
 
@@ -28,39 +28,79 @@ export type AggregateContract = {
 
 export type ContractAvgAggregateOutputType = {
   id: number | null
+  categoryId: number | null
+  owningCompanyId: number | null
+  ownerDepartmentId: number | null
+  partyAId: number | null
+  partyBId: number | null
   handlerEmployeeId: number | null
-  amount: number | null
-  executedAmount: number | null
+  amount: runtime.Decimal | null
+  executedAmount: runtime.Decimal | null
+  confidentialityLevel: number | null
+  currentRevisionId: number | null
+  archivedBy: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type ContractSumAggregateOutputType = {
   id: number | null
+  categoryId: number | null
+  owningCompanyId: number | null
+  ownerDepartmentId: number | null
+  partyAId: number | null
+  partyBId: number | null
   handlerEmployeeId: number | null
-  amount: number | null
-  executedAmount: number | null
+  amount: runtime.Decimal | null
+  executedAmount: runtime.Decimal | null
+  confidentialityLevel: number | null
+  currentRevisionId: number | null
+  archivedBy: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type ContractMinAggregateOutputType = {
   id: number | null
+  contractUid: string | null
   contractNo: string | null
   name: string | null
   partyA: string | null
   partyB: string | null
   shareholder: string | null
-  category: string | null
+  categoryId: number | null
   content: string | null
+  owningCompanyId: number | null
+  ownerDepartmentId: number | null
+  partyAId: number | null
+  partyBId: number | null
   handlerEmployeeId: number | null
-  signDate: string | null
-  endDate: string | null
-  status: string | null
-  amount: number | null
-  executedAmount: number | null
+  signedOn: Date | null
+  expiresOn: Date | null
+  signedOnPrecision: string | null
+  expiresOnPrecision: string | null
+  legacySignDateRaw: string | null
+  legacyEndDateRaw: string | null
+  lifecycleStatus: string | null
+  signatureStatus: string | null
+  performanceStatus: string | null
+  legacyStatusRaw: string | null
+  amount: runtime.Decimal | null
+  executedAmount: runtime.Decimal | null
+  currencyCode: string | null
+  confidentialityLevel: number | null
   location: string | null
   remark: string | null
+  approvalSourceKey: string | null
+  approvalRecordId: string | null
+  approvalRecordUrl: string | null
+  approvalStatusSnapshot: string | null
+  approvedOn: Date | null
+  approvalSyncedAt: Date | null
+  currentRevisionId: number | null
+  isArchived: boolean | null
+  archivedAt: Date | null
+  archivedBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -70,21 +110,45 @@ export type ContractMinAggregateOutputType = {
 
 export type ContractMaxAggregateOutputType = {
   id: number | null
+  contractUid: string | null
   contractNo: string | null
   name: string | null
   partyA: string | null
   partyB: string | null
   shareholder: string | null
-  category: string | null
+  categoryId: number | null
   content: string | null
+  owningCompanyId: number | null
+  ownerDepartmentId: number | null
+  partyAId: number | null
+  partyBId: number | null
   handlerEmployeeId: number | null
-  signDate: string | null
-  endDate: string | null
-  status: string | null
-  amount: number | null
-  executedAmount: number | null
+  signedOn: Date | null
+  expiresOn: Date | null
+  signedOnPrecision: string | null
+  expiresOnPrecision: string | null
+  legacySignDateRaw: string | null
+  legacyEndDateRaw: string | null
+  lifecycleStatus: string | null
+  signatureStatus: string | null
+  performanceStatus: string | null
+  legacyStatusRaw: string | null
+  amount: runtime.Decimal | null
+  executedAmount: runtime.Decimal | null
+  currencyCode: string | null
+  confidentialityLevel: number | null
   location: string | null
   remark: string | null
+  approvalSourceKey: string | null
+  approvalRecordId: string | null
+  approvalRecordUrl: string | null
+  approvalStatusSnapshot: string | null
+  approvedOn: Date | null
+  approvalSyncedAt: Date | null
+  currentRevisionId: number | null
+  isArchived: boolean | null
+  archivedAt: Date | null
+  archivedBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -94,21 +158,45 @@ export type ContractMaxAggregateOutputType = {
 
 export type ContractCountAggregateOutputType = {
   id: number
+  contractUid: number
   contractNo: number
   name: number
   partyA: number
   partyB: number
   shareholder: number
-  category: number
+  categoryId: number
   content: number
+  owningCompanyId: number
+  ownerDepartmentId: number
+  partyAId: number
+  partyBId: number
   handlerEmployeeId: number
-  signDate: number
-  endDate: number
-  status: number
+  signedOn: number
+  expiresOn: number
+  signedOnPrecision: number
+  expiresOnPrecision: number
+  legacySignDateRaw: number
+  legacyEndDateRaw: number
+  lifecycleStatus: number
+  signatureStatus: number
+  performanceStatus: number
+  legacyStatusRaw: number
   amount: number
   executedAmount: number
+  currencyCode: number
+  confidentialityLevel: number
   location: number
   remark: number
+  approvalSourceKey: number
+  approvalRecordId: number
+  approvalRecordUrl: number
+  approvalStatusSnapshot: number
+  approvedOn: number
+  approvalSyncedAt: number
+  currentRevisionId: number
+  isArchived: number
+  archivedAt: number
+  archivedBy: number
   editedBy: number
   editedAt: number
   version: number
@@ -120,39 +208,79 @@ export type ContractCountAggregateOutputType = {
 
 export type ContractAvgAggregateInputType = {
   id?: true
+  categoryId?: true
+  owningCompanyId?: true
+  ownerDepartmentId?: true
+  partyAId?: true
+  partyBId?: true
   handlerEmployeeId?: true
   amount?: true
   executedAmount?: true
+  confidentialityLevel?: true
+  currentRevisionId?: true
+  archivedBy?: true
   editedBy?: true
   version?: true
 }
 
 export type ContractSumAggregateInputType = {
   id?: true
+  categoryId?: true
+  owningCompanyId?: true
+  ownerDepartmentId?: true
+  partyAId?: true
+  partyBId?: true
   handlerEmployeeId?: true
   amount?: true
   executedAmount?: true
+  confidentialityLevel?: true
+  currentRevisionId?: true
+  archivedBy?: true
   editedBy?: true
   version?: true
 }
 
 export type ContractMinAggregateInputType = {
   id?: true
+  contractUid?: true
   contractNo?: true
   name?: true
   partyA?: true
   partyB?: true
   shareholder?: true
-  category?: true
+  categoryId?: true
   content?: true
+  owningCompanyId?: true
+  ownerDepartmentId?: true
+  partyAId?: true
+  partyBId?: true
   handlerEmployeeId?: true
-  signDate?: true
-  endDate?: true
-  status?: true
+  signedOn?: true
+  expiresOn?: true
+  signedOnPrecision?: true
+  expiresOnPrecision?: true
+  legacySignDateRaw?: true
+  legacyEndDateRaw?: true
+  lifecycleStatus?: true
+  signatureStatus?: true
+  performanceStatus?: true
+  legacyStatusRaw?: true
   amount?: true
   executedAmount?: true
+  currencyCode?: true
+  confidentialityLevel?: true
   location?: true
   remark?: true
+  approvalSourceKey?: true
+  approvalRecordId?: true
+  approvalRecordUrl?: true
+  approvalStatusSnapshot?: true
+  approvedOn?: true
+  approvalSyncedAt?: true
+  currentRevisionId?: true
+  isArchived?: true
+  archivedAt?: true
+  archivedBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -162,21 +290,45 @@ export type ContractMinAggregateInputType = {
 
 export type ContractMaxAggregateInputType = {
   id?: true
+  contractUid?: true
   contractNo?: true
   name?: true
   partyA?: true
   partyB?: true
   shareholder?: true
-  category?: true
+  categoryId?: true
   content?: true
+  owningCompanyId?: true
+  ownerDepartmentId?: true
+  partyAId?: true
+  partyBId?: true
   handlerEmployeeId?: true
-  signDate?: true
-  endDate?: true
-  status?: true
+  signedOn?: true
+  expiresOn?: true
+  signedOnPrecision?: true
+  expiresOnPrecision?: true
+  legacySignDateRaw?: true
+  legacyEndDateRaw?: true
+  lifecycleStatus?: true
+  signatureStatus?: true
+  performanceStatus?: true
+  legacyStatusRaw?: true
   amount?: true
   executedAmount?: true
+  currencyCode?: true
+  confidentialityLevel?: true
   location?: true
   remark?: true
+  approvalSourceKey?: true
+  approvalRecordId?: true
+  approvalRecordUrl?: true
+  approvalStatusSnapshot?: true
+  approvedOn?: true
+  approvalSyncedAt?: true
+  currentRevisionId?: true
+  isArchived?: true
+  archivedAt?: true
+  archivedBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -186,21 +338,45 @@ export type ContractMaxAggregateInputType = {
 
 export type ContractCountAggregateInputType = {
   id?: true
+  contractUid?: true
   contractNo?: true
   name?: true
   partyA?: true
   partyB?: true
   shareholder?: true
-  category?: true
+  categoryId?: true
   content?: true
+  owningCompanyId?: true
+  ownerDepartmentId?: true
+  partyAId?: true
+  partyBId?: true
   handlerEmployeeId?: true
-  signDate?: true
-  endDate?: true
-  status?: true
+  signedOn?: true
+  expiresOn?: true
+  signedOnPrecision?: true
+  expiresOnPrecision?: true
+  legacySignDateRaw?: true
+  legacyEndDateRaw?: true
+  lifecycleStatus?: true
+  signatureStatus?: true
+  performanceStatus?: true
+  legacyStatusRaw?: true
   amount?: true
   executedAmount?: true
+  currencyCode?: true
+  confidentialityLevel?: true
   location?: true
   remark?: true
+  approvalSourceKey?: true
+  approvalRecordId?: true
+  approvalRecordUrl?: true
+  approvalStatusSnapshot?: true
+  approvedOn?: true
+  approvalSyncedAt?: true
+  currentRevisionId?: true
+  isArchived?: true
+  archivedAt?: true
+  archivedBy?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -297,21 +473,45 @@ export type ContractGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type ContractGroupByOutputType = {
   id: number
+  contractUid: string
   contractNo: string | null
   name: string
   partyA: string | null
   partyB: string | null
   shareholder: string | null
-  category: string | null
+  categoryId: number
   content: string | null
+  owningCompanyId: number | null
+  ownerDepartmentId: number | null
+  partyAId: number | null
+  partyBId: number | null
   handlerEmployeeId: number | null
-  signDate: string | null
-  endDate: string | null
-  status: string | null
-  amount: number | null
-  executedAmount: number | null
+  signedOn: Date | null
+  expiresOn: Date | null
+  signedOnPrecision: string | null
+  expiresOnPrecision: string | null
+  legacySignDateRaw: string | null
+  legacyEndDateRaw: string | null
+  lifecycleStatus: string
+  signatureStatus: string
+  performanceStatus: string
+  legacyStatusRaw: string | null
+  amount: runtime.Decimal | null
+  executedAmount: runtime.Decimal | null
+  currencyCode: string
+  confidentialityLevel: number
   location: string | null
   remark: string | null
+  approvalSourceKey: string | null
+  approvalRecordId: string | null
+  approvalRecordUrl: string | null
+  approvalStatusSnapshot: string | null
+  approvedOn: Date | null
+  approvalSyncedAt: Date | null
+  currentRevisionId: number | null
+  isArchived: boolean
+  archivedAt: Date | null
+  archivedBy: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -344,58 +544,131 @@ export type ContractWhereInput = {
   OR?: Prisma.ContractWhereInput[]
   NOT?: Prisma.ContractWhereInput | Prisma.ContractWhereInput[]
   id?: Prisma.IntFilter<"Contract"> | number
+  contractUid?: Prisma.StringFilter<"Contract"> | string
   contractNo?: Prisma.StringNullableFilter<"Contract"> | string | null
   name?: Prisma.StringFilter<"Contract"> | string
   partyA?: Prisma.StringNullableFilter<"Contract"> | string | null
   partyB?: Prisma.StringNullableFilter<"Contract"> | string | null
   shareholder?: Prisma.StringNullableFilter<"Contract"> | string | null
-  category?: Prisma.StringNullableFilter<"Contract"> | string | null
+  categoryId?: Prisma.IntFilter<"Contract"> | number
   content?: Prisma.StringNullableFilter<"Contract"> | string | null
+  owningCompanyId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  ownerDepartmentId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyAId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyBId?: Prisma.IntNullableFilter<"Contract"> | number | null
   handlerEmployeeId?: Prisma.IntNullableFilter<"Contract"> | number | null
-  signDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  endDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  status?: Prisma.StringNullableFilter<"Contract"> | string | null
-  amount?: Prisma.FloatNullableFilter<"Contract"> | number | null
-  executedAmount?: Prisma.FloatNullableFilter<"Contract"> | number | null
+  signedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  expiresOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  signedOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  expiresOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacySignDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacyEndDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  lifecycleStatus?: Prisma.StringFilter<"Contract"> | string
+  signatureStatus?: Prisma.StringFilter<"Contract"> | string
+  performanceStatus?: Prisma.StringFilter<"Contract"> | string
+  legacyStatusRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  amount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFilter<"Contract"> | string
+  confidentialityLevel?: Prisma.IntFilter<"Contract"> | number
   location?: Prisma.StringNullableFilter<"Contract"> | string | null
   remark?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalSourceKey?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordId?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordUrl?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalStatusSnapshot?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  approvalSyncedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  currentRevisionId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  isArchived?: Prisma.BoolFilter<"Contract"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   version?: Prisma.IntFilter<"Contract"> | number
   createdAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
+  category?: Prisma.XOR<Prisma.ContractCategoryScalarRelationFilter, Prisma.ContractCategoryWhereInput>
+  owningCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  ownerDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
+  partyAIdentity?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
+  partyBIdentity?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  archivedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   handlerEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
+  currentRevision?: Prisma.XOR<Prisma.ContractRevisionNullableScalarRelationFilter, Prisma.ContractRevisionWhereInput> | null
+  revisions?: Prisma.ContractRevisionListRelationFilter
+  stateEvents?: Prisma.ContractStateEventListRelationFilter
+  attachments?: Prisma.ContractAttachmentListRelationFilter
+  records?: Prisma.ContractRecordListRelationFilter
 }
 
 export type ContractOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  contractUid?: Prisma.SortOrder
   contractNo?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   partyA?: Prisma.SortOrderInput | Prisma.SortOrder
   partyB?: Prisma.SortOrderInput | Prisma.SortOrder
   shareholder?: Prisma.SortOrderInput | Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   content?: Prisma.SortOrderInput | Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyAId?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyBId?: Prisma.SortOrderInput | Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  signDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrderInput | Prisma.SortOrder
+  signedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  expiresOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  signedOnPrecision?: Prisma.SortOrderInput | Prisma.SortOrder
+  expiresOnPrecision?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacySignDateRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacyEndDateRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  lifecycleStatus?: Prisma.SortOrder
+  signatureStatus?: Prisma.SortOrder
+  performanceStatus?: Prisma.SortOrder
+  legacyStatusRaw?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrderInput | Prisma.SortOrder
   executedAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyCode?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalSourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalRecordUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalStatusSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  category?: Prisma.ContractCategoryOrderByWithRelationInput
+  owningCompany?: Prisma.CompanyOrderByWithRelationInput
+  ownerDepartment?: Prisma.DepartmentOrderByWithRelationInput
+  partyAIdentity?: Prisma.PartyOrderByWithRelationInput
+  partyBIdentity?: Prisma.PartyOrderByWithRelationInput
   editor?: Prisma.UserOrderByWithRelationInput
+  archivedByUser?: Prisma.UserOrderByWithRelationInput
   handlerEmployee?: Prisma.EmployeeOrderByWithRelationInput
+  currentRevision?: Prisma.ContractRevisionOrderByWithRelationInput
+  revisions?: Prisma.ContractRevisionOrderByRelationAggregateInput
+  stateEvents?: Prisma.ContractStateEventOrderByRelationAggregateInput
+  attachments?: Prisma.ContractAttachmentOrderByRelationAggregateInput
+  records?: Prisma.ContractRecordOrderByRelationAggregateInput
 }
 
 export type ContractWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  contractUid?: string
+  currentRevisionId?: number
+  approvalSourceKey_approvalRecordId?: Prisma.ContractApprovalSourceKeyApprovalRecordIdCompoundUniqueInput
   AND?: Prisma.ContractWhereInput | Prisma.ContractWhereInput[]
   OR?: Prisma.ContractWhereInput[]
   NOT?: Prisma.ContractWhereInput | Prisma.ContractWhereInput[]
@@ -404,42 +677,99 @@ export type ContractWhereUniqueInput = Prisma.AtLeast<{
   partyA?: Prisma.StringNullableFilter<"Contract"> | string | null
   partyB?: Prisma.StringNullableFilter<"Contract"> | string | null
   shareholder?: Prisma.StringNullableFilter<"Contract"> | string | null
-  category?: Prisma.StringNullableFilter<"Contract"> | string | null
+  categoryId?: Prisma.IntFilter<"Contract"> | number
   content?: Prisma.StringNullableFilter<"Contract"> | string | null
+  owningCompanyId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  ownerDepartmentId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyAId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyBId?: Prisma.IntNullableFilter<"Contract"> | number | null
   handlerEmployeeId?: Prisma.IntNullableFilter<"Contract"> | number | null
-  signDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  endDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  status?: Prisma.StringNullableFilter<"Contract"> | string | null
-  amount?: Prisma.FloatNullableFilter<"Contract"> | number | null
-  executedAmount?: Prisma.FloatNullableFilter<"Contract"> | number | null
+  signedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  expiresOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  signedOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  expiresOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacySignDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacyEndDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  lifecycleStatus?: Prisma.StringFilter<"Contract"> | string
+  signatureStatus?: Prisma.StringFilter<"Contract"> | string
+  performanceStatus?: Prisma.StringFilter<"Contract"> | string
+  legacyStatusRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  amount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFilter<"Contract"> | string
+  confidentialityLevel?: Prisma.IntFilter<"Contract"> | number
   location?: Prisma.StringNullableFilter<"Contract"> | string | null
   remark?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalSourceKey?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordId?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordUrl?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalStatusSnapshot?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  approvalSyncedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  isArchived?: Prisma.BoolFilter<"Contract"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   version?: Prisma.IntFilter<"Contract"> | number
   createdAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
+  category?: Prisma.XOR<Prisma.ContractCategoryScalarRelationFilter, Prisma.ContractCategoryWhereInput>
+  owningCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
+  ownerDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
+  partyAIdentity?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
+  partyBIdentity?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  archivedByUser?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   handlerEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
-}, "id">
+  currentRevision?: Prisma.XOR<Prisma.ContractRevisionNullableScalarRelationFilter, Prisma.ContractRevisionWhereInput> | null
+  revisions?: Prisma.ContractRevisionListRelationFilter
+  stateEvents?: Prisma.ContractStateEventListRelationFilter
+  attachments?: Prisma.ContractAttachmentListRelationFilter
+  records?: Prisma.ContractRecordListRelationFilter
+}, "id" | "contractUid" | "currentRevisionId" | "approvalSourceKey_approvalRecordId">
 
 export type ContractOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  contractUid?: Prisma.SortOrder
   contractNo?: Prisma.SortOrderInput | Prisma.SortOrder
   name?: Prisma.SortOrder
   partyA?: Prisma.SortOrderInput | Prisma.SortOrder
   partyB?: Prisma.SortOrderInput | Prisma.SortOrder
   shareholder?: Prisma.SortOrderInput | Prisma.SortOrder
-  category?: Prisma.SortOrderInput | Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   content?: Prisma.SortOrderInput | Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyAId?: Prisma.SortOrderInput | Prisma.SortOrder
+  partyBId?: Prisma.SortOrderInput | Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
-  signDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  endDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  status?: Prisma.SortOrderInput | Prisma.SortOrder
+  signedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  expiresOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  signedOnPrecision?: Prisma.SortOrderInput | Prisma.SortOrder
+  expiresOnPrecision?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacySignDateRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  legacyEndDateRaw?: Prisma.SortOrderInput | Prisma.SortOrder
+  lifecycleStatus?: Prisma.SortOrder
+  signatureStatus?: Prisma.SortOrder
+  performanceStatus?: Prisma.SortOrder
+  legacyStatusRaw?: Prisma.SortOrderInput | Prisma.SortOrder
   amount?: Prisma.SortOrderInput | Prisma.SortOrder
   executedAmount?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyCode?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
   location?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalSourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalRecordUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalStatusSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  approvalSyncedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  archivedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -457,21 +787,45 @@ export type ContractScalarWhereWithAggregatesInput = {
   OR?: Prisma.ContractScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ContractScalarWhereWithAggregatesInput | Prisma.ContractScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Contract"> | number
+  contractUid?: Prisma.StringWithAggregatesFilter<"Contract"> | string
   contractNo?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
   name?: Prisma.StringWithAggregatesFilter<"Contract"> | string
   partyA?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
   partyB?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
   shareholder?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
-  category?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  categoryId?: Prisma.IntWithAggregatesFilter<"Contract"> | number
   content?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  owningCompanyId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
+  ownerDepartmentId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
+  partyAId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
+  partyBId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
   handlerEmployeeId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
-  signDate?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
-  endDate?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
-  status?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
-  amount?: Prisma.FloatNullableWithAggregatesFilter<"Contract"> | number | null
-  executedAmount?: Prisma.FloatNullableWithAggregatesFilter<"Contract"> | number | null
+  signedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
+  expiresOn?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
+  signedOnPrecision?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  expiresOnPrecision?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  legacySignDateRaw?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  legacyEndDateRaw?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  lifecycleStatus?: Prisma.StringWithAggregatesFilter<"Contract"> | string
+  signatureStatus?: Prisma.StringWithAggregatesFilter<"Contract"> | string
+  performanceStatus?: Prisma.StringWithAggregatesFilter<"Contract"> | string
+  legacyStatusRaw?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  amount?: Prisma.DecimalNullableWithAggregatesFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.DecimalNullableWithAggregatesFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringWithAggregatesFilter<"Contract"> | string
+  confidentialityLevel?: Prisma.IntWithAggregatesFilter<"Contract"> | number
   location?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
   remark?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  approvalSourceKey?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  approvalRecordId?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  approvalRecordUrl?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  approvalStatusSnapshot?: Prisma.StringNullableWithAggregatesFilter<"Contract"> | string | null
+  approvedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
+  approvalSyncedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
+  currentRevisionId?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
+  isArchived?: Prisma.BoolWithAggregatesFilter<"Contract"> | boolean
+  archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
+  archivedBy?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"Contract"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Contract"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"Contract"> | number
@@ -480,116 +834,252 @@ export type ContractScalarWhereWithAggregatesInput = {
 }
 
 export type ContractCreateInput = {
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
   content?: string | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
   handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateInput = {
   id?: number
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
+  categoryId: number
   content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
   handlerEmployeeId?: number | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractUpdateInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
   handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractCreateManyInput = {
   id?: number
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
+  categoryId: number
   content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
   handlerEmployeeId?: number | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -598,20 +1088,37 @@ export type ContractCreateManyInput = {
 }
 
 export type ContractUpdateManyMutationInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -620,21 +1127,45 @@ export type ContractUpdateManyMutationInput = {
 
 export type ContractUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -652,23 +1183,62 @@ export type ContractOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ContractScalarRelationFilter = {
+  is?: Prisma.ContractWhereInput
+  isNot?: Prisma.ContractWhereInput
+}
+
+export type ContractNullableScalarRelationFilter = {
+  is?: Prisma.ContractWhereInput | null
+  isNot?: Prisma.ContractWhereInput | null
+}
+
+export type ContractApprovalSourceKeyApprovalRecordIdCompoundUniqueInput = {
+  approvalSourceKey: string
+  approvalRecordId: string
+}
+
 export type ContractCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  contractUid?: Prisma.SortOrder
   contractNo?: Prisma.SortOrder
   name?: Prisma.SortOrder
   partyA?: Prisma.SortOrder
   partyB?: Prisma.SortOrder
   shareholder?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrder
+  partyAId?: Prisma.SortOrder
+  partyBId?: Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrder
-  signDate?: Prisma.SortOrder
-  endDate?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  signedOn?: Prisma.SortOrder
+  expiresOn?: Prisma.SortOrder
+  signedOnPrecision?: Prisma.SortOrder
+  expiresOnPrecision?: Prisma.SortOrder
+  legacySignDateRaw?: Prisma.SortOrder
+  legacyEndDateRaw?: Prisma.SortOrder
+  lifecycleStatus?: Prisma.SortOrder
+  signatureStatus?: Prisma.SortOrder
+  performanceStatus?: Prisma.SortOrder
+  legacyStatusRaw?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   executedAmount?: Prisma.SortOrder
+  currencyCode?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
   location?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  approvalSourceKey?: Prisma.SortOrder
+  approvalRecordId?: Prisma.SortOrder
+  approvalRecordUrl?: Prisma.SortOrder
+  approvalStatusSnapshot?: Prisma.SortOrder
+  approvedOn?: Prisma.SortOrder
+  approvalSyncedAt?: Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -678,30 +1248,62 @@ export type ContractCountOrderByAggregateInput = {
 
 export type ContractAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrder
+  partyAId?: Prisma.SortOrder
+  partyBId?: Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   executedAmount?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
 export type ContractMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  contractUid?: Prisma.SortOrder
   contractNo?: Prisma.SortOrder
   name?: Prisma.SortOrder
   partyA?: Prisma.SortOrder
   partyB?: Prisma.SortOrder
   shareholder?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrder
+  partyAId?: Prisma.SortOrder
+  partyBId?: Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrder
-  signDate?: Prisma.SortOrder
-  endDate?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  signedOn?: Prisma.SortOrder
+  expiresOn?: Prisma.SortOrder
+  signedOnPrecision?: Prisma.SortOrder
+  expiresOnPrecision?: Prisma.SortOrder
+  legacySignDateRaw?: Prisma.SortOrder
+  legacyEndDateRaw?: Prisma.SortOrder
+  lifecycleStatus?: Prisma.SortOrder
+  signatureStatus?: Prisma.SortOrder
+  performanceStatus?: Prisma.SortOrder
+  legacyStatusRaw?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   executedAmount?: Prisma.SortOrder
+  currencyCode?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
   location?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  approvalSourceKey?: Prisma.SortOrder
+  approvalRecordId?: Prisma.SortOrder
+  approvalRecordUrl?: Prisma.SortOrder
+  approvalStatusSnapshot?: Prisma.SortOrder
+  approvedOn?: Prisma.SortOrder
+  approvalSyncedAt?: Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -711,21 +1313,45 @@ export type ContractMaxOrderByAggregateInput = {
 
 export type ContractMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  contractUid?: Prisma.SortOrder
   contractNo?: Prisma.SortOrder
   name?: Prisma.SortOrder
   partyA?: Prisma.SortOrder
   partyB?: Prisma.SortOrder
   shareholder?: Prisma.SortOrder
-  category?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
   content?: Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrder
+  partyAId?: Prisma.SortOrder
+  partyBId?: Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrder
-  signDate?: Prisma.SortOrder
-  endDate?: Prisma.SortOrder
-  status?: Prisma.SortOrder
+  signedOn?: Prisma.SortOrder
+  expiresOn?: Prisma.SortOrder
+  signedOnPrecision?: Prisma.SortOrder
+  expiresOnPrecision?: Prisma.SortOrder
+  legacySignDateRaw?: Prisma.SortOrder
+  legacyEndDateRaw?: Prisma.SortOrder
+  lifecycleStatus?: Prisma.SortOrder
+  signatureStatus?: Prisma.SortOrder
+  performanceStatus?: Prisma.SortOrder
+  legacyStatusRaw?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   executedAmount?: Prisma.SortOrder
+  currencyCode?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
   location?: Prisma.SortOrder
   remark?: Prisma.SortOrder
+  approvalSourceKey?: Prisma.SortOrder
+  approvalRecordId?: Prisma.SortOrder
+  approvalRecordUrl?: Prisma.SortOrder
+  approvalStatusSnapshot?: Prisma.SortOrder
+  approvedOn?: Prisma.SortOrder
+  approvalSyncedAt?: Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
+  archivedAt?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -735,9 +1361,17 @@ export type ContractMinOrderByAggregateInput = {
 
 export type ContractSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  categoryId?: Prisma.SortOrder
+  owningCompanyId?: Prisma.SortOrder
+  ownerDepartmentId?: Prisma.SortOrder
+  partyAId?: Prisma.SortOrder
+  partyBId?: Prisma.SortOrder
   handlerEmployeeId?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   executedAmount?: Prisma.SortOrder
+  confidentialityLevel?: Prisma.SortOrder
+  currentRevisionId?: Prisma.SortOrder
+  archivedBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -749,10 +1383,24 @@ export type ContractCreateNestedManyWithoutEditorInput = {
   connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
 }
 
+export type ContractCreateNestedManyWithoutArchivedByUserInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput> | Prisma.ContractCreateWithoutArchivedByUserInput[] | Prisma.ContractUncheckedCreateWithoutArchivedByUserInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutArchivedByUserInput | Prisma.ContractCreateOrConnectWithoutArchivedByUserInput[]
+  createMany?: Prisma.ContractCreateManyArchivedByUserInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
 export type ContractUncheckedCreateNestedManyWithoutEditorInput = {
   create?: Prisma.XOR<Prisma.ContractCreateWithoutEditorInput, Prisma.ContractUncheckedCreateWithoutEditorInput> | Prisma.ContractCreateWithoutEditorInput[] | Prisma.ContractUncheckedCreateWithoutEditorInput[]
   connectOrCreate?: Prisma.ContractCreateOrConnectWithoutEditorInput | Prisma.ContractCreateOrConnectWithoutEditorInput[]
   createMany?: Prisma.ContractCreateManyEditorInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutArchivedByUserInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput> | Prisma.ContractCreateWithoutArchivedByUserInput[] | Prisma.ContractUncheckedCreateWithoutArchivedByUserInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutArchivedByUserInput | Prisma.ContractCreateOrConnectWithoutArchivedByUserInput[]
+  createMany?: Prisma.ContractCreateManyArchivedByUserInputEnvelope
   connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
 }
 
@@ -770,6 +1418,20 @@ export type ContractUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
 }
 
+export type ContractUpdateManyWithoutArchivedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput> | Prisma.ContractCreateWithoutArchivedByUserInput[] | Prisma.ContractUncheckedCreateWithoutArchivedByUserInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutArchivedByUserInput | Prisma.ContractCreateOrConnectWithoutArchivedByUserInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutArchivedByUserInput | Prisma.ContractUpsertWithWhereUniqueWithoutArchivedByUserInput[]
+  createMany?: Prisma.ContractCreateManyArchivedByUserInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutArchivedByUserInput | Prisma.ContractUpdateWithWhereUniqueWithoutArchivedByUserInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutArchivedByUserInput | Prisma.ContractUpdateManyWithWhereWithoutArchivedByUserInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
 export type ContractUncheckedUpdateManyWithoutEditorNestedInput = {
   create?: Prisma.XOR<Prisma.ContractCreateWithoutEditorInput, Prisma.ContractUncheckedCreateWithoutEditorInput> | Prisma.ContractCreateWithoutEditorInput[] | Prisma.ContractUncheckedCreateWithoutEditorInput[]
   connectOrCreate?: Prisma.ContractCreateOrConnectWithoutEditorInput | Prisma.ContractCreateOrConnectWithoutEditorInput[]
@@ -781,6 +1443,276 @@ export type ContractUncheckedUpdateManyWithoutEditorNestedInput = {
   connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
   update?: Prisma.ContractUpdateWithWhereUniqueWithoutEditorInput | Prisma.ContractUpdateWithWhereUniqueWithoutEditorInput[]
   updateMany?: Prisma.ContractUpdateManyWithWhereWithoutEditorInput | Prisma.ContractUpdateManyWithWhereWithoutEditorInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutArchivedByUserNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput> | Prisma.ContractCreateWithoutArchivedByUserInput[] | Prisma.ContractUncheckedCreateWithoutArchivedByUserInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutArchivedByUserInput | Prisma.ContractCreateOrConnectWithoutArchivedByUserInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutArchivedByUserInput | Prisma.ContractUpsertWithWhereUniqueWithoutArchivedByUserInput[]
+  createMany?: Prisma.ContractCreateManyArchivedByUserInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutArchivedByUserInput | Prisma.ContractUpdateWithWhereUniqueWithoutArchivedByUserInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutArchivedByUserInput | Prisma.ContractUpdateManyWithWhereWithoutArchivedByUserInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractCreateNestedOneWithoutRevisionsInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutRevisionsInput, Prisma.ContractUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutRevisionsInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractCreateNestedOneWithoutCurrentRevisionInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCurrentRevisionInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUncheckedCreateNestedOneWithoutCurrentRevisionInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCurrentRevisionInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUpdateOneRequiredWithoutRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutRevisionsInput, Prisma.ContractUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutRevisionsInput
+  upsert?: Prisma.ContractUpsertWithoutRevisionsInput
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutRevisionsInput, Prisma.ContractUpdateWithoutRevisionsInput>, Prisma.ContractUncheckedUpdateWithoutRevisionsInput>
+}
+
+export type ContractUpdateOneWithoutCurrentRevisionNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCurrentRevisionInput
+  upsert?: Prisma.ContractUpsertWithoutCurrentRevisionInput
+  disconnect?: Prisma.ContractWhereInput | boolean
+  delete?: Prisma.ContractWhereInput | boolean
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutCurrentRevisionInput, Prisma.ContractUpdateWithoutCurrentRevisionInput>, Prisma.ContractUncheckedUpdateWithoutCurrentRevisionInput>
+}
+
+export type ContractUncheckedUpdateOneWithoutCurrentRevisionNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCurrentRevisionInput
+  upsert?: Prisma.ContractUpsertWithoutCurrentRevisionInput
+  disconnect?: Prisma.ContractWhereInput | boolean
+  delete?: Prisma.ContractWhereInput | boolean
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutCurrentRevisionInput, Prisma.ContractUpdateWithoutCurrentRevisionInput>, Prisma.ContractUncheckedUpdateWithoutCurrentRevisionInput>
+}
+
+export type ContractCreateNestedOneWithoutStateEventsInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutStateEventsInput, Prisma.ContractUncheckedCreateWithoutStateEventsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutStateEventsInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUpdateOneRequiredWithoutStateEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutStateEventsInput, Prisma.ContractUncheckedCreateWithoutStateEventsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutStateEventsInput
+  upsert?: Prisma.ContractUpsertWithoutStateEventsInput
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutStateEventsInput, Prisma.ContractUpdateWithoutStateEventsInput>, Prisma.ContractUncheckedUpdateWithoutStateEventsInput>
+}
+
+export type ContractCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput> | Prisma.ContractCreateWithoutCategoryInput[] | Prisma.ContractUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCategoryInput | Prisma.ContractCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.ContractCreateManyCategoryInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutCategoryInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput> | Prisma.ContractCreateWithoutCategoryInput[] | Prisma.ContractUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCategoryInput | Prisma.ContractCreateOrConnectWithoutCategoryInput[]
+  createMany?: Prisma.ContractCreateManyCategoryInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput> | Prisma.ContractCreateWithoutCategoryInput[] | Prisma.ContractUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCategoryInput | Prisma.ContractCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ContractUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.ContractCreateManyCategoryInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ContractUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutCategoryInput | Prisma.ContractUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutCategoryNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput> | Prisma.ContractCreateWithoutCategoryInput[] | Prisma.ContractUncheckedCreateWithoutCategoryInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutCategoryInput | Prisma.ContractCreateOrConnectWithoutCategoryInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutCategoryInput | Prisma.ContractUpsertWithWhereUniqueWithoutCategoryInput[]
+  createMany?: Prisma.ContractCreateManyCategoryInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutCategoryInput | Prisma.ContractUpdateWithWhereUniqueWithoutCategoryInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutCategoryInput | Prisma.ContractUpdateManyWithWhereWithoutCategoryInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractCreateNestedOneWithoutAttachmentsInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutAttachmentsInput, Prisma.ContractUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutAttachmentsInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUpdateOneRequiredWithoutAttachmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutAttachmentsInput, Prisma.ContractUncheckedCreateWithoutAttachmentsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutAttachmentsInput
+  upsert?: Prisma.ContractUpsertWithoutAttachmentsInput
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutAttachmentsInput, Prisma.ContractUpdateWithoutAttachmentsInput>, Prisma.ContractUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type ContractCreateNestedOneWithoutRecordsInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutRecordsInput, Prisma.ContractUncheckedCreateWithoutRecordsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutRecordsInput
+  connect?: Prisma.ContractWhereUniqueInput
+}
+
+export type ContractUpdateOneRequiredWithoutRecordsNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutRecordsInput, Prisma.ContractUncheckedCreateWithoutRecordsInput>
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutRecordsInput
+  upsert?: Prisma.ContractUpsertWithoutRecordsInput
+  connect?: Prisma.ContractWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ContractUpdateToOneWithWhereWithoutRecordsInput, Prisma.ContractUpdateWithoutRecordsInput>, Prisma.ContractUncheckedUpdateWithoutRecordsInput>
+}
+
+export type ContractCreateNestedManyWithoutPartyAIdentityInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput> | Prisma.ContractCreateWithoutPartyAIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyAIdentityInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractCreateNestedManyWithoutPartyBIdentityInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput> | Prisma.ContractCreateWithoutPartyBIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyBIdentityInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutPartyAIdentityInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput> | Prisma.ContractCreateWithoutPartyAIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyAIdentityInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutPartyBIdentityInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput> | Prisma.ContractCreateWithoutPartyBIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyBIdentityInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUpdateManyWithoutPartyAIdentityNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput> | Prisma.ContractCreateWithoutPartyAIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutPartyAIdentityInput | Prisma.ContractUpsertWithWhereUniqueWithoutPartyAIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyAIdentityInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutPartyAIdentityInput | Prisma.ContractUpdateWithWhereUniqueWithoutPartyAIdentityInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutPartyAIdentityInput | Prisma.ContractUpdateManyWithWhereWithoutPartyAIdentityInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUpdateManyWithoutPartyBIdentityNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput> | Prisma.ContractCreateWithoutPartyBIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutPartyBIdentityInput | Prisma.ContractUpsertWithWhereUniqueWithoutPartyBIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyBIdentityInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutPartyBIdentityInput | Prisma.ContractUpdateWithWhereUniqueWithoutPartyBIdentityInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutPartyBIdentityInput | Prisma.ContractUpdateManyWithWhereWithoutPartyBIdentityInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutPartyAIdentityNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput> | Prisma.ContractCreateWithoutPartyAIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyAIdentityInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutPartyAIdentityInput | Prisma.ContractUpsertWithWhereUniqueWithoutPartyAIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyAIdentityInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutPartyAIdentityInput | Prisma.ContractUpdateWithWhereUniqueWithoutPartyAIdentityInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutPartyAIdentityInput | Prisma.ContractUpdateManyWithWhereWithoutPartyAIdentityInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutPartyBIdentityNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput> | Prisma.ContractCreateWithoutPartyBIdentityInput[] | Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput | Prisma.ContractCreateOrConnectWithoutPartyBIdentityInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutPartyBIdentityInput | Prisma.ContractUpsertWithWhereUniqueWithoutPartyBIdentityInput[]
+  createMany?: Prisma.ContractCreateManyPartyBIdentityInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutPartyBIdentityInput | Prisma.ContractUpdateWithWhereUniqueWithoutPartyBIdentityInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutPartyBIdentityInput | Prisma.ContractUpdateManyWithWhereWithoutPartyBIdentityInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractCreateNestedManyWithoutOwningCompanyInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput> | Prisma.ContractCreateWithoutOwningCompanyInput[] | Prisma.ContractUncheckedCreateWithoutOwningCompanyInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwningCompanyInput | Prisma.ContractCreateOrConnectWithoutOwningCompanyInput[]
+  createMany?: Prisma.ContractCreateManyOwningCompanyInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutOwningCompanyInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput> | Prisma.ContractCreateWithoutOwningCompanyInput[] | Prisma.ContractUncheckedCreateWithoutOwningCompanyInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwningCompanyInput | Prisma.ContractCreateOrConnectWithoutOwningCompanyInput[]
+  createMany?: Prisma.ContractCreateManyOwningCompanyInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUpdateManyWithoutOwningCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput> | Prisma.ContractCreateWithoutOwningCompanyInput[] | Prisma.ContractUncheckedCreateWithoutOwningCompanyInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwningCompanyInput | Prisma.ContractCreateOrConnectWithoutOwningCompanyInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutOwningCompanyInput | Prisma.ContractUpsertWithWhereUniqueWithoutOwningCompanyInput[]
+  createMany?: Prisma.ContractCreateManyOwningCompanyInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutOwningCompanyInput | Prisma.ContractUpdateWithWhereUniqueWithoutOwningCompanyInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutOwningCompanyInput | Prisma.ContractUpdateManyWithWhereWithoutOwningCompanyInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput> | Prisma.ContractCreateWithoutOwningCompanyInput[] | Prisma.ContractUncheckedCreateWithoutOwningCompanyInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwningCompanyInput | Prisma.ContractCreateOrConnectWithoutOwningCompanyInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutOwningCompanyInput | Prisma.ContractUpsertWithWhereUniqueWithoutOwningCompanyInput[]
+  createMany?: Prisma.ContractCreateManyOwningCompanyInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutOwningCompanyInput | Prisma.ContractUpdateWithWhereUniqueWithoutOwningCompanyInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutOwningCompanyInput | Prisma.ContractUpdateManyWithWhereWithoutOwningCompanyInput[]
   deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
 }
 
@@ -826,49 +1758,147 @@ export type ContractUncheckedUpdateManyWithoutHandlerEmployeeNestedInput = {
   deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
 }
 
+export type ContractCreateNestedManyWithoutOwnerDepartmentInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput> | Prisma.ContractCreateWithoutOwnerDepartmentInput[] | Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput | Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput[]
+  createMany?: Prisma.ContractCreateManyOwnerDepartmentInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUncheckedCreateNestedManyWithoutOwnerDepartmentInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput> | Prisma.ContractCreateWithoutOwnerDepartmentInput[] | Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput | Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput[]
+  createMany?: Prisma.ContractCreateManyOwnerDepartmentInputEnvelope
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+}
+
+export type ContractUpdateManyWithoutOwnerDepartmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput> | Prisma.ContractCreateWithoutOwnerDepartmentInput[] | Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput | Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutOwnerDepartmentInput | Prisma.ContractUpsertWithWhereUniqueWithoutOwnerDepartmentInput[]
+  createMany?: Prisma.ContractCreateManyOwnerDepartmentInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutOwnerDepartmentInput | Prisma.ContractUpdateWithWhereUniqueWithoutOwnerDepartmentInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutOwnerDepartmentInput | Prisma.ContractUpdateManyWithWhereWithoutOwnerDepartmentInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
+export type ContractUncheckedUpdateManyWithoutOwnerDepartmentNestedInput = {
+  create?: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput> | Prisma.ContractCreateWithoutOwnerDepartmentInput[] | Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput[]
+  connectOrCreate?: Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput | Prisma.ContractCreateOrConnectWithoutOwnerDepartmentInput[]
+  upsert?: Prisma.ContractUpsertWithWhereUniqueWithoutOwnerDepartmentInput | Prisma.ContractUpsertWithWhereUniqueWithoutOwnerDepartmentInput[]
+  createMany?: Prisma.ContractCreateManyOwnerDepartmentInputEnvelope
+  set?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  disconnect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  delete?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  connect?: Prisma.ContractWhereUniqueInput | Prisma.ContractWhereUniqueInput[]
+  update?: Prisma.ContractUpdateWithWhereUniqueWithoutOwnerDepartmentInput | Prisma.ContractUpdateWithWhereUniqueWithoutOwnerDepartmentInput[]
+  updateMany?: Prisma.ContractUpdateManyWithWhereWithoutOwnerDepartmentInput | Prisma.ContractUpdateManyWithWhereWithoutOwnerDepartmentInput[]
+  deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
+}
+
 export type ContractCreateWithoutEditorInput = {
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
   content?: string | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
   handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
 }
 
 export type ContractUncheckedCreateWithoutEditorInput = {
   id?: number
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
+  categoryId: number
   content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
   handlerEmployeeId?: number | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutEditorInput = {
@@ -878,6 +1908,117 @@ export type ContractCreateOrConnectWithoutEditorInput = {
 
 export type ContractCreateManyEditorInputEnvelope = {
   data: Prisma.ContractCreateManyEditorInput | Prisma.ContractCreateManyEditorInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractCreateWithoutArchivedByUserInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutArchivedByUserInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutArchivedByUserInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput>
+}
+
+export type ContractCreateManyArchivedByUserInputEnvelope = {
+  data: Prisma.ContractCreateManyArchivedByUserInput | Prisma.ContractCreateManyArchivedByUserInput[]
   skipDuplicates?: boolean
 }
 
@@ -902,21 +2043,45 @@ export type ContractScalarWhereInput = {
   OR?: Prisma.ContractScalarWhereInput[]
   NOT?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
   id?: Prisma.IntFilter<"Contract"> | number
+  contractUid?: Prisma.StringFilter<"Contract"> | string
   contractNo?: Prisma.StringNullableFilter<"Contract"> | string | null
   name?: Prisma.StringFilter<"Contract"> | string
   partyA?: Prisma.StringNullableFilter<"Contract"> | string | null
   partyB?: Prisma.StringNullableFilter<"Contract"> | string | null
   shareholder?: Prisma.StringNullableFilter<"Contract"> | string | null
-  category?: Prisma.StringNullableFilter<"Contract"> | string | null
+  categoryId?: Prisma.IntFilter<"Contract"> | number
   content?: Prisma.StringNullableFilter<"Contract"> | string | null
+  owningCompanyId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  ownerDepartmentId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyAId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  partyBId?: Prisma.IntNullableFilter<"Contract"> | number | null
   handlerEmployeeId?: Prisma.IntNullableFilter<"Contract"> | number | null
-  signDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  endDate?: Prisma.StringNullableFilter<"Contract"> | string | null
-  status?: Prisma.StringNullableFilter<"Contract"> | string | null
-  amount?: Prisma.FloatNullableFilter<"Contract"> | number | null
-  executedAmount?: Prisma.FloatNullableFilter<"Contract"> | number | null
+  signedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  expiresOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  signedOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  expiresOnPrecision?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacySignDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  legacyEndDateRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  lifecycleStatus?: Prisma.StringFilter<"Contract"> | string
+  signatureStatus?: Prisma.StringFilter<"Contract"> | string
+  performanceStatus?: Prisma.StringFilter<"Contract"> | string
+  legacyStatusRaw?: Prisma.StringNullableFilter<"Contract"> | string | null
+  amount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.DecimalNullableFilter<"Contract"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFilter<"Contract"> | string
+  confidentialityLevel?: Prisma.IntFilter<"Contract"> | number
   location?: Prisma.StringNullableFilter<"Contract"> | string | null
   remark?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalSourceKey?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordId?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalRecordUrl?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvalStatusSnapshot?: Prisma.StringNullableFilter<"Contract"> | string | null
+  approvedOn?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  approvalSyncedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  currentRevisionId?: Prisma.IntNullableFilter<"Contract"> | number | null
+  isArchived?: Prisma.BoolFilter<"Contract"> | boolean
+  archivedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
+  archivedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedBy?: Prisma.IntNullableFilter<"Contract"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"Contract"> | Date | string | null
   version?: Prisma.IntFilter<"Contract"> | number
@@ -924,49 +2089,1719 @@ export type ContractScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Contract"> | Date | string
 }
 
-export type ContractCreateWithoutHandlerEmployeeInput = {
+export type ContractUpsertWithWhereUniqueWithoutArchivedByUserInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutArchivedByUserInput, Prisma.ContractUncheckedUpdateWithoutArchivedByUserInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutArchivedByUserInput, Prisma.ContractUncheckedCreateWithoutArchivedByUserInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutArchivedByUserInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutArchivedByUserInput, Prisma.ContractUncheckedUpdateWithoutArchivedByUserInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutArchivedByUserInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutArchivedByUserInput>
+}
+
+export type ContractCreateWithoutRevisionsInput = {
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
   content?: string | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
   editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
 }
 
-export type ContractUncheckedCreateWithoutHandlerEmployeeInput = {
+export type ContractUncheckedCreateWithoutRevisionsInput = {
   id?: number
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
+  categoryId: number
   content?: string | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutRevisionsInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutRevisionsInput, Prisma.ContractUncheckedCreateWithoutRevisionsInput>
+}
+
+export type ContractCreateWithoutCurrentRevisionInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutCurrentRevisionInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutCurrentRevisionInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+}
+
+export type ContractUpsertWithoutRevisionsInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutRevisionsInput, Prisma.ContractUncheckedUpdateWithoutRevisionsInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutRevisionsInput, Prisma.ContractUncheckedCreateWithoutRevisionsInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutRevisionsInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutRevisionsInput, Prisma.ContractUncheckedUpdateWithoutRevisionsInput>
+}
+
+export type ContractUpdateWithoutRevisionsInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutRevisionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUpsertWithoutCurrentRevisionInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutCurrentRevisionInput, Prisma.ContractUncheckedUpdateWithoutCurrentRevisionInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutCurrentRevisionInput, Prisma.ContractUncheckedCreateWithoutCurrentRevisionInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutCurrentRevisionInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutCurrentRevisionInput, Prisma.ContractUncheckedUpdateWithoutCurrentRevisionInput>
+}
+
+export type ContractUpdateWithoutCurrentRevisionInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutCurrentRevisionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutStateEventsInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutStateEventsInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutStateEventsInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutStateEventsInput, Prisma.ContractUncheckedCreateWithoutStateEventsInput>
+}
+
+export type ContractUpsertWithoutStateEventsInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutStateEventsInput, Prisma.ContractUncheckedUpdateWithoutStateEventsInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutStateEventsInput, Prisma.ContractUncheckedCreateWithoutStateEventsInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutStateEventsInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutStateEventsInput, Prisma.ContractUncheckedUpdateWithoutStateEventsInput>
+}
+
+export type ContractUpdateWithoutStateEventsInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutStateEventsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutCategoryInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutCategoryInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutCategoryInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput>
+}
+
+export type ContractCreateManyCategoryInputEnvelope = {
+  data: Prisma.ContractCreateManyCategoryInput | Prisma.ContractCreateManyCategoryInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractUpsertWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutCategoryInput, Prisma.ContractUncheckedUpdateWithoutCategoryInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutCategoryInput, Prisma.ContractUncheckedCreateWithoutCategoryInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutCategoryInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutCategoryInput, Prisma.ContractUncheckedUpdateWithoutCategoryInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutCategoryInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutCategoryInput>
+}
+
+export type ContractCreateWithoutAttachmentsInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutAttachmentsInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutAttachmentsInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutAttachmentsInput, Prisma.ContractUncheckedCreateWithoutAttachmentsInput>
+}
+
+export type ContractUpsertWithoutAttachmentsInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutAttachmentsInput, Prisma.ContractUncheckedUpdateWithoutAttachmentsInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutAttachmentsInput, Prisma.ContractUncheckedCreateWithoutAttachmentsInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutAttachmentsInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutAttachmentsInput, Prisma.ContractUncheckedUpdateWithoutAttachmentsInput>
+}
+
+export type ContractUpdateWithoutAttachmentsInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutAttachmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutRecordsInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutRecordsInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutRecordsInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutRecordsInput, Prisma.ContractUncheckedCreateWithoutRecordsInput>
+}
+
+export type ContractUpsertWithoutRecordsInput = {
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutRecordsInput, Prisma.ContractUncheckedUpdateWithoutRecordsInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutRecordsInput, Prisma.ContractUncheckedCreateWithoutRecordsInput>
+  where?: Prisma.ContractWhereInput
+}
+
+export type ContractUpdateToOneWithWhereWithoutRecordsInput = {
+  where?: Prisma.ContractWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutRecordsInput, Prisma.ContractUncheckedUpdateWithoutRecordsInput>
+}
+
+export type ContractUpdateWithoutRecordsInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutRecordsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractCreateWithoutPartyAIdentityInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutPartyAIdentityInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutPartyAIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput>
+}
+
+export type ContractCreateManyPartyAIdentityInputEnvelope = {
+  data: Prisma.ContractCreateManyPartyAIdentityInput | Prisma.ContractCreateManyPartyAIdentityInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractCreateWithoutPartyBIdentityInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutPartyBIdentityInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutPartyBIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput>
+}
+
+export type ContractCreateManyPartyBIdentityInputEnvelope = {
+  data: Prisma.ContractCreateManyPartyBIdentityInput | Prisma.ContractCreateManyPartyBIdentityInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractUpsertWithWhereUniqueWithoutPartyAIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutPartyAIdentityInput, Prisma.ContractUncheckedUpdateWithoutPartyAIdentityInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutPartyAIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyAIdentityInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutPartyAIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutPartyAIdentityInput, Prisma.ContractUncheckedUpdateWithoutPartyAIdentityInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutPartyAIdentityInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutPartyAIdentityInput>
+}
+
+export type ContractUpsertWithWhereUniqueWithoutPartyBIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutPartyBIdentityInput, Prisma.ContractUncheckedUpdateWithoutPartyBIdentityInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutPartyBIdentityInput, Prisma.ContractUncheckedCreateWithoutPartyBIdentityInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutPartyBIdentityInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutPartyBIdentityInput, Prisma.ContractUncheckedUpdateWithoutPartyBIdentityInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutPartyBIdentityInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutPartyBIdentityInput>
+}
+
+export type ContractCreateWithoutOwningCompanyInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutOwningCompanyInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutOwningCompanyInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput>
+}
+
+export type ContractCreateManyOwningCompanyInputEnvelope = {
+  data: Prisma.ContractCreateManyOwningCompanyInput | Prisma.ContractCreateManyOwningCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractUpsertWithWhereUniqueWithoutOwningCompanyInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutOwningCompanyInput, Prisma.ContractUncheckedUpdateWithoutOwningCompanyInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutOwningCompanyInput, Prisma.ContractUncheckedCreateWithoutOwningCompanyInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutOwningCompanyInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutOwningCompanyInput, Prisma.ContractUncheckedUpdateWithoutOwningCompanyInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutOwningCompanyInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyInput>
+}
+
+export type ContractCreateWithoutHandlerEmployeeInput = {
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  ownerDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutHandlerEmployeeInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
 }
 
 export type ContractCreateOrConnectWithoutHandlerEmployeeInput = {
@@ -995,23 +3830,221 @@ export type ContractUpdateManyWithWhereWithoutHandlerEmployeeInput = {
   data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutHandlerEmployeeInput>
 }
 
-export type ContractCreateManyEditorInput = {
-  id?: number
+export type ContractCreateWithoutOwnerDepartmentInput = {
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
   content?: string | null
-  handlerEmployeeId?: number | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.ContractCategoryCreateNestedOneWithoutContractsInput
+  owningCompany?: Prisma.CompanyCreateNestedOneWithoutOwnedContractsInput
+  partyAIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyAInput
+  partyBIdentity?: Prisma.PartyCreateNestedOneWithoutContractsAsPartyBInput
+  editor?: Prisma.UserCreateNestedOneWithoutEditedContractsInput
+  archivedByUser?: Prisma.UserCreateNestedOneWithoutArchivedContractsInput
+  handlerEmployee?: Prisma.EmployeeCreateNestedOneWithoutHandledContractsInput
+  currentRevision?: Prisma.ContractRevisionCreateNestedOneWithoutCurrentForContractInput
+  revisions?: Prisma.ContractRevisionCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordCreateNestedManyWithoutContractInput
+}
+
+export type ContractUncheckedCreateWithoutOwnerDepartmentInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.ContractRevisionUncheckedCreateNestedManyWithoutContractInput
+  stateEvents?: Prisma.ContractStateEventUncheckedCreateNestedManyWithoutContractInput
+  attachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutContractInput
+  records?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutContractInput
+}
+
+export type ContractCreateOrConnectWithoutOwnerDepartmentInput = {
+  where: Prisma.ContractWhereUniqueInput
+  create: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput>
+}
+
+export type ContractCreateManyOwnerDepartmentInputEnvelope = {
+  data: Prisma.ContractCreateManyOwnerDepartmentInput | Prisma.ContractCreateManyOwnerDepartmentInput[]
+  skipDuplicates?: boolean
+}
+
+export type ContractUpsertWithWhereUniqueWithoutOwnerDepartmentInput = {
+  where: Prisma.ContractWhereUniqueInput
+  update: Prisma.XOR<Prisma.ContractUpdateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedUpdateWithoutOwnerDepartmentInput>
+  create: Prisma.XOR<Prisma.ContractCreateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedCreateWithoutOwnerDepartmentInput>
+}
+
+export type ContractUpdateWithWhereUniqueWithoutOwnerDepartmentInput = {
+  where: Prisma.ContractWhereUniqueInput
+  data: Prisma.XOR<Prisma.ContractUpdateWithoutOwnerDepartmentInput, Prisma.ContractUncheckedUpdateWithoutOwnerDepartmentInput>
+}
+
+export type ContractUpdateManyWithWhereWithoutOwnerDepartmentInput = {
+  where: Prisma.ContractScalarWhereInput
+  data: Prisma.XOR<Prisma.ContractUpdateManyMutationInput, Prisma.ContractUncheckedUpdateManyWithoutOwnerDepartmentInput>
+}
+
+export type ContractCreateManyEditorInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractCreateManyArchivedByUserInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1019,67 +4052,1075 @@ export type ContractCreateManyEditorInput = {
 }
 
 export type ContractUpdateWithoutEditorInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
   handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutEditorInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutEditorInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ContractUncheckedUpdateManyWithoutEditorInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
+export type ContractUpdateWithoutArchivedByUserInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutArchivedByUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutArchivedByUserInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ContractCreateManyCategoryInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractUpdateWithoutCategoryInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutCategoryInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ContractCreateManyPartyAIdentityInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractCreateManyPartyBIdentityInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractUpdateWithoutPartyAIdentityInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutPartyAIdentityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutPartyAIdentityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ContractUpdateWithoutPartyBIdentityInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutPartyBIdentityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutPartyBIdentityInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ContractCreateManyOwningCompanyInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractUpdateWithoutOwningCompanyInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutOwningCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutOwningCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1088,20 +5129,44 @@ export type ContractUncheckedUpdateManyWithoutEditorInput = {
 
 export type ContractCreateManyHandlerEmployeeInput = {
   id?: number
+  contractUid?: string
   contractNo?: string | null
   name: string
   partyA?: string | null
   partyB?: string | null
   shareholder?: string | null
-  category?: string | null
+  categoryId: number
   content?: string | null
-  signDate?: string | null
-  endDate?: string | null
-  status?: string | null
-  amount?: number | null
-  executedAmount?: number | null
+  owningCompanyId?: number | null
+  ownerDepartmentId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
   location?: string | null
   remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1110,66 +5175,341 @@ export type ContractCreateManyHandlerEmployeeInput = {
 }
 
 export type ContractUpdateWithoutHandlerEmployeeInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  ownerDepartment?: Prisma.DepartmentUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
   editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateWithoutHandlerEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
 }
 
 export type ContractUncheckedUpdateManyWithoutHandlerEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
   contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   name?: Prisma.StringFieldUpdateOperationsInput | string
   partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  signDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  amount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  executedAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
   location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ContractCreateManyOwnerDepartmentInput = {
+  id?: number
+  contractUid?: string
+  contractNo?: string | null
+  name: string
+  partyA?: string | null
+  partyB?: string | null
+  shareholder?: string | null
+  categoryId: number
+  content?: string | null
+  owningCompanyId?: number | null
+  partyAId?: number | null
+  partyBId?: number | null
+  handlerEmployeeId?: number | null
+  signedOn?: Date | string | null
+  expiresOn?: Date | string | null
+  signedOnPrecision?: string | null
+  expiresOnPrecision?: string | null
+  legacySignDateRaw?: string | null
+  legacyEndDateRaw?: string | null
+  lifecycleStatus?: string
+  signatureStatus?: string
+  performanceStatus?: string
+  legacyStatusRaw?: string | null
+  amount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: string
+  confidentialityLevel?: number
+  location?: string | null
+  remark?: string | null
+  approvalSourceKey?: string | null
+  approvalRecordId?: string | null
+  approvalRecordUrl?: string | null
+  approvalStatusSnapshot?: string | null
+  approvedOn?: Date | string | null
+  approvalSyncedAt?: Date | string | null
+  currentRevisionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  archivedBy?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ContractUpdateWithoutOwnerDepartmentInput = {
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.ContractCategoryUpdateOneRequiredWithoutContractsNestedInput
+  owningCompany?: Prisma.CompanyUpdateOneWithoutOwnedContractsNestedInput
+  partyAIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyANestedInput
+  partyBIdentity?: Prisma.PartyUpdateOneWithoutContractsAsPartyBNestedInput
+  editor?: Prisma.UserUpdateOneWithoutEditedContractsNestedInput
+  archivedByUser?: Prisma.UserUpdateOneWithoutArchivedContractsNestedInput
+  handlerEmployee?: Prisma.EmployeeUpdateOneWithoutHandledContractsNestedInput
+  currentRevision?: Prisma.ContractRevisionUpdateOneWithoutCurrentForContractNestedInput
+  revisions?: Prisma.ContractRevisionUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateWithoutOwnerDepartmentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.ContractRevisionUncheckedUpdateManyWithoutContractNestedInput
+  stateEvents?: Prisma.ContractStateEventUncheckedUpdateManyWithoutContractNestedInput
+  attachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutContractNestedInput
+  records?: Prisma.ContractRecordUncheckedUpdateManyWithoutContractNestedInput
+}
+
+export type ContractUncheckedUpdateManyWithoutOwnerDepartmentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  contractUid?: Prisma.StringFieldUpdateOperationsInput | string
+  contractNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  partyA?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  partyB?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  shareholder?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.IntFieldUpdateOperationsInput | number
+  content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  owningCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyAId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  partyBId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  handlerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  signedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  expiresOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  signedOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiresOnPrecision?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacySignDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legacyEndDateRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lifecycleStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  signatureStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  performanceStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  legacyStatusRaw?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  amount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  executedAmount?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  currencyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalSourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalRecordUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvalStatusSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  approvedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalSyncedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  currentRevisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1178,102 +5518,280 @@ export type ContractUncheckedUpdateManyWithoutHandlerEmployeeInput = {
 }
 
 
+/**
+ * Count Type ContractCountOutputType
+ */
+
+export type ContractCountOutputType = {
+  revisions: number
+  stateEvents: number
+  attachments: number
+  records: number
+}
+
+export type ContractCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  revisions?: boolean | ContractCountOutputTypeCountRevisionsArgs
+  stateEvents?: boolean | ContractCountOutputTypeCountStateEventsArgs
+  attachments?: boolean | ContractCountOutputTypeCountAttachmentsArgs
+  records?: boolean | ContractCountOutputTypeCountRecordsArgs
+}
+
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractCountOutputType
+   */
+  select?: Prisma.ContractCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeCountRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractRevisionWhereInput
+}
+
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeCountStateEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractStateEventWhereInput
+}
+
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeCountAttachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractAttachmentWhereInput
+}
+
+/**
+ * ContractCountOutputType without action
+ */
+export type ContractCountOutputTypeCountRecordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ContractRecordWhereInput
+}
+
 
 export type ContractSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  contractUid?: boolean
   contractNo?: boolean
   name?: boolean
   partyA?: boolean
   partyB?: boolean
   shareholder?: boolean
-  category?: boolean
+  categoryId?: boolean
   content?: boolean
+  owningCompanyId?: boolean
+  ownerDepartmentId?: boolean
+  partyAId?: boolean
+  partyBId?: boolean
   handlerEmployeeId?: boolean
-  signDate?: boolean
-  endDate?: boolean
-  status?: boolean
+  signedOn?: boolean
+  expiresOn?: boolean
+  signedOnPrecision?: boolean
+  expiresOnPrecision?: boolean
+  legacySignDateRaw?: boolean
+  legacyEndDateRaw?: boolean
+  lifecycleStatus?: boolean
+  signatureStatus?: boolean
+  performanceStatus?: boolean
+  legacyStatusRaw?: boolean
   amount?: boolean
   executedAmount?: boolean
+  currencyCode?: boolean
+  confidentialityLevel?: boolean
   location?: boolean
   remark?: boolean
+  approvalSourceKey?: boolean
+  approvalRecordId?: boolean
+  approvalRecordUrl?: boolean
+  approvalStatusSnapshot?: boolean
+  approvedOn?: boolean
+  approvalSyncedAt?: boolean
+  currentRevisionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
+  revisions?: boolean | Prisma.Contract$revisionsArgs<ExtArgs>
+  stateEvents?: boolean | Prisma.Contract$stateEventsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Contract$attachmentsArgs<ExtArgs>
+  records?: boolean | Prisma.Contract$recordsArgs<ExtArgs>
+  _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
 export type ContractSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  contractUid?: boolean
   contractNo?: boolean
   name?: boolean
   partyA?: boolean
   partyB?: boolean
   shareholder?: boolean
-  category?: boolean
+  categoryId?: boolean
   content?: boolean
+  owningCompanyId?: boolean
+  ownerDepartmentId?: boolean
+  partyAId?: boolean
+  partyBId?: boolean
   handlerEmployeeId?: boolean
-  signDate?: boolean
-  endDate?: boolean
-  status?: boolean
+  signedOn?: boolean
+  expiresOn?: boolean
+  signedOnPrecision?: boolean
+  expiresOnPrecision?: boolean
+  legacySignDateRaw?: boolean
+  legacyEndDateRaw?: boolean
+  lifecycleStatus?: boolean
+  signatureStatus?: boolean
+  performanceStatus?: boolean
+  legacyStatusRaw?: boolean
   amount?: boolean
   executedAmount?: boolean
+  currencyCode?: boolean
+  confidentialityLevel?: boolean
   location?: boolean
   remark?: boolean
+  approvalSourceKey?: boolean
+  approvalRecordId?: boolean
+  approvalRecordUrl?: boolean
+  approvalStatusSnapshot?: boolean
+  approvedOn?: boolean
+  approvalSyncedAt?: boolean
+  currentRevisionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
 export type ContractSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  contractUid?: boolean
   contractNo?: boolean
   name?: boolean
   partyA?: boolean
   partyB?: boolean
   shareholder?: boolean
-  category?: boolean
+  categoryId?: boolean
   content?: boolean
+  owningCompanyId?: boolean
+  ownerDepartmentId?: boolean
+  partyAId?: boolean
+  partyBId?: boolean
   handlerEmployeeId?: boolean
-  signDate?: boolean
-  endDate?: boolean
-  status?: boolean
+  signedOn?: boolean
+  expiresOn?: boolean
+  signedOnPrecision?: boolean
+  expiresOnPrecision?: boolean
+  legacySignDateRaw?: boolean
+  legacyEndDateRaw?: boolean
+  lifecycleStatus?: boolean
+  signatureStatus?: boolean
+  performanceStatus?: boolean
+  legacyStatusRaw?: boolean
   amount?: boolean
   executedAmount?: boolean
+  currencyCode?: boolean
+  confidentialityLevel?: boolean
   location?: boolean
   remark?: boolean
+  approvalSourceKey?: boolean
+  approvalRecordId?: boolean
+  approvalRecordUrl?: boolean
+  approvalStatusSnapshot?: boolean
+  approvedOn?: boolean
+  approvalSyncedAt?: boolean
+  currentRevisionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
 }, ExtArgs["result"]["contract"]>
 
 export type ContractSelectScalar = {
   id?: boolean
+  contractUid?: boolean
   contractNo?: boolean
   name?: boolean
   partyA?: boolean
   partyB?: boolean
   shareholder?: boolean
-  category?: boolean
+  categoryId?: boolean
   content?: boolean
+  owningCompanyId?: boolean
+  ownerDepartmentId?: boolean
+  partyAId?: boolean
+  partyBId?: boolean
   handlerEmployeeId?: boolean
-  signDate?: boolean
-  endDate?: boolean
-  status?: boolean
+  signedOn?: boolean
+  expiresOn?: boolean
+  signedOnPrecision?: boolean
+  expiresOnPrecision?: boolean
+  legacySignDateRaw?: boolean
+  legacyEndDateRaw?: boolean
+  lifecycleStatus?: boolean
+  signatureStatus?: boolean
+  performanceStatus?: boolean
+  legacyStatusRaw?: boolean
   amount?: boolean
   executedAmount?: boolean
+  currencyCode?: boolean
+  confidentialityLevel?: boolean
   location?: boolean
   remark?: boolean
+  approvalSourceKey?: boolean
+  approvalRecordId?: boolean
+  approvalRecordUrl?: boolean
+  approvalStatusSnapshot?: boolean
+  approvedOn?: boolean
+  approvalSyncedAt?: boolean
+  currentRevisionId?: boolean
+  isArchived?: boolean
+  archivedAt?: boolean
+  archivedBy?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1281,43 +5799,104 @@ export type ContractSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "contractNo" | "name" | "partyA" | "partyB" | "shareholder" | "category" | "content" | "handlerEmployeeId" | "signDate" | "endDate" | "status" | "amount" | "executedAmount" | "location" | "remark" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["contract"]>
+export type ContractOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "contractUid" | "contractNo" | "name" | "partyA" | "partyB" | "shareholder" | "categoryId" | "content" | "owningCompanyId" | "ownerDepartmentId" | "partyAId" | "partyBId" | "handlerEmployeeId" | "signedOn" | "expiresOn" | "signedOnPrecision" | "expiresOnPrecision" | "legacySignDateRaw" | "legacyEndDateRaw" | "lifecycleStatus" | "signatureStatus" | "performanceStatus" | "legacyStatusRaw" | "amount" | "executedAmount" | "currencyCode" | "confidentialityLevel" | "location" | "remark" | "approvalSourceKey" | "approvalRecordId" | "approvalRecordUrl" | "approvalStatusSnapshot" | "approvedOn" | "approvalSyncedAt" | "currentRevisionId" | "isArchived" | "archivedAt" | "archivedBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["contract"]>
 export type ContractInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
+  revisions?: boolean | Prisma.Contract$revisionsArgs<ExtArgs>
+  stateEvents?: boolean | Prisma.Contract$stateEventsArgs<ExtArgs>
+  attachments?: boolean | Prisma.Contract$attachmentsArgs<ExtArgs>
+  records?: boolean | Prisma.Contract$recordsArgs<ExtArgs>
+  _count?: boolean | Prisma.ContractCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ContractIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
 }
 export type ContractIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  category?: boolean | Prisma.ContractCategoryDefaultArgs<ExtArgs>
+  owningCompany?: boolean | Prisma.Contract$owningCompanyArgs<ExtArgs>
+  ownerDepartment?: boolean | Prisma.Contract$ownerDepartmentArgs<ExtArgs>
+  partyAIdentity?: boolean | Prisma.Contract$partyAIdentityArgs<ExtArgs>
+  partyBIdentity?: boolean | Prisma.Contract$partyBIdentityArgs<ExtArgs>
   editor?: boolean | Prisma.Contract$editorArgs<ExtArgs>
+  archivedByUser?: boolean | Prisma.Contract$archivedByUserArgs<ExtArgs>
   handlerEmployee?: boolean | Prisma.Contract$handlerEmployeeArgs<ExtArgs>
+  currentRevision?: boolean | Prisma.Contract$currentRevisionArgs<ExtArgs>
 }
 
 export type $ContractPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Contract"
   objects: {
+    category: Prisma.$ContractCategoryPayload<ExtArgs>
+    owningCompany: Prisma.$CompanyPayload<ExtArgs> | null
+    ownerDepartment: Prisma.$DepartmentPayload<ExtArgs> | null
+    partyAIdentity: Prisma.$PartyPayload<ExtArgs> | null
+    partyBIdentity: Prisma.$PartyPayload<ExtArgs> | null
     editor: Prisma.$UserPayload<ExtArgs> | null
+    archivedByUser: Prisma.$UserPayload<ExtArgs> | null
     handlerEmployee: Prisma.$EmployeePayload<ExtArgs> | null
+    currentRevision: Prisma.$ContractRevisionPayload<ExtArgs> | null
+    revisions: Prisma.$ContractRevisionPayload<ExtArgs>[]
+    stateEvents: Prisma.$ContractStateEventPayload<ExtArgs>[]
+    attachments: Prisma.$ContractAttachmentPayload<ExtArgs>[]
+    records: Prisma.$ContractRecordPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    contractUid: string
     contractNo: string | null
     name: string
     partyA: string | null
     partyB: string | null
     shareholder: string | null
-    category: string | null
+    categoryId: number
     content: string | null
+    owningCompanyId: number | null
+    ownerDepartmentId: number | null
+    partyAId: number | null
+    partyBId: number | null
     handlerEmployeeId: number | null
-    signDate: string | null
-    endDate: string | null
-    status: string | null
-    amount: number | null
-    executedAmount: number | null
+    signedOn: Date | null
+    expiresOn: Date | null
+    signedOnPrecision: string | null
+    expiresOnPrecision: string | null
+    legacySignDateRaw: string | null
+    legacyEndDateRaw: string | null
+    lifecycleStatus: string
+    signatureStatus: string
+    performanceStatus: string
+    legacyStatusRaw: string | null
+    amount: runtime.Decimal | null
+    executedAmount: runtime.Decimal | null
+    currencyCode: string
+    confidentialityLevel: number
     location: string | null
     remark: string | null
+    approvalSourceKey: string | null
+    approvalRecordId: string | null
+    approvalRecordUrl: string | null
+    approvalStatusSnapshot: string | null
+    approvedOn: Date | null
+    approvalSyncedAt: Date | null
+    currentRevisionId: number | null
+    isArchived: boolean
+    archivedAt: Date | null
+    archivedBy: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1717,8 +6296,19 @@ readonly fields: ContractFieldRefs;
  */
 export interface Prisma__ContractClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  category<T extends Prisma.ContractCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ContractCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__ContractCategoryClient<runtime.Types.Result.GetResult<Prisma.$ContractCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  owningCompany<T extends Prisma.Contract$owningCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$owningCompanyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  ownerDepartment<T extends Prisma.Contract$ownerDepartmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$ownerDepartmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  partyAIdentity<T extends Prisma.Contract$partyAIdentityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$partyAIdentityArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  partyBIdentity<T extends Prisma.Contract$partyBIdentityArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$partyBIdentityArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   editor<T extends Prisma.Contract$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  archivedByUser<T extends Prisma.Contract$archivedByUserArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$archivedByUserArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   handlerEmployee<T extends Prisma.Contract$handlerEmployeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$handlerEmployeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  currentRevision<T extends Prisma.Contract$currentRevisionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$currentRevisionArgs<ExtArgs>>): Prisma.Prisma__ContractRevisionClient<runtime.Types.Result.GetResult<Prisma.$ContractRevisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  revisions<T extends Prisma.Contract$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  stateEvents<T extends Prisma.Contract$stateEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$stateEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractStateEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  attachments<T extends Prisma.Contract$attachmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$attachmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractAttachmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  records<T extends Prisma.Contract$recordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Contract$recordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ContractRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1749,21 +6339,45 @@ export interface Prisma__ContractClient<T, Null = never, ExtArgs extends runtime
  */
 export interface ContractFieldRefs {
   readonly id: Prisma.FieldRef<"Contract", 'Int'>
+  readonly contractUid: Prisma.FieldRef<"Contract", 'String'>
   readonly contractNo: Prisma.FieldRef<"Contract", 'String'>
   readonly name: Prisma.FieldRef<"Contract", 'String'>
   readonly partyA: Prisma.FieldRef<"Contract", 'String'>
   readonly partyB: Prisma.FieldRef<"Contract", 'String'>
   readonly shareholder: Prisma.FieldRef<"Contract", 'String'>
-  readonly category: Prisma.FieldRef<"Contract", 'String'>
+  readonly categoryId: Prisma.FieldRef<"Contract", 'Int'>
   readonly content: Prisma.FieldRef<"Contract", 'String'>
+  readonly owningCompanyId: Prisma.FieldRef<"Contract", 'Int'>
+  readonly ownerDepartmentId: Prisma.FieldRef<"Contract", 'Int'>
+  readonly partyAId: Prisma.FieldRef<"Contract", 'Int'>
+  readonly partyBId: Prisma.FieldRef<"Contract", 'Int'>
   readonly handlerEmployeeId: Prisma.FieldRef<"Contract", 'Int'>
-  readonly signDate: Prisma.FieldRef<"Contract", 'String'>
-  readonly endDate: Prisma.FieldRef<"Contract", 'String'>
-  readonly status: Prisma.FieldRef<"Contract", 'String'>
-  readonly amount: Prisma.FieldRef<"Contract", 'Float'>
-  readonly executedAmount: Prisma.FieldRef<"Contract", 'Float'>
+  readonly signedOn: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly expiresOn: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly signedOnPrecision: Prisma.FieldRef<"Contract", 'String'>
+  readonly expiresOnPrecision: Prisma.FieldRef<"Contract", 'String'>
+  readonly legacySignDateRaw: Prisma.FieldRef<"Contract", 'String'>
+  readonly legacyEndDateRaw: Prisma.FieldRef<"Contract", 'String'>
+  readonly lifecycleStatus: Prisma.FieldRef<"Contract", 'String'>
+  readonly signatureStatus: Prisma.FieldRef<"Contract", 'String'>
+  readonly performanceStatus: Prisma.FieldRef<"Contract", 'String'>
+  readonly legacyStatusRaw: Prisma.FieldRef<"Contract", 'String'>
+  readonly amount: Prisma.FieldRef<"Contract", 'Decimal'>
+  readonly executedAmount: Prisma.FieldRef<"Contract", 'Decimal'>
+  readonly currencyCode: Prisma.FieldRef<"Contract", 'String'>
+  readonly confidentialityLevel: Prisma.FieldRef<"Contract", 'Int'>
   readonly location: Prisma.FieldRef<"Contract", 'String'>
   readonly remark: Prisma.FieldRef<"Contract", 'String'>
+  readonly approvalSourceKey: Prisma.FieldRef<"Contract", 'String'>
+  readonly approvalRecordId: Prisma.FieldRef<"Contract", 'String'>
+  readonly approvalRecordUrl: Prisma.FieldRef<"Contract", 'String'>
+  readonly approvalStatusSnapshot: Prisma.FieldRef<"Contract", 'String'>
+  readonly approvedOn: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly approvalSyncedAt: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly currentRevisionId: Prisma.FieldRef<"Contract", 'Int'>
+  readonly isArchived: Prisma.FieldRef<"Contract", 'Boolean'>
+  readonly archivedAt: Prisma.FieldRef<"Contract", 'DateTime'>
+  readonly archivedBy: Prisma.FieldRef<"Contract", 'Int'>
   readonly editedBy: Prisma.FieldRef<"Contract", 'Int'>
   readonly editedAt: Prisma.FieldRef<"Contract", 'DateTime'>
   readonly version: Prisma.FieldRef<"Contract", 'Int'>
@@ -2170,9 +6784,104 @@ export type ContractDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
 }
 
 /**
+ * Contract.owningCompany
+ */
+export type Contract$owningCompanyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
+ * Contract.ownerDepartment
+ */
+export type Contract$ownerDepartmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Department
+   */
+  select?: Prisma.DepartmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Department
+   */
+  omit?: Prisma.DepartmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DepartmentInclude<ExtArgs> | null
+  where?: Prisma.DepartmentWhereInput
+}
+
+/**
+ * Contract.partyAIdentity
+ */
+export type Contract$partyAIdentityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Party
+   */
+  select?: Prisma.PartySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Party
+   */
+  omit?: Prisma.PartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PartyInclude<ExtArgs> | null
+  where?: Prisma.PartyWhereInput
+}
+
+/**
+ * Contract.partyBIdentity
+ */
+export type Contract$partyBIdentityArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Party
+   */
+  select?: Prisma.PartySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Party
+   */
+  omit?: Prisma.PartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PartyInclude<ExtArgs> | null
+  where?: Prisma.PartyWhereInput
+}
+
+/**
  * Contract.editor
  */
 export type Contract$editorArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the User
+   */
+  select?: Prisma.UserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the User
+   */
+  omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  where?: Prisma.UserWhereInput
+}
+
+/**
+ * Contract.archivedByUser
+ */
+export type Contract$archivedByUserArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the User
    */
@@ -2205,6 +6914,121 @@ export type Contract$handlerEmployeeArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.EmployeeInclude<ExtArgs> | null
   where?: Prisma.EmployeeWhereInput
+}
+
+/**
+ * Contract.currentRevision
+ */
+export type Contract$currentRevisionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractRevision
+   */
+  select?: Prisma.ContractRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContractRevision
+   */
+  omit?: Prisma.ContractRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractRevisionInclude<ExtArgs> | null
+  where?: Prisma.ContractRevisionWhereInput
+}
+
+/**
+ * Contract.revisions
+ */
+export type Contract$revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractRevision
+   */
+  select?: Prisma.ContractRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContractRevision
+   */
+  omit?: Prisma.ContractRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractRevisionInclude<ExtArgs> | null
+  where?: Prisma.ContractRevisionWhereInput
+  orderBy?: Prisma.ContractRevisionOrderByWithRelationInput | Prisma.ContractRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.ContractRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContractRevisionScalarFieldEnum | Prisma.ContractRevisionScalarFieldEnum[]
+}
+
+/**
+ * Contract.stateEvents
+ */
+export type Contract$stateEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractStateEvent
+   */
+  select?: Prisma.ContractStateEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContractStateEvent
+   */
+  omit?: Prisma.ContractStateEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractStateEventInclude<ExtArgs> | null
+  where?: Prisma.ContractStateEventWhereInput
+  orderBy?: Prisma.ContractStateEventOrderByWithRelationInput | Prisma.ContractStateEventOrderByWithRelationInput[]
+  cursor?: Prisma.ContractStateEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContractStateEventScalarFieldEnum | Prisma.ContractStateEventScalarFieldEnum[]
+}
+
+/**
+ * Contract.attachments
+ */
+export type Contract$attachmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractAttachment
+   */
+  select?: Prisma.ContractAttachmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContractAttachment
+   */
+  omit?: Prisma.ContractAttachmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractAttachmentInclude<ExtArgs> | null
+  where?: Prisma.ContractAttachmentWhereInput
+  orderBy?: Prisma.ContractAttachmentOrderByWithRelationInput | Prisma.ContractAttachmentOrderByWithRelationInput[]
+  cursor?: Prisma.ContractAttachmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContractAttachmentScalarFieldEnum | Prisma.ContractAttachmentScalarFieldEnum[]
+}
+
+/**
+ * Contract.records
+ */
+export type Contract$recordsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ContractRecord
+   */
+  select?: Prisma.ContractRecordSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ContractRecord
+   */
+  omit?: Prisma.ContractRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ContractRecordInclude<ExtArgs> | null
+  where?: Prisma.ContractRecordWhereInput
+  orderBy?: Prisma.ContractRecordOrderByWithRelationInput | Prisma.ContractRecordOrderByWithRelationInput[]
+  cursor?: Prisma.ContractRecordWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ContractRecordScalarFieldEnum | Prisma.ContractRecordScalarFieldEnum[]
 }
 
 /**

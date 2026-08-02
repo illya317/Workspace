@@ -9,13 +9,8 @@ import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { canUseDepartmentAsParentForHierarchy, departmentDescendantIds, rebaseDepartmentCodeForParentChange, splitAliasText } from "./utils";
 import { useDepartmentDescriptionsSection } from "./department-descriptions-panel";
 import { createDirectPositionPanelSection } from "./navigation-panels";
-import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
+import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, OrganizationCodeConfig, Position, Selection } from "./types";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
-
-type ManagerEmployeeTag = {
-  id: number;
-  name: string;
-};
 
 type DepartmentDetailPaneProps = {
   selection: Selection;
@@ -35,6 +30,7 @@ type DepartmentDetailPaneProps = {
   createPositionDepartment: Department | undefined;
   createPositionDraft: CreatePositionDraft;
   departmentById: Map<number, Department>;
+  codeConfig: OrganizationCodeConfig | null;
   departmentDirty: boolean;
   departmentDescriptionDirty: boolean;
   saving: boolean;
@@ -69,6 +65,7 @@ export function useDepartmentDetailPaneSection({
   createPositionDepartment,
   createPositionDraft,
   departmentById,
+  codeConfig,
   departmentDirty,
   departmentDescriptionDirty,
   saving,
@@ -105,17 +102,6 @@ export function useDepartmentDetailPaneSection({
         .map(d => ({ value: String(d.id), label: `${d.name}（${d.code}）` })),
     ];
   }, [departmentById, departmentDraft, operatingCommitteeCode, selectedDepartment]);
-  const managerEmployeeTags: ManagerEmployeeTag[] = departmentDraft
-    ? departmentDraft.managerEmployeeIds.map((id, index) => ({
-        id,
-        name: departmentDraft.managerEmployeeNames[index] || String(id),
-      }))
-    : [];
-  function updateManagerEmployees(tags: ManagerEmployeeTag[]) {
-    onUpdateDepartmentDraft("managerEmployeeIds", tags.map((tag) => tag.id));
-    onUpdateDepartmentDraft("managerEmployeeNames", tags.map((tag) => tag.name));
-    onUpdateDepartmentDraft("managerName", tags.map((tag) => tag.name).join("、"));
-  }
   const departmentInfoFields: FormSurfaceItemSpec[] = departmentDraft ? [
     {
       kind: "readonly",
@@ -129,7 +115,7 @@ export function useDepartmentDetailPaneSection({
       spec: {
         valueType: "string",
         control: "text",
-        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind) },
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(departmentDraft.level, departmentDraft.hierarchyKind, codeConfig) },
         state: !canEditDepartmentDraft ? "disabled" : "normal",
       },
       value: departmentDraft.code,
@@ -154,6 +140,7 @@ export function useDepartmentDetailPaneSection({
       value: departmentDraft.parentId == null ? "" : String(departmentDraft.parentId),
       placeholder: "无",
       onChange: next => {
+        if (!codeConfig) return;
         const nextParentId = next === "" ? null : Number(next);
         const parent = nextParentId == null ? undefined : departmentById.get(nextParentId);
         const nextLevel = parent && parent.hierarchyKind === departmentDraft.hierarchyKind
@@ -169,6 +156,7 @@ export function useDepartmentDetailPaneSection({
           level: nextLevel,
           parentId: nextParentId,
           departments,
+          codeConfig,
         }));
       },
     },
@@ -219,37 +207,14 @@ export function useDepartmentDetailPaneSection({
         const next = option as ReferenceOption | undefined;
         onUpdateDepartmentDraft("managerPositionId", next?.id ?? (value ? departmentDraft.managerPositionId : null));
         onUpdateDepartmentDraft("managerPositionName", next?.name ?? (value ? String(value) : ""));
-        updateManagerEmployees([]);
       },
     },
     {
       key: "managerEmployees",
-      kind: "tagList",
+      kind: "readonly",
       label: "组织负责人",
       span: "wide",
-      items: managerEmployeeTags,
-      getKey: (item) => item.id,
-      getLabel: (item) => item.name,
-      onRemove: (_, index) => updateManagerEmployees(managerEmployeeTags.filter((__, itemIndex) => itemIndex !== index)),
-      disabled: !canEditDepartmentDraft,
-      removeConfirmMessage: (item) => `确定删除「${item.name}」吗？删除后需要保存或提交才会生效。`,
-      shellClassName: "content-start",
-      append: !canEditDepartmentDraft || !departmentDraft.managerPositionId ? undefined : {
-        referenceInput: {
-          key: "managerEmployeeAppend",
-          placeholder: "搜索负责人",
-          fkKey: "hr.department.manager.employee",
-          endpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
-          queryParams: { positionId: departmentDraft.managerPositionId },
-          onAppend: (option) => {
-            if (managerEmployeeTags.some((tag) => tag.id === option.id)) return;
-            updateManagerEmployees([...managerEmployeeTags, { id: option.id, name: option.name }]);
-          },
-          onRemoveLast: () => {
-            if (managerEmployeeTags.length > 0) updateManagerEmployees(managerEmployeeTags.slice(0, -1));
-          },
-        },
-      },
+      value: departmentDraft.managerEmployeeNames.join("、") || "暂无在岗负责人",
     },
   ] : [];
   const departmentDescriptionsSection = useDepartmentDescriptionsSection({

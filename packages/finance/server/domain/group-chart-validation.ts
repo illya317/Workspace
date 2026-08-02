@@ -18,6 +18,10 @@ export interface CreateFinanceGroupAccountCommandInput {
   mnemonicCode: string | null;
   currency: string | null;
   parentGroupAccountId: number | null;
+  consolidationRole: "none" | "intercompanyReceivable" | "intercompanyPayable" | "intercompanyRevenue" | "intercompanyExpense" | "investmentInSubsidiary" | "shareCapital" | "capitalReserve" | "dividendReceivable" | "dividendPayable" | "inventory" | "fixedAsset" | "cashFlow" | "difference";
+  counterpartyRequirement: "none" | "optional" | "required";
+  movementType: "closingBalance" | "periodMovement" | "transaction";
+  translationRateType: "closing" | "average" | "historical" | "transactionDate";
 }
 
 export interface DeleteFinanceGroupAccountCommandInput {
@@ -92,6 +96,24 @@ export function buildCreateFinanceGroupAccountCommand(input: CreateFinanceGroupA
   if (input.parentGroupAccountId !== null
     && (!Number.isInteger(input.parentGroupAccountId) || input.parentGroupAccountId <= 0)) {
     return failCommand("parentGroupAccountId 必须是正整数或 null", 400, "parentGroupAccountId");
+  }
+  const roles = ["none", "intercompanyReceivable", "intercompanyPayable", "intercompanyRevenue", "intercompanyExpense", "investmentInSubsidiary", "shareCapital", "capitalReserve", "dividendReceivable", "dividendPayable", "inventory", "fixedAsset", "cashFlow", "difference"];
+  if (!roles.includes(input.consolidationRole)) return failCommand("集团科目合并角色无效", 400, "consolidationRole");
+  if (!["none", "optional", "required"].includes(input.counterpartyRequirement)) {
+    return failCommand("交易对手要求无效", 400, "counterpartyRequirement");
+  }
+  if (!["closingBalance", "periodMovement", "transaction"].includes(input.movementType)) {
+    return failCommand("合并变动口径无效", 400, "movementType");
+  }
+  if (!["closing", "average", "historical", "transactionDate"].includes(input.translationRateType)) {
+    return failCommand("合并折算口径无效", 400, "translationRateType");
+  }
+  const requiresCounterparty = input.consolidationRole.startsWith("intercompany")
+    || input.consolidationRole === "investmentInSubsidiary"
+    || input.consolidationRole === "dividendReceivable"
+    || input.consolidationRole === "dividendPayable";
+  if (requiresCounterparty && input.counterpartyRequirement !== "required") {
+    return failCommand("该合并角色必须要求交易对手辅助维度", 400, "counterpartyRequirement");
   }
   return okCommand({ input: { ...input, code, name, mnemonicCode, currency } });
 }

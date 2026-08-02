@@ -13,7 +13,7 @@ export const core_internal_registry_entries = [
   },
   {
     name: "CreatePresentationPanel",
-    description: "CreateSurface 内部 block/modal 呈现 renderer；trigger 与 anchor 独立",
+    description: "CreateSurface 内部 block 呈现 renderer；trigger 与 anchor 独立",
     composes: ["SectionCard", "CreateStartButton", "CreateConfirmActions"],
   },
   {
@@ -38,6 +38,11 @@ export const core_internal_registry_entries = [
   {
     name: "ToolbarOptionGroup",
     description: "工具栏选项组；长筛选以边线完整的紧凑手风琴收口",
+  },
+  {
+    name: "ToolbarFilterPanel",
+    description: "Toolbar 内多组低频枚举筛选的声明式收口；桌面弹层按内容自适应宽度并使用纯图标触发器与生效条件摘要，移动端展开到统一筛选面板",
+    composes: ["ActionButton", "DropdownSurface", "SelectionOptionButton", "RemovableTag"],
   },
   {
     name: "InlineCreatePanel",

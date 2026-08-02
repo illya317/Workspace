@@ -10,7 +10,10 @@ RUN apt-get update \
     g++ \
     make \
     openssh-client \
+    postgresql \
+    postgresql-client \
     python3 \
+    ripgrep \
     rsync \
     tar \
   && rm -rf /var/lib/apt/lists/*

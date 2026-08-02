@@ -30,3 +30,23 @@ test("employee page draft normalizes all fields in one command", () => {
     { id: 3, field: "alias", value: JSON.stringify(["小张", "张工"]) },
   ]);
 });
+
+test("employee page draft accepts audited identity and account corrections", () => {
+  const result = buildEmployeePageDraftCommand({
+    userId: 1,
+    changes: [
+      { id: 2, field: "employeeId", value: " EMP-00004 " },
+      { id: 2, field: "userId", value: "42" },
+    ],
+  });
+  assert.deepEqual(result, {
+    ok: true,
+    data: {
+      userId: 1,
+      changes: [
+        { id: 2, field: "employeeId", value: "EMP-00004" },
+        { id: 2, field: "userId", value: 42 },
+      ],
+    },
+  });
+});

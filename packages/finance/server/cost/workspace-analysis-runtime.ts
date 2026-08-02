@@ -1,6 +1,7 @@
 import "server-only";
 
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
+import { workspaceSourcesOperationalAnalysisDefinitionSchema } from "@workspace/platform/workspace-analysis-definition-schema";
 import { buildWorkspaceAnalysisExecutionPlan } from "@workspace/platform/server/workspace-analysis-execution-plan";
 import type { WorkspaceAnalysisSourceDirectoryResult } from "@workspace/platform/server/workspace-analysis-source-directory";
 import {
@@ -14,7 +15,11 @@ import {
   canUseOperationalAnalyticsApi,
   type OperationalAnalyticsScopeType,
 } from "./operational-analytics";
-import { buildFinanceOperationalAnalysisSourceDirectory } from "./operational-analysis-source-directory";
+import {
+  buildFinanceOperationalAnalysisSourceDirectory,
+  isFinanceOperationalAnalysisRemoteOwnerUnitId,
+  OPERATIONAL_ANALYSIS_RUNTIME_PROVIDER_TIMEOUT_MS,
+} from "./operational-analysis-source-directory";
 
 type AnalysisScope = {
   readonly scopeType: OperationalAnalyticsScopeType;
@@ -87,9 +92,14 @@ export async function compileAuthorizedFinanceWorkspaceAnalysisDefinition(input:
     return serviceError("当前 API 凭证没有该空间的经营分析 API 使用权限", 403);
   }
 
+  const parsedDefinition = workspaceSourcesOperationalAnalysisDefinitionSchema.safeParse(input.definition);
+  if (!parsedDefinition.success) {
+    return serviceError(parsedDefinition.error.issues[0]?.message ?? "经营分析模板定义无效", 409);
+  }
+
   let directory: WorkspaceAnalysisSourceDirectoryResult;
   try {
-    directory = await (input.directory ?? buildFinanceOperationalAnalysisSourceDirectory()).list({
+    directory = await (input.directory ?? buildRuntimeSourceDirectory(parsedDefinition.data)).list({
       requesterId: input.userId,
       targetType: input.scope.scopeType,
       targetId: input.scope.scopeId,
@@ -99,13 +109,24 @@ export async function compileAuthorizedFinanceWorkspaceAnalysisDefinition(input:
   }
   const compiled = buildWorkspaceAnalysisExecutionPlan({
     authorizedSources: directory.authorizedSources,
-    definition: input.definition,
+    definition: parsedDefinition.data,
     filterValues: input.filterValues,
   });
   if (!compiled.ok) {
     return executionPlanError(directory, compiled.issues);
   }
   return serviceOk(compiled.plan);
+}
+
+function buildRuntimeSourceDirectory(
+  definition: import("@workspace/platform/workspace-analysis-source-contract").WorkspaceSourcesOperationalAnalysisDefinition,
+) {
+  const remoteOwnerUnitIds = [...new Set(definition.sources.map((source) => source.sourceKey.split(".")[0]))]
+    .filter(isFinanceOperationalAnalysisRemoteOwnerUnitId);
+  return buildFinanceOperationalAnalysisSourceDirectory({
+    remoteOwnerUnitIds,
+    remoteProviderTimeoutMs: OPERATIONAL_ANALYSIS_RUNTIME_PROVIDER_TIMEOUT_MS,
+  });
 }
 
 function executionPlanError(

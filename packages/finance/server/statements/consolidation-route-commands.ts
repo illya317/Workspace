@@ -8,6 +8,7 @@ import type {
   SaveConsolidationEntryInput,
   SaveConsolidationSourcesInput,
   SaveConsolidationTaxEffectInput,
+  SaveFinanceConsolidationScopeSelectionInput,
 } from "@workspace/finance/types";
 import {
   buildConsolidationBatchLifecycleCommand,
@@ -16,6 +17,7 @@ import {
   buildSaveConsolidationSourcesCommand,
 } from "../domain/consolidation-batch-validation";
 import { buildDeleteConsolidationBatchCommand } from "../domain/consolidation-batch-delete-validation";
+import { buildSaveFinanceConsolidationScopeSelectionCommand } from "../domain/consolidation-scope-selection-validation";
 import {
   buildDeleteConsolidationEntryCommand,
   buildDeleteConsolidationTaxEffectCommand,
@@ -37,6 +39,20 @@ import { reviewConsolidationEntry } from "./consolidation-entry-review";
 import { executeConsolidationBatchLifecycle } from "./consolidation-lifecycle";
 import { prepareConsolidationSources } from "./consolidation-preparation";
 import { saveConsolidationControlDecision } from "./consolidation-sources";
+import { saveFinanceConsolidationScopeSelection } from "./consolidation-scope-selections";
+
+export function buildSaveFinanceConsolidationScopeSelectionRouteCommand(
+  input: SaveFinanceConsolidationScopeSelectionInput,
+  userId: number,
+) {
+  return buildSaveFinanceConsolidationScopeSelectionCommand(input, userId);
+}
+
+export function executeSaveFinanceConsolidationScopeSelectionRouteCommand(
+  command: Parameters<typeof saveFinanceConsolidationScopeSelection>[0],
+) {
+  return saveFinanceConsolidationScopeSelection(command);
+}
 
 export function buildEnsureConsolidationBatchRouteCommand(input: EnsureConsolidationBatchInput, userId: number) {
   return buildEnsureConsolidationBatchCommand(input, userId);

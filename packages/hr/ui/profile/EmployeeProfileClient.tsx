@@ -18,7 +18,7 @@ import {
   persistableContractRows,
   persistableEdpRows,
   sameDraft,
-  validateCurrentWorkPercent,
+  validateCurrentAssignments,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
 import {
@@ -36,10 +36,11 @@ import type {
 } from "@workspace/hr/types";
 import type { ReferenceOption } from "@workspace/core/ui";
 
-type ProfileSection = "basic" | "employment" | "edp" | "lifecycle" | "history";
+type ProfileSection = "basic" | "employment" | "socialInsurance" | "edp" | "history";
 
 function newEmploymentRow(profile: EmployeeProfile): EmploymentRow {
   return {
+    version: 0,
     employeeId: profile.employee.id,
     isActive: true,
     currentCompany: null,
@@ -51,12 +52,14 @@ function newEmploymentRow(profile: EmployeeProfile): EmploymentRow {
     personnelType: null,
     rank: null,
     title: null,
+    temporalState: "invalid",
     isNew: true,
   };
 }
 
 function newEdpRow(profile: EmployeeProfile): EdpRow {
   return {
+    version: 0,
     employeeId: profile.employee.id,
     reportingCompanyId: profile.summary.reportingCompanyId,
     reportingCompanyName: profile.summary.reportingCompanyName,
@@ -71,14 +74,18 @@ function newEdpRow(profile: EmployeeProfile): EdpRow {
     endDate: null,
     reportTo: null,
     reportToPositionId: null,
-    workPercent: null,
+    allocationWeight: null,
+    allocationPercent: null,
+    temporalState: "invalid",
     isNew: true,
   };
 }
 
 function newContractRow(profile: EmployeeProfile, employments: EmploymentRow[]): ContractRow {
   return {
-    employmentId: employments.find((row) => row.isActive)?.id ?? employments[0]?.id,
+    id: "",
+    agreementUid: null,
+    employmentId: employments.find((row) => row.isActive)?.id ?? employments[0]?.id ?? 0,
     employeeId: profile.employee.employeeId,
     employeeName: profile.employee.name,
     company: "",
@@ -97,7 +104,18 @@ function newContractRow(profile: EmployeeProfile, employments: EmploymentRow[]):
     permanentContractDate: null,
     confidentialityDate: null,
     nonCompeteDate: null,
+    expiryDate: null,
     endDate: null,
+    recordState: "draft",
+    temporalState: "invalid",
+    version: null,
+    source: "normalized",
+    migrationState: "normalized",
+    missingFields: [],
+    currentRevisionUid: null,
+    terms: [],
+    revisions: [],
+    attachments: [],
     isNew: true,
   };
 }
@@ -201,12 +219,13 @@ export default function EmployeeProfileClient({
     });
   }
 
-  async function runSave(savingKey: string, task: () => Promise<void>, successMessage: string) {
+  async function runSave(savingKey: string, task: () => Promise<string | null>, successMessage: string) {
     setSaving(savingKey);
     setError(null);
     try {
-      await task();
-      await load();
+      const nextEmployeeId = await task();
+      if (nextEmployeeId) router.replace(workspacePath(`/hr/roster/employees/${encodeURIComponent(nextEmployeeId)}`));
+      else await load();
       await showSavePrompt("保存成功", successMessage, false);
     } catch (err) {
       await showSavePrompt("保存失败", err instanceof Error ? err.message : "保存失败", true);
@@ -218,13 +237,27 @@ export default function EmployeeProfileClient({
   async function saveAll() {
     if (!profile || !employeeDraft) return;
     if (dirtyState.edp) {
-      const percentCheck = validateCurrentWorkPercent(persistableEdpRows(edps));
-      if (!percentCheck.ok) {
+      const assignmentCheck = validateCurrentAssignments(persistableEdpRows(edps));
+      if (!assignmentCheck.ok) {
         setActiveSection("edp");
         setError(null);
-        await showSavePrompt("部门岗位无法保存", percentCheck.message, true);
+        await showSavePrompt("部门岗位无法保存", assignmentCheck.message, true);
         return;
       }
+    }
+    const identityChanged = employeeDraft.employeeId !== profile.employee.employeeId;
+    const accountChanged = employeeDraft.userId !== profile.employee.userId;
+    if (identityChanged || accountChanged) {
+      const confirmed = await feedback.confirm({
+        title: "确认修正员工身份关联",
+        message: [
+          ...(identityChanged ? [`员工编号将由 ${profile.employee.employeeId} 改为 ${employeeDraft.employeeId}`] : []),
+          ...(accountChanged ? ["关联账号将同步改绑；原账号的员工编号会解除"] : []),
+          "该操作会进入员工历史记录。是否继续？",
+        ].join("；"),
+        confirmLabel: "确认修正",
+      });
+      if (!confirmed) return;
     }
     await runSave("all", async () => {
       if (dirtyState.basic) await persistBasic(profile, employeeDraft);
@@ -237,6 +270,7 @@ export default function EmployeeProfileClient({
         if (contractsDirty) await persistContracts(profile, contracts);
       }
       if (dirtyState.edp) await persistEdps(profile, edps);
+      return identityChanged ? employeeDraft.employeeId : null;
     }, "员工资料已全部保存");
   }
 
@@ -276,6 +310,7 @@ export default function EmployeeProfileClient({
       dirtyState={dirtyState}
       employments={employments}
       contracts={contracts}
+      socialInsurancePeriods={profile?.socialInsurancePeriods ?? []}
       edps={edps}
       historyEntries={historyEntries}
       historyLoading={historyLoading}
@@ -293,7 +328,7 @@ export default function EmployeeProfileClient({
       onEmployeeFieldChange={updateEmployeeField}
       onHistoryToggle={(id) => setExpandedHistoryId((current) => (current === id ? null : id))}
       onHistoryRefresh={loadHistory}
-      onLifecycleSaved={load}
+      onSocialInsuranceSaved={load}
       confirmDelete={feedback.confirmDelete}
     />
   );

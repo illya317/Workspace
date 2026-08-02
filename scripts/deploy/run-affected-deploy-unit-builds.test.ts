@@ -13,7 +13,7 @@ test("a private Finance change builds only Finance after contributor removal", (
 test("Core and unknown changes select all independently buildable units", () => {
   for (const changedFile of ["packages/core/ui/PageSurface.tsx", "unclassified/runtime.ts"]) {
     const plan = createAffectedDeployUnitBuildPlan([changedFile]);
-    assert.equal(plan.buildUnitIds.length, 12);
+    assert.equal(plan.buildUnitIds.length, 13);
     assert.equal(plan.fullGraphFanout, true);
   }
 });

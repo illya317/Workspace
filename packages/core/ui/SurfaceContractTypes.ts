@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+export type { SurfaceNavigationTabSpec } from "../surface-navigation-contract";
 import type { ActionGlyphKind } from "./internal/action/ActionGlyphs";
 
 export type SurfaceLifecycleScope = "active" | "all" | "archived";
@@ -80,13 +81,6 @@ export interface SurfaceFilterFieldSpec extends SurfaceSelectOptionSpec {
   referenceEndpoint?: string;
   lifecycleScope?: SurfaceLifecycleScope;
   placeholder?: string;
-}
-
-export interface SurfaceNavigationTabSpec {
-  key: string;
-  label: string;
-  compactLabel?: string;
-  children?: SurfaceNavigationTabSpec[];
 }
 
 export interface SurfacePaginationSpec {
@@ -224,6 +218,23 @@ export interface SurfaceToolbarFieldFilterItem {
   placeholder?: string;
   disabled?: boolean;
   referenceEndpoint?: string;
+}
+
+export interface SurfaceToolbarFilterPanelFieldSpec {
+  key: string;
+  label: string;
+  value: string;
+  options: SurfaceSelectOptionSpec[];
+  onChange: (value: string) => void;
+  allLabel?: string;
+}
+
+export interface SurfaceToolbarFilterPanelItem {
+  kind: "filter-panel";
+  key: string;
+  label?: string;
+  fields: SurfaceToolbarFilterPanelFieldSpec[];
+  onReset?: () => void;
 }
 
 export interface SurfaceToolbarColumnToggleItem {
@@ -374,6 +385,7 @@ export type SurfaceToolbarItem = {
   | SurfaceToolbarLabelItem
   | SurfaceToolbarOptionGroupItem
   | SurfaceToolbarFieldFilterItem
+  | SurfaceToolbarFilterPanelItem
   | SurfaceToolbarColumnToggleItem
   | SurfaceToolbarPageSizeItem
   | SurfaceToolbarPeriodItem

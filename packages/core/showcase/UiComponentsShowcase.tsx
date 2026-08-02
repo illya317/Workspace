@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createMasterDetailBody, PageSurface, type BodySurfaceProps, type BodySurfaceSectionSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
+import { createMasterDetailBody, PageSurface, type BodySurfaceProps, type PageSurfaceTabBarSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import {
   coreUiDeclarationCategoryMeta,
   coreUiComponentRegistry,
-  type CoreUiCapabilityDescriptor,
   type CoreUiComponentRegistration,
 } from "../ui/registry/component-registry";
 import { buildCoreUiComponentTree } from "../ui/registry/component-registry-view";
@@ -13,6 +12,7 @@ import {
   filterUiComponents,
   type UiComponentCategoryFilter,
 } from "./filter-ui-components";
+import { CoreUiDeclarationOutline } from "./CoreUiDeclarationOutline";
 
 const ALL_CATEGORY = "all";
 
@@ -23,19 +23,7 @@ const CATEGORY_OPTIONS: Array<{ value: UiComponentCategoryFilter; label: string 
   { value: "common", label: coreUiDeclarationCategoryMeta.common.label },
 ];
 
-function declarationSections(items: readonly CoreUiCapabilityDescriptor[], prefix = "declare"): BodySurfaceSectionSpec[] {
-  return items.map((item, index) => ({
-    key: `${prefix}-${index}-${item.name}`,
-    header: { title: item.name },
-    body: {
-      kind: "section",
-      message: { content: item.description, tone: "muted", presentation: "plain" },
-      sections: item.children?.length ? declarationSections(item.children, `${prefix}-${index}`) : undefined,
-    },
-  }));
-}
-
-export default function UiComponentsShowcase() {
+export default function UiComponentsShowcase({ tabbar }: { tabbar?: PageSurfaceTabBarSpec } = {}) {
   const [categoryValue, setCategoryValue] = useState<UiComponentCategoryFilter>(ALL_CATEGORY);
   const [query, setQuery] = useState("");
   const treeRoots = useMemo(() => buildCoreUiComponentTree(), []);
@@ -74,16 +62,23 @@ export default function UiComponentsShowcase() {
   const detailBody: BodySurfaceProps = selectedComponent && selectedNode ? {
     kind: "section",
     title: `${selectedComponent.name} · ${coreUiDeclarationCategoryMeta[selectedNode.category].label}`,
-    message: { content: selectedComponent.description, presentation: "plain" },
-    mobilePresentation: "drilldown",
-    sections: selectedComponent.declares?.length
-      ? declarationSections(selectedComponent.declares)
-      : [{ key: "empty", body: { kind: "section", empty: { content: "这个组件没有声明字段" } } }],
+    message: {
+      presentation: "plain",
+      content: (
+        <div className="space-y-4">
+          <p className="max-w-4xl text-sm leading-6 text-slate-600">{selectedComponent.description}</p>
+          {selectedComponent.declares?.length
+            ? <CoreUiDeclarationOutline items={selectedComponent.declares} />
+            : <div className="rounded-lg border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-500">这个组件没有声明字段</div>}
+        </div>
+      ),
+    },
   } : { kind: "section", empty: { content: "请选择一个声明组件" } };
 
   return (
     <PageSurface
       kind="standard"
+      tabbar={tabbar}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({
         master: { label: "声明目录", presentation: "compact", body: { kind: "selector", selector: {

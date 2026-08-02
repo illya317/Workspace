@@ -13,12 +13,22 @@ model User {
   portalSlots                       String?
   canLogin                          Boolean                             @default(true)
   apiKeyHash                        String?                             @unique(map: "User_apiKey_key") @map("apiKey")
-  employeeId                        String?
   createdAt                         DateTime                            @default(now())
   sessionVersion                    Int                                 @default(0)
   editedContracts                   Contract[]                          @relation("ContractEditor")
+  archivedContracts                 Contract[]                          @relation("ContractArchivedBy")
+  uploadedContractAttachments       ContractAttachment[]                @relation("ContractAttachmentUploader")
+  removedContractAttachments        ContractAttachment[]                @relation("ContractAttachmentRemover")
+  uploadedEmploymentAgreementAttachments EmploymentAgreementAttachment[] @relation("EmploymentAgreementAttachmentUploader")
+  removedEmploymentAgreementAttachments  EmploymentAgreementAttachment[] @relation("EmploymentAgreementAttachmentRemover")
+  createdEmployeeSocialInsurancePeriods  EmployeeSocialInsurancePeriod[] @relation("EmployeeSocialInsuranceCreator")
+  updatedEmployeeSocialInsurancePeriods  EmployeeSocialInsurancePeriod[] @relation("EmployeeSocialInsuranceUpdater")
+  recordedEmployeeSocialInsuranceRevisions EmployeeSocialInsurancePeriodRevision[] @relation("EmployeeSocialInsuranceRevisionRecorder")
+  createdContractRecords            ContractRecord[]                    @relation("ContractRecordCreator")
   editHistories                     EditHistory[]                       @relation("EditHistoryEditor")
-  employees                         Employee[]                          @relation("EmployeeUser")
+  updatedRelationPolicyConfigs      RelationPolicyConfig[]              @relation("RelationPolicyConfigUpdater")
+  recordedRelationPolicyRevisions   RelationPolicyRevision[]            @relation("RelationPolicyRevisionActor")
+  employees                          Employee[]                          @relation("EmployeeUser")
   agentProfile                     AgentProfile?                       @relation("AgentProfileActor")
   editedFinanceAccounts             FinanceAccount[]                    @relation("FinanceAccountEditor")
   editedFinanceVouchers             FinanceVoucher[]                    @relation("FinanceVoucherEditor")
@@ -49,6 +59,26 @@ model User {
   editedWorkpapers                  FinanceStatementWorkpaper[]         @relation("WorkpaperEditor")
   notifications                     Notification[]                      @relation("NotificationRecipient")
   createdNotifications              Notification[]                      @relation("NotificationActor")
+  newsReactions                     NewsReaction[]                      @relation("NewsReactionUser")
+  notificationDeliveries            NotificationDelivery[]
+  createdNotificationDefinitions    NotificationDefinition[]            @relation("NotificationDefinitionCreator")
+  updatedNotificationDefinitions    NotificationDefinition[]            @relation("NotificationDefinitionUpdater")
+  publishedNotificationDefinitions  NotificationDefinition[]            @relation("NotificationDefinitionPublisher")
+  archivedNotificationDefinitions   NotificationDefinition[]            @relation("NotificationDefinitionArchiver")
+  createdNotificationDefinitionRevisions NotificationDefinitionRevision[] @relation("NotificationDefinitionRevisionCreator")
+  notificationDefinitionLifecycleEvents NotificationDefinitionLifecycleEvent[] @relation("NotificationDefinitionLifecycleEventActor")
+  ownedNotificationManagedGroups    NotificationManagedGroup[]           @relation("NotificationManagedGroupOwner")
+  claimedNotificationManagedGroups  NotificationManagedGroup[]           @relation("NotificationManagedGroupClaimer")
+  createdNotificationGroupPolicies  NotificationGroupPolicy[]            @relation("NotificationGroupPolicyCreator")
+  updatedNotificationGroupPolicies  NotificationGroupPolicy[]            @relation("NotificationGroupPolicyUpdater")
+  createdProjectNotificationRules ProjectNotificationRule[] @relation("ProjectNotificationRuleCreator")
+  updatedProjectNotificationRules ProjectNotificationRule[] @relation("ProjectNotificationRuleUpdater")
+  publishedProjectNotificationRules ProjectNotificationRule[] @relation("ProjectNotificationRulePublisher")
+  archivedProjectNotificationRules ProjectNotificationRule[] @relation("ProjectNotificationRuleArchiver")
+  createdProjectNotificationRuleRevisions ProjectNotificationRuleRevision[] @relation("ProjectNotificationRuleRevisionCreator")
+  projectNotificationRuleLifecycleEvents ProjectNotificationRuleLifecycleEvent[] @relation("ProjectNotificationRuleLifecycleEventActor")
+  projectNotificationSignalRedriveEvents ProjectNotificationSignalRedriveEvent[] @relation("ProjectNotificationSignalRedriveActor")
+  notificationSubscriptions         NotificationSubscription[]
   permissionGrantLedgerEvents       PermissionGrantLedgerEvent[]        @relation("PermissionGrantLedgerActor")
   submittedApprovalRequests         ApprovalRequest[]                   @relation("ApprovalRequestSubmitter")
   resolvedApprovalRequests          ApprovalRequest[]                   @relation("ApprovalRequestResolver")
@@ -64,7 +94,17 @@ model User {
   approvedKpiResultSnapshots       WorkKpiResultSnapshot[]              @relation("WorkKpiResultSnapshotApprover")
   erpDueDiligenceSubmissions       ErpDueDiligenceSubmission[]          @relation("ErpDueDiligenceRespondent")
   recordedEmployeeLifecycleEvents EmployeeLifecycleEvent[]             @relation("EmployeeLifecycleEventRecorder")
+  recordedEmployeePeriodRevisions EmployeePeriodRevision[]             @relation("EmployeePeriodRevisionRecorder")
   requestedDataQualityRuns         DataQualityRun[]                     @relation("DataQualityRunRequester")
+  recordedEmploymentAgreementChanges EmploymentAgreementChange[]       @relation("EmploymentAgreementChangeActor")
+  financeCloseRunsStarted            FinanceCloseRun[]
+  financeCloseEventsActed             FinanceCloseEvent[]
+  financeCloseWorkpapersPrepared      FinanceCloseWorkpaper[]      @relation("FinanceCloseWorkpaperPreparer")
+  financeCloseWorkpapersReviewed      FinanceCloseWorkpaper[]      @relation("FinanceCloseWorkpaperReviewer")
+  financeCloseWorkpaperEventsActed    FinanceCloseWorkpaperEvent[]
+  financeAssetImpairmentAssessments   FinanceAssetImpairmentAssessment[] @relation("FinanceAssetImpairmentAssessor")
+  financeAssetDisposalsConfirmed      FinanceAssetDisposal[] @relation("FinanceAssetDisposalConfirmer")
+  financeAssetAcquisitionsConfirmed   FinanceAssetAcquisitionEvidence[] @relation("FinanceAssetAcquisitionConfirmer")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md
@@ -177,9 +217,15 @@ model Notification {
   body                    String
   href                    String?
   payloadJson             String?
+  recipientReason         String?
+  resourceKey             String?
+  scopeId                 String?
+  subscriptionId          Int?
+  dispatchId              String?
   isImportant             Boolean   @default(false)
   isStrongReminder        Boolean   @default(false)
   requiresAcknowledgement Boolean   @default(false)
+  responseMode            String    @default("read")
   readAt                  DateTime?
   acknowledgedAt          DateTime?
   rejectedAt              DateTime?
@@ -188,7 +234,13 @@ model Notification {
   updatedAt               DateTime  @default(now()) @updatedAt
   recipient               User      @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
   actor                   User?     @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  subscription            NotificationSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  dispatch                NotificationPublication? @relation(fields: [dispatchId], references: [id], onDelete: SetNull)
+  delivery                NotificationDelivery?
 
   @@index([recipientUserId, clearedAt, readAt, acknowledgedAt, createdAt])
   @@index([type])
+  @@index([resourceKey, createdAt])
+  @@index([subscriptionId])
+  @@index([dispatchId])
 }

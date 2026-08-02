@@ -12,11 +12,11 @@ import {
   PageSurface,
   useFeedback,
   type BodySurfaceSectionSpec,
-  type CreateSurfaceToolbarProps,
+  type PageSurfaceCreateSpec,
   type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
 } from "@workspace/core/ui";
-import { postJson, putJson } from "@workspace/platform/ui/api-client";
+import { postDirectCommandJson, putDirectCommandJson } from "@workspace/platform/ui/api-client";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import type { CompanyRecord } from "../types";
 import {
@@ -99,6 +99,7 @@ export default function CompanyGovernanceClient({
   return (
     <PageSurface
       kind="standard"
+      create={companyCreateSurface()}
       tabbar={navigation}
       toolbar={{
         items: [
@@ -123,16 +124,11 @@ export default function CompanyGovernanceClient({
   );
 
   function rightBody() {
-    const createSection: BodySurfaceSectionSpec = {
-      key: "company-create",
-      body: { kind: "create", create: companyCreateSurface() },
-    };
     if (companyDraft && !companyDraft.id) {
-      return createPageBody([createSection]);
+      return createPageBody([]);
     }
     if (!companyDraft || !selectedCompany) {
       return createPageBody([
-        createSection,
         createEmptySection("company-empty", {
           presentation: "plain",
           content: loading ? "正在加载公司信息" : "选择左侧公司维护资料",
@@ -140,7 +136,6 @@ export default function CompanyGovernanceClient({
       ]);
     }
     return createPageBody([
-      createSection,
       companyInformationPanel(companyDraft),
     ]);
   }
@@ -194,10 +189,9 @@ export default function CompanyGovernanceClient({
     });
   }
 
-  function companyCreateSurface(): CreateSurfaceToolbarProps {
+  function companyCreateSurface(): PageSurfaceCreateSpec {
     return {
       id: "company-create",
-      trigger: "toolbar",
       presentation: "block",
       title: "新增公司",
       open: Boolean(companyDraft && !companyDraft.id),
@@ -255,8 +249,8 @@ export default function CompanyGovernanceClient({
     try {
       const update = Boolean(companyDraft.id);
       const response = update
-        ? await putJson<{ success: true }>(COMPANIES_ENDPOINT, companyDraft, "保存公司失败")
-        : await postJson<{ record: { id: number } }>(COMPANIES_ENDPOINT, companyDraft, "新增公司失败");
+        ? await putDirectCommandJson<{ success: true }>(COMPANIES_ENDPOINT, companyDraft, "保存公司失败")
+        : await postDirectCommandJson<{ record: { id: number } }>(COMPANIES_ENDPOINT, companyDraft, "新增公司失败");
       const savedId = update ? companyDraft.id! : "record" in response ? response.record.id : null;
       if (!update) setKeyword("");
       const refreshed = await load(update ? undefined : "");

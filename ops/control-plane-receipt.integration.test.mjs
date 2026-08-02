@@ -2,25 +2,36 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+import { readDeploySourceContract } from "./deploy/source-contract.mjs";
+
+const deploy = readDeploySourceContract();
 const tenant = readFileSync(new URL("./tenant-config-manifest.mjs", import.meta.url), "utf8");
 const receipt = readFileSync(new URL("./control-plane-receipt.mjs", import.meta.url), "utf8");
 const controlPlaneEntrypoint = readFileSync(new URL("./deploy-control-plane.sh", import.meta.url), "utf8");
 
-test("deploy syncs and syntax-checks the control-plane receipt tool", () => {
-  assert.match(deploy, /ops\/release-receipt\.mjs ops\/control-plane-receipt\.mjs ops\/tenant-config-manifest\.mjs/);
-  assert.match(deploy, /node --check '\$REMOTE_CONTROL_PLANE_RECEIPT_TOOL'/);
+test("deploy exact-syncs and remotely verifies the automatic tool dependency bundle", () => {
+  const build = deploy.indexOf("deploy-tool-bundle.mjs build");
+  const exactSync = deploy.indexOf('rsync -az --delete-delay -e "$RSYNC_SSH_COMMAND"', build);
+  const remoteVerify = deploy.indexOf(
+    "node '$REMOTE_DEPLOY_TOOL_DIR/release/control/deploy-tool-bundle.mjs'",
+    exactSync,
+  );
+  assert.ok(build >= 0 && exactSync > build && remoteVerify > exactSync);
+  assert.match(deploy, /--profile full/);
+  assert.doesNotMatch(deploy, /--entry ops\//);
+  assert.match(deploy, /verify --bundle '\$REMOTE_DEPLOY_TOOL_DIR'/);
+  assert.doesNotMatch(deploy, /ops\/\.\/release\//);
+  assert.doesNotMatch(deploy, /node --check '\$REMOTE_DEPLOY_TOOL_DIR\/release\//);
 });
 
 test("control-plane receipt commits after lifecycle parity and before candidate startup", () => {
   const migration = deploy.indexOf("migrate deploy");
-  const dataRelease = deploy.indexOf("data-release.mjs", migration);
-  const resourceSeed = deploy.indexOf("seed-resources-runtime.mjs", dataRelease);
+  const resourceSeed = deploy.indexOf("seed-resources-runtime.mjs", migration);
   const workforce = deploy.indexOf("provision-agent-workforce.mjs", resourceSeed);
   const parity = deploy.indexOf("direct_fingerprint", workforce);
   const receiptWrite = deploy.indexOf("control-plane lifecycle 回执", parity);
   const candidate = deploy.indexOf("pm2 start", receiptWrite);
-  assert.ok(migration >= 0 && dataRelease > migration && resourceSeed > dataRelease);
+  assert.ok(migration >= 0 && resourceSeed > migration);
   assert.ok(workforce > resourceSeed && parity > workforce && receiptWrite > parity && candidate > receiptWrite);
   assert.match(deploy.slice(receiptWrite, candidate), /REMOTE_CONTROL_PLANE_RECEIPT_TOOL/);
   assert.match(deploy.slice(receiptWrite, candidate), /--migration-set '\$RELEASE_MIGRATION_SET_SHA'/);

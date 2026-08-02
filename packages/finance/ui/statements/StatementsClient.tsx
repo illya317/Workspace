@@ -9,7 +9,6 @@ import type { StatementReportType } from "@workspace/finance/types";
 import { Suspense, useCallback, useMemo, useState } from "react";
 import { ConsolidatedReportTab } from "./ConsolidatedReportTab";
 import { ConsolidationPreparationTab } from "./ConsolidationPreparationTab";
-import { ConsolidationEliminationTab } from "./ConsolidationTabs";
 import { ConsolidationWorksheetTab } from "./ConsolidationWorksheetTab";
 import ReportTab from "./ReportTab";
 import { CONSOLIDATED_REPORT_TYPE_OPTIONS } from "./consolidated-report-model";
@@ -30,7 +29,7 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
   const consolidation = useConsolidationOverview(
     periodKind,
     capabilities.canUpdate,
-    workpaperView === "eliminations",
+    view === "consolidation" && workpaperView === "workpaper",
   );
   const { createNextVersion, invalidate, setBatchId } = consolidation;
   const handlePeriodKindChange = useCallback((nextKind: ConsolidationPeriodKind) => {
@@ -38,7 +37,8 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
     setBatchId(null);
     setPeriodKind(nextKind);
   }, [invalidate, setBatchId]);
-  const handleStartEliminations = useCallback(() => setWorkpaperView("eliminations"), []);
+  const handleStartWorkpaper = useCallback(() => setWorkpaperView("workpaper"), []);
+  const handleWorkpaperConfirmed = useCallback(() => setWorkpaperView("report"), []);
   const navigation = useMemo(() => createPageTabBar({
     items: STATEMENT_TABS,
     active: view,
@@ -117,13 +117,13 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
     reportTypeToolbarItem,
     onRefresh: consolidation.refresh,
     onBatchDeleted: consolidation.clearBatchAndRefresh,
-    onStartEliminations: handleStartEliminations,
+    onStartWorkpaper: handleStartWorkpaper,
+    onWorkpaperConfirmed: handleWorkpaperConfirmed,
     navigation,
   };
   return (
     <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
       {view === "consolidation" && workpaperView === "preparation" ? <ConsolidationPreparationTab {...consolidationProps} /> : null}
-      {view === "consolidation" && workpaperView === "eliminations" ? <ConsolidationEliminationTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "workpaper" ? <ConsolidationWorksheetTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "report" ? <ConsolidatedReportTab {...consolidationProps} /> : null}
       {view === "statements" ? <ReportTab navigation={navigation} canExport={capabilities.canExport} /> : null}

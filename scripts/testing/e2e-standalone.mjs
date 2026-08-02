@@ -19,6 +19,17 @@ export function parsePlaywrightPort(value = process.env.PLAYWRIGHT_PORT ?? "3000
   return port;
 }
 
+export function standaloneServerEnvironment(env, port) {
+  return {
+    ...env,
+    HOSTNAME: "127.0.0.1",
+    NODE_ENV: "production",
+    PORT: String(port),
+    WORKSPACE_PUBLIC_ORIGIN: env.WORKSPACE_PUBLIC_ORIGIN?.trim()
+      || `http://127.0.0.1:${port}`,
+  };
+}
+
 export function findStandaloneServer(root = standaloneRoot) {
   if (!fs.existsSync(root)) {
     throw new Error(`Next standalone output is missing: ${root}`);
@@ -294,12 +305,7 @@ export async function runE2eStandalone() {
     const { appDirectory, serverPath } = runtime;
     const server = runChild(process.execPath, [serverPath], {
       cwd: appDirectory,
-      env: {
-        ...process.env,
-        HOSTNAME: "127.0.0.1",
-        NODE_ENV: "production",
-        PORT: String(port),
-      },
+      env: standaloneServerEnvironment(process.env, port),
     });
     activeChild = server.child;
     const result = await server.completed;

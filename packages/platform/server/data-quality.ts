@@ -4,37 +4,14 @@ import {
   dataQualityEvaluationResponseSchema,
   type DataQualityCheckDefinition,
   type DataQualityEvaluationResponse,
-  type DataQualityFinding,
   type DataQualityTrigger,
 } from "@workspace/platform/data-quality-contract";
+import { DATA_QUALITY_PROVIDER_REGISTRATIONS } from "@workspace/platform/data-quality-provider-registry";
 import { callWorkspaceInternalJson } from "./internal-unit-rpc";
-import { sendNotification } from "./notifications";
-import {
-  dataQualitySeverityIncreased,
-  dataQualitySeverityMeetsThreshold,
-  getDataQualityPolicy,
-  type DataQualityPolicy,
-} from "./data-quality-policy";
-import { sendDataQualityWecomGroupAlert } from "./data-quality-wecom";
 import { prisma } from "./prisma";
 
-const PROVIDERS = [
-  { key: "hr", domain: "hr", unitId: "hr" },
-] as const;
+const PROVIDERS = DATA_QUALITY_PROVIDER_REGISTRATIONS;
 const MAX_MUTATION_ATTEMPTS = 5;
-
-type PreviousFinding = {
-  status: string;
-  severity: string;
-  lastWorkspaceNotifiedAt: Date | null;
-  lastWecomNotifiedAt: Date | null;
-} | null;
-
-type ObservedFinding = {
-  finding: DataQualityFinding;
-  previous: PreviousFinding;
-  reopened: boolean;
-};
 
 export type DataQualityRunResult = {
   runId: number;
@@ -50,7 +27,7 @@ function providerHealthCheck(providerKey: string): DataQualityCheckDefinition {
   return {
     key: `platform.data-quality.provider.${providerKey}.available`,
     domain: "platform",
-    title: `${providerKey.toUpperCase()} 数据质量 Provider 可用`,
+    title: `${providerKey.toUpperCase()} 业务资料巡检服务可用`,
     description: "Platform 必须能够通过签名内部接口调用领域规则 Provider。",
     defaultSeverity: "critical",
     triggerModes: ["manual", "scheduled", "mutation"],
@@ -76,7 +53,6 @@ function providerHealthResponse(
       summary: `${providerKey.toUpperCase()} 规则服务调用失败：${failure}`,
       count: 1,
       resourceKey: "settings.admin",
-      href: "/settings/admin?tab=dataQuality",
       samples: [],
     }] : [],
   };
@@ -84,7 +60,6 @@ function providerHealthResponse(
 
 async function persistEvaluation(runId: number, response: DataQualityEvaluationResponse) {
   const evaluatedAt = new Date(response.evaluatedAt);
-  const observed: ObservedFinding[] = [];
   let newFindingCount = 0;
   let resolvedFindingCount = 0;
 
@@ -135,9 +110,6 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
         where: { fingerprint: current.fingerprint },
         select: {
           status: true,
-          severity: true,
-          lastWorkspaceNotifiedAt: true,
-          lastWecomNotifiedAt: true,
         },
       });
       const reopened = previous?.status === "resolved";
@@ -175,126 +147,9 @@ async function persistEvaluation(runId: number, response: DataQualityEvaluationR
           lastRunId: runId,
         },
       });
-      observed.push({ finding: current, previous, reopened });
     }
   }
-  return { observed, newFindingCount, resolvedFindingCount };
-}
-
-function notificationCandidates(
-  observed: ObservedFinding[],
-  policy: DataQualityPolicy,
-  channel: "workspace" | "wecom",
-  now: Date,
-) {
-  const repeatBefore = now.getTime() - policy.notifications.repeatAfterHours * 60 * 60 * 1000;
-  return observed.filter(({ finding, previous, reopened }) => {
-    if (!dataQualitySeverityMeetsThreshold(finding.severity, policy.notifications.minimumSeverity)) return false;
-    if (!previous || reopened || dataQualitySeverityIncreased(previous.severity, finding.severity)) return true;
-    const lastNotifiedAt = channel === "workspace"
-      ? previous.lastWorkspaceNotifiedAt
-      : previous.lastWecomNotifiedAt;
-    return !lastNotifiedAt || lastNotifiedAt.getTime() <= repeatBefore;
-  }).map(({ finding }) => finding);
-}
-
-function alertPayload(runId: number, trigger: DataQualityTrigger, findings: DataQualityFinding[]) {
-  return {
-    runId,
-    trigger,
-    checkedAt: new Date().toISOString(),
-    findingCount: findings.length,
-    criticalCount: findings.filter((finding) => finding.severity === "critical").length,
-    warningCount: findings.filter((finding) => finding.severity === "warning").length,
-    findings: findings.map((finding) => ({
-      fingerprint: finding.fingerprint,
-      severity: finding.severity,
-      title: finding.title,
-      summary: finding.summary,
-      count: finding.count,
-    })),
-  };
-}
-
-async function deliverWorkspaceAlerts(
-  runId: number,
-  trigger: DataQualityTrigger,
-  policy: DataQualityPolicy,
-  findings: DataQualityFinding[],
-) {
-  if (!policy.notifications.workspace.enabled || findings.length === 0) return;
-  const usernames = policy.notifications.workspace.recipientUsernames;
-  const recipients = await prisma.user.findMany({
-    where: { username: { in: usernames }, canLogin: true },
-    select: { id: true, username: true },
-  });
-  const destination = usernames.join(",");
-  try {
-    if (recipients.length === 0) throw new Error("没有可用的站内通知接收人");
-    const payload = alertPayload(runId, trigger, findings);
-    await Promise.all(recipients.map((recipient) => sendNotification({
-      recipientUserId: recipient.id,
-      type: "platform.dataQuality.alert",
-      payload,
-      isImportant: payload.criticalCount > 0,
-      isStrongReminder: payload.criticalCount > 0,
-      requiresAcknowledgement: payload.criticalCount > 0,
-    })));
-    const sentAt = new Date();
-    await prisma.$transaction([
-      prisma.dataQualityFinding.updateMany({
-        where: { fingerprint: { in: findings.map((finding) => finding.fingerprint) } },
-        data: { lastWorkspaceNotifiedAt: sentAt },
-      }),
-      prisma.dataQualityNotificationDelivery.create({
-        data: { runId, channel: "workspace", destination, status: "sent", findingCount: findings.length, sentAt },
-      }),
-    ]);
-  } catch (error) {
-    await prisma.dataQualityNotificationDelivery.create({
-      data: {
-        runId,
-        channel: "workspace",
-        destination,
-        status: "failed",
-        findingCount: findings.length,
-        error: error instanceof Error ? error.message : String(error),
-      },
-    });
-  }
-}
-
-async function deliverWecomAlerts(
-  runId: number,
-  trigger: DataQualityTrigger,
-  policy: DataQualityPolicy,
-  findings: DataQualityFinding[],
-) {
-  if (!policy.notifications.wecomGroup.enabled || findings.length === 0) return;
-  try {
-    await sendDataQualityWecomGroupAlert({ runId, trigger, findings });
-    const sentAt = new Date();
-    await prisma.$transaction([
-      prisma.dataQualityFinding.updateMany({
-        where: { fingerprint: { in: findings.map((finding) => finding.fingerprint) } },
-        data: { lastWecomNotifiedAt: sentAt },
-      }),
-      prisma.dataQualityNotificationDelivery.create({
-        data: { runId, channel: "wecom_group", destination: "configured-group-webhook", status: "sent", findingCount: findings.length, sentAt },
-      }),
-    ]);
-  } catch (error) {
-    await prisma.dataQualityNotificationDelivery.create({
-      data: {
-        runId,
-        channel: "wecom_group",
-        destination: "configured-group-webhook",
-        status: "failed",
-        findingCount: findings.length,
-        error: error instanceof Error ? error.message : String(error),
-      },
-    });
-  }
+  return { newFindingCount, resolvedFindingCount };
 }
 
 export async function runDataQuality(input: {
@@ -303,7 +158,7 @@ export async function runDataQuality(input: {
   domains?: string[];
 }): Promise<DataQualityRunResult> {
   const providers = PROVIDERS.filter((provider) => !input.domains?.length || input.domains.includes(provider.domain));
-  if (providers.length === 0) throw new Error("没有可执行的数据质量 Provider");
+  if (providers.length === 0) throw new Error("没有可执行的业务资料巡检服务");
   const run = await prisma.dataQualityRun.create({
     data: {
       trigger: input.trigger,
@@ -312,7 +167,6 @@ export async function runDataQuality(input: {
     },
     select: { id: true },
   });
-  const observed: ObservedFinding[] = [];
   let newFindingCount = 0;
   let resolvedFindingCount = 0;
   let successfulProviders = 0;
@@ -331,12 +185,10 @@ export async function runDataQuality(input: {
       successfulProviders += 1;
       const persisted = await persistEvaluation(run.id, response);
       response.checks.forEach((check) => evaluatedCheckKeys.add(check.key));
-      observed.push(...persisted.observed);
       newFindingCount += persisted.newFindingCount;
       resolvedFindingCount += persisted.resolvedFindingCount;
       const health = await persistEvaluation(run.id, providerHealthResponse(provider.key, null));
       evaluatedCheckKeys.add(providerHealthCheck(provider.key).key);
-      observed.push(...health.observed);
       newFindingCount += health.newFindingCount;
       resolvedFindingCount += health.resolvedFindingCount;
     } catch (error) {
@@ -348,7 +200,6 @@ export async function runDataQuality(input: {
       });
       const health = await persistEvaluation(run.id, providerHealthResponse(provider.key, message));
       evaluatedCheckKeys.add(providerHealthCheck(provider.key).key);
-      observed.push(...health.observed);
       newFindingCount += health.newFindingCount;
       resolvedFindingCount += health.resolvedFindingCount;
     }
@@ -371,14 +222,6 @@ export async function runDataQuality(input: {
     },
   });
 
-  const policy = await getDataQualityPolicy();
-  const now = new Date();
-  const workspaceFindings = notificationCandidates(observed, policy, "workspace", now);
-  const wecomFindings = notificationCandidates(observed, policy, "wecom", now);
-  await Promise.all([
-    deliverWorkspaceAlerts(run.id, input.trigger, policy, workspaceFindings),
-    deliverWecomAlerts(run.id, input.trigger, policy, wecomFindings),
-  ]);
   return {
     runId: run.id,
     trigger: input.trigger,
@@ -414,7 +257,7 @@ export async function runPendingDataQualityEvaluations() {
       trigger: "mutation",
       domains: [...new Set(pending.map((request) => request.domain))],
     });
-    if (result.status === "failed") throw new Error("领域数据质量 Provider 全部不可用");
+    if (result.status === "failed") throw new Error("业务资料巡检服务全部不可用");
     await prisma.dataQualityEvaluationRequest.updateMany({
       where: { id: { in: ids }, status: "processing" },
       data: { status: "processed", processedAt: new Date(), processedByRunId: result.runId, lastError: null },

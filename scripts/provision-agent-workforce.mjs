@@ -152,7 +152,7 @@ async function resolveFoundation(client, runtime) {
   }
 
   const managers = (await client.query(
-    `SELECT DISTINCT employee.id, employee."employeeId", employee.name
+    `SELECT DISTINCT employee.id, employee."employeeId", employee.name, assignment."reportingCompanyId"
      FROM "Employee" AS employee
      JOIN "EmployeePosition" AS assignment ON assignment."employeeId" = employee.id
      WHERE assignment."positionId" = $1
@@ -166,6 +166,10 @@ async function resolveFoundation(client, runtime) {
     [parentPosition.id, runtime.today],
   )).rows;
   const manager = requireExactlyOne(managers, `current active occupant of ${PARENT_POSITION.code}`);
+  const reportingCompanyId = numericId(manager.reportingCompanyId);
+  if (!reportingCompanyId) {
+    throw new ProvisioningError(`current active occupant of ${PARENT_POSITION.code} must have a reporting company`);
+  }
 
   const resourceKeys = MANAGED_WORKSPACE_RESOURCE_GRANTS.map((grant) => grant.resourceKey);
   const resources = (await client.query(
@@ -187,6 +191,7 @@ async function resolveFoundation(client, runtime) {
     editorUserId: numericId(editor.id),
     editorUsername: editor.username,
     departmentId: numericId(department.id),
+    reportingCompanyId,
     parentPositionId: numericId(parentPosition.id),
     managerEmployeeId: manager.employeeId,
     resourceByKey,
@@ -258,37 +263,32 @@ async function ensurePosition(client, runtime, foundation, spec) {
 async function loadUserCandidates(client, runtime, spec, employee) {
   const lock = runtime.lockRows ? " FOR UPDATE" : "";
   const byUsername = requireAtMostOne((await client.query(
-    `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
+    `SELECT id, username, "canLogin", "sessionVersion"
      FROM "User" WHERE username = $1${lock}`,
     [spec.username],
   )).rows, `user username ${spec.username}`);
-  const byEmployeeId = requireAtMostOne((await client.query(
-    `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
-     FROM "User" WHERE "employeeId" = $1${lock}`,
-    [spec.employeeId],
-  )).rows, `user employeeId ${spec.employeeId}`);
   const linked = employee?.userId == null
     ? null
     : requireExactlyOne((await client.query(
-      `SELECT id, username, "employeeId", "canLogin", "sessionVersion"
+      `SELECT id, username, "canLogin", "sessionVersion"
        FROM "User" WHERE id = $1${lock}`,
       [employee.userId],
     )).rows, `linked user for employee ${spec.employeeId}`);
 
   const candidateIds = new Set(
-    [byUsername, byEmployeeId, linked]
+    [byUsername, linked]
       .filter(Boolean)
       .map((candidate) => numericId(candidate.id)),
   );
   if (candidateIds.size > 1) {
     throw new ProvisioningError(`employee ${spec.employeeId} resolves to conflicting Workspace users`);
   }
-  if (byUsername && !byEmployeeId && !linked) {
+  if (byUsername && !linked) {
     throw new ProvisioningError(
       `username ${spec.username} already exists without the canonical ${spec.employeeId} binding; refusing to repurpose it`,
     );
   }
-  return linked ?? byEmployeeId ?? byUsername ?? null;
+  return linked ?? byUsername ?? null;
 }
 
 async function ensureIdentity(client, runtime, foundation, spec) {
@@ -300,9 +300,6 @@ async function ensureIdentity(client, runtime, foundation, spec) {
   )).rows, `employee ${spec.employeeId}`);
   let user = await loadUserCandidates(client, runtime, spec, employee);
 
-  if (!employee && user && user.employeeId && user.employeeId !== spec.employeeId) {
-    throw new ProvisioningError(`username ${spec.username} belongs to another employee identity`);
-  }
   if (user) {
     const linkedEmployees = (await client.query(
       `SELECT id, "employeeId" FROM "Employee"
@@ -315,20 +312,19 @@ async function ensureIdentity(client, runtime, foundation, spec) {
   }
 
   if (!user) {
-    addAction(runtime.actions, "create", "User", spec.username, ["employeeId", "canLogin=false"]);
+    addAction(runtime.actions, "create", "User", spec.username, ["canLogin=false"]);
     if (runtime.apply) {
       const created = await client.query(
-        `INSERT INTO "User" (username, "employeeId", "canLogin")
-         VALUES ($1, $2, FALSE)
-         RETURNING id, username, "employeeId", "canLogin", "sessionVersion"`,
-        [spec.username, spec.employeeId],
+        `INSERT INTO "User" (username, "canLogin")
+         VALUES ($1, FALSE)
+         RETURNING id, username, "canLogin", "sessionVersion"`,
+        [spec.username],
       );
       user = created.rows[0];
     }
   } else {
     const changed = [];
     if (user.username !== spec.username) changed.push("username");
-    if (user.employeeId !== spec.employeeId) changed.push("employeeId");
     if (user.canLogin !== false) changed.push("canLogin=false");
     if (changed.length > 0) {
       addAction(runtime.actions, "update", "User", spec.username, changed);
@@ -336,13 +332,12 @@ async function ensureIdentity(client, runtime, foundation, spec) {
         await client.query(
           `UPDATE "User"
            SET username = $2,
-               "employeeId" = $3,
                "canLogin" = FALSE,
                "sessionVersion" = "sessionVersion" + CASE WHEN "canLogin" IS TRUE THEN 1 ELSE 0 END
            WHERE id = $1`,
-          [user.id, spec.username, spec.employeeId],
+          [user.id, spec.username],
         );
-        user = { ...user, username: spec.username, employeeId: spec.employeeId, canLogin: false };
+        user = { ...user, username: spec.username, canLogin: false };
       }
     }
   }
@@ -360,6 +355,13 @@ async function ensureIdentity(client, runtime, foundation, spec) {
     return { employeeId: numericId(created.rows[0].id), userId: numericId(user.id) };
   }
 
+  if (user && employee.userId == null) {
+    addAction(runtime.actions, "update", "Employee", spec.employeeId, ["userId"]);
+    if (runtime.apply) {
+      await client.query(`UPDATE "Employee" SET "userId" = $2 WHERE id = $1 AND "userId" IS NULL`, [employee.id, user.id]);
+      employee.userId = user.id;
+    }
+  }
   if (!user || !sameId(employee.userId, user.id)) {
     throw new ProvisioningError(
       `employee ${spec.employeeId} no longer matches its canonical non-login user binding; refusing to overwrite HR facts`,
@@ -419,7 +421,7 @@ async function ensureEmployment(client, runtime, foundation, spec, identity) {
 async function ensureCurrentAssignment(client, runtime, foundation, spec, identity, position) {
   if (identity.employeeId === null || position.id === null) {
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportTo",
     ]);
     return;
   }
@@ -429,8 +431,8 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
   }
   const lock = runtime.lockRows ? " FOR UPDATE" : "";
   const rows = (await client.query(
-    `SELECT id, "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
-            "startDate", "endDate", "reportTo", "workPercent"
+    `SELECT id, "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
+            "startDate", "endDate", "reportTo", "allocationWeight"
      FROM "EmployeePosition"
      WHERE "employeeId" = $1
      ORDER BY id${lock}`,
@@ -451,20 +453,22 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
   const assignment = current[0] ?? null;
   if (!assignment) {
     if (rows.length > 0) {
-      // A historical ended assignment is an explicit offboarding decision.
-      return;
+      throw new ProvisioningError(
+        `employee ${spec.employeeId} has active Employment but no current EmployeePosition`,
+      );
     }
     addAction(runtime.actions, "create", "EmployeePosition", spec.employeeId, [
-      "departmentId", "positionId", "isPrimary", "workPercent", "reportTo",
+      "reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportTo",
     ]);
     if (runtime.apply) {
       await client.query(
         `INSERT INTO "EmployeePosition"
-           ("employeeId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
-            "endDate", "reportTo", "workPercent", "editedBy", "editedAt")
-         VALUES ($1, $2, $3, NULL, TRUE, NULL, $4, '1', $5, CURRENT_TIMESTAMP)`,
+           ("employeeId", "reportingCompanyId", "departmentId", "positionId", "positionReportOverrideId", "isPrimary",
+            "endDate", "reportTo", "allocationWeight", "editedBy", "editedAt")
+         VALUES ($1, $2, $3, $4, NULL, TRUE, NULL, $5, '100', $6, CURRENT_TIMESTAMP)`,
         [
           identity.employeeId,
+          foundation.reportingCompanyId,
           foundation.departmentId,
           position.id,
           foundation.managerEmployeeId,
@@ -473,6 +477,28 @@ async function ensureCurrentAssignment(client, runtime, foundation, spec, identi
       );
     }
     return;
+  }
+  if (!numericId(assignment.reportingCompanyId)) {
+    addAction(runtime.actions, "update", "EmployeePosition", spec.employeeId, ["reportingCompanyId"]);
+    if (runtime.apply) {
+      await client.query(
+        `UPDATE "EmployeePosition"
+         SET "reportingCompanyId" = $1, "editedBy" = $2, "editedAt" = CURRENT_TIMESTAMP,
+             version = version + 1
+         WHERE id = $3 AND "reportingCompanyId" IS NULL`,
+        [foundation.reportingCompanyId, foundation.editorUserId, assignment.id],
+      );
+    }
+  }
+  if (
+    !numericId(assignment.departmentId)
+    || !numericId(assignment.positionId)
+    || assignment.isPrimary !== true
+    || Number(assignment.allocationWeight) !== 100
+  ) {
+    throw new ProvisioningError(
+      `employee ${spec.employeeId} current EmployeePosition violates required placement fields`,
+    );
   }
   // Existing active assignments are owned by HR. A transfer, reporting-line
   // override or workload change must survive the next deployment.

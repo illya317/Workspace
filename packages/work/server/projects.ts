@@ -3,6 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
 import { matchAnyField } from "@workspace/platform/search";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import type { ProjectCreateCommand } from "./domain/project-validation";
 import {
   buildVisibleProjectWhere,
@@ -12,6 +13,7 @@ import {
 } from "./access";
 import { formatDate } from "./project-normalization";
 import { resolveWorkProjectCreateActionRuntime } from "./project-action-runtime";
+import { projectMemberHasActiveEmploymentOnDate } from "./project-access-temporal";
 import {
   buildProjectFieldUpdateCommand,
   validateProjectDeleteCommand,
@@ -23,6 +25,12 @@ import {
   projectMutationRoot,
   type WorkMutationImpactContext,
 } from "./work-mutation-impact";
+import { createProjectMembershipsInTransaction } from "./project-membership-lifecycle-service";
+import {
+  bestEffortDrainProjectNotificationSignals,
+  enqueueProjectNotificationSignal,
+  PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
+} from "./project-notification-signals";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const [visibleWhere, createRuntime] = await Promise.all([
@@ -33,8 +41,20 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     where: { AND: [visibleWhere, { isArchived: Boolean(input.archived) }] },
     orderBy: input.archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
     include: {
-      _count: { select: { employees: true } },
-      employees: { select: { employeeId: true, role: true } },
+      employees: {
+        where: { recordState: "confirmed" },
+        select: {
+          employeeId: true,
+          role: true,
+          startDate: true,
+          endDate: true,
+          employee: {
+            select: {
+              employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+            },
+          },
+        },
+      },
       leadingDepartment: { select: { id: true, code: true, name: true } },
       enablingDepartments: {
         include: { department: { select: { id: true, code: true, name: true } } },
@@ -43,10 +63,12 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     },
   });
 
-  const mapped = await Promise.all(projects.map(async (project) => {
+  const asOfDate = workspaceBusinessDate(new Date());
+  const mapped = (await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const enablingDepartments = project.enablingDepartments.map((entry) => entry.department);
     const permissions = await getProjectPermissions(input.userId, project);
+    if (!permissions.canView) return null;
     const actionPermissions = await getWorkProjectScopedActionPermissions(input.userId, project.id);
     return {
       id: project.id,
@@ -84,9 +106,11 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       actualStartDate: formatDate(project.actualStartDate),
       actualEndDate: formatDate(project.actualEndDate),
       completionPercent: project.completionPercent,
-      employeeCount: project._count.employees,
+      employeeCount: project.employees.filter((entry) => (
+        projectMemberHasActiveEmploymentOnDate(entry, entry.employee.employments, asOfDate)
+      )).length,
     };
-  }));
+  }))).filter(isPresent);
 
   const result = input.keyword ? mapped.filter((project) => matchAnyField(project, input.keyword)) : mapped;
   const total = result.length;
@@ -102,10 +126,15 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     include: {
       leadingDepartment: { select: { id: true, code: true, name: true } },
       employees: {
-        where: { role: { in: ["负责人", "项目负责人"] } },
+        where: { role: { in: ["负责人", "项目负责人"] }, recordState: "confirmed" },
         orderBy: { id: "asc" },
         include: {
-          employee: { select: { name: true } },
+          employee: {
+            select: {
+              name: true,
+              employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+            },
+          },
         },
       },
     },
@@ -126,6 +155,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     }
   }
 
+  const asOfDate = workspaceBusinessDate(new Date());
   return {
     projects: projects.map((project) => {
       const baseline = baselineByKey.get(`project:${project.id}`);
@@ -140,6 +170,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
         leadingDepartmentName: project.leadingDepartment?.name ?? null,
         workspaceEnabled: project.workspaceEnabled,
         leaderNames: project.employees
+          .filter((entry) => projectMemberHasActiveEmploymentOnDate(entry, entry.employee.employments, asOfDate))
           .map((entry) => entry.employee.name)
           .filter((name): name is string => Boolean(name)),
         stages: [],
@@ -163,13 +194,11 @@ export async function commitProjectCreateCommand(command: ProjectCreateCommand, 
       });
     }
     if (command.members.length) {
-      await tx.employeeProject.createMany({
-        data: command.members.map((member) => ({
-          employeeId: member.employeeId,
-          projectId: created.id,
-          role: member.role,
-          editedBy: userId,
-        })),
+      await createProjectMembershipsInTransaction(tx, {
+        projectId: created.id,
+        members: command.members,
+        userId,
+        idempotencyPrefix: `project-create:${created.id}`,
       });
     }
     return created;
@@ -215,16 +244,18 @@ export async function updateProjectField(input: {
       isArchived: Boolean(command.data.data.isArchived),
     });
   }
-  await prisma.$transaction(async (tx) => {
+  const occurredAt = new Date();
+  const signal = await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("Project", projectId, input.userId, tx);
-    await tx.project.update({
+    const saved = await tx.project.update({
       where: { id: projectId },
       data: {
         ...command.data.data,
         editedBy: input.userId,
-        editedAt: new Date(),
+        editedAt: occurredAt,
         version: { increment: 1 },
       },
+      select: PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
     });
     if (command.data.enablingDepartmentIds) {
       await tx.projectEnablingDepartment.deleteMany({ where: { projectId } });
@@ -233,7 +264,15 @@ export async function updateProjectField(input: {
       });
     }
     await snapshotHistory("Project", projectId, input.userId, tx);
+    return enqueueProjectNotificationSignal(tx, {
+      project: saved,
+      signalKind: "project.updated",
+      signalId: `project:${projectId}:v${saved.version}:field:${input.field}`,
+      changedField: input.field,
+      occurredAt,
+    });
   });
+  if (signal.queued) await bestEffortDrainProjectNotificationSignals([signal.signalId]);
   return serviceOk({ success: true });
 }
 
@@ -275,13 +314,14 @@ async function updateProjectArchiveState(input: {
   isArchived: boolean;
 }) {
   try {
-    await runSerializableTransaction(async (tx) => {
+    const occurredAt = new Date();
+    const signal = await runSerializableTransaction(async (tx) => {
       const project = await tx.project.findUnique({
         where: { id: input.projectId },
         select: { id: true, name: true, version: true, isArchived: true },
       });
       if (!project) throw new Error("项目不存在");
-      if (project.isArchived === input.isArchived) return;
+      if (project.isArchived === input.isArchived) return null;
       const intent = input.isArchived ? "archive" as const : "restore" as const;
       const context = projectImpactContext(tx, input.userId, project.id);
       await buildAuditedWorkMutationImpactEngine(context).execute({
@@ -295,16 +335,29 @@ async function updateProjectArchiveState(input: {
             where: { id: project.id, version: project.version },
             data: {
               isArchived: input.isArchived,
-              archivedAt: input.isArchived ? new Date() : null,
+              archivedAt: input.isArchived ? occurredAt : null,
               editedBy: input.userId,
-              editedAt: new Date(),
+              editedAt: occurredAt,
               version: { increment: 1 },
             },
           });
           await snapshotHistory("Project", project.id, input.userId, tx);
         },
       });
+      const saved = await tx.project.findUnique({
+        where: { id: project.id },
+        select: PROJECT_NOTIFICATION_SIGNAL_PROJECT_SELECT,
+      });
+      if (!saved) throw new Error("项目不存在");
+      return enqueueProjectNotificationSignal(tx, {
+        project: saved,
+        signalKind: input.isArchived ? "project.archived" : "project.restored",
+        signalId: `project:${project.id}:v${saved.version}:field:isArchived`,
+        changedField: "isArchived",
+        occurredAt,
+      });
     });
+    if (signal?.queued) await bestEffortDrainProjectNotificationSignals([signal.signalId]);
     return serviceOk({ success: true });
   } catch (error) {
     const impactError = mutationImpactServiceError(error);
@@ -324,4 +377,8 @@ function projectImpactContext(
     scopeType: "project",
     scopeId: String(projectId),
   };
+}
+
+function isPresent<T>(value: T | null): value is T {
+  return value !== null;
 }

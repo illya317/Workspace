@@ -6,13 +6,14 @@ cd "$PROJECT_ROOT"
 
 COMMAND="${1:-}"
 UNIT_ID="${DEPLOY_UNIT_ID:-}"
-SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
-SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${SOURCE_SHA}^{tree}")}"
+SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse 'HEAD^{tree}')}"
+CONTENT_DIGEST="${RELEASE_CONTENT_DIGEST:?RELEASE_CONTENT_DIGEST is required}"
 CACHE_ROOT="${CNB_RELEASE_ARTIFACT_CACHE_ROOT:-.cache/release-artifacts}"
 HIT_MARKER="${CNB_RELEASE_ARTIFACT_HIT_MARKER:-.cache/release-artifact-cache-hit}"
+RECEIPT_FILE="${CNB_RELEASE_ARTIFACT_RECEIPT_FILE:-$PWD/.cache/release-check/release-artifact.json}"
 
-[[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache source SHA 无效" >&2; exit 2; }
 [[ "$SOURCE_TREE" =~ ^[0-9a-f]{40}$ ]] || { echo "[错误] artifact cache source tree 无效" >&2; exit 2; }
+[[ "$CONTENT_DIGEST" =~ ^[0-9a-f]{64}$ ]] || { echo "[错误] artifact cache content digest 无效" >&2; exit 2; }
 if [ -n "$UNIT_ID" ] && [[ ! "$UNIT_ID" =~ ^[a-z][a-z0-9-]*$ ]]; then
   echo "[错误] artifact cache unit id 无效" >&2
   exit 2
@@ -23,40 +24,81 @@ case "$CACHE_ROOT" in
 esac
 
 TARGET_ID="${UNIT_ID:-monolith}"
-CACHE_DIR="$CACHE_ROOT/$TARGET_ID/$SOURCE_TREE"
+CACHE_DIR="$CACHE_ROOT/$TARGET_ID/$CONTENT_DIGEST"
+
+quarantine_invalid_cache() {
+  [ -d "$CACHE_DIR" ] || return 0
+  local pin_status=0
+  node - "$CACHE_ROOT/cache-pins.json" "$TARGET_ID" "$CONTENT_DIGEST" <<'NODE' || pin_status=$?
+const fs = require('node:fs');
+const [file, target, digest] = process.argv.slice(2);
+if (!fs.existsSync(file)) process.exit(0);
+let pins;
+try { pins = JSON.parse(fs.readFileSync(file, 'utf8')); } catch { process.exit(4); }
+const entry = pins?.targets?.[target] ?? {};
+if (entry.production === digest || entry.rollback === digest) process.exit(3);
+NODE
+  if [ "$pin_status" -ne 0 ]; then
+    echo "[错误] invalid artifact cache 可能是 production/rollback pin，拒绝自动隔离: $CACHE_DIR" >&2
+    return 2
+  fi
+  local quarantine="$CACHE_ROOT/quarantine/$TARGET_ID-$CONTENT_DIGEST-$(date -u +%Y%m%dT%H%M%SZ)-$$"
+  mkdir -p "$(dirname "$quarantine")"
+  mv "$CACHE_DIR" "$quarantine"
+  echo "==> 已隔离损坏的 derived artifact cache: $quarantine" >&2
+}
 
 verify_monolith() {
   local artifact=$1 manifest=$2
-  node - "$artifact" "$manifest" "$SOURCE_SHA" "$SOURCE_TREE" <<'NODE'
+  node - "$artifact" "$manifest" "$SOURCE_TREE" "$CONTENT_DIGEST" <<'NODE'
 const { createHash } = require('node:crypto');
 const { readFileSync, statSync } = require('node:fs');
-const [artifactFile, manifestFile, sourceSha, sourceTree] = process.argv.slice(2);
+const [artifactFile, manifestFile, sourceTree, contentDigest] = process.argv.slice(2);
 const artifact = readFileSync(artifactFile);
 const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
 const digest = createHash('sha256').update(artifact).digest('hex');
-if (manifest.schemaVersion !== 1
-  || manifest.source?.commitSha !== sourceSha
+if (manifest.schemaVersion !== 2
   || manifest.source?.treeSha !== sourceTree
-  || manifest.build?.buildId !== sourceSha
+  || manifest.source?.contentDigest !== contentDigest
+  || manifest.build?.buildId !== contentDigest
   || manifest.artifact?.sha256 !== digest
   || manifest.artifact?.sizeBytes !== statSync(artifactFile).size) process.exit(1);
 NODE
 }
 
+install_cache_file() {
+  local source="$1" target="$2"
+  mkdir -p "$(dirname "$target")"
+  rm -f "$target"
+  if ! ln "$source" "$target" 2>/dev/null; then cp "$source" "$target"; fi
+}
+
 restore_cache() {
   rm -f "$HIT_MARKER"
+  local cached_receipt="$CACHE_DIR/release-artifact.json"
+  if [ ! -f "$cached_receipt" ]; then
+    quarantine_invalid_cache || return $?
+    echo "==> CNB artifact cache miss: $TARGET_ID ${SOURCE_TREE:0:12}"
+    return 1
+  fi
   if [ -z "$UNIT_ID" ]; then
     local artifact="$CACHE_DIR/workspace-standalone.tgz"
     local manifest="$CACHE_DIR/workspace-standalone.manifest.json"
-    if [ ! -f "$artifact" ] || [ ! -f "$manifest" ] || ! verify_monolith "$artifact" "$manifest"; then
+    local graph="$CACHE_DIR/deploy-graph.json"
+    if [ ! -f "$artifact" ] || [ ! -f "$manifest" ] || [ ! -f "$graph" ] || ! verify_monolith "$artifact" "$manifest" \
+      || ! node ops/gateway-generation.mjs graph-assert --graph "$graph" \
+        --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null; then
       echo "==> CNB artifact cache miss: monolith ${SOURCE_TREE:0:12}"
+      quarantine_invalid_cache || return $?
       return 1
     fi
     local output_artifact="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
     local output_manifest="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
-    mkdir -p "$(dirname "$output_artifact")" "$(dirname "$output_manifest")" "$(dirname "$HIT_MARKER")"
-    cp "$artifact" "$output_artifact"
-    cp "$manifest" "$output_manifest"
+    local output_graph="${STANDALONE_DEPLOY_GRAPH_PATH:-.cache/release-check/deploy-graph.json}"
+    mkdir -p "$(dirname "$output_artifact")" "$(dirname "$output_manifest")" "$(dirname "$output_graph")" "$(dirname "$HIT_MARKER")"
+    install_cache_file "$artifact" "$output_artifact"
+    install_cache_file "$manifest" "$output_manifest"
+    install_cache_file "$graph" "$output_graph"
     verify_monolith "$output_artifact" "$output_manifest"
   else
     local artifact="$CACHE_DIR/$UNIT_ID-standalone.tgz"
@@ -69,40 +111,57 @@ restore_cache() {
     fi
     if ! node ops/deploy-unit-release.mjs artifact-assert --artifact "$artifact" --manifest "$manifest" --contract "$contract" >/dev/null \
       || ! node ops/gateway-generation.mjs graph-assert --graph "$graph" \
-        --digest "$(node -e 'const m=require(process.argv[1]); process.stdout.write(m.unit.graphSha256)' "$manifest")" >/dev/null \
-      || ! SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" UNIT_ID="$UNIT_ID" MANIFEST="$manifest" node - <<'NODE'
+        --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.unit.graphSha256)' "$manifest")" >/dev/null \
+      || ! SOURCE_TREE="$SOURCE_TREE" UNIT_ID="$UNIT_ID" MANIFEST="$manifest" node - <<'NODE'
 const manifest = JSON.parse(require('node:fs').readFileSync(process.env.MANIFEST, 'utf8'));
 if (manifest.unit?.id !== process.env.UNIT_ID
-  || manifest.source?.commitSha !== process.env.SOURCE_SHA
   || manifest.source?.treeSha !== process.env.SOURCE_TREE) process.exit(1);
 NODE
     then
       echo "==> CNB artifact cache invalid: $UNIT_ID ${SOURCE_TREE:0:12}"
+      quarantine_invalid_cache || return $?
       return 1
     fi
     local output_root="${DEPLOY_UNIT_OUTPUT_ROOT:-.cache/deploy-units/$UNIT_ID}"
     mkdir -p "$output_root" "$(dirname "$HIT_MARKER")"
-    cp "$artifact" "$output_root/$UNIT_ID-standalone.tgz"
-    cp "$manifest" "$output_root/$UNIT_ID-standalone.manifest.json"
-    cp "$contract" "$output_root/deploy-unit-contract.json"
-    cp "$graph" "$output_root/deploy-graph.json"
+    install_cache_file "$artifact" "$output_root/$UNIT_ID-standalone.tgz"
+    install_cache_file "$manifest" "$output_root/$UNIT_ID-standalone.manifest.json"
+    install_cache_file "$contract" "$output_root/deploy-unit-contract.json"
+    install_cache_file "$graph" "$output_root/deploy-graph.json"
   fi
-  printf '%s\n' "$TARGET_ID:$SOURCE_SHA:$SOURCE_TREE" > "$HIT_MARKER"
+  mkdir -p "$(dirname "$RECEIPT_FILE")"
+  install_cache_file "$cached_receipt" "$RECEIPT_FILE"
+  if ! node ops/release-gate-receipt.mjs artifact-verify \
+    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" \
+    --target "$TARGET_ID" --file "$RECEIPT_FILE" >/dev/null; then
+    quarantine_invalid_cache || return $?
+    return 1
+  fi
+  printf '%s\n' "$TARGET_ID:$CONTENT_DIGEST:$SOURCE_TREE" > "$HIT_MARKER"
   chmod 600 "$HIT_MARKER"
+  touch "$CACHE_DIR"
   echo "==> CNB artifact cache hit: $TARGET_ID ${SOURCE_TREE:0:12}"
 }
 
 store_cache() {
-  local temporary="$CACHE_ROOT/$TARGET_ID/.tmp-$SOURCE_TREE-$$"
+  local temporary="$CACHE_ROOT/$TARGET_ID/.tmp-$CONTENT_DIGEST-$$"
   mkdir -p "$(dirname "$temporary")"
   rm -rf "$temporary"
   mkdir -m 700 "$temporary"
+  node ops/release-gate-receipt.mjs artifact-verify \
+    --content "$CONTENT_DIGEST" --tree "$SOURCE_TREE" \
+    --target "$TARGET_ID" --file "$RECEIPT_FILE" >/dev/null
+  cp "$RECEIPT_FILE" "$temporary/release-artifact.json"
   if [ -z "$UNIT_ID" ]; then
     local artifact="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
     local manifest="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
+    local graph="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
     verify_monolith "$artifact" "$manifest"
+    node ops/gateway-generation.mjs graph-assert --graph "$graph" \
+      --digest "$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(m.inputs.deployGraphSha256)' "$manifest")" >/dev/null
     cp "$artifact" "$temporary/workspace-standalone.tgz"
     cp "$manifest" "$temporary/workspace-standalone.manifest.json"
+    cp "$graph" "$temporary/deploy-graph.json"
   else
     local output_root="${DEPLOY_UNIT_OUTPUT_ROOT:-.cache/deploy-units/$UNIT_ID}"
     node ops/deploy-unit-release.mjs artifact-assert \
@@ -116,13 +175,16 @@ store_cache() {
   fi
   chmod 600 "$temporary"/*
   if [ -d "$CACHE_DIR" ]; then
-    rm -rf "$temporary"
     if restore_cache >/dev/null; then
+      rm -rf "$temporary"
       echo "==> CNB artifact cache already stored: $TARGET_ID ${SOURCE_TREE:0:12}"
       return
     fi
-    echo "[错误] 已存在的 immutable artifact cache 无法通过复验: $CACHE_DIR" >&2
-    return 1
+    if [ -d "$CACHE_DIR" ]; then
+      rm -rf "$temporary"
+      echo "[错误] 已存在且不可隔离的 pinned artifact cache 无法通过复验: $CACHE_DIR" >&2
+      return 1
+    fi
   fi
   local install_status=0
   node - "$temporary" "$CACHE_DIR" <<'NODE' || install_status=$?

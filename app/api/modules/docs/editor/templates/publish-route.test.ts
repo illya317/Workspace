@@ -6,7 +6,7 @@ const mockModule = (mock as unknown as { module: MockModule }).module.bind(mock)
 
 let publishCommand: unknown = null;
 
-mockModule("@workspace/platform/server/docs-editor", {
+mockModule("@workspace/docs/server", {
   namedExports: {
     executePublishDocsEditorTemplate: async (command: unknown) => {
       publishCommand = command;

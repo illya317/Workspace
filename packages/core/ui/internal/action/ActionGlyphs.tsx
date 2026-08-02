@@ -1,61 +1,10 @@
-/**
- * 工具栏、行内动作、图标按钮的统一图标集合。
- * 这是封闭集合：新增图标必须经整体 UI 评审，禁止业务侧自行引入其他图标。
- */
-export const ACTION_GLYPH_KINDS = [
-  "add",
-  "send",
-  "stop",
-  "edit",
-  "revise",
-  "withdraw",
-  "check",
-  "double-check",
-  "approve",
-  "reject",
-  "verified",
-  "cancel",
-  "x",
-  "copy",
-  "save",
-  "delete",
-  "delete-bin",
-  "delete-minus",
-  "view",
-  "eye-off",
-  "back",
-  "search",
-  "filter",
-  "refresh",
-  "reset",
-  "restore",
-  "link",
-  "unlink",
-  "share",
-  "settings",
-  "reclass",
-  "generate",
-  "print",
-  "lock",
-  "unlock",
-  "permission-organization",
-  "permission-derived",
-  "sort",
-  "more",
-  "download",
-  "upload",
-  "archive",
-  "list",
-  "history",
-  "assistant",
-  "tree-expand",
-  "tree-collapse",
-  "panel-open",
-  "panel-close",
-] as const;
+import {
+  type ActionGlyphIconAlias,
+  type ActionGlyphKind,
+} from "../../../action-glyph-contract";
 
-export type ActionGlyphKind = (typeof ACTION_GLYPH_KINDS)[number];
-export type ActionGlyphIconAlias = "back" | "create" | "open";
+export { ACTION_GLYPH_KINDS } from "../../../action-glyph-contract";
+export type { ActionGlyphIconAlias, ActionGlyphKind } from "../../../action-glyph-contract";
 
 export interface ActionGlyphProps {
   kind: ActionGlyphKind;
@@ -78,6 +27,7 @@ export const ACTION_GLYPH_GROUPS = [
   { key: "navigation", label: "页面导航", representative: "back", kinds: ["back"] },
   { key: "view", label: "查看显示", representative: "view", kinds: ["view", "eye-off", "list", "tree-expand", "tree-collapse", "panel-open", "panel-close"] },
   { key: "filter", label: "搜索筛选", representative: "search", kinds: ["search", "filter", "sort"] },
+  { key: "arrange", label: "顺序调整", representative: "move-up", kinds: ["move-up", "move-down"] },
   { key: "refresh", label: "刷新恢复", representative: "refresh", kinds: ["refresh", "reset", "history"] },
   { key: "transfer", label: "传输归档", representative: "download", kinds: ["download", "upload", "archive", "restore"] },
   { key: "relation", label: "关联复制", representative: "link", kinds: ["link", "unlink", "share", "copy"] },
@@ -99,7 +49,7 @@ export interface ActionGlyphToolbarGroup {
 
 export const ACTION_GLYPH_TOOLBAR_GROUPS = [
   { key: "primary", label: "核心操作", groupKeys: ["create", "input", "edit", "confirm", "delete"] },
-  { key: "browse", label: "浏览筛选", groupKeys: ["navigation", "view", "filter", "refresh"] },
+  { key: "browse", label: "浏览筛选", groupKeys: ["navigation", "view", "filter", "arrange", "refresh"] },
   { key: "extended", label: "扩展动作", groupKeys: ["transfer", "relation", "system", "output", "more", "assistant"] },
 ] as const satisfies readonly ActionGlyphToolbarGroup[];
 
@@ -142,6 +92,8 @@ export const ACTION_GLYPH_ORDER = [
   { icon: "search", group: "browse", subgroup: "filter", order: 21000 },
   { icon: "filter", group: "browse", subgroup: "filter", order: 21100 },
   { icon: "sort", group: "browse", subgroup: "filter", order: 21200 },
+  { icon: "move-up", group: "browse", subgroup: "arrange", order: 21300 },
+  { icon: "move-down", group: "browse", subgroup: "arrange", order: 21400 },
   { icon: "refresh", group: "browse", subgroup: "refresh", order: 22000 },
   { icon: "reset", group: "browse", subgroup: "refresh", order: 22100 },
   { icon: "history", group: "browse", subgroup: "refresh", order: 22200 },
@@ -224,6 +176,8 @@ export const ACTION_GLYPH_ACTIONS = [
   { key: "search", label: "搜索", icon: "search", variant: "secondary", section: "search" },
   { key: "filter", label: "筛选", icon: "filter", variant: "secondary", section: "filter" },
   { key: "sort", label: "排序", icon: "sort", variant: "secondary", section: "filter" },
+  { key: "move-up", label: "上移", icon: "move-up", variant: "secondary", section: "edit" },
+  { key: "move-down", label: "下移", icon: "move-down", variant: "secondary", section: "edit" },
   { key: "refresh", label: "刷新", icon: "refresh", variant: "secondary", section: "view" },
   { key: "retry", label: "重试", icon: "refresh", variant: "secondary", section: "view" },
   { key: "reset", label: "重置", icon: "reset", variant: "secondary", section: "filter" },
@@ -282,6 +236,8 @@ const ACTION_GLYPH_ALIAS_TO_ACTION_KEY = {
 } as const satisfies Record<string, ActionGlyphActionKey>;
 
 const ACTION_GLYPH_LABEL_MATCHERS: Array<{ value: string; action: ActionGlyphActionKey }> = [
+  { value: "上移", action: "move-up" },
+  { value: "下移", action: "move-down" },
   { value: "展开", action: "expand" },
   { value: "收起", action: "collapse" },
   { value: "取消关联", action: "unlink" },

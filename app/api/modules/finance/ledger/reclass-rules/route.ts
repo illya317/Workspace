@@ -5,7 +5,7 @@ import {
   buildSaveReclassRuleChangeSetRouteCommand,
   executeScanReclassRulesCommand,
   executeSaveReclassRuleChangeSetRouteCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/ledger/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const scanRulesQuerySchema = z.object({

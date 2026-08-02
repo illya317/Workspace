@@ -15,6 +15,7 @@ import type {
 } from "@workspace/finance/types";
 
 import { balanceDirectionLabel, categoryLabel } from "./groupAccountMappingPresentation";
+import { formatFinanceDateTime } from "../formatters";
 
 const MAPPED_ACCOUNT_COLUMNS: DataSurfaceColumnSpec<FinanceGroupAccountMappedLocalAccountRow>[] = [
   {
@@ -82,20 +83,50 @@ export function mappedAccountSections(
   })];
 }
 
-export function groupAccountDetailFields(row: FinanceGroupAccountCatalogRow): FormSurfaceFieldSpec[] {
+export function groupAccountDetailFields(
+  row: FinanceGroupAccountCatalogRow,
+  businessTimeZone: string,
+): FormSurfaceFieldSpec[] {
   return [
     readOnlyDetail("category", "科目类别", categoryLabel(row.category)),
     readOnlyDetail("balanceDirection", "余额方向", balanceDirectionLabel(row.balanceDirection)),
+    readOnlyDetail("consolidationRole", "自动合并候选", row.consolidationRole === "none" ? "不参与" : "参与"),
+    ...(row.consolidationRole !== "none" ? [
+      readOnlyDetail(
+        "counterpartyRequirement",
+        "对方公司辅助",
+        counterpartyRequirementLabel(row.counterpartyRequirement),
+      ),
+      readOnlyDetail("movementType", "默认取数口径", movementTypeLabel(row.movementType)),
+      readOnlyDetail(
+        "translationRateType",
+        "集团报表折算方法",
+        translationRateTypeLabel(row.translationRateType),
+        "不用于单体账外币重估；单体账漏记的汇兑损益应作为主体调整并回写源账。",
+      ),
+    ] : []),
     readOnlyDetail("reviewStatus", "复核状态", groupReviewStatusLabel(row.reviewStatus)),
     ...(row.reviewedAt ? [
       readOnlyDetail("reviewedBy", "复核人", row.reviewedBy === null ? "—" : String(row.reviewedBy)),
-      readOnlyDetail("reviewedAt", "复核时间", new Date(row.reviewedAt).toLocaleString("zh-CN", { hour12: false })),
+      readOnlyDetail("reviewedAt", "复核时间", formatFinanceDateTime(row.reviewedAt, businessTimeZone)),
     ] : []),
     readOnlyDetail("status", "状态", row.isActive ? "启用" : "停用"),
     readOnlyDetail("parent", groupAccountParentLabel(row), groupAccountParentValue(row)),
     readOnlyDetail("years", "科目年份", yearsLabel(row.years)),
     readOnlyDetail("mappingCount", "已确认/已复核公司科目", `${row.mappingCount} 个`),
   ];
+}
+
+function counterpartyRequirementLabel(value: FinanceGroupAccountCatalogRow["counterpartyRequirement"]) {
+  return ({ none: "不使用", optional: "可选", required: "必填" } as const)[value];
+}
+
+function movementTypeLabel(value: FinanceGroupAccountCatalogRow["movementType"]) {
+  return ({ closingBalance: "期末余额", periodMovement: "期间发生额", transaction: "逐笔交易" } as const)[value];
+}
+
+function translationRateTypeLabel(value: FinanceGroupAccountCatalogRow["translationRateType"]) {
+  return ({ closing: "期末日汇率", average: "期间平均汇率", historical: "原始确认日汇率", transactionDate: "每笔交易日汇率" } as const)[value];
 }
 
 export function groupAccountParentDescription(row: FinanceGroupAccountCatalogRow) {
@@ -176,10 +207,11 @@ export function initialExpandedTreeIds(
   return expanded;
 }
 
-function readOnlyDetail(key: string, label: string, value: string): FormSurfaceFieldSpec {
+function readOnlyDetail(key: string, label: string, value: string, hint?: string): FormSurfaceFieldSpec {
   return {
     key,
     label,
+    hint,
     spec: { valueType: "string", control: "text" },
     value,
     readOnly: true,

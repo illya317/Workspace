@@ -192,7 +192,7 @@ const EXPECTED_STATUSES: Record<ConsolidationBatchLifecycleAction, readonly Cons
   submit: ["draft"],
   return: ["submitted", "reviewed"],
   review: ["submitted"],
-  lock: ["reviewed"],
+  lock: ["draft", "reviewed"],
   publish: ["locked"],
 };
 
@@ -231,7 +231,11 @@ export function validateConsolidationBatchTransition(
       action === "review" ? "reviewedBy" : "returnedBy",
     );
   }
-  if (action === "lock" && (!batch.reviewedBy || batch.reviewedBy === batch.createdBy || batch.reviewedBy === batch.submittedBy)) {
+  if (action === "lock" && batch.status === "reviewed" && (
+    !batch.reviewedBy
+    || batch.reviewedBy === batch.createdBy
+    || batch.reviewedBy === batch.submittedBy
+  )) {
     return failCommand("批次尚未完成独立复核", 409, "reviewedBy");
   }
   return okCommand({ nextStatus: NEXT_STATUS[action] });
@@ -387,7 +391,8 @@ export function validateConsolidationSubmission(
       return failCommand("抵销分录借贷不平衡，必须人工修订后再提交", 409, "entries");
     }
     if (matchedTypes.has(entry.entryType)) {
-      const complete = entry.lines.every((line) => (
+      const matchingLines = entry.lines.filter((line) => line.lineCode !== "otherComprehensiveIncome");
+      const complete = matchingLines.every((line) => (
         (line.matchSide === "left" || line.matchSide === "right")
         && Boolean(line.sourceKind?.trim())
         && Boolean(line.sourceId?.trim())
@@ -399,7 +404,7 @@ export function validateConsolidationSubmission(
         && companyIds.has(Number(line.counterpartyCompanyId))
         && line.counterpartyCompanyId !== line.companyId
       ));
-      const sides = new Set(entry.lines.map((line) => line.matchSide));
+      const sides = new Set(matchingLines.map((line) => line.matchSide));
       if (!complete || !sides.has("left") || !sides.has("right")) {
         return failCommand("内部往来、交易和资金抵销必须保留双方结构化来源及指纹", 409, "matching");
       }

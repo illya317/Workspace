@@ -1,232 +1,535 @@
 import { createHash } from "node:crypto";
-import * as XLSX from "xlsx";
-import { prisma, type Prisma } from "@workspace/platform/server/prisma";
-import { buildAssetWorkbookImportCommand } from "../domain/asset-validation";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { buildAssetWorkbookImportCommand } from "./validation";
+import { resolveFinanceAssetCategoryPolicy } from "./account-policy-resolver";
+import { allocateFinanceAssetCode } from "./asset-code-allocation";
+import { parseAssetWorkbook } from "./current-period-workbook";
+import type { ParsedCurrentPeriodAsset } from "./current-period-workbook-types";
+import { assetAccountingBasisChanged } from "./service";
+import { requireStoredFinanceAssetDepreciationMethod } from "./depreciation-method";
+import { firstMonthAfterFinanceAssetCutover, FINANCE_ASSET_LEGACY_CUTOVER_MODE } from "./legacy-cutover";
+import { gateFinanceAssetLegacyCutoverBlockers } from "./legacy-cutover-blocker-gate";
+import { isExecutionApprovedGovernedReconciler } from "./approved-cutover-config";
+import { partitionFinanceAssetWorkbookIssues } from "./workbook-import-issue-policy";
+import {
+  validateFinanceAssetLedgerCutoverResult,
+  type FinanceAssetCutoverAuthoritativeContext,
+  type FinanceAssetLedgerCutoverResult,
+} from "./legacy-cutover-reconciliation";
 
-type ParsedAsset = {
-  sourceKey: string;
-  assetCode: string;
-  name: string;
-  assetKind: "fixed_asset" | "intangible" | "prepaid" | "long_term_deferred";
-  category?: string;
-  assetAccountCode: string;
-  accumulatedAccountCode?: string;
-  acquisitionDate?: string;
-  depreciationStartDate?: string;
-  originalCost: number;
-  residualRate: number;
-  usefulLifeMonths?: number;
-  openingAccumulatedAmount: number;
-  openingAsOfDate?: string;
-  nonAmortizationReason?: string;
-  note?: string;
-  sourceSheet: string;
-  sourceRow: number;
-  periodAmount: number;
-  voucherNo?: string;
+export { parseAssetWorkbook } from "./current-period-workbook";
+export type { AssetWorkbookScope, ParsedAssetWorkbook, ParsedCurrentPeriodAsset } from "./current-period-workbook-types";
+
+type AssetWorkbookImportInput = {
+  buffer: Buffer;
+  sourceFile: string;
+  companyCode: string;
+  year: number;
+  month: number;
+  userId?: number;
 };
 
-type ParsedCostLine = { sourceKey: string; sourceRow: number; referenceNo?: string; amount: number; treatment: "included" | "waived"; reason?: string };
-
-export type ParsedAssetWorkbook = {
-  assets: ParsedAsset[];
-  adjustment: { amount: number; reason: string; voucherNo: string; sourceRow: number };
-  renovationCostLines: ParsedCostLine[];
-  checks: { fixedNormal: number; fixedAdjustment: number; fixedPosted: number; renovationGross: number; renovationWaived: number; renovationCapitalized: number };
+export type AssetWorkbookImportDependencies = {
+  database: Pick<typeof prisma, "$transaction">;
+  parseWorkbook: typeof parseAssetWorkbook;
+  resolvePolicy: typeof resolveFinanceAssetCategoryPolicy;
+  allocateAssetCode: typeof allocateFinanceAssetCode;
+  reconcileCutover: (
+    tx: Prisma.TransactionClient,
+    input: {
+      companyCode: string;
+      companyId: number;
+      year: number;
+      month: number;
+      cutoverDate: string;
+      periodId: number;
+      authoritativeContext: FinanceAssetCutoverAuthoritativeContext;
+      assets: Array<{
+        sourceKey: string;
+        sourceFile: string;
+        sourceSheet: string;
+        sourceRow: number;
+        originalCost: number;
+        workbookNetBookValue: number;
+        workbookAccumulatedAmount: number;
+        fullUsefulLifeMonths: number;
+        remainingUsefulLifeMonthsAtCutover: number;
+        cutoverResidualValue: number;
+        assetAccountId: number;
+        accumulatedAccountId: number | null;
+        impairmentAllowanceAccountId: number | null;
+      }>;
+    },
+  ) => Promise<FinanceAssetLedgerCutoverResult>;
 };
 
-const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
-const rows = (workbook: XLSX.WorkBook, name: string) => XLSX.utils.sheet_to_json(workbook.Sheets[name], { header: 1, raw: true, defval: null }) as unknown[][];
+const defaultAssetWorkbookImportDependencies: AssetWorkbookImportDependencies = {
+  database: prisma,
+  parseWorkbook: parseAssetWorkbook,
+  resolvePolicy: resolveFinanceAssetCategoryPolicy,
+  allocateAssetCode: allocateFinanceAssetCode,
+  reconcileCutover: async () => {
+    throw new Error("资产切点总账核对结果尚未注入，停止导入");
+  },
+};
 
-export function parseAssetWorkbook(buffer: Buffer): ParsedAssetWorkbook {
-  const workbook = XLSX.read(buffer, { type: "buffer", cellDates: false });
-  const fixed = rows(workbook, "9&10-1");
-  const intangible = rows(workbook, "9&10-2");
-  const deferred = rows(workbook, "9&10-3");
-  const fixedAssets: ParsedAsset[] = fixed.slice(5, 156).filter((row) => Number.isFinite(Number(row[0]))).map((row, offset) => {
-    const acquisitionDate = dateKey(row[3]);
-    return {
-      sourceKey: `9&10-1:${offset + 6}`,
-      assetCode: `FA-${String(Number(row[0])).padStart(4, "0")}`,
-      name: String(row[1] ?? "").trim(),
-      assetKind: "fixed_asset",
-      category: String(row[2] ?? "").trim() || undefined,
-      assetAccountCode: "1601",
-      accumulatedAccountCode: "1602",
-      acquisitionDate,
-      depreciationStartDate: nextMonth(acquisitionDate),
-      originalCost: money(row[7]),
-      residualRate: Number(row[9] ?? 0),
-      usefulLifeMonths: Number(row[8]) * 12,
-      openingAccumulatedAmount: money(row[19]),
-      openingAsOfDate: "2026-04-30",
-      sourceSheet: "9&10-1",
-      sourceRow: offset + 6,
-      periodAmount: money(row[12]),
-      voucherNo: "2026-05-记-0052",
-    };
-  });
-  const intangibleRow = intangible[2];
-  const intangibleAsset: ParsedAsset = {
-    sourceKey: "9&10-2:3",
-    assetCode: "IA-0001",
-    name: String(intangibleRow[1]),
-    assetKind: "intangible",
-    assetAccountCode: "1701",
-    accumulatedAccountCode: "1702",
-    acquisitionDate: dateKey(intangibleRow[2]),
-    originalCost: money(intangibleRow[3]),
-    residualRate: 0,
-    openingAccumulatedAmount: money(intangibleRow[5]),
-    nonAmortizationReason: "源表未提供使用期限和摊销政策，暂不自动摊销",
-    sourceSheet: "9&10-2",
-    sourceRow: 3,
-    periodAmount: money(intangibleRow[4]),
-  };
-  const prepaidAssets = deferred.slice(2, 4).map<ParsedAsset>((row, index) => ({
-    sourceKey: `9&10-3:${index + 3}`,
-    assetCode: `PA-${String(index + 1).padStart(4, "0")}`,
-    name: String(row[0]),
-    assetKind: "prepaid",
-    assetAccountCode: "1463",
-    acquisitionDate: dateKey(row[1]),
-    depreciationStartDate: dateKey(row[1]),
-    originalCost: money(row[2]),
-    residualRate: 0,
-    usefulLifeMonths: Number(row[3]),
-    openingAccumulatedAmount: money(Number(row[7]) - Number(row[6])),
-    openingAsOfDate: "2026-04-30",
-    sourceSheet: "9&10-3",
-    sourceRow: index + 3,
-    periodAmount: money(row[6]),
-    voucherNo: "2026-05-记-0053",
-  }));
-  const renovationCapitalized = money(deferred[28][3]);
-  const renovationMonthly = money(deferred[28][4]);
-  const renovationAsset: ParsedAsset = {
-    sourceKey: "9&10-3:18-29",
-    assetCode: "LTDA-0001",
-    name: "办公装修工程",
-    assetKind: "long_term_deferred",
-    assetAccountCode: "1801",
-    depreciationStartDate: "2026-04-01",
-    originalCost: renovationCapitalized,
-    residualRate: 0,
-    usefulLifeMonths: 60,
-    openingAccumulatedAmount: renovationMonthly,
-    openingAsOfDate: "2026-04-30",
-    note: "起算日期依据2026年5月总账期末净额反推为2026-04-01；保留为导入警示事实",
-    sourceSheet: "9&10-3",
-    sourceRow: 29,
-    periodAmount: renovationMonthly,
-    voucherNo: "2026-05-记-0054",
-  };
-  const renovationCostLines = deferred.slice(17, 28).map<ParsedCostLine>((row, index) => ({
-    sourceKey: `9&10-3:${index + 18}`,
-    sourceRow: index + 18,
-    referenceNo: String(row[0] ?? "").trim() || undefined,
-    amount: money(row[3]),
-    treatment: index + 18 === 20 ? "waived" : "included",
-    reason: index + 18 === 20 ? "该发票金额已免除，不计入摊销原值" : undefined,
-  }));
-  const adjustmentRow = fixed[159];
-  const fixedNormal = money(fixedAssets.reduce((sum, asset) => sum + asset.periodAmount, 0));
-  const fixedAdjustment = money(adjustmentRow[8]);
-  const fixedPosted = money(fixed[4][12]);
-  const renovationGross = money(renovationCostLines.reduce((sum, line) => sum + line.amount, 0));
-  const renovationWaived = money(renovationCostLines.filter((line) => line.treatment === "waived").reduce((sum, line) => sum + line.amount, 0));
-  assertEqual(money(fixedNormal + fixedAdjustment), fixedPosted, "固定资产正常折旧+调整与总额不一致");
-  assertEqual(money(renovationGross - renovationWaived), renovationCapitalized, "装修发票总额-免除金额与入账原值不一致");
-  return {
-    assets: [...fixedAssets, intangibleAsset, ...prepaidAssets, renovationAsset],
-    adjustment: { amount: fixedAdjustment, reason: String(adjustmentRow[10]), voucherNo: String(adjustmentRow[16]), sourceRow: 160 },
-    renovationCostLines,
-    checks: { fixedNormal, fixedAdjustment, fixedPosted, renovationGross, renovationWaived, renovationCapitalized },
-  };
-}
-
-export async function importAssetWorkbook(input: { buffer: Buffer; sourceFile: string; companyCode: string; year: number; month: number; userId?: number }) {
+export async function importAssetWorkbook(
+  input: AssetWorkbookImportInput,
+  overrides: Partial<AssetWorkbookImportDependencies> = {},
+) {
+  const dependencies = { ...defaultAssetWorkbookImportDependencies, ...overrides };
   const command = buildAssetWorkbookImportCommand(input);
   if (!command.ok) throw new Error(command.issue.message);
   input = command.data;
-  const parsed = parseAssetWorkbook(input.buffer);
-  const checksum = createHash("sha256").update(input.buffer).digest("hex");
-  return prisma.$transaction(async (tx) => {
-    const period = await tx.financePeriod.findUnique({ where: { companyCode_year_month: { companyCode: input.companyCode, year: input.year, month: input.month } } });
-    if (!period) throw new Error("目标会计期间不存在");
-    const voucherNos = [...new Set(parsed.assets.map((asset) => asset.voucherNo).filter((value): value is string => Boolean(value)).concat(parsed.adjustment.voucherNo))];
-    const vouchers = await tx.financeVoucher.findMany({ where: { companyCode: input.companyCode, periodId: period.id, voucherNo: { in: voucherNos } } });
-    const voucherByNo = new Map(vouchers.map((voucher) => [voucher.voucherNo, voucher.id]));
-    if (voucherByNo.size !== voucherNos.length) throw new Error("0052/0053/0054凭证不完整，停止导入");
-    const cardIds = new Map<string, number>();
-    for (const asset of parsed.assets) {
-      const card = await tx.financeAssetCard.upsert({
-        where: { companyCode_sourceKey: { companyCode: input.companyCode, sourceKey: asset.sourceKey } },
-        create: { ...assetData(asset, input), editedBy: input.userId },
-        update: { ...assetData(asset, input), editedBy: input.userId, version: { increment: 1 } },
-      });
-      cardIds.set(asset.sourceKey, card.id);
-      await tx.financeAssetPeriodEntry.upsert({
-        where: { assetId_periodId: { assetId: card.id, periodId: period.id } },
-        create: { assetId: card.id, periodId: period.id, normalAmount: asset.periodAmount, status: "voucher_linked", voucherId: asset.voucherNo ? voucherByNo.get(asset.voucherNo) : null, sourceFile: input.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow },
-        update: { normalAmount: asset.periodAmount, status: "voucher_linked", voucherId: asset.voucherNo ? voucherByNo.get(asset.voucherNo) : null, sourceFile: input.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow },
-      });
-    }
-    const renovationId = cardIds.get("9&10-3:18-29");
-    if (!renovationId) throw new Error("装修资产卡片导入失败");
-    for (const line of parsed.renovationCostLines) {
-      await tx.financeAssetCostLine.upsert({
-        where: { assetId_sourceKey: { assetId: renovationId, sourceKey: line.sourceKey } },
-        create: { assetId: renovationId, ...line, lineType: "invoice", sourceFile: input.sourceFile, sourceSheet: "9&10-3" },
-        update: { ...line, lineType: "invoice", sourceFile: input.sourceFile, sourceSheet: "9&10-3" },
-      });
-    }
-    await upsertAllocation(tx, renovationId, "660236", ratio(62639.77 / parsed.assets.at(-1)!.periodAmount));
-    await upsertAllocation(tx, renovationId, "53011111", ratio(19446.16 / parsed.assets.at(-1)!.periodAmount));
-    await tx.financeAssetAdjustment.upsert({
-      where: { companyCode_sourceKey: { companyCode: input.companyCode, sourceKey: "9&10-1:160" } },
-      create: { companyCode: input.companyCode, periodId: period.id, accountCode: "1602", amount: parsed.adjustment.amount, reason: parsed.adjustment.reason, status: "confirmed", voucherId: voucherByNo.get(parsed.adjustment.voucherNo), sourceFile: input.sourceFile, sourceSheet: "9&10-1", sourceRow: parsed.adjustment.sourceRow, sourceKey: "9&10-1:160", createdBy: input.userId },
-      update: { amount: parsed.adjustment.amount, reason: parsed.adjustment.reason, voucherId: voucherByNo.get(parsed.adjustment.voucherNo) },
-    });
-    await tx.financeAssetImportBatch.upsert({
-      where: { companyCode_checksum: { companyCode: input.companyCode, checksum } },
-      create: { companyCode: input.companyCode, sourceFile: input.sourceFile, checksum, cardCount: parsed.assets.length, costLineCount: parsed.renovationCostLines.length, warningCount: 2, importedBy: input.userId, note: "无形资产缺少摊销政策；装修起算日期依据总账反推" },
-      update: { sourceFile: input.sourceFile, cardCount: parsed.assets.length, costLineCount: parsed.renovationCostLines.length, warningCount: 2, importedBy: input.userId },
-    });
-    return { cardCount: parsed.assets.length, costLineCount: parsed.renovationCostLines.length, adjustmentCount: 1, checks: parsed.checks };
+  const parsed = dependencies.parseWorkbook(input.buffer, input);
+  const classifiedIssues = partitionFinanceAssetWorkbookIssues(parsed.blockers);
+  const blockerGate = gateFinanceAssetLegacyCutoverBlockers({
+    year: input.year,
+    month: input.month,
+    hasErpGlReconciliation: overrides.reconcileCutover != null,
+    blockers: classifiedIssues.blockers,
   });
-}
-
-function assetData(asset: ParsedAsset, input: { sourceFile: string; companyCode: string }) {
-  return { companyCode: input.companyCode, assetCode: asset.assetCode, name: asset.name, assetKind: asset.assetKind, category: asset.category, assetAccountCode: asset.assetAccountCode, accumulatedAccountCode: asset.accumulatedAccountCode, acquisitionDate: asset.acquisitionDate, depreciationStartDate: asset.depreciationStartDate, originalCost: asset.originalCost, residualRate: asset.residualRate, usefulLifeMonths: asset.usefulLifeMonths, openingAccumulatedAmount: asset.openingAccumulatedAmount, openingAsOfDate: asset.openingAsOfDate, nonAmortizationReason: asset.nonAmortizationReason, note: asset.note, status: "active", sourceFile: input.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow, sourceKey: asset.sourceKey };
-}
-
-async function upsertAllocation(tx: Prisma.TransactionClient, assetId: number, expenseAccountCode: string, allocationRate: number) {
-  await tx.financeAssetExpenseAllocation.upsert({ where: { assetId_expenseAccountCode: { assetId, expenseAccountCode } }, create: { assetId, expenseAccountCode, allocationRate }, update: { allocationRate } });
-}
-
-function dateKey(value: unknown) {
-  if (typeof value === "number") {
-    const parsed = XLSX.SSF.parse_date_code(value);
-    if (!parsed) return "";
-    return `${parsed.y}-${String(parsed.m).padStart(2, "0")}-${String(parsed.d).padStart(2, "0")}`;
+  if (blockerGate.blocking.length > 0 || (!parsed.readyForImport && parsed.blockers.length === 0)) {
+    const codes = [...new Set(blockerGate.blocking.map((item) => item.code))];
+    throw new Error(`资产底稿存在 ${blockerGate.blocking.length || 1} 个阻断项，停止导入：${codes.join(", ") || "PARSER_READY_STATE_INVALID"}`);
   }
-  if (value instanceof Date) return value.toISOString().slice(0, 10);
-  const text = String(value ?? "").trim();
-  if (!text) return "";
-  return text.slice(0, 10);
+  const workbookWarnings = [...parsed.warnings, ...classifiedIssues.warnings, ...blockerGate.warnings];
+  const checksum = createHash("sha256").update(input.buffer).digest("hex");
+  return dependencies.database.$transaction(async (tx) => {
+    const company = await tx.company.findUnique({
+      where: { code: input.companyCode },
+      select: { id: true, code: true, party: { select: { name: true, fullName: true } } },
+    });
+    if (!company) throw new Error("目标公司不存在");
+    assertWorkbookCompanyMatches(parsed.workbookCompanyLabels, company);
+    const period = await tx.financePeriod.findUnique({
+      where: { companyCode_year_month: { companyCode: input.companyCode, year: input.year, month: input.month } },
+      select: { id: true, companyCode: true, companyId: true, year: true, month: true, startDate: true, endDate: true, isClosed: true },
+    });
+    if (!period) throw new Error("目标会计期间不存在");
+    if (blockerGate.warnings.length > 0 && period.endDate !== blockerGate.cutoverDate) {
+      throw new Error(`GL 覆盖阻断仅允许 ${blockerGate.cutoverDate} 历史资产切点`);
+    }
+    const categoryCodes = [...new Set(parsed.assets.map((asset) => asset.categoryCandidate))];
+    const categories = await tx.financeAssetCategory.findMany({ where: { code: { in: categoryCodes } }, select: { id: true, code: true, assetKind: true } });
+    const categoryByCode = new Map(categories.map((category) => [category.code, category]));
+    if (categoryByCode.size !== categoryCodes.length) throw new Error("资产分类不存在或无法唯一解析，停止导入");
+    const policyByCategory = new Map<string, Awaited<ReturnType<typeof resolveFinanceAssetCategoryPolicy>>>();
+    const methodByCategory = new Map<string, "straight_line">();
+    for (const category of categories) {
+      const policy = await dependencies.resolvePolicy(tx, { companyCode: input.companyCode, fiscalYear: input.year, categoryId: category.id });
+      if (policy.category.id !== category.id || policy.category.code !== category.code || policy.category.assetKind !== category.assetKind) {
+        throw new Error(`年度资产分类政策返回的分类不一致：${category.code}`);
+      }
+      policyByCategory.set(category.code, policy);
+      methodByCategory.set(
+        category.code,
+        requireStoredFinanceAssetDepreciationMethod(policy.defaultMethod, `资产分类 ${category.code}`),
+      );
+    }
+    const cutoverDate = period.endDate;
+    const governedReconciler = isExecutionApprovedGovernedReconciler(dependencies.reconcileCutover);
+    if ((blockerGate.warnings.length > 0 || parsed.assets.some(isLegacySyntheticAsset)) && !governedReconciler) {
+      throw new Error("资产解析阻断降级或合成资产必须使用审批文件创建的执行级 governed reconciler");
+    }
+    const preparedAssets = parsed.assets.map((asset) => {
+      const policy = policyByCategory.get(asset.categoryCandidate);
+      if (!policy) throw new Error(`资产分类政策不存在：${asset.name}`);
+      const basis = resolveCutoverAccountingBasis(asset, policy, cutoverDate);
+      return {
+        sourceKey: asset.sourceKey,
+        sourceFile: asset.sourceFile,
+        sourceSheet: asset.sourceSheet,
+        sourceRow: asset.sourceRow,
+        originalCost: asset.originalCost,
+        workbookNetBookValue: asset.closingNetAmount,
+        workbookAccumulatedAmount: cutoverAccumulatedAmount(asset),
+        fullUsefulLifeMonths: basis.fullUsefulLifeMonths,
+        usefulLifeMonths: basis.usefulLifeMonths,
+        nonAmortizationReason: basis.nonAmortizationReason,
+        remainingUsefulLifeMonthsAtCutover: basis.remainingUsefulLifeMonthsAtCutover,
+        cutoverResidualValue: basis.cutoverResidualValue,
+        residualRate: basis.residualRate,
+        assetAccountId: policy.assetAccount.id,
+        accumulatedAccountId: policy.accumulatedAccount?.id ?? null,
+        impairmentAllowanceAccountId: policy.impairmentAllowanceAccount?.id ?? null,
+      };
+    });
+    const authoritativeContext = await loadAuthoritativeCutoverContext(tx, {
+      companyCode: input.companyCode,
+      companyId: company.id,
+      period,
+      accountIds: [...new Set(preparedAssets.flatMap((asset) => [
+        asset.assetAccountId,
+        asset.accumulatedAccountId,
+        asset.impairmentAllowanceAccountId,
+      ]).filter((value): value is number => value != null))],
+    });
+    const reconciliation = await dependencies.reconcileCutover(tx, {
+      companyCode: input.companyCode,
+      companyId: company.id,
+      year: input.year,
+      month: input.month,
+      cutoverDate,
+      periodId: period.id,
+      authoritativeContext,
+      assets: preparedAssets,
+    });
+    const requiresTrustedProvider = reconciliation.allocations.some((row) => row.ledgerControlAdjustment !== 0)
+      || reconciliation.accountControls.some((control) => control.allocationMode !== "standard"
+        || control.selection === "controlled_zero" || control.approvalReason != null || control.approvedSelectedAmount != null);
+    if (requiresTrustedProvider && !governedReconciler) {
+      throw new Error("资产总账覆盖、受控零余额或审批调整必须来自审批文件创建的执行级 governed reconciler");
+    }
+    const validatedAllocationBySourceKey = validateFinanceAssetLedgerCutoverResult({
+      companyCode: input.companyCode,
+      companyId: company.id,
+      year: input.year,
+      month: input.month,
+      cutoverDate,
+      periodId: period.id,
+      authoritativeContext,
+      cards: preparedAssets.map((asset) => ({
+        sourceKey: asset.sourceKey,
+        originalCost: asset.originalCost,
+        workbookNetBookValue: asset.workbookNetBookValue,
+        workbookAccumulatedAmount: asset.workbookAccumulatedAmount,
+        fullUsefulLifeMonths: asset.fullUsefulLifeMonths,
+        remainingUsefulLifeMonthsAtCutover: asset.remainingUsefulLifeMonthsAtCutover,
+        cutoverResidualValue: asset.cutoverResidualValue,
+        assetAccountId: asset.assetAccountId,
+        accumulatedAccountId: asset.accumulatedAccountId,
+        impairmentAllowanceAccountId: asset.impairmentAllowanceAccountId,
+      })),
+      result: reconciliation,
+    });
+    const allocationBySourceKey = canonicalizeFinanceAssetCutoverEstimates(preparedAssets, validatedAllocationBySourceKey);
+    const reconciliationFingerprint = canonicalReconciliationFingerprint(reconciliation.fingerprint, allocationBySourceKey);
+    const syntheticAssets = parsed.assets.filter(isLegacySyntheticAsset);
+    if (syntheticAssets.length > 1) throw new Error("本期装修成本证据只能绑定一张受控合成资产卡");
+    const expectedCostLineCount = syntheticAssets.length === 1 ? parsed.renovationCostEvidence.length : 0;
+    const importBatch = await tx.financeAssetImportBatch.upsert({
+      where: { companyCode_checksum: { companyCode: input.companyCode, checksum } },
+      create: { companyCode: input.companyCode, companyId: company.id, sourceFile: parsed.scope.sourceFile, checksum, cardCount: parsed.assets.length, costLineCount: expectedCostLineCount, warningCount: workbookWarnings.length + reconciliation.warnings.length, importedBy: input.userId, note: importBatchNote(cutoverDate, blockerGate.warnings, reconciliation.executionApproval), cutoverDate, cutoverPeriodId: period.id, ledgerReconciliationFingerprint: reconciliationFingerprint, ledgerNetBookValue: reconciliation.ledgerNetBookValue, importedNetBookValue: reconciliation.importedNetBookValue, unallocatedNetBookValue: reconciliation.unallocatedNetBookValue, reconciliationStatus: reconciliation.status },
+      update: { companyId: company.id, sourceFile: parsed.scope.sourceFile, cardCount: parsed.assets.length, costLineCount: expectedCostLineCount, warningCount: workbookWarnings.length + reconciliation.warnings.length, importedBy: input.userId, note: importBatchNote(cutoverDate, blockerGate.warnings, reconciliation.executionApproval), cutoverDate, cutoverPeriodId: period.id, ledgerReconciliationFingerprint: reconciliationFingerprint, ledgerNetBookValue: reconciliation.ledgerNetBookValue, importedNetBookValue: reconciliation.importedNetBookValue, unallocatedNetBookValue: reconciliation.unallocatedNetBookValue, reconciliationStatus: reconciliation.status },
+    });
+    let cardCount = 0;
+    let costLineCount = 0;
+    for (const asset of parsed.assets) {
+      const category = categoryByCode.get(asset.categoryCandidate);
+      const policy = policyByCategory.get(asset.categoryCandidate);
+      const method = methodByCategory.get(asset.categoryCandidate);
+      const allocation = allocationBySourceKey.get(asset.sourceKey);
+      const prepared = preparedAssets.find((item) => item.sourceKey === asset.sourceKey);
+      if (!category || !policy || !method || !allocation || !prepared) throw new Error(`资产分类政策或切点分配不存在：${asset.name}`);
+      if (category.assetKind !== asset.assetKind || policy.category.assetKind !== asset.assetKind || policy.category.id !== category.id) {
+        throw new Error(`解析资产与年度分类政策不一致：${asset.name}`);
+      }
+      const usefulLifeMonths = prepared.usefulLifeMonths;
+      if (usefulLifeMonths != null && policy.minimumUsefulLifeMonths != null && usefulLifeMonths < policy.minimumUsefulLifeMonths) throw new Error(`资产使用寿命低于年度分类政策下限：${asset.name}`);
+      if (usefulLifeMonths != null && policy.maximumUsefulLifeMonths != null && usefulLifeMonths > policy.maximumUsefulLifeMonths) throw new Error(`资产使用寿命超过年度分类政策上限：${asset.name}`);
+      const residualRate = prepared.residualRate;
+      const existing = await tx.financeAssetCard.findUnique({
+        where: { companyCode_sourceKey: { companyCode: input.companyCode, sourceKey: asset.sourceKey } },
+        include: {
+          acquisitionEvidence: { select: { id: true } },
+          disposal: { select: { id: true } },
+          periodEntries: { select: { id: true, status: true, voucherId: true } },
+          impairmentAllocations: { where: { assessment: { status: "confirmed" } }, select: { id: true }, take: 1 },
+        },
+      });
+      const data = cardData(asset, { ...input, companyId: company.id }, policy, usefulLifeMonths, residualRate, method, allocation, reconciliationFingerprint, period.id, cutoverDate, prepared.nonAmortizationReason, reconciliation.executionApproval);
+      const postedEntries = existing?.periodEntries.filter((entry) => entry.status === "posted" || entry.voucherId != null) ?? [];
+      if (existing && allocation.allocationStatus === "pending" && existing.periodEntries.length > 0) {
+        throw new Error(`资产切点待分配前必须先清理已有折旧摊销条目：${asset.name}`);
+      }
+      const accountingLocked = Boolean(existing && (existing.acquisitionEvidence || existing.disposal || postedEntries.length > 0 || existing.impairmentAllocations.length > 0));
+      if (existing && accountingLocked && assetAccountingBasisChanged(existing, { ...data, assetCode: existing.assetCode })) {
+        throw new Error(`资产已有受控取得、过账、减值或处置事实，重导不得修改会计基础：${asset.name}`);
+      }
+      let card;
+      if (existing) {
+        const updated = await tx.financeAssetCard.updateMany({
+          where: {
+            id: existing.id,
+            companyCode: input.companyCode,
+            companyId: company.id,
+            version: existing.version,
+            status: existing.status,
+            ...(accountingLocked ? {} : {
+              acquisitionEvidence: { is: null },
+              disposal: { is: null },
+              periodEntries: { none: { OR: [{ status: "posted" }, { voucher: { status: "posted" } }] } },
+              impairmentAllocations: { none: { assessment: { status: "confirmed" } } },
+            }),
+          },
+          data: accountingLocked
+            ? { name: data.name, note: data.note, editedBy: input.userId, version: { increment: 1 } }
+            : { ...data, version: { increment: 1 } },
+        });
+        if (updated.count !== 1) throw new Error(`资产卡片已被其他事实修改，请刷新后重试：${asset.name}`);
+        card = await tx.financeAssetCard.findUniqueOrThrow({ where: { id: existing.id } });
+      } else {
+        card = await tx.financeAssetCard.create({
+          data: {
+            ...data,
+            status: "active",
+            assetCode: (await dependencies.allocateAssetCode(tx, {
+              companyCode: input.companyCode,
+              fiscalYear: input.year,
+              assetCategoryCode: policy.category.code,
+              idempotencyKey: `import:${input.companyCode}:${asset.sourceKey}`,
+            })).code,
+          },
+        });
+      }
+      const existingEvidence = await tx.financeAssetAcquisitionEvidence.findUnique({
+        where: { assetId: card.id },
+        select: { companyCode: true, companyId: true, importBatchId: true, voucherItemId: true, sourceChecksum: true },
+      });
+      if (existingEvidence && (existingEvidence.companyCode !== input.companyCode || existingEvidence.companyId !== company.id
+        || existingEvidence.voucherItemId != null || existingEvidence.importBatchId !== importBatch.id || existingEvidence.sourceChecksum !== checksum)) {
+        throw new Error(`资产取得证据已绑定其他受控来源：${asset.name}`);
+      }
+      await tx.financeAssetAcquisitionEvidence.upsert({
+        where: { assetId: card.id },
+        create: {
+          companyCode: input.companyCode,
+          companyId: company.id,
+          periodId: period.id,
+          assetId: card.id,
+          importBatchId: importBatch.id,
+          sourceChecksum: checksum,
+          amount: asset.originalCost,
+          evidenceRef: `${asset.sourceFile}:${asset.sourceSheet}:${asset.sourceRow}`,
+          confirmedBy: input.userId,
+        },
+        update: {
+          companyId: company.id,
+          periodId: period.id,
+          amount: asset.originalCost,
+          evidenceRef: `${asset.sourceFile}:${asset.sourceSheet}:${asset.sourceRow}`,
+          confirmedBy: input.userId,
+          version: { increment: 1 },
+        },
+      });
+      if (isLegacySyntheticAsset(asset)) {
+        const expectedSourceKeys = new Set(parsed.renovationCostEvidence.map((line) => line.sourceKey));
+        if (expectedSourceKeys.size !== parsed.renovationCostEvidence.length) throw new Error("装修成本证据 sourceKey 缺失或重复");
+        const existingCostLines = await tx.financeAssetCostLine.findMany({ where: { assetId: card.id }, select: { sourceKey: true } });
+        const stale = existingCostLines.find((line) => !line.sourceKey || !expectedSourceKeys.has(line.sourceKey));
+        if (stale) throw new Error(`装修资产存在陈旧或未知成本行，停止重导：${stale.sourceKey ?? "NULL"}`);
+        for (const line of parsed.renovationCostEvidence) {
+          await tx.financeAssetCostLine.upsert({
+            where: { assetId_sourceKey: { assetId: card.id, sourceKey: line.sourceKey } },
+            create: { assetId: card.id, lineType: "invoice", treatment: line.treatment, amount: line.amount, reason: line.reason ?? null, sourceFile: line.sourceFile, sourceSheet: line.sourceSheet, sourceRow: line.sourceRow, sourceKey: line.sourceKey },
+            update: { lineType: "invoice", treatment: line.treatment, amount: line.amount, reason: line.reason ?? null, sourceFile: line.sourceFile, sourceSheet: line.sourceSheet, sourceRow: line.sourceRow },
+          });
+          costLineCount += 1;
+        }
+      }
+      cardCount += 1;
+    }
+    if (costLineCount !== expectedCostLineCount) throw new Error("资产导入批次成本行计数与实际写入不一致");
+    return { cardCount, costEvidenceCount: costLineCount, blockerCount: 0, warningCount: workbookWarnings.length + reconciliation.warnings.length, workbookWarnings, reconciliationWarnings: reconciliation.warnings, reconciliationStatus: reconciliation.status, controls: parsed.controls };
+  }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
 }
 
-function nextMonth(value: string) {
-  const [year, month] = value.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month, 1));
-  return date.toISOString().slice(0, 10);
+function isLegacySyntheticAsset(asset: ParsedCurrentPeriodAsset) {
+  return asset.legacySynthetic === true;
 }
 
-function assertEqual(actual: number, expected: number, message: string) {
-  if (Math.abs(actual - expected) > 0.01) throw new Error(`${message}: ${actual} != ${expected}`);
+async function loadAuthoritativeCutoverContext(
+  tx: Prisma.TransactionClient,
+  input: {
+    companyCode: string;
+    companyId: number;
+    period: { id: number; companyCode: string; companyId: number | null; year: number; month: number; endDate: string; isClosed: boolean };
+    accountIds: number[];
+  },
+): Promise<FinanceAssetCutoverAuthoritativeContext> {
+  if (input.period.companyId !== input.companyId || input.period.companyCode !== input.companyCode || !input.period.isClosed) {
+    throw new Error("资产历史切点必须引用目标公司的已关账总账期间");
+  }
+  const rows = await tx.financeAccountBalance.findMany({
+    where: { periodId: input.period.id, accountId: { in: input.accountIds } },
+    select: {
+      id: true,
+      accountId: true,
+      periodId: true,
+      companyCode: true,
+      companyId: true,
+      closingDebit: true,
+      closingCredit: true,
+      account: { select: { code: true, balanceDirection: true, companyCode: true, companyId: true, year: true, isActive: true } },
+    },
+  });
+  if (rows.length !== input.accountIds.length) throw new Error("资产切点缺少分类政策科目的权威总账余额 FK");
+  return {
+    period: {
+      id: input.period.id,
+      companyCode: input.period.companyCode,
+      companyId: input.companyId,
+      year: input.period.year,
+      month: input.period.month,
+      endDate: input.period.endDate,
+      isClosed: input.period.isClosed,
+    },
+    balances: rows.map((row) => {
+      if (row.companyCode !== input.companyCode || row.companyId !== input.companyId
+        || row.account.companyCode !== input.companyCode || row.account.companyId !== input.companyId
+        || row.account.year !== input.period.year || !row.account.isActive
+        || (row.account.balanceDirection !== "debit" && row.account.balanceDirection !== "credit")) {
+        throw new Error(`资产切点总账余额或科目不属于目标公司年度：${row.account.code}`);
+      }
+      return {
+        id: row.id,
+        accountId: row.accountId,
+        periodId: row.periodId,
+        companyCode: row.companyCode,
+        companyId: input.companyId,
+        accountCode: row.account.code,
+        balanceDirection: row.account.balanceDirection,
+        closingDebit: Number(row.closingDebit),
+        closingCredit: Number(row.closingCredit),
+      };
+    }),
+  };
 }
 
-function ratio(value: number) {
-  return Math.round((value + Number.EPSILON) * 1_000_000) / 1_000_000;
+function cardData(asset: ParsedCurrentPeriodAsset, input: { companyCode: string; companyId: number; userId?: number }, policy: Awaited<ReturnType<typeof resolveFinanceAssetCategoryPolicy>>, usefulLifeMonths: number | null, residualRate: number, method: "straight_line", allocation: FinanceAssetLedgerCutoverResult["allocations"][number], reconciliationFingerprint: string, cutoverPeriodId: number, cutoverDate: string, nonAmortizationReason: string | null, executionApproval?: FinanceAssetLedgerCutoverResult["executionApproval"]) {
+  const note = [
+    asset.note,
+    `sourceAssetCode=${asset.assetCode}`,
+    `sourceRange=${asset.sourceRange}`,
+    asset.depreciationStartEvidence ? `depreciationStartEvidence=${asset.depreciationStartEvidence}` : undefined,
+    asset.depreciationStartSourceRange ? `depreciationStartSourceRange=${asset.depreciationStartSourceRange}` : undefined,
+  ].filter(Boolean).join("；");
+  return { companyCode: input.companyCode, companyId: input.companyId, name: asset.name, assetKind: asset.assetKind, categoryId: policy.category.id, sourceCategory: asset.sourceCategory ?? null, assetAccountCode: policy.assetAccount.code, assetAccountId: policy.assetAccount.id, accumulatedAccountCode: policy.accumulatedAccount?.code ?? null, accumulatedAccountId: policy.accumulatedAccount?.id ?? null, acquisitionDate: asset.acquisitionDate ?? null, depreciationStartDate: firstMonthAfterFinanceAssetCutover(cutoverDate), originalCost: asset.originalCost, residualRate, usefulLifeMonths, method, initializationMode: FINANCE_ASSET_LEGACY_CUTOVER_MODE, openingAccumulatedAmount: allocation.openingAccumulatedAmount, openingImpairmentAmount: allocation.openingImpairmentAmount, openingNetBookValue: allocation.openingNetBookValue, openingAsOfDate: cutoverDate, cutoverDate, remainingUsefulLifeMonthsAtCutover: allocation.remainingUsefulLifeMonthsAtCutover, cutoverResidualValue: allocation.cutoverResidualValue, cutoverAllocationStatus: allocation.allocationStatus, cutoverReconciliationFingerprint: reconciliationFingerprint, cutoverPeriodId, cutoverAssetBalanceId: allocation.assetBalance.id, cutoverAccumulatedBalanceId: allocation.accumulatedBalance?.id ?? null, cutoverImpairmentBalanceId: allocation.impairmentBalance?.id ?? null, nonAmortizationReason, note: [note, allocation.roundingAdjustment ? `cutoverRoundingAdjustment=${allocation.roundingAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlAllocationMode ? `cutoverLedgerControl=${allocation.ledgerControlAllocationMode}` : undefined, allocation.ledgerControlAdjustment ? `cutoverLedgerControlAdjustment=${allocation.ledgerControlAdjustment.toFixed(2)}` : undefined, allocation.ledgerControlApprovalReason ? `cutoverLedgerControlApproval=${allocation.ledgerControlApprovalReason}` : undefined, executionApproval ? `cutoverExecutionApproval=${executionApproval.approvalReference}/${executionApproval.approvedBy}/${executionApproval.executedBy}` : undefined].filter(Boolean).join("；"), sourceFile: asset.sourceFile, sourceSheet: asset.sourceSheet, sourceRow: asset.sourceRow, sourceKey: asset.sourceKey, editedBy: input.userId ?? null };
+}
+
+export function canonicalizeFinanceAssetCutoverEstimates(
+  assets: Array<{ sourceKey: string; originalCost: number; fullUsefulLifeMonths: number; residualRate: number }>,
+  allocations: Map<string, FinanceAssetLedgerCutoverResult["allocations"][number]>,
+) {
+  const canonical = new Map(allocations);
+  for (const asset of assets) {
+    const allocation = allocations.get(asset.sourceKey);
+    if (!allocation) throw new Error(`资产切点缺少逐卡分配：${asset.sourceKey}`);
+    if (!allocation.ledgerControlAllocationMode) continue;
+    const openingNetBookValue = money(allocation.openingNetBookValue);
+    if (asset.fullUsefulLifeMonths <= 0) {
+      canonical.set(asset.sourceKey, { ...allocation, cutoverResidualValue: openingNetBookValue, remainingUsefulLifeMonthsAtCutover: 0 });
+      continue;
+    }
+    const policyResidualValue = money(asset.originalCost * asset.residualRate);
+    const cutoverResidualValue = money(Math.min(openingNetBookValue, policyResidualValue));
+    const remainingDepreciable = money(openingNetBookValue - cutoverResidualValue);
+    const monthlyPolicyAmount = money((asset.originalCost - policyResidualValue) / asset.fullUsefulLifeMonths);
+    const remainingUsefulLifeMonthsAtCutover = remainingDepreciable <= 0 ? 0 : Math.max(1, Math.min(
+      asset.fullUsefulLifeMonths,
+      monthlyPolicyAmount > 0 ? Math.ceil((remainingDepreciable - 0.005) / monthlyPolicyAmount) : 0,
+    ));
+    canonical.set(asset.sourceKey, { ...allocation, cutoverResidualValue, remainingUsefulLifeMonthsAtCutover });
+  }
+  return canonical;
+}
+
+function canonicalReconciliationFingerprint(
+  providerFingerprint: string,
+  allocations: Map<string, FinanceAssetLedgerCutoverResult["allocations"][number]>,
+) {
+  return createHash("sha256").update(JSON.stringify({
+    providerFingerprint,
+    estimates: [...allocations.values()].sort((left, right) => left.sourceKey.localeCompare(right.sourceKey)).map((row) => ({
+      sourceKey: row.sourceKey,
+      openingNetBookValue: row.openingNetBookValue,
+      cutoverResidualValue: row.cutoverResidualValue,
+      remainingUsefulLifeMonthsAtCutover: row.remainingUsefulLifeMonthsAtCutover,
+      ledgerControlAdjustment: row.ledgerControlAdjustment,
+      ledgerControlAllocationMode: row.ledgerControlAllocationMode,
+      ledgerControlApprovalReason: row.ledgerControlApprovalReason,
+    })),
+  })).digest("hex");
+}
+
+function resolveCutoverAccountingBasis(
+  asset: ParsedCurrentPeriodAsset,
+  policy: Awaited<ReturnType<typeof resolveFinanceAssetCategoryPolicy>>,
+  cutoverDate: string,
+) {
+  const residualRate = asset.residualRate ?? policy.defaultResidualRate;
+  if (residualRate == null || !Number.isFinite(residualRate) || residualRate < 0 || residualRate >= 1) {
+    throw new Error(`资产残值率未由来源或年度分类政策有效补齐：${asset.name}`);
+  }
+  const configuredLife = asset.usefulLifeMonths ?? policy.defaultUsefulLifeMonths;
+  if (!policy.category.depreciable) {
+    return { residualRate, fullUsefulLifeMonths: configuredLife ?? 0, usefulLifeMonths: configuredLife ?? null, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue: money(asset.closingNetAmount), nonAmortizationReason: null };
+  }
+  if (!Number.isInteger(configuredLife) || Number(configuredLife) <= 0) {
+    if (asset.assetKind === "intangible" && policy.usefulLifeMode === "required_or_indefinite_basis") {
+      return { residualRate, fullUsefulLifeMonths: 0, usefulLifeMonths: null, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue: money(asset.closingNetAmount), nonAmortizationReason: "使用寿命证据待人工复核；复核前不自动摊销" };
+    }
+    throw new Error(`资产完整使用寿命未由来源或年度分类政策有效补齐：${asset.name}`);
+  }
+  const fullUsefulLifeMonths = Number(configuredLife);
+  const policyResidualValue = money(asset.originalCost * residualRate);
+  const cutoverResidualValue = money(Math.min(asset.closingNetAmount, policyResidualValue));
+  const remainingDepreciable = money(asset.closingNetAmount - cutoverResidualValue);
+  if (remainingDepreciable <= 0) return { residualRate, fullUsefulLifeMonths, usefulLifeMonths: fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover: 0, cutoverResidualValue, nonAmortizationReason: null };
+  const sourceRemaining = asset.depreciationStartDate
+    ? fullUsefulLifeMonths - monthsThroughCutover(asset.depreciationStartDate, cutoverDate)
+    : null;
+  const monthlyPolicyAmount = money((asset.originalCost - policyResidualValue) / fullUsefulLifeMonths);
+  const valueImpliedRemaining = monthlyPolicyAmount > 0 ? Math.ceil((remainingDepreciable - 0.005) / monthlyPolicyAmount) : 0;
+  const remainingUsefulLifeMonthsAtCutover = Math.max(1, Math.min(fullUsefulLifeMonths,
+    sourceRemaining != null && sourceRemaining > 0 ? sourceRemaining : valueImpliedRemaining));
+  return { residualRate, fullUsefulLifeMonths, usefulLifeMonths: fullUsefulLifeMonths, remainingUsefulLifeMonthsAtCutover, cutoverResidualValue, nonAmortizationReason: null };
+}
+
+function monthsThroughCutover(startDate: string, cutoverDate: string) {
+  const start = monthIndex(startDate);
+  const cutover = monthIndex(cutoverDate);
+  return Math.max(0, cutover - start + 1);
+}
+
+function monthIndex(value: string) {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) throw new Error("资产日期必须为 YYYY-MM-DD");
+  return Number(match[1]) * 12 + Number(match[2]) - 1;
+}
+
+function money(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function cutoverAccumulatedAmount(asset: ParsedCurrentPeriodAsset) {
+  return Math.round((asset.originalCost - asset.closingNetAmount + Number.EPSILON) * 100) / 100;
+}
+
+function importBatchNote(cutoverDate: string, overriddenBlockers: Array<{ code: string }>, executionApproval?: FinanceAssetLedgerCutoverResult["executionApproval"]) {
+  const codes = [...new Set(overriddenBlockers.map((item) => item.code))];
+  const overrideEvidence = codes.length > 0 ? `；GL override=${codes.join(",")}` : "";
+  const approval = executionApproval ? `；approval=${executionApproval.approvalReference}/${executionApproval.approvedBy}/${executionApproval.executedBy}` : "";
+  return `${cutoverDate} 历史资产切点承接；历史月度不重算${overrideEvidence}${approval}`;
+}
+
+function assertWorkbookCompanyMatches(
+  labels: string[],
+  company: { code: string; party: { name: string; fullName: string | null } },
+) {
+  const sourceLabels = [...new Set(labels.map(normalizeCompanyName).filter(Boolean))];
+  if (sourceLabels.length === 0) throw new Error("资产底稿缺少可核对的公司名称，停止导入");
+  const authoritativeNames = new Set(
+    [company.party.name, company.party.fullName]
+      .map((value) => normalizeCompanyName(value ?? ""))
+      .filter(Boolean),
+  );
+  if (sourceLabels.some((label) => !authoritativeNames.has(label))) {
+    throw new Error(`资产底稿公司名称与目标公司 ${company.code} 不一致，停止导入`);
+  }
+}
+
+function normalizeCompanyName(value: string) {
+  return value.normalize("NFKC").trim().toLocaleLowerCase("zh-CN").replace(/\s+/gu, "");
 }

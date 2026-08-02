@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { deleteProjectPlanPhase, updateProjectPlanPhase } from "@workspace/work/server";
+import { deleteProjectPlanPhase, updateProjectPlanPhase } from "@workspace/work/server/projects/plan";
 import { readRequestExpectedVersion } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";

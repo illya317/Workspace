@@ -2,6 +2,7 @@
 model FinanceAuxiliaryMember {
   id             Int                             @id @default(autoincrement())
   companyCode    String
+  companyId      Int?
   sourceSystem   String
   sourceLedger   String
   dimensionType  String
@@ -18,20 +19,32 @@ model FinanceAuxiliaryMember {
   lastYear       Int?
   latestImportId Int?
   linkedCompanyId Int?
+  linkedEmployeeId Int?
+  linkedPartyId   Int?
   companyLinkMethod String?
   companyLinkEvidence String?
+  identityLinkMethod String?
+  identityLinkEvidence String?
+  identityLinkedAt DateTime?
+  identityLinkedBy Int?
   createdAt      DateTime                        @default(now())
   updatedAt      DateTime                        @default(now()) @updatedAt
   latestImport   FinanceLedgerImport?            @relation(fields: [latestImportId], references: [id])
+  company        Company?                        @relation("FinanceAuxiliaryMemberOwnerCompany", fields: [companyId], references: [id], onDelete: Restrict)
   linkedCompany  Company?                        @relation("FinanceAuxiliaryMemberLinkedCompany", fields: [linkedCompanyId], references: [id], onDelete: Restrict)
+  linkedEmployee Employee?                       @relation("FinanceAuxiliaryMemberLinkedEmployee", fields: [linkedEmployeeId], references: [id], onDelete: Restrict)
+  linkedParty    Party?                          @relation("FinanceAuxiliaryMemberLinkedParty", fields: [linkedPartyId], references: [id], onDelete: Restrict)
   voucherLinks   FinanceVoucherItemAuxiliary[]
   balanceLinks   FinanceAuxiliaryBalanceMember[]
   openItemLinks  FinanceOpenItemAuxiliary[]
   counterpartyClassifications FinanceCounterpartyClassification[]
 
   @@unique([companyCode, sourceSystem, sourceLedger, dimensionType, sourceCode])
+  @@index([companyId])
   @@index([companyCode, dimensionType, sourceName])
   @@index([linkedCompanyId])
+  @@index([linkedEmployeeId])
+  @@index([linkedPartyId])
   @@index([latestImportId])
 }
 
@@ -72,6 +85,7 @@ model FinanceAuxiliaryBalance {
   periodId       Int
   accountId      Int
   companyCode    String
+  companyId Int?
   sourceSystem   String
   sourceDatabase String
   sourceKey      String
@@ -88,10 +102,13 @@ model FinanceAuxiliaryBalance {
   account        FinanceAccount                  @relation(fields: [accountId], references: [id])
   members        FinanceAuxiliaryBalanceMember[]
   consolidationEntryLines FinanceConsolidationEntryLine[]
+  consolidationMatchSources FinanceConsolidationMatchSource[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
   @@index([companyCode, periodId, accountId])
+  @@index([companyId])
 }
 
 /// 辅助余额与一个或多个核算成员的关联
@@ -112,6 +129,7 @@ model FinanceOpenItem {
   id                Int                        @id @default(autoincrement())
   importId          Int
   companyCode       String
+  companyId Int?
   periodId          Int?
   accountId         Int?
   voucherItemId     Int?
@@ -140,11 +158,13 @@ model FinanceOpenItem {
   members           FinanceOpenItemAuxiliary[]
   settlements       FinanceOpenItemSettlement[]
   consolidationEntryLines FinanceConsolidationEntryLine[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
   @@index([companyCode, status, documentDate])
   @@index([accountId, status])
+  @@index([companyId])
 }
 
 /// 应收应付未清项的人工或来源核销事件；账龄天数及区间由日期事实动态计算

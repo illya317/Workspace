@@ -8,6 +8,7 @@ const ROOT = path.resolve(__dirname, "..", "..");
 const REGISTRY_PATH = path.join(ROOT, "packages", "platform", "module-registry.ts");
 const RELATION_REGISTRY_PATHS = [
   REGISTRY_PATH,
+  path.join(ROOT, "packages", "platform", "module-registry-relations.ts"),
   path.join(ROOT, "packages", "platform", "module-registry-hr-relations.ts"),
 ];
 const RESOLVE_FK_PATH = path.join(ROOT, "packages", "platform", "server", "resolve-fk.ts");
@@ -63,27 +64,37 @@ function propertyName(prop) {
   return null;
 }
 
-function objectProperty(obj, name) {
+function objectProperty(obj, name, objectConstants = new Map(), active = new Set()) {
   if (!ts.isObjectLiteralExpression(obj)) return null;
-  return obj.properties.find((prop) => propertyName(prop) === name) ?? null;
+  for (const prop of [...obj.properties].reverse()) {
+    if (propertyName(prop) === name) return prop;
+    if (!ts.isSpreadAssignment(prop) || !ts.isIdentifier(prop.expression)) continue;
+    const constantName = prop.expression.text;
+    if (active.has(constantName)) continue;
+    const spreadObject = objectConstants.get(constantName);
+    if (!spreadObject) continue;
+    const match = objectProperty(spreadObject, name, objectConstants, new Set(active).add(constantName));
+    if (match) return match;
+  }
+  return null;
 }
 
-function stringProperty(obj, name) {
-  const prop = objectProperty(obj, name);
+function stringProperty(obj, name, objectConstants) {
+  const prop = objectProperty(obj, name, objectConstants);
   if (!prop || !ts.isPropertyAssignment(prop)) return null;
   const value = unwrap(prop.initializer);
   return ts.isStringLiteral(value) ? value.text : null;
 }
 
-function objectLiteralProperty(obj, name) {
-  const prop = objectProperty(obj, name);
+function objectLiteralProperty(obj, name, objectConstants) {
+  const prop = objectProperty(obj, name, objectConstants);
   if (!prop || !ts.isPropertyAssignment(prop)) return null;
   const value = unwrap(prop.initializer);
   return ts.isObjectLiteralExpression(value) ? value : null;
 }
 
-function hasProperty(obj, name) {
-  return Boolean(objectProperty(obj, name));
+function hasProperty(obj, name, objectConstants) {
+  return Boolean(objectProperty(obj, name, objectConstants));
 }
 
 function lineOf(sourceFile, node) {
@@ -96,6 +107,16 @@ function collectRegistrations() {
   for (const registryPath of RELATION_REGISTRY_PATHS) {
     const text = read(registryPath);
     const sourceFile = ts.createSourceFile(registryPath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+    const objectConstants = new Map();
+
+    function collectObjectConstants(node) {
+      if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+        const initializer = unwrap(node.initializer);
+        if (ts.isObjectLiteralExpression(initializer)) objectConstants.set(node.name.text, initializer);
+      }
+      ts.forEachChild(node, collectObjectConstants);
+    }
+    collectObjectConstants(sourceFile);
 
     function visit(node) {
       if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text.endsWith("_RELATION_REGISTRATIONS") && node.initializer) {
@@ -107,14 +128,15 @@ function collectRegistrations() {
         for (const element of initializer.elements) {
           const registration = unwrap(element);
           if (!ts.isObjectLiteralExpression(registration)) continue;
-          const key = stringProperty(registration, "key");
-          const source = objectLiteralProperty(registration, "source");
+          const key = stringProperty(registration, "key", objectConstants);
+          const source = objectLiteralProperty(registration, "source", objectConstants);
           registrations.push({
             key,
-            sourceEntity: source ? stringProperty(source, "entity") : null,
-            sourceField: source ? stringProperty(source, "field") : null,
-            sourceValueKind: source ? stringProperty(source, "valueKind") : null,
+            sourceEntity: source ? stringProperty(source, "entity", objectConstants) : null,
+            sourceField: source ? stringProperty(source, "field", objectConstants) : null,
+            sourceValueKind: source ? stringProperty(source, "valueKind", objectConstants) : null,
             node: registration,
+            objectConstants,
             line: lineOf(sourceFile, registration),
           });
         }
@@ -136,21 +158,21 @@ function validateRegistrations(registrations) {
     if (registration.key) keys.add(registration.key);
 
     for (const property of REQUIRED_PROPERTIES) {
-      if (!hasProperty(registration.node, property)) fail(`relation registration ${label} missing ${property}`);
+      if (!hasProperty(registration.node, property, registration.objectConstants)) fail(`relation registration ${label} missing ${property}`);
     }
 
-    const source = objectLiteralProperty(registration.node, "source");
+    const source = objectLiteralProperty(registration.node, "source", registration.objectConstants);
     for (const property of SOURCE_PROPERTIES) {
-      if (!source || !stringProperty(source, property)) fail(`relation registration ${label} missing source.${property}`);
+      if (!source || !stringProperty(source, property, registration.objectConstants)) fail(`relation registration ${label} missing source.${property}`);
     }
-    const sourceValueKind = source ? stringProperty(source, "valueKind") : null;
+    const sourceValueKind = source ? stringProperty(source, "valueKind", registration.objectConstants) : null;
     if (sourceValueKind && sourceValueKind !== "id" && sourceValueKind !== "semantic") {
       fail(`relation registration ${label} has invalid source.valueKind: ${sourceValueKind}`);
     }
 
-    const permission = objectLiteralProperty(registration.node, "permission");
+    const permission = objectLiteralProperty(registration.node, "permission", registration.objectConstants);
     for (const property of PERMISSION_PROPERTIES) {
-      if (!permission || !stringProperty(permission, property)) fail(`relation registration ${label} missing permission.${property}`);
+      if (!permission || !stringProperty(permission, property, registration.objectConstants)) fail(`relation registration ${label} missing permission.${property}`);
     }
   }
   return keys;

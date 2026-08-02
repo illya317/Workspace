@@ -55,29 +55,29 @@ export function ArchivedDepartmentPositionPage({
   const activeItemId = archivedTab === "departments"
     ? selection?.type === "department" ? selection.id : null
     : selection?.type === "position" ? selection.id : null;
-  const toolbarItems = rosterAssistantToolbarItems(surface);
+  const toolbarItems = [
+    {
+      kind: "option-group" as const,
+      key: "archived-entity-type",
+      value: archivedTab,
+      options: [
+        { value: "departments", label: "部门" },
+        { value: "positions", label: "岗位" },
+      ],
+      onChange: (value: string) => {
+        if (value === "departments" || value === "positions") onArchivedTabChange(value);
+      },
+      ariaLabel: "归档类型",
+      presentation: "segmented" as const,
+    },
+    ...rosterAssistantToolbarItems(surface),
+  ];
   const body: BodySurfaceProps = createMasterDetailBody({
     master: { label: "归档列表", presentation: "compact", body: {
       kind: "selector",
       selector: {
         kind: "list",
         title: "归档列表",
-        commands: [
-          {
-            key: "departments",
-            label: `归档组织 ${archivedDepartments.length}`,
-            icon: "list",
-            variant: archivedTab === "departments" ? "primary" : "secondary",
-            onClick: () => onArchivedTabChange("departments"),
-          },
-          {
-            key: "positions",
-            label: `归档岗位 ${archivedPositions.length}`,
-            icon: "archive",
-            variant: archivedTab === "positions" ? "primary" : "secondary",
-            onClick: () => onArchivedTabChange("positions"),
-          },
-        ],
         items: archivedItems.map((item) => ({
           key: item.id,
           value: item,
@@ -93,8 +93,10 @@ export function ArchivedDepartmentPositionPage({
     } },
     detail: createPageBody(sections),
   });
-  const pageProps: PageSurfaceStandardProps = surface
-    ? { ...surface, toolbar: toolbarItems.length ? { items: toolbarItems } : undefined, body }
-    : { body };
+  const pageProps: PageSurfaceStandardProps = {
+    ...(surface ?? {}),
+    toolbar: { items: toolbarItems },
+    body,
+  };
   return <PageSurface {...pageProps} />;
 }

@@ -1,11 +1,13 @@
 import type { StatementReportType } from "@workspace/finance/types";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { consolidationSourceFactFingerprint } from "./consolidation-fingerprints";
 import {
   loadConsolidationSourceReadiness,
   type ConsolidationEntitySourceReadiness,
 } from "./consolidation-source-readiness";
 import { generateFinanceReport } from "./report-generator";
+import { generateDirectStatementReport } from "./reports/direct";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 
 export { consolidationFingerprint } from "./consolidation-fingerprints";
@@ -31,6 +33,7 @@ export interface ConsolidationScopeFact {
   relationEffectiveTo: Date | null;
   relationVersion: number | null;
   shareRatio: number | null;
+  isConsolidated: boolean;
   functionalCurrency: string | null;
   currencyEvidence: string | null;
   currencyDecidedBy: number | null;
@@ -122,7 +125,49 @@ async function generateFrozenReportPayload(
   });
 }
 
-export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfDate: string) {
+async function generateMonthlyFlowTranslation(
+  companyCode: string,
+  year: number,
+  month: number,
+  reportType: "incomeStatement" | "cashFlow",
+) {
+  const periodRows = async (targetYear: number) => Promise.all(
+    Array.from({ length: month }, (_, index) => index + 1).map(async (targetMonth) => {
+      const report = await generateDirectStatementReport(companyCode, targetYear, targetMonth, reportType);
+      return {
+        periodEnd: periodEndDate(targetYear, targetMonth),
+        lines: report.lines.map((line) => ({
+          lineCode: line.lineCode,
+          amount: line.currentMonthAmount ?? 0,
+        })),
+      };
+    }),
+  );
+  const [current, comparative] = await Promise.all([periodRows(year), periodRows(year - 1)]);
+  return { current, comparative };
+}
+
+function retainedEarningsOpeningFact(companyCode: string, year: number) {
+  const openingDate = `${year - 1}-12-31`;
+  return getTenantProfile().financeConsolidationPolicies?.retainedEarningsOpeningBalances.find((item) => (
+    item.foreignCompanyCode === companyCode
+    && item.openingDate === openingDate
+    && item.presentationCurrencyCode.toUpperCase() === "CNY"
+  )) ?? null;
+}
+
+interface ConsolidationRelationshipLoadOptions {
+  includeAllRelations: boolean;
+  strictTopology: boolean;
+  requireSubsidiary: boolean;
+  inclusionByCompanyId?: ReadonlyMap<number, boolean>;
+}
+
+async function loadConsolidationRelationshipFacts(
+  parentCompanyId: number,
+  asOfDate: string,
+  options: ConsolidationRelationshipLoadOptions,
+) {
   const asOf = new Date(`${asOfDate}T23:59:59.999Z`);
   const [parent, relations] = await Promise.all([
     prisma.company.findUnique({
@@ -131,7 +176,9 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     }),
     prisma.ownershipInterest.findMany({
       where: {
-        isConsolidated: true,
+        ...(options.includeAllRelations
+          ? { owner: { company: { isNot: null } } }
+          : { isConsolidated: true }),
         AND: [
           { OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: asOf } }] },
           { OR: [{ effectiveTo: null }, { effectiveTo: { gte: asOf } }] },
@@ -166,6 +213,7 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     relationEffectiveTo: null,
     relationVersion: null,
     shareRatio: 1,
+    isConsolidated: true,
     functionalCurrency: null,
     currencyEvidence: null,
     currencyDecidedBy: null,
@@ -175,10 +223,19 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     for (const relation of byParent.get(currentParentId) ?? []) {
       const ownerCompany = relation.owner.company;
       if (!ownerCompany) throw new ConsolidationSnapshotError("并表股权关系的持股方不是内部公司", 409);
-      if (path.has(relation.issuerCompanyId)) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
+      const included = options.inclusionByCompanyId?.get(relation.issuerCompanyId)
+        ?? relation.isConsolidated;
+      if (options.strictTopology && !included) continue;
+      if (path.has(relation.issuerCompanyId)) {
+        if (options.strictTopology) throw new ConsolidationSnapshotError("并表公司关系存在循环持股，不能创建批次", 409);
+        continue;
+      }
       const existingOwner = ownerByCompany.get(relation.issuerCompanyId);
       if (existingOwner && existingOwner !== ownerCompany.id) {
-        throw new ConsolidationSnapshotError("同一并表公司存在多个直接持股方，需先确认法律持股链路", 409);
+        if (options.strictTopology) {
+          throw new ConsolidationSnapshotError("同一并表公司存在多个直接持股方，需先确认法律持股链路", 409);
+        }
+        continue;
       }
       if (existingOwner) continue;
       ownerByCompany.set(relation.issuerCompanyId, ownerCompany.id);
@@ -195,6 +252,7 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
         relationEffectiveTo: relation.effectiveTo,
         relationVersion: relation.version,
         shareRatio: relation.shareRatio,
+        isConsolidated: included,
         functionalCurrency: null,
         currencyEvidence: null,
         currencyDecidedBy: null,
@@ -203,7 +261,9 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
     }
   };
   visit(parentCompanyId, new Set([parentCompanyId]));
-  if (facts.length === 1) throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
+  if (options.requireSubsidiary && facts.length === 1) {
+    throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
+  }
   const [baseCurrencies, currencyPolicies] = await Promise.all([
     prisma.financeCurrency.findMany({
       where: { companyCode: { in: facts.map((fact) => fact.companyCode) }, isBase: true },
@@ -250,6 +310,35 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
   return facts;
 }
 
+export function loadConsolidationScopeFacts(parentCompanyId: number, asOfDate: string) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: false,
+    strictTopology: true,
+    requireSubsidiary: true,
+  });
+}
+
+export function loadConsolidationCandidateFacts(parentCompanyId: number, asOfDate: string) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: true,
+    strictTopology: false,
+    requireSubsidiary: false,
+  });
+}
+
+export function loadConsolidationScopeFactsWithOverrides(
+  parentCompanyId: number,
+  asOfDate: string,
+  inclusionByCompanyId: ReadonlyMap<number, boolean>,
+) {
+  return loadConsolidationRelationshipFacts(parentCompanyId, asOfDate, {
+    includeAllRelations: true,
+    strictTopology: true,
+    requireSubsidiary: false,
+    inclusionByCompanyId,
+  });
+}
+
 async function loadSourceFact(
   scope: ConsolidationScopeFact,
   year: number,
@@ -260,9 +349,22 @@ async function loadSourceFact(
 ): Promise<ConsolidationSourceFact> {
   const reportReadiness = readiness.reports[reportType];
   const systemCount = reportReadiness.count;
-  const reportPayload = reportReadiness.ready
+  const baseReportPayload = reportReadiness.ready
     ? await generateFrozenReportPayload(scope.companyCode, year, month, periodKind, reportType)
     : jsonSnapshot({ capturedAt: new Date().toISOString(), payload: { type: reportType, source: "missing", lines: [] } });
+  const reportPayload = reportReadiness.ready && scope.functionalCurrency?.toUpperCase() === "CAD"
+    ? jsonSnapshot({
+        ...(baseReportPayload as Record<string, unknown>),
+        translationFacts: {
+          ...(reportType === "incomeStatement" || reportType === "cashFlow"
+            ? { monthlyFlows: await generateMonthlyFlowTranslation(scope.companyCode, year, month, reportType) }
+            : {}),
+          ...(reportType === "balanceSheet"
+            ? { retainedEarningsOpening: retainedEarningsOpeningFact(scope.companyCode, year) }
+            : {}),
+        },
+      })
+    : baseReportPayload;
   const reportReady = reportReadiness.ready && successfulFrozenReportPayload(reportPayload);
   const sourceKind: ConsolidationSourceFact["sourceKind"] = reportReady ? "system" : "missing";
   const sourceStatus: ConsolidationSourceFact["sourceStatus"] = reportReady ? "available" : "missing";
@@ -332,7 +434,7 @@ export async function loadAvailableRateFacts(
           id: { in: exchangeRateIds },
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
-          rateKind: "centralParity",
+          rateKind: { in: ["centralParity", "monthlyAverage", "historicalInvestment"] },
           rateDate: { lte: periodEnd },
         }
       : {

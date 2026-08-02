@@ -8,7 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { Client } = require("pg");
+const { spawnSync } = require("child_process");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const REPO_ENV_FILE = path.join(ROOT, ".env");
@@ -78,6 +78,81 @@ function parseKeyValueFile(filePath) {
   return values;
 }
 
+function parsePostgresqlUrl(value, label, errors) {
+  const configured = value?.trim() || "";
+  if (!/^postgres(?:ql)?:\/\//.test(configured)) {
+    errors.push(`${label} must use PostgreSQL`);
+    return null;
+  }
+  try {
+    const url = new URL(configured);
+    if (!url.hostname || url.pathname === "/") {
+      errors.push(`${label} must include host and database name`);
+      return null;
+    }
+    return url;
+  } catch {
+    errors.push(`${label} is invalid`);
+    return null;
+  }
+}
+
+function databaseEnvironmentContract(
+  workspaceEnv,
+  runtimeEnv = {},
+  runtimeDatabaseOnly = false,
+  fileExists = fs.existsSync,
+) {
+  const errors = [];
+  const fileDatabaseUrl = workspaceEnv.get("DATABASE_URL") || "";
+  const databaseUrl = runtimeDatabaseOnly
+    ? runtimeEnv.DATABASE_URL?.trim() || fileDatabaseUrl
+    : fileDatabaseUrl;
+
+  if (runtimeDatabaseOnly) {
+    for (const key of ["DIRECT_URL", "SHADOW_DATABASE_URL"]) {
+      if (runtimeEnv[key]?.trim() || workspaceEnv.get(key)?.trim()) {
+        errors.push(`${key} is forbidden in runtime database-only mode`);
+      }
+    }
+    const runtimeUrl = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", errors);
+    if (runtimeUrl) {
+      const sslRootCertificate = runtimeUrl.searchParams.get("sslrootcert") || "";
+      if (runtimeUrl.username !== "workspace_dev_runtime") {
+        errors.push("DATABASE_URL username must be workspace_dev_runtime");
+      }
+      if (runtimeUrl.pathname !== "/workspace_dev") {
+        errors.push("DATABASE_URL database must be workspace_dev");
+      }
+      if (runtimeUrl.searchParams.get("sslmode") !== "verify-full") {
+        errors.push("DATABASE_URL sslmode must be verify-full");
+      }
+      if (sslRootCertificate !== "/run/secrets/postgres_ca") {
+        errors.push("DATABASE_URL sslrootcert must be /run/secrets/postgres_ca");
+      } else if (!fileExists(sslRootCertificate)) {
+        errors.push("DATABASE_URL sslrootcert does not exist");
+      }
+    }
+    return {
+      databaseUrl: runtimeUrl && errors.length === 0 ? databaseUrl : "",
+      errors,
+      successMessage: "DATABASE_URL selects the PostgreSQL runtime database without migration credentials",
+    };
+  }
+
+  const directUrl = workspaceEnv.get("DIRECT_URL") || "";
+  const pooled = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", errors);
+  const direct = parsePostgresqlUrl(directUrl, "DIRECT_URL", errors);
+  if (pooled && direct && pooled.pathname !== direct.pathname) {
+    errors.push("DATABASE_URL and DIRECT_URL must select the same database");
+  }
+  return {
+    databaseUrl: errors.length === 0 ? directUrl : "",
+    errors,
+    successMessage: "DATABASE_URL and DIRECT_URL select the same PostgreSQL database",
+  };
+}
+
 function resolveWorkspaceDir(repoEnv) {
   const candidates = [
     options.workspaceDir,
@@ -121,69 +196,55 @@ function validateOptionalFile(root, relativePath, label) {
   return true;
 }
 
-function parseServerHost(serverValue) {
-  if (!serverValue) return "";
-  const withoutUser = serverValue.includes("@") ? serverValue.split("@").pop() : serverValue;
-  return withoutUser.split(":")[0];
+function validateRequiredAlternativeFile(root, relativePaths, label) {
+  const selected = relativePaths.find((relativePath) => {
+    const filePath = path.join(root, relativePath);
+    return fs.existsSync(filePath) && fs.statSync(filePath).isFile() && fs.statSync(filePath).size > 0;
+  });
+  if (!selected) {
+    fail(`${label} missing; provide one of: ${relativePaths.map((relativePath) => path.join(root, relativePath)).join(", ")}`);
+    return false;
+  }
+  ok(`${label} exists: ${selected}`);
+  return true;
 }
 
-function validateWorkspaceManifest(workspaceDir, opsEnv) {
-  const manifestPath = path.join(workspaceDir, "manifest.json");
-  if (!validateRequiredFile(workspaceDir, "manifest.json", "workspace manifest")) return;
-
-  let manifest;
-  try {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-  } catch (error) {
-    fail(`Cannot parse workspace manifest: ${error.message}`);
+function runPrivateConfigCheck(label, args, workspaceDir) {
+  const result = spawnSync(process.execPath, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: { ...process.env, WORKSPACE_CONFIG_DIR: workspaceDir },
+  });
+  if (result.error || result.status !== 0) {
+    const detail = (result.stderr || result.stdout || result.error?.message || "unknown error").trim();
+    fail(`${label} failed${detail ? `: ${detail}` : ""}`);
     return;
   }
-
-  const productionTarget = manifest.productionTarget || {};
-  const requiredKeys = ["serverHost", "remoteDir", "pm2Name"];
-  for (const key of requiredKeys) {
-    if (!productionTarget[key]) {
-      fail(`workspace manifest productionTarget.${key} is missing`);
-    }
-  }
-  if (!manifest.productionTarget) {
-    fail("workspace manifest productionTarget is missing");
-  }
-  if (exitCode === 0) {
-    ok("workspace manifest has productionTarget");
-  }
-
-  if (!opsEnv || opsEnv.size === 0) return;
-
-  const serverHost = parseServerHost(opsEnv.get("SERVER") || "");
-  if (serverHost && productionTarget.serverHost !== serverHost) {
-    fail(
-      `workspace manifest productionTarget.serverHost (${productionTarget.serverHost}) does not match private ops SERVER host (${serverHost})`
-    );
-  } else if (serverHost) {
-    ok("workspace manifest serverHost matches private ops SERVER");
-  }
-
-  const remoteDir = opsEnv.get("REMOTE_DIR") || "";
-  if (remoteDir && productionTarget.remoteDir !== remoteDir) {
-    fail(
-      `workspace manifest productionTarget.remoteDir (${productionTarget.remoteDir}) does not match private ops REMOTE_DIR`
-    );
-  } else if (remoteDir) {
-    ok("workspace manifest remoteDir matches private ops REMOTE_DIR");
-  }
-
-  const pm2Name = opsEnv.get("PM2_NAME") || "";
-  if (pm2Name && productionTarget.pm2Name !== pm2Name) {
-    fail(
-      `workspace manifest productionTarget.pm2Name (${productionTarget.pm2Name}) does not match private ops PM2_NAME`
-    );
-  } else if (pm2Name) {
-    ok("workspace manifest pm2Name matches private ops PM2_NAME");
-  }
+  ok(label);
 }
 
-async function validateDatabase(databaseUrl, workspaceDir) {
+function validateTenantConfiguration(workspaceDir) {
+  runPrivateConfigCheck(
+    "tenant deployment config inputs are valid",
+    [path.join(ROOT, "ops/tenant-config-manifest.mjs"), "validate", "--root", workspaceDir],
+    workspaceDir,
+  );
+  runPrivateConfigCheck(
+    "tenant runtime config is valid",
+    [
+      "--conditions=react-server",
+      "--import",
+      "tsx",
+      path.join(ROOT, "scripts/check/check-tenant-runtime-config.ts"),
+      "--workspace",
+      workspaceDir,
+    ],
+    workspaceDir,
+  );
+}
+
+async function validateDatabase(databaseUrl, workspaceDir, { runtimeDatabaseOnly = false } = {}) {
+  const { Client } = require("pg");
   const client = new Client({ connectionString: databaseUrl, application_name: "workspace-runtime-check" });
   try {
     await client.connect();
@@ -206,12 +267,16 @@ async function validateDatabase(databaseUrl, workspaceDir) {
       FROM "User"
     `);
     ok(`Database users: ${users.rows[0].users}; WeCom-linked users: ${users.rows[0].wx_users}`);
-    const failedMigrations = await client.query(`
-      SELECT migration_name FROM "_prisma_migrations"
-      WHERE finished_at IS NULL AND rolled_back_at IS NULL
-    `);
-    if (failedMigrations.rowCount > 0) fail(`PostgreSQL has failed migrations: ${failedMigrations.rows.map((row) => row.migration_name).join(", ")}`);
-    else ok("PostgreSQL migration history has no failed entries");
+    if (runtimeDatabaseOnly) {
+      ok("PostgreSQL migration history remains isolated from the runtime role");
+    } else {
+      const failedMigrations = await client.query(`
+        SELECT migration_name FROM "_prisma_migrations"
+        WHERE finished_at IS NULL AND rolled_back_at IS NULL
+      `);
+      if (failedMigrations.rowCount > 0) fail(`PostgreSQL has failed migrations: ${failedMigrations.rows.map((row) => row.migration_name).join(", ")}`);
+      else ok("PostgreSQL migration history has no failed entries");
+    }
     await validateDocsEditorContentRefs(client, workspaceDir);
   } catch (error) {
     fail(`Cannot validate PostgreSQL database: ${error.message}`);
@@ -271,13 +336,19 @@ async function validateDocsEditorContentRefs(client, workspaceDir) {
 }
 
 function validateEnv(workspaceDir, workspaceEnv) {
+  const runtimeDatabaseOnly = process.env.WORKSPACE_RUNTIME_DATABASE_ONLY === "1";
   const requiredKeys = [
-    "DATABASE_URL",
-    "DIRECT_URL",
     "NEXTAUTH_SECRET",
     "WORKSPACE_CONFIG_DIR",
     "NEXT_PUBLIC_BASE_PATH",
   ];
+  if (runtimeDatabaseOnly) {
+    const databaseUrl = process.env.DATABASE_URL?.trim() || workspaceEnv.get("DATABASE_URL");
+    if (!databaseUrl) fail("DATABASE_URL missing from runtime environment");
+    else ok("DATABASE_URL is present in runtime environment");
+  } else {
+    requiredKeys.unshift("DATABASE_URL", "DIRECT_URL");
+  }
   for (const key of requiredKeys) {
     if (!workspaceEnv.get(key)) {
       fail(`${key} missing from workspace .env`);
@@ -298,29 +369,11 @@ function validateEnv(workspaceDir, workspaceEnv) {
     }
   }
 
-  const databaseUrl = workspaceEnv.get("DATABASE_URL") || "";
-  const directUrl = workspaceEnv.get("DIRECT_URL") || "";
-  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl) || !/^postgres(?:ql)?:\/\//.test(directUrl)) {
-    fail("DATABASE_URL and DIRECT_URL must use PostgreSQL");
-    return "";
-  }
-  try {
-    const pooled = new URL(databaseUrl);
-    const direct = new URL(directUrl);
-    if (!pooled.hostname || !direct.hostname || pooled.pathname === "/" || direct.pathname === "/") {
-      fail("PostgreSQL URLs must include host and database name");
-      return "";
-    }
-    if (pooled.pathname !== direct.pathname) {
-      fail("DATABASE_URL and DIRECT_URL must select the same database");
-      return "";
-    }
-  } catch {
-    fail("DATABASE_URL or DIRECT_URL is invalid");
-    return "";
-  }
-  ok("DATABASE_URL and DIRECT_URL select the same PostgreSQL database");
-  return directUrl;
+  const contract = databaseEnvironmentContract(workspaceEnv, process.env, runtimeDatabaseOnly);
+  for (const error of contract.errors) fail(error);
+  if (contract.errors.length > 0) return "";
+  ok(contract.successMessage);
+  return contract.databaseUrl;
 }
 
 async function main() {
@@ -363,8 +416,12 @@ async function main() {
 
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
-  validateWorkspaceManifest(workspaceDir, opsEnv);
-  validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
+  validateTenantConfiguration(workspaceDir);
+  validateRequiredAlternativeFile(
+    workspaceDir,
+    ["assets/brand/company/logo.png", "assets/brand/company/logo.svg"],
+    "company logo",
+  );
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.png", "favicon.png");
   validateRequiredFile(
@@ -387,7 +444,8 @@ async function main() {
 
   const workspaceEnv = parseKeyValueFile(workspaceEnvPath);
   const databaseUrl = validateEnv(workspaceDir, workspaceEnv);
-  if (databaseUrl) await validateDatabase(databaseUrl, workspaceDir);
+  const runtimeDatabaseOnly = process.env.WORKSPACE_RUNTIME_DATABASE_ONLY === "1";
+  if (databaseUrl) await validateDatabase(databaseUrl, workspaceDir, { runtimeDatabaseOnly });
 
   if (options.strict && warnings.length > 0) {
     fail(`Strict mode treats ${warnings.length} warning(s) as failures`);
@@ -401,7 +459,11 @@ async function main() {
   process.exit(exitCode);
 }
 
-main().catch((error) => {
-  fail(error.stack || error.message);
-  process.exit(exitCode || 1);
-});
+module.exports = { databaseEnvironmentContract };
+
+if (require.main === module) {
+  main().catch((error) => {
+    fail(error.stack || error.message);
+    process.exit(exitCode || 1);
+  });
+}

@@ -3,7 +3,7 @@ import { z } from "zod";
 import {
   buildGenerateFinanceReportCommand,
   executeGenerateFinanceReportCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/statements/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const optionalPositiveInt = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
   z.number().int().positive().optional(),

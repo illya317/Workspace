@@ -1,0 +1,485 @@
+import { randomUUID } from "node:crypto";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import os from "node:os";
+import path from "node:path";
+import { prisma } from "@workspace/platform/server/prisma";
+import type { SessionUser } from "@workspace/platform/types";
+import type { AgentChoiceQuestion } from "@workspace/platform/agent-conversation-choice";
+
+import type { AgentInputImage, HistoryMessage } from "./runtime/contracts";
+import { AGENT_SESSION_SUMMARY_CHARS, summarizeAgentSessionHistory } from "./session-summary";
+import { storeAgentSessionImagesAt } from "./session-images";
+
+export type AgentStoredMessageRole = "user" | "agent";
+export type AgentStoredProposalStatus = "pending" | "executing" | "confirmed" | "cancelled" | "failed" | "expired";
+
+export type AgentStoredAttachment = {
+  id: string;
+  type: "image";
+  fileName: string;
+  mimeType: string;
+  size: number;
+  storageKey: string;
+};
+
+export type AgentSessionContextInput = {
+  sessionId?: string | null;
+  agentProfileId?: number | null;
+  contextLabel?: string | null;
+  path?: string | null;
+  title?: string | null;
+};
+
+export type AgentPageSourceContextInput = Partial<Record<
+  "navigationLabel" | "activeKey" | "activeLabel" | "activeChildKey" | "activeChildLabel",
+  string | null
+>>;
+
+export type AgentMessageContextInput = AgentSessionContextInput & { sourceContext?: AgentPageSourceContextInput };
+
+export type AgentStoredMessage = {
+  id: string;
+  role: AgentStoredMessageRole;
+  content: string;
+  createdAt: string;
+  responseType?: "answer" | "error" | "clarification" | "proposal";
+  choices?: AgentChoiceQuestion[];
+  attachments?: AgentStoredAttachment[];
+  proposal?: {
+    id: number;
+    actionKey: string;
+    targetType: string;
+    targetId?: string;
+    diff: Record<string, unknown>;
+  };
+  proposalStatus?: AgentStoredProposalStatus;
+};
+
+export type AgentSessionRow = {
+  id: string;
+  userId: number;
+  agentProfileId: number | null;
+  status: string;
+  pagePath: string | null;
+  contextLabel: string | null;
+  title: string | null;
+  storageKey: string;
+  summaryShort: string | null;
+  summaryLongStorageKey: string | null;
+  messageCount: number;
+  compactedMessageCount: number;
+  byteSize: number;
+};
+
+export type PreparedAgentSession = {
+  session: AgentSessionRow;
+  messages: AgentStoredMessage[];
+  summaryLong: string | null;
+};
+
+const SUMMARY_SHORT_CHARS = 1_200;
+const MODEL_HISTORY_CHARS = 160_000;
+const COMPRESSION_TRIGGER_BYTES = MODEL_HISTORY_CHARS;
+const MAX_STORED_MESSAGE_CHARS = MODEL_HISTORY_CHARS;
+const SESSION_ID_PATTERN = /^sess_[a-f0-9]{32}$/;
+
+function expandTilde(input: string) {
+  if (input.startsWith("~/")) return path.join(os.homedir(), input.slice(2));
+  return input;
+}
+
+function workspaceConfigDir() {
+  const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
+  if (configured) {
+    const expanded = expandTilde(configured);
+    if (!path.isAbsolute(expanded)) {
+      throw new Error("WORKSPACE_CONFIG_DIR must be an absolute path for Agent session storage");
+    }
+    return expanded;
+  }
+  return path.join(os.tmpdir(), "workspace");
+}
+
+function agentDataRoot() {
+  const configured = process.env.AGENT_DATA_DIR?.trim();
+  if (!configured) return path.join(workspaceConfigDir(), "agent");
+  const root = expandTilde(configured);
+  if (!path.isAbsolute(root)) {
+    throw new Error("AGENT_DATA_DIR must be an absolute path for Agent session storage");
+  }
+  return root;
+}
+
+function createSessionId() {
+  return `sess_${randomUUID().replace(/-/g, "")}`;
+}
+
+function storageKeyFor(sessionId: string, now = new Date()) {
+  const year = String(now.getFullYear());
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  return path.posix.join("sessions", year, month, sessionId);
+}
+
+function sessionDir(storageKey: string) {
+  return path.join(agentDataRoot(), storageKey);
+}
+
+function messagesPath(storageKey: string) {
+  return path.join(sessionDir(storageKey), "messages.jsonl");
+}
+
+function summaryPath(storageKey: string) {
+  return path.join(sessionDir(storageKey), "summary.md");
+}
+
+function truncateText(value: string | null | undefined, max: number) {
+  const text = String(value ?? "").trim();
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 12).trimEnd()}\n[truncated]`;
+}
+
+function normalizeOptionalText(value: string | null | undefined, max: number) {
+  const text = truncateText(value, max);
+  return text || null;
+}
+
+function isMissingFileError(error: unknown) {
+  return typeof error === "object"
+    && error !== null
+    && "code" in error
+    && (error as { code?: unknown }).code === "ENOENT";
+}
+
+function attachmentLabel(attachment: AgentStoredAttachment) {
+  const kb = Math.max(1, Math.round(attachment.size / 1024));
+  return `${attachment.fileName} (${attachment.mimeType}, ${kb}KB)`;
+}
+
+function storedMessageText(message: Pick<AgentStoredMessage, "content" | "attachments">) {
+  const attachmentText = message.attachments?.length
+    ? `\n[图片附件：${message.attachments.map(attachmentLabel).join("；")}]`
+    : "";
+  return `${message.content}${attachmentText}`;
+}
+
+function storedProposalHistoryText(message: Pick<AgentStoredMessage, "proposal" | "proposalStatus">) {
+  if (!message.proposal) return "";
+  const proposal = message.proposal;
+  let diff = "{}";
+  try {
+    diff = JSON.stringify(proposal.diff);
+  } catch {
+    diff = "{\"unavailable\":true}";
+  }
+  return [
+    "",
+    "[Workspace proposal state]",
+    `proposalId=${proposal.id}`,
+    `actionKey=${proposal.actionKey}`,
+    `targetType=${proposal.targetType}`,
+    `targetId=${proposal.targetId ?? "(none)"}`,
+    `status=${message.proposalStatus ?? "pending"}`,
+    `diff=${diff}`,
+  ].join("\n");
+}
+
+function normalizeSessionRows(rows: AgentSessionRow[]) {
+  return rows.map((row) => ({
+    ...row,
+    messageCount: Number(row.messageCount ?? 0),
+    compactedMessageCount: Number(row.compactedMessageCount ?? 0),
+    byteSize: Number(row.byteSize ?? 0),
+  }));
+}
+
+async function getSessionById(sessionId: string, user: SessionUser) {
+  if (!SESSION_ID_PATTERN.test(sessionId)) return null;
+  const row = await prisma.agentSession.findFirst({
+    where: { id: sessionId, userId: user.id, deletedAt: null },
+    select: {
+      id: true, userId: true, status: true, pagePath: true, contextLabel: true,
+      agentProfileId: true,
+      title: true, storageKey: true, summaryShort: true, summaryLongStorageKey: true,
+      messageCount: true, compactedMessageCount: true, byteSize: true,
+    },
+  });
+  return row ? normalizeSessionRows([row])[0] : null;
+}
+
+async function createSession(user: SessionUser, input: AgentSessionContextInput) {
+  const now = new Date();
+  const sessionId = createSessionId();
+  const storageKey = storageKeyFor(sessionId, now);
+  const pagePath = normalizeOptionalText(input.path, 500);
+  const contextLabel = normalizeOptionalText(input.contextLabel, 300);
+  const title = normalizeOptionalText(input.title, 300);
+
+  await mkdir(sessionDir(storageKey), { recursive: true });
+  await prisma.agentSession.create({
+    data: {
+      id: sessionId,
+      userId: user.id,
+      agentProfileId: input.agentProfileId ?? null,
+      pagePath,
+      contextLabel,
+      title,
+      storageKey,
+    },
+  });
+
+  const session = await getSessionById(sessionId, user);
+  if (!session) throw new Error("Agent session create failed");
+  return session;
+}
+
+async function updateSessionContext(session: AgentSessionRow, input: AgentSessionContextInput, user: SessionUser) {
+  const pagePath = normalizeOptionalText(input.path, 500);
+  const contextLabel = normalizeOptionalText(input.contextLabel, 300);
+  const title = normalizeOptionalText(input.title, 300);
+  if (pagePath === session.pagePath && contextLabel === session.contextLabel && title === session.title) return session;
+
+  const data: { pagePath?: string; contextLabel?: string; title?: string; updatedAt: Date } = {
+    updatedAt: new Date(),
+  };
+  if (pagePath !== null) data.pagePath = pagePath;
+  if (contextLabel !== null) data.contextLabel = contextLabel;
+  if (title !== null) data.title = title;
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data,
+  });
+
+  return (await getSessionById(session.id, user)) ?? session;
+}
+
+export async function prepareAgentSession(user: SessionUser, input: AgentSessionContextInput): Promise<PreparedAgentSession> {
+  const existing = input.sessionId ? await getSessionById(input.sessionId, user) : null;
+  const requestedProfileId = input.agentProfileId ?? null;
+  if (existing && existing.agentProfileId !== requestedProfileId) {
+    throw new Error("Agent 会话已绑定其他执行身份，请新建会话");
+  }
+  const session = existing
+    ? await updateSessionContext(existing, input, user)
+    : await createSession(user, input);
+
+  return {
+    session,
+    messages: await readAgentSessionMessages(session),
+    summaryLong: await readAgentSessionSummary(session),
+  };
+}
+
+/** Read an existing owned session without creating or mutating session context. */
+export async function readAgentSessionMessagesForUser(sessionId: string | null | undefined, user: SessionUser) {
+  if (!sessionId) return [];
+  const session = await getSessionById(sessionId, user);
+  return session ? readAgentSessionMessages(session) : [];
+}
+
+export async function readAgentSessionMessages(session: AgentSessionRow): Promise<AgentStoredMessage[]> {
+  let content = "";
+  try {
+    content = await readFile(messagesPath(session.storageKey), "utf8");
+  } catch (error) {
+    if (!isMissingFileError(error)) throw error;
+  }
+  if (!content.trim()) return [];
+  return content
+    .split(/\r?\n/)
+    .filter(Boolean)
+    .flatMap((line) => {
+      try {
+        const parsed = JSON.parse(line) as AgentStoredMessage;
+        if (parsed.role !== "user" && parsed.role !== "agent") return [];
+        if (typeof parsed.content !== "string") return [];
+        return [parsed];
+      } catch {
+        return [];
+      }
+    });
+}
+
+export async function readAgentSessionSummary(session: AgentSessionRow) {
+  if (!session.summaryLongStorageKey) return null;
+  try {
+    return await readFile(path.join(agentDataRoot(), session.summaryLongStorageKey), "utf8");
+  } catch (error) {
+    if (!isMissingFileError(error)) throw error;
+    return null;
+  }
+}
+
+export async function storeAgentSessionImages(session: AgentSessionRow, files: File[]): Promise<AgentInputImage[]> {
+  return storeAgentSessionImagesAt(agentDataRoot(), session.storageKey, files);
+}
+
+export function toStoredImageAttachment(image: AgentInputImage): AgentStoredAttachment {
+  if (!image.storageKey) throw new Error("Agent image storage key missing");
+  return {
+    id: image.id,
+    type: "image",
+    fileName: image.fileName,
+    mimeType: image.mimeType,
+    size: image.size,
+    storageKey: image.storageKey,
+  };
+}
+
+export function buildAgentHistory(prepared: PreparedAgentSession, fallbackHistory?: HistoryMessage[]): HistoryMessage[] {
+  const history: HistoryMessage[] = [];
+  if (prepared.summaryLong) {
+    history.push({
+      role: "agent",
+      content: `历史摘要（压缩）：\n${truncateText(prepared.summaryLong, AGENT_SESSION_SUMMARY_CHARS)}`,
+    });
+  }
+
+  const sourceMessages = prepared.messages.length > 0
+    ? prepared.messages
+    : (fallbackHistory ?? []).map((message) => ({
+        id: createSessionId(),
+        role: message.role,
+        content: message.content,
+        createdAt: new Date().toISOString(),
+      } satisfies AgentStoredMessage));
+  const compactedStart = prepared.messages.length > 0 && prepared.summaryLong
+    ? Math.min(prepared.session.compactedMessageCount, sourceMessages.length)
+    : 0;
+  const historyStart = Math.max(compactedStart, modelHistoryStartIndex(sourceMessages));
+
+  for (const message of sourceMessages.slice(historyStart)) {
+    history.push({
+      role: message.role,
+      content: modelHistoryMessageText(message),
+    });
+  }
+
+  return history;
+}
+
+function modelHistoryMessageText(
+  message: Pick<AgentStoredMessage, "content" | "attachments" | "proposal" | "proposalStatus">,
+) {
+  return truncateText(
+    `${storedMessageText(message)}${storedProposalHistoryText(message)}`,
+    MAX_STORED_MESSAGE_CHARS,
+  );
+}
+
+function modelHistoryStartIndex(
+  messages: Array<Pick<AgentStoredMessage, "content" | "attachments" | "proposal" | "proposalStatus">>,
+) {
+  let usedChars = 0;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const nextChars = modelHistoryMessageText(messages[index]).length;
+    if (usedChars + nextChars > MODEL_HISTORY_CHARS) return index + 1;
+    usedChars += nextChars;
+  }
+  return 0;
+}
+
+export async function appendAgentSessionMessage(
+  session: AgentSessionRow,
+  input: Omit<AgentStoredMessage, "id" | "createdAt">,
+  user: SessionUser,
+) {
+  const stored: AgentStoredMessage = {
+    ...input,
+    id: `msg_${randomUUID().replace(/-/g, "")}`,
+    content: truncateText(input.content, MAX_STORED_MESSAGE_CHARS),
+    createdAt: new Date().toISOString(),
+  };
+  const line = `${JSON.stringify(stored)}\n`;
+  const bytes = Buffer.byteLength(line, "utf8");
+
+  await mkdir(sessionDir(session.storageKey), { recursive: true });
+  await appendFile(messagesPath(session.storageKey), line, "utf8");
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data: {
+      messageCount: { increment: 1 },
+      byteSize: { increment: bytes },
+      updatedAt: new Date(),
+    },
+  });
+
+  return (await getSessionById(session.id, user)) ?? session;
+}
+
+/** Append to an existing requester-owned session without mutating its page/profile binding. */
+export async function appendAgentSessionMessageForUser(
+  sessionId: string | null | undefined,
+  input: Omit<AgentStoredMessage, "id" | "createdAt">,
+  user: SessionUser,
+) {
+  if (!sessionId) return null;
+  const session = await getSessionById(sessionId, user);
+  if (!session) return null;
+  return appendAgentSessionMessage(session, input, user);
+}
+
+function contextText(value: string | null | undefined) {
+  return String(value || "").trim();
+}
+
+export function buildContextualAgentMessage(question: string, session: AgentSessionRow, requestContext?: AgentMessageContextInput) {
+  const context = session.contextLabel || session.title || session.pagePath;
+  const path = contextText(requestContext?.path) || contextText(session.pagePath);
+  const pageContext = requestContext?.sourceContext;
+  const contextLines = [
+    "当前业务界面上下文：",
+    path ? `- path: ${path}` : "",
+    contextText(pageContext?.navigationLabel) ? `- navigation: ${contextText(pageContext?.navigationLabel)}` : "",
+    contextText(pageContext?.activeKey) || contextText(pageContext?.activeLabel)
+      ? `- activeTab: ${contextText(pageContext?.activeKey) || "(none)"}${contextText(pageContext?.activeLabel) ? ` (${contextText(pageContext?.activeLabel)})` : ""}`
+      : "",
+    contextText(pageContext?.activeChildKey) || contextText(pageContext?.activeChildLabel)
+      ? `- activeChild: ${contextText(pageContext?.activeChildKey) || "(none)"}${contextText(pageContext?.activeChildLabel) ? ` (${contextText(pageContext?.activeChildLabel)})` : ""}`
+      : "",
+    "- rule: 只按当前页面语义发现并调用已登记业务 API；不得推断或查找源码、组件、schema、数据库或服务器实现。",
+  ].filter(Boolean);
+  if (!context && contextLines.length <= 2) return question;
+  return [
+    context ? `当前页面：${context}` : "",
+    ...contextLines,
+    `用户问题：${question}`,
+  ].filter(Boolean).join("\n");
+}
+
+export async function linkAgentProposalToSession(proposalId: number | undefined, session: AgentSessionRow, user: SessionUser) {
+  if (!proposalId) return;
+  await prisma.agentProposal.updateMany({
+    where: { id: proposalId, userId: user.id },
+    data: { sessionId: session.id },
+  });
+}
+
+export async function compactAgentSessionIfNeeded(session: AgentSessionRow, user: SessionUser) {
+  if (session.byteSize < COMPRESSION_TRIGGER_BYTES) return session;
+
+  const messages = await readAgentSessionMessages(session);
+  const compactableCount = modelHistoryStartIndex(messages);
+  if (compactableCount <= session.compactedMessageCount) return session;
+
+  const previousSummary = await readAgentSessionSummary(session);
+  const delta = messages.slice(session.compactedMessageCount, compactableCount);
+  const nextSummary = await summarizeAgentSessionHistory(previousSummary, delta.map((message) => ({
+    role: message.role,
+    content: modelHistoryMessageText(message),
+  })));
+  const summaryStorageKey = path.posix.join(session.storageKey, "summary.md");
+
+  await mkdir(sessionDir(session.storageKey), { recursive: true });
+  await writeFile(summaryPath(session.storageKey), nextSummary, "utf8");
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data: {
+      summaryShort: truncateText(nextSummary, SUMMARY_SHORT_CHARS),
+      summaryLongStorageKey: summaryStorageKey,
+      compactedMessageCount: compactableCount,
+      updatedAt: new Date(),
+    },
+  });
+
+  return (await getSessionById(session.id, user)) ?? session;
+}

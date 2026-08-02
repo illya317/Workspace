@@ -1,6 +1,11 @@
 import "dotenv/config";
 
 import { prisma } from "@workspace/platform/server/prisma";
+import {
+  formatProjectBusinessCode,
+  type BusinessCodeConfig,
+} from "@workspace/platform/business-code-config";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 type ProjectCodeRow = {
   id: number;
@@ -17,27 +22,33 @@ type ProjectCodePlan = {
   nextCode: string;
 };
 
-const COMPANY_PREFIX = "EX";
-const COMPANY_SEQUENCE_START = 1;
-const COMPANY_SEQUENCE_END = 99;
-const OTHER_SEQUENCE_START = 101;
-const CODE_WIDTH = 3;
-
 function parseDateYear(value: Date | string | null) {
   if (!value) return null;
   const date = value instanceof Date ? value : new Date(value);
   return Number.isNaN(date.getTime()) ? null : date.getFullYear();
 }
 
-function yearToken(project: ProjectCodeRow) {
-  const fromCode = project.code?.match(/^FH-(\d{2})-\d+$/)?.[1];
-  if (fromCode) return fromCode;
-  const year = parseDateYear(project.startDate) ?? parseDateYear(project.createdAt) ?? new Date().getFullYear();
-  return String(year % 100).padStart(2, "0");
+function projectYear(project: ProjectCodeRow) {
+  const fromLegacyCode = project.code?.match(/^FH-(\d{2})-\d+$/)?.[1];
+  if (fromLegacyCode) return 2000 + Number(fromLegacyCode);
+  return parseDateYear(project.startDate)
+    ?? parseDateYear(project.createdAt)
+    ?? new Date().getFullYear();
 }
 
-function codeSequence(project: ProjectCodeRow, year: string) {
-  const match = project.code?.match(new RegExp(`^${COMPANY_PREFIX}-${year}-(\\d+)$`));
+function escapeRegex(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function codeSequence(
+  project: ProjectCodeRow,
+  year: number,
+  numbering: BusinessCodeConfig["project"],
+) {
+  const yearToken = numbering.yearDigits === 4 ? String(year) : String(year % 100).padStart(2, "0");
+  const match = project.code?.match(new RegExp(
+    `^${escapeRegex(numbering.companyPrefix)}${escapeRegex(numbering.separator)}${yearToken}${escapeRegex(numbering.separator)}(\\d+)$`,
+  ));
   return match ? Number(match[1]) : Number.POSITIVE_INFINITY;
 }
 
@@ -47,9 +58,14 @@ function projectSortKey(project: ProjectCodeRow) {
   return Number.isNaN(date.getTime()) ? project.id : date.getTime();
 }
 
-function compareSequence(a: ProjectCodeRow, b: ProjectCodeRow, year: string) {
-  const left = codeSequence(a, year);
-  const right = codeSequence(b, year);
+function compareSequence(
+  a: ProjectCodeRow,
+  b: ProjectCodeRow,
+  year: number,
+  numbering: BusinessCodeConfig["project"],
+) {
+  const left = codeSequence(a, year, numbering);
+  const right = codeSequence(b, year, numbering);
   if (left === right) return 0;
   if (left === Number.POSITIVE_INFINITY) return 1;
   if (right === Number.POSITIVE_INFINITY) return -1;
@@ -59,43 +75,61 @@ function compareSequence(a: ProjectCodeRow, b: ProjectCodeRow, year: string) {
 function buildGroupPlan(
   rows: ProjectCodeRow[],
   projectType: "company" | "other",
-  year: string,
+  year: number,
+  numbering: BusinessCodeConfig["project"],
 ) {
-  const start = projectType === "other" ? OTHER_SEQUENCE_START : COMPANY_SEQUENCE_START;
-  const end = projectType === "company" ? COMPANY_SEQUENCE_END : Number.POSITIVE_INFINITY;
+  const start = projectType === "other"
+    ? numbering.otherSequenceStart
+    : numbering.companySequenceStart;
+  const end = projectType === "company"
+    ? numbering.companySequenceEnd
+    : Number.POSITIVE_INFINITY;
+  const sequenceLength = projectType === "other"
+    ? numbering.otherSequenceLength
+    : numbering.companySequenceLength;
   return rows
     .sort((a, b) => (
-      compareSequence(a, b, year)
+      compareSequence(a, b, year, numbering)
       || projectSortKey(a) - projectSortKey(b)
       || a.id - b.id
     ))
     .map((project, index) => {
       const sequence = start + index;
       if (sequence > end) {
-        throw new Error(`公司项目 ${year} 年号段已超过 ${String(end).padStart(CODE_WIDTH, "0")}`);
+        throw new Error(`公司项目 ${year} 年号段已超过 ${String(end).padStart(sequenceLength, "0")}`);
       }
       return {
         id: project.id,
         projectType,
         currentCode: project.code,
-        nextCode: `${COMPANY_PREFIX}-${year}-${String(sequence).padStart(CODE_WIDTH, "0")}`,
+        nextCode: formatProjectBusinessCode({
+          prefix: numbering.companyPrefix,
+          year,
+          sequence,
+          separator: numbering.separator,
+          yearDigits: numbering.yearDigits,
+          sequenceLength,
+        }),
       };
     });
 }
 
-function buildPlan(rows: ProjectCodeRow[]) {
+function buildPlan(
+  rows: ProjectCodeRow[],
+  numbering: BusinessCodeConfig["project"],
+) {
   const groups = new Map<string, ProjectCodeRow[]>();
   for (const row of rows) {
     if (row.projectType !== "company" && row.projectType !== "other") continue;
-    const year = yearToken(row);
+    const year = projectYear(row);
     const key = `${row.projectType}:${year}`;
     groups.set(key, [...(groups.get(key) ?? []), row]);
   }
 
   const plan: ProjectCodePlan[] = [];
   for (const [key, groupRows] of groups.entries()) {
-    const [projectType, year] = key.split(":") as ["company" | "other", string];
-    plan.push(...buildGroupPlan(groupRows, projectType, year));
+    const [projectType, yearText] = key.split(":") as ["company" | "other", string];
+    plan.push(...buildGroupPlan(groupRows, projectType, Number(yearText), numbering));
   }
   return plan.sort((a, b) => a.nextCode.localeCompare(b.nextCode, "zh-Hans-CN"));
 }
@@ -141,7 +175,8 @@ async function main() {
     WHERE "projectType" IN ('company', 'other')
     ORDER BY "id" ASC
   `;
-  const plan = buildPlan(rows);
+  const numbering = (await getBusinessCodeConfig()).project;
+  const plan = buildPlan(rows, numbering);
   printPlan(plan);
   if (!execute) {
     console.log("Dry run only. Re-run with --execute to update the database.");

@@ -1,0 +1,11 @@
+import { loadContractArchivePackage } from "@workspace/administration/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params, user }) => okCommand({ contractId: params.id, userId: user.userId }),
+  action: loadContractArchivePackage,
+});

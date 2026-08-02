@@ -15,6 +15,8 @@ import { pathToFileURL } from "node:url";
 import { readControlPlaneReceipt } from "./control-plane-receipt.mjs";
 import { readControlPlaneRequirements } from "./control-plane-requirements.mjs";
 import { readTenantConfigManifest } from "./tenant-config-manifest.mjs";
+import { normalizeDeployUnitBuildIdentity } from "./release/contracts/deploy-unit-build-identity.mjs";
+import { inspectArchive } from "./release/readiness/artifact-inspection.mjs";
 
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
@@ -181,9 +183,7 @@ export function createDeployUnitArtifactManifest({
     || controlPlaneRequirements.source.treeSha !== sourceTree) {
     fail(`${contract.id} control-plane requirements belong to another source`);
   }
-  const normalizedBuildId = requireId(buildId, "build id");
-  const normalizedDeploymentId = requireId(deploymentId, "deployment id");
-  if (normalizedBuildId !== normalizedDeploymentId) fail("build id and deployment id must be identical");
+  const normalizedBuild = normalizeDeployUnitBuildIdentity({ buildId, deploymentId });
   const artifactStat = statSync(artifactFile);
   if (!artifactStat.isFile() || artifactStat.size <= 0) fail("deploy unit artifact must be a non-empty file");
   return normalizeDeployUnitArtifactManifest({
@@ -200,8 +200,7 @@ export function createDeployUnitArtifactManifest({
       treeSha: sourceTree,
     },
     build: {
-      buildId: normalizedBuildId,
-      deploymentId: normalizedDeploymentId,
+      ...normalizedBuild,
       serverEntry,
       basePath: contract.build.basePath,
       assetPrefix: contract.build.assetPrefix,
@@ -239,10 +238,7 @@ export function normalizeDeployUnitArtifactManifest(value) {
   requireSha(source.commitSha, `${id} source SHA`);
   requireSha(source.treeSha, `${id} source tree`);
   const build = requireObject(manifest.build, `${id} build`);
-  const buildId = requireId(build.buildId, `${id} build id`);
-  if (buildId !== requireId(build.deploymentId, `${id} deployment id`)) {
-    fail(`${id} build id and deployment id differ`);
-  }
+  normalizeDeployUnitBuildIdentity(build, `${id} build`);
   requireRelativePath(build.serverEntry, `${id} server entry`);
   if (!new Set(["standalone", "node-bundle"]).has(build.output)) fail(`${id} artifact output is unsupported`);
   const runtime = requireObject(manifest.runtime, `${id} runtime`);
@@ -271,7 +267,6 @@ export function normalizeDeployUnitArtifactManifest(value) {
   requireDigest(manifest.controlPlane?.requirementsSha256, `${id} control-plane requirements digest`);
   const controlPlaneInputs = requireObject(manifest.controlPlane?.inputs, `${id} control-plane inputs`);
   const expectedControlPlaneKeys = [
-    "dataReleaseManifestSetSha256",
     "lifecycleToolSetSha256",
     "migrationSetSha256",
     "resourceManifestSha256",
@@ -357,15 +352,11 @@ export function normalizeDeployUnitReceipt(value) {
   requireDigest(receipt.contract?.sha256, `${unitId} receipt contract digest`);
   requireDigest(receipt.contract?.graphSha256, `${unitId} receipt graph digest`);
   normalizedArtifactIdentity(receipt.artifact, `${unitId} receipt artifact`);
-  const buildId = requireId(receipt.build?.buildId, `${unitId} receipt build id`);
-  if (buildId !== requireId(receipt.build?.deploymentId, `${unitId} receipt deployment id`)) {
-    fail(`${unitId} receipt build id and deployment id differ`);
-  }
+  normalizeDeployUnitBuildIdentity(receipt.build, `${unitId} receipt build`);
   requireRelativePath(receipt.build?.serverEntry, `${unitId} receipt server entry`);
   requireDigest(receipt.controlPlane?.receiptSha256, `${unitId} control-plane receipt digest`);
   const controlPlaneInputs = requireObject(receipt.controlPlane?.inputs, `${unitId} control-plane receipt inputs`);
   const expectedReceiptInputKeys = [
-    "dataReleaseManifestSetSha256",
     "lifecycleToolSetSha256",
     "migrationSetSha256",
     "resourceManifestSha256",
@@ -547,10 +538,15 @@ export function main(argv = process.argv.slice(2)) {
     return;
   }
   if (command === "artifact-assert") {
-    assertDeployUnitArtifact({
+    const manifest = assertDeployUnitArtifact({
       manifestFile: requiredOption(options, "manifest"),
       artifactFile: requiredOption(options, "artifact"),
       contractFile: requiredOption(options, "contract"),
+    });
+    inspectArchive({
+      artifact: requiredOption(options, "artifact"),
+      manifest,
+      target: manifest.unit.id,
     });
     process.stdout.write("MATCH\n");
     return;

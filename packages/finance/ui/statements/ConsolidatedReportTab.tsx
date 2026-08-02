@@ -14,10 +14,10 @@ import { useCallback, useMemo, useState } from "react";
 import {
   createConsolidatedReportSection,
 } from "./consolidated-report-model";
-import type { ConsolidationTabProps } from "./ConsolidationTabs";
+import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { buildConsolidatedStatementAssistantContext } from "./statement-assistant-context";
-import { downloadStatementWorkbook } from "./statement-download";
+import { downloadFinanceWorkbook } from "../workbook-download";
 
 export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const { data, error: overviewError, loading: overviewLoading, navigation } = props;
@@ -31,7 +31,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const scopeYear = data?.scope.year ?? null;
   const scopeMonth = data?.scope.month ?? null;
   const canExport = props.capabilities.canExport;
-  const output = useConsolidatedReport(isOfficial ? batchId : null, batchStatus);
+  const output = useConsolidatedReport(isOfficial ? batchId : null, batchStatus, data?.batch?.revision ?? null);
   const parentName = data?.scope.parent?.name || "合并主体";
   const assistantContext = isOfficial && batchId && scopeYear && scopeMonth ? buildConsolidatedStatementAssistantContext({
     batchId,
@@ -44,7 +44,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
     if (!canExport || !batchId || !scopeYear || !scopeMonth) return;
     setDownloading(true);
     try {
-      await downloadStatementWorkbook(
+      await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/statements/consolidation/batches/${batchId}/report/export`),
         `${parentName}-${scopeYear}.${String(scopeMonth).padStart(2, "0")}-合并报表.xlsx`,
       );
@@ -102,7 +102,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   } else if (!isOfficial) {
     sections = [createStatusSection("consolidated-report-not-official", {
       kind: "empty",
-      content: "正式合并报表仅展示已锁定或已发布批次。编制和复核过程请在“合并工作底稿”查看预览。",
+      content: "正式合并报表仅展示已确认锁定或已发布批次。确认前请在“合并工作底稿”查看预览。",
     })];
   } else if (output.loading) {
     sections = [createStatusSection("consolidated-report-loading", { kind: "loading", content: "正在读取正式合并报表" })];

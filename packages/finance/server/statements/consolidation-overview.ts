@@ -7,15 +7,18 @@ import type {
   ConsolidationReadinessCheck,
   StatementExchangeRateSnapshot,
 } from "@workspace/finance/types";
-import { serviceError, type ServiceResult } from "@workspace/platform/server/api";
+import { serviceError, type ServiceResult } from "@workspace/platform/service-result";
 import { prisma } from "@workspace/platform/server/prisma";
 import { CONSOLIDATION_BATCH_INCLUDE, consolidationBatchSnapshot } from "./consolidation-dto";
-import { parseConsolidationRateApplications } from "./consolidation-rate-applications";
+import {
+  loadCadInvestmentVoucherFacts,
+  parseConsolidationRateApplications,
+} from "./consolidation-rate-applications";
 import {
   comparativeEntitySnapshotIds,
   comparativePeriodEndDate,
 } from "./consolidation-comparative";
-import { loadConsolidationScopeFacts, periodEndDate } from "./consolidation-snapshots";
+import { loadConsolidationCandidateFacts, loadConsolidationScopeFacts, periodEndDate } from "./consolidation-snapshots";
 import { statementExchangeRateSnapshot } from "./exchange-rates";
 import { loadConsolidationAdjustmentComparisons } from "./consolidation-adjustment-comparisons";
 import {
@@ -24,6 +27,8 @@ import {
 } from "./consolidation-overview-selection";
 import { loadConsolidationCompanyDirectory } from "./consolidation-company-directory";
 import { loadConsolidationSourceReadiness } from "./consolidation-source-readiness";
+import { loadFinanceConsolidationScope } from "./consolidation-scope-selections";
+import { consolidationReadinessResolution } from "./consolidation-readiness-resolution";
 import {
   consolidationEntitySourceStatus,
   frozenSourceCoverage,
@@ -56,57 +61,8 @@ function consolidationScopeErrorMessage(cause: unknown) {
   if (code === "P2021" || code === "P2022") {
     return "合并范围数据结构尚未完成当前版本迁移，请联系系统管理员完成数据库迁移后重试";
   }
+  if (cause instanceof Error && cause.message) return cause.message;
   return "合并范围读取失败，请核对公司关系数据后重试";
-}
-
-function resolution(
-  batchId: number | null,
-  key: string,
-  batchStatus?: string,
-): ConsolidationReadinessCheck["resolution"] {
-  const batchTarget = batchId ? `/api/modules/finance/statements/consolidation/batches/${batchId}` : "/api/modules/finance/statements/consolidation/batches";
-  if (key === "scope" || key === "ownership") return {
-    ownerModule: "capitalSecurities" as const,
-    actionKey: "capitalSecurities.governance.ownershipInterest.update",
-    target: "/capital-securities/governance",
-  };
-  if (key === "fx") return {
-    ownerModule: "finance",
-    actionKey: "finance.statements.exchangeRate.save",
-    target: "/api/modules/finance/statements/consolidation/exchange-rates",
-  };
-  if (!batchId) return {
-    ownerModule: "finance",
-    actionKey: "finance.statements.consolidationBatch.ensure",
-    target: batchTarget,
-  };
-  if (key === "sources") return {
-    ownerModule: "finance",
-    actionKey: "finance.statements.consolidationSources.save",
-    target: `${batchTarget}/sources`,
-  };
-  if (key === "eliminations") return {
-    ownerModule: "finance",
-    actionKey: "finance.statements.consolidationEntry.save",
-    target: `${batchTarget}/entries`,
-  };
-  if (key === "tax") return {
-    ownerModule: "finance",
-    actionKey: "finance.statements.consolidationControl.resolve",
-    target: `${batchTarget}/control-decisions`,
-  };
-  const lifecycle = batchStatus === "submitted"
-    ? "review"
-    : batchStatus === "reviewed"
-      ? "lock"
-      : batchStatus === "locked"
-        ? "publish"
-        : "submit";
-  return {
-    ownerModule: "finance",
-    actionKey: `finance.statements.consolidationBatch.${lifecycle}`,
-    target: `${batchTarget}/${lifecycle}`,
-  };
 }
 
 function packageStatus(entries: { entryType: string; status: string }[], entryType: string) {
@@ -173,7 +129,7 @@ export async function loadConsolidationOverview(
   let parentCompanyId = requestedBatch?.parentCompanyId ?? input.parentCompanyId ?? null;
   if (!parentCompanyId) {
     const ownershipInterests = await prisma.ownershipInterest.findMany({
-      where: { isConsolidated: true, owner: { company: { isNot: null } } },
+      where: { owner: { company: { isNot: null } } },
       select: {
         issuerCompanyId: true,
         owner: { select: { company: { select: { id: true } } } },
@@ -239,9 +195,28 @@ export async function loadConsolidationOverview(
       return [];
     });
   }
+  let candidateScope = [] as Awaited<ReturnType<typeof loadConsolidationCandidateFacts>>;
+  if (parentCompanyId && !requestedBatch) {
+    try {
+      const selected = await loadFinanceConsolidationScope({
+        parentCompanyId,
+        year: selectedPeriod.year,
+        month: selectedPeriod.month,
+        periodKind: selectedPeriodKind,
+      }, scopeAsOf);
+      candidateScope = selected.candidates;
+      liveScope = selected.scope;
+      scopeError = null;
+    } catch (cause) {
+      console.error("Failed to load Finance consolidation scope selection", cause);
+      scopeError ??= consolidationScopeErrorMessage(cause);
+      candidateScope = liveScope;
+    }
+  }
   const companyCodes = requestedBatch
     ? requestedBatch.entities.map((entity) => entity.companyCode)
     : liveScope.map((entity) => entity.companyCode);
+  const candidateCompanyCodes = requestedBatch ? companyCodes : candidateScope.map((entity) => entity.companyCode);
   if (companyCodes.join("\u0000") !== discoveryCompanyCodes.join("\u0000")) {
     factPeriods = companyCodes.length > 0 ? await prisma.financePeriod.findMany({
       where: { companyCode: { in: companyCodes }, OR: [{ balances: { some: {} } }, { vouchers: { some: {} } }, { cashFlowAllocations: { some: {} } }] },
@@ -251,7 +226,7 @@ export async function loadConsolidationOverview(
     for (const period of factPeriods) periodMap.set(periodKey(period.year, period.month), { year: period.year, month: period.month, label: `${period.year}年${period.month}月` });
     availablePeriods.splice(0, availablePeriods.length, ...[...periodMap.values()].sort((left, right) => right.year - left.year || right.month - left.month));
   }
-  const companyDirectory = await loadConsolidationCompanyDirectory(companyCodes);
+  const companyDirectory = await loadConsolidationCompanyDirectory(candidateCompanyCodes);
   const batchVersions = parentCompanyId ? (await prisma.financeConsolidationBatch.findMany({
     where: {
       parentCompanyId,
@@ -273,7 +248,7 @@ export async function loadConsolidationOverview(
   })) : [];
   const selectedPeriodEnd = periodEndDate(selectedPeriod.year, selectedPeriod.month);
   const sourceReadiness = await loadConsolidationSourceReadiness({
-    companyCodes,
+    companyCodes: candidateCompanyCodes,
     year: selectedPeriod.year,
     month: selectedPeriod.month,
     periodKind: selectedPeriodKind,
@@ -285,6 +260,8 @@ export async function loadConsolidationOverview(
           entitySnapshotId: entity.id,
           companyId: entity.companyId,
           relationId: entity.relationId,
+          relationVersion: entity.relationVersion,
+          isConsolidated: entity.isConsolidated,
           code: entity.companyCode,
           name: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
           fullName: companyDirectory.find(entity.companyId, entity.companyCode)?.fullName ?? entity.companyName,
@@ -300,12 +277,14 @@ export async function loadConsolidationOverview(
         };
         return { ...row, status: consolidationEntitySourceStatus(row) };
       })
-    : liveScope.map((entity) => {
+    : candidateScope.map((entity) => {
         const readiness = sourceReadiness.byCompany.get(entity.companyCode);
         const row = {
           entitySnapshotId: null,
           companyId: entity.companyId,
           relationId: entity.relationId,
+          relationVersion: entity.relationVersion,
+          isConsolidated: entity.isConsolidated,
           code: entity.companyCode,
           name: companyDirectory.displayName(entity.companyId, entity.companyCode, entity.companyName),
           fullName: companyDirectory.find(entity.companyId, entity.companyCode)?.fullName ?? entity.companyName,
@@ -321,10 +300,12 @@ export async function loadConsolidationOverview(
         };
         return { ...row, status: consolidationEntitySourceStatus(row) };
       });
-  const allSources = entities.flatMap((entity) => [entity.balanceSheet, entity.incomeStatement, entity.cashFlow]);
+  const includedCompanyIds = new Set((requestedBatch?.entities ?? liveScope).map((entity) => entity.companyId));
+  const includedEntities = entities.filter((entity) => entity.companyId && includedCompanyIds.has(entity.companyId));
+  const allSources = includedEntities.flatMap((entity) => [entity.balanceSheet, entity.incomeStatement, entity.cashFlow]);
   const coveredSources = allSources.filter((source) => source.kind !== "missing").length;
   const missingSources = allSources.filter((source) => source.kind === "missing").length;
-  const invalidOwnership = entities.filter((entity) => entity.role === "子公司" && (entity.shareRatio === null || entity.shareRatio <= 0 || entity.shareRatio > 1)).length;
+  const invalidOwnership = includedEntities.filter((entity) => entity.role === "子公司" && (entity.shareRatio === null || entity.shareRatio <= 0 || entity.shareRatio > 1)).length;
   const selectedComparativePeriodEnd = comparativePeriodEndDate(selectedPeriodEnd);
   const liveExchangeRateRows = scopeError ? [] : await prisma.financeStatementExchangeRate.findMany({
     where: { baseCurrency: "CAD", quoteCurrency: "CNY", rateDate: { lte: selectedPeriodEnd } },
@@ -421,20 +402,18 @@ export async function loadConsolidationOverview(
   const historicalRateCount = requestedBatch
     ? currentHistoricalApplications.length
     : new Set(rates.filter((rate) => rate.rateKind === "historicalInvestment" || rate.rateKind === "centralParity").map((rate) => rate.rateDate)).size;
-  const investmentRows = await prisma.financeVoucherItem.findMany({
-    where: { voucher: { companyCode: { in: companyCodes }, date: { lte: selectedPeriodEnd } }, account: { code: { startsWith: "1511" } }, currencyCode: "CAD" },
-    select: { id: true, debit: true, credit: true, description: true, currencyCode: true, originalDebit: true, originalCredit: true, account: { select: { code: true } }, voucher: { select: { voucherNo: true, date: true, description: true, companyCode: true } } },
-    orderBy: [{ voucher: { date: "desc" } }, { id: "desc" }],
-  });
+  const investmentRows = await loadCadInvestmentVoucherFacts(companyCodes, selectedPeriodEnd);
   const investmentEvidence = investmentRows.map((item) => {
-    const originalAmountValue = Math.max(Math.abs(Number(item.originalDebit ?? 0)), Math.abs(Number(item.originalCredit ?? 0)));
-    const originalAmount = originalAmountValue > 0 ? originalAmountValue : null;
     const rateBinding = historicalApplicationByVoucher.get(item.id);
     const transactionRate = rateBinding ? Number(rateBinding.rate.rate) : null;
-    return { id: item.id, companyCode: item.voucher.companyCode, voucherNo: item.voucher.voucherNo, voucherDate: item.voucher.date, description: item.description || item.voucher.description, accountCode: item.account.code, bookedAmountCny: Math.max(item.debit, item.credit), currencyCode: item.currencyCode, originalAmount, transactionRate, rateStatus: originalAmount === null ? "missingOriginalCurrency" as const : transactionRate === null ? "missingRate" as const : "recorded" as const };
+    return {
+      ...item,
+      transactionRate,
+      rateStatus: transactionRate === null ? "missingRate" as const : "recorded" as const,
+    };
   });
   const missingInvestmentRateCount = investmentEvidence.filter((item) => item.rateStatus !== "recorded").length;
-  const foreignEntities = entities.filter((entity) => entity.entitySnapshotId && cadEntityIds.has(entity.entitySnapshotId));
+  const foreignEntities = includedEntities.filter((entity) => entity.entitySnapshotId && cadEntityIds.has(entity.entitySnapshotId));
   const canadaSourceStatementsReady = foreignEntities.every((entity) =>
     [entity.balanceSheet, entity.incomeStatement, entity.cashFlow].every((source) => source.kind !== "missing"),
   );
@@ -446,11 +425,13 @@ export async function loadConsolidationOverview(
     const hasEntry = requestedBatch?.entries.some((entry) => entry.entryType === entryType);
     return !hasEntry && decisions.get(`elimination:${entryType}`)?.decision !== "notApplicable";
   });
-  const partialOwnershipEntities = entities.filter((entity) => entity.role === "子公司" && entity.shareRatio !== null && entity.shareRatio < 1);
+  const partialOwnershipEntities = includedEntities.filter((entity) => entity.role === "子公司" && entity.shareRatio !== null && entity.shareRatio < 1);
   const partialOwnershipCount = partialOwnershipEntities.length;
   const incompleteMatchingEntries = requestedBatch?.entries.filter((entry) => (
     ["investmentEquity", "intercompanyBalance"].includes(entry.entryType)
     && (entry.lines.some((line) => (
+      line.lineCode !== "otherComprehensiveIncome"
+      && (
       !line.matchSide
       || !line.sourceKind
       || !line.sourceId
@@ -458,16 +439,17 @@ export async function loadConsolidationOverview(
       || line.sourceAmount === null
       || !line.sourceCurrency
       || !line.counterpartyCompanyId
+      )
     )) || Number(entry.matchDifference ?? 0) > 0 && !entry.differenceResolution?.trim())
   )).length ?? 0;
   const checks: ConsolidationReadinessCheck[] = [
-    { key: "scope", label: "合并范围", status: entities.length > 1 ? "ready" : "blocked", detail: scopeError ?? (entities.length > 1 ? `已识别 ${entities.length} 个合并实体` : "尚无完整合并范围"), facts: { parentCompanyId, entityCount: entities.length, batchId: requestedBatch?.id ?? null, scopeAsOf }, evidence: scopeError ? [scopeError] : entities.map((entity) => `${entity.code} ${entity.name}`), dependencyKeys: [], resolution: resolution(requestedBatch?.id ?? null, "scope") },
-    { key: "ownership", label: "股权比例", status: invalidOwnership > 0 ? "blocked" : entities.length > 1 ? "ready" : "blocked", detail: invalidOwnership > 0 ? `${invalidOwnership} 条直接持股比例缺失或超出0至1` : partialOwnershipCount > 0 ? "持股比例有效；少数股东权益及损益分配本阶段暂不处理" : "批次范围内直接持股比例有效", facts: { invalidOwnership, partialOwnershipCount, subsidiaryCount: entities.filter((entity) => entity.role === "子公司").length }, evidence: entities.filter((entity) => entity.role === "子公司").map((entity) => `${entity.parentName ?? "待确认母公司"} → ${entity.name} ${entity.shareRatio ?? "未填"}`), dependencyKeys: ["scope"], resolution: resolution(requestedBatch?.id ?? null, "ownership") },
-    { key: "sources", label: "个别三表", status: missingSources > 0 ? "blocked" : allSources.length > 0 ? "ready" : "blocked", detail: missingSources > 0 ? `${missingSources} 份未就绪；全部单体报表就绪后才能创建批次并开始对账抵销` : `${allSources.length} 份均已就绪并自动保存快照`, facts: { total: allSources.length, missing: missingSources }, evidence: allSources.filter((source) => source.fingerprint).map((source) => source.fingerprint!), dependencyKeys: ["scope"], resolution: resolution(requestedBatch?.id ?? null, "sources") },
-    { key: "fx", label: "外币折算与汇率", status: !requestedBatch || !currencyPoliciesComplete ? "blocked" : cadEntityIds.size === 0 ? "ready" : !canadaSourceStatementsReady || !closingCoverageComplete ? "blocked" : "ready", detail: !requestedBatch ? "需先生成合并批次" : !currencyPoliciesComplete ? "币种主数据仍有实体缺少本位币，不能自动折算" : cadEntityIds.size === 0 ? "批次内实体均为 CNY 本位币" : !canadaSourceStatementsReady ? "CAD 本位币主体个别三表尚未冻结完整" : !closingCoverageComplete ? `尚未取得适用日期的中国货币网中间价；${comparativeCadEntityIds.size} 个含非零上期数的主体还需要比较期汇率` : "期末及必要发生日中间价已自动抓取并冻结；并购日处理本阶段暂不启用", facts: { cadEntityCount: cadEntityIds.size, comparativeCadEntityCount: comparativeCadEntityIds.size, incompleteCurrencyPolicyCount: requestedBatch?.entities.filter((entity) => !entity.functionalCurrency || !entity.currencyEvidence?.trim()).length ?? 0, closingBindingCount: validClosingApplications.length, comparativeClosingBindingCount: validComparativeClosingApplications.length, closingRateId: closingRate?.id ?? null, comparativeClosingRateId: comparativeClosingRate?.id ?? null, historicalRateCount, missingInvestmentRateCount }, evidence: requestedBatch?.exchangeRates.map((rate) => `#${rate.exchangeRateId} v${rate.exchangeRateVersion} ${rate.rateKind} ${rate.rateDate}`) ?? [], dependencyKeys: ["sources"], resolution: resolution(requestedBatch?.id ?? null, "fx") },
-    { key: "eliminations", label: "合并抵销", status: missingEliminationPackages.length > 0 || incompleteMatchingEntries > 0 ? "blocked" : inProgressEntries > 0 ? "attention" : "ready", detail: missingEliminationPackages.length > 0 ? `${missingEliminationPackages.length} 类抵销事项尚无分录或不适用结论` : incompleteMatchingEntries > 0 ? `${incompleteMatchingEntries} 笔内部往来/交易/资金抵销缺少双方结构化来源或差额处置` : inProgressEntries > 0 ? `${inProgressEntries} 笔抵销分录编制或复核中` : `${approvedEntries} 笔抵销分录已批准，其余类别已有不适用结论`, facts: { approvedEntries, inProgressEntries, incompleteMatchingEntries, unresolvedPackageCount: missingEliminationPackages.length }, evidence: requestedBatch?.entries.map((entry) => `${entry.entryNo} v${entry.version} ${entry.status}`) ?? [], dependencyKeys: ["ownership", "sources", "fx"], resolution: resolution(requestedBatch?.id ?? null, "eliminations") },
-    { key: "tax", label: "抵销税务影响", status: "ready", detail: "递延所得税本阶段暂不处理，不作为生成和发布阻断项", facts: { deferred: true }, evidence: [], dependencyKeys: ["eliminations"], resolution: resolution(requestedBatch?.id ?? null, "tax") },
-    { key: "review", label: "编制、复核、锁定与发布", status: requestedBatch?.status === "locked" || requestedBatch?.status === "published" ? "ready" : requestedBatch ? "attention" : "blocked", detail: requestedBatch ? `批次 v${requestedBatch.version} 当前状态：${requestedBatch.status}` : "尚未创建合并批次", facts: { batchId: requestedBatch?.id ?? null, version: requestedBatch?.version ?? null, status: requestedBatch?.status ?? "none", reviewedBy: requestedBatch?.reviewedBy ?? null }, evidence: requestedBatch?.reviewNote ? [requestedBatch.reviewNote] : [], dependencyKeys: ["scope", "ownership", "sources", "fx", "eliminations"], resolution: resolution(requestedBatch?.id ?? null, "review", requestedBatch?.status) },
+    { key: "scope", label: "合并范围", status: includedEntities.length > 1 ? "ready" : "blocked", detail: scopeError ?? (includedEntities.length > 1 ? `已识别 ${includedEntities.length} 个合并实体` : "尚无完整合并范围"), facts: { parentCompanyId, entityCount: includedEntities.length, batchId: requestedBatch?.id ?? null, scopeAsOf }, evidence: scopeError ? [scopeError] : includedEntities.map((entity) => `${entity.code} ${entity.name}`), dependencyKeys: [], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "scope") },
+    { key: "ownership", label: "股权比例", status: invalidOwnership > 0 ? "blocked" : includedEntities.length > 1 ? "ready" : "blocked", detail: invalidOwnership > 0 ? `${invalidOwnership} 条直接持股比例缺失或超出0至1` : partialOwnershipCount > 0 ? "持股比例有效；生成工作底稿时自动分配少数股东权益及损益" : "批次范围内直接持股比例有效", facts: { invalidOwnership, partialOwnershipCount, subsidiaryCount: includedEntities.filter((entity) => entity.role === "子公司").length }, evidence: includedEntities.filter((entity) => entity.role === "子公司").map((entity) => `${entity.parentName ?? "待确认母公司"} → ${entity.name} ${entity.shareRatio ?? "未填"}`), dependencyKeys: ["scope"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "ownership") },
+    { key: "sources", label: "个别三表", status: missingSources > 0 ? "blocked" : allSources.length > 0 ? "ready" : "blocked", detail: missingSources > 0 ? `${missingSources} 份未就绪；全部单体报表就绪后才能生成合并工作底稿` : `${allSources.length} 份均已就绪并自动保存快照`, facts: { total: allSources.length, missing: missingSources }, evidence: allSources.filter((source) => source.fingerprint).map((source) => source.fingerprint!), dependencyKeys: ["scope"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "sources") },
+    { key: "fx", label: "外币折算与汇率", status: !requestedBatch || !currencyPoliciesComplete ? "blocked" : cadEntityIds.size === 0 ? "ready" : !canadaSourceStatementsReady || !closingCoverageComplete ? "blocked" : "ready", detail: !requestedBatch ? "需先生成合并批次" : !currencyPoliciesComplete ? "币种主数据仍有实体缺少本位币，不能自动折算" : cadEntityIds.size === 0 ? "批次内实体均为 CNY 本位币" : !canadaSourceStatementsReady ? "CAD 本位币主体个别三表尚未冻结完整" : !closingCoverageComplete ? `尚未取得适用日期的中国货币网中间价；${comparativeCadEntityIds.size} 个含非零上期数的主体还需要比较期汇率` : "期末及必要发生日中间价已自动抓取并冻结；并购日处理本阶段暂不启用", facts: { cadEntityCount: cadEntityIds.size, comparativeCadEntityCount: comparativeCadEntityIds.size, incompleteCurrencyPolicyCount: requestedBatch?.entities.filter((entity) => !entity.functionalCurrency || !entity.currencyEvidence?.trim()).length ?? 0, closingBindingCount: validClosingApplications.length, comparativeClosingBindingCount: validComparativeClosingApplications.length, closingRateId: closingRate?.id ?? null, comparativeClosingRateId: comparativeClosingRate?.id ?? null, historicalRateCount, missingInvestmentRateCount }, evidence: requestedBatch?.exchangeRates.map((rate) => `#${rate.exchangeRateId} v${rate.exchangeRateVersion} ${rate.rateKind} ${rate.rateDate}`) ?? [], dependencyKeys: ["sources"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "fx") },
+    { key: "eliminations", label: "合并抵销", status: missingEliminationPackages.length > 0 || incompleteMatchingEntries > 0 ? "blocked" : inProgressEntries > 0 ? "attention" : "ready", detail: missingEliminationPackages.length > 0 ? `${missingEliminationPackages.length} 类抵销事项尚无分录或不适用结论` : incompleteMatchingEntries > 0 ? `${incompleteMatchingEntries} 笔内部往来/交易/资金抵销缺少双方结构化来源或差额处置` : inProgressEntries > 0 ? `${inProgressEntries} 笔抵销分录编制或复核中` : `${approvedEntries} 笔抵销分录已批准，其余类别已有不适用结论`, facts: { approvedEntries, inProgressEntries, incompleteMatchingEntries, unresolvedPackageCount: missingEliminationPackages.length }, evidence: requestedBatch?.entries.map((entry) => `${entry.entryNo} v${entry.version} ${entry.status}`) ?? [], dependencyKeys: ["ownership", "sources", "fx"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "eliminations") },
+    { key: "tax", label: "抵销税务影响", status: "ready", detail: "递延所得税本阶段暂不处理，不作为生成和发布阻断项", facts: { deferred: true }, evidence: [], dependencyKeys: ["eliminations"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "tax") },
+    { key: "review", label: "编制、复核、锁定与发布", status: requestedBatch?.status === "locked" || requestedBatch?.status === "published" ? "ready" : requestedBatch ? "attention" : "blocked", detail: requestedBatch ? `批次 v${requestedBatch.version} 当前状态：${requestedBatch.status}` : "尚未创建合并批次", facts: { batchId: requestedBatch?.id ?? null, version: requestedBatch?.version ?? null, status: requestedBatch?.status ?? "none", reviewedBy: requestedBatch?.reviewedBy ?? null }, evidence: requestedBatch?.reviewNote ? [requestedBatch.reviewNote] : [], dependencyKeys: ["scope", "ownership", "sources", "fx", "eliminations"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "review", requestedBatch?.status) },
   ];
   const blockerCount = checks.filter((check) => check.status !== "ready").length;
   const published = requestedBatch?.status === "published";
@@ -481,7 +463,7 @@ export async function loadConsolidationOverview(
     fullName: parentCompany?.fullName ?? parentEntity.name,
   } : null;
   const adjustmentComparisons = input.includeComparisons
-    ? await loadConsolidationAdjustmentComparisons({ batch: requestedBatch, entities: entities.flatMap((entity) => entity.companyId ? [{ companyId: entity.companyId, code: entity.code, name: entity.name, role: entity.role === "母公司" ? "parent" as const : "subsidiary" as const }] : []) })
+    ? await loadConsolidationAdjustmentComparisons({ batch: requestedBatch, entities: includedEntities.flatMap((entity) => entity.companyId ? [{ companyId: entity.companyId, code: entity.code, name: entity.name, role: entity.role === "母公司" ? "parent" as const : "subsidiary" as const }] : []) })
     : [];
   const batchSnapshot = requestedBatch ? consolidationBatchSnapshot(requestedBatch) : null;
   const displayBatch = batchSnapshot ? {
@@ -494,7 +476,7 @@ export async function loadConsolidationOverview(
   } : null;
   const creationBlockedReasons = [
     ...(scopeError ? [scopeError] : []),
-    ...(entities.length > 1 ? [] : ["合并范围尚未完整建立"]),
+    ...(includedEntities.length > 1 ? [] : ["合并范围尚未完整建立"]),
     ...(invalidOwnership > 0 ? [`${invalidOwnership} 条直接持股比例无效`] : []),
     ...(missingSources > 0 ? [`${missingSources} 份单体报表未就绪`] : []),
   ];
@@ -519,7 +501,7 @@ export async function loadConsolidationOverview(
       allowed: creationBlockedReasons.length === 0,
       unavailableReasons: creationBlockedReasons,
     },
-    metrics: { entityCount: entities.length, coveredSources, totalSources: entities.length * 3, blockerCount },
+    metrics: { entityCount: includedEntities.length, coveredSources, totalSources: includedEntities.length * 3, blockerCount },
     entities,
     adjustmentComparisons,
     checks,

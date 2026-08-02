@@ -1,8 +1,11 @@
 import {
   listOperationalAnalysisTemplates,
+  operationalAnalysisTemplateDraftCreateBodySchema,
   operationalAnalysisTemplateRouteParamsSchema,
+  saveOperationalAnalysisTemplate,
 } from "@workspace/finance/server/cost";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
 
@@ -11,10 +14,38 @@ registerFinanceWorkSpaceAccessProvider();
 export const GET = createCommandRoute({
   paramsSchema: operationalAnalysisTemplateRouteParamsSchema,
   paramsError: "经营分析空间参数无效",
-  buildCommand: ({ params, user }) => okCommand({
+  buildCommand: ({ params, user, request }) => okCommand({
     userId: user.userId,
     scopeType: params.targetType,
     scopeId: params.targetId,
+    viaApiKey: isProgrammaticApiRequest(request),
   }),
-  action: ({ userId, scopeType, scopeId }) => listOperationalAnalysisTemplates(userId, { scopeType, scopeId }),
+  action: ({ userId, scopeType, scopeId, viaApiKey }) => listOperationalAnalysisTemplates(
+    userId,
+    { scopeType, scopeId },
+    { viaApiKey },
+  ),
+});
+
+export const POST = createCommandRoute({
+  paramsSchema: operationalAnalysisTemplateRouteParamsSchema,
+  paramsError: "经营分析空间参数无效",
+  bodySchema: operationalAnalysisTemplateDraftCreateBodySchema,
+  bodyError: "经营分析模板草稿参数无效",
+  buildCommand: ({ params, body, user, request }) => okCommand({
+    userId: user.userId,
+    viaApiKey: isProgrammaticApiRequest(request),
+    stored: {
+      input: {
+        scopeType: params.targetType,
+        scopeId: params.targetId,
+        ...body,
+      },
+    },
+  }),
+  action: ({ userId, stored, viaApiKey }) => saveOperationalAnalysisTemplate(
+    userId,
+    stored,
+    { viaApiKey },
+  ),
 });

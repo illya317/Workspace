@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model EmployeeProject
- * 员工-项目关联
+ * 项目成员资格的有效期版本（事实表；只能由项目成员生命周期命令写入）
  */
 export type EmployeeProjectModel = runtime.Types.Result.DefaultSelection<Prisma.$EmployeeProjectPayload>
 
@@ -28,27 +28,43 @@ export type AggregateEmployeeProject = {
 
 export type EmployeeProjectAvgAggregateOutputType = {
   id: number | null
+  sequence: number | null
   employeeId: number | null
   projectId: number | null
+  supersedesId: number | null
+  createdByChangeId: number | null
+  terminalChangeId: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type EmployeeProjectSumAggregateOutputType = {
   id: number | null
+  sequence: number | null
   employeeId: number | null
   projectId: number | null
+  supersedesId: number | null
+  createdByChangeId: number | null
+  terminalChangeId: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type EmployeeProjectMinAggregateOutputType = {
   id: number | null
+  membershipUid: string | null
+  sequence: number | null
   employeeId: number | null
   projectId: number | null
   role: string | null
   startDate: string | null
   endDate: string | null
+  recordState: string | null
+  changeKind: string | null
+  supersedesId: number | null
+  createdByChangeId: number | null
+  terminalChangeId: number | null
+  reason: string | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -58,11 +74,19 @@ export type EmployeeProjectMinAggregateOutputType = {
 
 export type EmployeeProjectMaxAggregateOutputType = {
   id: number | null
+  membershipUid: string | null
+  sequence: number | null
   employeeId: number | null
   projectId: number | null
   role: string | null
   startDate: string | null
   endDate: string | null
+  recordState: string | null
+  changeKind: string | null
+  supersedesId: number | null
+  createdByChangeId: number | null
+  terminalChangeId: number | null
+  reason: string | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -72,11 +96,19 @@ export type EmployeeProjectMaxAggregateOutputType = {
 
 export type EmployeeProjectCountAggregateOutputType = {
   id: number
+  membershipUid: number
+  sequence: number
   employeeId: number
   projectId: number
   role: number
   startDate: number
   endDate: number
+  recordState: number
+  changeKind: number
+  supersedesId: number
+  createdByChangeId: number
+  terminalChangeId: number
+  reason: number
   editedBy: number
   editedAt: number
   version: number
@@ -88,27 +120,43 @@ export type EmployeeProjectCountAggregateOutputType = {
 
 export type EmployeeProjectAvgAggregateInputType = {
   id?: true
+  sequence?: true
   employeeId?: true
   projectId?: true
+  supersedesId?: true
+  createdByChangeId?: true
+  terminalChangeId?: true
   editedBy?: true
   version?: true
 }
 
 export type EmployeeProjectSumAggregateInputType = {
   id?: true
+  sequence?: true
   employeeId?: true
   projectId?: true
+  supersedesId?: true
+  createdByChangeId?: true
+  terminalChangeId?: true
   editedBy?: true
   version?: true
 }
 
 export type EmployeeProjectMinAggregateInputType = {
   id?: true
+  membershipUid?: true
+  sequence?: true
   employeeId?: true
   projectId?: true
   role?: true
   startDate?: true
   endDate?: true
+  recordState?: true
+  changeKind?: true
+  supersedesId?: true
+  createdByChangeId?: true
+  terminalChangeId?: true
+  reason?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -118,11 +166,19 @@ export type EmployeeProjectMinAggregateInputType = {
 
 export type EmployeeProjectMaxAggregateInputType = {
   id?: true
+  membershipUid?: true
+  sequence?: true
   employeeId?: true
   projectId?: true
   role?: true
   startDate?: true
   endDate?: true
+  recordState?: true
+  changeKind?: true
+  supersedesId?: true
+  createdByChangeId?: true
+  terminalChangeId?: true
+  reason?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -132,11 +188,19 @@ export type EmployeeProjectMaxAggregateInputType = {
 
 export type EmployeeProjectCountAggregateInputType = {
   id?: true
+  membershipUid?: true
+  sequence?: true
   employeeId?: true
   projectId?: true
   role?: true
   startDate?: true
   endDate?: true
+  recordState?: true
+  changeKind?: true
+  supersedesId?: true
+  createdByChangeId?: true
+  terminalChangeId?: true
+  reason?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -233,11 +297,19 @@ export type EmployeeProjectGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 
 export type EmployeeProjectGroupByOutputType = {
   id: number
+  membershipUid: string
+  sequence: number
   employeeId: number
   projectId: number
   role: string | null
   startDate: string | null
   endDate: string | null
+  recordState: string
+  changeKind: string
+  supersedesId: number | null
+  createdByChangeId: number | null
+  terminalChangeId: number | null
+  reason: string | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -270,11 +342,19 @@ export type EmployeeProjectWhereInput = {
   OR?: Prisma.EmployeeProjectWhereInput[]
   NOT?: Prisma.EmployeeProjectWhereInput | Prisma.EmployeeProjectWhereInput[]
   id?: Prisma.IntFilter<"EmployeeProject"> | number
+  membershipUid?: Prisma.StringFilter<"EmployeeProject"> | string
+  sequence?: Prisma.IntFilter<"EmployeeProject"> | number
   employeeId?: Prisma.IntFilter<"EmployeeProject"> | number
   projectId?: Prisma.IntFilter<"EmployeeProject"> | number
   role?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   startDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   endDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
+  recordState?: Prisma.StringFilter<"EmployeeProject"> | string
+  changeKind?: Prisma.StringFilter<"EmployeeProject"> | string
+  supersedesId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  createdByChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  terminalChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  reason?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   editedBy?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EmployeeProject"> | Date | string | null
   version?: Prisma.IntFilter<"EmployeeProject"> | number
@@ -282,15 +362,27 @@ export type EmployeeProjectWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  supersedes?: Prisma.XOR<Prisma.EmployeeProjectNullableScalarRelationFilter, Prisma.EmployeeProjectWhereInput> | null
+  supersededBy?: Prisma.EmployeeProjectListRelationFilter
+  createdByChange?: Prisma.XOR<Prisma.ProjectMembershipChangeNullableScalarRelationFilter, Prisma.ProjectMembershipChangeWhereInput> | null
+  terminalChange?: Prisma.XOR<Prisma.ProjectMembershipChangeNullableScalarRelationFilter, Prisma.ProjectMembershipChangeWhereInput> | null
 }
 
 export type EmployeeProjectOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  membershipUid?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -298,19 +390,31 @@ export type EmployeeProjectOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   project?: Prisma.ProjectOrderByWithRelationInput
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  supersedes?: Prisma.EmployeeProjectOrderByWithRelationInput
+  supersededBy?: Prisma.EmployeeProjectOrderByRelationAggregateInput
+  createdByChange?: Prisma.ProjectMembershipChangeOrderByWithRelationInput
+  terminalChange?: Prisma.ProjectMembershipChangeOrderByWithRelationInput
 }
 
 export type EmployeeProjectWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  employeeId_projectId?: Prisma.EmployeeProjectEmployeeIdProjectIdCompoundUniqueInput
+  membershipUid_sequence?: Prisma.EmployeeProjectMembershipUidSequenceCompoundUniqueInput
   AND?: Prisma.EmployeeProjectWhereInput | Prisma.EmployeeProjectWhereInput[]
   OR?: Prisma.EmployeeProjectWhereInput[]
   NOT?: Prisma.EmployeeProjectWhereInput | Prisma.EmployeeProjectWhereInput[]
+  membershipUid?: Prisma.StringFilter<"EmployeeProject"> | string
+  sequence?: Prisma.IntFilter<"EmployeeProject"> | number
   employeeId?: Prisma.IntFilter<"EmployeeProject"> | number
   projectId?: Prisma.IntFilter<"EmployeeProject"> | number
   role?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   startDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   endDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
+  recordState?: Prisma.StringFilter<"EmployeeProject"> | string
+  changeKind?: Prisma.StringFilter<"EmployeeProject"> | string
+  supersedesId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  createdByChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  terminalChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  reason?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   editedBy?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EmployeeProject"> | Date | string | null
   version?: Prisma.IntFilter<"EmployeeProject"> | number
@@ -318,15 +422,27 @@ export type EmployeeProjectWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"EmployeeProject"> | Date | string
   project?: Prisma.XOR<Prisma.ProjectScalarRelationFilter, Prisma.ProjectWhereInput>
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
-}, "id" | "employeeId_projectId">
+  supersedes?: Prisma.XOR<Prisma.EmployeeProjectNullableScalarRelationFilter, Prisma.EmployeeProjectWhereInput> | null
+  supersededBy?: Prisma.EmployeeProjectListRelationFilter
+  createdByChange?: Prisma.XOR<Prisma.ProjectMembershipChangeNullableScalarRelationFilter, Prisma.ProjectMembershipChangeWhereInput> | null
+  terminalChange?: Prisma.XOR<Prisma.ProjectMembershipChangeNullableScalarRelationFilter, Prisma.ProjectMembershipChangeWhereInput> | null
+}, "id" | "membershipUid_sequence">
 
 export type EmployeeProjectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  membershipUid?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   startDate?: Prisma.SortOrderInput | Prisma.SortOrder
   endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  reason?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -344,11 +460,19 @@ export type EmployeeProjectScalarWhereWithAggregatesInput = {
   OR?: Prisma.EmployeeProjectScalarWhereWithAggregatesInput[]
   NOT?: Prisma.EmployeeProjectScalarWhereWithAggregatesInput | Prisma.EmployeeProjectScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"EmployeeProject"> | number
+  membershipUid?: Prisma.StringWithAggregatesFilter<"EmployeeProject"> | string
+  sequence?: Prisma.IntWithAggregatesFilter<"EmployeeProject"> | number
   employeeId?: Prisma.IntWithAggregatesFilter<"EmployeeProject"> | number
   projectId?: Prisma.IntWithAggregatesFilter<"EmployeeProject"> | number
   role?: Prisma.StringNullableWithAggregatesFilter<"EmployeeProject"> | string | null
   startDate?: Prisma.StringNullableWithAggregatesFilter<"EmployeeProject"> | string | null
   endDate?: Prisma.StringNullableWithAggregatesFilter<"EmployeeProject"> | string | null
+  recordState?: Prisma.StringWithAggregatesFilter<"EmployeeProject"> | string
+  changeKind?: Prisma.StringWithAggregatesFilter<"EmployeeProject"> | string
+  supersedesId?: Prisma.IntNullableWithAggregatesFilter<"EmployeeProject"> | number | null
+  createdByChangeId?: Prisma.IntNullableWithAggregatesFilter<"EmployeeProject"> | number | null
+  terminalChangeId?: Prisma.IntNullableWithAggregatesFilter<"EmployeeProject"> | number | null
+  reason?: Prisma.StringNullableWithAggregatesFilter<"EmployeeProject"> | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"EmployeeProject"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"EmployeeProject"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"EmployeeProject"> | number
@@ -357,9 +481,14 @@ export type EmployeeProjectScalarWhereWithAggregatesInput = {
 }
 
 export type EmployeeProjectCreateInput = {
+  membershipUid?: string
+  sequence?: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -367,26 +496,44 @@ export type EmployeeProjectCreateInput = {
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
   employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
 }
 
 export type EmployeeProjectUncheckedCreateInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
   employeeId: number
   projectId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
 }
 
 export type EmployeeProjectUpdateInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -394,29 +541,50 @@ export type EmployeeProjectUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
 }
 
 export type EmployeeProjectCreateManyInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
   employeeId: number
   projectId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -425,9 +593,14 @@ export type EmployeeProjectCreateManyInput = {
 }
 
 export type EmployeeProjectUpdateManyMutationInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -437,11 +610,19 @@ export type EmployeeProjectUpdateManyMutationInput = {
 
 export type EmployeeProjectUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -459,18 +640,31 @@ export type EmployeeProjectOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type EmployeeProjectEmployeeIdProjectIdCompoundUniqueInput = {
-  employeeId: number
-  projectId: number
+export type EmployeeProjectNullableScalarRelationFilter = {
+  is?: Prisma.EmployeeProjectWhereInput | null
+  isNot?: Prisma.EmployeeProjectWhereInput | null
+}
+
+export type EmployeeProjectMembershipUidSequenceCompoundUniqueInput = {
+  membershipUid: string
+  sequence: number
 }
 
 export type EmployeeProjectCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  membershipUid?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -480,19 +674,31 @@ export type EmployeeProjectCountOrderByAggregateInput = {
 
 export type EmployeeProjectAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
 export type EmployeeProjectMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  membershipUid?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -502,11 +708,19 @@ export type EmployeeProjectMaxOrderByAggregateInput = {
 
 export type EmployeeProjectMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  membershipUid?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
   role?: Prisma.SortOrder
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
+  recordState?: Prisma.SortOrder
+  changeKind?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrder
+  reason?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -516,8 +730,12 @@ export type EmployeeProjectMinOrderByAggregateInput = {
 
 export type EmployeeProjectSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sequence?: Prisma.SortOrder
   employeeId?: Prisma.SortOrder
   projectId?: Prisma.SortOrder
+  supersedesId?: Prisma.SortOrder
+  createdByChangeId?: Prisma.SortOrder
+  terminalChangeId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -606,29 +824,189 @@ export type EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput = {
   deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
 }
 
+export type EmployeeProjectCreateNestedOneWithoutSupersededByInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersededByInput>
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersededByInput
+  connect?: Prisma.EmployeeProjectWhereUniqueInput
+}
+
+export type EmployeeProjectCreateNestedManyWithoutSupersedesInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput> | Prisma.EmployeeProjectCreateWithoutSupersedesInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput | Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput[]
+  createMany?: Prisma.EmployeeProjectCreateManySupersedesInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput> | Prisma.EmployeeProjectCreateWithoutSupersedesInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput | Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput[]
+  createMany?: Prisma.EmployeeProjectCreateManySupersedesInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectUpdateOneWithoutSupersededByNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersededByInput>
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersededByInput
+  upsert?: Prisma.EmployeeProjectUpsertWithoutSupersededByInput
+  disconnect?: Prisma.EmployeeProjectWhereInput | boolean
+  delete?: Prisma.EmployeeProjectWhereInput | boolean
+  connect?: Prisma.EmployeeProjectWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeProjectUpdateToOneWithWhereWithoutSupersededByInput, Prisma.EmployeeProjectUpdateWithoutSupersededByInput>, Prisma.EmployeeProjectUncheckedUpdateWithoutSupersededByInput>
+}
+
+export type EmployeeProjectUpdateManyWithoutSupersedesNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput> | Prisma.EmployeeProjectCreateWithoutSupersedesInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput | Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutSupersedesInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutSupersedesInput[]
+  createMany?: Prisma.EmployeeProjectCreateManySupersedesInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutSupersedesInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutSupersedesInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutSupersedesInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutSupersedesInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput> | Prisma.EmployeeProjectCreateWithoutSupersedesInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput | Prisma.EmployeeProjectCreateOrConnectWithoutSupersedesInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutSupersedesInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutSupersedesInput[]
+  createMany?: Prisma.EmployeeProjectCreateManySupersedesInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutSupersedesInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutSupersedesInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutSupersedesInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutSupersedesInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
+export type EmployeeProjectCreateNestedManyWithoutCreatedByChangeInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput> | Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyCreatedByChangeInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectCreateNestedManyWithoutTerminalChangeInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput> | Prisma.EmployeeProjectCreateWithoutTerminalChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyTerminalChangeInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectUncheckedCreateNestedManyWithoutCreatedByChangeInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput> | Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyCreatedByChangeInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectUncheckedCreateNestedManyWithoutTerminalChangeInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput> | Prisma.EmployeeProjectCreateWithoutTerminalChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyTerminalChangeInputEnvelope
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+}
+
+export type EmployeeProjectUpdateManyWithoutCreatedByChangeNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput> | Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutCreatedByChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyCreatedByChangeInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutCreatedByChangeInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutCreatedByChangeInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
+export type EmployeeProjectUpdateManyWithoutTerminalChangeNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput> | Prisma.EmployeeProjectCreateWithoutTerminalChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutTerminalChangeInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutTerminalChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyTerminalChangeInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutTerminalChangeInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutTerminalChangeInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutTerminalChangeInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutTerminalChangeInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutCreatedByChangeNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput> | Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutCreatedByChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyCreatedByChangeInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutCreatedByChangeInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutCreatedByChangeInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutCreatedByChangeInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutTerminalChangeNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput> | Prisma.EmployeeProjectCreateWithoutTerminalChangeInput[] | Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput[]
+  connectOrCreate?: Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput | Prisma.EmployeeProjectCreateOrConnectWithoutTerminalChangeInput[]
+  upsert?: Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutTerminalChangeInput | Prisma.EmployeeProjectUpsertWithWhereUniqueWithoutTerminalChangeInput[]
+  createMany?: Prisma.EmployeeProjectCreateManyTerminalChangeInputEnvelope
+  set?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  delete?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  connect?: Prisma.EmployeeProjectWhereUniqueInput | Prisma.EmployeeProjectWhereUniqueInput[]
+  update?: Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutTerminalChangeInput | Prisma.EmployeeProjectUpdateWithWhereUniqueWithoutTerminalChangeInput[]
+  updateMany?: Prisma.EmployeeProjectUpdateManyWithWhereWithoutTerminalChangeInput | Prisma.EmployeeProjectUpdateManyWithWhereWithoutTerminalChangeInput[]
+  deleteMany?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
+}
+
 export type EmployeeProjectCreateWithoutEmployeeInput = {
+  membershipUid?: string
+  sequence?: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
 }
 
 export type EmployeeProjectUncheckedCreateWithoutEmployeeInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
   projectId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
 }
 
 export type EmployeeProjectCreateOrConnectWithoutEmployeeInput = {
@@ -662,11 +1040,19 @@ export type EmployeeProjectScalarWhereInput = {
   OR?: Prisma.EmployeeProjectScalarWhereInput[]
   NOT?: Prisma.EmployeeProjectScalarWhereInput | Prisma.EmployeeProjectScalarWhereInput[]
   id?: Prisma.IntFilter<"EmployeeProject"> | number
+  membershipUid?: Prisma.StringFilter<"EmployeeProject"> | string
+  sequence?: Prisma.IntFilter<"EmployeeProject"> | number
   employeeId?: Prisma.IntFilter<"EmployeeProject"> | number
   projectId?: Prisma.IntFilter<"EmployeeProject"> | number
   role?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   startDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   endDate?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
+  recordState?: Prisma.StringFilter<"EmployeeProject"> | string
+  changeKind?: Prisma.StringFilter<"EmployeeProject"> | string
+  supersedesId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  createdByChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  terminalChangeId?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
+  reason?: Prisma.StringNullableFilter<"EmployeeProject"> | string | null
   editedBy?: Prisma.IntNullableFilter<"EmployeeProject"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"EmployeeProject"> | Date | string | null
   version?: Prisma.IntFilter<"EmployeeProject"> | number
@@ -675,28 +1061,46 @@ export type EmployeeProjectScalarWhereInput = {
 }
 
 export type EmployeeProjectCreateWithoutProjectInput = {
+  membershipUid?: string
+  sequence?: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
 }
 
 export type EmployeeProjectUncheckedCreateWithoutProjectInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
   employeeId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
 }
 
 export type EmployeeProjectCreateOrConnectWithoutProjectInput = {
@@ -725,12 +1129,329 @@ export type EmployeeProjectUpdateManyWithWhereWithoutProjectInput = {
   data: Prisma.XOR<Prisma.EmployeeProjectUpdateManyMutationInput, Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectInput>
 }
 
-export type EmployeeProjectCreateManyEmployeeInput = {
+export type EmployeeProjectCreateWithoutSupersededByInput = {
+  membershipUid?: string
+  sequence?: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
+}
+
+export type EmployeeProjectUncheckedCreateWithoutSupersededByInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
   projectId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EmployeeProjectCreateOrConnectWithoutSupersededByInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersededByInput>
+}
+
+export type EmployeeProjectCreateWithoutSupersedesInput = {
+  membershipUid?: string
+  sequence?: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
+}
+
+export type EmployeeProjectUncheckedCreateWithoutSupersedesInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
+}
+
+export type EmployeeProjectCreateOrConnectWithoutSupersedesInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput>
+}
+
+export type EmployeeProjectCreateManySupersedesInputEnvelope = {
+  data: Prisma.EmployeeProjectCreateManySupersedesInput | Prisma.EmployeeProjectCreateManySupersedesInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeProjectUpsertWithoutSupersededByInput = {
+  update: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedUpdateWithoutSupersededByInput>
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersededByInput>
+  where?: Prisma.EmployeeProjectWhereInput
+}
+
+export type EmployeeProjectUpdateToOneWithWhereWithoutSupersededByInput = {
+  where?: Prisma.EmployeeProjectWhereInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutSupersededByInput, Prisma.EmployeeProjectUncheckedUpdateWithoutSupersededByInput>
+}
+
+export type EmployeeProjectUpdateWithoutSupersededByInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateWithoutSupersededByInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeProjectUpsertWithWhereUniqueWithoutSupersedesInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedUpdateWithoutSupersedesInput>
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedCreateWithoutSupersedesInput>
+}
+
+export type EmployeeProjectUpdateWithWhereUniqueWithoutSupersedesInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutSupersedesInput, Prisma.EmployeeProjectUncheckedUpdateWithoutSupersedesInput>
+}
+
+export type EmployeeProjectUpdateManyWithWhereWithoutSupersedesInput = {
+  where: Prisma.EmployeeProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateManyMutationInput, Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesInput>
+}
+
+export type EmployeeProjectCreateWithoutCreatedByChangeInput = {
+  membershipUid?: string
+  sequence?: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  terminalChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutTerminatedVersionsInput
+}
+
+export type EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
+}
+
+export type EmployeeProjectCreateOrConnectWithoutCreatedByChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput>
+}
+
+export type EmployeeProjectCreateManyCreatedByChangeInputEnvelope = {
+  data: Prisma.EmployeeProjectCreateManyCreatedByChangeInput | Prisma.EmployeeProjectCreateManyCreatedByChangeInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeProjectCreateWithoutTerminalChangeInput = {
+  membershipUid?: string
+  sequence?: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  project: Prisma.ProjectCreateNestedOneWithoutEmployeesInput
+  employee: Prisma.EmployeeCreateNestedOneWithoutProjectsInput
+  supersedes?: Prisma.EmployeeProjectCreateNestedOneWithoutSupersededByInput
+  supersededBy?: Prisma.EmployeeProjectCreateNestedManyWithoutSupersedesInput
+  createdByChange?: Prisma.ProjectMembershipChangeCreateNestedOneWithoutCreatedVersionsInput
+}
+
+export type EmployeeProjectUncheckedCreateWithoutTerminalChangeInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutSupersedesInput
+}
+
+export type EmployeeProjectCreateOrConnectWithoutTerminalChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput>
+}
+
+export type EmployeeProjectCreateManyTerminalChangeInputEnvelope = {
+  data: Prisma.EmployeeProjectCreateManyTerminalChangeInput | Prisma.EmployeeProjectCreateManyTerminalChangeInput[]
+  skipDuplicates?: boolean
+}
+
+export type EmployeeProjectUpsertWithWhereUniqueWithoutCreatedByChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedUpdateWithoutCreatedByChangeInput>
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutCreatedByChangeInput>
+}
+
+export type EmployeeProjectUpdateWithWhereUniqueWithoutCreatedByChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutCreatedByChangeInput, Prisma.EmployeeProjectUncheckedUpdateWithoutCreatedByChangeInput>
+}
+
+export type EmployeeProjectUpdateManyWithWhereWithoutCreatedByChangeInput = {
+  where: Prisma.EmployeeProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateManyMutationInput, Prisma.EmployeeProjectUncheckedUpdateManyWithoutCreatedByChangeInput>
+}
+
+export type EmployeeProjectUpsertWithWhereUniqueWithoutTerminalChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedUpdateWithoutTerminalChangeInput>
+  create: Prisma.XOR<Prisma.EmployeeProjectCreateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedCreateWithoutTerminalChangeInput>
+}
+
+export type EmployeeProjectUpdateWithWhereUniqueWithoutTerminalChangeInput = {
+  where: Prisma.EmployeeProjectWhereUniqueInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateWithoutTerminalChangeInput, Prisma.EmployeeProjectUncheckedUpdateWithoutTerminalChangeInput>
+}
+
+export type EmployeeProjectUpdateManyWithWhereWithoutTerminalChangeInput = {
+  where: Prisma.EmployeeProjectScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeProjectUpdateManyMutationInput, Prisma.EmployeeProjectUncheckedUpdateManyWithoutTerminalChangeInput>
+}
+
+export type EmployeeProjectCreateManyEmployeeInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -739,36 +1460,62 @@ export type EmployeeProjectCreateManyEmployeeInput = {
 }
 
 export type EmployeeProjectUpdateWithoutEmployeeInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateWithoutEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateManyWithoutEmployeeInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   projectId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -778,10 +1525,18 @@ export type EmployeeProjectUncheckedUpdateManyWithoutEmployeeInput = {
 
 export type EmployeeProjectCreateManyProjectInput = {
   id?: number
+  membershipUid?: string
+  sequence?: number
   employeeId: number
   role?: string | null
   startDate?: string | null
   endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -790,36 +1545,317 @@ export type EmployeeProjectCreateManyProjectInput = {
 }
 
 export type EmployeeProjectUpdateWithoutProjectInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateWithoutProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
 }
 
 export type EmployeeProjectUncheckedUpdateManyWithoutProjectInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
   employeeId?: Prisma.IntFieldUpdateOperationsInput | number
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeProjectCreateManySupersedesInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  createdByChangeId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EmployeeProjectUpdateWithoutSupersedesInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateWithoutSupersedesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutSupersedesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeProjectCreateManyCreatedByChangeInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  terminalChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EmployeeProjectCreateManyTerminalChangeInput = {
+  id?: number
+  membershipUid?: string
+  sequence?: number
+  employeeId: number
+  projectId: number
+  role?: string | null
+  startDate?: string | null
+  endDate?: string | null
+  recordState?: string
+  changeKind?: string
+  supersedesId?: number | null
+  createdByChangeId?: number | null
+  reason?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type EmployeeProjectUpdateWithoutCreatedByChangeInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  terminalChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutTerminatedVersionsNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateWithoutCreatedByChangeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutCreatedByChangeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  terminalChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeProjectUpdateWithoutTerminalChangeInput = {
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  project?: Prisma.ProjectUpdateOneRequiredWithoutEmployeesNestedInput
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutProjectsNestedInput
+  supersedes?: Prisma.EmployeeProjectUpdateOneWithoutSupersededByNestedInput
+  supersededBy?: Prisma.EmployeeProjectUpdateManyWithoutSupersedesNestedInput
+  createdByChange?: Prisma.ProjectMembershipChangeUpdateOneWithoutCreatedVersionsNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateWithoutTerminalChangeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededBy?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutSupersedesNestedInput
+}
+
+export type EmployeeProjectUncheckedUpdateManyWithoutTerminalChangeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  membershipUid?: Prisma.StringFieldUpdateOperationsInput | string
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  employeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  projectId?: Prisma.IntFieldUpdateOperationsInput | number
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  endDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordState?: Prisma.StringFieldUpdateOperationsInput | string
+  changeKind?: Prisma.StringFieldUpdateOperationsInput | string
+  supersedesId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdByChangeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -828,14 +1864,51 @@ export type EmployeeProjectUncheckedUpdateManyWithoutProjectInput = {
 }
 
 
+/**
+ * Count Type EmployeeProjectCountOutputType
+ */
+
+export type EmployeeProjectCountOutputType = {
+  supersededBy: number
+}
+
+export type EmployeeProjectCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  supersededBy?: boolean | EmployeeProjectCountOutputTypeCountSupersededByArgs
+}
+
+/**
+ * EmployeeProjectCountOutputType without action
+ */
+export type EmployeeProjectCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeProjectCountOutputType
+   */
+  select?: Prisma.EmployeeProjectCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * EmployeeProjectCountOutputType without action
+ */
+export type EmployeeProjectCountOutputTypeCountSupersededByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeProjectWhereInput
+}
+
 
 export type EmployeeProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  membershipUid?: boolean
+  sequence?: boolean
   employeeId?: boolean
   projectId?: boolean
   role?: boolean
   startDate?: boolean
   endDate?: boolean
+  recordState?: boolean
+  changeKind?: boolean
+  supersedesId?: boolean
+  createdByChangeId?: boolean
+  terminalChangeId?: boolean
+  reason?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -843,15 +1916,28 @@ export type EmployeeProjectSelect<ExtArgs extends runtime.Types.Extensions.Inter
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  supersededBy?: boolean | Prisma.EmployeeProject$supersededByArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
+  _count?: boolean | Prisma.EmployeeProjectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  membershipUid?: boolean
+  sequence?: boolean
   employeeId?: boolean
   projectId?: boolean
   role?: boolean
   startDate?: boolean
   endDate?: boolean
+  recordState?: boolean
+  changeKind?: boolean
+  supersedesId?: boolean
+  createdByChangeId?: boolean
+  terminalChangeId?: boolean
+  reason?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -859,15 +1945,26 @@ export type EmployeeProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  membershipUid?: boolean
+  sequence?: boolean
   employeeId?: boolean
   projectId?: boolean
   role?: boolean
   startDate?: boolean
   endDate?: boolean
+  recordState?: boolean
+  changeKind?: boolean
+  supersedesId?: boolean
+  createdByChangeId?: boolean
+  terminalChangeId?: boolean
+  reason?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -875,15 +1972,26 @@ export type EmployeeProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   updatedAt?: boolean
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
 }, ExtArgs["result"]["employeeProject"]>
 
 export type EmployeeProjectSelectScalar = {
   id?: boolean
+  membershipUid?: boolean
+  sequence?: boolean
   employeeId?: boolean
   projectId?: boolean
   role?: boolean
   startDate?: boolean
   endDate?: boolean
+  recordState?: boolean
+  changeKind?: boolean
+  supersedesId?: boolean
+  createdByChangeId?: boolean
+  terminalChangeId?: boolean
+  reason?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -891,18 +1999,29 @@ export type EmployeeProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type EmployeeProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "projectId" | "role" | "startDate" | "endDate" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["employeeProject"]>
+export type EmployeeProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "membershipUid" | "sequence" | "employeeId" | "projectId" | "role" | "startDate" | "endDate" | "recordState" | "changeKind" | "supersedesId" | "createdByChangeId" | "terminalChangeId" | "reason" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["employeeProject"]>
 export type EmployeeProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  supersededBy?: boolean | Prisma.EmployeeProject$supersededByArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
+  _count?: boolean | Prisma.EmployeeProjectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EmployeeProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
 }
 export type EmployeeProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   project?: boolean | Prisma.ProjectDefaultArgs<ExtArgs>
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  supersedes?: boolean | Prisma.EmployeeProject$supersedesArgs<ExtArgs>
+  createdByChange?: boolean | Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>
+  terminalChange?: boolean | Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>
 }
 
 export type $EmployeeProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -910,14 +2029,26 @@ export type $EmployeeProjectPayload<ExtArgs extends runtime.Types.Extensions.Int
   objects: {
     project: Prisma.$ProjectPayload<ExtArgs>
     employee: Prisma.$EmployeePayload<ExtArgs>
+    supersedes: Prisma.$EmployeeProjectPayload<ExtArgs> | null
+    supersededBy: Prisma.$EmployeeProjectPayload<ExtArgs>[]
+    createdByChange: Prisma.$ProjectMembershipChangePayload<ExtArgs> | null
+    terminalChange: Prisma.$ProjectMembershipChangePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    membershipUid: string
+    sequence: number
     employeeId: number
     projectId: number
     role: string | null
     startDate: string | null
     endDate: string | null
+    recordState: string
+    changeKind: string
+    supersedesId: number | null
+    createdByChangeId: number | null
+    terminalChangeId: number | null
+    reason: string | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1319,6 +2450,10 @@ export interface Prisma__EmployeeProjectClient<T, Null = never, ExtArgs extends 
   readonly [Symbol.toStringTag]: "PrismaPromise"
   project<T extends Prisma.ProjectDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProjectDefaultArgs<ExtArgs>>): Prisma.Prisma__ProjectClient<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  supersedes<T extends Prisma.EmployeeProject$supersedesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeProject$supersedesArgs<ExtArgs>>): Prisma.Prisma__EmployeeProjectClient<runtime.Types.Result.GetResult<Prisma.$EmployeeProjectPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  supersededBy<T extends Prisma.EmployeeProject$supersededByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeProject$supersededByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdByChange<T extends Prisma.EmployeeProject$createdByChangeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeProject$createdByChangeArgs<ExtArgs>>): Prisma.Prisma__ProjectMembershipChangeClient<runtime.Types.Result.GetResult<Prisma.$ProjectMembershipChangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  terminalChange<T extends Prisma.EmployeeProject$terminalChangeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeProject$terminalChangeArgs<ExtArgs>>): Prisma.Prisma__ProjectMembershipChangeClient<runtime.Types.Result.GetResult<Prisma.$ProjectMembershipChangePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1349,11 +2484,19 @@ export interface Prisma__EmployeeProjectClient<T, Null = never, ExtArgs extends 
  */
 export interface EmployeeProjectFieldRefs {
   readonly id: Prisma.FieldRef<"EmployeeProject", 'Int'>
+  readonly membershipUid: Prisma.FieldRef<"EmployeeProject", 'String'>
+  readonly sequence: Prisma.FieldRef<"EmployeeProject", 'Int'>
   readonly employeeId: Prisma.FieldRef<"EmployeeProject", 'Int'>
   readonly projectId: Prisma.FieldRef<"EmployeeProject", 'Int'>
   readonly role: Prisma.FieldRef<"EmployeeProject", 'String'>
   readonly startDate: Prisma.FieldRef<"EmployeeProject", 'String'>
   readonly endDate: Prisma.FieldRef<"EmployeeProject", 'String'>
+  readonly recordState: Prisma.FieldRef<"EmployeeProject", 'String'>
+  readonly changeKind: Prisma.FieldRef<"EmployeeProject", 'String'>
+  readonly supersedesId: Prisma.FieldRef<"EmployeeProject", 'Int'>
+  readonly createdByChangeId: Prisma.FieldRef<"EmployeeProject", 'Int'>
+  readonly terminalChangeId: Prisma.FieldRef<"EmployeeProject", 'Int'>
+  readonly reason: Prisma.FieldRef<"EmployeeProject", 'String'>
   readonly editedBy: Prisma.FieldRef<"EmployeeProject", 'Int'>
   readonly editedAt: Prisma.FieldRef<"EmployeeProject", 'DateTime'>
   readonly version: Prisma.FieldRef<"EmployeeProject", 'Int'>
@@ -1757,6 +2900,87 @@ export type EmployeeProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensio
    * Limit how many EmployeeProjects to delete.
    */
   limit?: number
+}
+
+/**
+ * EmployeeProject.supersedes
+ */
+export type EmployeeProject$supersedesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeProject
+   */
+  select?: Prisma.EmployeeProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeProject
+   */
+  omit?: Prisma.EmployeeProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeProjectInclude<ExtArgs> | null
+  where?: Prisma.EmployeeProjectWhereInput
+}
+
+/**
+ * EmployeeProject.supersededBy
+ */
+export type EmployeeProject$supersededByArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeProject
+   */
+  select?: Prisma.EmployeeProjectSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeProject
+   */
+  omit?: Prisma.EmployeeProjectOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeProjectInclude<ExtArgs> | null
+  where?: Prisma.EmployeeProjectWhereInput
+  orderBy?: Prisma.EmployeeProjectOrderByWithRelationInput | Prisma.EmployeeProjectOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeProjectWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeProjectScalarFieldEnum | Prisma.EmployeeProjectScalarFieldEnum[]
+}
+
+/**
+ * EmployeeProject.createdByChange
+ */
+export type EmployeeProject$createdByChangeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectMembershipChange
+   */
+  select?: Prisma.ProjectMembershipChangeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectMembershipChange
+   */
+  omit?: Prisma.ProjectMembershipChangeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectMembershipChangeInclude<ExtArgs> | null
+  where?: Prisma.ProjectMembershipChangeWhereInput
+}
+
+/**
+ * EmployeeProject.terminalChange
+ */
+export type EmployeeProject$terminalChangeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProjectMembershipChange
+   */
+  select?: Prisma.ProjectMembershipChangeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProjectMembershipChange
+   */
+  omit?: Prisma.ProjectMembershipChangeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProjectMembershipChangeInclude<ExtArgs> | null
+  where?: Prisma.ProjectMembershipChangeWhereInput
 }
 
 /**

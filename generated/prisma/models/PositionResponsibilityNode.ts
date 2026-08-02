@@ -29,6 +29,7 @@ export type AggregatePositionResponsibilityNode = {
 export type PositionResponsibilityNodeAvgAggregateOutputType = {
   id: number | null
   positionDescriptionId: number | null
+  positionDescriptionRevisionId: number | null
   parentId: number | null
   sortOrder: number | null
 }
@@ -36,6 +37,7 @@ export type PositionResponsibilityNodeAvgAggregateOutputType = {
 export type PositionResponsibilityNodeSumAggregateOutputType = {
   id: number | null
   positionDescriptionId: number | null
+  positionDescriptionRevisionId: number | null
   parentId: number | null
   sortOrder: number | null
 }
@@ -43,6 +45,7 @@ export type PositionResponsibilityNodeSumAggregateOutputType = {
 export type PositionResponsibilityNodeMinAggregateOutputType = {
   id: number | null
   positionDescriptionId: number | null
+  positionDescriptionRevisionId: number | null
   parentId: number | null
   nodeKey: string | null
   nodeType: string | null
@@ -62,6 +65,7 @@ export type PositionResponsibilityNodeMinAggregateOutputType = {
 export type PositionResponsibilityNodeMaxAggregateOutputType = {
   id: number | null
   positionDescriptionId: number | null
+  positionDescriptionRevisionId: number | null
   parentId: number | null
   nodeKey: string | null
   nodeType: string | null
@@ -81,6 +85,7 @@ export type PositionResponsibilityNodeMaxAggregateOutputType = {
 export type PositionResponsibilityNodeCountAggregateOutputType = {
   id: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId: number
   nodeKey: number
   nodeType: number
@@ -102,6 +107,7 @@ export type PositionResponsibilityNodeCountAggregateOutputType = {
 export type PositionResponsibilityNodeAvgAggregateInputType = {
   id?: true
   positionDescriptionId?: true
+  positionDescriptionRevisionId?: true
   parentId?: true
   sortOrder?: true
 }
@@ -109,6 +115,7 @@ export type PositionResponsibilityNodeAvgAggregateInputType = {
 export type PositionResponsibilityNodeSumAggregateInputType = {
   id?: true
   positionDescriptionId?: true
+  positionDescriptionRevisionId?: true
   parentId?: true
   sortOrder?: true
 }
@@ -116,6 +123,7 @@ export type PositionResponsibilityNodeSumAggregateInputType = {
 export type PositionResponsibilityNodeMinAggregateInputType = {
   id?: true
   positionDescriptionId?: true
+  positionDescriptionRevisionId?: true
   parentId?: true
   nodeKey?: true
   nodeType?: true
@@ -135,6 +143,7 @@ export type PositionResponsibilityNodeMinAggregateInputType = {
 export type PositionResponsibilityNodeMaxAggregateInputType = {
   id?: true
   positionDescriptionId?: true
+  positionDescriptionRevisionId?: true
   parentId?: true
   nodeKey?: true
   nodeType?: true
@@ -154,6 +163,7 @@ export type PositionResponsibilityNodeMaxAggregateInputType = {
 export type PositionResponsibilityNodeCountAggregateInputType = {
   id?: true
   positionDescriptionId?: true
+  positionDescriptionRevisionId?: true
   parentId?: true
   nodeKey?: true
   nodeType?: true
@@ -260,6 +270,7 @@ export type PositionResponsibilityNodeGroupByArgs<ExtArgs extends runtime.Types.
 export type PositionResponsibilityNodeGroupByOutputType = {
   id: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId: number | null
   nodeKey: string
   nodeType: string
@@ -302,6 +313,7 @@ export type PositionResponsibilityNodeWhereInput = {
   NOT?: Prisma.PositionResponsibilityNodeWhereInput | Prisma.PositionResponsibilityNodeWhereInput[]
   id?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
   positionDescriptionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
+  positionDescriptionRevisionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
   parentId?: Prisma.IntNullableFilter<"PositionResponsibilityNode"> | number | null
   nodeKey?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
   nodeType?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
@@ -317,6 +329,7 @@ export type PositionResponsibilityNodeWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
   positionDescription?: Prisma.XOR<Prisma.PositionDescriptionScalarRelationFilter, Prisma.PositionDescriptionWhereInput>
+  positionDescriptionRevision?: Prisma.XOR<Prisma.PositionDescriptionRevisionScalarRelationFilter, Prisma.PositionDescriptionRevisionWhereInput>
   parent?: Prisma.XOR<Prisma.PositionResponsibilityNodeNullableScalarRelationFilter, Prisma.PositionResponsibilityNodeWhereInput> | null
   children?: Prisma.PositionResponsibilityNodeListRelationFilter
   workReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
@@ -325,6 +338,7 @@ export type PositionResponsibilityNodeWhereInput = {
 export type PositionResponsibilityNodeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   nodeKey?: Prisma.SortOrder
   nodeType?: Prisma.SortOrder
@@ -340,6 +354,7 @@ export type PositionResponsibilityNodeOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   positionDescription?: Prisma.PositionDescriptionOrderByWithRelationInput
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionOrderByWithRelationInput
   parent?: Prisma.PositionResponsibilityNodeOrderByWithRelationInput
   children?: Prisma.PositionResponsibilityNodeOrderByRelationAggregateInput
   workReferences?: Prisma.WorkResponsibilityReferenceOrderByRelationAggregateInput
@@ -352,6 +367,7 @@ export type PositionResponsibilityNodeWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.PositionResponsibilityNodeWhereInput[]
   NOT?: Prisma.PositionResponsibilityNodeWhereInput | Prisma.PositionResponsibilityNodeWhereInput[]
   positionDescriptionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
+  positionDescriptionRevisionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
   parentId?: Prisma.IntNullableFilter<"PositionResponsibilityNode"> | number | null
   nodeType?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
   title?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
@@ -366,6 +382,7 @@ export type PositionResponsibilityNodeWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
   positionDescription?: Prisma.XOR<Prisma.PositionDescriptionScalarRelationFilter, Prisma.PositionDescriptionWhereInput>
+  positionDescriptionRevision?: Prisma.XOR<Prisma.PositionDescriptionRevisionScalarRelationFilter, Prisma.PositionDescriptionRevisionWhereInput>
   parent?: Prisma.XOR<Prisma.PositionResponsibilityNodeNullableScalarRelationFilter, Prisma.PositionResponsibilityNodeWhereInput> | null
   children?: Prisma.PositionResponsibilityNodeListRelationFilter
   workReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
@@ -374,6 +391,7 @@ export type PositionResponsibilityNodeWhereUniqueInput = Prisma.AtLeast<{
 export type PositionResponsibilityNodeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrderInput | Prisma.SortOrder
   nodeKey?: Prisma.SortOrder
   nodeType?: Prisma.SortOrder
@@ -401,6 +419,7 @@ export type PositionResponsibilityNodeScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PositionResponsibilityNodeScalarWhereWithAggregatesInput | Prisma.PositionResponsibilityNodeScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"PositionResponsibilityNode"> | number
   positionDescriptionId?: Prisma.IntWithAggregatesFilter<"PositionResponsibilityNode"> | number
+  positionDescriptionRevisionId?: Prisma.IntWithAggregatesFilter<"PositionResponsibilityNode"> | number
   parentId?: Prisma.IntNullableWithAggregatesFilter<"PositionResponsibilityNode"> | number | null
   nodeKey?: Prisma.StringWithAggregatesFilter<"PositionResponsibilityNode"> | string
   nodeType?: Prisma.StringWithAggregatesFilter<"PositionResponsibilityNode"> | string
@@ -432,6 +451,7 @@ export type PositionResponsibilityNodeCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutResponsibilityNodesInput
+  positionDescriptionRevision: Prisma.PositionDescriptionRevisionCreateNestedOneWithoutResponsibilityNodesInput
   parent?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutChildrenInput
   children?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutParentInput
   workReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput
@@ -440,6 +460,7 @@ export type PositionResponsibilityNodeCreateInput = {
 export type PositionResponsibilityNodeUncheckedCreateInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -473,6 +494,7 @@ export type PositionResponsibilityNodeUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
   parent?: Prisma.PositionResponsibilityNodeUpdateOneWithoutChildrenNestedInput
   children?: Prisma.PositionResponsibilityNodeUpdateManyWithoutParentNestedInput
   workReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutResponsibilityNodeNestedInput
@@ -481,6 +503,7 @@ export type PositionResponsibilityNodeUpdateInput = {
 export type PositionResponsibilityNodeUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -502,6 +525,7 @@ export type PositionResponsibilityNodeUncheckedUpdateInput = {
 export type PositionResponsibilityNodeCreateManyInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -537,6 +561,7 @@ export type PositionResponsibilityNodeUpdateManyMutationInput = {
 export type PositionResponsibilityNodeUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -571,6 +596,7 @@ export type PositionResponsibilityNodeNullableScalarRelationFilter = {
 export type PositionResponsibilityNodeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   nodeKey?: Prisma.SortOrder
   nodeType?: Prisma.SortOrder
@@ -590,6 +616,7 @@ export type PositionResponsibilityNodeCountOrderByAggregateInput = {
 export type PositionResponsibilityNodeAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
@@ -597,6 +624,7 @@ export type PositionResponsibilityNodeAvgOrderByAggregateInput = {
 export type PositionResponsibilityNodeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   nodeKey?: Prisma.SortOrder
   nodeType?: Prisma.SortOrder
@@ -616,6 +644,7 @@ export type PositionResponsibilityNodeMaxOrderByAggregateInput = {
 export type PositionResponsibilityNodeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   nodeKey?: Prisma.SortOrder
   nodeType?: Prisma.SortOrder
@@ -635,6 +664,7 @@ export type PositionResponsibilityNodeMinOrderByAggregateInput = {
 export type PositionResponsibilityNodeSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   positionDescriptionId?: Prisma.SortOrder
+  positionDescriptionRevisionId?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
 }
@@ -678,6 +708,48 @@ export type PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescript
   connect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
   update?: Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
   updateMany?: Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionInput[]
+  deleteMany?: Prisma.PositionResponsibilityNodeScalarWhereInput | Prisma.PositionResponsibilityNodeScalarWhereInput[]
+}
+
+export type PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionRevisionInput = {
+  create?: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput> | Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput[] | Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput[]
+  connectOrCreate?: Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput[]
+  createMany?: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInputEnvelope
+  connect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+}
+
+export type PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionRevisionInput = {
+  create?: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput> | Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput[] | Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput[]
+  connectOrCreate?: Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput[]
+  createMany?: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInputEnvelope
+  connect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+}
+
+export type PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionRevisionNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput> | Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput[] | Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput[]
+  connectOrCreate?: Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput[]
+  upsert?: Prisma.PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionRevisionInput[]
+  createMany?: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInputEnvelope
+  set?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  disconnect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  delete?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  connect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  update?: Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionRevisionInput[]
+  updateMany?: Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionRevisionInput[]
+  deleteMany?: Prisma.PositionResponsibilityNodeScalarWhereInput | Prisma.PositionResponsibilityNodeScalarWhereInput[]
+}
+
+export type PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionRevisionNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput> | Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput[] | Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput[]
+  connectOrCreate?: Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput[]
+  upsert?: Prisma.PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionRevisionInput[]
+  createMany?: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInputEnvelope
+  set?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  disconnect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  delete?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  connect?: Prisma.PositionResponsibilityNodeWhereUniqueInput | Prisma.PositionResponsibilityNodeWhereUniqueInput[]
+  update?: Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionRevisionInput[]
+  updateMany?: Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionRevisionInput[]
   deleteMany?: Prisma.PositionResponsibilityNodeScalarWhereInput | Prisma.PositionResponsibilityNodeScalarWhereInput[]
 }
 
@@ -769,6 +841,7 @@ export type PositionResponsibilityNodeCreateWithoutPositionDescriptionInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  positionDescriptionRevision: Prisma.PositionDescriptionRevisionCreateNestedOneWithoutResponsibilityNodesInput
   parent?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutChildrenInput
   children?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutParentInput
   workReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput
@@ -776,6 +849,7 @@ export type PositionResponsibilityNodeCreateWithoutPositionDescriptionInput = {
 
 export type PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionInput = {
   id?: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -826,6 +900,7 @@ export type PositionResponsibilityNodeScalarWhereInput = {
   NOT?: Prisma.PositionResponsibilityNodeScalarWhereInput | Prisma.PositionResponsibilityNodeScalarWhereInput[]
   id?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
   positionDescriptionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
+  positionDescriptionRevisionId?: Prisma.IntFilter<"PositionResponsibilityNode"> | number
   parentId?: Prisma.IntNullableFilter<"PositionResponsibilityNode"> | number | null
   nodeKey?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
   nodeType?: Prisma.StringFilter<"PositionResponsibilityNode"> | string
@@ -840,6 +915,73 @@ export type PositionResponsibilityNodeScalarWhereInput = {
   isActive?: Prisma.BoolFilter<"PositionResponsibilityNode"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionResponsibilityNode"> | Date | string
+}
+
+export type PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput = {
+  nodeKey: string
+  nodeType: string
+  title: string
+  content?: string
+  pathLabel?: string
+  sourcePath?: string
+  sourceHash: string
+  descriptionVersion?: string | null
+  descriptionUpdatedAt?: Date | string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutResponsibilityNodesInput
+  parent?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutChildrenInput
+  children?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutParentInput
+  workReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput
+}
+
+export type PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput = {
+  id?: number
+  positionDescriptionId: number
+  parentId?: number | null
+  nodeKey: string
+  nodeType: string
+  title: string
+  content?: string
+  pathLabel?: string
+  sourcePath?: string
+  sourceHash: string
+  descriptionVersion?: string | null
+  descriptionUpdatedAt?: Date | string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutParentInput
+  workReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutResponsibilityNodeInput
+}
+
+export type PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionRevisionInput = {
+  where: Prisma.PositionResponsibilityNodeWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput>
+}
+
+export type PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInputEnvelope = {
+  data: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInput | Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInput[]
+  skipDuplicates?: boolean
+}
+
+export type PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionRevisionInput = {
+  where: Prisma.PositionResponsibilityNodeWhereUniqueInput
+  update: Prisma.XOR<Prisma.PositionResponsibilityNodeUpdateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedUpdateWithoutPositionDescriptionRevisionInput>
+  create: Prisma.XOR<Prisma.PositionResponsibilityNodeCreateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedCreateWithoutPositionDescriptionRevisionInput>
+}
+
+export type PositionResponsibilityNodeUpdateWithWhereUniqueWithoutPositionDescriptionRevisionInput = {
+  where: Prisma.PositionResponsibilityNodeWhereUniqueInput
+  data: Prisma.XOR<Prisma.PositionResponsibilityNodeUpdateWithoutPositionDescriptionRevisionInput, Prisma.PositionResponsibilityNodeUncheckedUpdateWithoutPositionDescriptionRevisionInput>
+}
+
+export type PositionResponsibilityNodeUpdateManyWithWhereWithoutPositionDescriptionRevisionInput = {
+  where: Prisma.PositionResponsibilityNodeScalarWhereInput
+  data: Prisma.XOR<Prisma.PositionResponsibilityNodeUpdateManyMutationInput, Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionRevisionInput>
 }
 
 export type PositionResponsibilityNodeCreateWithoutChildrenInput = {
@@ -857,6 +999,7 @@ export type PositionResponsibilityNodeCreateWithoutChildrenInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutResponsibilityNodesInput
+  positionDescriptionRevision: Prisma.PositionDescriptionRevisionCreateNestedOneWithoutResponsibilityNodesInput
   parent?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutChildrenInput
   workReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput
 }
@@ -864,6 +1007,7 @@ export type PositionResponsibilityNodeCreateWithoutChildrenInput = {
 export type PositionResponsibilityNodeUncheckedCreateWithoutChildrenInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -901,6 +1045,7 @@ export type PositionResponsibilityNodeCreateWithoutParentInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutResponsibilityNodesInput
+  positionDescriptionRevision: Prisma.PositionDescriptionRevisionCreateNestedOneWithoutResponsibilityNodesInput
   children?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutParentInput
   workReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput
 }
@@ -908,6 +1053,7 @@ export type PositionResponsibilityNodeCreateWithoutParentInput = {
 export type PositionResponsibilityNodeUncheckedCreateWithoutParentInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   nodeKey: string
   nodeType: string
   title: string
@@ -961,6 +1107,7 @@ export type PositionResponsibilityNodeUpdateWithoutChildrenInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
   parent?: Prisma.PositionResponsibilityNodeUpdateOneWithoutChildrenNestedInput
   workReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutResponsibilityNodeNestedInput
 }
@@ -968,6 +1115,7 @@ export type PositionResponsibilityNodeUpdateWithoutChildrenInput = {
 export type PositionResponsibilityNodeUncheckedUpdateWithoutChildrenInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1016,6 +1164,7 @@ export type PositionResponsibilityNodeCreateWithoutWorkReferencesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutResponsibilityNodesInput
+  positionDescriptionRevision: Prisma.PositionDescriptionRevisionCreateNestedOneWithoutResponsibilityNodesInput
   parent?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutChildrenInput
   children?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutParentInput
 }
@@ -1023,6 +1172,7 @@ export type PositionResponsibilityNodeCreateWithoutWorkReferencesInput = {
 export type PositionResponsibilityNodeUncheckedCreateWithoutWorkReferencesInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -1071,6 +1221,7 @@ export type PositionResponsibilityNodeUpdateWithoutWorkReferencesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
   parent?: Prisma.PositionResponsibilityNodeUpdateOneWithoutChildrenNestedInput
   children?: Prisma.PositionResponsibilityNodeUpdateManyWithoutParentNestedInput
 }
@@ -1078,6 +1229,7 @@ export type PositionResponsibilityNodeUpdateWithoutWorkReferencesInput = {
 export type PositionResponsibilityNodeUncheckedUpdateWithoutWorkReferencesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1097,6 +1249,7 @@ export type PositionResponsibilityNodeUncheckedUpdateWithoutWorkReferencesInput 
 
 export type PositionResponsibilityNodeCreateManyPositionDescriptionInput = {
   id?: number
+  positionDescriptionRevisionId: number
   parentId?: number | null
   nodeKey: string
   nodeType: string
@@ -1127,6 +1280,7 @@ export type PositionResponsibilityNodeUpdateWithoutPositionDescriptionInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
   parent?: Prisma.PositionResponsibilityNodeUpdateOneWithoutChildrenNestedInput
   children?: Prisma.PositionResponsibilityNodeUpdateManyWithoutParentNestedInput
   workReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutResponsibilityNodeNestedInput
@@ -1134,6 +1288,7 @@ export type PositionResponsibilityNodeUpdateWithoutPositionDescriptionInput = {
 
 export type PositionResponsibilityNodeUncheckedUpdateWithoutPositionDescriptionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1154,6 +1309,86 @@ export type PositionResponsibilityNodeUncheckedUpdateWithoutPositionDescriptionI
 
 export type PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  pathLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PositionResponsibilityNodeCreateManyPositionDescriptionRevisionInput = {
+  id?: number
+  positionDescriptionId: number
+  parentId?: number | null
+  nodeKey: string
+  nodeType: string
+  title: string
+  content?: string
+  pathLabel?: string
+  sourcePath?: string
+  sourceHash: string
+  descriptionVersion?: string | null
+  descriptionUpdatedAt?: Date | string | null
+  sortOrder?: number
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PositionResponsibilityNodeUpdateWithoutPositionDescriptionRevisionInput = {
+  nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  pathLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
+  parent?: Prisma.PositionResponsibilityNodeUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.PositionResponsibilityNodeUpdateManyWithoutParentNestedInput
+  workReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutResponsibilityNodeNestedInput
+}
+
+export type PositionResponsibilityNodeUncheckedUpdateWithoutPositionDescriptionRevisionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  pathLabel?: Prisma.StringFieldUpdateOperationsInput | string
+  sourcePath?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceHash?: Prisma.StringFieldUpdateOperationsInput | string
+  descriptionVersion?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  descriptionUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutParentNestedInput
+  workReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutResponsibilityNodeNestedInput
+}
+
+export type PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionRevisionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
   parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1173,6 +1408,7 @@ export type PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescript
 export type PositionResponsibilityNodeCreateManyParentInput = {
   id?: number
   positionDescriptionId: number
+  positionDescriptionRevisionId: number
   nodeKey: string
   nodeType: string
   title: string
@@ -1203,6 +1439,7 @@ export type PositionResponsibilityNodeUpdateWithoutParentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
+  positionDescriptionRevision?: Prisma.PositionDescriptionRevisionUpdateOneRequiredWithoutResponsibilityNodesNestedInput
   children?: Prisma.PositionResponsibilityNodeUpdateManyWithoutParentNestedInput
   workReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutResponsibilityNodeNestedInput
 }
@@ -1210,6 +1447,7 @@ export type PositionResponsibilityNodeUpdateWithoutParentInput = {
 export type PositionResponsibilityNodeUncheckedUpdateWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1230,6 +1468,7 @@ export type PositionResponsibilityNodeUncheckedUpdateWithoutParentInput = {
 export type PositionResponsibilityNodeUncheckedUpdateManyWithoutParentInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionRevisionId?: Prisma.IntFieldUpdateOperationsInput | number
   nodeKey?: Prisma.StringFieldUpdateOperationsInput | string
   nodeType?: Prisma.StringFieldUpdateOperationsInput | string
   title?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1288,6 +1527,7 @@ export type PositionResponsibilityNodeCountOutputTypeCountWorkReferencesArgs<Ext
 export type PositionResponsibilityNodeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   positionDescriptionId?: boolean
+  positionDescriptionRevisionId?: boolean
   parentId?: boolean
   nodeKey?: boolean
   nodeType?: boolean
@@ -1303,6 +1543,7 @@ export type PositionResponsibilityNodeSelect<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
   children?: boolean | Prisma.PositionResponsibilityNode$childrenArgs<ExtArgs>
   workReferences?: boolean | Prisma.PositionResponsibilityNode$workReferencesArgs<ExtArgs>
@@ -1312,6 +1553,7 @@ export type PositionResponsibilityNodeSelect<ExtArgs extends runtime.Types.Exten
 export type PositionResponsibilityNodeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   positionDescriptionId?: boolean
+  positionDescriptionRevisionId?: boolean
   parentId?: boolean
   nodeKey?: boolean
   nodeType?: boolean
@@ -1327,12 +1569,14 @@ export type PositionResponsibilityNodeSelectCreateManyAndReturn<ExtArgs extends 
   createdAt?: boolean
   updatedAt?: boolean
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
 }, ExtArgs["result"]["positionResponsibilityNode"]>
 
 export type PositionResponsibilityNodeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   positionDescriptionId?: boolean
+  positionDescriptionRevisionId?: boolean
   parentId?: boolean
   nodeKey?: boolean
   nodeType?: boolean
@@ -1348,12 +1592,14 @@ export type PositionResponsibilityNodeSelectUpdateManyAndReturn<ExtArgs extends 
   createdAt?: boolean
   updatedAt?: boolean
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
 }, ExtArgs["result"]["positionResponsibilityNode"]>
 
 export type PositionResponsibilityNodeSelectScalar = {
   id?: boolean
   positionDescriptionId?: boolean
+  positionDescriptionRevisionId?: boolean
   parentId?: boolean
   nodeKey?: boolean
   nodeType?: boolean
@@ -1370,9 +1616,10 @@ export type PositionResponsibilityNodeSelectScalar = {
   updatedAt?: boolean
 }
 
-export type PositionResponsibilityNodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionDescriptionId" | "parentId" | "nodeKey" | "nodeType" | "title" | "content" | "pathLabel" | "sourcePath" | "sourceHash" | "descriptionVersion" | "descriptionUpdatedAt" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["positionResponsibilityNode"]>
+export type PositionResponsibilityNodeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionDescriptionId" | "positionDescriptionRevisionId" | "parentId" | "nodeKey" | "nodeType" | "title" | "content" | "pathLabel" | "sourcePath" | "sourceHash" | "descriptionVersion" | "descriptionUpdatedAt" | "sortOrder" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["positionResponsibilityNode"]>
 export type PositionResponsibilityNodeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
   children?: boolean | Prisma.PositionResponsibilityNode$childrenArgs<ExtArgs>
   workReferences?: boolean | Prisma.PositionResponsibilityNode$workReferencesArgs<ExtArgs>
@@ -1380,10 +1627,12 @@ export type PositionResponsibilityNodeInclude<ExtArgs extends runtime.Types.Exte
 }
 export type PositionResponsibilityNodeIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
 }
 export type PositionResponsibilityNodeIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
+  positionDescriptionRevision?: boolean | Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>
 }
 
@@ -1391,6 +1640,7 @@ export type $PositionResponsibilityNodePayload<ExtArgs extends runtime.Types.Ext
   name: "PositionResponsibilityNode"
   objects: {
     positionDescription: Prisma.$PositionDescriptionPayload<ExtArgs>
+    positionDescriptionRevision: Prisma.$PositionDescriptionRevisionPayload<ExtArgs>
     parent: Prisma.$PositionResponsibilityNodePayload<ExtArgs> | null
     children: Prisma.$PositionResponsibilityNodePayload<ExtArgs>[]
     workReferences: Prisma.$WorkResponsibilityReferencePayload<ExtArgs>[]
@@ -1398,6 +1648,7 @@ export type $PositionResponsibilityNodePayload<ExtArgs extends runtime.Types.Ext
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     positionDescriptionId: number
+    positionDescriptionRevisionId: number
     parentId: number | null
     nodeKey: string
     nodeType: string
@@ -1807,6 +2058,7 @@ readonly fields: PositionResponsibilityNodeFieldRefs;
 export interface Prisma__PositionResponsibilityNodeClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   positionDescription<T extends Prisma.PositionDescriptionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescriptionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionDescriptionClient<runtime.Types.Result.GetResult<Prisma.$PositionDescriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  positionDescriptionRevision<T extends Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescriptionRevisionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionDescriptionRevisionClient<runtime.Types.Result.GetResult<Prisma.$PositionDescriptionRevisionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   parent<T extends Prisma.PositionResponsibilityNode$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionResponsibilityNode$parentArgs<ExtArgs>>): Prisma.Prisma__PositionResponsibilityNodeClient<runtime.Types.Result.GetResult<Prisma.$PositionResponsibilityNodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.PositionResponsibilityNode$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionResponsibilityNode$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResponsibilityNodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workReferences<T extends Prisma.PositionResponsibilityNode$workReferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionResponsibilityNode$workReferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkResponsibilityReferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1841,6 +2093,7 @@ export interface Prisma__PositionResponsibilityNodeClient<T, Null = never, ExtAr
 export interface PositionResponsibilityNodeFieldRefs {
   readonly id: Prisma.FieldRef<"PositionResponsibilityNode", 'Int'>
   readonly positionDescriptionId: Prisma.FieldRef<"PositionResponsibilityNode", 'Int'>
+  readonly positionDescriptionRevisionId: Prisma.FieldRef<"PositionResponsibilityNode", 'Int'>
   readonly parentId: Prisma.FieldRef<"PositionResponsibilityNode", 'Int'>
   readonly nodeKey: Prisma.FieldRef<"PositionResponsibilityNode", 'String'>
   readonly nodeType: Prisma.FieldRef<"PositionResponsibilityNode", 'String'>

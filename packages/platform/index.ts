@@ -114,6 +114,21 @@ export {
   parseWorkflowStatus,
 } from "./workflow-status";
 export type { WorkflowFlowType, WorkflowStatus, WorkflowStatusTone } from "./workflow-status";
+export {
+  APPROVAL_REQUEST_STATUSES,
+  APPROVAL_REQUEST_TRANSITIONS,
+  getApprovalRequestEventLabel,
+  isApprovalRequestStatus,
+  parseApprovalRequestStatusList,
+} from "./workflow-request-contract";
+export type {
+  ApprovalRequestDescription,
+  ApprovalRequestEventType,
+  ApprovalRequestEventViewDto,
+  ApprovalRequestOperation,
+  ApprovalRequestStatus,
+  ApprovalRequestViewDto,
+} from "./workflow-request-contract";
 export type {
   ActionRuntime,
   ActionRuntimeAction,
@@ -231,13 +246,12 @@ export {
   createInternalApiRoute,
 } from "./server/api-route";
 export {
-  domainIssueToResponse,
   failCommand,
   isDomainServiceResult,
   mapValidationToServiceResult,
   okCommand,
-  toServiceErrorResponse,
 } from "./server/domain-validation";
+export { domainIssueToResponse, toServiceErrorResponse } from "./server/api";
 export type {
   DomainAction,
   DomainCommandBuilder,

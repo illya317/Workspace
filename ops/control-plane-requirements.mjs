@@ -13,7 +13,6 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 import {
-  digestDataReleaseSet,
   digestFile,
   digestLifecycleSourceToolSet,
 } from "./control-plane-receipt.mjs";
@@ -75,7 +74,6 @@ export function createControlPlaneRequirements({
     inputs: {
       migrationSetSha256: digestMigrationSet(repositoryRoot),
       resourceManifestSha256: digestFile(resourceManifestFile),
-      dataReleaseManifestSetSha256: digestDataReleaseSet(path.join(repositoryRoot, "ops", "data-releases")),
       lifecycleToolSetSha256: digestLifecycleSourceToolSet(repositoryRoot),
     },
     createdAt,
@@ -91,7 +89,6 @@ export function normalizeControlPlaneRequirements(value) {
   requireSha(value.source?.treeSha, "requirements source tree");
   for (const [key, digest] of Object.entries(value.inputs ?? {})) requireDigest(digest, `requirements ${key}`);
   const exactKeys = [
-    "dataReleaseManifestSetSha256",
     "lifecycleToolSetSha256",
     "migrationSetSha256",
     "resourceManifestSha256",

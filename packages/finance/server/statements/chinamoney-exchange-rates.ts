@@ -22,6 +22,18 @@ export interface ChinaMoneyCentralParityQuote extends SourceQuote {
   sourceUrl: string;
 }
 
+export interface ChinaMoneyMonthlyAverageQuote {
+  baseCurrency: string;
+  quoteCurrency: "CNY";
+  month: string;
+  rateDate: string;
+  rate: number;
+  sourcePair: string;
+  sourceUnit: number;
+  sourceUrl: string;
+  observations: Array<{ rateDate: string; rate: number; price: number }>;
+}
+
 export class ChinaMoneyRateError extends Error {
   constructor(message: string, readonly status = 502) {
     super(message);
@@ -105,6 +117,28 @@ function historicalQuote(payload: unknown, sourcePair: string, targetDate: strin
   }).sort((left, right) => right.rateDate.localeCompare(left.rateDate))[0] ?? null;
 }
 
+function historicalQuotes(payload: unknown, sourcePair: string, startDate: string, endDate: string): SourceQuote[] {
+  const root = payload as {
+    data?: { searchlist?: unknown[]; records?: unknown[] };
+    searchlist?: unknown[];
+    records?: unknown[];
+  };
+  const searchlist = root.data?.searchlist ?? root.searchlist ?? [];
+  const records = root.data?.records ?? root.records ?? [];
+  const pairIndex = Array.isArray(searchlist)
+    ? searchlist.findIndex((item) => String(item).replaceAll(" ", "").toUpperCase() === sourcePair)
+    : -1;
+  if (pairIndex < 0 || !Array.isArray(records)) return [];
+  return records.flatMap((record) => {
+    const row = record as { date?: unknown; values?: unknown[] };
+    const rateDate = dateText(row.date);
+    const price = positiveNumber(row.values?.[pairIndex]);
+    return rateDate && rateDate >= startDate && rateDate <= endDate && price
+      ? [{ sourcePair, rateDate, price }]
+      : [];
+  }).sort((left, right) => left.rateDate.localeCompare(right.rateDate));
+}
+
 function businessToday() {
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: getTenantProfile().localization.businessTimeZone,
@@ -173,4 +207,55 @@ export async function fetchChinaMoneyCentralParity(input: {
     throw new ChinaMoneyRateError(`中国货币网返回币种 ${normalized.baseCurrency}，与请求 ${currencyCode} 不一致`);
   }
   return { ...normalized, sourceUrl };
+}
+
+export async function fetchChinaMoneyMonthlyAverage(input: {
+  currencyCode: string;
+  year: number;
+  month: number;
+  fetcher?: typeof fetch;
+}): Promise<ChinaMoneyMonthlyAverageQuote> {
+  const currencyCode = input.currencyCode.toUpperCase();
+  const sourcePair = SPECIAL_SOURCE_PAIRS[currencyCode] ?? `${currencyCode}/CNY`;
+  const startDate = `${input.year}-${String(input.month).padStart(2, "0")}-01`;
+  const rateDate = new Date(Date.UTC(input.year, input.month, 0)).toISOString().slice(0, 10);
+  if (rateDate >= businessToday()) {
+    throw new ChinaMoneyRateError(`${startDate.slice(0, 7)} 尚未结束，不能冻结月平均汇率`);
+  }
+  const url = new URL(HISTORY_URL);
+  url.searchParams.set("startDate", startDate);
+  url.searchParams.set("endDate", rateDate);
+  url.searchParams.set("currency", sourcePair);
+  url.searchParams.set("pageNum", "1");
+  url.searchParams.set("pageSize", "50");
+  const sourceUrl = url.toString();
+  const quotes = historicalQuotes(
+    await fetchJson(sourceUrl, input.fetcher ?? fetch),
+    sourcePair,
+    startDate,
+    rateDate,
+  );
+  if (quotes.length === 0) {
+    throw new ChinaMoneyRateError(`中国货币网没有返回 ${currencyCode} 在 ${startDate.slice(0, 7)} 的有效交易日中间价`);
+  }
+  const normalized = quotes.map((quote) => normalizeChinaMoneyQuote(quote));
+  if (normalized.some((quote) => quote.baseCurrency !== currencyCode)) {
+    throw new ChinaMoneyRateError(`中国货币网月平均汇率返回币种与请求 ${currencyCode} 不一致`);
+  }
+  const rate = Math.round((normalized.reduce((sum, quote) => sum + quote.rate, 0) / normalized.length) * 1e8) / 1e8;
+  return {
+    baseCurrency: currencyCode,
+    quoteCurrency: "CNY",
+    month: startDate.slice(0, 7),
+    rateDate,
+    rate,
+    sourcePair,
+    sourceUnit: normalized[0]!.sourceUnit,
+    sourceUrl,
+    observations: normalized.map((quote) => ({
+      rateDate: quote.rateDate,
+      rate: quote.rate,
+      price: quote.price,
+    })),
+  };
 }

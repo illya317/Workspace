@@ -1,0 +1,106 @@
+/// 税务申报记录（事实表，来源于官方申报回执手工维护或受治理导入）
+model FinanceTaxFiling {
+  id                           Int                         @id @default(autoincrement())
+  registrationId               Int
+  periodId                     Int
+  filingReference              String?
+  filedOn                      DateTime?                   @db.Date
+  status                       String                      @default("draft")
+  currencyCode                 String                      @db.VarChar(3)
+  sourceReportedDeclaredAmount Decimal?                    @db.Decimal(20, 2)
+  sourceReportedPayableAmount  Decimal?                    @db.Decimal(20, 2)
+  note                         String?
+  sourceKind                   String?
+  sourceReleaseId              String?
+  sourceSha256                 String?
+  sourceFile                   String?
+  sourceSheet                  String?
+  sourceRow                    Int?
+  sourceRange                  String?
+  sourceKey                    String?
+  version                      Int                         @default(1)
+  createdAt                    DateTime                    @default(now())
+  updatedAt                    DateTime                    @default(now()) @updatedAt
+  registration                FinanceTaxRegistration      @relation(fields: [registrationId], references: [id], onDelete: Restrict)
+  period                      FinancePeriod               @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  paymentAllocations           FinanceTaxPaymentAllocation[]
+
+  @@unique([registrationId, periodId])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([periodId, status])
+}
+
+/// 税款支付追加记录（事实表，来源于银行回单、税务缴款凭证或其冲销记录）
+model FinanceTaxPayment {
+  id                  Int                         @id @default(autoincrement())
+  companyId           Int
+  paymentKind         String                      @default("payment")
+  paidOn              DateTime                    @db.Date
+  amount              Decimal                     @db.Decimal(20, 2)
+  currencyCode        String                      @db.VarChar(3)
+  paymentReference    String?
+  note                String?
+  reversesPaymentId   Int?                        @unique
+  idempotencyKey      String                      @unique
+  sourceKind          String?
+  sourceReleaseId     String?
+  sourceSha256        String?
+  sourceFile          String?
+  sourceSheet         String?
+  sourceRow           Int?
+  sourceRange         String?
+  sourceKey           String?
+  recordedAt          DateTime                    @default(now())
+  company             Company                     @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  reversesPayment     FinanceTaxPayment?          @relation("FinanceTaxPaymentReversal", fields: [reversesPaymentId], references: [id], onDelete: Restrict)
+  reversedByPayment   FinanceTaxPayment?          @relation("FinanceTaxPaymentReversal")
+  allocations         FinanceTaxPaymentAllocation[]
+
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([companyId, paidOn])
+}
+
+/// 税款支付与申报及总账分录的分配链接（事实表，来源于人工勾稽或受治理凭证匹配）
+model FinanceTaxPaymentAllocation {
+  id               Int                 @id @default(autoincrement())
+  paymentId        Int
+  filingId         Int
+  voucherItemId    Int?
+  allocatedAmount  Decimal             @db.Decimal(20, 2)
+  sourceKind       String?
+  sourceReleaseId  String?
+  sourceSha256     String?
+  sourceFile       String?
+  sourceSheet      String?
+  sourceRow        Int?
+  sourceRange      String?
+  sourceKey        String?
+  createdAt        DateTime            @default(now())
+  payment          FinanceTaxPayment   @relation(fields: [paymentId], references: [id], onDelete: Restrict)
+  filing           FinanceTaxFiling    @relation(fields: [filingId], references: [id], onDelete: Restrict)
+  voucherItem      FinanceVoucherItem? @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+
+  @@unique([paymentId, filingId])
+  @@unique([sourceReleaseId, sourceKey])
+  @@index([filingId])
+  @@index([voucherItemId])
+}
+
+/// 税表、缴款与总账勾稽的不可变证据快照（事实表，来源于 Finance 服务冻结的期间检查结果）
+model FinanceTaxReconciliationSnapshot {
+  id                 Int                    @id @default(autoincrement())
+  registrationId     Int
+  periodId           Int
+  status             String
+  inputFingerprint   String
+  payloadSha256      String
+  contributorVersion String
+  payload            Json
+  capturedAt         DateTime               @default(now())
+  registration       FinanceTaxRegistration @relation(fields: [registrationId], references: [id], onDelete: Restrict)
+  period             FinancePeriod          @relation(fields: [periodId], references: [id], onDelete: Restrict)
+
+  @@unique([registrationId, periodId, inputFingerprint], map: "FinanceTaxRecon_registration_period_input_key")
+  @@index([periodId, status, capturedAt])
+  @@index([payloadSha256])
+}

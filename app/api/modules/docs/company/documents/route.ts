@@ -1,0 +1,8 @@
+import { listCompanyDocumentCatalog } from "@workspace/docs/server/company-documents";
+import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+
+export const GET = createApiRouteHandler({
+  handler: async () => Response.json(await listCompanyDocumentCatalog(), {
+    headers: { "Cache-Control": "private, no-store" },
+  }),
+});

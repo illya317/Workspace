@@ -11,7 +11,7 @@ mock.module("@workspace/platform/server/auth", { namedExports: {
 const { canDiscoverExternalWorkspaceAnalysisSource } = await import("./workspace-analysis-source-access");
 const { EXTERNAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } = await import("./workspace-analysis-sources");
 
-test("external discovery keeps customer and supplier permissions separate for parent and role sources", async () => {
+test("external discovery keeps customer, supplier and related-party permissions separate", async () => {
   resources.length = 0;
   for (const registration of EXTERNAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS) {
     assert.equal(await canDiscoverExternalWorkspaceAnalysisSource({ requesterId: 7, source: registration.definition }), true);
@@ -19,6 +19,7 @@ test("external discovery keeps customer and supplier permissions separate for pa
   assert.deepEqual(resources, [
     "external.customers",
     "external.customers",
+    "external.relatedParties",
     "external.suppliers",
     "external.suppliers",
   ]);

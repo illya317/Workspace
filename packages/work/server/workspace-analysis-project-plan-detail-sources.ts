@@ -7,8 +7,11 @@ import {
   type WorkspaceAnalysisReadModelFields,
 } from "@workspace/platform/server/workspace-analysis-read-model";
 
-import type { listProjectPlanBaselines } from "./project-plan-baselines";
-import type { listProjectPlanGantt, listProjectPlanPhases } from "./project-plan";
+import type {
+  listProjectPlanBaselines,
+  listProjectPlanGantt,
+  listProjectPlanPhases,
+} from "./projects/plan";
 
 type ProjectPlanBaselinesResult = Awaited<ReturnType<typeof listProjectPlanBaselines>>;
 type ProjectPlanPhasesResult = Awaited<ReturnType<typeof listProjectPlanPhases>>;

@@ -4,9 +4,13 @@ import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getDefaultFinanceLedgerScope } from "@workspace/finance/server/ledger/periods";
 import { LedgerClient } from "@workspace/finance/ui";
 
-export default async function FinanceLedgerPage() {
+export default async function FinanceLedgerPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const user = await requireRouteAccess("/finance/ledger");
-  const [canCreate, canUpdate, canDelete, canRevise, canExport, canApprove, defaultScope] = await Promise.all([
+  const [canCreate, canUpdate, canDelete, canRevise, canExport, canApproveLedger, configuredScope, query] = await Promise.all([
     evaluatePermissionAction(user.id, "finance.ledger", "create"),
     evaluatePermissionAction(user.id, "finance.ledger", "update"),
     evaluatePermissionAction(user.id, "finance.ledger", "delete"),
@@ -14,7 +18,9 @@ export default async function FinanceLedgerPage() {
     evaluatePermissionAction(user.id, "finance.ledger", "export"),
     evaluatePermissionAction(user.id, "finance.ledger", "approve"),
     getDefaultFinanceLedgerScope(),
+    searchParams,
   ]);
+  const defaultScope = scopeFromQuery(query) ?? configuredScope;
 
   return renderAppShellPage({
     title: "总账基础",
@@ -27,10 +33,25 @@ export default async function FinanceLedgerPage() {
       canDelete={canDelete}
       canRevise={canRevise}
       canExport={canExport}
-      canApprove={canApprove}
+      canApproveLedger={canApproveLedger}
       defaultScope={defaultScope}
+      initialTab={single(query.tab)}
       user={user}
     />
     ),
   });
+}
+
+function scopeFromQuery(query: Record<string, string | string[] | undefined>) {
+  const companyCode = single(query.companyCode)?.trim() ?? "";
+  const year = Number(single(query.year));
+  const month = Number(single(query.month));
+  if (!companyCode || !Number.isInteger(year) || year < 2000 || year > 2099 || !Number.isInteger(month) || month < 1 || month > 12) {
+    return null;
+  }
+  return { companyCode, year, month };
+}
+
+function single(value: string | string[] | undefined) {
+  return Array.isArray(value) ? value[0] : value;
 }

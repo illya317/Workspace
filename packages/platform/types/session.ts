@@ -12,6 +12,7 @@ export interface SessionUser {
   visibleReadResourceKeys?: string[];
   visibleUpdateResourceKeys?: string[];
   visibleSubmitResourceKeys?: string[];
+  visibleReviseResourceKeys?: string[];
   visibleConfigureResourceKeys?: string[];
   manageableResourceKeys?: string[];
   adminResourceKeys?: string[];

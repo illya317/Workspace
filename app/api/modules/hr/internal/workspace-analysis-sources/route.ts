@@ -1,14 +1,3 @@
-import {
-  canDiscoverHrWorkspaceAnalysisSource,
-  buildHrWorkspaceAnalysisSourceCatalog,
-} from "@workspace/hr/server/workspace-analysis-source-access";
-import { loadHrWorkspaceAnalysisSource } from "@workspace/hr/server/workspace-analysis-source-executor";
-import { createWorkspaceAnalysisSourceRpcHandler } from "@workspace/platform/server/workspace-analysis-source-rpc";
+import { createHrWorkspaceAnalysisSourceRoute } from "@workspace/hr/server/analysis";
 
-export const POST = createWorkspaceAnalysisSourceRpcHandler({
-  ownerUnitId: "hr",
-  allowedCallerUnitIds: ["finance"],
-  sourceCatalog: buildHrWorkspaceAnalysisSourceCatalog(),
-  canDiscover: canDiscoverHrWorkspaceAnalysisSource,
-  executeSource: loadHrWorkspaceAnalysisSource,
-});
+export const POST = createHrWorkspaceAnalysisSourceRoute();

@@ -76,11 +76,17 @@ test("confirmation snapshots preserve an unknown middle period and restore a lat
     period.effectiveFrom?.toISOString().slice(0, 10) ?? null,
     period.effectiveTo?.toISOString().slice(0, 10) ?? null,
     period.shareRatio,
+    period.sourceEventId,
+    period.closedByEventId,
   ]), [
-    ["2020-07-10", "2022-03-23", 1],
-    ["2022-03-24", "2022-07-03", null],
-    ["2022-07-04", "2026-06-17", 1],
+    ["2020-07-10", "2022-03-23", 1, 1, 2],
+    ["2022-03-24", "2022-07-03", null, 2, 3],
+    ["2022-07-04", "2026-06-17", 1, 3, 4],
   ]);
+  assert.deepEqual(periods.filter((period) => period.ownerPartyId === 5).map((period) => ({
+    sourceEventId: period.sourceEventId,
+    closedByEventId: period.closedByEventId,
+  })), [{ sourceEventId: 4, closedByEventId: null }]);
 });
 
 test("a quantitative transaction cannot cross an amount-unknown state", () => {

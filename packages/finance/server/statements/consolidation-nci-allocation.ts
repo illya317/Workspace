@@ -11,6 +11,21 @@ import {
 
 const PROFIT_ATTRIBUTION_LINE_CODES = new Set(["netProfitAttributableToParent", "netProfitAttributableToNci"]);
 
+function alignProfitAttributionEntityAmounts(
+  netProfit: ConsolidatedOutputLine,
+  parent: ConsolidatedOutputLine,
+  nci: ConsolidatedOutputLine,
+) {
+  if (!netProfit.entityAmounts) return;
+  parent.entityAmounts = netProfit.entityAmounts.map((entity) => ({ ...entity }));
+  nci.entityAmounts = netProfit.entityAmounts.map((entity) => ({
+    ...entity,
+    amount: 0,
+    previousAmount: 0,
+    ...(entity.currentMonthAmount === undefined ? {} : { currentMonthAmount: 0 }),
+  }));
+}
+
 export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): DomainValidationResult<true> {
   let amount = 0;
   let currentMonthAmount = 0;
@@ -40,10 +55,12 @@ export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): Do
     return failCommand("合并利润表少数股东损益归属行不完整", 409, "nonControllingInterest");
   }
   if (parent && nci && netProfit) {
-    if (money(parent.adjustmentAmount + nci.adjustmentAmount) !== 0) {
+    if (money(parent.adjustmentAmount) !== 0
+      && money(parent.adjustmentAmount + nci.adjustmentAmount) !== 0) {
       return failCommand("归母净利润与少数股东损益分配分录不平衡", 409, "nonControllingInterest");
     }
-    if (money((parent.previousAdjustmentAmount ?? 0) + (nci.previousAdjustmentAmount ?? 0)) !== 0) {
+    if (money(parent.previousAdjustmentAmount ?? 0) !== 0
+      && money((parent.previousAdjustmentAmount ?? 0) + (nci.previousAdjustmentAmount ?? 0)) !== 0) {
       return failCommand("比较期归母净利润与少数股东损益分配分录不平衡", 409, "nonControllingInterest");
     }
     nci.sourceAmount = 0;
@@ -59,6 +76,7 @@ export function recomputeConsolidatedIncome(lines: ConsolidatedOutputLine[]): Do
       parent.currentMonthSourceAmount = netProfit.currentMonthSourceAmount ?? netProfit.currentMonthAmount;
     }
     parent.previousSourceAmount = netProfit.previousSourceAmount ?? netProfit.previousAmount;
+    alignProfitAttributionEntityAmounts(netProfit, parent, nci);
     setDerivedLineAmounts(
       parent,
       netProfit.amount - nci.amount,

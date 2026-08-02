@@ -7,7 +7,7 @@ import {
 } from "../../domain/group-chart-validation";
 
 import { decideGroupAccountMapping } from "./mapping-policy";
-import { ensureCurrentFinanceAccountingPolicyVersion } from "./policy-versions";
+import { ensureCurrentFinanceAccountingPolicyVersion } from "./policy-version-service";
 import {
   financeGroupMappingKey,
   loadLatestGroupSourceAccounts,
@@ -119,6 +119,7 @@ export async function syncFinanceGroupChartInTransaction(
       parentGroupAccountId,
       isActive: true,
       reviewStatus: sourceKind === "reference_seed" ? "confirmed" : "pending_review",
+      ...defaultConsolidationAttributes(code, account.category),
     } });
     groups.push(group);
     createdGroupAccounts += 1;
@@ -140,7 +141,7 @@ export async function syncFinanceGroupChartInTransaction(
       policyVersionId: policyVersion.id,
       groupAccountId, companyCode: account.companyCode, sourceScopeKey: account.sourceScopeKey,
       sourceSystem: account.sourceSystem, sourceDatabase: account.sourceDatabase, sourceLedger: account.sourceLedger,
-      localAccountCode: account.code, localAccountName: account.name, localCategory: account.category,
+      localAccountCode: account.code, localAccountName: account.name, localAccountId: account.id, localCategory: account.category,
       localBalanceDirection: account.balanceDirection, latestYear: account.year, mappingMethod,
     } });
     mappingByKey.set(accountKey(account), mapping);
@@ -232,6 +233,21 @@ export async function syncFinanceGroupChartInTransaction(
     createdMappings,
     shiftedCodes,
   };
+}
+
+function defaultConsolidationAttributes(code: string, category: string) {
+  const base = {
+    consolidationRole: "none",
+    counterpartyRequirement: "none",
+    movementType: ["revenue", "expense", "cost"].includes(category) ? "periodMovement" : "closingBalance",
+    translationRateType: ["revenue", "expense", "cost"].includes(category) ? "average" : "closing",
+  };
+  if (/^(1122|1221)/.test(code)) return { ...base, consolidationRole: "intercompanyReceivable", counterpartyRequirement: "required" };
+  if (/^(2202|2241)/.test(code)) return { ...base, consolidationRole: "intercompanyPayable", counterpartyRequirement: "required" };
+  if (/^(1511|1512)/.test(code)) return { ...base, consolidationRole: "investmentInSubsidiary", counterpartyRequirement: "required", translationRateType: "historical" };
+  if (/^(4001|3001)/.test(code)) return { ...base, consolidationRole: "shareCapital", translationRateType: "historical" };
+  if (/^(4002|3002)/.test(code)) return { ...base, consolidationRole: "capitalReserve", translationRateType: "historical" };
+  return base;
 }
 
 function accountKey(account: Pick<FinanceGroupSourceAccount, "companyCode" | "sourceScopeKey" | "code">) {
@@ -363,6 +379,7 @@ async function updateMappingSnapshot(
     sourceDatabase: string | null;
     sourceLedger: string | null;
     localAccountName: string;
+    localAccountId: number | null;
     localCategory: string;
     localBalanceDirection: string;
     latestYear: number | null;
@@ -377,6 +394,7 @@ async function updateMappingSnapshot(
     && mapping.sourceDatabase === account.sourceDatabase
     && mapping.sourceLedger === account.sourceLedger
     && mapping.localAccountName === account.name
+    && mapping.localAccountId === account.id
     && mapping.localCategory === account.category
     && mapping.localBalanceDirection === account.balanceDirection
     && mapping.latestYear === account.year
@@ -385,7 +403,7 @@ async function updateMappingSnapshot(
   await tx.financeGroupAccountMapping.update({ where: { id: mapping.id }, data: {
     groupAccountId,
     sourceSystem: account.sourceSystem, sourceDatabase: account.sourceDatabase, sourceLedger: account.sourceLedger,
-    localAccountName: account.name, localCategory: account.category,
+    localAccountName: account.name, localAccountId: account.id, localCategory: account.category,
     localBalanceDirection: account.balanceDirection, latestYear: account.year,
     mappingMethod,
   } });
@@ -394,6 +412,7 @@ async function updateMappingSnapshot(
     sourceDatabase: account.sourceDatabase,
     sourceLedger: account.sourceLedger,
     localAccountName: account.name,
+    localAccountId: account.id,
     localCategory: account.category,
     localBalanceDirection: account.balanceDirection,
     latestYear: account.year,

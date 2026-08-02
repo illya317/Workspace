@@ -1,5 +1,6 @@
 import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { directCommandId } from "@workspace/platform/server/direct-command-meta";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {
   ContractUpdateSchema,
@@ -11,7 +12,13 @@ export const PATCH = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   bodySchema: ContractUpdateSchema,
   paramsError: "无效ID",
-  buildCommand: ({ params, body, user }) => okCommand({ id: params.id, body, userId: user.userId }),
+  buildCommand: ({ params, body, request, user }) => okCommand({
+    id: params.id,
+    body,
+    userId: user.userId,
+    expectedVersion: readRequestExpectedVersion(request),
+    idempotencyKey: directCommandId(request),
+  }),
   action: executeUpdateContractCommand,
 });
 

@@ -87,7 +87,7 @@ export function renderBodyStatus(status?: BodySurfaceStatusLike) {
       ? "border-red-200 bg-red-50 text-red-700"
       : status.kind === "loading"
         ? "border-slate-200 bg-slate-50 text-slate-500"
-        : "border-dashed border-slate-200 text-slate-400";
+        : "border-slate-200 bg-white text-slate-500";
   return <EmptyStateCard key="status" compact={status.compact} className={toneClass}>{renderContent(status.content)}</EmptyStateCard>;
 }
 

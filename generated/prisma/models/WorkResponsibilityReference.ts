@@ -362,6 +362,10 @@ export type WorkResponsibilityReferenceWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
   workItem?: Prisma.XOR<Prisma.WorkItemScalarRelationFilter, Prisma.WorkItemWhereInput>
   responsibilityNode?: Prisma.XOR<Prisma.PositionResponsibilityNodeNullableScalarRelationFilter, Prisma.PositionResponsibilityNodeWhereInput> | null
+  lockedEmployee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  lockedPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  lockedEmployeePosition?: Prisma.XOR<Prisma.EDPNullableScalarRelationFilter, Prisma.EDPWhereInput> | null
+  positionDescription?: Prisma.XOR<Prisma.PositionDescriptionScalarRelationFilter, Prisma.PositionDescriptionWhereInput>
 }
 
 export type WorkResponsibilityReferenceOrderByWithRelationInput = {
@@ -387,6 +391,10 @@ export type WorkResponsibilityReferenceOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   workItem?: Prisma.WorkItemOrderByWithRelationInput
   responsibilityNode?: Prisma.PositionResponsibilityNodeOrderByWithRelationInput
+  lockedEmployee?: Prisma.EmployeeOrderByWithRelationInput
+  lockedPosition?: Prisma.PositionOrderByWithRelationInput
+  lockedEmployeePosition?: Prisma.EDPOrderByWithRelationInput
+  positionDescription?: Prisma.PositionDescriptionOrderByWithRelationInput
 }
 
 export type WorkResponsibilityReferenceWhereUniqueInput = Prisma.AtLeast<{
@@ -415,6 +423,10 @@ export type WorkResponsibilityReferenceWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
   workItem?: Prisma.XOR<Prisma.WorkItemScalarRelationFilter, Prisma.WorkItemWhereInput>
   responsibilityNode?: Prisma.XOR<Prisma.PositionResponsibilityNodeNullableScalarRelationFilter, Prisma.PositionResponsibilityNodeWhereInput> | null
+  lockedEmployee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  lockedPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
+  lockedEmployeePosition?: Prisma.XOR<Prisma.EDPNullableScalarRelationFilter, Prisma.EDPWhereInput> | null
+  positionDescription?: Prisma.XOR<Prisma.PositionDescriptionScalarRelationFilter, Prisma.PositionDescriptionWhereInput>
 }, "id">
 
 export type WorkResponsibilityReferenceOrderByWithAggregationInput = {
@@ -474,10 +486,6 @@ export type WorkResponsibilityReferenceScalarWhereWithAggregatesInput = {
 export type WorkResponsibilityReferenceCreateInput = {
   targetKind: string
   referenceRole: string
-  lockedEmployeeId: number
-  lockedPositionId?: number | null
-  lockedEmployeePositionId?: number | null
-  positionDescriptionId: number
   positionDescriptionVersionSnapshot?: string | null
   positionDescriptionUpdatedAtSnapshot?: Date | string | null
   nodeKeySnapshot: string
@@ -491,6 +499,10 @@ export type WorkResponsibilityReferenceCreateInput = {
   updatedAt?: Date | string
   workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
   responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
 }
 
 export type WorkResponsibilityReferenceUncheckedCreateInput = {
@@ -519,10 +531,6 @@ export type WorkResponsibilityReferenceUncheckedCreateInput = {
 export type WorkResponsibilityReferenceUpdateInput = {
   targetKind?: Prisma.StringFieldUpdateOperationsInput | string
   referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
-  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -536,6 +544,10 @@ export type WorkResponsibilityReferenceUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
   responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
 }
 
 export type WorkResponsibilityReferenceUncheckedUpdateInput = {
@@ -587,10 +599,6 @@ export type WorkResponsibilityReferenceCreateManyInput = {
 export type WorkResponsibilityReferenceUpdateManyMutationInput = {
   targetKind?: Prisma.StringFieldUpdateOperationsInput | string
   referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
-  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -726,6 +734,174 @@ export type WorkResponsibilityReferenceSumOrderByAggregateInput = {
   positionDescriptionId?: Prisma.SortOrder
 }
 
+export type WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutPositionDescriptionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutPositionDescriptionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutPositionDescriptionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutPositionDescriptionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutPositionDescriptionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeeInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeeInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeeInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeeInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeeInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeeInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeeInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeeInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeeInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceCreateNestedManyWithoutLockedPositionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedPositionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithoutLockedPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedPositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedPositionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedPositionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedPositionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedPositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedPositionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedPositionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedPositionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceCreateNestedManyWithoutLockedEmployeePositionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutLockedEmployeePositionInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInputEnvelope
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithoutLockedEmployeePositionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeePositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeePositionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeePositionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput> | Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput[]
+  connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput[]
+  upsert?: Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeePositionInput[]
+  createMany?: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInputEnvelope
+  set?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  disconnect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  delete?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  connect?: Prisma.WorkResponsibilityReferenceWhereUniqueInput | Prisma.WorkResponsibilityReferenceWhereUniqueInput[]
+  update?: Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeePositionInput[]
+  updateMany?: Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeePositionInput[]
+  deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+}
+
 export type WorkResponsibilityReferenceCreateNestedManyWithoutResponsibilityNodeInput = {
   create?: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutResponsibilityNodeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutResponsibilityNodeInput> | Prisma.WorkResponsibilityReferenceCreateWithoutResponsibilityNodeInput[] | Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutResponsibilityNodeInput[]
   connectOrCreate?: Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutResponsibilityNodeInput | Prisma.WorkResponsibilityReferenceCreateOrConnectWithoutResponsibilityNodeInput[]
@@ -810,10 +986,128 @@ export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutWorkItemNestedI
   deleteMany?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
 }
 
-export type WorkResponsibilityReferenceCreateWithoutResponsibilityNodeInput = {
+export type WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput = {
   targetKind: string
   referenceRole: string
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
   lockedEmployeeId: number
+  lockedPositionId?: number | null
+  lockedEmployeePositionId?: number | null
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceCreateOrConnectWithoutPositionDescriptionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput>
+}
+
+export type WorkResponsibilityReferenceCreateManyPositionDescriptionInputEnvelope = {
+  data: Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInput | Prisma.WorkResponsibilityReferenceCreateManyPositionDescriptionInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutPositionDescriptionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutPositionDescriptionInput>
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutPositionDescriptionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutPositionDescriptionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutPositionDescriptionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutPositionDescriptionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutPositionDescriptionInput = {
+  where: Prisma.WorkResponsibilityReferenceScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionInput>
+}
+
+export type WorkResponsibilityReferenceScalarWhereInput = {
+  AND?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+  OR?: Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+  NOT?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
+  id?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
+  targetKind?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  referenceRole?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  workItemId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
+  responsibilityNodeId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
+  lockedEmployeeId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
+  lockedPositionId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
+  lockedEmployeePositionId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
+  positionDescriptionId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
+  positionDescriptionVersionSnapshot?: Prisma.StringNullableFilter<"WorkResponsibilityReference"> | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.DateTimeNullableFilter<"WorkResponsibilityReference"> | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  nodeTypeSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  parentNodeKeySnapshot?: Prisma.StringNullableFilter<"WorkResponsibilityReference"> | string | null
+  pathLabelSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  titleSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  contentSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  snapshotJson?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
+  createdAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
+}
+
+export type WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput = {
+  targetKind: string
+  referenceRole: string
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
   lockedPositionId?: number | null
   lockedEmployeePositionId?: number | null
   positionDescriptionId: number
@@ -828,7 +1122,191 @@ export type WorkResponsibilityReferenceCreateWithoutResponsibilityNodeInput = {
   snapshotJson?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeeInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput>
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedEmployeeInputEnvelope = {
+  data: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInput | Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeeInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeeInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeeInput>
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeeInput>
+}
+
+export type WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeeInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedEmployeeInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeeInput>
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeeInput = {
+  where: Prisma.WorkResponsibilityReferenceScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeeInput>
+}
+
+export type WorkResponsibilityReferenceCreateWithoutLockedPositionInput = {
+  targetKind: string
+  referenceRole: string
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
   workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedEmployeeId: number
+  lockedEmployeePositionId?: number | null
+  positionDescriptionId: number
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceCreateOrConnectWithoutLockedPositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput>
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedPositionInputEnvelope = {
+  data: Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInput | Prisma.WorkResponsibilityReferenceCreateManyLockedPositionInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedPositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedPositionInput>
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedPositionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedPositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedPositionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedPositionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedPositionInput = {
+  where: Prisma.WorkResponsibilityReferenceScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedPositionInput>
+}
+
+export type WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput = {
+  targetKind: string
+  referenceRole: string
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+}
+
+export type WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedEmployeeId: number
+  lockedPositionId?: number | null
+  positionDescriptionId: number
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceCreateOrConnectWithoutLockedEmployeePositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput>
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedEmployeePositionInputEnvelope = {
+  data: Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInput | Prisma.WorkResponsibilityReferenceCreateManyLockedEmployeePositionInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutLockedEmployeePositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeePositionInput>
+  create: Prisma.XOR<Prisma.WorkResponsibilityReferenceCreateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedCreateWithoutLockedEmployeePositionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateWithWhereUniqueWithoutLockedEmployeePositionInput = {
+  where: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateWithoutLockedEmployeePositionInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeePositionInput>
+}
+
+export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutLockedEmployeePositionInput = {
+  where: Prisma.WorkResponsibilityReferenceScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionInput>
+}
+
+export type WorkResponsibilityReferenceCreateWithoutResponsibilityNodeInput = {
+  targetKind: string
+  referenceRole: string
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workItem: Prisma.WorkItemCreateNestedOneWithoutResponsibilityReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
 }
 
 export type WorkResponsibilityReferenceUncheckedCreateWithoutResponsibilityNodeInput = {
@@ -879,39 +1357,9 @@ export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutResponsibilityN
   data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutResponsibilityNodeInput>
 }
 
-export type WorkResponsibilityReferenceScalarWhereInput = {
-  AND?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
-  OR?: Prisma.WorkResponsibilityReferenceScalarWhereInput[]
-  NOT?: Prisma.WorkResponsibilityReferenceScalarWhereInput | Prisma.WorkResponsibilityReferenceScalarWhereInput[]
-  id?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
-  targetKind?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  referenceRole?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  workItemId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
-  responsibilityNodeId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
-  lockedEmployeeId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
-  lockedPositionId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
-  lockedEmployeePositionId?: Prisma.IntNullableFilter<"WorkResponsibilityReference"> | number | null
-  positionDescriptionId?: Prisma.IntFilter<"WorkResponsibilityReference"> | number
-  positionDescriptionVersionSnapshot?: Prisma.StringNullableFilter<"WorkResponsibilityReference"> | string | null
-  positionDescriptionUpdatedAtSnapshot?: Prisma.DateTimeNullableFilter<"WorkResponsibilityReference"> | Date | string | null
-  nodeKeySnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  nodeTypeSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  parentNodeKeySnapshot?: Prisma.StringNullableFilter<"WorkResponsibilityReference"> | string | null
-  pathLabelSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  titleSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  contentSnapshot?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  snapshotJson?: Prisma.StringFilter<"WorkResponsibilityReference"> | string
-  createdAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"WorkResponsibilityReference"> | Date | string
-}
-
 export type WorkResponsibilityReferenceCreateWithoutWorkItemInput = {
   targetKind: string
   referenceRole: string
-  lockedEmployeeId: number
-  lockedPositionId?: number | null
-  lockedEmployeePositionId?: number | null
-  positionDescriptionId: number
   positionDescriptionVersionSnapshot?: string | null
   positionDescriptionUpdatedAtSnapshot?: Date | string | null
   nodeKeySnapshot: string
@@ -924,6 +1372,10 @@ export type WorkResponsibilityReferenceCreateWithoutWorkItemInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   responsibilityNode?: Prisma.PositionResponsibilityNodeCreateNestedOneWithoutWorkReferencesInput
+  lockedEmployee: Prisma.EmployeeCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedPosition?: Prisma.PositionCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  lockedEmployeePosition?: Prisma.EDPCreateNestedOneWithoutWorkResponsibilityReferencesInput
+  positionDescription: Prisma.PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput
 }
 
 export type WorkResponsibilityReferenceUncheckedCreateWithoutWorkItemInput = {
@@ -974,6 +1426,354 @@ export type WorkResponsibilityReferenceUpdateManyWithWhereWithoutWorkItemInput =
   data: Prisma.XOR<Prisma.WorkResponsibilityReferenceUpdateManyMutationInput, Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutWorkItemInput>
 }
 
+export type WorkResponsibilityReferenceCreateManyPositionDescriptionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedEmployeeId: number
+  lockedPositionId?: number | null
+  lockedEmployeePositionId?: number | null
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceUpdateWithoutPositionDescriptionInput = {
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateWithoutPositionDescriptionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedEmployeeInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedPositionId?: number | null
+  lockedEmployeePositionId?: number | null
+  positionDescriptionId: number
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceUpdateWithoutLockedEmployeeInput = {
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedPositionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedEmployeeId: number
+  lockedEmployeePositionId?: number | null
+  positionDescriptionId: number
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceUpdateWithoutLockedPositionInput = {
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateWithoutLockedPositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedPositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceCreateManyLockedEmployeePositionInput = {
+  id?: number
+  targetKind: string
+  referenceRole: string
+  workItemId: number
+  responsibilityNodeId?: number | null
+  lockedEmployeeId: number
+  lockedPositionId?: number | null
+  positionDescriptionId: number
+  positionDescriptionVersionSnapshot?: string | null
+  positionDescriptionUpdatedAtSnapshot?: Date | string | null
+  nodeKeySnapshot: string
+  nodeTypeSnapshot: string
+  parentNodeKeySnapshot?: string | null
+  pathLabelSnapshot?: string
+  titleSnapshot: string
+  contentSnapshot?: string
+  snapshotJson?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type WorkResponsibilityReferenceUpdateWithoutLockedEmployeePositionInput = {
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
+  responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateWithoutLockedEmployeePositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type WorkResponsibilityReferenceUncheckedUpdateManyWithoutLockedEmployeePositionInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetKind?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
+  workItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  responsibilityNodeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
+  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
+  positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  nodeTypeSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  parentNodeKeySnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  pathLabelSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  titleSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  contentSnapshot?: Prisma.StringFieldUpdateOperationsInput | string
+  snapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type WorkResponsibilityReferenceCreateManyResponsibilityNodeInput = {
   id?: number
   targetKind: string
@@ -999,10 +1799,6 @@ export type WorkResponsibilityReferenceCreateManyResponsibilityNodeInput = {
 export type WorkResponsibilityReferenceUpdateWithoutResponsibilityNodeInput = {
   targetKind?: Prisma.StringFieldUpdateOperationsInput | string
   referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
-  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1015,6 +1811,10 @@ export type WorkResponsibilityReferenceUpdateWithoutResponsibilityNodeInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workItem?: Prisma.WorkItemUpdateOneRequiredWithoutResponsibilityReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
 }
 
 export type WorkResponsibilityReferenceUncheckedUpdateWithoutResponsibilityNodeInput = {
@@ -1086,10 +1886,6 @@ export type WorkResponsibilityReferenceCreateManyWorkItemInput = {
 export type WorkResponsibilityReferenceUpdateWithoutWorkItemInput = {
   targetKind?: Prisma.StringFieldUpdateOperationsInput | string
   referenceRole?: Prisma.StringFieldUpdateOperationsInput | string
-  lockedEmployeeId?: Prisma.IntFieldUpdateOperationsInput | number
-  lockedPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lockedEmployeePositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  positionDescriptionId?: Prisma.IntFieldUpdateOperationsInput | number
   positionDescriptionVersionSnapshot?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   positionDescriptionUpdatedAtSnapshot?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   nodeKeySnapshot?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1102,6 +1898,10 @@ export type WorkResponsibilityReferenceUpdateWithoutWorkItemInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   responsibilityNode?: Prisma.PositionResponsibilityNodeUpdateOneWithoutWorkReferencesNestedInput
+  lockedEmployee?: Prisma.EmployeeUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
+  lockedPosition?: Prisma.PositionUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  lockedEmployeePosition?: Prisma.EDPUpdateOneWithoutWorkResponsibilityReferencesNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput
 }
 
 export type WorkResponsibilityReferenceUncheckedUpdateWithoutWorkItemInput = {
@@ -1173,6 +1973,10 @@ export type WorkResponsibilityReferenceSelect<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workResponsibilityReference"]>
 
 export type WorkResponsibilityReferenceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1198,6 +2002,10 @@ export type WorkResponsibilityReferenceSelectCreateManyAndReturn<ExtArgs extends
   updatedAt?: boolean
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workResponsibilityReference"]>
 
 export type WorkResponsibilityReferenceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1223,6 +2031,10 @@ export type WorkResponsibilityReferenceSelectUpdateManyAndReturn<ExtArgs extends
   updatedAt?: boolean
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workResponsibilityReference"]>
 
 export type WorkResponsibilityReferenceSelectScalar = {
@@ -1252,14 +2064,26 @@ export type WorkResponsibilityReferenceOmit<ExtArgs extends runtime.Types.Extens
 export type WorkResponsibilityReferenceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }
 export type WorkResponsibilityReferenceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }
 export type WorkResponsibilityReferenceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workItem?: boolean | Prisma.WorkItemDefaultArgs<ExtArgs>
   responsibilityNode?: boolean | Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>
+  lockedEmployee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  lockedPosition?: boolean | Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>
+  lockedEmployeePosition?: boolean | Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>
+  positionDescription?: boolean | Prisma.PositionDescriptionDefaultArgs<ExtArgs>
 }
 
 export type $WorkResponsibilityReferencePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1267,6 +2091,10 @@ export type $WorkResponsibilityReferencePayload<ExtArgs extends runtime.Types.Ex
   objects: {
     workItem: Prisma.$WorkItemPayload<ExtArgs>
     responsibilityNode: Prisma.$PositionResponsibilityNodePayload<ExtArgs> | null
+    lockedEmployee: Prisma.$EmployeePayload<ExtArgs>
+    lockedPosition: Prisma.$PositionPayload<ExtArgs> | null
+    lockedEmployeePosition: Prisma.$EDPPayload<ExtArgs> | null
+    positionDescription: Prisma.$PositionDescriptionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1685,6 +2513,10 @@ export interface Prisma__WorkResponsibilityReferenceClient<T, Null = never, ExtA
   readonly [Symbol.toStringTag]: "PrismaPromise"
   workItem<T extends Prisma.WorkItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkItemDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkItemClient<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   responsibilityNode<T extends Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs>>): Prisma.Prisma__PositionResponsibilityNodeClient<runtime.Types.Result.GetResult<Prisma.$PositionResponsibilityNodePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  lockedEmployee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  lockedPosition<T extends Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkResponsibilityReference$lockedPositionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  lockedEmployeePosition<T extends Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs>>): Prisma.Prisma__EDPClient<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  positionDescription<T extends Prisma.PositionDescriptionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescriptionDefaultArgs<ExtArgs>>): Prisma.Prisma__PositionDescriptionClient<runtime.Types.Result.GetResult<Prisma.$PositionDescriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2151,6 +2983,44 @@ export type WorkResponsibilityReference$responsibilityNodeArgs<ExtArgs extends r
    */
   include?: Prisma.PositionResponsibilityNodeInclude<ExtArgs> | null
   where?: Prisma.PositionResponsibilityNodeWhereInput
+}
+
+/**
+ * WorkResponsibilityReference.lockedPosition
+ */
+export type WorkResponsibilityReference$lockedPositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Position
+   */
+  select?: Prisma.PositionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Position
+   */
+  omit?: Prisma.PositionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionInclude<ExtArgs> | null
+  where?: Prisma.PositionWhereInput
+}
+
+/**
+ * WorkResponsibilityReference.lockedEmployeePosition
+ */
+export type WorkResponsibilityReference$lockedEmployeePositionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EDP
+   */
+  select?: Prisma.EDPSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EDP
+   */
+  omit?: Prisma.EDPOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EDPInclude<ExtArgs> | null
+  where?: Prisma.EDPWhereInput
 }
 
 /**

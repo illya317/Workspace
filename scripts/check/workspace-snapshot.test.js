@@ -13,6 +13,7 @@ const {
 
 const runnerSource = path.join(__dirname, "with-check-lock.js");
 const snapshotSource = path.join(__dirname, "workspace-snapshot.js");
+const memoryPolicySource = path.join(__dirname, "check-memory-policy.js");
 
 function run(cwd, command, args, options = {}) {
   const result = spawnSync(command, args, {
@@ -45,6 +46,7 @@ function createRepository(t, { runner = false } = {}) {
     fs.mkdirSync(checkDirectory, { recursive: true });
     fs.copyFileSync(runnerSource, path.join(checkDirectory, "with-check-lock.js"));
     fs.copyFileSync(snapshotSource, path.join(checkDirectory, "workspace-snapshot.js"));
+    fs.copyFileSync(memoryPolicySource, path.join(checkDirectory, "check-memory-policy.js"));
   }
   git(cwd, ["add", "."]);
   git(cwd, ["commit", "--quiet", "-m", "fixture"]);
@@ -112,7 +114,7 @@ function waitForClose(child) {
   });
 }
 
-test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) => {
+test("snapshot keys staged or committed content and ignores unrelated worktree drift", (t) => {
   const cwd = createRepository(t);
   const base = snapshot(cwd);
 
@@ -126,16 +128,11 @@ test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) =
 
   fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged plus unstaged\n");
   const unstaged = snapshot(cwd);
-  assert.equal(unstaged.parts.head, staged.parts.head);
-  assert.equal(unstaged.parts.index, staged.parts.index);
-  assert.notEqual(unstaged.parts.unstaged, staged.parts.unstaged);
-  assert.equal(unstaged.parts.untracked, staged.parts.untracked);
+  assert.equal(unstaged.key, staged.key);
 
   fs.writeFileSync(path.join(cwd, "untracked.txt"), "untracked\n");
   const untracked = snapshot(cwd);
-  assert.equal(untracked.parts.index, unstaged.parts.index);
-  assert.equal(untracked.parts.unstaged, unstaged.parts.unstaged);
-  assert.notEqual(untracked.parts.untracked, unstaged.parts.untracked);
+  assert.equal(untracked.key, staged.key);
 
   fs.mkdirSync(path.join(cwd, ".cache"));
   fs.writeFileSync(path.join(cwd, ".cache/generated.txt"), "ignored\n");
@@ -145,9 +142,13 @@ test("snapshot keeps HEAD, index, unstaged, and untracked state separate", (t) =
   fs.writeFileSync(path.join(cwd, "another-agent.txt"), "changed again\n");
   const committedAfter = snapshot(cwd, { CHECK_WORKSPACE_SNAPSHOT_SCOPE: "committed" });
   assert.equal(committedAfter.key, committedBefore.key);
+  git(cwd, ["reset", "--hard", "HEAD"]);
+  git(cwd, ["commit", "--allow-empty", "--quiet", "-m", "metadata only"]);
+  const sameTreeNewCommit = snapshot(cwd, { CHECK_WORKSPACE_SNAPSHOT_SCOPE: "committed" });
+  assert.equal(sameTreeNewCommit.key, committedAfter.key);
 });
 
-test("pre-commit scope accepts concurrent worktree drift and reuses the passed cache", async (t) => {
+test("pre-commit scope accepts concurrent worktree drift without creating a workspace-wide receipt", async (t) => {
   const cwd = createRepository(t, { runner: true });
   const marker = path.join(cwd, ".cache/check-started");
   fs.writeFileSync(path.join(cwd, "scripts/check/check-api-response-format.js"), [
@@ -178,15 +179,15 @@ test("pre-commit scope accepts concurrent worktree drift and reuses the passed c
   const receipts = fs.existsSync(resultDirectory)
     ? fs.readdirSync(resultDirectory).filter((file) => file.endsWith(".json"))
     : [];
-  assert.equal(receipts.length, 1);
+  assert.equal(receipts.length, 0);
   const reused = runWrapper(cwd, ["node", "scripts/check/check-api-response-format.js"], {
     env: { CHECK_WORKSPACE_SNAPSHOT_SCOPE: "committed" },
   });
   assert.equal(reused.status, 0, reused.stderr);
-  assert.match(reused.stdout, /Reusing cached gate check result/);
+  assert.doesNotMatch(reused.stdout, /Reusing cached/);
 });
 
-test("changed-check base/head and CI environment participate in the key", (t) => {
+test("commit SHAs and PATH do not invalidate content cache while semantic mode does", (t) => {
   const cwd = createRepository(t);
   const base = snapshot(cwd, {
     CI: "",
@@ -210,11 +211,11 @@ test("changed-check base/head and CI environment participate in the key", (t) =>
     WORKSPACE_DIFF_HEAD: "b".repeat(40),
   });
 
-  assert.notEqual(differentHead.parts.environment, base.parts.environment);
-  assert.notEqual(differentHead.key, base.key);
+  assert.equal(differentHead.parts.environment, base.parts.environment);
+  assert.equal(differentHead.key, base.key);
   assert.notEqual(ci.parts.environment, base.parts.environment);
   assert.notEqual(ci.key, base.key);
-  assert.notEqual(differentPath.key, base.key);
+  assert.equal(differentPath.key, base.key);
 });
 
 test("ignored dotenv inputs participate in the snapshot without exposing their contents", (t) => {
@@ -237,6 +238,7 @@ test("nested wrappers accept a validated inherited key without reading Git", (t)
   fs.mkdirSync(checkDirectory, { recursive: true });
   fs.copyFileSync(runnerSource, path.join(checkDirectory, "with-check-lock.js"));
   fs.copyFileSync(snapshotSource, path.join(checkDirectory, "workspace-snapshot.js"));
+  fs.copyFileSync(memoryPolicySource, path.join(checkDirectory, "check-memory-policy.js"));
   const inheritedKey = "d".repeat(64);
 
   const resolved = resolveWorkspaceSnapshot({
@@ -325,7 +327,7 @@ test("a fresh lock directory without metadata cannot be stolen during lock initi
   assert.equal(fs.existsSync(lockDirectory), true);
 });
 
-test("cache receipts include timing and old successful receipts remain readable", (t) => {
+test("standalone checks never create legacy command-level receipts", (t) => {
   const cwd = createRepository(t, { runner: true });
   fs.writeFileSync(
     path.join(cwd, "scripts/check/check-api-response-format.js"),
@@ -334,49 +336,25 @@ test("cache receipts include timing and old successful receipts remain readable"
   git(cwd, ["add", "scripts/check/check-api-response-format.js"]);
   git(cwd, ["commit", "--quiet", "-m", "add fake check"]);
 
-  const first = runWrapper(cwd, ["node", "scripts/check/check-api-response-format.js"]);
-  assert.equal(first.status, 0, first.stderr);
+  const result = runWrapper(cwd, ["node", "scripts/check/check-api-response-format.js"]);
+  assert.equal(result.status, 0, result.stderr);
   const resultDirectory = path.join(cwd, ".cache/check-results");
-  const receiptFiles = fs.readdirSync(resultDirectory).filter((file) => file.endsWith(".json"));
-  assert.equal(receiptFiles.length, 1);
-  const receiptPath = path.join(resultDirectory, receiptFiles[0]);
-  const receipt = JSON.parse(fs.readFileSync(receiptPath, "utf8"));
-  assert.equal(receipt.status, "passed");
-  assert.ok(Number.isFinite(receipt.durationMs));
-  assert.ok(Number.isFinite(receipt.waitMs));
-
-  delete receipt.durationMs;
-  delete receipt.waitMs;
-  fs.writeFileSync(receiptPath, `${JSON.stringify(receipt, null, 2)}\n`);
-  const reused = runWrapper(cwd, ["node", "scripts/check/check-api-response-format.js"]);
-  assert.equal(reused.status, 0, reused.stderr);
-  assert.match(reused.stdout, /Reusing cached gate check result/);
+  const receipts = fs.existsSync(resultDirectory)
+    ? fs.readdirSync(resultDirectory).filter((file) => file.endsWith(".json"))
+    : [];
+  assert.deepEqual(receipts, []);
 });
 
-test("outer wrapper promotes nested receipts only after the shared snapshot passes", (t) => {
+test("nested wrappers do not synthesize workspace-wide cache receipts", (t) => {
   const cwd = createRepository(t, { runner: true });
-  fs.writeFileSync(
-    path.join(cwd, "scripts/check/check-api-response-format.js"),
-    "process.exit(0);\n",
-  );
-  git(cwd, ["add", "scripts/check/check-api-response-format.js"]);
-  git(cwd, ["commit", "--quiet", "-m", "add nested fake check"]);
-
   const nestedCommand = [
-    process.execPath,
-    "scripts/check/with-check-lock.js",
-    "--",
-    "node",
-    "scripts/check/check-api-response-format.js",
+    process.execPath, "scripts/check/with-check-lock.js", "--", process.execPath, "-e", "process.exit(0)",
   ];
   const first = runWrapper(cwd, nestedCommand);
   assert.equal(first.status, 0, first.stderr);
   const resultDirectory = path.join(cwd, ".cache/check-results");
-  assert.equal(fs.readdirSync(resultDirectory).filter((file) => file.endsWith(".json")).length, 1);
-
-  const reused = runWrapper(cwd, nestedCommand);
-  assert.equal(reused.status, 0, reused.stderr);
-  assert.match(reused.stdout, /Reusing cached gate check result/);
+  const receipts = fs.existsSync(resultDirectory) ? fs.readdirSync(resultDirectory) : [];
+  assert.deepEqual(receipts, []);
 });
 
 test("outer wrapper promotes staged structure reports only after snapshot verification", (t) => {
@@ -401,7 +379,7 @@ test("outer wrapper promotes staged structure reports only after snapshot verifi
   assert.match(reports[0], /^[0-9a-f]{64}\.json$/);
 });
 
-test("an outer wrapper rejects drift even when its nested check was a cache hit", async (t) => {
+test("an outer wrapper rejects drift after a nested check completes", async (t) => {
   const cwd = createRepository(t, { runner: true });
   const marker = path.join(cwd, ".cache/cached-check-finished");
   fs.writeFileSync(
@@ -438,42 +416,42 @@ test("an outer wrapper rejects drift even when its nested check was a cache hit"
   child.stderr.setEncoding("utf8");
   child.stderr.on("data", (chunk) => { stderr += chunk; });
   await waitForFile(marker, child);
-  fs.writeFileSync(path.join(cwd, "cached-drift.txt"), "changed after cache hit\n");
+  fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged candidate changed after cache hit\n");
+  git(cwd, ["add", "tracked.txt"]);
   const result = await waitForClose(child);
 
   assert.equal(result.code, 1);
   assert.match(stderr, /Workspace snapshot changed while the check was running/);
 });
 
-test("outer wrapper preserves successful nested receipts before a later stable failure", (t) => {
+test("outer wrapper promotes only successful v2 task receipts before a later stable failure", (t) => {
   const cwd = createRepository(t, { runner: true });
-  fs.writeFileSync(
-    path.join(cwd, "scripts/check/check-api-response-format.js"),
-    "process.exit(0);\n",
-  );
+  const inputDigest = "a".repeat(64);
   fs.writeFileSync(
     path.join(cwd, "scripts/check/failing-suite.js"),
     [
-      "const { spawnSync } = require('node:child_process');",
-      "const nested = spawnSync(process.execPath, [",
-      "  'scripts/check/with-check-lock.js', '--',",
-      "  'node', 'scripts/check/check-api-response-format.js',",
-      "], { cwd: process.cwd(), env: process.env, stdio: 'inherit' });",
-      "if (nested.status !== 0) process.exit(nested.status ?? 1);",
+      "const fs = require('node:fs');",
+      "const path = require('node:path');",
+      `const inputDigest = '${inputDigest}';`,
+      "const directory = path.join(process.env.CHECK_CACHE_PENDING_DIR, 'fixture-task');",
+      "fs.mkdirSync(directory, { recursive: true });",
+      "fs.writeFileSync(path.join(directory, inputDigest + '.json'), JSON.stringify({",
+      "  schemaVersion: 2, kind: 'workspace-check-task-receipt', taskKey: 'fixture-task',",
+      "  taskContractVersion: 2, inputDigest, commandDigest: 'b'.repeat(64),",
+      "  runtimeDigest: 'c'.repeat(64), status: 'passed', sourceRunId: 'ci-fixture',",
+      "  completedAt: new Date().toISOString(), receiptDigest: 'd'.repeat(64),",
+      "}));",
       "process.exit(9);",
       "",
     ].join("\n"),
   );
-  git(cwd, ["add", "scripts/check/check-api-response-format.js", "scripts/check/failing-suite.js"]);
+  git(cwd, ["add", "scripts/check/failing-suite.js"]);
   git(cwd, ["commit", "--quiet", "-m", "add partially failing suite"]);
 
   const failed = runWrapper(cwd, ["node", "scripts/check/failing-suite.js"]);
   assert.equal(failed.status, 9, failed.stderr);
-  assert.match(failed.stderr, /Preserved successful partial check results/);
-
-  const reused = runWrapper(cwd, ["node", "scripts/check/check-api-response-format.js"]);
-  assert.equal(reused.status, 0, reused.stderr);
-  assert.match(reused.stdout, /Reusing cached gate check result/);
+  assert.match(failed.stderr, /Preserved successful task-input receipts/);
+  assert.equal(fs.existsSync(path.join(cwd, `.cache/check-results/fixture-task/${inputDigest}.json`)), true);
 });
 
 test("snapshot drift rejects success and discards pending cache receipts", async (t) => {
@@ -511,7 +489,8 @@ test("snapshot drift rejects success and discards pending cache receipts", async
   child.stderr.setEncoding("utf8");
   child.stderr.on("data", (chunk) => { stderr += chunk; });
   await waitForFile(marker, child);
-  fs.writeFileSync(path.join(cwd, "drift.txt"), "changed while checking\n");
+  fs.writeFileSync(path.join(cwd, "tracked.txt"), "staged candidate changed while checking\n");
+  git(cwd, ["add", "tracked.txt"]);
   const result = await waitForClose(child);
 
   assert.equal(result.code, 1);

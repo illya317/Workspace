@@ -5,11 +5,15 @@ const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const DOMAIN_PACKAGES = [
+  "agent",
   "administration",
+  "docs",
   "finance",
   "hr",
   "library",
+  "news",
   "production",
+  "settings",
   "work",
 ];
 

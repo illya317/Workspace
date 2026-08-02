@@ -142,7 +142,7 @@ export default function LoginClient() {
       brand={{
         title: tenantConfig.identity.appName,
         logo: {
-          src: workspacePath("/company/logo.png"),
+          src: workspacePath(tenantConfig.brand.logoPath),
           alt: tenantConfig.identity.companyName,
           width: 240,
           height: 80,

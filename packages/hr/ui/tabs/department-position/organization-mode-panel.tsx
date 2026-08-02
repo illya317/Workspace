@@ -17,7 +17,7 @@ import type { RosterSurfaceTabBarProps } from "../../roster-surface";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { rosterAssistantToolbarItems } from "../../roster-surface";
 import { useDepartmentCreateSurface } from "./department-create-panel";
-import type { Department, Position } from "./types";
+import type { Department, OrganizationCodeConfig, Position } from "./types";
 
 type PositionRelationRow = {
   position: Position;
@@ -69,6 +69,7 @@ export function OrganizationModePanel({
   positions,
   positionsByDepartment,
   selector,
+  codeConfig,
   departmentCreateRuntime,
   onCreatePanelChange,
   onOpenDepartmentDetails,
@@ -88,6 +89,7 @@ export function OrganizationModePanel({
   positions: Position[];
   positionsByDepartment: Map<number, Position[]>;
   selector: SelectorSurfaceProps<Department>;
+  codeConfig: OrganizationCodeConfig | null;
   departmentCreateRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onOpenDepartmentDetails?: (departmentId: number) => void;
@@ -99,6 +101,7 @@ export function OrganizationModePanel({
 }) {
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
+    codeConfig,
     departmentById,
     actionRuntime: departmentCreateRuntime,
     open: createPanel === "department",
@@ -238,9 +241,8 @@ export function OrganizationModePanel({
   }
   const toolbarItems: SurfaceToolbarItems = [];
   toolbarItems.push(...rosterAssistantToolbarItems(surface));
-  const rightSections = [
-    { key: "department-create", body: { kind: "create" as const, create: createDepartmentSurface } },
-    ...(createPanel === "department" ? [] : [createPanelSection("organization-mode", {
+  const rightSections = createPanel === "department" ? [] : [
+    createPanelSection("organization-mode", {
         title: organizationPanelTitle,
         actions: organizationHeaderDepartment && onOpenDepartmentDetails ? [{
           key: "open-department",
@@ -250,14 +252,14 @@ export function OrganizationModePanel({
           presentation: "icon",
         }] : undefined,
         sections: panelSections,
-      })]),
+      }),
   ];
   const body: BodySurfaceProps = createMasterDetailBody({
     master: { label: "全部组织层级", presentation: "compact", body: { kind: "selector", selector } },
     detail: createPageBody(rightSections),
   });
   const pageProps: PageSurfaceStandardProps = surface
-    ? { ...surface, toolbar: toolbarItems.length ? { items: toolbarItems } : undefined, body }
-    : { body };
+    ? { ...surface, create: createDepartmentSurface, toolbar: toolbarItems.length ? { items: toolbarItems } : undefined, body }
+    : { create: createDepartmentSurface, body };
   return <PageSurface {...pageProps} />;
 }

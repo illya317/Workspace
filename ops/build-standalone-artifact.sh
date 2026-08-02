@@ -2,6 +2,8 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+# shellcheck source=ops/release/artifact/next-compiler-cache-shell.sh
+source ./ops/release/artifact/next-compiler-cache-shell.sh
 
 ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
 ALLOW_CNB_RELEASE_INJECTION="${ALLOW_CNB_RELEASE_INJECTION:-0}"
@@ -10,6 +12,7 @@ ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
 MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
 SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
 SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${SOURCE_SHA}^{tree}")}"
+CONTENT_DIGEST="${RELEASE_CONTENT_DIGEST:-}"
 RELEASE_TIMING_ENABLED=0
 
 if [ -n "${RELEASE_TIMING_FILE:-}" ]; then
@@ -56,6 +59,10 @@ if ! printf '%s' "$SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$'; then
 fi
 if ! printf '%s' "$SOURCE_TREE" | grep -Eq '^[0-9a-f]{40}$'; then
   echo "[错误] RELEASE_SOURCE_TREE 必须是完整小写 Git tree SHA"
+  exit 1
+fi
+if ! printf '%s' "$CONTENT_DIGEST" | grep -Eq '^[0-9a-f]{64}$'; then
+  echo "[错误] RELEASE_CONTENT_DIGEST 必须是候选内容 SHA-256"
   exit 1
 fi
 if [ "$(git rev-parse "${SOURCE_SHA}^{tree}")" != "$SOURCE_TREE" ]; then
@@ -233,6 +240,7 @@ copy_data_release_files() {
   echo "==> 打包私有数据发布执行器与生产回执门禁..."
   test -f ops/data-release.mjs
   test -f ops/apply-data-release.mjs
+  test -f ops/replace-production-database.sh
   test -f ops/prisma-genesis-cutover.mjs
   rm -rf .next/standalone/ops/data-releases
   mkdir -p .next/standalone/ops
@@ -240,6 +248,8 @@ copy_data_release_files() {
   cp ops/apply-data-release.mjs .next/standalone/ops/apply-data-release.mjs
   cp ops/data-release-handlers.mjs .next/standalone/ops/data-release-handlers.mjs
   cp ops/data-release-transfer.mjs .next/standalone/ops/data-release-transfer.mjs
+  cp ops/replace-production-database.sh .next/standalone/ops/replace-production-database.sh
+  chmod 755 .next/standalone/ops/replace-production-database.sh
   cp ops/prisma-genesis-cutover.mjs .next/standalone/ops/prisma-genesis-cutover.mjs
   cp tsconfig.json tsconfig.base.json .next/standalone/
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
@@ -250,13 +260,21 @@ copy_data_release_files() {
   cp -R generated .next/standalone/
   cp -R scripts/import .next/standalone/scripts/
   cp -R scripts/lib .next/standalone/scripts/
+  cp -R scripts/repair .next/standalone/scripts/
   test -f .next/standalone/ops/data-release.mjs
   test -f .next/standalone/ops/apply-data-release.mjs
   test -f .next/standalone/ops/data-release-handlers.mjs
   test -f .next/standalone/ops/data-release-transfer.mjs
+  test -x .next/standalone/ops/replace-production-database.sh
   test -f .next/standalone/ops/prisma-genesis-cutover.mjs
   test -f .next/standalone/tsconfig.json
   test -f .next/standalone/tsconfig.base.json
+  test -f .next/standalone/scripts/repair/repair-finance-consolidation-voucher.mjs
+  test -f .next/standalone/scripts/import/import-finance-june-close-cutover.ts
+  test -f .next/standalone/scripts/repair/repair-hr-lifecycle-compatibility.mjs
+  test -f .next/standalone/scripts/repair/repair-hr-organization-baseline-compatibility.mjs
+  test -f .next/standalone/scripts/repair/repair-hr-employment-agreement-baseline.mjs
+  node ops/release/artifact/link-data-release-next-runtime.mjs .next/standalone node_modules/next
   if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
     cmp .cnb-release.json .next/standalone/.cnb-release.json
   fi
@@ -264,8 +282,8 @@ copy_data_release_files() {
 
 if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
   echo "==> 复用当前 job 已完成的 Next standalone 构建..."
-  if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
-    echo "[错误] STANDALONE_SKIP_NEXT_BUILD 只能复用 BUILD_ID 等于 canonical source SHA 的构建"
+  if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$CONTENT_DIGEST" ]; then
+    echo "[错误] STANDALONE_SKIP_NEXT_BUILD 只能复用 BUILD_ID 等于候选内容摘要的构建"
     exit 1
   fi
   ensure_build_deps
@@ -274,14 +292,19 @@ if [ "$STANDALONE_SKIP_NEXT_BUILD" = "1" ]; then
   npm run output-tracing:check
 else
   echo "==> 构建 Next standalone 产物..."
-  ensure_build_deps
-  run_artifact_stage next.build \
-    env NEXT_PUBLIC_BUILD_VERSION="$SOURCE_SHA" BUILD_VERSION="$SOURCE_SHA" \
-    npm run build
+  next_compiler_cache_monolith_build "$PWD" "$CONTENT_DIGEST" "${STANDALONE_EXTERNAL_TYPECHECK:-0}"
 fi
 
-if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$SOURCE_SHA" ]; then
-  echo "[错误] .next/BUILD_ID 与 canonical source SHA 不一致；禁止打包错误构建"
+if [ ! -f .cache/source-code-analysis/snapshot.json ]; then
+  npm run source-code-analysis:snapshot
+fi
+test -s .cache/source-code-analysis/snapshot.json || {
+  echo "[错误] 源码分析 snapshot 未生成，禁止组装 standalone artifact" >&2
+  exit 1
+}
+
+if [ ! -f .next/BUILD_ID ] || [ "$(cat .next/BUILD_ID)" != "$CONTENT_DIGEST" ]; then
+  echo "[错误] .next/BUILD_ID 与候选内容摘要不一致；禁止打包错误构建"
   exit 1
 fi
 
@@ -301,6 +324,12 @@ mkdir -p "$standalone_app_dir/.next"
 cp -r .next/static "$standalone_app_dir/.next/static"
 rm -rf "$standalone_app_dir/public"
 cp -R public "$standalone_app_dir/public"
+mkdir -p "$standalone_app_dir/.workspace/source-code-analysis"
+cp .cache/source-code-analysis/snapshot.json "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json"
+test -s "$standalone_app_dir/.workspace/source-code-analysis/snapshot.json" || {
+  echo "[错误] standalone artifact 缺少源码分析 snapshot" >&2
+  exit 1
+}
 # Runtime branding and avatar links point outside the repository. They must never enter the
 # portable standalone artifact; production relinks them from REMOTE_WORKSPACE_CONFIG_DIR after extract.
 for runtime_asset in \
@@ -321,7 +350,9 @@ rm -f "$standalone_app_dir/.env"
 # Output tracing can retain partial runtime package shells. Copy complete closures that
 # production loads dynamically, then add deployment-only schema/resource/runtime files.
 run_artifact_stage runtime.dependencies \
-  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv server-only tsx xlsx @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
+  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv pinyin-pro server-only sharp tsx xlsx zod @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
+run_artifact_stage runtime.sharp \
+  node -e 'const sharp=require("./.next/standalone/node_modules/sharp"); if (!sharp.versions?.sharp) throw new Error("standalone sharp runtime is incomplete")'
 run_artifact_stage runtime.prisma copy_prisma_deploy_files
 run_artifact_stage runtime.resources copy_resource_seed_files
 run_artifact_stage runtime.importers copy_external_party_import_files
@@ -332,6 +363,7 @@ cp scripts/runtime/wecom-agent-bot.mjs .next/standalone/scripts/runtime/wecom-ag
 cp scripts/runtime/wecom-agent-delivery.mjs .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
 cp scripts/runtime/wecom-agent-input.mjs .next/standalone/scripts/runtime/wecom-agent-input.mjs
 cp scripts/runtime/wecom-agent-stream.mjs .next/standalone/scripts/runtime/wecom-agent-stream.mjs
+cp scripts/runtime/wecom-notification-delivery.mjs .next/standalone/scripts/runtime/wecom-notification-delivery.mjs
 
 rm -rf .next/standalone/generated/prisma
 mkdir -p .next/standalone/generated
@@ -351,10 +383,58 @@ test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-input.mjs
 test -f .next/standalone/scripts/runtime/wecom-agent-stream.mjs
+test -f .next/standalone/scripts/runtime/wecom-notification-delivery.mjs
 test -f .next/standalone/scripts/import/import-external-party-master.mjs
 test -f .next/standalone/generated/prisma/client.ts
 test ! -e .next/standalone/generated/production
 
+# A shared release worktree may use one external node_modules symlink for build speed.
+# Next traces that physical dependency root into the standalone tree, but preserves the
+# app-level absolute shortcut. Rewrite only that shortcut to the exact package-internal
+# traced root; deleting it loses Next itself, while dereferencing it duplicates the closure.
+if [ -L "$standalone_app_dir/node_modules" ]; then
+  [ "$(realpath "$standalone_app_dir/node_modules")" = "$(realpath node_modules)" ] || {
+    echo "[错误] standalone app node_modules 指向未知位置" >&2
+    exit 1
+  }
+  mapfile -t portable_dependency_candidates < <(
+    find .next/standalone -type f -path '*/node_modules/next/package.json' -print
+  )
+  [ "${#portable_dependency_candidates[@]}" -eq 1 ] || {
+    echo "[error] standalone must contain exactly one traced Next dependency root" >&2
+    exit 1
+  }
+  portable_dependency_root="$(dirname "$(dirname "${portable_dependency_candidates[0]}")")"
+  test -f "$portable_dependency_root/next/dist/server/next.js"
+  rm -f "$standalone_app_dir/node_modules"
+  portable_dependency_link="$(realpath --relative-to="$standalone_app_dir" "$portable_dependency_root")"
+  ln -s "$portable_dependency_link" "$standalone_app_dir/node_modules"
+fi
+STANDALONE_ROOT=".next/standalone" node <<'NODE'
+const fs = require("fs");
+const path = require("path");
+
+const standaloneRoot = fs.realpathSync(process.env.STANDALONE_ROOT);
+const inside = (root, candidate) => {
+  const relative = path.relative(root, candidate);
+  return relative === "" || (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative));
+};
+function visit(directory) {
+  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+    const entryPath = path.join(directory, entry.name);
+    if (entry.isSymbolicLink()) {
+      let target;
+      try { target = fs.realpathSync(entryPath); }
+      catch { throw new Error(`standalone contains broken symlink: ${entryPath}`); }
+      if (!inside(standaloneRoot, target)) {
+        throw new Error(`standalone symlink escapes the portable runtime: ${entryPath} -> ${target}`);
+      }
+    } else if (entry.isDirectory()) visit(entryPath);
+  }
+}
+visit(standaloneRoot);
+NODE
+node ops/release/artifact/runtime-tree-permissions.mjs normalize --root .next/standalone
 mkdir -p "$(dirname "$ARTIFACT_PATH")" "$(dirname "$MANIFEST_PATH")"
 rm -f "$ARTIFACT_PATH" "$MANIFEST_PATH"
 run_artifact_stage artifact.archive env COPYFILE_DISABLE=1 \
@@ -387,10 +467,16 @@ process.stdout.write(hash.digest("hex"));
 NODE
 )"
 
+DEPLOY_GRAPH_PATH="${STANDALONE_DEPLOY_GRAPH_PATH:-.next/workspace-deploy-graph.json}"
+node --conditions=react-server --import tsx scripts/deploy/check-deploy-graph.ts --json > "$DEPLOY_GRAPH_PATH"
+deploy_graph_sha="$(node ops/gateway-generation.mjs graph-digest --graph "$DEPLOY_GRAPH_PATH")"
+
 SOURCE_SHA="$SOURCE_SHA" \
 SOURCE_TREE="$SOURCE_TREE" \
+CONTENT_DIGEST="$CONTENT_DIGEST" \
 PACKAGE_LOCK_SHA="$package_lock_sha" \
 MIGRATION_SET_SHA="$migration_set_sha" \
+DEPLOY_GRAPH_SHA="$deploy_graph_sha" \
 ARTIFACT_PATH="$ARTIFACT_PATH" \
 ARTIFACT_SHA="$artifact_sha" \
 MANIFEST_PATH="$MANIFEST_PATH" \
@@ -398,53 +484,17 @@ node <<'NODE'
 const { readFileSync, statSync, writeFileSync } = require("fs");
 const { basename } = require("path");
 
-function parseJsonEnvironment(name, fallback) {
-  const value = process.env[name];
-  if (!value) return fallback;
-  try {
-    return JSON.parse(value);
-  } catch {
-    throw new Error(`${name} must be valid JSON`);
-  }
-}
-
-function requireStringArray(value, name) {
-  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || item.length === 0)) {
-    throw new Error(`${name} must be a JSON string array`);
-  }
-  return [...new Set(value)].sort();
-}
-
-const classification = parseJsonEnvironment("CI_CLASSIFICATION_JSON", null);
-if (classification !== null && (!classification || typeof classification !== "object" || Array.isArray(classification))) {
-  throw new Error("CI_CLASSIFICATION_JSON must be a JSON object");
-}
-const requiredSuites = requireStringArray(
-  parseJsonEnvironment("CI_REQUIRED_SUITES_JSON", classification?.requiredSuites ?? []),
-  "CI_REQUIRED_SUITES_JSON",
-);
-const e2eSpecs = requireStringArray(
-  parseJsonEnvironment("CI_E2E_SPECS_JSON", classification?.e2eSpecs ?? []),
-  "CI_E2E_SPECS_JSON",
-);
-const riskClass = process.env.CI_RISK_CLASS || classification?.riskClass || null;
-const e2eMode = process.env.CI_E2E_MODE || classification?.e2eMode || null;
-if (classification && (classification.riskClass !== riskClass
-  || classification.e2eMode !== e2eMode
-  || JSON.stringify(requireStringArray(classification.requiredSuites ?? [], "classification.requiredSuites")) !== JSON.stringify(requiredSuites)
-  || JSON.stringify(requireStringArray(classification.e2eSpecs ?? [], "classification.e2eSpecs")) !== JSON.stringify(e2eSpecs))) {
-  throw new Error("CI classification fields are inconsistent");
-}
-
 const manifest = {
-  schemaVersion: 1,
+  schemaVersion: 2,
   source: {
     commitSha: process.env.SOURCE_SHA,
     treeSha: process.env.SOURCE_TREE,
+    contentDigest: process.env.CONTENT_DIGEST,
   },
   inputs: {
     packageLockSha256: process.env.PACKAGE_LOCK_SHA,
     migrationSetSha256: process.env.MIGRATION_SET_SHA,
+    deployGraphSha256: process.env.DEPLOY_GRAPH_SHA,
   },
   artifact: {
     fileName: basename(process.env.ARTIFACT_PATH),
@@ -463,13 +513,6 @@ const manifest = {
     githubRunId: process.env.GITHUB_RUN_ID || null,
     githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || null,
     githubEventName: process.env.GITHUB_EVENT_NAME || null,
-    riskClass,
-    e2eMode,
-    forceFull: process.env.CI_FORCE_FULL === "true",
-    targetSha: process.env.CI_TARGET_SHA || process.env.GITHUB_SHA || null,
-    requiredSuites,
-    e2eSpecs,
-    classification,
   },
 };
 writeFileSync(process.env.MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`, { mode: 0o644 });

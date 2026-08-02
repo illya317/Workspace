@@ -37,7 +37,7 @@ export type WorkDepartmentHomeEmployee = {
   departmentCode: string;
   positionNames: string[];
   isPrimary: boolean;
-  workPercent: string | null;
+  allocationWeight: string | null;
   personnelType: string | null;
   rank: string | null;
   title: string | null;
@@ -140,12 +140,6 @@ async function buildDepartmentHomeData({
           },
         },
       },
-      managerEmployees: {
-        select: {
-          employee: { select: managerEmployeeSelect },
-        },
-        orderBy: { id: "asc" },
-      },
     },
     orderBy: [{ hierarchyKind: "asc" }, { level: "asc" }, { code: "asc" }, { id: "asc" }],
   });
@@ -163,7 +157,7 @@ async function buildDepartmentHomeData({
       select: {
         departmentId: true,
         isPrimary: true,
-        workPercent: true,
+        allocationWeight: true,
         employee: {
           select: {
             id: true,
@@ -242,11 +236,9 @@ async function listReadableDepartmentHomeSpaces(userId: number) {
 }
 
 function managerNames(department: {
-  managerEmployees: Array<{ employee: { id: number; name: string } }>;
   managerPosition: { edps: Array<{ employee: { id: number; name: string } }> } | null;
 }) {
-  const selected = department.managerEmployees.map((row) => row.employee);
-  const employees = selected.length > 0 ? selected : department.managerPosition?.edps.map((row) => row.employee) ?? [];
+  const employees = department.managerPosition?.edps.map((row) => row.employee) ?? [];
   return Array.from(new Map(employees.map((employee) => [employee.id, employee.name || "未命名员工"])).values());
 }
 
@@ -289,7 +281,7 @@ function countEmployeesByDepartment(edps: Array<{ departmentId: number | null; e
 function departmentEmployeeRows(edps: Array<{
   departmentId: number | null;
   isPrimary: boolean;
-  workPercent: string | null;
+  allocationWeight: string | null;
   employee: {
     id: number;
     employeeId: string;
@@ -314,7 +306,7 @@ function departmentEmployeeRows(edps: Array<{
       departmentCode: edp.department.code,
       positionNames: [],
       isPrimary: false,
-      workPercent: null,
+      allocationWeight: null,
       personnelType: employment?.personnelType ?? null,
       rank: employment?.rank ?? null,
       title: employment?.title ?? edp.employee.title ?? null,
@@ -324,7 +316,7 @@ function departmentEmployeeRows(edps: Array<{
       current.positionNames.push(edp.position.name);
     }
     current.isPrimary = current.isPrimary || edp.isPrimary;
-    current.workPercent = current.workPercent ?? edp.workPercent;
+    current.allocationWeight = current.allocationWeight ?? edp.allocationWeight;
     rows.set(key, current);
   }
   return Array.from(rows.values()).sort((a, b) => a.departmentCode.localeCompare(b.departmentCode) || a.employeeId.localeCompare(b.employeeId));

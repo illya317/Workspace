@@ -45,11 +45,18 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
     ...[...historicalEdpIds].map((entityId) => ({ entityType: "EDP", entityId })),
   ];
 
-  const allRows = await prisma.editHistory.findMany({
-    where: { OR: filters },
-    include: { editor: { select: { employees: { select: { name: true }, take: 1 } } } },
-    orderBy: [{ entityType: "asc" }, { entityId: "asc" }, { version: "asc" }],
-  });
+  const [allRows, periodRevisions] = await Promise.all([
+    prisma.editHistory.findMany({
+      where: { OR: filters },
+      include: { editor: { select: { employees: { select: { name: true }, take: 1 } } } },
+      orderBy: [{ entityType: "asc" }, { entityId: "asc" }, { version: "asc" }],
+    }),
+    prisma.employeePeriodRevision.findMany({
+      where: { employeeId },
+      include: { recordedBy: { select: { employees: { select: { name: true }, take: 1 } } } },
+      orderBy: { recordedAt: "desc" },
+    }),
+  ]);
   const rows = allRows.filter((row) => row.tag === null);
 
   const groups = new Map<string, typeof allRows>();
@@ -60,7 +67,8 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
     groups.set(groupKey, list);
   }
 
-  const entries = rows
+  const entries = [
+    ...rows
     .map((row) => {
       const group = groups.get(`${row.entityType}:${row.entityId}`) || [];
       const index = group.findIndex((item) => item.id === row.id);
@@ -84,8 +92,35 @@ export async function getEmployeeProfileHistoryByKey(key: string) {
         changes,
       };
     })
-    .filter((entry) => entry.action === "create" || entry.changes.length > 0)
-    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+    .filter((entry) => entry.action === "create" || entry.changes.length > 0),
+    ...periodRevisions.map((revision) => {
+      const before = parseJson(revision.beforeJson);
+      const after = parseJson(revision.afterJson);
+      const startKey = revision.entityType === "Employment" ? "joinDate" : "startDate";
+      const endKey = revision.entityType === "Employment" ? "leaveDate" : "endDate";
+      return {
+        id: `period-revision:${revision.id}`,
+        entityType: revision.entityType,
+        entityId: String(revision.periodId),
+        version: revision.expectedVersion + 1,
+        editorName: userEmployeeName(revision.recordedBy) || "未知人员",
+        createdAt: revision.recordedAt,
+        action: "update" as const,
+        reason: revision.reason,
+        changes: [{
+          field: startKey,
+          label: revision.entityType === "Employment" ? "入职日期" : "任职开始日期",
+          from: formatVal(String(before[startKey] ?? "(空)")),
+          to: formatVal(String(after.startDate ?? "(空)")),
+        }, {
+          field: endKey,
+          label: revision.entityType === "Employment" ? "离职日期" : "任职结束日期",
+          from: formatVal(String(before[endKey] ?? "(空)")),
+          to: formatVal(String(after.endDate ?? "(空)")),
+        }],
+      };
+    }),
+  ].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
   return { status: "ok" as const, data: { entries } };
 }

@@ -6,13 +6,13 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 
 | 字段 | 用途 | 业务/agent 可直接使用 |
 |---|---|---|
-| `declares` | 业务/Agent 可声明字段，例如 `control`、`valueType`、`options`、`kind` | 是，且是 `/settings/ui` 唯一自动收录口径 |
+| `declares` | 业务/Agent 可声明字段，例如 `control`、`valueType`、`options`、`kind` | 是，且是 `/settings/governance` UI Tab 唯一自动收录口径 |
 | `contract` | 由类型生成的完整契约树 | 不作为 UI 组件库收录口径 |
 | `capabilities` | 非声明式服务能力说明，例如 feedback | 不作为 UI 组件库收录口径 |
 | `composes` | 内部使用了哪些 Core 能力 | 不直接 import |
 | `name/description` | 注册名和中文说明 | 作为 registry 基本事实 |
 
-旧 `category/subcategory`、`role`、`exposure`、`verified` 字段已删除，不再作为分类、筛选、展示或 gate 依据。`/settings/ui` 的分类由声明视图派生，目前只有 `页面布局`、`页面内容`、`通用` 三类。
+旧 `category/subcategory`、`role`、`exposure`、`verified` 字段已删除，不再作为分类、筛选、展示或 gate 依据。`/settings/governance` UI Tab 的分类由声明视图派生，目前只有 `页面布局`、`页面内容`、`通用` 三类。
 
 ## 2. Agent 使用规则
 
@@ -21,6 +21,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - Toolbar 规则另见 `docs/engineering/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
 - 业务只 value import 明确允许的公共 runtime 入口和 helper；二级声明组件通过 `PageSurface` / `InputSurface` 等 spec 表达，不作为业务直接 renderer。
 - `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；section grid 可声明 `gridColumns: 2 | 3`，长章节可声明 `mobilePresentation: "drilldown"`，由 Core 在手机端渲染为章节目录到单章节的渐进流程。普通 DataSurface 表格在手机端渲染连续列表，矩阵默认进入 `MobileExperienceBoundary` 横屏工作台；完整策略见 `docs/engineering/mobile-experience.md`。确需针对同一业务状态提供不同信息架构时，section 可声明 `visibility: "mobile" | "desktop"`，但两侧必须复用同一数据和动作协议，不能借响应式分支复制业务状态。section 可通过结构化 `disclosure.expanded / onExpandedChange` 声明折叠面板，同层共用一个 active key 时形成互斥折叠组；这与 `PageSurface.tabbar` 的 parent/children accordion Tab 是两种能力。页面级 tabs、toolbar、分页必须通过 `PageSurface.tabbar`、`PageSurface.toolbar`、`PageSurface.footer` 表达；弹窗分页只能使用 `BodySurfaceModalSpec.pagination`。
+- 新建只使用 `CreateSurface` 的 `inline` 或 `block`，不得用 modal 阻断父页面。`BodySurfaceModalSpec` 只保留 `audit-history`、`read-only-inspection`、`workflow-action` 三种用途；确认删除、放弃修改等系统反馈继续走 `FeedbackProvider` / `ConfirmModal`，不计入业务弹窗。过渡期未声明用途的存量必须逐项登记在 `scripts/arch/modal-governance-baseline.json`，门禁同时阻止新增项和过期基线。
 - `BodySurface` 列表的 `presentation: "cards"` 只允许声明 `title / description / badges / actions` 等结构化内容，card item 禁止 `label` 和 `meta` 独立行。状态使用 badge，事实型补充信息并入 description；禁止用第三行静态说明文案制造隐式 label。
 - 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.tabbar`。旧顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 已从协议删除，不得恢复。
 - `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。已有 selector 节点的轻量重命名使用 `SelectorSurface card.inlineEdit`，不得另开业务弹窗或直接渲染输入框。
@@ -32,7 +33,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - `PageSurface.moduleView` 和旧 `kind="content"` React 正文逃生口都不是新增页面 API。存量 `moduleView` 已迁完，`businessModuleViewUsages` baseline 当前为 0；旧 content escape 已迁完，`pageSurfaceLayoutProtocolWarnings` baseline 当前为 0。`gate:ui` / `arch:surface-boundaries` 会阻止 Core UI 以外源码重新新增 `moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"`。
 - 纸面/A4/报告类内容使用 `BodySurface kind="document"`，由 Core `DocumentSurface` 管理文档宿主、宽度、字体和多页容器；图表、甘特、时间轴、组织图等复杂图形使用 `BodySurface kind="visualization"`；通用 section/panel/message/empty/actions 使用 `BodySurface kind="section"`。业务不得再用 `moduleView` 或 `FormSurface.note` 承载复杂正文。
 - 正文 Surface 的 `kind` 必须是一级 discriminant。选择 `DocumentSurface kind="pages"` 后，纸面列表只写入 `pages.items`；选择 `kind="viewer"` 后，阅读器只声明 `viewer.src/title`，由 Core 提供自适应的内嵌文档宿主。PDF、ONLYOFFICE 等提供方的鉴权、签名、配置、回调和权限映射留在 Platform 或业务适配层，不进入 Core 协议。选择 `VisualizationSurface kind="chart"` 后，图表声明只写入 `chart.visual`，选择 `kind="gantt"` 后，甘特声明只写入 `gantt.timeline`。标题、外框、空态等细节进入对应 kind 的 payload，不再作为 Surface 顶层共享可选字段。
-- `VisualizationSurface kind="network"` 只接受节点、边、分组和语义化布局声明。未声明 `layout` 时保持汇流布局；`layout.kind="converging"` 表示上游分组/节点先汇入焦点，再展开下游树；`layout.kind="hierarchy"` 表示从焦点直接向下展开，不生成上游汇流区。`layout.nodeAspect="adaptive"` 只授权 Core 在宽层级中把适合的短标题节点改为纵向形态，不允许业务传节点宽高、坐标或折线。`layoutOrder` 只保存真实来源顺序；未声明顺序的节点由 Core 按占用空间居中安排。
+- `VisualizationSurface kind="network"` 只接受节点、边、分组和语义化布局声明。未声明 `layout` 时保持汇流布局；`layout.kind="converging"` 表示上游分组/节点先汇入焦点，再展开下游树；`layout.kind="hierarchy"` 表示从焦点直接向下展开，不生成上游汇流区。`presentation="map"` 表示用于大规模拓扑探索的力导向地图：Core 自动按连接数决定圆点大小，标签在独立屏幕层以恒定字号渲染并避让圆点、标签和图内控件；大图悬停只显示当前节点标签，存在 `focusNodeKey` 的详情图才同时尝试显示出向关联标签，空间不足时保留当前标签并隐藏低优先级关联标签。悬停/选中仍强调一跳关系并弱化无关元素，调用方只可接收节点选择事件，不得声明斥力、坐标、节点直径、标签字号/密度策略或状态颜色。`layout.nodeAspect="adaptive"` 只授权 Core 在宽层级中把适合的短标题节点改为纵向形态，不允许业务传节点宽高、坐标或折线。`layoutOrder` 只保存真实来源顺序；未声明顺序的节点由 Core 按占用空间居中安排。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用公开的 `PageSurface` / `BodySurface` contract，不建立专用 Core kind。
 - 纯数据 helper 不拥有可见 UI 或流程决策。UI agent 可以维护显式类型的结构声明函数：它可以一次声明完整的 section、表单组、表格、selector、展开工作区或深模块 cell，并拥有该结构内的语义文案、状态与动作；非标准返回类型用 `@ui-structural-declaration` 标明。禁止把声明细碎化成单个字段、普通单元格、单个 label/icon，也禁止声明颜色、间距、圆角、阴影、renderer 或动作位置/排序。结构声明不得执行 fetch/toast/confirm/router/history 等构造期副作用；事件回调中的业务动作不算构造期副作用。
@@ -40,7 +41,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 
 Architecture/Core UI agent：
 
-- 可以修改 `packages/core/ui/**`、Core UI registry、`/settings/ui` 声明能力页和治理脚本。
+- 可以修改 `packages/core/ui/**`、Core UI registry、`/settings/governance` UI 声明能力页和治理脚本。
 - 必须使用 `CORE_UI_CHANGE=1` 明确授权本次是 UI-system 任务。
 - 必须同步更新 registry、导出、声明关系和相关治理文档。
 - 必须保持 `npm run arch:gate`、`npm run lint:changed`、`npm run typecheck:scope -- core` 无豁免通过；下游全图由 CI/发布验证。
@@ -89,8 +90,9 @@ Core UI 的 layout 规则分为“内容规则”和“外观规则”。业务�
 
 - Toolbar 声明子控件处于 `intrinsic`。
 - 表格、批量录入、纸面表单声明子控件处于 `parentLocked`。
-- 详情页字段区声明子控件跟随详情页字段 context，并在同一区域内保持一致。
+- 详情页字段区声明子控件跟随详情页字段 context，并在同一区域内保持一致。FieldGrid 的 `columns` 和 `fieldLayout: "inline" | "stack"` 都是 section 级声明，单字段不得覆盖：`inline` 由 Core 从 `5rem` 最小标签轨道开始按本 section 最长标签整体扩张，并在保留 `8rem` 最小输入轨道后统一省略溢出标签、hover 展示全文；`stack` 让本 section 全部字段统一改为标签在上、输入在下，并按本 section 最高标签统一标签区高度。业务不声明 rem、字段宽度、截断或单字段布局，Core 也不因标签长度改变声明列数。
 - 详情页字段区需要承载头像、图片等高内容时，字段项使用 `rowSpan: 2 | 3` 让该单元格跨行；不要在业务页用局部缩小、绝对定位或额外手写网格修补行高。
+- `multiline` 文本字段由 FormSurface 自动横跨整个字段网格，不受 section 列数影响；Textarea 默认从 1 行起，并随内容和可用宽度自动增高，只有确实需要较大初始编辑区时才显式声明 `rows`，需要固定高度时才显式关闭 `autoGrow`。
 - 系统反馈组件才允许 `selfLocked`。
 - 页面级全局组件使用自身稳定规格；正文 context 不影响它们，引用方只选语义档位。
 
@@ -133,7 +135,7 @@ Page Frame 只作为 Core 内部页面骨架能力，不再维护单独成熟度
 
 ## 5. Page API / Surface
 
-Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 registry entry：
+Core UI 声明分类只服务 `/settings/governance` UI Tab 和 agent 阅读，不再写入 registry entry：
 
 | 分类 | 说明 |
 |---|---|
@@ -141,19 +143,20 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 | 页面内容 | `BodySurface`、`CreateSurface`、`DataSurface`、`DocumentSurface`、`FormSurface`、`PaperInputSurface`、`SelectorSurface`、`VisualizationSurface`。`BodySurface` section 的 `disclosure` 提供折叠面板结构。 |
 | 通用 | `NavigationSurface`、`InputSurface` 两个跨正文复用的声明。 |
 
-页面布局协议固定为五段：
+页面布局协议固定为六段：
 
 1. `header`：页眉，默认页面必须有；登录页等特殊页面可显式 `hidden`。
 2. `tabbar`：页面级声明式 Tab 段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。父项声明 `children` 时由 Core 以 accordion 方式在选中父 Tab 后同栏展开子 Tab，并通过 `activeChild / onChildChange` 控制。
-3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、新建、生成等都必须表达为标准 toolbar item。
-4. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `create/data/form/document/visualization/selector/section` 分类；标准新建流归 `CreateSurface`，数据摘要指标和可展开记录归 `DataSurface`，正文 empty/loading/error 归 `BodySurface kind="section"` 的 `status`。split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。
-5. `footer`：页脚；表格/数据分页只能在 `PageSurface.footer.pagination`。
+3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、生成等进入标准 toolbar item；新建 `+` 只能由下一段派生。
+4. `create`：标准页唯一的页面级新建 slot；只接收一个 `PageSurfaceCreateSpec`，由 PageSurface 派生唯一 Toolbar `+`。普通正文在页面工具栏下承载；body 含 split 时自动投影到右侧详情区，新建期间主栏保持可见且不可折叠。业务不得把 toolbar create 埋进正文树。
+5. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `create/data/form/document/visualization/selector/section` 分类；局部新建流归 `CreateSurface trigger="surface"`，数据摘要指标和可展开记录归 `DataSurface`，正文 empty/loading/error 归 `BodySurface kind="section"` 的 `status`。split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。
+6. `footer`：整页页脚；全宽表格/数据分页在 `PageSurface.footer.pagination`，`BodySurface` split 主列表分页在 `master.footer.pagination`。
 
 `PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
 
-`NavigationSurface` 是 Core 内部 renderer，由 `PageSurface.tabbar`、`PageSurface.footer.pagination`、`BodySurfaceModalSpec.pagination` 和 AppShell context selector 的公开 Interface 调度。正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合或比例。FormSurface 可以拥有自身固定的表单标题与生命周期动作栏，但这只是表单内部结构，不是页面 toolbar，也不允许调用方指定位置。
+`NavigationSurface` 是 Core 内部 renderer，由 `PageSurface.tabbar`、`PageSurface.footer.pagination`、`BodySurface` split 的 `master.footer.pagination`、`BodySurfaceModalSpec.pagination` 和 AppShell context selector 的公开 Interface 调度。正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不自行承载页面级 toolbar/pagination；split 主列表是唯一可由 `master.footer.pagination` 声明的正文分页位置。`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合、比例或分页位置。FormSurface 可以拥有自身固定的表单标题与生命周期动作栏，但这只是表单内部结构，不是页面 toolbar，也不允许调用方指定位置。
 
-正文 Surface 和业务 section 都不声明页面外框。`BodySurfaceSectionSpec` 不暴露 `chrome/framed` 开关：Core 根据 section 的层级和结构统一派生外观，顶层有标题或动作的标准 section 使用 card，无标题结构容器和 CreateSurface 宿主保持透明，card 内的有标题子 section 使用 divider。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
+正文 Surface 和业务 section 都不声明页面外框。`BodySurfaceSectionSpec` 不暴露 `chrome/framed` 开关：Core 根据 section 的层级和结构统一派生外观，顶层根 section 或 section spec 有标题或动作时使用 card，无标题结构容器、split 和 CreateSurface 宿主保持透明，card 内的有标题子 section 使用 divider。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
 
 `Surface` 命名表示声明层，不表示业务可直接 renderer。当前 `PageSurface` 仍承担主要 runtime 入口；正文二级 Surface 通过 `BodySurface` 选择，不作为业务直引 renderer。`host` 目录当前为空，`internal` 不开放。
 
@@ -171,7 +174,17 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 `InputSurface` / `FormSurface` 字段的顶层 `disabled`、`readOnly` 必须与 `spec.state` 合并后再选择 renderer；文本、日期和时间控件使用原生只读语义，不支持 `readOnly` 的 choice、FK、checkbox、file、rating、tag 等交互控件必须以 disabled 阻断修改。任何 renderer 都不得吞掉调用方已经声明的不可编辑状态。
 
-普通表格默认随页面自然展开，不创建横向或纵向内滚动。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
+`FormSurface` 的必填状态由 Core 统一归一：字段 `required`、`InputSurface.validation.required` 或 `state: "required"` 任一声明，都必须同时生成必填星号、输入必填语义和保存/提交前校验；业务不得另外手写星号或只依赖服务端报错。
+
+普通表格默认随页面自然展开，不创建横向或纵向内滚动。桌面普通表格由 Core 按表头、单元格内容和容器剩余空间自适应列宽；业务声明的 `width` 是紧凑列或重点列的宽度提示，不得导致其他内容列在仍有空白时被固定等分截断。矩阵继续使用固定列宽。短名称、状态、比例、日期、来源等可压缩字段即使表头随页面滚出视口，仍应优先保持连续阅读；不要仅因行数多或担心表头消失就声明 `scroll`。只有二维矩阵、列内容确实不可压缩，或交互明确需要固定高度视窗时才声明滚动；固定高度视窗必须同时声明 `maxHeight`，由 Core 锁定表头。
+
+DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedRowKey(s) + expandedRow`，Core 自动高亮触发行与详情行；横向展开列通过 `column.disclosure` 声明同一 `groupKey` 下的 `trigger/detail`，触发列同时声明 `expanded`。Core 根据可见列自动推导连续范围、首尾边界、表头与内容染色及键盘展开语义。业务不得声明颜色、边框、阴影或自行给展开单元格拼 class；未展开的 trigger 不着色，detail 只在真实展开时进入可见列。展开内容为表单时，必须用 `onRowClick` 打开或关闭当前行，保持 HR/Work 的整行打开交互；不得再用 `rowActions kind="edit"` 作为展开入口。操作列只承载保存、归档、删除等直接动作，`gate:ui` 会阻断这两类回流。
+
+表格需要表达格子级关系时使用 `column.cellState(row)`，只返回 `muted / info / warning / success / danger` 等语义；Core 统一决定单元格背景和文字，并让关系状态覆盖横向展开的普通底色。当前格另用 `column.cellSelected(row)` 声明，Core 叠加独立的中性描边，因此选中标记不会占用或覆盖关系色。格子激活继续使用结构化 `DataSurfaceCellSpec kind="interactive"`，业务不得返回颜色、class 或手写可点击单元格。
+
+需要在表格数值后表达相对规模时，使用 `DataSurfaceDisplaySpec kind="meter"`，只声明 `value / max / label`。Core 统一计算长度并渲染底纹；业务不得用字符条、渐变字符串、内联宽度或自定义颜色复刻。meter 只辅助扫描，`label` 仍是可复制、可核对的权威显示值。
+
+表格或记录中的系统编码、文件名等可截断文本使用 `DataSurfaceDisplaySpec kind="text" + wrap="truncate"`；需要与同列常规编码保持稳定长度时可声明 `maxChars`。Core 统一按字符宽度显示省略号，并把完整文本写入悬停标题；业务不得先截断 `value`、拼接 `...` 或丢失可复制的完整值。
 
 业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
 
@@ -181,7 +194,8 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 当前批准的新 Surface section helper：
 
-- `BodySurface kind="create"`：标准新建流，payload 为 `CreateSurface`。Agent 分别声明 `trigger: toolbar | surface`、`presentation: inline | block | modal`、普通 block 可选的跨区 `anchor` 与 `content: form | sections`。inline 在类型层固定为 Page toolbar + 单 form + 无 anchor；`BodySurfaceSectionHeaderSpec.create` 的局部 block 在类型层禁止 anchor，由 Core 自动紧贴 section header 并置于 body 前，因此表格新增固定出现在列头上方。需要点击标题行 `+` 后直接追加可编辑表格行时，section header 可声明 `presentation: "row"`；该变种只触发调用方的新增行状态，行内编辑和保存仍归 DataSurface/FormSurface。所有非 inline 组合复用同一 FormSurface grid renderer，modal、anchor、sections 均不得改变字段格式。每个 section 只声明 `key/title/items/layout`，不得反向传入 Body tree。
+- `PageSurface.create`：页面级标准新建流的唯一 slot，payload 为不含 trigger 的 `PageSurfaceCreateSpec`。Agent 选择 `presentation: inline | block | modal` 与 `content: form | sections`；PageSurface 固定派生唯一 Toolbar `+`，类型层无法在同一页面声明两个页面级 create。body 含 split 时，inline/block 在新建期间替换右侧详情，modal 从详情上下文打开；主栏始终保留，禁止把新建内容渲染成横跨左右两栏的全页 block。
+- `BodySurface kind="create"`：所属 Surface 内的局部新建流，payload 为 `CreateSurface trigger="surface"`，只选择 `presentation: block | modal`、普通 block 可选的跨区 `anchor` 与 `content: form | sections`。`BodySurfaceSectionHeaderSpec.create` 的局部 block 在类型层禁止 anchor，由 Core 自动紧贴 section header并置于 body 前，因此表格新增固定出现在列头上方。
 - 需要先选择创建类型时，只能增加 `flow.kind="two-stage"`：第一段只声明选择字段并自动进入第二段，不声明自己的 layout；Core 强制两段复用第二段 `form.layout` 和同一个 shell，第一段不显示保存/提交。
 - `createFormSection(key, surface)`：生成 `BodySurface kind="form"` section。低层 form wrapper。
 - `createFieldsSection(key, fields, options)`：生成 `BodySurface kind="form"` + `FormSurface kind="fields/detail"` section。迁移普通表单正文；表单标题写 `options.header`，保存、提交、取消、归档/取消归档、批准、拒绝等根动作写 `options.actions`。
@@ -207,7 +221,7 @@ L2/L3 组件可以在 UI component library 中用于关系图、阅读和迁移�
 
 - 在 registry 中登记。
 - 有中文 `description`。
-- 有 `/settings/ui` 预览；复杂组件需要覆盖关键参数。
+- 有 `/settings/governance` UI Tab 预览；复杂组件需要覆盖关键参数。
 - props 契约稳定。
 - 不暴露内部样式 recipe 或内部部件给业务页。
 
@@ -231,8 +245,8 @@ Surface 使用红线：
 - 如果现有语义 spec 不够表达业务需要，必须扩展对应 Surface/helper 或 Core 能力，并写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
 - Core 内部或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通容器。
 - Surface 内部 toolbar 的 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
-- 标准新建只声明 `CreateSurface`。`trigger="toolbar"` 由 PageSurface 派生唯一 Toolbar `+`，`trigger="surface"` 跟随所属 section/cell；`presentation` 与 trigger 正交，普通 block 可选跨区 anchor。section header 的 block create 不接受 anchor，Core 自动放在 header 后、body 前；直接追加可编辑行只用 section header 的 `presentation: "row"` 变种。调用方不得手工声明 `+`，不得通过 modal、anchor 或 sections 改变非 inline 表单格式，也不得声明动作样式、图标、标签或顺序。
-- PageSurface 的 toolbar slot 全页唯一；BodySurface split 侧栏控制与 CreateSurface toolbar trigger 都只能派生 toolbar item，并由 PageSurface 一次性合并渲染。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
+- 页面级标准新建只声明 `PageSurface.create`；局部标准新建只声明 `CreateSurface trigger="surface"`。调用方不得声明 `trigger="toolbar"`、手工 `+`、动作样式、图标、标签或顺序。
+- PageSurface 的 toolbar 和 create slot 都全页唯一；BodySurface split 侧栏控制与 PageSurface.create 由 PageSurface 一次性合并调度，split 下 create 固定由详情侧承载并锁定主栏可见。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
 - `FormSurfaceActionSpec` 只声明动作语义和行为，不开放 `icon / variant / size / presentation / section / order / commandPlacement`。Core 根据 `ACTION_GLYPH_ACTIONS` 和 `ACTION_GLYPH_ORDER` 固定图标、样式、位置与顺序；`unarchive` 统一使用 restore glyph。
 - `FormSurface.submit` 只由同一表单的主 `save` / `submit` action 驱动：Enter 提交必须复用该 action 的 disabled 状态（包括 pending、校验和权限结果）；主 action 缺失或被禁用时不得调用 `onSubmit`。带 `onClick` 的 action 使用普通 button，避免点击时同时触发 action 与原生 form submit。
 - `FormSurface.commands` 与 `commandPlacement` 仅允许 `kind: "filters"` 使用。普通字段、详情和登录表单不得用 command 表达根生命周期动作。
@@ -244,8 +258,8 @@ Surface 使用红线：
 
 1. 组件已经在父级 `PageSurface` 内：把子组件改为返回 `BodySurfaceSectionSpec` 或 section 数组，父级用 `createPageBody(sections)` 接入。`DataSurface` 用 `createPageTableSection` / `createPageDataSection`；`FormSurface` 用 `createFieldsSection` / `createInlineFieldsSection` / `createFormSection`；图表/甘特用 `createVisualizationSection`；普通容器用 `createPanelSection` / `createSectionSection` 等 section helper。
 2. 子组件目前直接返回表格或表单 JSX：先改成 thin section builder，例如 `buildXxxTableSection()` / `buildXxxFormSection()`；调用方负责放进 `PageSurface.body`。不要新增 domain `*Surface` 或 `*Shell`。
-3. 历史标准新建表单若由 Page toolbar、父 Section、Data cell 或旁路 action-group 托管保存/提交/取消，迁到 `CreateSurface`；删除页面显式 `create` 入口，用 `trigger` 声明 Toolbar 或所属 Surface，用 `presentation` 声明 inline/block/modal，并按需给 block 声明 typed anchor。编辑等非创建表单仍把标题与生命周期动作迁进根 `FormSurface.header/actions`。
-4. 历史 `FormSurface kind="modal"` 已从类型层删除；标准新建 modal 使用 `CreateSurface presentation="modal"` 并独立选择 toolbar/surface trigger，其他弹窗使用 `createPageModalSection`，modal 内容使用 typed sections。
+3. 历史标准新建表单若由 Page toolbar 托管，迁到父级唯一 `PageSurface.create`；由父 Section、Data cell 或旁路局部 action 托管的，迁到 `CreateSurface trigger="surface"`。编辑等非创建表单仍把标题与生命周期动作迁进根 `FormSurface.header/actions`。
+4. 历史 `FormSurface kind="modal"` 已从类型层删除；页面级标准新建 modal 使用 `PageSurface.create presentation="modal"`，局部标准新建 modal 使用 `CreateSurface trigger="surface" presentation="modal"`，其他弹窗使用 `createPageModalSection`。
 5. 历史 `FormSurface kind="inline"` 只承载按钮：迁移到 `createActionsSection`，按钮使用 `createPageCommand` 或直接写 `BodySurfaceCommandSpec`。
 6. `InputSurface` 是通用声明入口；选择区使用 `SelectorSurface`，标准创建区使用 `CreateSurface`，其他表单通过 `BodySurface` / `FormSurface` 的结构化 section 表达。
 
@@ -268,7 +282,22 @@ Platform Core UI direct import 按以下 recipe 清：
 3. `packages/core/ui/registry/component-registry-data-*.ts`
 4. 必要时更新 `docs/engineering/core-ui-governance.md` 或 `docs/engineering/reusable-components.md`
 
-新增会进入 `/settings/ui` 的封装组件必须有明确 `declares`；若声明项过多或高度耦合，应拆新的 Surface。基础/私有实现不得作为业务 import。
+### Core 授权改动同轮闭环
+
+用户明确授权修改 Core，表示当前 agent 可以进入 UI-system 范围，不表示可以只改 implementation。任何 Core UI 公共能力新增、删除或语义变化，都必须由实施者在同一轮、同一工作区快照内完成以下闭环后再交还任务，不能留给下一位 agent，也不能把 CI 当作首次发现遗漏的工具：
+
+1. **声明**：同步 Surface/type interface、公开行为和必要的可访问性语义；业务只声明意图，不新增颜色、间距、阴影、renderer 等视觉参数。
+2. **实现**：更新所属公开 UI implementation；需要拆分时放入 `packages/core/ui/internal/**` 的 Private Impl，不为私有文件制造公共入口。
+3. **导出**：公共类型、helper 或 runtime 入口同步 `packages/core/ui/<Surface>.tsx` 与 `packages/core/ui/index.ts`；删除时反向清理，不保留 stale export。
+4. **注册**：公共能力同步 component registry 的中文 `description`、`declares`、`composes`；Private Impl 不单独注册。可见能力变化同时更新 `/settings/governance` UI Tab 所消费的声明关系或现有展示入口。
+5. **生成**：凡 Surface contract 变化，立即运行 `npm run core-ui:contracts` 写回生成 contract，并运行 `npm run core-ui:contracts:check`；不得手改生成文件，也不得等 CI 报漂移。
+6. **文档**：更新本规范、`reusable-components.md` 或所属模块 `ARCHITECTURE.md` 中受影响的 interface、调用约束和迁移口径。
+7. **验证**：补齐通过公开 interface 的行为测试，运行本任务文件 ESLint；直接修改 Core TypeScript contract 时串行运行一次 `npm run typecheck:scope -- core`；用 `CORE_UI_CHANGE=1 npm run gate:ui` 验证结构门禁，并按任务需要完成真实页面或静态渲染检查。
+8. **交接**：交还前列出已经同步的声明、registry、生成物和验证结果。若共享工作区的无关改动阻断总门禁或页面运行，必须给出精确文件与失败项，同时保留本任务专项检查通过证据；不得把本任务尚未完成的同步项包装成“等 CI 再看”。
+
+这套闭环同样适用于修改已有 Surface 的新声明字段；“没有新增组件”不是跳过 registry、生成 contract 或治理文档的理由。
+
+新增会进入 `/settings/governance` UI Tab 的封装组件必须有明确 `declares`；若声明项过多或高度耦合，应拆新的 Surface。基础/私有实现不得作为业务 import。
 
 新增或迁移 registry entry 时必须填写中文 `description`，公共声明入口补 `declares`，内部组合关系写 `composes`。`arch:surface-boundaries` 会 warning：声明项过厚或跨声明分类组合异常。结构性 UI 项进入 `gate:ui`，简单清扫项进入 `check:hygiene`；不能为了消警把 domain shared shell 注册成 Core/Page API。
 
@@ -326,11 +355,11 @@ Foundation 改造规则：
 4. 业务页不得直接 import Foundation。
 5. 发现业务直引 Foundation 时，补 Page API 或扩已有 Page API，再替换业务调用点。
 
-例外：`ActionGlyph` 是全局唯一的 SVG/action icon 封闭表。动作、状态、权限来源这类 UI 图标必须先注册到 `ActionGlyph`，再由页面 API、Surface spec、平台 wrapper 或少数 icon-only cell 使用；不得在业务/平台文件里手写新的 `<svg>`。`ActionGlyph` 允许作为图标基础入口直接 import，但它不是业务 Surface/helper/service 入口，不允许借它绕开 Toolbar/PageSurface 的动作协议。
+例外：`ActionGlyph` 是全局唯一的 SVG/action icon 封闭表。动作、状态、权限来源这类 UI 图标必须先注册到 `ActionGlyph`，再由页面 API、Surface spec、平台 wrapper 或少数 icon-only cell 使用；不得在业务/平台文件里手写新的 `<svg>`。重复项顺序调整统一使用 `move-up` / `move-down`。`ActionGlyph` 允许作为图标基础入口直接 import，但它不是业务 Surface/helper/service 入口，不允许借它绕开 Toolbar/PageSurface 的动作协议。
 
 ## 8. Private Impl
 
-Private Impl 是公开 UI 自己拆出来的内部文件。它不注册为独立 UI，不出现在 `/settings/ui` 组件卡片里，不允许业务 import。
+Private Impl 是公开 UI 自己拆出来的内部文件。它不注册为独立 UI，不出现在 `/settings/governance` UI Tab 的组件卡片里，不允许业务 import。
 
 例子：
 
@@ -346,7 +375,7 @@ Private Impl 修改等同于修改所属公开 UI，必须按 Core UI-system 任
 本地提交前：
 
 - `.githooks/pre-commit` 会运行 `scripts/check/check-core-ui-guard.js --staged`。
-- 未授权修改 core UI / registry / `/settings/ui` 声明页会失败。
+- 未授权修改 core UI / registry / `/settings/governance` UI 声明页会失败。
 - 新增业务包 `*Toolbar.tsx` 会失败。
 - 新增 `eslint-disable` 会失败。
 - 新增或删除 core UI 但 registry/export 未同步会失败。

@@ -51,6 +51,21 @@ test("genesis completion requires one matching sanitized baseline receipt", () =
   );
 });
 
+test("a completed sanitized source can re-anchor without rewriting its genesis marker", () => {
+  const row = { migration_name: baselineMigration, checksum: baselineChecksum, finished_at: new Date(), rolled_back_at: null, applied_steps_count: 0 };
+  const historicalMarker = {
+    ...marker("completed"),
+    fromSourceSha: "d".repeat(40),
+    candidateSourceSha: fromSourceSha,
+    legacyMigrationCount: 122,
+    legacyMigrationSetSha256: "e".repeat(64),
+  };
+  const result = classifyGenesisState({ rows: [row], marker: historicalMarker, ...options });
+  assert.equal(result.state, "completed");
+  assert.equal(result.sourceReanchor, true);
+  assert.equal(result.marker, historicalMarker);
+});
+
 test("genesis rejects a legacy receipt that was resolved instead of executed", () => {
   const unresolvedLegacyRows = [{ ...legacyRows[0], applied_steps_count: 0 }, legacyRows[1]];
   assert.throws(

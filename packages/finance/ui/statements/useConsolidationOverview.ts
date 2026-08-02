@@ -4,7 +4,10 @@ import { workspacePath } from "@workspace/core/routing";
 import type { ConsolidationOverview } from "@workspace/finance/types";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { consolidationOverviewMatchesSelection } from "./consolidation-overview-request";
+import {
+  consolidationOverviewMatchesSelection,
+  consolidationPeriodSelectionRequiresReload,
+} from "./consolidation-overview-request";
 
 type EnsureBatchResponse = {
   batch?: NonNullable<ConsolidationOverview["batch"]>;
@@ -15,7 +18,7 @@ type EnsureBatchResponse = {
 export function useConsolidationOverview(
   periodKind: StatementPeriodKind,
   canUpdate: boolean,
-  includeComparisons: boolean,
+  includeComparisons = false,
 ) {
   const [data, setData] = useState<ConsolidationOverview | null>(null);
   const [parentCompanyId, setParentCompanyId] = useState<number | null>(null);
@@ -28,20 +31,10 @@ export function useConsolidationOverview(
   const [refreshKey, setRefreshKey] = useState(0);
   const resolvedSelectionKeyRef = useRef<string | null>(null);
   const refreshedSnapshotKeyRef = useRef<string | null>(null);
-  const comparisonOverviewCacheRef = useRef(new Map<string, ConsolidationOverview>());
 
   useEffect(() => {
     const selectionKey = [parentCompanyId, year, month, periodKind, selectedBatchId, includeComparisons, refreshKey].join(":");
     if (resolvedSelectionKeyRef.current === selectionKey) return;
-    const comparisonCacheKey = [parentCompanyId, year, month, periodKind, selectedBatchId, refreshKey].join(":");
-    const cachedComparisonOverview = comparisonOverviewCacheRef.current.get(comparisonCacheKey);
-    if (cachedComparisonOverview) {
-      resolvedSelectionKeyRef.current = selectionKey;
-      setData(cachedComparisonOverview);
-      setError(null);
-      setLoading(false);
-      return;
-    }
     const controller = new AbortController();
     let cancelled = false;
     const params = new URLSearchParams();
@@ -111,16 +104,6 @@ export function useConsolidationOverview(
           includeComparisons,
           refreshKey,
         ].join(":");
-        if (includeComparisons) {
-          comparisonOverviewCacheRef.current.set([
-            payload.scope.parentCompanyId,
-            payload.scope.year,
-            payload.scope.month,
-            periodKind,
-            selectedBatchId,
-            refreshKey,
-          ].join(":"), payload);
-        }
         setData(payload);
         setParentCompanyId(payload.scope.parentCompanyId);
         setYear(payload.scope.year);
@@ -141,18 +124,22 @@ export function useConsolidationOverview(
 
   const invalidate = useCallback(() => {
     resolvedSelectionKeyRef.current = null;
-    comparisonOverviewCacheRef.current.clear();
     setData(null);
     setError(null);
     setLoading(true);
+    setRefreshKey((current) => current + 1);
   }, []);
 
   const selectPeriod = useCallback((nextYear: number, nextMonth: number) => {
+    if (!consolidationPeriodSelectionRequiresReload(
+      { year, month, batchId: selectedBatchId },
+      { year: nextYear, month: nextMonth },
+    )) return;
     invalidate();
     setSelectedBatchId(null);
     setYear(nextYear);
     setMonth(nextMonth);
-  }, [invalidate]);
+  }, [invalidate, month, selectedBatchId, year]);
 
   const selectYear = useCallback((nextYear: number) => {
     const nextMonth = data?.scope.availablePeriods.find((period) => period.year === nextYear)?.month ?? 12;
@@ -197,7 +184,6 @@ export function useConsolidationOverview(
       refreshedSnapshotKeyRef.current = `${freshBatch.id}:${freshBatch.sourceFingerprint}`;
     }
     invalidate();
-    setRefreshKey((current) => current + 1);
   }, [invalidate]);
   const refreshSnapshots = useCallback(() => {
     refreshedSnapshotKeyRef.current = null;
@@ -207,7 +193,6 @@ export function useConsolidationOverview(
     refreshedSnapshotKeyRef.current = null;
     invalidate();
     setSelectedBatchId(null);
-    setRefreshKey((current) => current + 1);
   }, [invalidate]);
 
   return {

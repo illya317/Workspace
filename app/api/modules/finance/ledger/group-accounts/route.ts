@@ -17,6 +17,10 @@ const createGroupAccountSchema = z.object({
   mnemonicCode: z.string().max(64).nullable(),
   currency: z.string().max(32).nullable(),
   parentGroupAccountId: z.number().int().positive().nullable(),
+  consolidationRole: z.enum(["none", "intercompanyReceivable", "intercompanyPayable", "intercompanyRevenue", "intercompanyExpense", "investmentInSubsidiary", "shareCapital", "capitalReserve", "dividendReceivable", "dividendPayable", "inventory", "fixedAsset", "cashFlow", "difference"]),
+  counterpartyRequirement: z.enum(["none", "optional", "required"]),
+  movementType: z.enum(["closingBalance", "periodMovement", "transaction"]),
+  translationRateType: z.enum(["closing", "average", "historical", "transactionDate"]),
 });
 
 export const POST = createCommandRoute({

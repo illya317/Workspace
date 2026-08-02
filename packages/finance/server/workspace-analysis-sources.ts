@@ -1,11 +1,9 @@
 import "server-only";
 import { defineWorkspaceAnalysisReadModel } from "@workspace/platform/server/workspace-analysis-read-model";
-
 import type {
   FinanceAssetAdjustmentDto,
   FinanceAssetCardDto,
   FinanceAssetPeriodRowDto,
-  FinanceAssetReconciliationDto,
   FinanceCounterpartyBalanceRow,
   FinanceGroupAccountCatalogRow,
   RuleCandidate,
@@ -14,16 +12,14 @@ import type { ReclassResultRow } from "./ledger/reclass-results/types";
 import type { listFinanceAccounts } from "./ledger/accounts";
 import type { listFinanceBalances } from "./ledger/balance-api";
 import type { listFinancePeriods } from "./ledger/periods";
-import type { listVouchers } from "./ledger/voucher-service";
+import type { StandardVoucherListRow } from "./ledger/voucher-service";
 import type { listBudgetVersions } from "./budget/budget-version";
 import type { DirectReportLine } from "./statements/reports/direct";
-
 type FinanceAccountRow = Awaited<ReturnType<typeof listFinanceAccounts>>["data"][number];
 type FinanceBalanceRow = NonNullable<Awaited<ReturnType<typeof listFinanceBalances>>["data"]>[number];
 type FinancePeriodRow = Awaited<ReturnType<typeof listFinancePeriods>>["periods"][number];
-type FinanceVoucherRow = Awaited<ReturnType<typeof listVouchers>>["data"][number];
+type FinanceVoucherRow = StandardVoucherListRow;
 type FinanceBudgetVersionRow = Awaited<ReturnType<typeof listBudgetVersions>>[number];
-
 export type FinanceBudgetMonthlyRow = {
   readonly versionId: number | null;
   readonly year: number;
@@ -49,9 +45,6 @@ export type FinanceAssetMetricRow = {
   readonly normalAmount: number;
   readonly adjustmentAmount: number;
   readonly periodAmount: number;
-  readonly voucherAmount: number;
-  readonly ledgerAmount: number;
-  readonly difference: number;
 };
 
 const PAGED = {
@@ -130,6 +123,7 @@ export const FINANCE_LEDGER_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadModel<F
     parentId: field("上级科目 ID", "科目层级关系的上级标识。", "integer"),
     balanceDirection: field("余额方向", "科目借贷余额方向。", "text"),
     isActive: field("是否启用", "公司科目当前是否启用。", "boolean"),
+    companyId: field("公司 ID", "科目所属公司主数据内部标识。", "integer", { sensitivity: "confidential" }),
     companyCode: field("公司编码", "科目所属公司编码。", "text"),
     mnemonicCode: field("助记码", "来源科目助记码。", "text"),
     currency: field("币种", "科目币种。", "text"),
@@ -175,6 +169,7 @@ export const FINANCE_LEDGER_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<F
     currentCredit: field("本期贷方", "本期贷方发生额。", "currency"),
     closingDebit: field("期末借方", "期末借方余额。", "currency"),
     closingCredit: field("期末贷方", "期末贷方余额。", "currency"),
+    companyId: field("公司 ID", "余额所属公司主数据内部标识。", "integer", { sensitivity: "confidential" }),
     companyCode: field("公司编码", "余额所属公司编码。", "text"),
     createdAt: field("创建时间", "余额记录创建时间。", "date"),
     updatedAt: field("更新时间", "余额最近更新时间。", "date"),
@@ -183,19 +178,18 @@ export const FINANCE_LEDGER_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<F
   pagination: PAGED,
   limits: LIMITS,
 });
-
 export const FINANCE_LEDGER_COUNTERPARTY_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<FinanceCounterpartyBalanceRow>()({
-  sourceKey: "finance.ledger.counterparty-balances",
-  version: 1,
+  sourceKey: "finance.ledger.counterparty-balances", version: 2,
   label: "往来余额",
-  description: "客户、供应商及其他往来的月末滚动余额。",
+  description: "客户、供应商及其他往来的月度、季度或年度期间余额。",
   apiPath: "/api/modules/finance/ledger/counterparty-balances",
   rowsPath: "data",
   totalPath: "total",
   scopes: WORKSPACE_SCOPES,
   parameters: [
-    { ...company, required: true }, { ...year, required: true }, { ...month, required: true }, keyword,
-    { key: "category", queryKey: "category", label: "往来类别", description: "ar、ap、otherAr 或 otherAp。", kind: "text", required: true },
+    { ...company, required: true }, { ...year, required: true }, { ...month, required: true },
+    { key: "periodKind", queryKey: "periodKind", label: "期间粒度", description: "year、quarter 或 month，默认 month。", kind: "text" }, keyword,
+    { key: "category", queryKey: "category", label: "往来类别", description: "ar、ap、otherAr 或 otherAp。", kind: "text", required: true }, { key: "relationScope", queryKey: "relationScope", label: "关联范围", description: "全部、关联方或其他往来。", kind: "text" }, { key: "objectType", queryKey: "objectType", label: "对象类型", description: "集团公司、客户、供应商、员工、部门或其他对象。", kind: "text" },
   ],
   fields: {
     id: field("余额键", "往来余额聚合稳定键。", "text"),
@@ -203,6 +197,7 @@ export const FINANCE_LEDGER_COUNTERPARTY_BALANCES_SOURCE = defineWorkspaceAnalys
     counterpartyName: field("往来名称", "往来对象名称。", "text", { sensitivity: "confidential" }),
     counterpartyShortName: field("往来简称", "往来对象简称。", "text", { sensitivity: "confidential" }),
     counterpartyType: field("往来类型", "规范化往来对象类型。", "text"),
+    counterpartyObjectKind: field("对象类型", "按稳定身份与来源维度归一的往来对象类型。", "text"), identityMatched: field("身份已匹配", "辅助核算对象是否已关联公司、员工或 Party。", "boolean"), relatedPartyType: field("关系性质", "已确认关联方的关系性质；非关联方或未匹配时为空。", "text"),
     accountCode: field("科目编码", "往来余额对应科目编码。", "text"),
     accountName: field("科目名称", "往来余额对应科目名称。", "text"),
     openingDebit: field("期初借方", "期初借方余额。", "currency"),
@@ -238,6 +233,7 @@ export const FINANCE_LEDGER_PERIODS_SOURCE = defineWorkspaceAnalysisReadModel<Fi
     sourceDatabase: field("来源数据库", "期间来源数据库。", "text", { sensitivity: "confidential" }),
     sourceKey: field("来源键", "来源期间稳定键。", "text", { sensitivity: "confidential" }),
     sourceClosed: field("来源已结账", "来源系统原始结账状态。", "boolean"),
+    companyId: field("公司 ID", "期间所属公司主数据内部标识。", "integer", { sensitivity: "confidential" }),
     companyCode: field("公司编码", "期间所属公司。", "text"),
     createdAt: field("创建时间", "记录创建时间。", "date"),
     updatedAt: field("更新时间", "记录更新时间。", "date"),
@@ -265,9 +261,11 @@ export const FINANCE_LEDGER_VOUCHERS_SOURCE = defineWorkspaceAnalysisReadModel<F
     date: field("凭证日期", "凭证业务日期。", "date"),
     periodId: field("期间 ID", "关联会计期间。", "integer"),
     description: field("摘要", "凭证摘要。", "text", { sensitivity: "confidential" }),
+    matchingLabel: field("匹配标识", "Workspace 凭证对应的业务匹配说明。", "text", { sensitivity: "confidential" }),
     totalDebit: field("借方合计", "凭证借方金额合计。", "currency"),
     totalCredit: field("贷方合计", "凭证贷方金额合计。", "currency"),
     status: field("状态", "凭证状态。", "text"),
+    companyId: field("公司 ID", "凭证所属公司主数据内部标识。", "integer", { sensitivity: "confidential" }),
     companyCode: field("公司编码", "凭证所属公司。", "text"),
     importId: field("导入批次 ID", "来源导入批次标识。", "integer"),
     sourceSystem: field("来源系统", "凭证来源系统。", "text"),
@@ -410,6 +408,8 @@ export const FINANCE_LEDGER_GROUP_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadM
     reviewStatus: field("复核状态", "集团科目复核状态。", "text"),
     reviewedBy: field("复核人 ID", "最近复核账号标识。", "integer", { sensitivity: "confidential" }),
     reviewedAt: field("复核时间", "最近复核时间。", "date"),
+    consolidationRole: field("合并角色", "集团科目的合并取数角色。", "text"), counterpartyRequirement: field("对方公司要求", "集团科目对对方公司辅助核算的要求。", "text"),
+    movementType: field("取数口径", "集团科目的默认合并取数口径。", "text"), translationRateType: field("折算方法", "集团报表使用的折算方法。", "text"),
     originCompanyCode: field("来源公司", "集团科目起源公司编码。", "text"),
     mappingCount: field("映射数", "已确认或已复核公司科目映射数量。", "integer"),
     years: { classification: "childSource", sourceKey: "finance.ledger.group-account-years", description: "集团科目与适用年度的一对多关系。" },
@@ -421,12 +421,12 @@ export const FINANCE_LEDGER_GROUP_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadM
   limits: LIMITS,
 });
 
-export const FINANCE_LEDGER_ASSET_CARDS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetCardDto>()({
-  sourceKey: "finance.ledger.asset-cards",
-  version: 1,
+export const FINANCE_ASSETS_CARDS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetCardDto>()({
+  sourceKey: "finance.assets.cards",
+  version: 2,
   label: "资产卡片",
   description: "固定资产、无形资产、预付及长期待摊资产卡片。",
-  apiPath: "/api/modules/finance/ledger/assets",
+  apiPath: "/api/modules/finance/assets",
   rowsPath: "cards",
   totalPath: "cards.length",
   scopes: WORKSPACE_SCOPES,
@@ -434,12 +434,21 @@ export const FINANCE_LEDGER_ASSET_CARDS_SOURCE = defineWorkspaceAnalysisReadMode
   fields: {
     id: field("资产 ID", "资产卡片稳定标识。", "integer"), companyCode: field("公司编码", "资产所属公司。", "text"),
     assetCode: field("资产编号", "资产编号。", "text"), name: field("资产名称", "资产名称。", "text"),
-    assetKind: field("资产类型", "固定资产、无形资产、预付或长期待摊。", "text"), category: field("资产类别", "资产分类。", "text"),
-    assetAccountCode: field("资产科目", "资产原值科目编码。", "text"), accumulatedAccountCode: field("累计科目", "累计折旧或摊销科目编码。", "text"),
+    assetKind: field("资产类型", "固定资产、无形资产、预付或长期待摊。", "text"), categoryId: field("资产分类 ID", "资产分类主数据引用。", "integer"), categoryCode: field("资产分类编码", "资产分类主数据编码。", "text"), categoryName: field("资产分类", "资产分类主数据名称。", "text"),
+    assetAccountId: field("资产科目 ID", "当前年度资产科目引用。", "integer"), assetAccountCode: field("资产科目", "资产原值科目编码。", "text"), assetAccountName: field("资产科目名称", "当前年度资产科目名称。", "text"), accumulatedAccountId: field("累计科目 ID", "当前年度累计折旧或摊销科目引用。", "integer"), accumulatedAccountCode: field("累计科目", "累计折旧或摊销科目编码。", "text"), accumulatedAccountName: field("累计科目名称", "当前年度累计折旧或摊销科目名称。", "text"),
     acquisitionDate: field("取得日期", "资产取得日期。", "date"), depreciationStartDate: field("折旧开始日期", "折旧或摊销开始日期。", "date"),
     originalCost: field("原值", "资产登记原值。", "currency"), residualRate: field("残值率", "资产残值率。", "percent"),
     usefulLifeMonths: field("使用月数", "预计使用寿命月数。", "integer"), method: field("折旧方法", "折旧或摊销方法。", "text"),
-    openingAccumulatedAmount: field("期初累计额", "接入时已累计折旧或摊销。", "currency"), status: field("状态", "资产卡片状态。", "text"),
+    initializationMode: field("初始化模式", "标准建卡或历史切点承接。", "text"),
+    openingAccumulatedAmount: field("期初累计额", "接入时已累计折旧或摊销。", "currency"),
+    openingImpairmentAmount: field("期初减值", "历史切点承接的累计减值。", "currency"),
+    openingNetBookValue: field("切点净值", "历史切点承接的账面净值。", "currency"),
+    cutoverDate: field("切点日期", "历史资产承接截止日期。", "date"),
+    remainingUsefulLifeMonthsAtCutover: field("切点剩余月数", "切点后剩余折旧或摊销月数。", "integer"),
+    cutoverResidualValue: field("切点剩余残值", "切点后保留的剩余残值。", "currency"),
+    cutoverAllocationStatus: field("切点分配状态", "总账切点余额分配状态。", "text"),
+    cutoverReconciliationFingerprint: field("切点核对指纹", "切点总账核对的不可变指纹。", "text", { sensitivity: "confidential" }),
+    status: field("状态", "资产卡片状态。", "text"),
     nonAmortizationReason: field("不摊销原因", "不参与折旧或摊销的原因。", "text"), note: field("备注", "资产备注。", "text", { sensitivity: "confidential" }),
     sourceSheet: field("来源工作表", "导入来源工作表。", "text"), sourceRow: field("来源行", "导入来源行号。", "integer"),
     openingAsOfDate: field("期初截止日", "期初累计额截止日期。", "date"), version: field("版本", "乐观锁版本。", "integer"),
@@ -448,9 +457,9 @@ export const FINANCE_LEDGER_ASSET_CARDS_SOURCE = defineWorkspaceAnalysisReadMode
   }, pagination: IN_MEMORY, limits: LIMITS,
 });
 
-export const FINANCE_LEDGER_ASSET_PERIOD_ROWS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetPeriodRowDto>()({
-  sourceKey: "finance.ledger.asset-periods", version: 1, label: "资产期间折旧", description: "资产逐期间折旧或摊销金额。",
-  apiPath: "/api/modules/finance/ledger/assets", rowsPath: "periodRows", totalPath: "periodRows.length", scopes: WORKSPACE_SCOPES,
+export const FINANCE_ASSETS_PERIOD_ROWS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetPeriodRowDto>()({
+  sourceKey: "finance.assets.periods", version: 1, label: "资产期间折旧", description: "资产逐期间折旧或摊销金额。",
+  apiPath: "/api/modules/finance/assets", rowsPath: "periodRows", totalPath: "periodRows.length", scopes: WORKSPACE_SCOPES,
   parameters: [{ ...company, required: true }, { ...year, required: true }, { ...month, required: true }],
   fields: {
     assetId: field("资产 ID", "关联资产卡片。", "integer"), assetCode: field("资产编号", "资产编号。", "text"), name: field("资产名称", "资产名称。", "text"),
@@ -462,39 +471,27 @@ export const FINANCE_LEDGER_ASSET_PERIOD_ROWS_SOURCE = defineWorkspaceAnalysisRe
   }, pagination: IN_MEMORY, limits: LIMITS,
 });
 
-export const FINANCE_LEDGER_ASSET_ADJUSTMENTS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetAdjustmentDto>()({
-  sourceKey: "finance.ledger.asset-adjustments", version: 1, label: "资产调整", description: "资产折旧摊销调整事项。",
-  apiPath: "/api/modules/finance/ledger/assets", rowsPath: "adjustments", totalPath: "adjustments.length", scopes: WORKSPACE_SCOPES,
+export const FINANCE_ASSETS_ADJUSTMENTS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetAdjustmentDto>()({
+  sourceKey: "finance.assets.adjustments", version: 1, label: "历史资产调整", description: "历史资产折旧摊销调整审计记录；新更正统一通过总账凭证处理。",
+  apiPath: "/api/modules/finance/assets", rowsPath: "adjustments", totalPath: "adjustments.length", scopes: WORKSPACE_SCOPES,
   parameters: [{ ...company, required: true }, { ...year, required: true }, { ...month, required: true }],
   fields: {
     id: field("调整 ID", "资产调整稳定标识。", "integer"), assetId: field("资产 ID", "关联资产卡片。", "integer"), assetName: field("资产名称", "关联资产名称。", "text"),
-    accountCode: field("科目编码", "调整入账科目。", "text"), amount: field("金额", "调整金额。", "currency"), reason: field("原因", "调整原因。", "text", { sensitivity: "confidential" }),
+    accountId: field("科目 ID", "当前年度调整科目引用。", "integer"), accountCode: field("科目编码", "调整入账科目。", "text"), accountName: field("科目名称", "当前年度调整科目名称。", "text"), amount: field("金额", "调整金额。", "currency"), reason: field("原因", "调整原因。", "text", { sensitivity: "confidential" }),
     status: field("状态", "调整事项状态。", "text"), voucherNo: field("凭证号", "关联凭证号。", "text"), sourceSheet: field("来源工作表", "导入来源工作表。", "text"),
     sourceRow: field("来源行", "导入来源行号。", "integer"), createdAt: field("创建时间", "调整创建时间。", "date"),
   }, pagination: IN_MEMORY, limits: LIMITS,
 });
 
-export const FINANCE_LEDGER_ASSET_RECONCILIATION_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetReconciliationDto>()({
-  sourceKey: "finance.ledger.asset-reconciliation", version: 1, label: "资产折旧勾稽", description: "资产台账、凭证和总账逐科目勾稽。",
-  apiPath: "/api/modules/finance/ledger/assets", rowsPath: "reconciliation", totalPath: "reconciliation.length", scopes: WORKSPACE_SCOPES,
-  parameters: [{ ...company, required: true }, { ...year, required: true }, { ...month, required: true }],
-  fields: {
-    accountCode: field("科目编码", "勾稽科目编码。", "text"), scheduleAmount: field("台账金额", "资产台账金额。", "currency"), voucherAmount: field("凭证金额", "资产凭证金额。", "currency"),
-    ledgerAmount: field("总账金额", "科目余额发生额。", "currency"), voucherDifference: field("凭证差异", "台账与凭证差额。", "currency"),
-    ledgerDifference: field("总账差异", "台账与总账差额。", "currency"), status: field("勾稽状态", "匹配或差异。", "text"),
-  }, pagination: IN_MEMORY, limits: LIMITS,
-});
-
-export const FINANCE_LEDGER_ASSET_METRICS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetMetricRow>()({
-  sourceKey: "finance.ledger.asset-metrics", version: 1, label: "资产期间汇总", description: "资产期间折旧、调整、凭证及总账汇总勾稽指标。",
-  apiPath: "/api/modules/finance/ledger/assets", rowsPath: "metrics", totalPath: "metrics.length", scopes: WORKSPACE_SCOPES,
+export const FINANCE_ASSETS_METRICS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetMetricRow>()({
+  sourceKey: "finance.assets.metrics", version: 2, label: "资产期间汇总", description: "资产期间系统计算、历史调整及本期金额汇总。",
+  apiPath: "/api/modules/finance/assets", rowsPath: "metrics", totalPath: "metrics.length", scopes: WORKSPACE_SCOPES,
   parameters: [{ ...company, required: true }, { ...year, required: true }, { ...month, required: true }],
   fields: {
     companyCode: field("公司编码", "资产期间所属公司。", "text"), year: field("年度", "会计年度。", "integer"), month: field("月份", "会计月份。", "integer"),
     periodId: field("期间 ID", "会计期间稳定标识。", "integer"), isClosed: field("已结账", "会计期间是否关闭。", "boolean"),
     normalAmount: field("正常金额", "系统计算金额合计。", "currency"), adjustmentAmount: field("调整金额", "调整事项合计。", "currency"),
-    periodAmount: field("期间金额", "正常金额加调整金额。", "currency"), voucherAmount: field("凭证金额", "关联凭证金额合计。", "currency"),
-    ledgerAmount: field("总账金额", "总账发生额合计。", "currency"), difference: field("差异", "期间金额与凭证金额差异。", "currency"),
+    periodAmount: field("期间金额", "正常金额加历史调整金额。", "currency"),
   }, pagination: IN_MEMORY, limits: LIMITS,
 });
 
@@ -503,7 +500,8 @@ export const FINANCE_BUDGET_VERSIONS_SOURCE = defineWorkspaceAnalysisReadModel<F
   apiPath: "/api/modules/finance/budget/versions", rowsPath: "versions", totalPath: "versions.length", scopes: WORKSPACE_SCOPES,
   parameters: [{ ...year, required: true }, company],
   fields: {
-    id: field("版本 ID", "预算版本稳定标识。", "integer"), year: field("年度", "预算年度。", "integer"), companyCode: field("公司编码", "预算公司编码。", "text"),
+    id: field("版本 ID", "预算版本稳定标识。", "integer"), year: field("年度", "预算年度。", "integer"),
+    companyId: field("公司 ID", "预算公司主数据内部标识。", "integer", { sensitivity: "confidential" }), companyCode: field("公司编码", "预算公司编码。", "text"),
     name: field("版本名称", "预算版本名称。", "text"), status: field("状态", "draft、active 或 archived。", "text"), type: field("预算类型", "department、research 或 all。", "text"),
     sourceFile: field("来源文件", "预算导入来源文件名。", "text", { sensitivity: "confidential" }), createdBy: field("创建人 ID", "创建账号标识。", "integer", { sensitivity: "confidential" }),
     createdAt: field("创建时间", "版本创建时间。", "date"), updatedAt: field("更新时间", "版本更新时间。", "date"),

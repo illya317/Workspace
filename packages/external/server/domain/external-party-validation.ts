@@ -8,7 +8,12 @@ import type {
   ExternalPartyRelatedPartyType,
   ExternalPartySubjectType,
 } from "@workspace/external/types";
-import type { ExternalPartyCreateInput, ExternalPartyUpdateInput } from "../schemas";
+import type {
+  ExternalPartyCreateInput,
+  ExternalPartyRoleAvailabilityCommandInput,
+  ExternalPartyRoleEndInput,
+  ExternalPartyUpdateInput,
+} from "../schemas";
 
 export interface ExternalPartySubjectMutableData {
   subjectType?: ExternalPartySubjectType;
@@ -35,7 +40,6 @@ export interface ExternalPartyRoleMutableData {
   creditDays?: number | null;
   taxRate?: number | null;
   remark?: string | null;
-  isActive?: boolean;
 }
 
 export interface ExternalPartyCreateCommand {
@@ -48,7 +52,12 @@ export interface ExternalPartyCreateCommand {
     name: string;
     identityNumber: string;
   };
-  roleData: ExternalPartyRoleMutableData & { code: string; isActive: boolean };
+  roleData: ExternalPartyRoleMutableData & { code: string };
+  availabilityFrom: string | null;
+  availabilityThrough: string | null;
+  effectiveOn?: string;
+  legalFactReason?: string | null;
+  idempotencyKey: string;
 }
 
 export interface ExternalPartyUpdateCommand {
@@ -56,6 +65,10 @@ export interface ExternalPartyUpdateCommand {
   category: ExternalPartyCategory;
   userId: number;
   expectedVersion: number;
+  expectedLegalFactRevision?: number;
+  effectiveOn?: string;
+  legalFactReason?: string | null;
+  idempotencyKey: string;
   subjectData: ExternalPartySubjectMutableData;
   roleData: ExternalPartyRoleMutableData;
 }
@@ -65,12 +78,41 @@ export interface ExternalPartyDeleteCommand {
   category: ExternalPartyCategory;
   userId: number;
   expectedVersion: number;
+  effectiveOn: string;
+  reason: string;
+  idempotencyKey: string;
+}
+
+export interface ExternalPartyRoleAvailabilityRouteCommand {
+  id: number;
+  category: ExternalPartyCategory;
+  userId: number;
+  expectedVersion: number;
+  idempotencyKey: string;
+  command: ExternalPartyRoleAvailabilityCommandInput;
+}
+
+export function assertExternalPartyRoleMutableData(input: ExternalPartyRoleMutableData) {
+  if (input.code !== undefined && !input.code.trim()) throw new Error("往来角色编码不能为空");
+  for (const [field, value] of [["creditDays", input.creditDays], ["creditLimit", input.creditLimit], ["taxRate", input.taxRate]] as const) {
+    if (value !== undefined && value !== null && !Number.isFinite(value)) throw new Error(`${field} 必须是有限数字`);
+  }
 }
 
 function positiveInt(value: number | undefined, field: string) {
   return value !== undefined && Number.isInteger(value) && value > 0
     ? okCommand(value)
     : failCommand(`${field} 无效`, 400, field);
+}
+
+export function assertExternalPartyAggregateTouchInput(input: {
+  partyId: number;
+  expectedVersion: number;
+  userId: number;
+}) {
+  for (const [field, value] of Object.entries(input)) {
+    if (!Number.isInteger(value) || value < 1) throw new Error(`${field} 必须是正整数`);
+  }
 }
 
 function nullableText(value: string | null | undefined) {
@@ -114,7 +156,6 @@ function normalizeRoleData(
     ...(input.creditDays !== undefined ? { creditDays: input.creditDays } : {}),
     ...(input.taxRate !== undefined ? { taxRate: input.taxRate } : {}),
     ...(input.remark !== undefined ? { remark: nullableText(input.remark) } : {}),
-    ...(input.isActive !== undefined ? { isActive: input.isActive } : {}),
   };
 }
 
@@ -122,10 +163,11 @@ export function buildExternalPartyCreateCommand(
   category: ExternalPartyCategory,
   input: ExternalPartyCreateInput,
   userId: number,
+  idempotencyKey: string,
 ): DomainValidationResult<ExternalPartyCreateCommand> {
   const validUserId = positiveInt(userId, "userId");
   if (!validUserId.ok) return validUserId;
-  if (!input.code.trim()) return failCommand("编码必填", 400, "code");
+  if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
   if (!input.name.trim()) return failCommand("名称必填", 400, "name");
   const identityNumber = normalizedIdentity(input.identityNumber);
   if (!identityNumber) return failCommand("统一代码或证件号码必填", 400, "identityNumber");
@@ -146,9 +188,13 @@ export function buildExternalPartyCreateCommand(
     },
     roleData: {
       ...normalizeRoleData(input),
-      code: input.code.trim(),
-      isActive: input.isActive ?? true,
+      code: input.code?.trim() ?? "",
     },
+    availabilityFrom: input.availabilityFrom?.trim() || null,
+    availabilityThrough: input.availabilityThrough?.trim() || null,
+    ...(input.effectiveOn ? { effectiveOn: input.effectiveOn } : {}),
+    legalFactReason: nullableText(input.legalFactReason),
+    idempotencyKey: idempotencyKey.trim(),
   });
 }
 
@@ -158,6 +204,7 @@ export function buildExternalPartyUpdateCommand(
   input: ExternalPartyUpdateInput,
   userId: number,
   expectedVersion?: number,
+  idempotencyKey = "",
 ): DomainValidationResult<ExternalPartyUpdateCommand> {
   const validId = positiveInt(id, "id");
   if (!validId.ok) return validId;
@@ -165,6 +212,7 @@ export function buildExternalPartyUpdateCommand(
   if (!validUserId.ok) return validUserId;
   const validVersion = positiveInt(expectedVersion, "expectedVersion");
   if (!validVersion.ok) return validVersion;
+  if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
   if (Object.keys(input).length === 0) return failCommand("无更新内容", 400);
   if (input.code !== undefined && !input.code.trim()) return failCommand("编码必填", 400, "code");
   if (input.name !== undefined && !input.name.trim()) return failCommand("名称必填", 400, "name");
@@ -173,6 +221,10 @@ export function buildExternalPartyUpdateCommand(
     category,
     userId: validUserId.data,
     expectedVersion: validVersion.data,
+    ...(input.legalFactRevision !== undefined ? { expectedLegalFactRevision: input.legalFactRevision } : {}),
+    ...(input.effectiveOn ? { effectiveOn: input.effectiveOn } : {}),
+    legalFactReason: nullableText(input.legalFactReason),
+    idempotencyKey: idempotencyKey.trim(),
     subjectData: normalizeSubjectData(input),
     roleData: normalizeRoleData(input),
   });
@@ -182,7 +234,9 @@ export function buildExternalPartyDeleteCommand(
   id: number,
   category: ExternalPartyCategory,
   userId: number,
+  input: ExternalPartyRoleEndInput,
   expectedVersion?: number,
+  idempotencyKey = "",
 ): DomainValidationResult<ExternalPartyDeleteCommand> {
   const validId = positiveInt(id, "id");
   if (!validId.ok) return validId;
@@ -190,10 +244,43 @@ export function buildExternalPartyDeleteCommand(
   if (!validUserId.ok) return validUserId;
   const validVersion = positiveInt(expectedVersion, "expectedVersion");
   if (!validVersion.ok) return validVersion;
+  if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
+  if (!input.reason.trim()) return failCommand("停用原因必填", 400, "reason");
   return okCommand({
     id: validId.data,
     category,
     userId: validUserId.data,
     expectedVersion: validVersion.data,
+    effectiveOn: input.effectiveOn,
+    reason: input.reason.trim(),
+    idempotencyKey: idempotencyKey.trim(),
+  });
+}
+
+export function buildExternalPartyRoleAvailabilityCommand(
+  id: number,
+  category: ExternalPartyCategory,
+  input: ExternalPartyRoleAvailabilityCommandInput,
+  userId: number,
+  expectedVersion?: number,
+  idempotencyKey = "",
+): DomainValidationResult<ExternalPartyRoleAvailabilityRouteCommand> {
+  const validId = positiveInt(id, "id");
+  if (!validId.ok) return validId;
+  const validUserId = positiveInt(userId, "userId");
+  if (!validUserId.ok) return validUserId;
+  const validVersion = positiveInt(expectedVersion, "expectedVersion");
+  if (!validVersion.ok) return validVersion;
+  if (!idempotencyKey.trim()) return failCommand("缺少 Idempotency-Key 请求头", 400);
+  if (input.kind === "schedule" && input.validFrom && input.validThrough && input.validFrom > input.validThrough) {
+    return failCommand("角色可用期间无效", 400, "validThrough");
+  }
+  return okCommand({
+    id: validId.data,
+    category,
+    userId: validUserId.data,
+    expectedVersion: validVersion.data,
+    idempotencyKey: idempotencyKey.trim(),
+    command: input,
   });
 }

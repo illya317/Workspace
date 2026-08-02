@@ -1,7 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { buildBalanceComputeCommand, buildReclassRuleScopeCommand } from "../../domain/finance-validation";
-import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "../group-accounts/policy-versions";
+import { buildBalanceComputeCommand, buildReclassRuleScopeCommand } from "../validation";
+import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "../group-accounts/policy-version-service";
 import { materializeConfirmedReclassAdjustments } from "../reclass-rules/materialize-confirmed";
 import { materializeAutomaticRuleAdjustments } from "./automatic";
 

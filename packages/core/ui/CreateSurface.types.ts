@@ -4,8 +4,8 @@ import type {
   FormSurfaceLooseItem,
 } from "./FormSurface.types";
 
-export type CreateSurfaceTrigger = "toolbar" | "surface";
-export type CreateSurfacePresentation = "inline" | "block" | "modal";
+export type CreateSurfaceTrigger = "surface";
+export type CreateSurfacePresentation = "inline" | "block";
 
 export type CreateSurfaceFormLayoutSpec = Pick<
   FormSurfaceLayoutSpec,
@@ -68,48 +68,33 @@ type CreateSurfaceBaseProps<T = FormSurfaceLooseItem> = CreateSurfaceCommonProps
   content: CreateSurfaceContentSpec<T>;
 };
 
-export type CreateSurfaceInlineProps<T = FormSurfaceLooseItem> = CreateSurfaceBaseProps<T> & {
-  trigger: "toolbar";
+type CreateSurfaceInlineSpec<T = FormSurfaceLooseItem> = CreateSurfaceBaseProps<T> & {
   presentation: "inline";
   anchor?: never;
   content: Extract<CreateSurfaceContentSpec<T>, { kind: "form" }>;
 };
 
-export type CreateSurfaceBlockProps<T = FormSurfaceLooseItem> =
-  | CreateSurfaceBaseProps<T> & {
-      trigger: "toolbar";
-      presentation: "block";
-      anchor?: string;
-    }
-  | CreateSurfaceBaseProps<T> & {
-      trigger: "surface";
-      presentation: "block";
-      anchor?: string;
-    };
+type CreateSurfaceBlockSpec<T = FormSurfaceLooseItem> = CreateSurfaceBaseProps<T> & {
+  presentation: "block";
+  anchor?: string;
+};
 
-export type CreateSurfaceModalProps<T = FormSurfaceLooseItem> =
-  | CreateSurfaceBaseProps<T> & {
-      trigger: "toolbar";
-      presentation: "modal";
-      anchor?: never;
-    }
-  | CreateSurfaceBaseProps<T> & {
-      trigger: "surface";
-      presentation: "modal";
-      anchor?: never;
-    };
+export type PageSurfaceCreateSpec<T = FormSurfaceLooseItem> =
+  | CreateSurfaceInlineSpec<T>
+  | (Omit<CreateSurfaceBlockSpec<T>, "anchor"> & { anchor?: never });
 
-export type CreateSurfaceProps<T = FormSurfaceLooseItem> =
-  | CreateSurfaceInlineProps<T>
-  | CreateSurfaceBlockProps<T>
-  | CreateSurfaceModalProps<T>;
+export type CreateSurfaceBlockProps<T = FormSurfaceLooseItem> = CreateSurfaceBlockSpec<T> & {
+  trigger: "surface";
+};
 
-export type CreateSurfaceToolbarProps<T = FormSurfaceLooseItem> = Extract<
-  CreateSurfaceProps<T>,
-  { trigger: "toolbar" }
->;
+export type CreateSurfaceProps<T = FormSurfaceLooseItem> = CreateSurfaceBlockProps<T>;
 
-export type CreateSurfaceSurfaceProps<T = FormSurfaceLooseItem> = Extract<
-  CreateSurfaceProps<T>,
-  { trigger: "surface" }
->;
+export type PageSurfaceCreateRuntimeProps<T = FormSurfaceLooseItem> = PageSurfaceCreateSpec<T> & {
+  trigger: "toolbar";
+};
+
+export type CreateSurfaceRuntimeProps<T = FormSurfaceLooseItem> =
+  | CreateSurfaceProps<T>
+  | PageSurfaceCreateRuntimeProps<T>;
+
+export type CreateSurfaceSurfaceProps<T = FormSurfaceLooseItem> = CreateSurfaceProps<T>;

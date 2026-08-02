@@ -4,7 +4,7 @@ import test from "node:test";
 import {
   buildSaveBalanceReclassAdjustmentChangeSetCommand,
   buildSaveReclassRuleChangeSetCommand,
-} from "../../domain/finance-validation";
+} from "../validation";
 
 test("reclass rule change set supports save and clear in one command", () => {
   const result = buildSaveReclassRuleChangeSetCommand({

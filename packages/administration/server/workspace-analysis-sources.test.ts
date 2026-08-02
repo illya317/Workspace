@@ -12,10 +12,16 @@ test("administration contracts inherit the business GET and classify the complet
 
   assert.equal(source.authorization.resourceKey, "administration.contracts");
   assert.deepEqual(source.authorization.requiredActions, ["read"]);
-  assert.equal(source.scopeBindings.department?.mode, "workspace");
+  assert.equal(source.scopeBindings.department?.mode, "target");
   assert.equal(source.fields.some((item) => item.key === "content" && item.sensitivity === "restricted"), true);
   assert.equal(source.fields.some((item) => item.key === "amount"), true);
   assert.equal(source.fields.some((item) => item.key === "handlerEmployeeName"), true);
+  assert.equal(source.fields.some((item) => (
+    item.key === "approvalRecordUrl" && item.sensitivity === "restricted" && item.exportPolicy === "forbidden"
+  )), true);
+  for (const key of ["approvalSourceKey", "approvalRecordId", "approvalStatusSnapshot", "approvedOn", "approvalSyncedAt", "currentRevisionId"]) {
+    assert.equal(source.fields.some((item) => item.key === key), true, key);
+  }
   for (const key of ["editedBy", "editedAt", "version", "createdAt", "updatedAt"]) {
     assert.equal(source.fields.some((item) => item.key === key), true, key);
   }

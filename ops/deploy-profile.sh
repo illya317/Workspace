@@ -60,27 +60,35 @@ SSH_CONTROL_DIRECTORY="$(mktemp -d)"
 SSH_CONTROL_PATH="$SSH_CONTROL_DIRECTORY/master"
 SSH_OPTIONS=(-i "$SSH_KEY" -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 -o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPersist=600 -o "ControlPath=$SSH_CONTROL_PATH")
 RSYNC_SSH="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 -o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPersist=600 -o ControlPath=$SSH_CONTROL_PATH"
+DEPLOY_TOOL_BUNDLE_TMP=""
 cleanup() {
   local exit_code=$?
   ssh "${SSH_OPTIONS[@]}" -O exit "$SERVER" >/dev/null 2>&1 || true
   rm -rf "$SSH_CONTROL_DIRECTORY"
   rm -f "$TEMPORARY_KEY"
+  if [ -n "$DEPLOY_TOOL_BUNDLE_TMP" ]; then
+    rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
+  fi
   exit "$exit_code"
 }
 trap cleanup EXIT
 ssh "${SSH_OPTIONS[@]}" -fN "$SERVER"
 
 REMOTE_TOOL_ROOT="$REMOTE_DIR/.workspace/runtime/deploy-unit-tools"
+DEPLOY_TOOL_BUNDLE_TMP="$(mktemp -d "${TMPDIR:-/tmp}/workspace-deploy-unit-tools.XXXXXX")"
+node ops/release/control/deploy-tool-bundle.mjs build \
+  --repository "$PROJECT_ROOT" \
+  --output "$DEPLOY_TOOL_BUNDLE_TMP" \
+  --profile deploy-unit-tools >/dev/null
+node ops/release/control/deploy-tool-bundle.mjs verify \
+  --bundle "$DEPLOY_TOOL_BUNDLE_TMP" >/dev/null
 ssh "${SSH_OPTIONS[@]}" "$SERVER" "mkdir -p '$REMOTE_TOOL_ROOT'"
-rsync -az -e "$RSYNC_SSH" \
-  ops/switch-deploy-gateway.sh ops/gateway-generation.mjs \
-  ops/deploy-unit-release.mjs ops/deploy-unit-provenance.mjs ops/deploy-notification.mjs \
-  ops/deploy-profile-release.mjs ops/deployment-profile-promotion.mjs \
-  ops/promote-deploy-profile.sh ops/rollback-deploy-profile.sh \
-  ops/internal-rpc-deployment-guard.mjs \
-  ops/control-plane-receipt.mjs ops/control-plane-requirements.mjs ops/tenant-config-manifest.mjs \
-  "$SERVER:$REMOTE_TOOL_ROOT/"
-ssh "${SSH_OPTIONS[@]}" "$SERVER" "chmod 700 '$REMOTE_TOOL_ROOT/switch-deploy-gateway.sh' '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh' && node --check '$REMOTE_TOOL_ROOT/deployment-profile-promotion.mjs' && node --check '$REMOTE_TOOL_ROOT/deploy-notification.mjs' && node --check '$REMOTE_TOOL_ROOT/internal-rpc-deployment-guard.mjs' && bash -n '$REMOTE_TOOL_ROOT/promote-deploy-profile.sh' && bash -n '$REMOTE_TOOL_ROOT/rollback-deploy-profile.sh'"
+rsync -az --delete-delay -e "$RSYNC_SSH" \
+  "$DEPLOY_TOOL_BUNDLE_TMP/" "$SERVER:$REMOTE_TOOL_ROOT/"
+ssh "${SSH_OPTIONS[@]}" "$SERVER" \
+  "node '$REMOTE_TOOL_ROOT/release/control/deploy-tool-bundle.mjs' verify --bundle '$REMOTE_TOOL_ROOT' >/dev/null"
+rm -rf "$DEPLOY_TOOL_BUNDLE_TMP"
+DEPLOY_TOOL_BUNDLE_TMP=""
 
 if [ "$COMMAND" = "promote" ]; then
   DIGEST_INPUTS=("$PROFILE_FILE" "$RELEASE_FILE" "$ROLLOUT_FILE" "$OBSERVATION_FILE" "$GRAPH_FILE")

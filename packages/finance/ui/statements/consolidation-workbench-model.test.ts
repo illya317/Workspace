@@ -8,7 +8,7 @@ import {
 } from "./consolidation-workbench-model";
 
 test("lifecycle exposes one auditable next action", () => {
-  assert.equal(nextConsolidationLifecycleAction("draft"), "submit");
+  assert.equal(nextConsolidationLifecycleAction("draft"), "lock");
   assert.equal(nextConsolidationLifecycleAction("submitted"), "review");
   assert.equal(nextConsolidationLifecycleAction("reviewed"), "lock");
   assert.equal(nextConsolidationLifecycleAction("locked"), "publish");

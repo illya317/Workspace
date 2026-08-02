@@ -1,9 +1,12 @@
 import { createHash } from "crypto";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { validatePositionResponsibilityNodeSyncCommand } from "./domain/position-responsibility-node-validation";
 
 type ResponsibilityDescription = {
   id: number;
+  revisionId: number;
+  revisionUid: string;
   details: string | null;
   version: string | null;
   updatedAt: Date;
@@ -28,10 +31,31 @@ export async function syncPositionDescriptionResponsibilityNodes(positionDescrip
   if (!command.ok) return { synced: 0, inactive: 0 };
   const description = await prisma.positionDescription.findUnique({
     where: { id: command.data.positionDescriptionId },
-    select: { id: true, details: true, version: true, updatedAt: true },
+    select: {
+      id: true,
+      revisions: {
+        where: {
+          OR: [
+            { effectiveDate: null },
+            { effectiveDate: { lte: workspaceBusinessDate(new Date()) } },
+          ],
+        },
+        orderBy: [{ effectiveDate: { sort: "desc", nulls: "last" } }, { sequence: "desc" }],
+        take: 1,
+        select: { id: true, revisionUid: true, details: true, version: true, createdAt: true },
+      },
+    },
   });
-  if (!description) return { synced: 0, inactive: 0 };
-  return prisma.$transaction((tx) => syncPositionDescriptionResponsibilityNodesInTx(tx, description));
+  const revision = description?.revisions[0];
+  if (!description || !revision) return { synced: 0, inactive: 0 };
+  return prisma.$transaction((tx) => syncPositionDescriptionResponsibilityNodesInTx(tx, {
+    id: description.id,
+    revisionId: revision.id,
+    revisionUid: revision.revisionUid,
+    details: revision.details,
+    version: revision.version,
+    updatedAt: revision.createdAt,
+  }));
 }
 
 export async function syncPositionDescriptionResponsibilityNodesInTx(
@@ -42,7 +66,7 @@ export async function syncPositionDescriptionResponsibilityNodesInTx(
   if (!command.ok) return { synced: 0, inactive: 0 };
   const drafts = buildResponsibilityNodeDrafts(description);
   const inactive = await tx.positionResponsibilityNode.updateMany({
-    where: { positionDescriptionId: description.id, isActive: true },
+    where: { positionDescriptionRevisionId: description.revisionId, isActive: true },
     data: { isActive: false },
   });
   const groups = drafts.filter((draft) => draft.nodeType === "duty_group");
@@ -114,7 +138,7 @@ function appendResponsibilityGroup(input: {
   itemSourcePath: (minorIndex: number) => string;
 }) {
   const groupHash = digest(["duty_group", input.sourcePath, input.title]);
-  const groupKey = uniqueNodeKey(`pd:${input.description.id}:duty-group:${groupHash.slice(0, 16)}`, input.usedKeys);
+  const groupKey = uniqueNodeKey(`pdr:${input.description.revisionUid}:duty-group:${groupHash.slice(0, 16)}`, input.usedKeys);
   input.drafts.push({
     nodeKey: groupKey,
     nodeType: "duty_group",
@@ -133,7 +157,7 @@ function appendResponsibilityGroup(input: {
     const itemSourcePath = input.itemSourcePath(minorIndex);
     const itemHash = digest(["duty_item", itemSourcePath, input.title, content]);
     input.drafts.push({
-      nodeKey: uniqueNodeKey(`pd:${input.description.id}:duty-item:${itemHash.slice(0, 16)}`, input.usedKeys),
+      nodeKey: uniqueNodeKey(`pdr:${input.description.revisionUid}:duty-item:${itemHash.slice(0, 16)}`, input.usedKeys),
       nodeType: "duty_item",
       title: content,
       content,
@@ -154,6 +178,7 @@ async function upsertResponsibilityNode(
 ) {
   const data = {
     positionDescriptionId: description.id,
+    positionDescriptionRevisionId: description.revisionId,
     parentId,
     nodeType: draft.nodeType,
     title: draft.title,

@@ -119,6 +119,19 @@ const readinessCases: ModuleReadinessCase[] = [
       .toBeVisible({ timeout: READY_BUDGET_MS }),
   },
   {
+    id: "news-home",
+    label: "资讯工作台",
+    path: "/workspace/news",
+    pageTitle: "资讯",
+    apiPaths: ["/workspace/api/modules/news"],
+    ready: async (page) => {
+      await expect(visible(page.getByText("每日简报", { exact: true })))
+        .toBeVisible({ timeout: READY_BUDGET_MS });
+      await expect(visible(page.getByText(/^显示 \d+ \/ \d+ 条$/)))
+        .toBeVisible({ timeout: READY_BUDGET_MS });
+    },
+  },
+  {
     id: "administration-home",
     label: "Administration 主入口",
     path: "/workspace/administration",

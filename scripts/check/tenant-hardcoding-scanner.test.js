@@ -36,11 +36,6 @@ function syntheticInput() {
       },
     },
     companies: [{ code: "C-X", name: "Acme X" }, { code: "C-Y", name: "Acme Y" }],
-    manifest: {
-      sourceRepository: "https://cnb.cool/example/acme-x.git",
-      stableLocalPath: "/opt/acme-x",
-      productionTarget: { remoteDir: "/srv/acme-x", workspaceConfigDir: "/srv/acme-x/.workspace" },
-    },
     agentWorkforce: {
       workforce: [{
         employeeId: "BOT-X",

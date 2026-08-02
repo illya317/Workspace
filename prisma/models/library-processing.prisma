@@ -75,6 +75,7 @@ model LibraryContentChunk {
   version        LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
   artifact       LibraryArtifact?       @relation(fields: [artifactId], references: [id], onDelete: SetNull)
   entityMentions LibraryEntityMention[]
+  embeddings     LibraryContentEmbedding[]
 
   @@unique([versionId, ordinal])
   @@index([versionId])
@@ -98,12 +99,31 @@ model LibrarySearchIndex {
   builtAt             DateTime?
   createdAt           DateTime  @default(now())
 
-  version  LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
-  artifact LibraryArtifact?       @relation(fields: [artifactId], references: [id], onDelete: SetNull)
+  version    LibraryDocumentVersion   @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  artifact   LibraryArtifact?         @relation(fields: [artifactId], references: [id], onDelete: SetNull)
+  embeddings LibraryContentEmbedding[]
 
   @@unique([versionId, kind, generation])
   @@index([kind, status, active])
   @@index([artifactId])
+}
+
+/// 资料内容向量（派生表，由已锁定的模型版本对稳定 chunk 生成，可按索引代次整体重建）
+model LibraryContentEmbedding {
+  id         Int      @id @default(autoincrement())
+  indexId    Int
+  chunkId    Int
+  modelKey   String
+  dimensions Int
+  values     Float[]
+  createdAt  DateTime @default(now())
+
+  index LibrarySearchIndex  @relation(fields: [indexId], references: [id], onDelete: Cascade)
+  chunk LibraryContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+
+  @@unique([indexId, chunkId])
+  @@index([chunkId])
+  @@index([modelKey, dimensions])
 }
 
 /// 资料批量导出任务（事实表，由有 export 权限的用户创建并保存不可变版本选择）

@@ -1,0 +1,170 @@
+/// 投资企业档案（事实表，人工维护并关联资本证券中的唯一 Company 主体）
+model InvestmentEnterpriseProfile {
+  id                 Int       @id @default(autoincrement())
+  profileUid         String    @unique @default(uuid())
+  companyId          Int       @unique
+  portfolioCode      String    @unique
+  investmentStatus   String    @default("active")
+  investmentStage    String?
+  industry           String?
+  investmentDate     DateTime?
+  exitDate           DateTime?
+  investmentCurrency String    @default("CNY")
+  investedAmount     Decimal?  @db.Decimal(20, 2)
+  currentValuation   Decimal?  @db.Decimal(20, 2)
+  valuationDate      DateTime?
+  investmentLead     String?
+  dealTeam           String?
+  boardSeat           String?
+  investmentThesis   String?   @db.Text
+  keyRisks            String?   @db.Text
+  exitPlan            String?   @db.Text
+  nextReviewDate      DateTime?
+  editedBy            Int?
+  editedAt            DateTime?
+  version             Int       @default(1)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @default(now()) @updatedAt
+
+  company          Company                                @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  meetings         InvestmentEnterpriseMeeting[]
+  diligenceItems   InvestmentEnterpriseDiligenceItem[]
+  contracts        InvestmentEnterpriseContract[]
+  monitoring       InvestmentEnterpriseMonitoringRecord[]
+  documentLinks    InvestmentEnterpriseDocumentLink[]
+
+  @@index([investmentStatus, nextReviewDate])
+  @@index([industry])
+}
+
+/// 投资企业治理会议与决议（事实表，人工录入或由文件分析结果经人工确认）
+model InvestmentEnterpriseMeeting {
+  id              Int       @id @default(autoincrement())
+  profileId       Int
+  meetingType     String    @default("shareholders")
+  title           String
+  meetingDate     DateTime?
+  status          String    @default("planned")
+  decisionSummary String?   @db.Text
+  votingResult    String?
+  followUpOwner   String?
+  followUpDueDate DateTime?
+  notes           String?   @db.Text
+  sourceReference String?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  profile InvestmentEnterpriseProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, meetingDate])
+  @@index([profileId, status])
+}
+
+/// 投资企业尽调发现与整改项（事实表，人工录入或由文件分析结果经人工确认）
+model InvestmentEnterpriseDiligenceItem {
+  id                    Int       @id @default(autoincrement())
+  profileId             Int
+  workstream            String
+  title                 String
+  riskLevel             String    @default("medium")
+  status                String    @default("open")
+  finding               String?   @db.Text
+  recommendation        String?   @db.Text
+  ownerName             String?
+  dueDate               DateTime?
+  remediationStatus     String    @default("not_started")
+  remediationEvidence   String?   @db.Text
+  sourceReference       String?
+  editedBy              Int?
+  editedAt              DateTime?
+  version               Int       @default(1)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @default(now()) @updatedAt
+
+  profile InvestmentEnterpriseProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, workstream, status])
+  @@index([profileId, riskLevel, dueDate])
+}
+
+/// 投资企业相关合同及关键义务（事实表，人工录入或由文件分析结果经人工确认）
+model InvestmentEnterpriseContract {
+  id                Int       @id @default(autoincrement())
+  profileId         Int
+  contractType      String
+  title             String
+  counterpartyText   String? @map("counterparty")
+  signedDate        DateTime?
+  effectiveDate     DateTime?
+  expiryDate        DateTime?
+  noticeDate        DateTime?
+  status            String    @default("draft")
+  currency          String    @default("CNY")
+  amount            Decimal?  @db.Decimal(20, 2)
+  keyTerms          String?   @db.Text
+  obligationSummary String?   @db.Text
+  sourceReference   String?
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int       @default(1)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @default(now()) @updatedAt
+
+  profile InvestmentEnterpriseProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@index([profileId, contractType, status])
+  @@index([profileId, expiryDate, noticeDate])
+}
+
+/// 投资企业定期经营监控快照（事实表，来源于企业报送、财务报表或人工确认）
+model InvestmentEnterpriseMonitoringRecord {
+  id              Int       @id @default(autoincrement())
+  profileId       Int
+  periodEnd       DateTime
+  status          String    @default("draft")
+  currency        String    @default("CNY")
+  revenue         Decimal?  @db.Decimal(20, 2)
+  netProfit       Decimal?  @db.Decimal(20, 2)
+  cashBalance     Decimal?  @db.Decimal(20, 2)
+  valuation       Decimal?  @db.Decimal(20, 2)
+  headcount       Int?
+  highlights      String?   @db.Text
+  risks           String?   @db.Text
+  sourceReference String?
+  editedBy        Int?
+  editedAt        DateTime?
+  version         Int       @default(1)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  profile InvestmentEnterpriseProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, periodEnd])
+  @@index([profileId, status, periodEnd])
+}
+
+/// 投资企业与资料库原件的受控关联（事实表，只保存业务归类与稳定 UID，不复制原件、OCR 或向量）
+model InvestmentEnterpriseDocumentLink {
+  id                 Int       @id @default(autoincrement())
+  linkUid            String    @unique @default(uuid())
+  profileId          Int
+  libraryDocumentUid String?
+  documentCategory   String
+  title              String
+  notes              String?   @db.Text
+  uploadStatus       String    @default("pending")
+  failureReason      String?
+  linkedBy           Int?
+  linkedAt           DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  profile InvestmentEnterpriseProfile @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@unique([profileId, libraryDocumentUid])
+  @@index([profileId, documentCategory])
+  @@index([uploadStatus, createdAt])
+}

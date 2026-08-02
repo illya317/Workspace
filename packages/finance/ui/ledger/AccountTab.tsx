@@ -15,7 +15,10 @@ import type {
   PageSurfaceTabBarSpec,
   SurfaceToolbarItems,
 } from "@workspace/core/ui";
-import type { FinanceGroupAccountOption, FinanceGroupAccountReviewStatus } from "@workspace/finance/types";
+import type {
+  FinanceGroupAccountOption,
+  FinanceGroupAccountReviewStatus,
+} from "@workspace/finance/types";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
@@ -48,7 +51,6 @@ export default function AccountTab({
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
-  const [levelFilter, setLevelFilter] = useState("");
   const [reviewStatusFilter, setReviewStatusFilter] = useState<"" | FinanceGroupAccountReviewStatus>("");
   const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
   const [keyword, setKeyword] = useState("");
@@ -84,7 +86,6 @@ export default function AccountTab({
     companyCode: companyFilter,
     year: yearFilter,
     keyword,
-    subjectLevel: levelFilter,
     fallbackFilename: `${companyNameByCode.get(companyFilter) || companyFilter || "全部公司"}-${yearFilter || "全部年度"}-科目设置.xlsx`,
   });
 
@@ -93,7 +94,6 @@ export default function AccountTab({
     setLoadError("");
     const params = new URLSearchParams({ page: "1", pageSize: "2000" });
     if (companyFilter) params.set("companyCode", companyFilter);
-    if (levelFilter) params.set("subjectLevel", levelFilter);
     if (yearFilter) params.set("year", yearFilter);
     if (keyword) params.set("keyword", keyword);
     if (reviewStatusFilter) params.set("reviewStatus", reviewStatusFilter);
@@ -122,7 +122,7 @@ export default function AccountTab({
     } finally {
       setLoading(false);
     }
-  }, [companyFilter, keyword, levelFilter, reviewStatusFilter, showError, yearFilter]);
+  }, [companyFilter, keyword, reviewStatusFilter, showError, yearFilter]);
 
   useEffect(() => { void load(); }, [load]);
   useEffect(() => { setSelectedGroupAccountId(currentGroupAccountId); }, [currentGroupAccountId, selectedId]);
@@ -176,14 +176,11 @@ export default function AccountTab({
   const toolbarItems = useFinanceFilterToolbarItems({
     companyFilter,
     yearFilter,
-    levelFilter,
     keyword,
     onCompanyChange: (value) => { void changeScope(() => setCompanyFilter(value)); },
     onYearChange: (value) => { void changeScope(() => setYearFilter(value)); },
-    onLevelChange: (value) => { void changeScope(() => setLevelFilter(value)); },
     onKeywordChange: (value) => { void changeScope(() => setKeyword(value)); },
     showMonth: false,
-    showLevel: true,
     showPageSize: false,
     extraItems: extraToolbarItems,
   });

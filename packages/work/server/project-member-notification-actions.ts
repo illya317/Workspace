@@ -1,10 +1,11 @@
-import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import {
   registerNotificationActionProvider,
   type NotificationActionResult,
 } from "@workspace/platform/server/notification-action-providers";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildProjectMemberNotificationResponseCommand } from "./domain/project-member-notification-validation";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { rejectProjectMembershipInTransaction } from "./project-membership-lifecycle-service";
 
 const PROJECT_MEMBER_NOTIFICATION_TYPES = new Set([
   "work.project.member.added",
@@ -43,9 +44,13 @@ async function respondToProjectMemberNotification(input: {
   const now = new Date();
   await prisma.$transaction(async (tx) => {
     if (command.data.action === "reject" && command.data.recordId) {
-      await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, input.userId, tx);
-      await snapshotHistory("EmployeeProject", command.data.recordId, input.userId, tx);
-      await tx.employeeProject.delete({ where: { id: command.data.recordId } });
+      await rejectProjectMembershipInTransaction(tx, {
+        recordId: command.data.recordId,
+        effectiveOn: workspaceBusinessDate(now),
+        reason: "成员拒绝项目邀请或角色变更",
+        userId: input.userId,
+        idempotencyKey: `project-membership-notification-reject:${input.notificationId}`,
+      });
     }
     await tx.notification.updateMany({
       where: { id: { in: command.data.notificationIds }, recipientUserId: input.userId },

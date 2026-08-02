@@ -66,7 +66,7 @@ readiness V1 只维护 warning/展示所需事实：
 
 ## Workflow node tree
 
-源码入口：`packages/platform/server/workflow-policy-nodes.ts`、`packages/platform/ui/admin/tabs/WorkflowPoliciesGraphModel.ts`、`packages/platform/ui/admin/tabs/WorkflowPoliciesBpmnXml.ts`。
+源码入口：`packages/platform/server/workflow-policy-nodes.ts`、`packages/settings/ui/admin/tabs/WorkflowPoliciesGraphModel.ts`、`packages/settings/ui/admin/tabs/WorkflowPoliciesBpmnXml.ts`。
 
 `WorkflowPolicy.workflowNodesJson` 保存审批流 tree，不再使用旧的扁平 incoming/route 图。管理员在 BPMN 画布中维护正向通过路径；后端运行时会把 tree 编译成临时 split / branch approval / join 图，不把编译图写回数据库。
 
@@ -157,7 +157,7 @@ ActionContract 把过去混在一个开关里的三件事显式拆开：
 
 Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 command，不声明 icon、variant 或顺序；表单再交给 `workflowActionSurfaceActions()` 生成 `FormSurface.actions`。图标、样式和固定排序始终由 Core Action registry / FormSurface 渲染层决定。Work 工作节点、HR 组织单元、HR 绩效和 Docs 模板是 runtime + FormSurface 的贯通样板；不适用流程的动作继续 direct，workflow eligible 动作自动随有效策略切换。HR 绩效属于 workflow-only 多阶段写入：新建/编辑仍只进入本地写入态，最终由 request runtime 映射提交、再次提交、通过或驳回，撤回/取消申请才是列表上的显式生命周期动作。
 
-标准新建流统一声明 `CreateSurface`，不另设 workflow-inline 版本。Platform UI 的 `actionRuntimeCreateSubmission()` 将 direct runtime 映射为 `save`，将 workflow runtime 映射为 `submit`。`trigger` 只决定 `+` 位于 Toolbar 或所属 Surface，`presentation` 只决定 inline/block/modal；流程语义与二者无关。
+标准页面级新建流统一声明 `PageSurface.create`，局部新建流声明 `CreateSurface trigger="surface"`，不另设 workflow-inline 版本。Platform UI 的 `actionRuntimeCreateSubmission()` 将 direct runtime 映射为 `save`，将 workflow runtime 映射为 `submit`。入口归属和 presentation 不改变流程语义。
 
 创建类型需要预选时使用 `CreateSurface flow.kind="two-stage"`。第一段只有选择字段，第二段仍按最终业务 action runtime 决定保存或提交；第一段不得另设保存动作或独立布局。
 
@@ -188,11 +188,11 @@ Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 
 
 无数据库策略时，以 ActionContract 的 `defaultExecutionMode` 为唯一运行事实：`direct` 解析为不接流程，`workflow` 解析为接入流程；BusinessAction 的 eligibility 只是管理投影，不再独立决定执行模式。
 
-管理入口位于 `/settings/admin` 的“流程设置”主 tab。产品界面只提供一个统一流程入口，左侧按“流程分类 -> 流程”组织 workflow-eligible base business action；源业务模块只保留为工具栏筛选。部门、公司、委员会等空间不再派生流程行为或独立策略入口。
+管理入口位于 `/settings/admin` 的“流程管理 -> 设置”子 tab。产品界面只提供一个统一流程入口，左侧按“流程分类 -> 流程”组织 workflow-eligible base business action；源业务模块只保留为工具栏筛选。部门、公司、委员会等空间不再派生流程行为或独立策略入口。
 
 统一入口维护流程接入、流程语义、职责分离、审批人来源和请求自助动作，不展示具体 `scopeId`。不接流程时只保存流程接入状态，其余流程字段不参与运行。无论请求来自个人、部门、公司还是委员会，同一业务操作始终使用注册表中的单一 `businessActionKey`；`resourceKey/scopeId/projection` 只表达权限与单据归属，不参与策略选择。
 
-同一 tabbar 下还提供统一的“流程台账”主 tab，复用相同的分类树，并按选中的 `businessActionKey` 展示 `ApprovalRequest` 摘要。
+同一“流程管理”分组下还提供统一的“台账”子 tab，复用相同的分类树，并按选中的 `businessActionKey` 展示 `ApprovalRequest` 摘要。
 
 流程业务分类由 `packages/platform/workflow-category-registry.ts` 统一注册，`BusinessActionRegistration.workflowCategoryKey` 是唯一归属字段。当前已使用考核、文档、人事、协作、质量五类；财务、行政、采购、合同、IT 先保留注册项，空分类不展示。设置、台账和收件箱不得各自维护另一份分类映射。
 

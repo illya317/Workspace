@@ -16,8 +16,15 @@ import {
   getOperatingCommitteeNaturalSpaceActionProfile,
 } from "@workspace/platform/server/business-space-permissions";
 import { canUserActAsActiveEmployee } from "@workspace/platform/server/user-identity";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
+import {
+  activeEmployeeCreatedProject,
+  activeProjectMemberRoles,
+  employeeHasActiveEmploymentOnDate,
+  projectMembershipIsActiveOnDate,
+} from "./project-access-temporal";
 import {
   canViewCommitteeProjectSpace,
   canViewCompanyProjectSpace,
@@ -64,7 +71,12 @@ type ProjectPermissionProject = {
   createdBy: number | null;
   editedBy: number | null;
   leadingDepartmentId?: number | null;
-  employees?: Array<{ employeeId: number; role: string | null }>;
+  employees?: Array<{
+    employeeId: number;
+    role: string | null;
+    startDate: string | null;
+    endDate: string | null;
+  }>;
 };
 
 export async function isSystemAdminUser(userId: number) {
@@ -72,11 +84,29 @@ export async function isSystemAdminUser(userId: number) {
 }
 
 export async function getUserEmployeeIds(userId: number) {
+  const asOfDate = workspaceBusinessDate(new Date());
   const employees = await prisma.employee.findMany({
     where: { userId },
-    select: { id: true },
+    select: {
+      id: true,
+      employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+    },
   });
-  return employees.map((employee) => employee.id);
+  return employees
+    .filter((employee) => employeeHasActiveEmploymentOnDate(employee.employments, asOfDate))
+    .map((employee) => employee.id);
+}
+
+async function listCurrentMemberProjectIds(employeeIds: number[]) {
+  if (employeeIds.length === 0) return [];
+  const asOfDate = workspaceBusinessDate(new Date());
+  const memberships = await prisma.employeeProject.findMany({
+    where: { employeeId: { in: employeeIds }, recordState: "confirmed" },
+    select: { projectId: true, startDate: true, endDate: true },
+  });
+  return [...new Set(memberships
+    .filter((membership) => projectMembershipIsActiveOnDate(membership, asOfDate))
+    .map((membership) => membership.projectId))];
 }
 
 export async function hasProjectViewAll(userId: number) {
@@ -98,12 +128,14 @@ export async function buildVisibleProjectWhere(userId: number) {
     canViewCommitteeProjectSpace(userId),
     canViewCompanyProjectSpace(userId),
   ]);
+  const memberProjectIds = await listCurrentMemberProjectIds(employeeIds);
+  const hasActiveEmployeeIdentity = employeeIds.length > 0;
   return {
     OR: [
-      { createdBy: userId },
+      ...(hasActiveEmployeeIdentity ? [{ createdBy: userId }] : []),
       ...(managedDepartmentIds.length ? [{ leadingDepartmentId: { in: managedDepartmentIds } }] : []),
       ...(visibleDepartmentSpaceIds.length ? [{ leadingDepartmentId: { in: visibleDepartmentSpaceIds } }] : []),
-      ...(employeeIds.length ? [{ employees: { some: { employeeId: { in: employeeIds } } } }] : []),
+      ...(memberProjectIds.length ? [{ id: { in: memberProjectIds } }] : []),
       ...(canViewCommitteeProjects ? [{ projectType: "company" }] : []),
       ...(canViewOtherProjects ? [{ projectType: "other" }] : []),
     ],
@@ -124,11 +156,13 @@ export async function getProjectPermissions(
   if (!hasL2Access) return { canView: false, canEdit: false, canManage: false, canDelete: false };
 
   const employeeIdSet = new Set(employeeIds);
-  const memberRoles = (project.employees || [])
-    .filter((member) => employeeIdSet.has(member.employeeId))
-    .map((member) => member.role || "");
+  const memberRoles = activeProjectMemberRoles(
+    project.employees || [],
+    employeeIdSet,
+    workspaceBusinessDate(new Date()),
+  );
 
-  const isCreator = project.createdBy === userId;
+  const isCreator = activeEmployeeCreatedProject(project.createdBy, userId, employeeIdSet);
   const isDepartmentManager = project.leadingDepartmentId
     ? await isDepartmentResponsiblePositionUser(userId, project.leadingDepartmentId)
     : false;
@@ -162,7 +196,10 @@ async function loadProjectForPermission(projectId: number) {
       createdBy: true,
       editedBy: true,
       leadingDepartmentId: true,
-      employees: { select: { employeeId: true, role: true } },
+      employees: {
+        where: { recordState: "confirmed" },
+        select: { employeeId: true, role: true, startDate: true, endDate: true },
+      },
     },
   });
 }

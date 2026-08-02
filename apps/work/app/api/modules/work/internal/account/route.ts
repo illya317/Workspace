@@ -24,6 +24,9 @@ const notificationQuerySchema = z.object({
   offset: z.number().int().min(0),
   category: z.enum(["all", "ordinary", "workflow", "approval", "review", "publish"]).optional(),
   filter: z.enum(["all", "todo", "originated"]).optional(),
+  keyword: z.string().trim().max(120).optional(),
+  readState: z.enum(["all", "unread", "pending", "read"]).optional(),
+  workflowRequestId: z.number().int().positive().optional(),
 }).passthrough();
 
 const bodySchema = z.discriminatedUnion("operation", [

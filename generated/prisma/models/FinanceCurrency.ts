@@ -28,12 +28,14 @@ export type AggregateFinanceCurrency = {
 
 export type FinanceCurrencyAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   decimalDigits: number | null
   latestImportId: number | null
 }
 
 export type FinanceCurrencySumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   decimalDigits: number | null
   latestImportId: number | null
 }
@@ -41,6 +43,7 @@ export type FinanceCurrencySumAggregateOutputType = {
 export type FinanceCurrencyMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceCode: string | null
@@ -56,6 +59,7 @@ export type FinanceCurrencyMinAggregateOutputType = {
 export type FinanceCurrencyMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceCode: string | null
@@ -71,6 +75,7 @@ export type FinanceCurrencyMaxAggregateOutputType = {
 export type FinanceCurrencyCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   sourceSystem: number
   sourceLedger: number
   sourceCode: number
@@ -87,12 +92,14 @@ export type FinanceCurrencyCountAggregateOutputType = {
 
 export type FinanceCurrencyAvgAggregateInputType = {
   id?: true
+  companyId?: true
   decimalDigits?: true
   latestImportId?: true
 }
 
 export type FinanceCurrencySumAggregateInputType = {
   id?: true
+  companyId?: true
   decimalDigits?: true
   latestImportId?: true
 }
@@ -100,6 +107,7 @@ export type FinanceCurrencySumAggregateInputType = {
 export type FinanceCurrencyMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -115,6 +123,7 @@ export type FinanceCurrencyMinAggregateInputType = {
 export type FinanceCurrencyMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -130,6 +139,7 @@ export type FinanceCurrencyMaxAggregateInputType = {
 export type FinanceCurrencyCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceCode?: true
@@ -232,6 +242,7 @@ export type FinanceCurrencyGroupByArgs<ExtArgs extends runtime.Types.Extensions.
 export type FinanceCurrencyGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -270,6 +281,7 @@ export type FinanceCurrencyWhereInput = {
   NOT?: Prisma.FinanceCurrencyWhereInput | Prisma.FinanceCurrencyWhereInput[]
   id?: Prisma.IntFilter<"FinanceCurrency"> | number
   companyCode?: Prisma.StringFilter<"FinanceCurrency"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCurrency"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCurrency"> | string
@@ -281,11 +293,13 @@ export type FinanceCurrencyWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceCurrency"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceCurrency"> | Date | string
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceCurrencyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -297,6 +311,7 @@ export type FinanceCurrencyOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   latestImport?: Prisma.FinanceLedgerImportOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceCurrencyWhereUniqueInput = Prisma.AtLeast<{
@@ -306,6 +321,7 @@ export type FinanceCurrencyWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceCurrencyWhereInput[]
   NOT?: Prisma.FinanceCurrencyWhereInput | Prisma.FinanceCurrencyWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceCurrency"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCurrency"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCurrency"> | string
@@ -317,11 +333,13 @@ export type FinanceCurrencyWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceCurrency"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceCurrency"> | Date | string
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_sourceSystem_sourceLedger_sourceCode">
 
 export type FinanceCurrencyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -345,6 +363,7 @@ export type FinanceCurrencyScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceCurrencyScalarWhereWithAggregatesInput | Prisma.FinanceCurrencyScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceCurrency"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceCurrency"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceCurrency"> | number | null
   sourceSystem?: Prisma.StringWithAggregatesFilter<"FinanceCurrency"> | string
   sourceLedger?: Prisma.StringWithAggregatesFilter<"FinanceCurrency"> | string
   sourceCode?: Prisma.StringWithAggregatesFilter<"FinanceCurrency"> | string
@@ -369,11 +388,13 @@ export type FinanceCurrencyCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCurrenciesInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCurrenciesInput
 }
 
 export type FinanceCurrencyUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -398,11 +419,13 @@ export type FinanceCurrencyUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCurrenciesNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCurrenciesNestedInput
 }
 
 export type FinanceCurrencyUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -418,6 +441,7 @@ export type FinanceCurrencyUncheckedUpdateInput = {
 export type FinanceCurrencyCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -446,6 +470,7 @@ export type FinanceCurrencyUpdateManyMutationInput = {
 export type FinanceCurrencyUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -478,6 +503,7 @@ export type FinanceCurrencyCompanyCodeSourceSystemSourceLedgerSourceCodeCompound
 export type FinanceCurrencyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -492,6 +518,7 @@ export type FinanceCurrencyCountOrderByAggregateInput = {
 
 export type FinanceCurrencyAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   decimalDigits?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
 }
@@ -499,6 +526,7 @@ export type FinanceCurrencyAvgOrderByAggregateInput = {
 export type FinanceCurrencyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -514,6 +542,7 @@ export type FinanceCurrencyMaxOrderByAggregateInput = {
 export type FinanceCurrencyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceCode?: Prisma.SortOrder
@@ -528,6 +557,7 @@ export type FinanceCurrencyMinOrderByAggregateInput = {
 
 export type FinanceCurrencySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   decimalDigits?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
 }
@@ -574,6 +604,48 @@ export type FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput = {
   deleteMany?: Prisma.FinanceCurrencyScalarWhereInput | Prisma.FinanceCurrencyScalarWhereInput[]
 }
 
+export type FinanceCurrencyCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCurrencyCreateWithoutCompanyInput[] | Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput | Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCurrencyCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+}
+
+export type FinanceCurrencyUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCurrencyCreateWithoutCompanyInput[] | Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput | Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCurrencyCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+}
+
+export type FinanceCurrencyUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCurrencyCreateWithoutCompanyInput[] | Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput | Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCurrencyUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCurrencyUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCurrencyCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  delete?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  connect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  update?: Prisma.FinanceCurrencyUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCurrencyUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCurrencyUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCurrencyUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCurrencyScalarWhereInput | Prisma.FinanceCurrencyScalarWhereInput[]
+}
+
+export type FinanceCurrencyUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput> | Prisma.FinanceCurrencyCreateWithoutCompanyInput[] | Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput | Prisma.FinanceCurrencyCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceCurrencyUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCurrencyUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceCurrencyCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  disconnect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  delete?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  connect?: Prisma.FinanceCurrencyWhereUniqueInput | Prisma.FinanceCurrencyWhereUniqueInput[]
+  update?: Prisma.FinanceCurrencyUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceCurrencyUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceCurrencyUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceCurrencyUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceCurrencyScalarWhereInput | Prisma.FinanceCurrencyScalarWhereInput[]
+}
+
 export type FinanceCurrencyCreateWithoutLatestImportInput = {
   companyCode: string
   sourceSystem: string
@@ -585,11 +657,13 @@ export type FinanceCurrencyCreateWithoutLatestImportInput = {
   isBase?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceCurrenciesInput
 }
 
 export type FinanceCurrencyUncheckedCreateWithoutLatestImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -633,6 +707,7 @@ export type FinanceCurrencyScalarWhereInput = {
   NOT?: Prisma.FinanceCurrencyScalarWhereInput | Prisma.FinanceCurrencyScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceCurrency"> | number
   companyCode?: Prisma.StringFilter<"FinanceCurrency"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceCurrency"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceCurrency"> | string
   sourceCode?: Prisma.StringFilter<"FinanceCurrency"> | string
@@ -645,9 +720,65 @@ export type FinanceCurrencyScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceCurrency"> | Date | string
 }
 
+export type FinanceCurrencyCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  symbol?: string | null
+  decimalDigits?: number | null
+  isBase?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutCurrenciesInput
+}
+
+export type FinanceCurrencyUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  symbol?: string | null
+  decimalDigits?: number | null
+  isBase?: boolean
+  latestImportId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCurrencyCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceCurrencyWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCurrencyCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceCurrencyCreateManyCompanyInput | Prisma.FinanceCurrencyCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceCurrencyUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCurrencyWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceCurrencyUpdateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceCurrencyCreateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceCurrencyUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceCurrencyWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceCurrencyUpdateWithoutCompanyInput, Prisma.FinanceCurrencyUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceCurrencyUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceCurrencyScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceCurrencyUpdateManyMutationInput, Prisma.FinanceCurrencyUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceCurrencyCreateManyLatestImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceCode: string
@@ -670,11 +801,13 @@ export type FinanceCurrencyUpdateWithoutLatestImportInput = {
   isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceCurrenciesNestedInput
 }
 
 export type FinanceCurrencyUncheckedUpdateWithoutLatestImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -689,6 +822,7 @@ export type FinanceCurrencyUncheckedUpdateWithoutLatestImportInput = {
 export type FinanceCurrencyUncheckedUpdateManyWithoutLatestImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -700,11 +834,71 @@ export type FinanceCurrencyUncheckedUpdateManyWithoutLatestImportInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceCurrencyCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceCode: string
+  sourceName: string
+  symbol?: string | null
+  decimalDigits?: number | null
+  isBase?: boolean
+  latestImportId?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCurrencyUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decimalDigits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutCurrenciesNestedInput
+}
+
+export type FinanceCurrencyUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decimalDigits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceCurrencyUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  symbol?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  decimalDigits?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isBase?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 
 
 export type FinanceCurrencySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -716,11 +910,13 @@ export type FinanceCurrencySelect<ExtArgs extends runtime.Types.Extensions.Inter
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCurrency"]>
 
 export type FinanceCurrencySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -732,11 +928,13 @@ export type FinanceCurrencySelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCurrency"]>
 
 export type FinanceCurrencySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -748,11 +946,13 @@ export type FinanceCurrencySelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeCurrency"]>
 
 export type FinanceCurrencySelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceCode?: boolean
@@ -765,25 +965,30 @@ export type FinanceCurrencySelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceCurrencyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceSystem" | "sourceLedger" | "sourceCode" | "sourceName" | "symbol" | "decimalDigits" | "isBase" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCurrency"]>
+export type FinanceCurrencyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceSystem" | "sourceLedger" | "sourceCode" | "sourceName" | "symbol" | "decimalDigits" | "isBase" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeCurrency"]>
 export type FinanceCurrencyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }
 export type FinanceCurrencyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }
 export type FinanceCurrencyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceCurrency$latestImportArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceCurrency$companyArgs<ExtArgs>
 }
 
 export type $FinanceCurrencyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceCurrency"
   objects: {
     latestImport: Prisma.$FinanceLedgerImportPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     sourceSystem: string
     sourceLedger: string
     sourceCode: string
@@ -1189,6 +1394,7 @@ readonly fields: FinanceCurrencyFieldRefs;
 export interface Prisma__FinanceCurrencyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   latestImport<T extends Prisma.FinanceCurrency$latestImportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCurrency$latestImportArgs<ExtArgs>>): Prisma.Prisma__FinanceLedgerImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.FinanceCurrency$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCurrency$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1220,6 +1426,7 @@ export interface Prisma__FinanceCurrencyClient<T, Null = never, ExtArgs extends 
 export interface FinanceCurrencyFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceCurrency", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceCurrency", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceCurrency", 'Int'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceCurrency", 'String'>
   readonly sourceLedger: Prisma.FieldRef<"FinanceCurrency", 'String'>
   readonly sourceCode: Prisma.FieldRef<"FinanceCurrency", 'String'>
@@ -1647,6 +1854,25 @@ export type FinanceCurrency$latestImportArgs<ExtArgs extends runtime.Types.Exten
    */
   include?: Prisma.FinanceLedgerImportInclude<ExtArgs> | null
   where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+/**
+ * FinanceCurrency.company
+ */
+export type FinanceCurrency$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

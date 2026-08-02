@@ -6,7 +6,7 @@ import { CAPITAL_SECURITIES_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../.
 import { EXTERNAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/external/server/workspace-analysis-sources";
 import { FINANCE_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/finance/server/cost/workspace-analysis-sources";
 import { FINANCE_GENERAL_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/finance/server/workspace-analysis-source-registrations";
-import { HR_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/hr/server/workspace-analysis-sources";
+import { HR_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "@workspace/hr/server/analysis";
 import { INVENTORY_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/inventory/server/workspace-analysis-sources";
 import { LIBRARY_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/library/server/workspace-analysis-sources";
 import { PRODUCTION_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS } from "../../packages/production/server/workspace-analysis-sources";
@@ -37,10 +37,55 @@ type ExcludedCoverage = {
 type ExplicitCoverage = DerivedCoverage | ExcludedCoverage;
 
 const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
+  "/api/modules/settings/account/notification-subscriptions": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "当前用户的通知目录、权限资格和订阅覆盖属于个人控制面，不是经营分析数据集。",
+  },
+  "/api/modules/settings/governance/operations": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "平台治理运维记录受显式 audit 权限保护，用于排障与审计，不开放为经营分析数据集。",
+  },
+  "/api/modules/administration/contracts/[id]/lifecycle": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单份合同的修订与状态事件时间线只服务详情和业务回溯，不是有界分页分析数据集。",
+  },
+  "/api/modules/administration/contracts/[id]/package": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单份合同的审批引用、附件与归档记录聚合只服务合同详情，不是稳定分页分析数据集。",
+  },
   "/api/modules/capitalSecurities/governance/ownership-parties": {
     disposition: "excluded",
     reason: "lookupFragment",
     description: "该接口只返回股权主体候选项；完整主体和持股事实由治理及股权数据源提供。",
+  },
+  "/api/modules/capitalSecurities/investments": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "投资企业工作区混合档案、会议、尽调、合同、监控和资料关联；稳定标量事实由已登记的投资与治理来源承载。",
+  },
+  "/api/modules/capitalSecurities/market-intelligence": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "市场情报快照混合外部实时行情、缓存状态和订阅请求结果，不是完整且稳定的分页经营事实。",
+  },
+  "/api/modules/external/related-parties/candidates": {
+    disposition: "excluded",
+    reason: "lookupFragment",
+    description: "该接口只返回当前用户可登记的客户或供应商 Party 候选；完整关联方名录由已登记的数据源提供。",
+  },
+  "/api/modules/docs/company/documents": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "租户配置的公司文档目录用于知识导航和按需检索；文件元数据不是经营事实数据集。",
+  },
+  "/api/modules/docs/company/documents/[key]": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "单份租户配置 paper 文档的章节目录、检索摘要和章节正文属于知识内容读取；不是稳定可分页的经营事实读模型。",
   },
   "/api/modules/finance/analysis/budget": {
     disposition: "derived",
@@ -74,10 +119,45 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     sourceKeys: ["finance.cost.shipments", "finance.cost.structure", "finance.cost.sales-salary"],
     reason: "成本总览是已登记成本明细事实的展示汇总。",
   },
+  "/api/modules/finance/assets/code-preview": {
+    disposition: "excluded",
+    reason: "lookupFragment",
+    description: "资产编号预览只返回当前规则下的不占号候选，不是已经形成的资产事实。",
+  },
+  "/api/modules/finance/ledger/closing": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "关账运行、任务状态和阻断项是期间关账编排控制面；稳定财务事实由各 contributor 的已登记来源承载。",
+  },
+  "/api/modules/finance/ledger/closing/workpapers": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "关账底稿的编制、复核和版本状态用于关账工作流控制；其引用的凭证及业务事实由原 owner 数据源承载。",
+  },
+  "/api/modules/finance/ledger/balances/cutover-replay": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "余额切换重放是受控迁移预览和维护诊断，不是持续经营分析数据集。",
+  },
+  "/api/modules/finance/tax": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "当前税务工作区一次返回登记、计税底稿、申报、缴款、勾稽快照及嵌套明细，尚无各事实独立的有界分页读模型，不能把当前页面复合数组登记为完整数据源。",
+  },
+  "/api/modules/finance/treasury": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "当前资金工作区一次返回银行账户、对账、借款、利息底稿及多层嵌套明细，尚无各事实独立的有界分页读模型，不能把当前页面复合数组登记为完整数据源。",
+  },
   "/api/modules/hr/roster": {
     disposition: "derived",
     sourceKeys: ["hr.employees", "hr.employments", "hr.contracts", "hr.edps", "hr.departments", "hr.companies"],
     reason: "旧花名册矩阵是员工、雇佣、合同和岗位关系的兼容展示。",
+  },
+  "/api/modules/news": {
+    disposition: "excluded",
+    reason: "unstableComposite",
+    description: "资讯工作区混合外部实时简报、可用性状态和当前用户偏好；尚无可声明完整性的稳定分页读模型。",
   },
   "/api/modules/hr/roster/generated/preview": {
     disposition: "derived",
@@ -93,6 +173,16 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "derived",
     sourceKeys: ["hr.audit-entries", "hr.audit-changes"],
     reason: "单员工历史是已登记 HR 审计事实按员工关系过滤后的详情视图。",
+  },
+  "/api/modules/hr/roster/employee-profiles/[id]/agreements": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单员工协议、期限和修订时间线只服务档案详情；批量分析继续使用已登记的 HR 合同读模型。",
+  },
+  "/api/modules/hr/roster/employee-profiles/[id]/social-insurance": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单员工社会保险参保时间线只服务档案详情；需要批量分析时应另建受治理的分页读模型。",
   },
   "/api/modules/hr/roster/position-description-templates": {
     disposition: "excluded",
@@ -150,6 +240,21 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     sourceKeys: ["work.reports", "work.report-items", "work.plans", "work.items"],
     reason: "单空间汇报草稿中的已保存汇报、事项及候选工作事实可由已登记来源组合；可编辑状态、治理策略和 actionRuntime 属于控制面。",
   },
+  "/api/modules/settings/notifications/definitions": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "当前调用方可见的已发布通知定义目录用于配置发现和发布控制，不是经营事实数据集。",
+  },
+  "/api/modules/work/projects/[id]/notification-rules": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "项目通知规则及队列健康状态属于自动化编排控制面；项目经营事实由原项目数据源承载。",
+  },
+  "/api/modules/work/projects/[id]/notification-rules/[ruleId]/evaluations": {
+    disposition: "excluded",
+    reason: "workflowControl",
+    description: "通知规则评估记录用于规则运行审计、重试与排障，不是项目经营事实的权威读模型。",
+  },
 };
 
 /**
@@ -164,6 +269,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/agent/capabilities": "controlPlane",
   "/api/agent/profiles": "controlPlane",
   "/api/agent/proposals/[id]": "controlPlane",
+  "/api/modules/administration/contracts/[id]/attachments/[attachmentUid]/download": "binary",
   "/api/modules/administration/contracts/export": "binary",
   "/api/modules/administration/contracts/reference-options": "lookupFragment",
   "/api/modules/administration/erp-diligence/attachments/[attachmentUid]": "binary",
@@ -177,11 +283,20 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/docs/editor/templates/[templateId]": "controlPlane",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/permissions": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/sources": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/sources/discover": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/lifecycle": "recursiveAnalysis",
   "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/[templateId]/runtime": "recursiveAnalysis",
+  "/api/modules/finance/cost/operational-analytics/spaces/[targetType]/[targetId]/templates/contract": "recursiveAnalysis",
+  "/api/modules/finance/assets/export": "binary",
+  "/api/modules/finance/assets/reference-options": "lookupFragment",
+  "/api/modules/finance/assets/submissions": "workflowControl",
+  "/api/modules/finance/tax/reference-options": "lookupFragment",
+  "/api/modules/finance/treasury/reference-options": "lookupFragment",
   "/api/modules/finance/ledger/export": "binary",
   "/api/modules/finance/ledger/group-account-options": "lookupFragment",
+  "/api/modules/finance/ledger/consolidation-rules": "controlPlane",
   "/api/modules/finance/ledger/reclass-results/lookup-period": "lookupFragment",
   "/api/modules/finance/statements/consolidation/batches/[batchId]/entry-source-options": "lookupFragment",
   "/api/modules/finance/statements/consolidation/batches/[batchId]/report/export": "binary",
@@ -189,6 +304,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/hr/performance/submissions": "workflowControl",
   "/api/modules/hr/roster/autocomplete": "lookupFragment",
   "/api/modules/hr/roster/department-codes": "lookupFragment",
+  "/api/modules/hr/roster/employee-profiles/[id]/agreements/[agreementUid]/attachments/[attachmentUid]/download": "binary",
   "/api/modules/hr/roster/employees/search": "lookupFragment",
   "/api/modules/hr/roster/generated/export": "binary",
   "/api/modules/hr/roster/position-codes": "lookupFragment",
@@ -213,6 +329,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/work/tasks/submissions": "workflowControl",
   "/api/modules/work/tasks/submissions/[id]": "workflowControl",
   "/api/settings/account/api-key": "controlPlane",
+  "/api/settings/account/api-catalog": "controlPlane",
   "/api/settings/account/avatar-library": "controlPlane",
   "/api/settings/account/company-options": "controlPlane",
   "/api/settings/account/notifications": "controlPlane",
@@ -223,8 +340,10 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/account/routine": "controlPlane",
   "/api/settings/account/spaces": "controlPlane",
   "/api/settings/account/spaces/[targetType]/[targetId]/permissions": "controlPlane",
-  "/api/settings/admin/data-quality": "controlPlane",
-  "/api/settings/admin/modules": "controlPlane",
+  "/api/settings/governance/database-schema": "controlPlane",
+  "/api/settings/governance/relation-policies": "controlPlane",
+  "/api/settings/governance/sql-settings": "controlPlane",
+  "/api/settings/governance/modules": "controlPlane",
   "/api/settings/admin/permission-grant-ledger": "controlPlane",
   "/api/settings/admin/permission-grants": "controlPlane",
   "/api/settings/admin/permissions": "controlPlane",
@@ -234,6 +353,8 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/settings/admin/workflow-ledger": "controlPlane",
   "/api/settings/admin/workflow-policies": "controlPlane",
   "/api/settings/api/open/clients": "controlPlane",
+  "/api/settings/api/open/group-notifications": "controlPlane",
+  "/api/settings/api/open/notification-definitions": "controlPlane",
   "/api/settings/api/open/overview": "controlPlane",
 };
 
@@ -436,6 +557,7 @@ function automaticExclusion(route: string): ExcludedCoverage | null {
     return { disposition: "excluded", reason: "controlPlane", description: "账号、权限、配置、凭证和 Agent 运行态属于控制面。" };
   }
   if (/\/spaces(?:\/[^/]+\/[^/]+)?(?:\/permissions)?$/.test(route)
+      || route.endsWith("/consolidation-rules")
       || route.endsWith("/permission-actions")
       || route.endsWith("/okr-control")
       || route.endsWith("/generated-sources")) {

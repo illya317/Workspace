@@ -1,4 +1,3 @@
-import { NextResponse } from "next/server";
 import { BalanceItem, ReportPeriod } from "../report-helpers";
 
 export function generateCashFlow(period: ReportPeriod, balances: BalanceItem[]) {
@@ -7,7 +6,7 @@ export function generateCashFlow(period: ReportPeriod, balances: BalanceItem[]) 
     return code.startsWith("1001") || code.startsWith("1002") || code.startsWith("1012");
   });
   const netCash = cashAccounts.reduce((s, b) => s + b.closingDebit - b.closingCredit, 0);
-  return NextResponse.json({
+  return Response.json({
     type: "cashflow",
     period,
     cashAccounts: cashAccounts.map((b) => ({

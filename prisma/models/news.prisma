@@ -1,0 +1,18 @@
+/// 用户对外部资讯的当前偏好信号；新闻快照避免上游条目消失后失去语义。
+model NewsReaction {
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  itemKey   String
+  reportId  String?
+  title     String
+  source    String?
+  url       String?
+  kind      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  user      User      @relation("NewsReactionUser", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, itemKey])
+  @@index([itemKey, kind])
+  @@index([userId, updatedAt])
+}

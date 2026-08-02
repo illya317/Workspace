@@ -10,11 +10,12 @@ import type {
   RosterGeneratedStatus,
   RosterGeneratedVariant,
 } from "@workspace/hr/types";
-import { buildContractRows, type ContractRow } from "./contract-records";
-import { primaryContractCompany } from "./employments";
+import { buildContractRows, type RosterContractRow } from "./contract-records";
+import { employmentCompanyName } from "./employments";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
+import { deriveAllocationPercent } from "./field-validation";
 
 const MANAGEMENT_COLUMNS: RosterGeneratedColumn[] = [
   { key: "employeeId", label: "员工编号", scope: "employee", required: true },
@@ -32,7 +33,8 @@ const MANAGEMENT_COLUMNS: RosterGeneratedColumn[] = [
   { key: "departmentName", label: "部门", scope: "row", defaultVisible: true },
   { key: "positionName", label: "岗位", scope: "row", defaultVisible: true },
   { key: "isPrimaryPosition", label: "主岗", scope: "row", defaultVisible: true },
-  { key: "workPercent", label: "工作占比", scope: "row" },
+  { key: "allocationWeight", label: "岗位投入权重", scope: "row" },
+  { key: "allocationPercent", label: "当前折算占比", scope: "row" },
   { key: "reportTo", label: "汇报岗位", scope: "row" },
 ];
 
@@ -155,6 +157,7 @@ async function loadRosterEmployees() {
     where: rosterEmployeeWhere(),
     include: {
       employments: {
+        include: { company: { select: { party: { select: { name: true } } } } },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -198,6 +201,7 @@ async function loadRosterEmployeePage(input: {
       where,
       include: {
         employments: {
+          include: { company: { select: { party: { select: { name: true } } } } },
           orderBy: [{ isActive: "desc" }, { id: "desc" }],
         },
         positions: {
@@ -244,7 +248,7 @@ function filterEmployees(
     const searchable = {
       employeeId: employee.employeeId,
       name: employee.name,
-      currentCompany: primaryEmployment ? primaryContractCompany(primaryEmployment.contracts, primaryEmployment.currentCompany) : "",
+      currentCompany: primaryEmployment ? employmentCompanyName(primaryEmployment.contracts, primaryEmployment.currentCompany, primaryEmployment.company?.party.name) : "",
       departmentName: departmentNameFor(primaryPosition),
       positionName: primaryPosition?.position?.name ?? "",
       education: employee.education ?? "",
@@ -275,7 +279,7 @@ function buildGroup(employee: RosterEmployeeRecord, variant: RosterGeneratedVari
     employeeCells: {
       employeeId: employee.employeeId,
       name: employee.name,
-      currentCompany: primaryEmployment ? primaryContractCompany(primaryEmployment.contracts, primaryEmployment.currentCompany) ?? "" : "",
+      currentCompany: primaryEmployment ? employmentCompanyName(primaryEmployment.contracts, primaryEmployment.currentCompany, primaryEmployment.company?.party.name) ?? "" : "",
       gender: genderLabel(employee.gender),
       education: employee.education ?? "",
       phone: variant === "management" ? employee.phone ?? "" : "",
@@ -291,7 +295,7 @@ function buildGroup(employee: RosterEmployeeRecord, variant: RosterGeneratedVari
   };
 }
 
-function buildExpandedRow(employee: RosterEmployeeRecord, contracts: ContractRow[], index: number): RosterGeneratedRow {
+function buildExpandedRow(employee: RosterEmployeeRecord, contracts: RosterContractRow[], index: number): RosterGeneratedRow {
   const position = employee.positions[index] ?? null;
   const contract = contracts[index] ?? null;
   return {
@@ -302,7 +306,13 @@ function buildExpandedRow(employee: RosterEmployeeRecord, contracts: ContractRow
       isPrimaryPosition: position ? position.isPrimary ? "是" : "否" : "",
       positionStartDate: position?.startDate ?? "",
       positionEndDate: position?.endDate ?? "",
-      workPercent: position?.workPercent ?? "",
+      allocationWeight: position?.allocationWeight ?? "",
+      allocationPercent: position
+        ? formatAllocationPercent(deriveAllocationPercent(
+            position.allocationWeight,
+            employee.positions.map((item) => item.allocationWeight),
+          ))
+        : "",
       reportTo: position?.reportToPosition?.name ?? "",
       company: contract?.company ?? "",
       contractType: contract?.contractType ?? "",
@@ -318,6 +328,10 @@ function buildExpandedRow(employee: RosterEmployeeRecord, contracts: ContractRow
 function primaryEmploymentFor(employee: RosterEmployeeRecord) {
   const today = workspaceBusinessDate(new Date());
   return employee.employments.find((employment) => employmentIsActiveOnDate(employment, today)) ?? employee.employments[0] ?? null;
+}
+
+function formatAllocationPercent(value: number | null) {
+  return value == null ? "" : `${(value * 100).toFixed(2)}%`;
 }
 
 function isEmployeeActive(employee: RosterEmployeeRecord) {

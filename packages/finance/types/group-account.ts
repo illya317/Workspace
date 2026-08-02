@@ -20,6 +20,27 @@ export type FinanceGroupAccountReviewStatus =
   | "pending_review"
   | "pending_delete";
 
+export type FinanceConsolidationRole =
+  | "none"
+  | "intercompanyReceivable"
+  | "intercompanyPayable"
+  | "intercompanyRevenue"
+  | "intercompanyExpense"
+  | "investmentInSubsidiary"
+  | "shareCapital"
+  | "capitalReserve"
+  | "dividendReceivable"
+  | "dividendPayable"
+  | "inventory"
+  | "fixedAsset"
+  | "cashFlow"
+  | "difference";
+
+export type FinanceCounterpartyRequirement = "none" | "optional" | "required";
+export type FinanceConsolidationMovementType = "closingBalance" | "periodMovement" | "transaction";
+export type FinanceTranslationRateType = "closing" | "average" | "historical" | "transactionDate";
+export type FinanceGroupAccountUsage = "consolidation" | "reclassification";
+
 export interface FinanceAccountingPolicyVersionRow {
   id: number;
   versionNo: number;
@@ -39,6 +60,10 @@ export interface CreateFinanceGroupAccountInput {
   mnemonicCode: string | null;
   currency: string | null;
   parentGroupAccountId: number | null;
+  consolidationRole: FinanceConsolidationRole;
+  counterpartyRequirement: FinanceCounterpartyRequirement;
+  movementType: FinanceConsolidationMovementType;
+  translationRateType: FinanceTranslationRateType;
 }
 
 export interface UpdateFinanceGroupAccountInput extends CreateFinanceGroupAccountInput {
@@ -75,6 +100,10 @@ export interface FinanceGroupAccountCatalogRow {
   reviewStatus: FinanceGroupAccountReviewStatus;
   reviewedBy: number | null;
   reviewedAt: string | null;
+  consolidationRole: FinanceConsolidationRole;
+  counterpartyRequirement: FinanceCounterpartyRequirement;
+  movementType: FinanceConsolidationMovementType;
+  translationRateType: FinanceTranslationRateType;
   originCompanyCode: string | null;
   mappingCount: number;
   years: number[];

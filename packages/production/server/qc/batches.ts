@@ -27,6 +27,7 @@ interface QcActor {
   actorUserId: number;
   actorName: string;
   actorEmployeeId?: string | null;
+  actorEmployeeRefId?: number | null;
 }
 
 export class QcBatchMutationError extends Error {
@@ -246,6 +247,7 @@ async function mutateWorkflowBatch(
         ...command.signature,
         signerUserId: actor.actorUserId,
         signerEmployeeId: actor.actorEmployeeId,
+        signerEmployeeRefId: actor.actorEmployeeRefId,
         signerName: actor.actorName,
         signedAt,
         signedRecordVersion: nextVersion,
@@ -276,6 +278,7 @@ async function actorIdentity(userId: number): Promise<QcActor> {
     actorUserId: userId,
     actorName: identity.signatureName,
     actorEmployeeId: identity.employeeId,
+    actorEmployeeRefId: identity.employeeRefId,
   };
 }
 
@@ -288,6 +291,7 @@ function auditBase(record: QcBatchRecord, version: number, actor: QcActor, event
     action,
     actorUserId: actor.actorUserId,
     actorEmployeeId: actor.actorEmployeeId,
+    actorEmployeeRefId: actor.actorEmployeeRefId,
     actorName: actor.actorName,
     recordVersion: version,
   };

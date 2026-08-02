@@ -1,7 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
 import type { PreviewAuxiliaryBalance } from "../../import/shared";
-import { buildFinancePeriodScopeCommand } from "../../domain/finance-validation";
+import { buildFinancePeriodScopeCommand } from "../../domain/shared-validation";
 import {
   loadFinanceGroupAccountMapByAccountIdsAt,
   type ResolvedFinanceGroupAccount,

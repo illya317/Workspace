@@ -13,11 +13,17 @@ import DetailModal from "./internal/common/DetailModal";
 import { renderBodyEmpty, renderBodyMessage, renderBodyStatus, renderModuleGrid, renderSectionBadges } from "./internal/body/BodySurfaceBlocks";
 import { assertNoSurfaceExplanatoryText } from "./internal/body/BodySurfaceGuardParts";
 import { BodySurfaceList } from "./internal/body/BodySurfaceList";
-import { resolveBodySurfaceSectionChrome, type BodySurfaceSectionChrome } from "./internal/body/body-surface-section-chrome";
+import {
+  bodySurfaceRootOwnsFrame,
+  resolveBodySurfaceSectionChrome,
+  resolveBodySurfaceSectionStackPosition,
+  type BodySurfaceSectionChrome,
+} from "./internal/body/body-surface-section-chrome";
 import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
-import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
+import { sectionCardClassName, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import { BodySurfaceRevealProvider } from "./internal/body/BodySurfaceRevealContext";
 import { useBodySurfaceSplitRuntime } from "./internal/body/BodySurfaceSplitContext";
+import { useBodySurfacePageCreate } from "./internal/body/BodySurfacePageCreateContext";
 import { sectionVisibilityClassName } from "./internal/body/body-surface-visibility";
 import { CreateSurfaceAnchorProvider, CreateSurfaceAnchorTarget } from "./internal/create/CreateSurfaceAnchorContext";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
@@ -36,8 +42,10 @@ import type {
   BodySurfaceSectionGridColumns,
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
+  BodySurfaceSplitMasterFooterSpec,
   BodySurfaceSplitSectionProps,
 } from "./BodySurface.types";
+import type { PageSurfaceCreateSpec } from "./PageSurface.types";
 
 export type * from "./BodySurface.types";
 
@@ -122,7 +130,6 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
 }
 
 function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition, frameDepth = 0) {
-  if (section.body.kind === "create" && section.body.create.presentation === "inline") return null;
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = resolveBodySurfaceSectionChrome(section, frameDepth);
   const declaredCreate = section.header?.create;
@@ -133,9 +140,14 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   const mobileFlushData = chrome === "card"
     && section.body.kind === "data"
     && (section.body.data.kind === "table" || section.body.data.kind === "structured");
-  const nestedCard = chrome === "card" && frameDepth > 0;
+  const nestedSection = frameDepth > 0;
+  const sectionLayoutClassName = nestedSection
+    ? sectionCardClassName(stackPosition, true)
+    : chrome === "card"
+      ? sectionCardClassName(stackPosition)
+      : "space-y-4";
   const sectionClassName = joinClassNames(
-    chrome === "card" ? sectionCardClassName(stackPosition, nestedCard) : "space-y-4",
+    sectionLayoutClassName,
     chrome === "plain" && section.header?.title ? "pt-2" : "",
     mobileFlushData ? "max-sm:!space-y-0 max-sm:!p-0" : "",
     stretchClassName,
@@ -149,7 +161,7 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       className={joinClassNames(stretchClassName, sectionVisibilityClassName(section.visibility))}
       visibility={section.visibility}
     >
-      <section className={sectionClassName} data-surface-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}>
+      <section className={sectionClassName} data-surface-frame={chrome === "card" ? "primary" : undefined}>
         {mobileFlushData && header ? <div className="px-3 pb-3 pt-3">{header}</div> : header}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
         {!section.disclosure || section.disclosure.expanded ? (
@@ -160,13 +172,6 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       </section>
     </BodySurfaceSectionFrame>
   );
-}
-
-function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: number, frameDepth: number, leadingCardSegment = false): BodySectionStackPosition | undefined {
-  if (resolveBodySurfaceSectionChrome(sections[index], frameDepth) !== "card") return undefined;
-  const previousIsCard = (index === 0 && leadingCardSegment) || (index > 0 && resolveBodySurfaceSectionChrome(sections[index - 1], frameDepth) === "card");
-  const nextIsCard = index < sections.length - 1 && resolveBodySurfaceSectionChrome(sections[index + 1], frameDepth) === "card";
-  return sectionStackPosition(previousIsCard, nextIsCard);
 }
 
 function sectionNavigationTitle(section: BodySurfaceSectionSpec) {
@@ -254,7 +259,7 @@ function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, 
     <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider>
       {canDrillDown ? <MobileSectionDrilldown sections={sections} /> : null}
       <div className={`${PAGE_SURFACE_BODY_SECTION_STACK_CLASS} ${canDrillDown ? "max-sm:hidden" : ""}`}>
-        {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, frameDepth, leadingCardSegment), frameDepth))}
+        {sections.map((section, index) => renderBodySection(section, false, resolveBodySurfaceSectionStackPosition(sections, index, frameDepth, leadingCardSegment), frameDepth))}
       </div>
     </BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
   );
@@ -295,26 +300,51 @@ function withMobileSplitNavigation(body: BodySurfaceProps, onNavigateToDetail: (
   };
 }
 
-function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspaceMode, onNavigateToDetail?: () => void) {
-  const body = mode === "mobile" ? props.master.mobileBody ?? props.master.body : props.master.body;
-  return <BodySurface {...(onNavigateToDetail ? withMobileSplitNavigation(body, onNavigateToDetail) : body)} />;
+function renderSplitMasterFooter(footer?: BodySurfaceSplitMasterFooterSpec) {
+  const pagination = footer?.pagination;
+  if (!pagination || pagination.totalPages <= 1) return null;
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <NavigationSurface kind="pagination" pagination={pagination} />
+    </div>
+  );
 }
 
-function renderSectionContent(props: BodySurfaceSectionProps, splitOpen: boolean) {
+function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspaceMode, onNavigateToDetail?: () => void) {
+  const body = mode === "mobile" ? props.master.mobileBody ?? props.master.body : props.master.body;
+  const renderedBody = onNavigateToDetail ? withMobileSplitNavigation(body, onNavigateToDetail) : body;
+  return (
+    <div className="space-y-3">
+      <BodySurface {...renderedBody} />
+      {renderSplitMasterFooter(props.master.footer)}
+    </div>
+  );
+}
+
+function renderSplitDetail(detail: BodySurfaceProps, pageCreate?: PageSurfaceCreateSpec) {
+  if (!pageCreate?.open) return <BodySurface {...detail} />;
+  return <CreateSurface {...pageCreate} trigger="toolbar" />;
+}
+
+function renderSectionContent(
+  props: BodySurfaceSectionProps,
+  splitOpen: boolean,
+  pageCreate?: PageSurfaceCreateSpec,
+) {
   if (props.layout === "split") {
     return (
       <div className="space-y-3">
         <SplitWorkspace
-          sideOpen={splitOpen}
+          sideOpen={pageCreate?.open ? true : splitOpen}
           sideLabel={props.master.label}
           renderSide={(mode, onNavigateToDetail) => renderSplitSide(props, mode, onNavigateToDetail)}
           splitRatio={props.desktop?.ratio}
           desktopPresentation={props.desktop?.presentation}
           masterPresentation={props.master.presentation}
-          mobileDetailActive={props.mobile?.detailActive}
+          mobileDetailActive={pageCreate?.open ? true : props.mobile?.detailActive}
           onMobileNavigateToList={props.mobile?.onNavigateToList}
         >
-          <BodySurface {...props.detail} />
+          {renderSplitDetail(props.detail, pageCreate)}
         </SplitWorkspace>
       </div>
     );
@@ -340,28 +370,41 @@ function renderSectionContent(props: BodySurfaceSectionProps, splitOpen: boolean
   return blocks;
 }
 
-function renderSectionSurface(props: BodySurfaceSectionProps, splitOpen: boolean) {
+function renderSectionSurface(
+  props: BodySurfaceSectionProps,
+  splitOpen: boolean,
+  pageCreate?: PageSurfaceCreateSpec,
+  frameDepth = 0,
+) {
+  const ownsFrame = bodySurfaceRootOwnsFrame(props, frameDepth);
   return (
-    <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className="space-y-4">
-      {renderCommands(props.commands)}
-      {renderBodyTitle(props)}
-      {renderSectionContent(props, splitOpen)}
-      {renderBodyModals(props.modals)}
-    </div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
+    <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><SurfaceFrameBoundary framed={ownsFrame}>
+      <section
+        className={ownsFrame ? sectionCardClassName() : "space-y-4"}
+        data-surface-frame={ownsFrame ? "primary" : undefined}
+      >
+        {renderCommands(props.commands)}
+        {renderBodyTitle(props)}
+        {renderSectionContent(props, splitOpen, pageCreate)}
+        {renderBodyModals(props.modals)}
+      </section>
+    </SurfaceFrameBoundary></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
   );
 }
 
 export default function BodySurface(props: BodySurfaceProps) {
   const splitRuntime = useBodySurfaceSplitRuntime();
+  const pageCreate = useBodySurfacePageCreate();
+  const frameDepth = useSurfaceFrameDepth();
   assertNoSurfaceExplanatoryText(props);
   if (props.kind === "create") {
-    return props.create.presentation === "inline" ? null : <CreateSurface {...props.create} />;
+    return <CreateSurface {...props.create} />;
   }
   if (props.kind === "create-anchor") return <CreateSurfaceAnchorTarget anchor={props.anchor} />;
   if (props.kind === "data") return <DataSurface {...props.data} />;
   if (props.kind === "document") return <DocumentSurface {...props.document} />;
   if (props.kind === "form") return <FormSurface {...props.form} />;
   if (props.kind === "selector") return <SelectorSurface {...props.selector} />;
-  if (props.kind === "section") return renderSectionSurface(props, splitRuntime?.open ?? true);
+  if (props.kind === "section") return renderSectionSurface(props, splitRuntime?.open ?? true, pageCreate, frameDepth);
   return <VisualizationSurface {...props.visualization} />;
 }

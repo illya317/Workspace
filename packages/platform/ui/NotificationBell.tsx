@@ -8,6 +8,7 @@ import { useDeployUnitNavigation } from "./useDeployUnitNavigation";
 type NotificationSummaryResponse = {
   unreadCount: number;
   pendingCount: number;
+  attentionCount?: number;
   tabCounts?: {
     workflowTodo?: number;
   };
@@ -30,7 +31,8 @@ export default function NotificationBell({
       const res = await fetch(workspacePath("/api/settings/account/notifications?limit=1&category=all"));
       if (!res.ok) return;
       const next = (await res.json()) as NotificationSummaryResponse;
-      setCount((next.pendingCount || 0) + (next.tabCounts?.workflowTodo || 0));
+      const fallbackCount = (next.unreadCount || 0) + (next.tabCounts?.workflowTodo || 0);
+      setCount(Number.isFinite(next.attentionCount) ? Number(next.attentionCount) : fallbackCount);
     } catch {
       // Keep the current badge in offline/dev environments.
     }
@@ -38,8 +40,13 @@ export default function NotificationBell({
 
   useEffect(() => {
     void load();
-    const timer = window.setInterval(() => void load(), POLL_INTERVAL_MS);
-    return () => window.clearInterval(timer);
+    const handleChange = () => void load();
+    window.addEventListener("workspace-notifications-changed", handleChange);
+    const timer = window.setInterval(handleChange, POLL_INTERVAL_MS);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("workspace-notifications-changed", handleChange);
+    };
   }, [load]);
 
   async function openInbox() {

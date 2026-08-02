@@ -11,11 +11,27 @@ import {
 } from "./wecom-agent-delivery.mjs";
 import { detectWecomImageMimeType, readWecomAgentInput } from "./wecom-agent-input.mjs";
 import { forwardSafeAgentProgress, readAgentEventStream } from "./wecom-agent-stream.mjs";
+import {
+  createWecomNotificationDeliveryWorker,
+  resolveWecomNotificationRedirectOrigin,
+} from "./wecom-notification-delivery.mjs";
 
 const botId = process.env.WECHAT_BOT_ID?.trim();
 const botSecret = process.env.WECHAT_BOT_SECRET?.trim();
 if (!botId || !botSecret) {
   console.error("[wecom-agent] WECHAT_BOT_ID and WECHAT_BOT_SECRET are required");
+  process.exit(1);
+}
+const workerBridgeSecret = process.env.WECOM_WORKER_BRIDGE_SECRET?.trim();
+if (!workerBridgeSecret || workerBridgeSecret.length < 32) {
+  console.error("[wecom-agent] WECOM_WORKER_BRIDGE_SECRET must contain at least 32 characters");
+  process.exit(1);
+}
+let redirectOrigin;
+try {
+  redirectOrigin = resolveWecomNotificationRedirectOrigin(process.env);
+} catch (error) {
+  console.error(`[wecom-agent] public origin is invalid: ${error instanceof Error ? error.message : String(error)}`);
   process.exit(1);
 }
 
@@ -251,7 +267,7 @@ async function deliverFileArtifacts(frame, artifacts) {
   }
   if (fallback.length > 0) {
     return {
-      message: controlledFileFallback(fallback, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), sentCount),
+      message: controlledFileFallback(fallback, redirectOrigin, sentCount),
       richImages,
     };
   }
@@ -265,6 +281,15 @@ const client = new AiBot.WSClient({
   maxAuthFailureAttempts: 5,
   logger,
 });
+const notificationDelivery = createWecomNotificationDeliveryWorker({
+  client,
+  bridgeUrl,
+  bridgeSecret: workerBridgeSecret,
+  redirectOrigin,
+  basePath,
+  logger,
+});
+let shuttingDown = false;
 
 const cleanupTimer = setInterval(() => {
   void cleanupExpiredArtifacts().catch((error) => {
@@ -317,7 +342,7 @@ async function handleMessage(frame) {
       reply = `${reply}\n\n涉及变更，请到 Workspace 网页端确认后执行。`;
     }
     await replyStream.finish(
-      normalizeWecomReplyLinks(reply, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), basePath),
+      normalizeWecomReplyLinks(reply, redirectOrigin, basePath),
       replyImages,
     );
   } catch (error) {
@@ -327,9 +352,17 @@ async function handleMessage(frame) {
   }
 }
 
-client.on("authenticated", () => console.log("[wecom-agent] authenticated"));
+client.on("authenticated", () => {
+  console.log("[wecom-agent] authenticated");
+  if (!shuttingDown) notificationDelivery.start();
+});
 client.on("reconnecting", (attempt) => console.warn(`[wecom-agent] reconnecting attempt=${attempt}`));
-client.on("disconnected", (reason) => console.warn(`[wecom-agent] disconnected: ${reason}`));
+client.on("disconnected", (reason) => {
+  console.warn(`[wecom-agent] disconnected: ${reason}`);
+  void notificationDelivery.stop().catch(() => {
+    console.warn("[wecom-agent] notification worker stop failed");
+  });
+});
 client.on("error", (error) => console.error(`[wecom-agent] socket error: ${error.message}`));
 client.on("message.text", (frame) => void handleMessage(frame));
 client.on("message.voice", (frame) => void handleMessage(frame));
@@ -342,14 +375,31 @@ client.on("event.enter_chat", (frame) => {
   }).catch((error) => console.error(`[wecom-agent] welcome failed: ${error.message}`));
 });
 
+let shutdownPromise;
 function shutdown(signal) {
-  console.log(`[wecom-agent] received ${signal}, disconnecting`);
-  client.disconnect();
-  process.exit(0);
+  if (shutdownPromise) return shutdownPromise;
+  shuttingDown = true;
+  console.log(`[wecom-agent] received ${signal}, draining notification delivery`);
+  clearInterval(cleanupTimer);
+  const forceTimer = setTimeout(() => {
+    console.error("[wecom-agent] graceful shutdown timed out");
+    client.disconnect();
+    process.exit(1);
+  }, 15_000);
+  forceTimer.unref();
+  shutdownPromise = (async () => {
+    await notificationDelivery.stop().catch(() => {
+      console.warn("[wecom-agent] notification worker graceful stop failed");
+    });
+    client.disconnect();
+    clearTimeout(forceTimer);
+    process.exitCode = 0;
+  })();
+  return shutdownPromise;
 }
 
-process.on("SIGINT", () => shutdown("SIGINT"));
-process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => void shutdown("SIGINT"));
+process.on("SIGTERM", () => void shutdown("SIGTERM"));
 process.on("unhandledRejection", (error) => {
   console.error(`[wecom-agent] unhandled rejection: ${error instanceof Error ? error.message : String(error)}`);
 });

@@ -1,13 +1,13 @@
 import {
   evaluateWorkReportingPeriodPolicy,
   type WorkReportingPolicy,
+  type WorkReportingSettings,
 } from "@workspace/platform/work-reporting-policy";
-import type { WorkOkrControlSettings } from "../work-okr-control-config";
 
 export type { WorkReportingPolicy } from "@workspace/platform/work-reporting-policy";
 
 export function evaluateWorkReportingPolicy(
-  settings: WorkOkrControlSettings,
+  settings: { reporting: WorkReportingSettings },
   period: { type: string; endDate: Date },
   now = new Date(),
 ): WorkReportingPolicy | null {

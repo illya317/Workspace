@@ -3,6 +3,7 @@ import type { TenantPermissionReviewPolicy } from "./permission-review-policy";
 export type TenantCompanySeed = {
   code: string;
   name: string;
+  aliases?: string[];
   managementGroup: string;
   codePoolCode: string | null;
   isActive: boolean;
@@ -46,7 +47,7 @@ export type TenantCompanyDocumentConfig = {
   title: string;
   description: string;
   format: "office" | "paper";
-  source: "tenant-file" | "permission-actions";
+  source: "tenant-file" | "permission-actions" | "api-agent-guide" | "agent-doc-catalog" | "product-guide";
   file: string;
 };
 
@@ -100,6 +101,16 @@ export type TenantProfile = {
     }>;
     defaultAnalysisYear: number;
     openingBalanceBaselineYear: number;
+  };
+  financeConsolidationPolicies?: {
+    retainedEarningsOpeningBalances: Array<{
+      key: string;
+      foreignCompanyCode: string;
+      openingDate: string;
+      presentationCurrencyCode: string;
+      openingAmount: number;
+      evidence: string;
+    }>;
   };
   work: {
     companyProjectCodePrefix: string;
@@ -194,21 +205,10 @@ export type TenantRuntimeConfig = {
   agentWorkforce: TenantAgentWorkforceConfig;
   permissionReview: TenantPermissionReviewPolicy;
   financeImports: TenantFinanceImportConfig;
-  manifest: {
-    name: string;
-    version: number;
-    sourceRepository: string;
-    productionTarget: {
-      domain: string;
-      serverHost: string;
-      remoteDir: string;
-      pm2Name: string;
-      workspaceConfigDir: string;
-    };
-  };
 };
 
 export type TenantPublicConfig = Pick<TenantProfile, "key" | "identity" | "localization" | "organization" | "finance" | "work" | "hr"> & {
+  brand: { logoPath: string };
   docs: Omit<TenantProfile["docs"], "companyDocuments">;
   hrCatalogs: TenantHrCatalogs;
 };

@@ -76,6 +76,7 @@ export function useAssignedWorkNavigation({
   return {
     assignedBodySection: activeView === WORK_TASKS_OWNED_VIEW_KEY ? null : createWorkPlanContentSection({
       planCreating: false,
+      globalCreateOpen: false,
       sectionTitle: "工作计划",
       hideWorkSections: false,
       activePlan: activeGroup ? assignedPlanForDisplay(activeGroup) : null,

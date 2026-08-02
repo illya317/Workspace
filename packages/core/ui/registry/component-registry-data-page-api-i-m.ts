@@ -23,7 +23,7 @@ export const page_api_registry_entries = [
       { name: "mask", description: "输入约束和格式；可编辑片段使用 mask.kind=editableSegment。" },
       { name: "state", description: "normal / readonly / disabled / required / hidden；顶层 disabled/readOnly 与 spec.state 合并后统一约束真实控件。" },
       { name: "validation", description: "必填、数值范围、日期上下限和格式校验；日期使用 minDate / maxDate。" },
-      { name: "autoGrow", description: "多行文本随内容和可用宽度自动增高，避免字段内部滚动。" },
+      { name: "autoGrow", description: "多行文本默认随内容和可用宽度自动增高；显式 false 可关闭。" },
     ],
     composes: ["CalendarDateInput", "CheckboxField", "ChoiceGroup", "FileField", "FkFieldInput", "PercentField", "RatingControl", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "TagStringInput", "TextField", "TextareaField", "TimeField"],
   },
@@ -45,7 +45,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "FieldGrid",
-    description: "字段网格信息表",
+    description: "字段网格信息表；section 统一选择 inline 或 stack，Core 统一计算标签轨道、输入轨道、溢出提示和标签区高度",
     composes: [
       "getFieldGridCellClassName",
       "getFieldGridMainRowClassName",
@@ -62,19 +62,18 @@ export const page_api_registry_entries = [
   },
   {
     name: "CreateSurface",
-    description: "统一新建 Surface；按钮、动作位置、样式和顺序由 Core 固定",
+    description: "所属 Surface 内的局部新建声明；页面级新建由 PageSurface.create 独占，按钮、动作位置、样式和顺序由 Core 固定",
     declares: [
       {
         name: "trigger",
-        description: "只选择新建 + 的位置：Page Toolbar 或所属 Surface。",
+        description: "局部新建固定为所属 Surface；Page Toolbar 不再是 CreateSurface 的业务声明选项。",
         children: [
-          { name: "toolbar", description: "+ 由 PageSurface 派生到唯一 Page Toolbar。" },
           { name: "surface", description: "+ 跟随所属 section 或 DataSurface cell；section header 的 block 内容由 BodySurface 自动放在 header 后、body 前。" },
         ],
       },
-      { name: "presentation", description: "选择 inline、block 或 modal；只改变呈现容器，不改变非 inline 表单格式。inline 固定为 Page toolbar + 单 form + 无 anchor。" },
+      { name: "presentation", description: "局部新建固定使用 block；页面级可选 inline 或 block，不能用业务弹窗承载新建。" },
       { name: "anchor", description: "普通 block 可选的跨区内容 target；BodySurface section header create 不接受 anchor，由 Core 自动就地放置。" },
-      { name: "content", description: "选择单个 typed form（可带 two-stage flow），或 CreateSurface 自有的多 section；所有非 inline 组合复用同一个 FormSurface grid renderer。" },
+      { name: "content", description: "选择单个 typed form（可带 two-stage flow），或 CreateSurface 自有的多 section；block 组合复用同一个 FormSurface grid renderer。" },
       { name: "submission", description: "只声明 save 或 submit 语义与 execute；流程页面由 Platform ActionRuntime 适配，Core 固定按钮呈现。" },
       { name: "feedback", description: "保存、提交流程和失败反馈由 Core Toast 统一呈现。" },
       { name: "state", description: "受控 open、canCreate、disabled、onOpenChange 与 onCancel；submitting 由 Core 内部管理。" },
@@ -158,8 +157,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "createMasterDetailBody",
-    description: "BodySurface 主列表与详情工作区声明助手；折叠和移动端推进由 Core 持有",
-    composes: ["BodySurface", "SelectorSurface"],
+    description: "BodySurface 主列表与详情工作区声明助手；master.footer.pagination 可将主列表翻页留在侧栏，折叠和移动端推进由 Core 持有",
+    composes: ["BodySurface", "SelectorSurface", "Pagination"],
   },
   {
     name: "createPageDataSection",

@@ -152,8 +152,8 @@ function transactionClient(txId: number, releases: Array<() => void>) {
 }
 
 const resourceIdByKey: Record<string, number> = {
-  "agent.assistant": 1,
-  "agent.source": 2,
+  "settings.account": 1,
+  "settings.account.apiAccess": 2,
 };
 
 mock.module("@workspace/platform/permission-action-grantability", {
@@ -225,7 +225,7 @@ test("batch grant rejects missing resources after locks and before mutation", as
   missingResources = true;
   await assert.rejects(
     setSubjectPermissionActionGrants([
-      { subjectType: "department", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
+      { subjectType: "department", subjectId: 9, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
     ]),
     PermissionGrantMutationError,
   );
@@ -238,7 +238,7 @@ test("direct user grant creation requires a live root actor", async () => {
   resetState();
   rootActorUserIds.clear();
   await assert.rejects(
-    setSubjectPermissionActionGrant("user", 1, "agent.source", "read", true, { actorUserId: 7 }),
+    setSubjectPermissionActionGrant("user", 1, "settings.account.apiAccess", "read", true, { actorUserId: 7 }),
     /个人直授仅限内置 admin 账号维护/,
   );
   assert.equal(writes.length, 0);
@@ -250,8 +250,8 @@ test("one missing subject rejects the complete batch after locks and before reso
   missingSubjects = true;
   await assert.rejects(
     setSubjectPermissionActionGrants([
-      { subjectType: "user", subjectId: 1, resourceKey: "agent.assistant", actionKey: "read", value: true },
-      { subjectType: "department", subjectId: 404, resourceKey: "agent.source", actionKey: "read", value: false },
+      { subjectType: "user", subjectId: 1, resourceKey: "settings.account", actionKey: "read", value: true },
+      { subjectType: "department", subjectId: 404, resourceKey: "settings.account.apiAccess", actionKey: "read", value: false },
     ]),
     /授权主体不存在/,
   );
@@ -264,11 +264,11 @@ test("one batched subject query rejects a root target without per-user root read
   resetState();
   await assert.rejects(
     setSubjectPermissionActionGrants([
-      { subjectType: "user", subjectId: 999, resourceKey: "agent.source", actionKey: "read", value: true },
+      { subjectType: "user", subjectId: 999, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
       ...Array.from({ length: 100 }, (_, index) => ({
         subjectType: "user" as const,
         subjectId: 1_000 + index,
-        resourceKey: "agent.source",
+        resourceKey: "settings.account.apiAccess",
         actionKey: "read" as const,
         value: true,
       })),
@@ -286,9 +286,9 @@ test("one batched subject query rejects a root target without per-user root read
 test("batch locks authorization domains and parameterized tuples before tx-only preflight and one ledger transaction", async () => {
   resetState();
   const results = await setSubjectPermissionActionGrants([
-    { subjectType: "user", subjectId: 1, resourceKey: "agent.assistant", actionKey: "read", value: true },
-    { subjectType: "position", subjectId: 2, resourceKey: "agent.source", actionKey: "submit", value: true },
-    { subjectType: "department", subjectId: 3, resourceKey: "agent.source", actionKey: "read", value: true },
+    { subjectType: "user", subjectId: 1, resourceKey: "settings.account", actionKey: "read", value: true },
+    { subjectType: "position", subjectId: 2, resourceKey: "settings.account.apiAccess", actionKey: "submit", value: true },
+    { subjectType: "department", subjectId: 3, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
   ], {
     actorUserId: 7,
     batchId: "batch-1",
@@ -304,21 +304,20 @@ test("batch locks authorization domains and parameterized tuples before tx-only 
   const tupleKeys = lockKeys.filter((key) => key.startsWith("permission-action-grant-tuple-v1:"));
   assert.deepEqual(domainKeys, [...domainKeys].sort());
   assert.deepEqual(tupleKeys, [...tupleKeys].sort());
-  assert.ok(domainKeys.includes("permission-action-grant-domain-v1:agent.source"));
-  assert.ok(domainKeys.includes("permission-action-grant-domain-v1:agent.assistant"));
+  assert.ok(domainKeys.includes("permission-action-grant-domain-v1:settings.account.apiAccess"));
   assert.ok(domainKeys.includes("permission-action-grant-domain-v1:settings.account"));
   const firstPostLock = txOperations.findIndex((operation) => operation.type !== "lock");
   assert.ok(txOperations.findLastIndex((operation) => operation.type === "lock") < firstPostLock);
   assert.equal(lockQueries.every((query) => query.values.length === 1), true);
   assert.equal(lockQueries.every((query) => query.strings.join("").includes("::text AS lock_result")), true);
-  assert.equal(lockQueries.some((query) => query.strings.join("").includes("agent.source")), false);
+  assert.equal(lockQueries.some((query) => query.strings.join("").includes("settings.account.apiAccess")), false);
 });
 
 test("concurrent single grants for one global tuple create one row and one ledger event", async () => {
   resetState();
   const results = await Promise.all([
-    setSubjectPermissionActionGrant("user", 1, "agent.source", "read", true, { actorUserId: 7 }),
-    setSubjectPermissionActionGrant("user", 1, "agent.source", "read", true, { actorUserId: 7 }),
+    setSubjectPermissionActionGrant("user", 1, "settings.account.apiAccess", "read", true, { actorUserId: 7 }),
+    setSubjectPermissionActionGrant("user", 1, "settings.account.apiAccess", "read", true, { actorUserId: 7 }),
   ]);
 
   assert.deepEqual(results.map((result) => result.changed).sort(), [false, true]);
@@ -330,8 +329,8 @@ test("concurrent single grants for one global tuple create one row and one ledge
 test("concurrent reverse-order batches do not deadlock or duplicate global rows and ledger events", async () => {
   resetState();
   const first = [
-    { subjectType: "user" as const, subjectId: 1, resourceKey: "agent.assistant", actionKey: "read" as const, value: true },
-    { subjectType: "position" as const, subjectId: 2, resourceKey: "agent.source", actionKey: "submit" as const, value: true },
+    { subjectType: "user" as const, subjectId: 1, resourceKey: "settings.account", actionKey: "read" as const, value: true },
+    { subjectType: "position" as const, subjectId: 2, resourceKey: "settings.account.apiAccess", actionKey: "submit" as const, value: true },
   ];
   const second = [...first].reverse();
   let timeout: ReturnType<typeof setTimeout> | undefined;
@@ -369,19 +368,19 @@ test("owner-domain revoke wins before the locked authorization callback and bloc
   const revoke = setSubjectPermissionActionGrant(
     "user",
     7,
-    "agent.assistant",
+    "settings.account",
     "grant",
     false,
     { actorUserId: 99 },
   );
   await Promise.resolve();
   const target = setSubjectPermissionActionGrants([
-    { subjectType: "user", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
+    { subjectType: "user", subjectId: 9, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
   ], {
     actorUserId: 7,
-    authorizationResourceKeys: ["agent.source"],
+    authorizationResourceKeys: ["settings.account.apiAccess"],
     beforeMutation: async (tx) => {
-      operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "agent.source" });
+      operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "settings.account.apiAccess" });
       if ((grantCounts.get(actorGrantKey) ?? 0) === 0) {
         throw new PermissionGrantMutationError("actor grant revoked", 403);
       }
@@ -400,7 +399,7 @@ test("owner-domain revoke wins before the locked authorization callback and bloc
   assert.equal(targetTxOperations.some((operation) => operation.type === "find" || operation.type === "create"), false);
 });
 
-test("agent.assistant domain revoke wins before source-grant revalidation", async () => {
+test("settings.account domain revoke wins before capability-grant revalidation", async () => {
   resetState();
   const baseReadKey = tupleKey("user", 7, 1, "read", null);
   const targetGrantKey = tupleKey("user", 9, 2, "read", null);
@@ -409,20 +408,20 @@ test("agent.assistant domain revoke wins before source-grant revalidation", asyn
   const revoke = setSubjectPermissionActionGrant(
     "user",
     7,
-    "agent.assistant",
+    "settings.account",
     "read",
     false,
     { actorUserId: 99 },
   );
   await Promise.resolve();
   const target = setSubjectPermissionActionGrants([
-    { subjectType: "user", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
+    { subjectType: "user", subjectId: 9, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
   ], {
     actorUserId: 7,
-    authorizationResourceKeys: ["agent.assistant", "agent.source"],
+    authorizationResourceKeys: ["settings.account", "settings.account.apiAccess"],
     beforeMutation: async () => {
       if ((grantCounts.get(baseReadKey) ?? 0) === 0) {
-        throw new PermissionGrantMutationError("agent.assistant.read revoked", 403);
+        throw new PermissionGrantMutationError("settings.account.read revoked", 403);
       }
     },
   });
@@ -430,7 +429,7 @@ test("agent.assistant domain revoke wins before source-grant revalidation", asyn
 
   assert.equal(revokeResult.status, "fulfilled");
   assert.equal(targetResult.status, "rejected");
-  if (targetResult.status === "rejected") assert.match(String(targetResult.reason), /agent\.assistant\.read revoked/);
+  if (targetResult.status === "rejected") assert.match(String(targetResult.reason), /settings\.account\.read revoked/);
   assert.equal(grantCounts.get(baseReadKey) ?? 0, 0);
   assert.equal(grantCounts.get(targetGrantKey) ?? 0, 0);
   assert.equal(ledgerEvents.length, 1);
@@ -440,12 +439,12 @@ test("callback denial occurs after tx-only preflight and leaves target rows and 
   resetState();
   await assert.rejects(
     setSubjectPermissionActionGrants([
-      { subjectType: "user", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
+      { subjectType: "user", subjectId: 9, resourceKey: "settings.account.apiAccess", actionKey: "read", value: true },
     ], {
       actorUserId: 7,
-      authorizationResourceKeys: ["agent.assistant", "agent.source"],
+      authorizationResourceKeys: ["settings.account", "settings.account.apiAccess"],
       beforeMutation: async (tx) => {
-        operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "agent.assistant" });
+        operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "settings.account" });
         throw new PermissionGrantMutationError("base read revoked", 403);
       },
     }),
@@ -460,7 +459,7 @@ test("callback denial occurs after tx-only preflight and leaves target rows and 
   assert.ok(txOperations.some((operation) => operation.type === "resource"));
   assert.ok(txOperations.some((operation) => operation.type === "callback"));
   assert.equal(txOperations.some((operation) => operation.type === "find" || operation.type === "create"), false);
-  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:agent.assistant"));
+  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:settings.account.apiAccess"));
   assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:settings.account"));
 });
 
@@ -468,7 +467,7 @@ test("unknown advisory-lock database failures propagate without mutation or ledg
   resetState();
   lockFailure = new Error("database lock unavailable");
   await assert.rejects(
-    setSubjectPermissionActionGrant("user", 1, "agent.source", "read", true, { actorUserId: 7 }),
+    setSubjectPermissionActionGrant("user", 1, "settings.account.apiAccess", "read", true, { actorUserId: 7 }),
     /database lock unavailable/,
   );
   assert.equal(writes.length, 0);

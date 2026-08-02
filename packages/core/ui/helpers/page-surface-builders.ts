@@ -22,6 +22,7 @@ import type {
   BodySurfaceModuleGridSpec,
   BodySurfaceSectionCreateSpec,
   BodySurfaceSectionDisclosureSpec,
+  BodySurfaceSplitMasterFooterSpec,
   BodySurfaceSplitMasterPresentation,
   BodySurfaceSplitSectionProps,
   BodySurfaceStatusSpec,
@@ -63,6 +64,7 @@ export type MasterDetailBodyOptions = {
     body: BodySurfaceProps;
     mobileBody?: BodySurfaceProps;
     presentation?: BodySurfaceSplitMasterPresentation;
+    footer?: BodySurfaceSplitMasterFooterSpec;
   };
   detail: BodySurfaceProps;
   desktop?: {

@@ -1,11 +1,10 @@
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import {
-  buildFinanceIdCommand,
   buildFinancePeriodCreateCommand,
-  buildFinancePeriodScopeCommand,
   buildFinancePeriodUpdateCommand,
-} from "../domain/finance-validation";
+} from "./validation";
+import { buildFinanceIdCommand, buildFinancePeriodScopeCommand } from "../domain/shared-validation";
 
 export type ListFinancePeriodsInput = {
   year?: number;
@@ -64,8 +63,12 @@ const defaultAccounts = [
   { code: "6603", name: "财务费用", category: "revenue", balanceDirection: "debit", sortOrder: 18 },
 ];
 
-function periodDate(year: number, month: number, day: string) {
-  return `${year}-${String(month).padStart(2, "0")}-${day}`;
+function periodDate(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function periodEndDay(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
 
 function normalizeCompanyCode(companyCode: string | undefined) {
@@ -144,8 +147,8 @@ export async function createFinancePeriod(input: CreateFinancePeriodInput) {
     data: {
       year: command.data.input.year,
       month: command.data.input.month,
-      startDate: command.data.input.startDate || periodDate(command.data.input.year, command.data.input.month, "01"),
-      endDate: command.data.input.endDate || periodDate(command.data.input.year, command.data.input.month, "31"),
+      startDate: command.data.input.startDate || periodDate(command.data.input.year, command.data.input.month, 1),
+      endDate: command.data.input.endDate || periodDate(command.data.input.year, command.data.input.month, 31),
       companyCode,
     },
   });
@@ -213,15 +216,17 @@ export async function initializeFinanceDefaults(input: InitializeFinanceDefaults
         companyCode: command.data.companyCode,
         year: command.data.year,
         month: command.data.month!,
-        startDate: periodDate(command.data.year, command.data.month!, "01"),
-        endDate: periodDate(command.data.year, command.data.month!, "31"),
+        startDate: periodDate(command.data.year, command.data.month!, 1),
+        endDate: periodDate(command.data.year, command.data.month!, periodEndDay(command.data.year, command.data.month!)),
       },
     });
   }
 
   const createdAccounts = [];
   for (const account of defaultAccounts) {
-    const existing = await prisma.financeAccount.findFirst({ where: { code: account.code } });
+    const existing = await prisma.financeAccount.findFirst({
+      where: { companyCode: command.data.companyCode, code: account.code },
+    });
     if (!existing) {
       const created = await prisma.financeAccount.create({
         data: { ...account, companyCode: command.data.companyCode, editedBy: editor.data.id },

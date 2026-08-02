@@ -120,9 +120,9 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
   {
     id: "workspace-shell",
     kind: "workspace-shell",
-    maturity: "candidate",
+    maturity: "active",
     coordination: "available",
-    registryPackages: ["@workspace/platform:settings", "@workspace/platform:system"],
+    registryPackages: ["@workspace/settings", "@workspace/platform:system"],
     impactModules: ["shell", "settings", "auth"],
     runtimeDependencies: [
       { unitId: "work", requirement: "required", protocol: "signed-internal-rpc", reason: "account notifications and preferred projects" },
@@ -161,7 +161,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     runtimeDependencies: [
       { unitId: "work", requirement: "required", protocol: "signed-internal-rpc", reason: "business-space access policy" },
       { unitId: "hr", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
-      { unitId: "inventory", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
+      { unitId: "inventory", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis sources and read-only period closing inspections" },
       { unitId: "library", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
       { unitId: "production", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
       { unitId: "external", requirement: "optional", protocol: "signed-internal-rpc", reason: "authorized workspace analysis source discovery and execution" },
@@ -171,12 +171,12 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     ],
   }),
   nextZone("external", 3202, "@workspace/external", { maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 } }),
-  nextZone("inventory", 3203, "@workspace/inventory", { maturity: "candidate", capacity: { memoryMiB: 768, databasePoolMax: 4 } }),
-  nextZone("production", 3204, "@workspace/production", { maturity: "candidate", capacity: { memoryMiB: 768, databasePoolMax: 4 } }),
-  nextZone("hr", 3205, "@workspace/hr", { maturity: "candidate", capacity: { memoryMiB: 768, databasePoolMax: 4 }, runtimeDependencies: [
+  nextZone("inventory", 3203, "@workspace/inventory", { maturity: "active", capacity: { memoryMiB: 768, databasePoolMax: 4 } }),
+  nextZone("production", 3204, "@workspace/production", { maturity: "active", capacity: { memoryMiB: 768, databasePoolMax: 4 } }),
+  nextZone("hr", 3205, "@workspace/hr", { maturity: "active", capacity: { memoryMiB: 768, databasePoolMax: 4 }, runtimeDependencies: [
     { unitId: "assistant", requirement: "optional", protocol: "gateway-http", reason: "page assistant" },
   ] }),
-  nextZone("library", 3206, "@workspace/library", { maturity: "candidate", capacity: { memoryMiB: 768, databasePoolMax: 3 }, runtimeDependencies: [
+  nextZone("library", 3206, "@workspace/library", { maturity: "active", capacity: { memoryMiB: 768, databasePoolMax: 3 }, runtimeDependencies: [
     { unitId: "assistant", requirement: "optional", protocol: "gateway-http", reason: "library agent tools" },
     { unitId: "docs", requirement: "optional", protocol: "gateway-http", reason: "document editing integration" },
     { unitId: "finance", requirement: "required", protocol: "signed-internal-rpc", reason: "verified standalone and consolidated financial statement snapshots" },
@@ -184,15 +184,15 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     { unitId: "capital-securities", requirement: "required", protocol: "signed-internal-rpc", reason: "current ownership structure snapshots" },
     { unitId: "administration", requirement: "required", protocol: "signed-internal-rpc", reason: "current contract ledger snapshots" },
   ] }),
-  nextZone("docs", 3207, "@workspace/platform:docs", { kind: "platform-l1", maturity: "candidate", capacity: { memoryMiB: 512, databasePoolMax: 3 }, runtimeDependencies: [
+  nextZone("docs", 3207, "@workspace/docs", { maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 }, runtimeDependencies: [
     { unitId: "assistant", requirement: "optional", protocol: "gateway-http", reason: "page assistant" },
   ] }),
   {
     id: "assistant",
-    kind: "headless-runtime",
-    maturity: "candidate",
+    kind: "business-l1",
+    maturity: "active",
     coordination: "available",
-    registryPackages: ["@workspace/platform:agent"],
+    registryPackages: ["@workspace/agent"],
     impactModules: ["agent", "integrations"],
     runtimeDependencies: [
       { unitId: "finance", requirement: "optional", protocol: "signed-internal-rpc", reason: "Finance agent domain" },
@@ -208,7 +208,7 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
         blue: { port: 3208 },
         green: { port: 3308 },
       },
-      assetPrefix: null,
+      assetPrefix: "/workspace-static/assistant",
       healthPath: HEALTH_PATH,
       versionPath: VERSION_PATH,
       capacity: {
@@ -227,12 +227,12 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     },
   },
   nextZone("capital-securities", 3209, "@workspace/capital-securities", {
-    maturity: "candidate",
+    maturity: "active",
     capacity: { memoryMiB: 768, databasePoolMax: 4 },
     impactModule: "capital-securities",
   }),
   nextZone("work", 3210, "@workspace/work", {
-    maturity: "candidate",
+    maturity: "active",
     capacity: { memoryMiB: 1024, databasePoolMax: 6 },
     runtimeDependencies: [
       { unitId: "finance", requirement: "required", protocol: "gateway-http", reason: "operational analysis zone" },
@@ -241,9 +241,10 @@ export const deployUnitBlueprints: readonly DeployUnitBlueprint[] = [
     ],
   }),
   nextZone("administration", 3211, "@workspace/administration", {
-    maturity: "candidate",
+    maturity: "active",
     capacity: { memoryMiB: 512, databasePoolMax: 3 },
   }),
+  nextZone("news", 3212, "@workspace/news", { maturity: "active", capacity: { memoryMiB: 512, databasePoolMax: 3 } }),
 ] as const;
 
 export const deployGraphControlPlane = {

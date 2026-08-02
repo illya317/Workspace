@@ -9,6 +9,7 @@ model FinanceConsolidationEntryLine {
   statementType                String // balanceSheet | incomeStatement | cashFlow
   lineCode                     String
   accountCode                  String?
+  groupAccountId               Int?
   debit                        Decimal  @default(0) @db.Decimal(20, 2)
   credit                       Decimal  @default(0) @db.Decimal(20, 2)
   currencyCode                 String   @default("CNY")
@@ -30,6 +31,8 @@ model FinanceConsolidationEntryLine {
   createdAt                    DateTime @default(now())
 
   entry                    FinanceConsolidationEntry           @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  company                  Company                             @relation("FinanceConsolidationEntryLineCompany", fields: [companyId], references: [id], onDelete: Restrict)
+  counterpartyCompany      Company?                            @relation("FinanceConsolidationEntryLineCounterpartyCompany", fields: [counterpartyCompanyId], references: [id], onDelete: Restrict)
   entity                   FinanceConsolidationEntitySnapshot  @relation("ConsolidationEntryLineEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict)
   counterpartyEntity       FinanceConsolidationEntitySnapshot? @relation("ConsolidationEntryLineCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict)
   sourceSnapshot           FinanceConsolidationSourceSnapshot? @relation(fields: [sourceSnapshotId], references: [id], onDelete: Restrict)
@@ -37,8 +40,11 @@ model FinanceConsolidationEntryLine {
   sourceOpenItem           FinanceOpenItem?                    @relation(fields: [sourceOpenItemId], references: [id], onDelete: Restrict)
   sourceCashFlowAllocation FinanceCashFlowAllocation?          @relation(fields: [sourceCashFlowAllocationId], references: [id], onDelete: Restrict)
   sourceVoucherItem        FinanceVoucherItem?                 @relation(fields: [sourceVoucherItemId], references: [id], onDelete: Restrict)
+  groupAccount             FinanceGroupAccount?                @relation(fields: [groupAccountId], references: [id], onDelete: Restrict)
 
   @@unique([entryId, lineNo])
+  @@index([companyId])
+  @@index([counterpartyCompanyId])
   @@index([entitySnapshotId, statementType, lineCode])
   @@index([counterpartyEntitySnapshotId])
   @@index([sourceSnapshotId])
@@ -46,4 +52,5 @@ model FinanceConsolidationEntryLine {
   @@index([sourceOpenItemId])
   @@index([sourceCashFlowAllocationId])
   @@index([sourceVoucherItemId])
+  @@index([groupAccountId])
 }

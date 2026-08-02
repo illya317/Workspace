@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import {
   usePageAssistant,
-  type BodySurfaceSectionSpec,
+  type PageSurfaceCreateSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type {
@@ -135,23 +135,16 @@ export function useOperationalAnalysisWorkspace(
     onChange: (value) => { if (value !== "__empty") setSelectedKey(value); },
   }], [catalog, loading, selectedKey]);
 
-  const assistantCreateSection = useMemo<BodySurfaceSectionSpec>(() => ({
-    key: "operational-analysis-assistant-create",
-    body: {
-      kind: "create",
-      create: {
+  const assistantCreate = useMemo<PageSurfaceCreateSpec>(() => ({
         id: "operational-analysis-template",
         title: "经营分析模板",
-        trigger: "toolbar",
-        presentation: "modal",
+        presentation: "block",
         open: false,
         canCreate: true,
         disabled: loading || !catalog?.canConfigure || !pageAssistant.enabled,
         content: { kind: "form", form: { items: [] } },
         submission: { action: "save", disabled: true, execute: () => undefined },
         onOpenChange: (open) => { if (open) openTemplateAssistant(); },
-      },
-    },
   }), [catalog?.canConfigure, loading, openTemplateAssistant, pageAssistant.enabled]);
 
   return {
@@ -163,7 +156,7 @@ export function useOperationalAnalysisWorkspace(
     lifecycleModalSection: lifecycle.modalSection,
     revisionPreview: lifecycle.preview,
     clearRevisionPreview: lifecycle.clearPreview,
-    assistantCreateSection,
+    assistantCreate,
     loading,
     error,
     refetch: loadCatalog,

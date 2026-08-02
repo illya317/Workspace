@@ -50,26 +50,46 @@ const libraryDocumentSetExport: ActionContractMetadata = {
 };
 
 export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
+  registeredWrite({
+    key: "settings.account.notificationSubscription.save",
+    activeEntity: "NotificationSubscription",
+    domain: d(
+      "packages/platform/server/notification-subscriptions.buildNotificationSubscriptionCommand",
+      "packages/platform/server/notification-subscriptions.commitNotificationSubscriptionCommand",
+    ),
+    shape: "field_patch",
+    target: "mixed",
+    targetIdKey: "eventKey",
+    commitMode: "apply_patch",
+  }),
+  registeredWrite({
+    key: "settings.notifications.publication.create",
+    activeEntity: "NotificationPublication",
+    domain: d("packages/platform/server/notification-publishing.buildNotificationPublicationCommand", "packages/platform/server/notifications.publishConfiguredNotification"),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+  }),
   {
-    ...registeredActionFacts("source.submitCnbPullRequest"),
+    ...registeredActionFacts("agent.businessApi.mutation.execute"),
     kind: "remote_effect",
     payload: {
       cardinality: "single",
       shape: "full_record",
       target: "new_record",
-      notes: "确认时使用 AgentProposal 中已绑定的 repository/base commit/branch/patch hash，重新校验后向 CNB 创建远端 Pull Request。",
+      notes: "确认时使用 AgentProposal 中冻结的 method、path 和 JSON body；目标必须仍命中受保护的 /api/modules/** business contract。",
     },
     remoteEffect: {
-      provider: "CNB",
-      operation: "create_pull_request",
+      provider: "Workspace protected business API",
+      operation: "execute_registered_mutation",
       localAuditEntity: "AgentProposal",
       outcomeAfterDispatchFailure: "unknown",
       retryPolicy: "reconcile_before_retry",
-      notes: "push 或 CNB API 调用开始后发生异常时，远端可能已接受部分或全部副作用；AgentProposal 记录不确定失败，禁止自动重试，必须先核对远端 branch/PR。",
+      notes: "HTTP dispatch 开始后发生异常时，目标业务单元可能已接受写入；AgentProposal 记录不确定失败，禁止自动重试，必须先通过对应业务 API 核对。",
     },
     domain: d(
-      "packages/platform/server/agent/cnb-pr.validateCnbPullRequestProposalPayload",
-      "packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal",
+      "packages/agent/server/business-api-connector.validateAgentBusinessApiMutationProposalPayload",
+      "packages/agent/server/business-api-connector.executeAgentBusinessApiMutationProposal",
     ),
   },
   {
@@ -85,7 +105,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     },
     payload: { cardinality: "single", shape: "full_record", target: "existing_record", targetIdKey: "templateId", versionKey: "version" },
     persistence: { strategy: "approval_payload", activeEntity: "DocumentTemplate", draftEntity: "ApprovalRequest", supportedPersistenceModes: ["active", "workflowDraft"], defaultMode: "active", commitMode: "apply_patch" },
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildSaveDraftCommand", "packages/platform/server/docs-editor/service.saveDraft"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildSaveDraftCommand", "packages/docs/server/service.saveDraft"),
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
@@ -208,7 +228,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
   registeredWrite({
     key: "docs.editor.template.copy",
     activeEntity: "DocumentTemplate",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildCopyTemplateCommand", "packages/platform/server/docs-editor/service.copyTemplate"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildCopyTemplateCommand", "packages/docs/server/service.copyTemplate"),
     shape: "full_record",
     target: "new_record",
     commitMode: "activate",
@@ -218,7 +238,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     activeEntity: "DocumentTemplate",
     operation: "archive",
     versionKey: "version",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildTemplateIdCommand", "packages/platform/server/docs-editor/service.archiveTemplate"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildTemplateIdCommand", "packages/docs/server/service.archiveTemplate"),
   }),
   registeredLifecycle({
     key: "docs.editor.template.draft.delete",
@@ -227,7 +247,7 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     versionKey: "version",
     deleteMode: "hard",
     referencePolicy: "domain",
-    domain: d("packages/platform/server/docs-editor/domain/document-template-validation.buildTemplateIdCommand", "packages/platform/server/docs-editor/service.deleteDraft"),
+    domain: d("packages/docs/server/domain/document-template-validation.buildTemplateIdCommand", "packages/docs/server/service.deleteDraft"),
   }),
   registeredWrite({
     key: "production.qc.batch.create",
@@ -283,5 +303,124 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     shape: "full_record",
     target: "existing_record",
     targetIdKey: "id",
+  }),
+  registeredLifecycle({
+    key: "capitalSecurities.governance.ownershipProjection.rebuild",
+    activeEntity: "OwnershipInterest",
+    operation: "custom",
+    domain: d(
+      "packages/capital-securities/server/domain/ownership-projection-rebuild.buildOwnershipProjectionRebuildCommand",
+      "packages/capital-securities/server/ownership-projection.rebuildOwnershipProjection",
+    ),
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investors.shareholderProfile.update",
+    activeEntity: "InvestorShareholderProfile",
+    domain: d(
+      "packages/capital-securities/server/domain/investor-relations-validation.buildInvestorShareholderProfileUpdateCommand",
+      "packages/capital-securities/server/investor-relations-management.updateInvestorShareholderProfile",
+    ),
+    shape: "field_patch",
+    target: "mixed",
+    targetIdKey: "shareholderPartyId",
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investors.dueDiligence.create",
+    activeEntity: "InvestorDueDiligenceRecord",
+    domain: d(
+      "packages/capital-securities/server/domain/investor-relations-validation.buildInvestorDueDiligenceCreateCommand",
+      "packages/capital-securities/server/investor-relations-management.createInvestorDueDiligenceRecord",
+    ),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investors.dueDiligence.update",
+    activeEntity: "InvestorDueDiligenceRecord",
+    domain: d(
+      "packages/capital-securities/server/domain/investor-relations-validation.buildInvestorDueDiligenceUpdateCommand",
+      "packages/capital-securities/server/investor-relations-management.updateInvestorDueDiligenceRecord",
+    ),
+    shape: "full_record",
+    target: "existing_record",
+    targetIdKey: "id",
+  }),
+  registeredLifecycle({
+    key: "capitalSecurities.investors.dueDiligence.archive",
+    activeEntity: "InvestorDueDiligenceRecord",
+    operation: "archive",
+    targetIdKey: "id",
+    versionKey: "expectedVersion",
+    auditPolicy: "event",
+    domain: d(
+      "packages/capital-securities/server/domain/investor-relations-validation.buildInvestorDueDiligenceArchiveCommand",
+      "packages/capital-securities/server/investor-relations-management.archiveInvestorDueDiligenceRecord",
+    ),
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investments.profile.create",
+    activeEntity: "InvestmentEnterpriseProfile",
+    domain: d(
+      "packages/capital-securities/server/domain/investment-enterprise-validation.buildInvestmentEnterpriseCreateCommand",
+      "packages/capital-securities/server/investment-enterprises.createInvestmentEnterprise",
+    ),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investments.profile.update",
+    activeEntity: "InvestmentEnterpriseProfile",
+    domain: d(
+      "packages/capital-securities/server/domain/investment-enterprise-validation.buildInvestmentEnterpriseUpdateCommand",
+      "packages/capital-securities/server/investment-enterprises.updateInvestmentEnterprise",
+    ),
+    shape: "full_record",
+    target: "existing_record",
+    targetIdKey: "id",
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investments.record.create",
+    activeEntity: "InvestmentEnterpriseRecord",
+    domain: d(
+      "packages/capital-securities/server/domain/investment-enterprise-validation.buildInvestmentEnterpriseRecordCommand",
+      "packages/capital-securities/server/investment-enterprises.saveInvestmentEnterpriseRecord",
+    ),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+  }),
+  registeredWrite({
+    key: "capitalSecurities.investments.record.update",
+    activeEntity: "InvestmentEnterpriseRecord",
+    domain: d(
+      "packages/capital-securities/server/domain/investment-enterprise-validation.buildInvestmentEnterpriseRecordCommand",
+      "packages/capital-securities/server/investment-enterprises.saveInvestmentEnterpriseRecord",
+    ),
+    shape: "full_record",
+    target: "existing_record",
+    targetIdKey: "id",
+  }),
+  registeredImport({
+    key: "capitalSecurities.investments.document.import",
+    activeEntity: "InvestmentEnterpriseDocumentLink",
+    transport: "file",
+    result: "records",
+    domain: d(
+      "packages/capital-securities/server/domain/investment-enterprise-validation.buildInvestmentDocumentUploadCommand",
+      "packages/capital-securities/server/investment-enterprise-documents.uploadInvestmentEnterpriseDocument",
+    ),
+  }),
+  registeredWrite({
+    key: "news.reaction.save",
+    activeEntity: "NewsReaction",
+    domain: d(
+      "packages/news/server/domain/news-reaction-validation.buildSaveNewsReactionCommand",
+      "packages/news/server/news-service.commitNewsReactionCommand",
+    ),
+    shape: "field_patch",
+    target: "mixed",
+    targetIdKey: "itemKey",
   }),
 ]);

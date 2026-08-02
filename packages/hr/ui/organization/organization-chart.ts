@@ -19,6 +19,7 @@ export type OrganizationChartCopy = {
 export function buildOrganizationChartVisual(
   departments: readonly OrganizationChartDepartment[],
   copy: OrganizationChartCopy,
+  functionalPrefix: string,
 ): VisualizationNetworkSpec {
   const activeDepartments = departments.filter((department) => !department.isArchived);
   const root = activeDepartments.find((department) => department.code === "BOD")
@@ -54,7 +55,7 @@ export function buildOrganizationChartVisual(
     visited.add(department.id);
     reachable.push(department);
     const children = [...(childrenByParentId.get(department.id) ?? [])]
-      .filter((child) => shouldDisplayOrganizationChild(department, child))
+      .filter((child) => shouldDisplayOrganizationChild(department, child, functionalPrefix))
       .sort(compareDepartmentOrder);
     for (const child of children) {
       depthById.set(child.id, (depthById.get(department.id) ?? 0) + 1);
@@ -73,7 +74,7 @@ export function buildOrganizationChartVisual(
     nodes: reachable.map((department) => ({
       key: nodeKey(department.id),
       label: department.name,
-      layoutOrder: organizationLayoutOrder(department),
+      layoutOrder: organizationLayoutOrder(department, functionalPrefix),
       size: department.id === root.id
         ? "wide" as const
         : department.hierarchyKind === "G"
@@ -114,25 +115,32 @@ function compareDepartmentOrder(
 function shouldDisplayOrganizationChild(
   parent: OrganizationChartDepartment,
   child: OrganizationChartDepartment,
+  functionalPrefix: string,
 ) {
   if (child.hierarchyKind === "G") return child.level <= 3;
   if (child.level === 1) return true;
   if (child.level === 2) {
     return parent.hierarchyKind === "M"
       && parent.level === 1
-      && isFunctionalPlatform(parent);
+      && isFunctionalPlatform(parent, functionalPrefix);
   }
   return false;
 }
 
-function organizationLayoutOrder(department: OrganizationChartDepartment) {
+function organizationLayoutOrder(
+  department: OrganizationChartDepartment,
+  functionalPrefix: string,
+) {
   if (department.hierarchyKind !== "M" || department.level !== 1) {
     return department.sortOrder;
   }
-  if (isFunctionalPlatform(department)) return undefined;
+  if (isFunctionalPlatform(department, functionalPrefix)) return undefined;
   return department.sortOrder ?? department.id;
 }
 
-function isFunctionalPlatform(department: OrganizationChartDepartment) {
-  return /^FUN(?:\d|$)/i.test(department.code.trim());
+function isFunctionalPlatform(
+  department: OrganizationChartDepartment,
+  functionalPrefix: string,
+) {
+  return department.code.trim().toUpperCase().startsWith(functionalPrefix.toUpperCase());
 }

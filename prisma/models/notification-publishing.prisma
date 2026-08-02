@@ -1,0 +1,279 @@
+/// 可由低代码控制台维护的通知定义头；字段保存当前草稿，revision/version 分别控制内容修订与 CAS。
+model NotificationDefinition {
+  id                          Int                              @id @default(autoincrement())
+  key                         String                           @unique
+  label                       String
+  description                 String?
+  titleTemplate               String
+  bodyTemplate                String                           @db.Text
+  hrefTemplate                String?
+  responseMode                String                           @default("read")
+  isImportant                 Boolean                          @default(false)
+  allowProjectMonitoring      Boolean                          @default(false)
+  variableKeysJson            String                           @default("[]")
+  allowUserApi                Boolean                          @default(false)
+  allowedOpenApiClientIdsJson String                           @default("[]")
+  status                      String                           @default("active")
+  revision                    Int                              @default(1)
+  publishedRevision           Int?
+  version                     Int                              @default(1)
+  publishedAt                 DateTime?
+  publishedByUserId           Int?
+  archivedAt                  DateTime?
+  archivedByUserId            Int?
+  createdByUserId             Int
+  updatedByUserId             Int
+  createdAt                   DateTime                         @default(now())
+  updatedAt                   DateTime                         @updatedAt
+  revisions                   NotificationDefinitionRevision[]
+  lifecycleEvents             NotificationDefinitionLifecycleEvent[] @relation("NotificationDefinitionLifecycleHead")
+  publications                NotificationPublication[]
+  createdBy                   User                             @relation("NotificationDefinitionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  updatedBy                   User                             @relation("NotificationDefinitionUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict)
+  publishedBy                 User?                            @relation("NotificationDefinitionPublisher", fields: [publishedByUserId], references: [id], onDelete: SetNull)
+  archivedBy                  User?                            @relation("NotificationDefinitionArchiver", fields: [archivedByUserId], references: [id], onDelete: SetNull)
+
+  @@index([status, updatedAt])
+  @@index([publishedRevision, status])
+  @@index([createdByUserId])
+  @@index([updatedByUserId])
+  @@index([publishedByUserId])
+  @@index([archivedByUserId])
+}
+
+/// 通知定义的不可变内容快照；发布只移动 head 指针，不修改历史 revision。
+model NotificationDefinitionRevision {
+  id                          Int                    @id @default(autoincrement())
+  definitionId                Int
+  revision                    Int
+  key                         String
+  label                       String
+  description                 String?
+  titleTemplate               String
+  bodyTemplate                String                 @db.Text
+  hrefTemplate                String?
+  responseMode                String
+  isImportant                 Boolean
+  allowProjectMonitoring      Boolean                  @default(false)
+  variableKeysJson            String
+  allowUserApi                Boolean
+  allowedOpenApiClientIdsJson String
+  contentFingerprint          String
+  createdByUserId             Int
+  createdAt                   DateTime               @default(now())
+  definition                  NotificationDefinition @relation(fields: [definitionId], references: [id], onDelete: Cascade)
+  createdBy                   User                   @relation("NotificationDefinitionRevisionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  publications               NotificationPublication[] @relation("NotificationPublicationDefinitionRevision")
+  lifecycleEvents            NotificationDefinitionLifecycleEvent[] @relation("NotificationDefinitionLifecycleRevision")
+
+  @@unique([definitionId, revision])
+  @@index([key, revision])
+  @@index([createdByUserId])
+}
+
+/// 通知定义状态机的不可变审计事实；每次 head 版本推进都必须在同一事务内追加一条事件。
+model NotificationDefinitionLifecycleEvent {
+  id             String                         @id
+  definitionId   Int
+  revision       Int
+  action         String
+  actorUserId    Int
+  occurredAt     DateTime                       @default(now())
+  priorVersion   Int
+  newVersion     Int
+  definition     NotificationDefinition         @relation("NotificationDefinitionLifecycleHead", fields: [definitionId], references: [id], onDelete: Restrict)
+  revisionFact   NotificationDefinitionRevision @relation("NotificationDefinitionLifecycleRevision", fields: [definitionId, revision], references: [definitionId, revision], onDelete: Restrict)
+  actor          User                           @relation("NotificationDefinitionLifecycleEventActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@unique([definitionId, newVersion], map: "NotificationDefLifecycle_definitionVersion_key")
+  @@index([definitionId, occurredAt], map: "NotificationDefLifecycle_definitionTime_idx")
+  @@index([actorUserId, occurredAt], map: "NotificationDefLifecycle_actorTime_idx")
+  @@index([action, occurredAt], map: "NotificationDefLifecycle_actionTime_idx")
+}
+
+/// 一次配置化通知发布的不可变请求与结果头；幂等范围由 sourceKind/sourceId 隔离。
+model NotificationPublication {
+  id                 String                 @id @default(cuid())
+  definitionId       Int
+  definitionKey      String
+  definitionRevision Int
+  sourceKind         String
+  sourceId           String
+  sourceLabel        String
+  idempotencyKey     String
+  fingerprint        String
+  audienceJson       String                 @db.Text
+  status             String                 @default("committed")
+  recipientCount     Int
+  deliveryCount      Int
+  pendingDeliveryCount   Int                 @default(0)
+  deliveredDeliveryCount Int                 @default(0)
+  failedDeliveryCount    Int                 @default(0)
+  createdAt          DateTime               @default(now())
+  definition         NotificationDefinition @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  definitionRevisionFact NotificationDefinitionRevision @relation("NotificationPublicationDefinitionRevision", fields: [definitionId, definitionRevision], references: [definitionId, revision], onDelete: Restrict)
+  notifications      Notification[]
+  deliveries         NotificationDelivery[]
+  projectEvaluations ProjectNotificationEvaluation[]
+  projectPublicationIntents ProjectNotificationPublicationIntent[]
+
+  @@unique([sourceKind, sourceId, idempotencyKey])
+  @@index([definitionId, definitionRevision])
+  @@index([sourceKind, sourceId, createdAt])
+}
+
+/// 发布批次到站内 Notification 的逐收件人投递回执。
+model NotificationDelivery {
+  id                Int                     @id @default(autoincrement())
+  publicationId     String
+  recipientUserId   Int?
+  recipientUsername String
+  channel           String                  @default("workspace")
+  endpointId        Int?
+  destination       String?
+  title             String?
+  body              String?                 @db.Text
+  href              String?
+  status            String                  @default("delivered")
+  attemptCount      Int                     @default(0)
+  nextAttemptAt     DateTime?
+  leaseToken        String?                 @unique
+  leaseExpiresAt    DateTime?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  lastErrorCode     String?
+  lastErrorSummary  String?
+  providerMessageId String?
+  notificationId    Int?                    @unique
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @default(now()) @updatedAt
+  publication       NotificationPublication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  recipient         User?                   @relation(fields: [recipientUserId], references: [id], onDelete: SetNull)
+  notification      Notification?           @relation(fields: [notificationId], references: [id], onDelete: SetNull)
+  endpoint          NotificationChannelEndpoint? @relation(fields: [endpointId], references: [id], onDelete: Restrict)
+  attempts          NotificationDeliveryAttempt[]
+
+  @@unique([publicationId, recipientUsername, channel], map: "NotificationDelivery_publicationId_recipientUsername_channel_ke")
+  @@index([recipientUserId, createdAt])
+  @@index([recipientUsername, createdAt])
+  @@index([status, createdAt])
+  @@index([channel, status, nextAttemptAt])
+  @@index([endpointId, status, nextAttemptAt])
+  @@index([leaseExpiresAt])
+}
+
+/// 通知渠道的安全运行绑定和健康状态；provider 凭据仍只存在于私有运行环境中。
+model NotificationChannelEndpoint {
+  id                 Int                                 @id @default(autoincrement())
+  key                String                              @unique
+  channel            String
+  label              String
+  runtimeBindingKey  String                              @unique
+  status             String                              @default("active")
+  healthStatus       String                              @default("unknown")
+  lastHeartbeatAt    DateTime?
+  lastSuccessAt      DateTime?
+  lastFailureAt      DateTime?
+  lastErrorCode      String?
+  lastErrorSummary   String?
+  version            Int                                 @default(1)
+  createdAt          DateTime                            @default(now())
+  updatedAt          DateTime                            @default(now()) @updatedAt
+  deliveries         NotificationDelivery[]
+  workerRequests     NotificationDeliveryWorkerRequest[]
+
+  @@index([channel, status])
+  @@index([healthStatus, lastHeartbeatAt])
+}
+
+/// 企业微信等异步渠道的一次不可变投递尝试；当前状态保留在 NotificationDelivery。
+model NotificationDeliveryAttempt {
+  id                 String               @id @default(cuid())
+  deliveryId         Int
+  attemptNo          Int
+  outcome            String
+  resultFingerprint  String
+  providerMessageId  String?
+  errorCode          String?
+  errorSummary       String?
+  nextAttemptAt      DateTime?
+  createdAt          DateTime             @default(now())
+  delivery           NotificationDelivery @relation(fields: [deliveryId], references: [id], onDelete: Cascade)
+
+  @@unique([deliveryId, attemptNo])
+  @@index([outcome, createdAt])
+}
+
+/// Worker 请求的短期幂等回执；不保存原始 body、签名或任何 provider secret。
+model NotificationDeliveryWorkerRequest {
+  id                 String                      @id @default(cuid())
+  endpointId         Int
+  requestId          String
+  operation          String
+  requestFingerprint String
+  responseStatus     Int
+  responseJson       String                      @db.Text
+  expiresAt          DateTime
+  createdAt          DateTime                    @default(now())
+  endpoint           NotificationChannelEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@unique([endpointId, requestId])
+  @@index([expiresAt])
+}
+
+/// 企业微信群目录；providerConversationRef 仅供服务端投递，任何控制台 DTO 都不得返回。
+model NotificationManagedGroup {
+  id                      Int                       @id @default(autoincrement())
+  groupKey                String                    @unique
+  provider                String                    @default("wecom")
+  providerConversationRef String
+  displayName             String?
+  status                  String                    @default("discovered")
+  ownerUserId             Int?
+  ownerPositionId         Int?
+  verificationStatus      String                    @default("pending")
+  discoveredAt            DateTime                  @default(now())
+  lastSeenAt              DateTime                  @default(now())
+  lastVerifiedAt          DateTime?
+  claimedAt               DateTime?
+  claimedByUserId         Int?
+  version                 Int                       @default(1)
+  ownerUser               User?                     @relation("NotificationManagedGroupOwner", fields: [ownerUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerUser_fkey")
+  ownerPosition           Position?                 @relation("NotificationManagedGroupOwnerPosition", fields: [ownerPositionId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_ownerPosition_fkey")
+  claimedBy               User?                     @relation("NotificationManagedGroupClaimer", fields: [claimedByUserId], references: [id], onDelete: SetNull, map: "NotificationManagedGroup_claimedBy_fkey")
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @default(now()) @updatedAt
+  policies                NotificationGroupPolicy[]
+
+  @@unique([provider, providerConversationRef], map: "NotificationManagedGroup_provider_ref_key")
+  @@index([status, verificationStatus], map: "NotificationManagedGroup_status_verification_idx")
+  @@index([ownerUserId], map: "NotificationManagedGroup_ownerUser_idx")
+  @@index([ownerPositionId], map: "NotificationManagedGroup_ownerPosition_idx")
+}
+
+/// 每个受管群的发送条件；策略只引用稳定 groupKey 对应的目录记录。
+model NotificationGroupPolicy {
+  id                    String                   @id
+  key                   String                   @unique
+  groupId               Int
+  definitionKey         String
+  label                 String
+  dataScopeJson         String                   @db.Text
+  scheduleJson          String                   @db.Text
+  messageTemplate       String?                  @db.Text
+  weeklyAgentKey        String?
+  enabled               Boolean                  @default(false)
+  version               Int                      @default(1)
+  createdByUserId       Int
+  updatedByUserId       Int
+  createdBy             User                     @relation("NotificationGroupPolicyCreator", fields: [createdByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_createdBy_fkey")
+  updatedBy             User                     @relation("NotificationGroupPolicyUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_updatedBy_fkey")
+  createdAt             DateTime                 @default(now())
+  updatedAt             DateTime                 @default(now()) @updatedAt
+  group                 NotificationManagedGroup @relation(fields: [groupId], references: [id], onDelete: Restrict, map: "NotificationGroupPolicy_group_fkey")
+
+  @@unique([groupId, definitionKey, key], map: "NotificationGroupPolicy_group_definition_key_key")
+  @@index([groupId, enabled], map: "NotificationGroupPolicy_group_enabled_idx")
+  @@index([definitionKey, enabled], map: "NotificationGroupPolicy_definition_enabled_idx")
+  @@index([weeklyAgentKey, enabled], map: "NotificationGroupPolicy_weeklyAgent_enabled_idx")
+}

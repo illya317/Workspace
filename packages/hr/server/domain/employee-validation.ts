@@ -3,7 +3,6 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
 import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
 import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { getTenantConfig } from "@workspace/platform/server/tenant-config";
@@ -30,6 +29,7 @@ export const EMPLOYEE_ALLOWED_FIELDS = [
   "workStartDate",
   "idNumber",
   "otherId",
+  "userId",
 ];
 
 const DATE_FIELDS = ["birthDate", "workStartDate"];
@@ -74,8 +74,35 @@ export function buildEmployeeFieldUpdateCommand(
   field: string,
   value: unknown,
 ): DomainValidationResult<EmployeeFieldUpdateCommand> {
-  if (field === "employeeId") return failCommand("员工编号由系统生成，不能手动修改");
+  if (field === "employeeId") return failCommand("员工编号只能通过身份纠正流程维护");
   if (field === "userId") return failCommand("关联账号只能通过账号管理流程维护");
+  return buildEmployeeMutableFieldCommand(field, value);
+}
+
+function buildEmployeeIdentityCorrectionFieldCommand(
+  field: string,
+  value: unknown,
+): DomainValidationResult<EmployeeFieldUpdateCommand> {
+  if (field === "employeeId") {
+    const employeeId = String(value ?? "").trim();
+    return /^[A-Za-z0-9._-]{1,64}$/.test(employeeId)
+      ? okCommand({ field, value: employeeId })
+      : failCommand("员工编号仅支持 1 至 64 位字母、数字、点、下划线或短横线", 400, field);
+  }
+  if (field === "userId") {
+    if (value == null || value === "") return okCommand({ field, value: null });
+    const userId = Number(value);
+    return Number.isInteger(userId) && userId > 0
+      ? okCommand({ field, value: userId })
+      : failCommand("关联账号无效", 400, field);
+  }
+  return buildEmployeeMutableFieldCommand(field, value);
+}
+
+function buildEmployeeMutableFieldCommand(
+  field: string,
+  value: unknown,
+): DomainValidationResult<EmployeeFieldUpdateCommand> {
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   if (field === "alias") return okCommand({ field, value: normalizeAliasUpdate(value) });
@@ -104,17 +131,9 @@ export function buildEmployeePageDraftCommand(input: HrPageDraftInput) {
   const changes = [];
   for (const change of envelope.data.changes) {
     if (!EMPLOYEE_ALLOWED_FIELDS.includes(change.field)) return failCommand("字段不允许修改", 400, change.field);
-    const field = buildEmployeeFieldUpdateCommand(change.field, change.value);
+    const field = buildEmployeeIdentityCorrectionFieldCommand(change.field, change.value);
     if (!field.ok) return field;
     changes.push({ id: change.id, field: field.data.field, value: field.data.value });
   }
   return okCommand({ userId: envelope.data.userId, changes });
-}
-
-export async function validateEmployeeDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
-  const employeeId = Number(id);
-  if (!Number.isInteger(employeeId) || employeeId <= 0) return failCommand("员工ID无效");
-  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true } });
-  if (!employee) return failCommand("员工不存在", 404);
-  return okCommand({ id: employeeId });
 }

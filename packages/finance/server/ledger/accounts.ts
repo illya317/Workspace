@@ -5,11 +5,10 @@ import { snapshotHistory } from "@workspace/platform/server/history";
 import {
   buildFinanceAccountCreateCommand,
   buildFinanceAccountUpdateCommand,
-  buildFinanceIdCommand,
-  validYear,
-} from "../domain/finance-validation";
+} from "./validation";
+import { buildFinanceIdCommand, validYear } from "../domain/shared-validation";
 import { diagnoseGroupAccountMapping, type GroupMappingReviewCandidate } from "./group-accounts/mapping-review";
-import { resolveFinanceAccountingPolicyVersionAt } from "./group-accounts/policy-versions";
+import { resolveFinanceAccountingPolicyVersionAt } from "./group-accounts/policy-version-service";
 import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./group-accounts/source-accounts";
 import type { FinanceGroupAccountReviewStatus } from "../../types/group-account";
 
@@ -114,7 +113,9 @@ export async function listFinanceAccounts(input: ListFinanceAccountsInput) {
     const filtered = attached.accounts.filter((account) => !keyword
       || matchText(account.code, keyword)
       || matchText(account.name, keyword))
-      .filter((account) => !input.reviewStatus || account.reviewStatus === input.reviewStatus);
+      .filter((account) => !input.reviewStatus
+        || account.reviewStatus === input.reviewStatus
+        || (input.reviewStatus === "pending_review" && account.reviewStatus === "pending_delete"));
     const total = filtered.length;
     const totalPages = Math.ceil(total / pageSize);
     const skip = (page - 1) * pageSize;

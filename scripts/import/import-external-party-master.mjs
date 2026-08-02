@@ -52,6 +52,10 @@ const expectedSourceMappingsText = argument("expected-source-mappings");
 const execute = process.argv.includes("--execute");
 const requireEmptyMaster = process.argv.includes("--require-empty-master");
 
+if (execute) {
+  throw new Error("旧客户/供应商导入器的直写模式已停用；请迁移到 External Party 生命周期命令后再执行导入");
+}
+
 function requireArgument(value, label) {
   if (!value) throw new Error(`缺少 --${label}=...`);
   return value;

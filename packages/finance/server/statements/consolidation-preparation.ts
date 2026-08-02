@@ -3,7 +3,7 @@ import {
   buildSaveConsolidationSourcesCommand,
   type SaveConsolidationSourcesCommand,
 } from "../domain/consolidation-batch-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
@@ -40,10 +40,25 @@ import {
   type ConsolidationSourceFact,
 } from "./consolidation-snapshots";
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
-import { ensureChinaMoneyCentralParityRate } from "./exchange-rates";
+import {
+  ensureChinaMoneyCentralParityRate,
+  ensureChinaMoneyMonthlyAverageRate,
+  ensureVoucherHistoricalInvestmentRate,
+} from "./exchange-rates";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 
 type DraftBatch = NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>;
+
+function flowMonthEnds(year: number, month: number) {
+  return Array.from({ length: month }, (_, index) => periodEndDate(year, index + 1));
+}
+
+function cashPointDates(year: number, month: number) {
+  return [...new Set([
+    `${year - 1}-12-31`,
+    periodEndDate(month === 1 ? year - 1 : year, month === 1 ? 12 : month - 1),
+  ])];
+}
 
 function scopeFactsBySnapshotId(batch: DraftBatch) {
   return new Map(batch.entities.map((entity) => [entity.id, {
@@ -59,6 +74,7 @@ function scopeFactsBySnapshotId(batch: DraftBatch) {
     relationEffectiveTo: entity.relationEffectiveTo,
     relationVersion: entity.relationVersion,
     shareRatio: entity.shareRatio === null ? null : Number(entity.shareRatio),
+    isConsolidated: entity.isConsolidated,
     functionalCurrency: entity.functionalCurrency,
     currencyEvidence: entity.currencyEvidence,
     currencyDecidedBy: entity.currencyDecidedBy,
@@ -128,7 +144,7 @@ async function loadAutomaticRateFacts(
   const cadCompanyCodes = batch.entities
     .filter((entity) => cadEntityIds.has(entity.id))
     .map((entity) => entity.companyCode);
-  const [historicalCapitalFacts, investmentFacts] = await Promise.all([
+  const [rawHistoricalCapitalFacts, investmentFacts] = await Promise.all([
     loadHistoricalCapitalFacts(cadCompanyCodes, selectedPeriodEnd),
     loadCadInvestmentVoucherFacts(batch.entities.map((entity) => entity.companyCode), selectedPeriodEnd),
   ]);
@@ -138,19 +154,61 @@ async function loadAutomaticRateFacts(
     const directCandidates = investor
       ? cadEntities.filter((entity) => entity.directParentCompanyId === investor.companyId)
       : [];
-    const candidates = directCandidates.length > 0 ? directCandidates : cadEntities;
-    return candidates.length === 1 ? [{ investment, entity: candidates[0]! }] : [];
+    if (investment.matchingCompanyCode) {
+      const explicitCandidates = cadEntities.filter((entity) => entity.companyCode === investment.matchingCompanyCode);
+      if (explicitCandidates.length !== 1) {
+        throw new ConsolidationSnapshotError(
+          `投资凭证 ${investment.voucherNo} 的匹配公司不在当前 CAD 合并主体内`,
+          409,
+        );
+      }
+      return [{ investment, entity: explicitCandidates[0]! }];
+    }
+    return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
+  });
+  const historicalCapitalFacts = rawHistoricalCapitalFacts.filter((fact) => {
+    if (fact.basis !== "opening") return true;
+    const matchedOriginalAmount = mappedInvestments
+      .filter(({ investment, entity }) => entity.companyCode === fact.companyCode
+        && investment.voucherDate <= fact.targetDate
+        && investment.matchingLineCode === fact.lineCode)
+      .reduce((sum, { investment }) => sum + (investment.originalAmount ?? 0), 0);
+    return Math.abs(matchedOriginalAmount - fact.originalAmount) >= 0.005;
   });
   const targetDates = [
     selectedPeriodEnd,
     ...(requiredComparativeEntityIds.length > 0 ? [comparativePeriodEnd] : []),
+    ...cashPointDates(batch.year, batch.month),
+    ...(requiredComparativeEntityIds.length > 0 ? cashPointDates(batch.year - 1, batch.month) : []),
     ...historicalCapitalFacts.map((fact) => fact.targetDate),
-    ...mappedInvestments.map(({ investment }) => investment.voucherDate),
+    ...mappedInvestments.filter(({ investment }) => !investment.historicalRate)
+      .map(({ investment }) => investment.voucherDate),
   ];
   const rateIdByTargetDate = new Map<string, number>();
   for (const targetDate of [...new Set(targetDates)].sort()) {
     const rate = await ensureChinaMoneyCentralParityRate({ currencyCode: "CAD", targetDate, userId });
     rateIdByTargetDate.set(targetDate, rate.id);
+  }
+  const monthlyRateIdByTargetDate = new Map<string, number>();
+  for (const targetDate of [
+    ...flowMonthEnds(batch.year, batch.month),
+    ...(requiredComparativeEntityIds.length > 0 ? flowMonthEnds(batch.year - 1, batch.month) : []),
+  ]) {
+    const [year, month] = targetDate.split("-").map(Number);
+    const rate = await ensureChinaMoneyMonthlyAverageRate({ currencyCode: "CAD", year, month, userId });
+    monthlyRateIdByTargetDate.set(targetDate, rate.id);
+  }
+  const explicitRateIdByVoucherItemId = new Map<number, number>();
+  for (const { investment } of mappedInvestments) {
+    if (!investment.historicalRate || !investment.matchingLabel) continue;
+    const rate = await ensureVoucherHistoricalInvestmentRate({
+      voucherItemId: investment.id,
+      voucherDate: investment.voucherDate,
+      rate: investment.historicalRate,
+      matchingLabel: investment.matchingLabel,
+      userId,
+    });
+    explicitRateIdByVoucherItemId.set(investment.id, rate.id);
   }
   const currentRateId = rateIdByTargetDate.get(selectedPeriodEnd)!;
   const comparativeRateId = rateIdByTargetDate.get(comparativePeriodEnd);
@@ -167,6 +225,52 @@ async function loadAutomaticRateFacts(
     entitySnapshotId: entity.id,
     evidence: `${comparativePeriodEnd} 中国货币网人民币汇率中间价，由系统自动采用`,
   }] : [])]);
+  for (const entity of cadEntities) {
+    for (const targetDate of flowMonthEnds(batch.year, batch.month)) {
+      rateApplications.push({
+        exchangeRateId: monthlyRateIdByTargetDate.get(targetDate)!,
+        applicationType: "flowAverage",
+        periodBasis: "current",
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate.slice(0, 7)} 中国货币网全部有效交易日人民币汇率中间价算术平均`,
+      });
+    }
+    if (requiredComparativeEntityIds.includes(entity.id)) {
+      for (const targetDate of flowMonthEnds(batch.year - 1, batch.month)) {
+        rateApplications.push({
+          exchangeRateId: monthlyRateIdByTargetDate.get(targetDate)!,
+          applicationType: "flowAverage",
+          periodBasis: "comparative",
+          entitySnapshotId: entity.id,
+          targetDate,
+          evidence: `${targetDate.slice(0, 7)} 中国货币网全部有效交易日人民币汇率中间价算术平均`,
+        });
+      }
+    }
+    for (const targetDate of cashPointDates(batch.year, batch.month)) {
+      rateApplications.push({
+        exchangeRateId: rateIdByTargetDate.get(targetDate)!,
+        applicationType: "cashPoint",
+        periodBasis: "current",
+        entitySnapshotId: entity.id,
+        targetDate,
+        evidence: `${targetDate} 现金余额时点人民币汇率中间价`,
+      });
+    }
+    if (requiredComparativeEntityIds.includes(entity.id)) {
+      for (const targetDate of cashPointDates(batch.year - 1, batch.month)) {
+        rateApplications.push({
+          exchangeRateId: rateIdByTargetDate.get(targetDate)!,
+          applicationType: "cashPoint",
+          periodBasis: "comparative",
+          entitySnapshotId: entity.id,
+          targetDate,
+          evidence: `${targetDate} 现金余额时点人民币汇率中间价`,
+        });
+      }
+    }
+  }
   const companyIdByCode = new Map(batch.entities.map((entity) => [entity.companyCode, entity.companyId]));
   const comparativeCompanyIds = new Set(batch.entities
     .filter((entity) => requiredComparativeEntityIds.includes(entity.id))
@@ -180,13 +284,17 @@ async function loadAutomaticRateFacts(
     snapshotIdByCompany: entitySnapshotIdByCompanyId,
   }));
   for (const { investment, entity } of mappedInvestments) {
-    const exchangeRateId = rateIdByTargetDate.get(investment.voucherDate)!;
+    const exchangeRateId = explicitRateIdByVoucherItemId.get(investment.id)
+      ?? rateIdByTargetDate.get(investment.voucherDate)!;
+    const rateEvidence = investment.historicalRate && investment.matchingLabel
+      ? `投资凭证 ${investment.voucherNo} 按凭证匹配“${investment.matchingLabel}”的历史折算率 ${investment.historicalRate} 折算`
+      : `投资凭证 ${investment.voucherNo} 按 ${investment.voucherDate} 中国货币网人民币汇率中间价自动折算`;
     const shared = {
       exchangeRateId,
       applicationType: "historicalInvestment" as const,
       entitySnapshotId: entity.id,
       voucherItemId: investment.id,
-      evidence: `投资凭证 ${investment.voucherNo} 按 ${investment.voucherDate} 中国货币网人民币汇率中间价自动折算`,
+      evidence: rateEvidence,
     };
     rateApplications.push({ ...shared, periodBasis: "current" });
     if (investment.voucherDate <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
@@ -198,6 +306,7 @@ async function loadAutomaticRateFacts(
   const { rates } = await applyConsolidationRatePolicies({
     periodEnd: selectedPeriodEnd,
     requiredComparativeEntityIds,
+    requiredInvestmentVoucherIds: mappedInvestments.map(({ investment }) => investment.id),
     companyCodes: batch.entities.map((entity) => entity.companyCode),
     entities: batch.entities,
     currencyPolicies,
@@ -235,7 +344,7 @@ function automaticDecisions(
   const facts: Array<[ConsolidationControlKey, boolean, string]> = [
     ["scope", batch.entities.length > 1, `系统已冻结 ${batch.entities.length} 个合并主体`],
     ["ownership", ownershipReady, ownershipReady ? "系统已校验直接持股比例" : "直接持股比例尚未完整"],
-    ["sources", sourcesReady, sourcesReady ? "个别三表均已就绪并自动保存快照" : "个别三表尚未全部就绪，不能进入对账抵销"],
+    ["sources", sourcesReady, sourcesReady ? "个别三表均已就绪并自动保存快照" : "个别三表尚未全部就绪，不能生成合并工作底稿"],
     ["fx", hasCompleteFx(batch, preparedRates), hasCompleteFx(batch, preparedRates) ? "本位币与适用汇率已由系统自动采用" : "本位币或适用汇率尚未完整"],
     ["tax", true, "税务影响按当前产品口径不作为准备阶段前置项"],
   ];
@@ -278,7 +387,7 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     if (command.input.intent === "completePreparation"
       && !consolidationSourcesReady(batch.entities.length, sourceFacts)) {
       const missingCount = sourceFacts.filter((source) => source.sourceKind === "missing").length;
-      throw new ConsolidationSnapshotError(`还有 ${missingCount} 份单体报表未就绪，不能开始对账与抵销`, 409);
+      throw new ConsolidationSnapshotError(`还有 ${missingCount} 份单体报表未就绪，不能生成合并工作底稿`, 409);
     }
     const companyIdByEntitySnapshotId = new Map(batch.entities.map((entity) => [entity.id, entity.companyId]));
     const currentSourceContent = consolidationSourceContentBatchFingerprint(batch.sources.map((source) => ({
@@ -288,7 +397,7 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     const nextSourceContent = consolidationSourceContentBatchFingerprint(sourceFacts);
     const sourcesChanged = currentSourceContent !== nextSourceContent;
     let preparedRates: ConsolidationRateFact[] | null = null;
-    if (sourcesChanged || !hasCompleteFx(batch, null)) {
+    if (command.input.intent === "refresh" || sourcesChanged || !hasCompleteFx(batch, null)) {
       try {
         preparedRates = await loadAutomaticRateFacts(batch, sourceFacts, command.userId);
       } catch (cause) {

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceBankAccount
- * ERP 银行账户来源主数据
+ * 银行账户主档（事实表，来源于 ERP readable 或受治理的 Workspace 维护）
  */
 export type FinanceBankAccountModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceBankAccountPayload>
 
@@ -28,18 +28,26 @@ export type AggregateFinanceBankAccount = {
 
 export type FinanceBankAccountAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   accountId: number | null
   latestImportId: number | null
+  sourceRow: number | null
+  version: number | null
 }
 
 export type FinanceBankAccountSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   accountId: number | null
   latestImportId: number | null
+  sourceRow: number | null
+  version: number | null
 }
 
 export type FinanceBankAccountMinAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  identityKey: string | null
   companyCode: string | null
   accountId: number | null
   sourceSystem: string | null
@@ -50,14 +58,26 @@ export type FinanceBankAccountMinAggregateOutputType = {
   accountNo: string | null
   bankName: string | null
   currencyCode: string | null
+  openedOn: Date | null
+  closedOn: Date | null
   isActive: boolean | null
   latestImportId: number | null
+  sourceKind: string | null
+  sourceReleaseId: string | null
+  sourceSha256: string | null
+  sourceFile: string | null
+  sourceSheet: string | null
+  sourceRow: number | null
+  sourceRange: string | null
+  version: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type FinanceBankAccountMaxAggregateOutputType = {
   id: number | null
+  companyId: number | null
+  identityKey: string | null
   companyCode: string | null
   accountId: number | null
   sourceSystem: string | null
@@ -68,14 +88,26 @@ export type FinanceBankAccountMaxAggregateOutputType = {
   accountNo: string | null
   bankName: string | null
   currencyCode: string | null
+  openedOn: Date | null
+  closedOn: Date | null
   isActive: boolean | null
   latestImportId: number | null
+  sourceKind: string | null
+  sourceReleaseId: string | null
+  sourceSha256: string | null
+  sourceFile: string | null
+  sourceSheet: string | null
+  sourceRow: number | null
+  sourceRange: string | null
+  version: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type FinanceBankAccountCountAggregateOutputType = {
   id: number
+  companyId: number
+  identityKey: number
   companyCode: number
   accountId: number
   sourceSystem: number
@@ -86,8 +118,18 @@ export type FinanceBankAccountCountAggregateOutputType = {
   accountNo: number
   bankName: number
   currencyCode: number
+  openedOn: number
+  closedOn: number
   isActive: number
   latestImportId: number
+  sourceKind: number
+  sourceReleaseId: number
+  sourceSha256: number
+  sourceFile: number
+  sourceSheet: number
+  sourceRow: number
+  sourceRange: number
+  version: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -96,18 +138,26 @@ export type FinanceBankAccountCountAggregateOutputType = {
 
 export type FinanceBankAccountAvgAggregateInputType = {
   id?: true
+  companyId?: true
   accountId?: true
   latestImportId?: true
+  sourceRow?: true
+  version?: true
 }
 
 export type FinanceBankAccountSumAggregateInputType = {
   id?: true
+  companyId?: true
   accountId?: true
   latestImportId?: true
+  sourceRow?: true
+  version?: true
 }
 
 export type FinanceBankAccountMinAggregateInputType = {
   id?: true
+  companyId?: true
+  identityKey?: true
   companyCode?: true
   accountId?: true
   sourceSystem?: true
@@ -118,14 +168,26 @@ export type FinanceBankAccountMinAggregateInputType = {
   accountNo?: true
   bankName?: true
   currencyCode?: true
+  openedOn?: true
+  closedOn?: true
   isActive?: true
   latestImportId?: true
+  sourceKind?: true
+  sourceReleaseId?: true
+  sourceSha256?: true
+  sourceFile?: true
+  sourceSheet?: true
+  sourceRow?: true
+  sourceRange?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type FinanceBankAccountMaxAggregateInputType = {
   id?: true
+  companyId?: true
+  identityKey?: true
   companyCode?: true
   accountId?: true
   sourceSystem?: true
@@ -136,14 +198,26 @@ export type FinanceBankAccountMaxAggregateInputType = {
   accountNo?: true
   bankName?: true
   currencyCode?: true
+  openedOn?: true
+  closedOn?: true
   isActive?: true
   latestImportId?: true
+  sourceKind?: true
+  sourceReleaseId?: true
+  sourceSha256?: true
+  sourceFile?: true
+  sourceSheet?: true
+  sourceRow?: true
+  sourceRange?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type FinanceBankAccountCountAggregateInputType = {
   id?: true
+  companyId?: true
+  identityKey?: true
   companyCode?: true
   accountId?: true
   sourceSystem?: true
@@ -154,8 +228,18 @@ export type FinanceBankAccountCountAggregateInputType = {
   accountNo?: true
   bankName?: true
   currencyCode?: true
+  openedOn?: true
+  closedOn?: true
   isActive?: true
   latestImportId?: true
+  sourceKind?: true
+  sourceReleaseId?: true
+  sourceSha256?: true
+  sourceFile?: true
+  sourceSheet?: true
+  sourceRow?: true
+  sourceRange?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -249,6 +333,8 @@ export type FinanceBankAccountGroupByArgs<ExtArgs extends runtime.Types.Extensio
 
 export type FinanceBankAccountGroupByOutputType = {
   id: number
+  companyId: number | null
+  identityKey: string | null
   companyCode: string
   accountId: number | null
   sourceSystem: string
@@ -259,8 +345,18 @@ export type FinanceBankAccountGroupByOutputType = {
   accountNo: string | null
   bankName: string | null
   currencyCode: string | null
+  openedOn: Date | null
+  closedOn: Date | null
   isActive: boolean
   latestImportId: number | null
+  sourceKind: string | null
+  sourceReleaseId: string | null
+  sourceSha256: string | null
+  sourceFile: string | null
+  sourceSheet: string | null
+  sourceRow: number | null
+  sourceRange: string | null
+  version: number
   createdAt: Date
   updatedAt: Date
   _count: FinanceBankAccountCountAggregateOutputType | null
@@ -290,6 +386,8 @@ export type FinanceBankAccountWhereInput = {
   OR?: Prisma.FinanceBankAccountWhereInput[]
   NOT?: Prisma.FinanceBankAccountWhereInput | Prisma.FinanceBankAccountWhereInput[]
   id?: Prisma.IntFilter<"FinanceBankAccount"> | number
+  companyId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  identityKey?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   companyCode?: Prisma.StringFilter<"FinanceBankAccount"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceBankAccount"> | string
@@ -300,16 +398,30 @@ export type FinanceBankAccountWhereInput = {
   accountNo?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   bankName?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   currencyCode?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  openedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
+  closedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
   isActive?: Prisma.BoolFilter<"FinanceBankAccount"> | boolean
   latestImportId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceKind?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceReleaseId?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSha256?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceRange?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  version?: Prisma.IntFilter<"FinanceBankAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
+  reconciliations?: Prisma.FinanceBankReconciliationListRelationFilter
 }
 
 export type FinanceBankAccountOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  identityKey?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -320,20 +432,34 @@ export type FinanceBankAccountOrderByWithRelationInput = {
   accountNo?: Prisma.SortOrderInput | Prisma.SortOrder
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  openedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  closedOn?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceSha256?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFile?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceSheet?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRange?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  company?: Prisma.CompanyOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   latestImport?: Prisma.FinanceLedgerImportOrderByWithRelationInput
+  reconciliations?: Prisma.FinanceBankReconciliationOrderByRelationAggregateInput
 }
 
 export type FinanceBankAccountWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  identityKey?: string
   companyCode_sourceSystem_sourceLedger_sourceKey?: Prisma.FinanceBankAccountCompanyCodeSourceSystemSourceLedgerSourceKeyCompoundUniqueInput
   AND?: Prisma.FinanceBankAccountWhereInput | Prisma.FinanceBankAccountWhereInput[]
   OR?: Prisma.FinanceBankAccountWhereInput[]
   NOT?: Prisma.FinanceBankAccountWhereInput | Prisma.FinanceBankAccountWhereInput[]
+  companyId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
   companyCode?: Prisma.StringFilter<"FinanceBankAccount"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceBankAccount"> | string
@@ -344,16 +470,30 @@ export type FinanceBankAccountWhereUniqueInput = Prisma.AtLeast<{
   accountNo?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   bankName?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   currencyCode?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  openedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
+  closedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
   isActive?: Prisma.BoolFilter<"FinanceBankAccount"> | boolean
   latestImportId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceKind?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceReleaseId?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSha256?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceRange?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  version?: Prisma.IntFilter<"FinanceBankAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
-}, "id" | "companyCode_sourceSystem_sourceLedger_sourceKey">
+  reconciliations?: Prisma.FinanceBankReconciliationListRelationFilter
+}, "id" | "identityKey" | "companyCode_sourceSystem_sourceLedger_sourceKey">
 
 export type FinanceBankAccountOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  identityKey?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -364,8 +504,18 @@ export type FinanceBankAccountOrderByWithAggregationInput = {
   accountNo?: Prisma.SortOrderInput | Prisma.SortOrder
   bankName?: Prisma.SortOrderInput | Prisma.SortOrder
   currencyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  openedOn?: Prisma.SortOrderInput | Prisma.SortOrder
+  closedOn?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceReleaseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceSha256?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFile?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceSheet?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRow?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRange?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FinanceBankAccountCountOrderByAggregateInput
@@ -380,6 +530,8 @@ export type FinanceBankAccountScalarWhereWithAggregatesInput = {
   OR?: Prisma.FinanceBankAccountScalarWhereWithAggregatesInput[]
   NOT?: Prisma.FinanceBankAccountScalarWhereWithAggregatesInput | Prisma.FinanceBankAccountScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceBankAccount"> | number
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBankAccount"> | number | null
+  identityKey?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceBankAccount"> | string
   accountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBankAccount"> | number | null
   sourceSystem?: Prisma.StringWithAggregatesFilter<"FinanceBankAccount"> | string
@@ -390,13 +542,24 @@ export type FinanceBankAccountScalarWhereWithAggregatesInput = {
   accountNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
   bankName?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
   currencyCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  openedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceBankAccount"> | Date | string | null
+  closedOn?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceBankAccount"> | Date | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceBankAccount"> | boolean
   latestImportId?: Prisma.IntNullableWithAggregatesFilter<"FinanceBankAccount"> | number | null
+  sourceKind?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  sourceReleaseId?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  sourceSha256?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  sourceFile?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  sourceSheet?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  sourceRow?: Prisma.IntNullableWithAggregatesFilter<"FinanceBankAccount"> | number | null
+  sourceRange?: Prisma.StringNullableWithAggregatesFilter<"FinanceBankAccount"> | string | null
+  version?: Prisma.IntWithAggregatesFilter<"FinanceBankAccount"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceBankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceBankAccount"> | Date | string
 }
 
 export type FinanceBankAccountCreateInput = {
+  identityKey?: string | null
   companyCode: string
   sourceSystem: string
   sourceLedger: string
@@ -406,15 +569,29 @@ export type FinanceBankAccountCreateInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBankAccountsInput
   account?: Prisma.FinanceAccountCreateNestedOneWithoutBankAccountsInput
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutBankAccountsInput
+  reconciliations?: Prisma.FinanceBankReconciliationCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountUncheckedCreateInput = {
   id?: number
+  companyId?: number | null
+  identityKey?: string | null
   companyCode: string
   accountId?: number | null
   sourceSystem: string
@@ -425,13 +602,25 @@ export type FinanceBankAccountUncheckedCreateInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
   latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountUpdateInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -441,15 +630,29 @@ export type FinanceBankAccountUpdateInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBankAccountsNestedInput
   account?: Prisma.FinanceAccountUpdateOneWithoutBankAccountsNestedInput
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutBankAccountsNestedInput
+  reconciliations?: Prisma.FinanceBankReconciliationUpdateManyWithoutBankAccountNestedInput
 }
 
 export type FinanceBankAccountUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -460,14 +663,27 @@ export type FinanceBankAccountUncheckedUpdateInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedUpdateManyWithoutBankAccountNestedInput
 }
 
 export type FinanceBankAccountCreateManyInput = {
   id?: number
+  companyId?: number | null
+  identityKey?: string | null
   companyCode: string
   accountId?: number | null
   sourceSystem: string
@@ -478,13 +694,24 @@ export type FinanceBankAccountCreateManyInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
   latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type FinanceBankAccountUpdateManyMutationInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -494,13 +721,25 @@ export type FinanceBankAccountUpdateManyMutationInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type FinanceBankAccountUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -511,8 +750,18 @@ export type FinanceBankAccountUncheckedUpdateManyInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -527,6 +776,11 @@ export type FinanceBankAccountOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type FinanceBankAccountScalarRelationFilter = {
+  is?: Prisma.FinanceBankAccountWhereInput
+  isNot?: Prisma.FinanceBankAccountWhereInput
+}
+
 export type FinanceBankAccountCompanyCodeSourceSystemSourceLedgerSourceKeyCompoundUniqueInput = {
   companyCode: string
   sourceSystem: string
@@ -536,6 +790,8 @@ export type FinanceBankAccountCompanyCodeSourceSystemSourceLedgerSourceKeyCompou
 
 export type FinanceBankAccountCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  identityKey?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -546,20 +802,35 @@ export type FinanceBankAccountCountOrderByAggregateInput = {
   accountNo?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
+  openedOn?: Prisma.SortOrder
+  closedOn?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
+  sourceReleaseId?: Prisma.SortOrder
+  sourceSha256?: Prisma.SortOrder
+  sourceFile?: Prisma.SortOrder
+  sourceSheet?: Prisma.SortOrder
+  sourceRow?: Prisma.SortOrder
+  sourceRange?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type FinanceBankAccountAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  sourceRow?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type FinanceBankAccountMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  identityKey?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -570,14 +841,26 @@ export type FinanceBankAccountMaxOrderByAggregateInput = {
   accountNo?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
+  openedOn?: Prisma.SortOrder
+  closedOn?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
+  sourceReleaseId?: Prisma.SortOrder
+  sourceSha256?: Prisma.SortOrder
+  sourceFile?: Prisma.SortOrder
+  sourceSheet?: Prisma.SortOrder
+  sourceRow?: Prisma.SortOrder
+  sourceRange?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type FinanceBankAccountMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
+  identityKey?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
@@ -588,16 +871,29 @@ export type FinanceBankAccountMinOrderByAggregateInput = {
   accountNo?: Prisma.SortOrder
   bankName?: Prisma.SortOrder
   currencyCode?: Prisma.SortOrder
+  openedOn?: Prisma.SortOrder
+  closedOn?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  sourceKind?: Prisma.SortOrder
+  sourceReleaseId?: Prisma.SortOrder
+  sourceSha256?: Prisma.SortOrder
+  sourceFile?: Prisma.SortOrder
+  sourceSheet?: Prisma.SortOrder
+  sourceRow?: Prisma.SortOrder
+  sourceRange?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type FinanceBankAccountSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  sourceRow?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type FinanceBankAccountCreateNestedManyWithoutLatestImportInput = {
@@ -684,7 +980,64 @@ export type FinanceBankAccountUncheckedUpdateManyWithoutAccountNestedInput = {
   deleteMany?: Prisma.FinanceBankAccountScalarWhereInput | Prisma.FinanceBankAccountScalarWhereInput[]
 }
 
+export type FinanceBankAccountCreateNestedOneWithoutReconciliationsInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedCreateWithoutReconciliationsInput>
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutReconciliationsInput
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput
+}
+
+export type FinanceBankAccountUpdateOneRequiredWithoutReconciliationsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedCreateWithoutReconciliationsInput>
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutReconciliationsInput
+  upsert?: Prisma.FinanceBankAccountUpsertWithoutReconciliationsInput
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceBankAccountUpdateToOneWithWhereWithoutReconciliationsInput, Prisma.FinanceBankAccountUpdateWithoutReconciliationsInput>, Prisma.FinanceBankAccountUncheckedUpdateWithoutReconciliationsInput>
+}
+
+export type FinanceBankAccountCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBankAccountCreateWithoutCompanyInput[] | Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBankAccountCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+}
+
+export type FinanceBankAccountUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBankAccountCreateWithoutCompanyInput[] | Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBankAccountCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+}
+
+export type FinanceBankAccountUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBankAccountCreateWithoutCompanyInput[] | Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBankAccountUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBankAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBankAccountCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  update?: Prisma.FinanceBankAccountUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBankAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBankAccountUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBankAccountUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBankAccountScalarWhereInput | Prisma.FinanceBankAccountScalarWhereInput[]
+}
+
+export type FinanceBankAccountUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput> | Prisma.FinanceBankAccountCreateWithoutCompanyInput[] | Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput | Prisma.FinanceBankAccountCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceBankAccountUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBankAccountUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceBankAccountCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceBankAccountWhereUniqueInput | Prisma.FinanceBankAccountWhereUniqueInput[]
+  update?: Prisma.FinanceBankAccountUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceBankAccountUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceBankAccountUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceBankAccountUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceBankAccountScalarWhereInput | Prisma.FinanceBankAccountScalarWhereInput[]
+}
+
 export type FinanceBankAccountCreateWithoutLatestImportInput = {
+  identityKey?: string | null
   companyCode: string
   sourceSystem: string
   sourceLedger: string
@@ -694,14 +1047,28 @@ export type FinanceBankAccountCreateWithoutLatestImportInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBankAccountsInput
   account?: Prisma.FinanceAccountCreateNestedOneWithoutBankAccountsInput
+  reconciliations?: Prisma.FinanceBankReconciliationCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountUncheckedCreateWithoutLatestImportInput = {
   id?: number
+  companyId?: number | null
+  identityKey?: string | null
   companyCode: string
   accountId?: number | null
   sourceSystem: string
@@ -712,9 +1079,20 @@ export type FinanceBankAccountUncheckedCreateWithoutLatestImportInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountCreateOrConnectWithoutLatestImportInput = {
@@ -748,6 +1126,8 @@ export type FinanceBankAccountScalarWhereInput = {
   OR?: Prisma.FinanceBankAccountScalarWhereInput[]
   NOT?: Prisma.FinanceBankAccountScalarWhereInput | Prisma.FinanceBankAccountScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceBankAccount"> | number
+  companyId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  identityKey?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   companyCode?: Prisma.StringFilter<"FinanceBankAccount"> | string
   accountId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceBankAccount"> | string
@@ -758,13 +1138,24 @@ export type FinanceBankAccountScalarWhereInput = {
   accountNo?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   bankName?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
   currencyCode?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  openedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
+  closedOn?: Prisma.DateTimeNullableFilter<"FinanceBankAccount"> | Date | string | null
   isActive?: Prisma.BoolFilter<"FinanceBankAccount"> | boolean
   latestImportId?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceKind?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceReleaseId?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSha256?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceFile?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceSheet?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  sourceRow?: Prisma.IntNullableFilter<"FinanceBankAccount"> | number | null
+  sourceRange?: Prisma.StringNullableFilter<"FinanceBankAccount"> | string | null
+  version?: Prisma.IntFilter<"FinanceBankAccount"> | number
   createdAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceBankAccount"> | Date | string
 }
 
 export type FinanceBankAccountCreateWithoutAccountInput = {
+  identityKey?: string | null
   companyCode: string
   sourceSystem: string
   sourceLedger: string
@@ -774,14 +1165,28 @@ export type FinanceBankAccountCreateWithoutAccountInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBankAccountsInput
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutBankAccountsInput
+  reconciliations?: Prisma.FinanceBankReconciliationCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountUncheckedCreateWithoutAccountInput = {
   id?: number
+  companyId?: number | null
+  identityKey?: string | null
   companyCode: string
   sourceSystem: string
   sourceLedger: string
@@ -791,10 +1196,21 @@ export type FinanceBankAccountUncheckedCreateWithoutAccountInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
   latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedCreateNestedManyWithoutBankAccountInput
 }
 
 export type FinanceBankAccountCreateOrConnectWithoutAccountInput = {
@@ -823,8 +1239,39 @@ export type FinanceBankAccountUpdateManyWithWhereWithoutAccountInput = {
   data: Prisma.XOR<Prisma.FinanceBankAccountUpdateManyMutationInput, Prisma.FinanceBankAccountUncheckedUpdateManyWithoutAccountInput>
 }
 
-export type FinanceBankAccountCreateManyLatestImportInput = {
+export type FinanceBankAccountCreateWithoutReconciliationsInput = {
+  identityKey?: string | null
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceKey: string
+  sourceCode?: string | null
+  sourceName: string
+  accountNo?: string | null
+  bankName?: string | null
+  currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
+  isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceBankAccountsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutBankAccountsInput
+  latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutBankAccountsInput
+}
+
+export type FinanceBankAccountUncheckedCreateWithoutReconciliationsInput = {
   id?: number
+  companyId?: number | null
+  identityKey?: string | null
   companyCode: string
   accountId?: number | null
   sourceSystem: string
@@ -835,12 +1282,40 @@ export type FinanceBankAccountCreateManyLatestImportInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
+  latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type FinanceBankAccountUpdateWithoutLatestImportInput = {
+export type FinanceBankAccountCreateOrConnectWithoutReconciliationsInput = {
+  where: Prisma.FinanceBankAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedCreateWithoutReconciliationsInput>
+}
+
+export type FinanceBankAccountUpsertWithoutReconciliationsInput = {
+  update: Prisma.XOR<Prisma.FinanceBankAccountUpdateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedUpdateWithoutReconciliationsInput>
+  create: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedCreateWithoutReconciliationsInput>
+  where?: Prisma.FinanceBankAccountWhereInput
+}
+
+export type FinanceBankAccountUpdateToOneWithWhereWithoutReconciliationsInput = {
+  where?: Prisma.FinanceBankAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceBankAccountUpdateWithoutReconciliationsInput, Prisma.FinanceBankAccountUncheckedUpdateWithoutReconciliationsInput>
+}
+
+export type FinanceBankAccountUpdateWithoutReconciliationsInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -850,14 +1325,28 @@ export type FinanceBankAccountUpdateWithoutLatestImportInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBankAccountsNestedInput
   account?: Prisma.FinanceAccountUpdateOneWithoutBankAccountsNestedInput
+  latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutBankAccountsNestedInput
 }
 
-export type FinanceBankAccountUncheckedUpdateWithoutLatestImportInput = {
+export type FinanceBankAccountUncheckedUpdateWithoutReconciliationsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -868,30 +1357,24 @@ export type FinanceBankAccountUncheckedUpdateWithoutLatestImportInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type FinanceBankAccountUncheckedUpdateManyWithoutLatestImportInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
-  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
-  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type FinanceBankAccountCreateManyAccountInput = {
-  id?: number
+export type FinanceBankAccountCreateWithoutCompanyInput = {
+  identityKey?: string | null
   companyCode: string
   sourceSystem: string
   sourceLedger: string
@@ -901,13 +1384,228 @@ export type FinanceBankAccountCreateManyAccountInput = {
   accountNo?: string | null
   bankName?: string | null
   currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
+  isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutBankAccountsInput
+  latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutBankAccountsInput
+  reconciliations?: Prisma.FinanceBankReconciliationCreateNestedManyWithoutBankAccountInput
+}
+
+export type FinanceBankAccountUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  identityKey?: string | null
+  companyCode: string
+  accountId?: number | null
+  sourceSystem: string
+  sourceLedger: string
+  sourceKey: string
+  sourceCode?: string | null
+  sourceName: string
+  accountNo?: string | null
+  bankName?: string | null
+  currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
   isActive?: boolean
   latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedCreateNestedManyWithoutBankAccountInput
+}
+
+export type FinanceBankAccountCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceBankAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBankAccountCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceBankAccountCreateManyCompanyInput | Prisma.FinanceBankAccountCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceBankAccountUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBankAccountWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceBankAccountUpdateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceBankAccountCreateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceBankAccountUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceBankAccountWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceBankAccountUpdateWithoutCompanyInput, Prisma.FinanceBankAccountUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceBankAccountUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceBankAccountScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceBankAccountUpdateManyMutationInput, Prisma.FinanceBankAccountUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceBankAccountCreateManyLatestImportInput = {
+  id?: number
+  companyId?: number | null
+  identityKey?: string | null
+  companyCode: string
+  accountId?: number | null
+  sourceSystem: string
+  sourceLedger: string
+  sourceKey: string
+  sourceCode?: string | null
+  sourceName: string
+  accountNo?: string | null
+  bankName?: string | null
+  currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
+  isActive?: boolean
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceBankAccountUpdateWithoutLatestImportInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBankAccountsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutBankAccountsNestedInput
+  reconciliations?: Prisma.FinanceBankReconciliationUpdateManyWithoutBankAccountNestedInput
+}
+
+export type FinanceBankAccountUncheckedUpdateWithoutLatestImportInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedUpdateManyWithoutBankAccountNestedInput
+}
+
+export type FinanceBankAccountUncheckedUpdateManyWithoutLatestImportInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBankAccountCreateManyAccountInput = {
+  id?: number
+  companyId?: number | null
+  identityKey?: string | null
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceKey: string
+  sourceCode?: string | null
+  sourceName: string
+  accountNo?: string | null
+  bankName?: string | null
+  currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
+  isActive?: boolean
+  latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type FinanceBankAccountUpdateWithoutAccountInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -917,14 +1615,28 @@ export type FinanceBankAccountUpdateWithoutAccountInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceBankAccountsNestedInput
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutBankAccountsNestedInput
+  reconciliations?: Prisma.FinanceBankReconciliationUpdateManyWithoutBankAccountNestedInput
 }
 
 export type FinanceBankAccountUncheckedUpdateWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -934,14 +1646,27 @@ export type FinanceBankAccountUncheckedUpdateWithoutAccountInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedUpdateManyWithoutBankAccountNestedInput
 }
 
 export type FinanceBankAccountUncheckedUpdateManyWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
@@ -951,16 +1676,174 @@ export type FinanceBankAccountUncheckedUpdateManyWithoutAccountInput = {
   accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceBankAccountCreateManyCompanyInput = {
+  id?: number
+  identityKey?: string | null
+  companyCode: string
+  accountId?: number | null
+  sourceSystem: string
+  sourceLedger: string
+  sourceKey: string
+  sourceCode?: string | null
+  sourceName: string
+  accountNo?: string | null
+  bankName?: string | null
+  currencyCode?: string | null
+  openedOn?: Date | string | null
+  closedOn?: Date | string | null
+  isActive?: boolean
+  latestImportId?: number | null
+  sourceKind?: string | null
+  sourceReleaseId?: string | null
+  sourceSha256?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceRange?: string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceBankAccountUpdateWithoutCompanyInput = {
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  account?: Prisma.FinanceAccountUpdateOneWithoutBankAccountsNestedInput
+  latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutBankAccountsNestedInput
+  reconciliations?: Prisma.FinanceBankReconciliationUpdateManyWithoutBankAccountNestedInput
+}
+
+export type FinanceBankAccountUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  reconciliations?: Prisma.FinanceBankReconciliationUncheckedUpdateManyWithoutBankAccountNestedInput
+}
+
+export type FinanceBankAccountUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  identityKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  accountNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  openedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  closedOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReleaseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceRange?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
+/**
+ * Count Type FinanceBankAccountCountOutputType
+ */
+
+export type FinanceBankAccountCountOutputType = {
+  reconciliations: number
+}
+
+export type FinanceBankAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  reconciliations?: boolean | FinanceBankAccountCountOutputTypeCountReconciliationsArgs
+}
+
+/**
+ * FinanceBankAccountCountOutputType without action
+ */
+export type FinanceBankAccountCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBankAccountCountOutputType
+   */
+  select?: Prisma.FinanceBankAccountCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceBankAccountCountOutputType without action
+ */
+export type FinanceBankAccountCountOutputTypeCountReconciliationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceBankReconciliationWhereInput
+}
+
 
 export type FinanceBankAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  companyId?: boolean
+  identityKey?: boolean
   companyCode?: boolean
   accountId?: boolean
   sourceSystem?: boolean
@@ -971,16 +1854,31 @@ export type FinanceBankAccountSelect<ExtArgs extends runtime.Types.Extensions.In
   accountNo?: boolean
   bankName?: boolean
   currencyCode?: boolean
+  openedOn?: boolean
+  closedOn?: boolean
   isActive?: boolean
   latestImportId?: boolean
+  sourceKind?: boolean
+  sourceReleaseId?: boolean
+  sourceSha256?: boolean
+  sourceFile?: boolean
+  sourceSheet?: boolean
+  sourceRow?: boolean
+  sourceRange?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
+  reconciliations?: boolean | Prisma.FinanceBankAccount$reconciliationsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceBankAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeBankAccount"]>
 
 export type FinanceBankAccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  companyId?: boolean
+  identityKey?: boolean
   companyCode?: boolean
   accountId?: boolean
   sourceSystem?: boolean
@@ -991,16 +1889,29 @@ export type FinanceBankAccountSelectCreateManyAndReturn<ExtArgs extends runtime.
   accountNo?: boolean
   bankName?: boolean
   currencyCode?: boolean
+  openedOn?: boolean
+  closedOn?: boolean
   isActive?: boolean
   latestImportId?: boolean
+  sourceKind?: boolean
+  sourceReleaseId?: boolean
+  sourceSha256?: boolean
+  sourceFile?: boolean
+  sourceSheet?: boolean
+  sourceRow?: boolean
+  sourceRange?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
 }, ExtArgs["result"]["financeBankAccount"]>
 
 export type FinanceBankAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  companyId?: boolean
+  identityKey?: boolean
   companyCode?: boolean
   accountId?: boolean
   sourceSystem?: boolean
@@ -1011,16 +1922,29 @@ export type FinanceBankAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.
   accountNo?: boolean
   bankName?: boolean
   currencyCode?: boolean
+  openedOn?: boolean
+  closedOn?: boolean
   isActive?: boolean
   latestImportId?: boolean
+  sourceKind?: boolean
+  sourceReleaseId?: boolean
+  sourceSha256?: boolean
+  sourceFile?: boolean
+  sourceSheet?: boolean
+  sourceRow?: boolean
+  sourceRange?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
 }, ExtArgs["result"]["financeBankAccount"]>
 
 export type FinanceBankAccountSelectScalar = {
   id?: boolean
+  companyId?: boolean
+  identityKey?: boolean
   companyCode?: boolean
   accountId?: boolean
   sourceSystem?: boolean
@@ -1031,22 +1955,37 @@ export type FinanceBankAccountSelectScalar = {
   accountNo?: boolean
   bankName?: boolean
   currencyCode?: boolean
+  openedOn?: boolean
+  closedOn?: boolean
   isActive?: boolean
   latestImportId?: boolean
+  sourceKind?: boolean
+  sourceReleaseId?: boolean
+  sourceSha256?: boolean
+  sourceFile?: boolean
+  sourceSheet?: boolean
+  sourceRow?: boolean
+  sourceRange?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceBankAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "accountId" | "sourceSystem" | "sourceLedger" | "sourceKey" | "sourceCode" | "sourceName" | "accountNo" | "bankName" | "currencyCode" | "isActive" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBankAccount"]>
+export type FinanceBankAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyId" | "identityKey" | "companyCode" | "accountId" | "sourceSystem" | "sourceLedger" | "sourceKey" | "sourceCode" | "sourceName" | "accountNo" | "bankName" | "currencyCode" | "openedOn" | "closedOn" | "isActive" | "latestImportId" | "sourceKind" | "sourceReleaseId" | "sourceSha256" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceRange" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeBankAccount"]>
 export type FinanceBankAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
+  reconciliations?: boolean | Prisma.FinanceBankAccount$reconciliationsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceBankAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceBankAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
 }
 export type FinanceBankAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceBankAccount$companyArgs<ExtArgs>
   account?: boolean | Prisma.FinanceBankAccount$accountArgs<ExtArgs>
   latestImport?: boolean | Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>
 }
@@ -1054,11 +1993,15 @@ export type FinanceBankAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime
 export type $FinanceBankAccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceBankAccount"
   objects: {
+    company: Prisma.$CompanyPayload<ExtArgs> | null
     account: Prisma.$FinanceAccountPayload<ExtArgs> | null
     latestImport: Prisma.$FinanceLedgerImportPayload<ExtArgs> | null
+    reconciliations: Prisma.$FinanceBankReconciliationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    companyId: number | null
+    identityKey: string | null
     companyCode: string
     accountId: number | null
     sourceSystem: string
@@ -1069,8 +2012,18 @@ export type $FinanceBankAccountPayload<ExtArgs extends runtime.Types.Extensions.
     accountNo: string | null
     bankName: string | null
     currencyCode: string | null
+    openedOn: Date | null
+    closedOn: Date | null
     isActive: boolean
     latestImportId: number | null
+    sourceKind: string | null
+    sourceReleaseId: string | null
+    sourceSha256: string | null
+    sourceFile: string | null
+    sourceSheet: string | null
+    sourceRow: number | null
+    sourceRange: string | null
+    version: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["financeBankAccount"]>
@@ -1467,8 +2420,10 @@ readonly fields: FinanceBankAccountFieldRefs;
  */
 export interface Prisma__FinanceBankAccountClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  company<T extends Prisma.FinanceBankAccount$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBankAccount$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceBankAccount$accountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBankAccount$accountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   latestImport<T extends Prisma.FinanceBankAccount$latestImportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBankAccount$latestImportArgs<ExtArgs>>): Prisma.Prisma__FinanceLedgerImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  reconciliations<T extends Prisma.FinanceBankAccount$reconciliationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceBankAccount$reconciliationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBankReconciliationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1499,6 +2454,8 @@ export interface Prisma__FinanceBankAccountClient<T, Null = never, ExtArgs exten
  */
 export interface FinanceBankAccountFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
+  readonly companyId: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
+  readonly identityKey: Prisma.FieldRef<"FinanceBankAccount", 'String'>
   readonly companyCode: Prisma.FieldRef<"FinanceBankAccount", 'String'>
   readonly accountId: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceBankAccount", 'String'>
@@ -1509,8 +2466,18 @@ export interface FinanceBankAccountFieldRefs {
   readonly accountNo: Prisma.FieldRef<"FinanceBankAccount", 'String'>
   readonly bankName: Prisma.FieldRef<"FinanceBankAccount", 'String'>
   readonly currencyCode: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly openedOn: Prisma.FieldRef<"FinanceBankAccount", 'DateTime'>
+  readonly closedOn: Prisma.FieldRef<"FinanceBankAccount", 'DateTime'>
   readonly isActive: Prisma.FieldRef<"FinanceBankAccount", 'Boolean'>
   readonly latestImportId: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
+  readonly sourceKind: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly sourceReleaseId: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly sourceSha256: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly sourceFile: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly sourceSheet: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly sourceRow: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
+  readonly sourceRange: Prisma.FieldRef<"FinanceBankAccount", 'String'>
+  readonly version: Prisma.FieldRef<"FinanceBankAccount", 'Int'>
   readonly createdAt: Prisma.FieldRef<"FinanceBankAccount", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinanceBankAccount", 'DateTime'>
 }
@@ -1914,6 +2881,25 @@ export type FinanceBankAccountDeleteManyArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
+ * FinanceBankAccount.company
+ */
+export type FinanceBankAccount$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
+}
+
+/**
  * FinanceBankAccount.account
  */
 export type FinanceBankAccount$accountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1949,6 +2935,30 @@ export type FinanceBankAccount$latestImportArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.FinanceLedgerImportInclude<ExtArgs> | null
   where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+/**
+ * FinanceBankAccount.reconciliations
+ */
+export type FinanceBankAccount$reconciliationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceBankReconciliation
+   */
+  select?: Prisma.FinanceBankReconciliationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceBankReconciliation
+   */
+  omit?: Prisma.FinanceBankReconciliationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceBankReconciliationInclude<ExtArgs> | null
+  where?: Prisma.FinanceBankReconciliationWhereInput
+  orderBy?: Prisma.FinanceBankReconciliationOrderByWithRelationInput | Prisma.FinanceBankReconciliationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceBankReconciliationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceBankReconciliationScalarFieldEnum | Prisma.FinanceBankReconciliationScalarFieldEnum[]
 }
 
 /**

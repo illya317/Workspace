@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./action-glyph-contract": "./action-glyph-contract.ts",
     "./module-contract": "./module-contract.ts",
     "./hooks": "./hooks/index.ts",
     "./hooks/*": "./hooks/*.ts",
@@ -14,6 +15,7 @@
     "./routing": "./routing/index.ts",
     "./routing/*": "./routing/*.ts",
     "./search": "./search/index.ts",
+    "./surface-navigation-contract": "./surface-navigation-contract.ts",
     "./search/*": "./search/*.ts",
     "./showcase": "./showcase/index.ts",
     "./showcase/*": "./showcase/*.tsx",

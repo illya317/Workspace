@@ -14,7 +14,7 @@ import { usePositionReportOverridesSection } from "./position-report-overrides-p
 import { usePositionDescriptionPanelSection } from "./position-description-panel";
 import { HR_REFERENCE_OPTIONS_ENDPOINT } from "../../fk-keys";
 import { selectedEntityName } from "./detail-editors";
-import type { Department, DescriptionDraft, Position, PositionDraft, Selection } from "./types";
+import type { Department, DescriptionDraft, OrganizationCodeConfig, Position, PositionDraft, Selection } from "./types";
 import { departmentPath, positionCodePrefix, positionCodePrefixFromCode, positionCodeSuffix, splitAliasText } from "./utils";
 type PositionEditorProps = {
   position: Position | null | undefined;
@@ -26,6 +26,7 @@ type PositionEditorProps = {
   showArchived: boolean;
   canArchive: boolean;
   canEditPosition: boolean;
+  codeConfig: OrganizationCodeConfig | null;
   dirty: boolean;
   descriptionDirty: boolean;
   saving: boolean;
@@ -66,6 +67,7 @@ export function usePositionEditorSections({
   showArchived,
   canArchive,
   canEditPosition,
+  codeConfig,
   dirty,
   descriptionDirty,
   saving,
@@ -155,7 +157,9 @@ export function usePositionEditorSections({
 
   if (!position) return [];
   const draftDepartment = draft?.departmentId ? departmentById.get(draft.departmentId) : undefined;
-  const draftCodePrefix = positionCodePrefix(draftDepartment) || (showArchived ? positionCodePrefixFromCode(position.code) : "");
+  const draftCodePrefix = codeConfig
+    ? positionCodePrefix(draftDepartment, codeConfig)
+    : showArchived ? positionCodePrefixFromCode(position.code, codeConfig) : "";
   const draftDepartmentDisplay = departmentPath(draftDepartment, departmentById) || position.departmentName || "";
   const previewSection = previewLoading
     ? createEmptySection("position-description-preview-paper", { content: "加载中...", compact: true })
@@ -171,19 +175,20 @@ export function usePositionEditorSections({
         control: "text",
         mask: {
           kind: "editableSegment",
-          extract: (code: string) => positionCodeSuffix(code),
+          extract: (code: string) => positionCodeSuffix(code, codeConfig),
           compose: (segment: string, code: string) => {
-            const prefix = draftCodePrefix || positionCodePrefixFromCode(code);
-            const suffix = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+            const prefix = draftCodePrefix || positionCodePrefixFromCode(code, codeConfig);
+            const length = codeConfig?.position.sequenceLength ?? 0;
+            const suffix = segment.replace(/\D/g, "").slice(0, length).padStart(length, "0");
             return suffix && prefix ? `${prefix}${suffix}` : code;
           },
-          normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, 2),
-          placeholder: "01",
+          normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, codeConfig?.position.sequenceLength ?? 0),
+          placeholder: String(codeConfig?.position.sequenceStart ?? "").padStart(codeConfig?.position.sequenceLength ?? 0, "0"),
         },
         state: !canEditPosition || !draftCodePrefix ? "disabled" : "normal",
       },
       value: draft.code,
-      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? "")), true),
+      onChange: (nextCode) => onUpdateDraftCodeSuffix(positionCodeSuffix(String(nextCode ?? ""), codeConfig), true),
     },
     {
       key: "name",

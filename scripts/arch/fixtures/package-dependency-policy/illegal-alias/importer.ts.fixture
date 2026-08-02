@@ -1,0 +1,4 @@
+import { platformRoot } from "@workspace/platform";
+import { hrRuntime } from "@workspace/hr/server";
+
+export const illegalDependencies = [platformRoot, hrRuntime];

@@ -26,11 +26,30 @@ test("NCI allocation preserves total profit and derives the parent attribution",
     line("netProfitAttributableToParent", -15, { adjustmentAmount: -15 }),
     line("netProfitAttributableToNci", 15, { adjustmentAmount: 15 }),
   ];
+  lines[2]!.entityAmounts = [{
+    entitySnapshotId: 1,
+    companyCode: "ZX01",
+    companyName: "母公司",
+    role: "parent",
+    amount: 60,
+    currentMonthAmount: 12,
+    previousAmount: 40,
+  }];
   const result = recomputeConsolidatedIncome(lines);
   assert.equal(result.ok, true);
   assert.equal(lines.find((item) => item.lineCode === "netProfit")?.amount, 60);
   assert.equal(lines.find((item) => item.lineCode === "netProfitAttributableToParent")?.amount, 45);
   assert.equal(lines.find((item) => item.lineCode === "netProfitAttributableToNci")?.amount, 15);
+  assert.deepEqual(
+    lines.find((item) => item.lineCode === "netProfitAttributableToParent")?.entityAmounts,
+    lines[2]!.entityAmounts,
+  );
+  assert.deepEqual(
+    lines.find((item) => item.lineCode === "netProfitAttributableToNci")?.entityAmounts?.map((item) => (
+      [item.amount, item.currentMonthAmount, item.previousAmount]
+    )),
+    [[0, 0, 0]],
+  );
 });
 
 test("unbalanced parent and NCI attribution adjustments are rejected", () => {

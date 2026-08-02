@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 
 import type { ConsolidationMatchSourceKind, StatementReportType } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { authorize } from "@workspace/platform/server/auth";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { matchesFkKeyword } from "@workspace/platform/server/relation-registry";

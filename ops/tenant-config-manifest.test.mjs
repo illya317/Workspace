@@ -11,6 +11,12 @@ import {
 } from "./tenant-config-manifest.mjs";
 
 const fixtureRoot = resolve("scripts/check/fixtures/tenant-workspace");
+const syncTenantConfig = readFileSync(new URL("./sync-tenant-config.sh", import.meta.url), "utf8");
+
+test("tenant config backup retention sorts by modification time instead of SHA-prefixed names", () => {
+  assert.match(syncTenantConfig, /-printf '%T@ %p\\\\0' \| sort -z -nr \| tail -z -n \+6/);
+  assert.doesNotMatch(syncTenantConfig, /-printf '%f\\\\n' \| sort -r/);
+});
 
 function copyFixture(target) {
   cpSync(fixtureRoot, target, { recursive: true });
@@ -55,7 +61,7 @@ test("tenant config manifest follows profile references and detects drift", (con
   assert.ok(manifest.files.some((file) => file.path === "data/docs-editor/templates/production-qc-snapshots/audit.json"));
   assert.ok(manifest.files.some((file) => file.path === "config/docs/company/员工手册.docx"));
   assert.ok(manifest.files.some((file) => file.path === "config/docs/company/permission-actions.md"));
-  assert.ok(manifest.files.some((file) => file.path === "manifest.json"));
+  assert.equal(manifest.files.some((file) => file.path === "manifest.json"), false);
   verifyTenantConfigManifest(root, manifest);
   writeFileSync(join(root, "config/tenant/companies.json"), "[]\n");
   assert.throws(() => verifyTenantConfigManifest(root, manifest), /differs from deployment manifest/);
@@ -91,11 +97,16 @@ test("tenant config install verifies staging and preserves replaced files in bac
   const backup = join(root, "backup");
   copyFixture(staging);
   copyFixture(target);
+  mkdirSync(join(staging, "assets/brand/company"), { recursive: true });
+  writeFileSync(join(staging, "assets/brand/company/logo.svg"), "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n");
   const manifest = createTenantConfigManifest(staging);
   const manifestPath = join(staging, ".deployment/tenant-config-manifest.json");
   mkdirSync(join(staging, ".deployment"), { recursive: true });
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
   writeFileSync(join(target, "config/tenant/companies.json"), "[]\n");
+  writeFileSync(join(target, "manifest.json"), "{\"retired\":true}\n");
+  mkdirSync(join(target, "assets/brand/company"), { recursive: true });
+  writeFileSync(join(target, "assets/brand/company/logo.png"), "old png");
   writeFileSync(
     join(target, "data/docs-editor/templates/production-qc-snapshots/stale.json"),
     "{\"stale\":true}\n",
@@ -107,10 +118,29 @@ test("tenant config install verifies staging and preserves replaced files in bac
     manifest.digest,
   );
   assert.equal(readFileSync(join(backup, "config/tenant/companies.json"), "utf8"), "[]\n");
+  assert.equal(readFileSync(join(backup, "manifest.json"), "utf8"), "{\"retired\":true}\n");
+  assert.equal(existsSync(join(target, "manifest.json")), false);
+  assert.equal(
+    readFileSync(join(target, "assets/brand/company/logo.svg"), "utf8"),
+    "<svg xmlns=\"http://www.w3.org/2000/svg\"/>\n",
+  );
+  assert.equal(existsSync(join(target, "assets/brand/company/logo.png")), false);
+  assert.equal(readFileSync(join(backup, "assets/brand/company/logo.png"), "utf8"), "old png");
   assert.equal(
     readFileSync(join(backup, "data/docs-editor/templates/production-qc-snapshots/stale.json"), "utf8"),
     "{\"stale\":true}\n",
   );
   assert.equal(existsSync(join(target, "data/docs-editor/templates/production-qc-snapshots/stale.json")), false);
   assert.equal(JSON.parse(readFileSync(join(backup, "deployment-manifest.json"), "utf8")).digest, manifest.digest);
+});
+
+test("tenant config sync restores runtime ACLs after atomic installation", () => {
+  const install = syncTenantConfig.indexOf('node \\"\\$tool\\" install');
+  const reconcile = syncTenantConfig.indexOf('sudo -n -- bash \\"\\$reconciler\\"');
+  assert.ok(install >= 0 && reconcile > install);
+  assert.match(syncTenantConfig, /reconcile-runtime-config-permissions\.sh/);
+  assert.match(syncTenantConfig, /'\$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime/);
+  assert.match(syncTenantConfig, /租户配置安装只能在已获取的共享 deploy\.lock 内执行/);
+  assert.match(syncTenantConfig, /deploy-lock\.owner/);
+  assert.match(syncTenantConfig, /flock -n/);
 });

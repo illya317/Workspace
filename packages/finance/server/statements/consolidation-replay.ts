@@ -109,7 +109,7 @@ export function buildConsolidationPreviewPackage(
     entities: batch.entities,
     sources: batch.sources,
     exchangeRates: batch.exchangeRates,
-    approvedEntries: batch.entries.filter((entry) => entry.status === "approved"),
+    approvedEntries: batch.entries.filter((entry) => entry.status === "approved" || entry.status === "draft"),
     controlDecisions: batch.controlDecisions,
     events: batch.events,
     fingerprintVerification: {

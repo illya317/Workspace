@@ -31,7 +31,6 @@ export function workKpiMutationImpactAdapters(): MutationImpactAdapter<WorkKpiMu
           orderBy: { id: "asc" },
         });
         return rows.length ? {
-          policy: "confirm_cascade",
           records: rows.map(assignmentRecord),
           reason: "删除计划会同时删除其 KPI 分配",
           requiresPerItemPermission: false,

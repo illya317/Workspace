@@ -13,10 +13,6 @@ import {
 
 const lifecycleSourceFiles = [
   "node_modules/prisma/package.json",
-  "ops/apply-data-release.mjs",
-  "ops/data-release.mjs",
-  "ops/data-release-handlers.mjs",
-  "ops/data-release-transfer.mjs",
   "ops/prisma-genesis-cutover.mjs",
   "scripts/check/check-permission-action-grants.mjs",
   "scripts/check/check-prisma-deploy-status.js",
@@ -37,14 +33,12 @@ function fixture() {
   mkdirSync(path.join(root, "prisma", "migrations", "20260101000000_one"), { recursive: true });
   writeFileSync(path.join(root, "prisma", "migrations", "migration_lock.toml"), "provider = \"postgresql\"\n");
   writeFileSync(path.join(root, "prisma", "migrations", "20260101000000_one", "migration.sql"), "SELECT 1;\n");
-  mkdirSync(path.join(root, "ops", "data-releases"), { recursive: true });
-  writeFileSync(path.join(root, "ops", "data-releases", "one.json"), "{\"id\":\"one\"}\n");
   const resourceManifestFile = path.join(root, "resource-defs.json");
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
   return { root, resourceManifestFile };
 }
 
-test("requirements bind exact source migration, resource, data-release, and lifecycle inputs", () => {
+test("requirements bind exact source migration, resource, and lifecycle inputs", () => {
   const files = fixture();
   const requirements = createControlPlaneRequirements({
     repositoryRoot: files.root,
@@ -54,7 +48,7 @@ test("requirements bind exact source migration, resource, data-release, and life
     createdAt: "2026-07-25T00:00:00.000Z",
   });
   assert.equal(requirements.inputs.migrationSetSha256, digestMigrationSet(files.root));
-  assert.equal(Object.keys(requirements.inputs).length, 4);
+  assert.equal(Object.keys(requirements.inputs).length, 3);
   writeFileSync(path.join(files.root, "prisma", "migrations", "20260101000000_one", "migration.sql"), "SELECT 2;\n");
   assert.notEqual(digestMigrationSet(files.root), requirements.inputs.migrationSetSha256);
 });

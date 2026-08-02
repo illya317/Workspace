@@ -4,7 +4,14 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { discoverNodeTests, main, selectNodeTests } from "./run-node-tests.mjs";
+import {
+  discoverNodeTests,
+  groupNodeTestsByShard,
+  main,
+  nodeTestShardKey,
+  selectAffectedNodeTests,
+  selectNodeTests,
+} from "./run-node-tests.mjs";
 
 function writeFixture(repositoryRoot, relativePath) {
   const absolutePath = path.join(repositoryRoot, relativePath);
@@ -63,6 +70,19 @@ test("discovers ops tests recursively and classifies them as tooling determinist
       "packages/work/server/domain/work-plan-governance-validation.test.ts",
       "packages/work/ui/works/WorkReportPeriods.test.ts",
     ]);
+    assert.equal(nodeTestShardKey("packages/work/value.test.ts"), "package.work");
+    assert.equal(
+      nodeTestShardKey("scripts/check/approval-authority-boundary.test.ts"),
+      "scripts.check.repository",
+    );
+    assert.deepEqual(selectNodeTests(allTests, "shard", { shard: "ops" }), [
+      "ops/build-standalone-artifact.test.mjs",
+      "ops/nested/check.test.js",
+    ]);
+    assert.deepEqual(groupNodeTestsByShard(allTests).find((item) => item.key === "scripts.check")?.files, [
+      "scripts/check/action-contract-runtime.test.ts",
+      "scripts/check/tool.test.cjs",
+    ]);
     assert.throws(() => selectNodeTests(allTests, "unknown"), /Unknown node test suite/);
   } finally {
     fs.rmSync(repositoryRoot, { recursive: true, force: true });
@@ -94,4 +114,36 @@ test("tooling main passes the exact sorted ops and scripts test contract to node
   } finally {
     fs.rmSync(repositoryRoot, { recursive: true, force: true });
   }
+});
+
+test("affected selection keeps changed packages, dependency closure, and matching tooling areas", () => {
+  const tests = [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "ops/release.test.mjs",
+    "scripts/ci/classifier.test.mjs",
+    "scripts/check/lint.test.mjs",
+  ];
+  assert.deepEqual(selectAffectedNodeTests(tests, {
+    changedFiles: ["packages/core/value.ts", "scripts/ci/classifier.mjs"],
+    affectedModules: ["finance", "hr"],
+  }), [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "scripts/ci/classifier.test.mjs",
+  ]);
+});
+
+test("shared Core changes include every package consumer test", () => {
+  const tests = [
+    "packages/core/value.test.ts",
+    "packages/finance/server/ledger.test.ts",
+    "packages/hr/server/roster.test.ts",
+    "ops/release.test.mjs",
+  ];
+  assert.deepEqual(selectAffectedNodeTests(tests, {
+    changedFiles: ["packages/core/value.ts"],
+  }), tests.slice(0, 3));
 });

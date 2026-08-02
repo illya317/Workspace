@@ -58,15 +58,18 @@ model ProductionQcSignature {
   meaning             String
   signerUserId        Int?
   signerEmployeeId    String?
+  signerEmployeeRefId Int?
   signerName          String
   signedAt            DateTime          @default(now())
   signedRecordVersion Int
   signedPayloadHash   String
   authMethod          String
   batch               ProductionQcBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  signerEmployee      Employee?          @relation("ProductionQcSignatureSignerEmployee", fields: [signerEmployeeRefId], references: [id], onDelete: Restrict)
 
   @@index([batchId, fieldKey, signedAt])
   @@index([signerUserId, signedAt])
+  @@index([signerEmployeeRefId])
 }
 
 /// QC 不可变审计账。仅保存批次标识快照，不建批次 FK，保证硬删除后事件仍存在。
@@ -83,6 +86,7 @@ model ProductionQcAuditEvent {
   role              String?
   actorUserId       Int?
   actorEmployeeId   String?
+  actorEmployeeRefId Int?
   actorName         String?
   signatureMeaning  String?
   signedPayloadHash String?
@@ -91,8 +95,10 @@ model ProductionQcAuditEvent {
   recordVersion     Int
   payload           Json?
   createdAt         DateTime @default(now())
+  actorEmployee     Employee? @relation("ProductionQcAuditActorEmployee", fields: [actorEmployeeRefId], references: [id], onDelete: Restrict)
 
   @@index([batchRecordUid, createdAt])
   @@index([batchId, createdAt])
   @@index([actorUserId, createdAt])
+  @@index([actorEmployeeRefId])
 }

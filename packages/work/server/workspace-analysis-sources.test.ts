@@ -262,7 +262,9 @@ test("classifies nested and control-plane DTO fields instead of leaking them as 
   assert.equal(projects?.definition.fields.some((field) => field.key === "permissions"), false);
   assert.equal(coverage(projects, "permissions")?.disposition, "omit");
   assert.equal(coverage(projects, "version")?.disposition, "analytical");
-  assert.equal(coverage(catalog.resolve("work.project-members", 1), "version")?.disposition, "analytical");
+  for (const fieldKey of ["version", "membershipUid", "sequence", "recordState", "temporalState"]) {
+    assert.equal(coverage(catalog.resolve("work.project-members", 1), fieldKey)?.disposition, "analytical");
+  }
   assert.equal(meetings?.definition.fields.some((field) => field.key === "participants"), false);
   assert.equal(coverage(meetings, "participants")?.disposition, "childSource");
   assert.equal(coverage(collaborations, "responsibleDepartment")?.disposition, "omit");

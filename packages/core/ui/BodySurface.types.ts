@@ -1,6 +1,6 @@
 import type { ReactNode, Ref } from "react";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
-import type { CreateSurfaceProps, CreateSurfaceSurfaceProps, CreateSurfaceToolbarProps } from "./CreateSurface.types";
+import type { CreateSurfaceSurfaceProps } from "./CreateSurface.types";
 import type { DocumentSurfaceProps } from "./DocumentSurface";
 import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types";
 import type { SurfacePaginationSpec } from "./SurfaceContractTypes";
@@ -104,8 +104,15 @@ export interface BodySurfaceModuleGridSpec {
   items: BodySurfaceModuleGridItemSpec[];
 }
 
+export type BodySurfaceModalPurpose =
+  | "audit-history"
+  | "read-only-inspection"
+  | "workflow-action";
+
 export interface BodySurfaceModalSpec {
   key: string;
+  /** Required for approved exceptions. Omitted only by exact legacy-baseline entries awaiting migration. */
+  purpose?: BodySurfaceModalPurpose;
   open: boolean;
   title: string;
   onClose: () => void;
@@ -132,7 +139,6 @@ export interface BodySurfaceSectionDirectCreateSpec {
 
 export type BodySurfaceSectionCreateSpec<T = FormSurfaceLooseItem> =
   | (Omit<Extract<CreateSurfaceSurfaceProps<T>, { presentation: "block" }>, "anchor"> & { anchor?: never })
-  | Extract<CreateSurfaceSurfaceProps<T>, { presentation: "modal" }>
   | BodySurfaceSectionDirectCreateSpec;
 
 export interface BodySurfaceSectionHeaderSpec {
@@ -168,6 +174,10 @@ export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
 
 export type BodySurfaceSplitMasterPresentation = "default" | "compact";
 
+export interface BodySurfaceSplitMasterFooterSpec {
+  pagination?: SurfacePaginationSpec;
+}
+
 export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   layout: "split";
   master: {
@@ -175,6 +185,7 @@ export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
     body: BodySurfaceProps;
     mobileBody?: BodySurfaceProps;
     presentation?: BodySurfaceSplitMasterPresentation;
+    footer?: BodySurfaceSplitMasterFooterSpec;
   };
   detail: BodySurfaceProps;
   desktop?: {
@@ -199,8 +210,7 @@ export interface BodySurfaceSectionSpec {
 }
 
 export type BodySurfaceDataProps<T = DataSurfaceLooseRow> = { kind: "data"; data: DataSurfaceProps<T> };
-export type BodySurfaceCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceProps<T> };
-export type BodySurfaceToolbarCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceToolbarProps<T> };
+export type BodySurfaceCreateProps<T = FormSurfaceLooseItem> = { kind: "create"; create: CreateSurfaceSurfaceProps<T> };
 export type BodySurfaceCreateAnchorProps = { kind: "create-anchor"; anchor: string };
 export type BodySurfaceDocumentProps = { kind: "document"; document: DocumentSurfaceProps };
 export type BodySurfaceFormProps<T = FormSurfaceLooseItem> = { kind: "form"; form: FormSurfaceProps<T> };
@@ -208,8 +218,8 @@ export type BodySurfaceSelectorProps = { kind: "selector"; selector: SelectorSur
 export type BodySurfaceVisualizationProps = { kind: "visualization"; visualization: VisualizationSurfaceProps };
 
 export type BodySurfaceSectionBodyProps<TData = DataSurfaceLooseRow, TForm = FormSurfaceLooseItem> =
-  | BodySurfaceToolbarCreateProps<TForm>
   | BodySurfaceCreateAnchorProps
+  | BodySurfaceCreateProps<TForm>
   | BodySurfaceDataProps<TData>
   | BodySurfaceDocumentProps
   | BodySurfaceFormProps<TForm>

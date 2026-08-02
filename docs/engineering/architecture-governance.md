@@ -4,7 +4,7 @@
 
 ## 0. 文档入口
 
-Agent 开工先读 `AGENTS.md` 和 `docs/README.md`，再进入自己的 `docs/roles/*.md`。本文件只保留架构放置规则，不再维护角色分流、并行线程或任务专题索引。
+Agent 开工先遵守 `AGENTS.md` 的 Role Gate，调用 `workspace-role-router` 并进入对应 `.agents/skills/workspace-*`。本文件只保留架构放置规则，不再维护角色分流、并行线程或任务专题索引。
 
 如果代码改动导致文档过期，任务不算完成。并行时先看 `git status --short`，只提交自己负责的文件。
 
@@ -21,6 +21,8 @@ Agent 开工先读 `AGENTS.md` 和 `docs/README.md`，再进入自己的 `docs/r
 | 文档治理 | 模块边界、数据来源、导入流程、验收标准 | `README.md`, `docs/`, `app/*/ARCHITECTURE.md` |
 
 如果一个任务横跨两层，先写计划，拆成多个 commit。不要一次让 agent 同时改 schema、导入、API、UI、权限和部署脚本。
+
+所有层默认遵守 `docs/engineering/deep-module-design.md`：模块以小而稳定的 interface 承载大量行为；给人的 UI 同样属于 interface。后端字段、完整生命周期、工作流节点、内部 action 和权限矩阵不得机械展开成用户选项；UI 只表达当前上下文中的业务意图，写入通过 Zod 与 domain validator 在进入持久化前返回准确、可操作的错误。
 
 ## 2. 业务模块目录契约
 
@@ -44,6 +46,8 @@ app/api/modules/<domain>/<l2>/
 ```
 
 不是每个模块第一天都要建满所有文件，但新增代码时必须往这个方向收敛。
+
+源码 L1 所有权与职责投影统一声明在 `scripts/arch/source-code-analysis/declarations.ts`，产品包内的递归模块树声明在 `scripts/arch/source-code-analysis/capabilities.ts`。每个节点通过 `parentKey` 连接父模块，不写死 L2/L3/L4；文件归最深唯一匹配节点。跨分支只能引用目标节点的公开 Interface，祖先只有组合/入口边界可以装配后代 Implementation；历史直连以精确次数基线只减不增。每个受治理文件仍须落入 UI、输入边界、领域校验、业务实现、数据适配、组合壳、契约、测试或工具 role；role 是统计维度，不自动构成新模块。单文件必须守住可独立变化的 seam：输入 schema、domain validator、reference/persistence adapter、第三方 transport 和 React host 不得在同一文件交叉实现；事务型 application service 的持久化编排属于一个原子 use case，不强制增加透传 repository。页面/API 壳属于 composition/input，不能为了统计把拼装代码伪装成领域模块。详细标准见 `docs/engineering/deep-module-design.md`。
 
 ## 3. 新业务模块接入清单
 
@@ -80,7 +84,7 @@ DB 不等于 Excel，也不等于 normalized JSON。
 
 不确定的原始行可以先放 `rawPayload`，但不能为了还原 Excel 样子把几十个不稳定列都建成 schema。
 
-公司、组织、租户相关的专有事实必须数据化，不能散落在代码里。部署级身份、组织语义、HR 选项、Finance 导入计划、Work 编号、Docs/QC 产品和 Agent 编制以 `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` 及其引用文件为输入；可变公司/组织事实仍以数据库为权威并由租户输入 seed。只有 Platform `tenant-config` 负责路径解析、校验、缓存与 client-safe 快照，业务包只读取语义 accessor/context，不能直接读文件。`company:check` 保持 active baseline 为零并由 Hygiene 定期 strict 复查。
+公司、组织、租户相关的专有事实必须数据化，不能散落在代码里。租户身份、组织语义、HR 选项、Finance 导入计划、Work 编号、Docs/QC 产品和 Agent 编制以 `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` 及其引用文件为输入；可变公司/组织事实仍以数据库为权威并由租户输入 seed。仓库和部署目标只读专用私有环境变量，不进入 profile 或根 manifest。只有 Platform `tenant-config` 负责路径解析、校验、缓存与 client-safe 快照，业务包只读取语义 accessor/context，不能直接读文件。`company:check` 保持 active baseline 为零并由 Hygiene 定期 strict 复查。
 
 ## 5. API 规则
 
@@ -190,7 +194,7 @@ API 一级目录只表达系统能力类型：
 - `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、目标、routine、week-info；普通自助接口是 `session` API，个人 API key 另挂 `settings.account.apiAccess` capability。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
 - `/api/settings/api/*`：Open API 接入管理，包含 Client、Scope 授权和调用日志。
-- `/api/agent/*`：工具栏助手的对话、能力清单和变更提案，由 headless `agent.assistant` capability 保护，不属于 `/agent` 管理中心页面 API。
+- `/api/agent/*`：Agent L1 与工具栏助手共用的对话、能力清单和变更提案 API，直接由 `agent` 资源保护。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
 - `/api/open/v1/*`：外部开放 API，必须由 Open API registry 注册 endpoint 和 scope。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
@@ -206,7 +210,7 @@ API 一级目录只表达系统能力类型：
 
 `/api/modules/<module>` 只是路由归属和权限归属，不表示 API 层可以写业务逻辑。真实逻辑仍然在 `packages/<module>/server/*`；route 只能做认证、权限、Zod 参数校验、调用 package service 或 Platform 通用 factory、返回 DTO。写入请求继续按 `Zod schema -> domain validator -> service/Prisma` 收口。
 
-`/api/open/v1/*` 不属于业务模块内部 API，也不复用 L2 RBAC resource。新增开放能力时必须一次性注册管理页面 `consoleHref`、开放资源 `resources`、授权 scope、endpoint、`runtimeParentResourceKey`。`npm run arch:gate` 会检查 registry、页面、route 文件和 route wrapper 是否一致。
+`/api/open/v1/*` 不属于业务模块内部 API，也不复用 L2 RBAC resource。新增开放能力时必须一次性注册共享管理页 `consoleHref=/settings/api`、同页 `consoleTab`、开放资源 `resources`、授权 scope、endpoint、`runtimeParentResourceKey`。开放能力只能进入 `/settings/api` 的同页 tab，禁止为单个 registration 新建 `/settings/api/*` 页面；`npm run arch:gate` 会检查 registry、共享页面、route 文件和 route wrapper 是否一致，page contract gate 会拒绝未登记的深层页面。
 
 禁止新增 `/api/hr`、`/api/finance`、`/api/work`、`/api/employees` 等一级业务目录，也不要用 redirect 或 compatibility proxy 继续延长旧路径。历史旧路径删除时必须同步删除文档、脚本和部署配置中的引用。
 
@@ -216,8 +220,8 @@ package 依赖必须单向：
 
 ```txt
 app/* route shell
+  -> @workspace/<l1>
   -> @workspace/platform
-  -> @workspace/<domain>
   -> @workspace/core
 ```
 
@@ -238,11 +242,11 @@ app/* route shell
 - L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statements`、`production.qc`、`work.me`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
 - 每个 L2 必须声明规范 API URL 或明确 `noApiReason`。规范 URL 是 `/api/modules/<module>/<resource path>`，由 resourceKey 自动生成并推导；`apiPrefixes` 只保留旧兼容路径，必须配套 `migrationNote`。API contract 只写 `method/pathPrefix/access`，由 Platform 按最长前缀推导 owner resource；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/page.tsx` 对外仍是 `/work`。禁止重新创建绕开 L1 的顶层 route shell。
-- `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；普通 L1 目录页必须使用 Platform `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面。Agent 是 headless 模块，不提供 app page；Work 是 page gate 显式登记的专用 L1 入口。
+- `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；普通 L1 目录页必须使用 Platform `ModuleHomePage`、挂本 L1 的明确专用首页，或只做鉴权后 redirect 到已注册的默认 L2 页面。Agent 与 Work 都是 page gate 显式登记的专用 L1 入口。
 - `apps/*` 是部署图生成的独立 Next App 镜像，不是新的 route/package 事实源。业务页面和 API 先修改根 `app/*`、module registry 与对应 package，再通过生成器刷新目标 App；不得只在 `apps/<unit>` 修业务逻辑或保留分叉实现。`npm run deploy:apps:check` 负责逐字一致性，部署单元所有权和跨单元运行时协议见 `docs/engineering/ops/deploy-units.md`。
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey`，直接指向已注册 L2，或通过无环 capability owner 链最终落到已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；只有真实存在独立授权语义的能力才声明 capability，并用 `runtimeParentKey` 跟随 owner 模块启停。
-- Headless module 必须声明 `presentation: "headless"` 和 `noPageReason`；其 capability 必须声明独立 resource 与 `capabilityOwnerKey`，不能借 capability 权限生成管理页面。`agent.assistant` 以 `settings.account` 为 owner，保护工具栏与 `/api/agent/**`；`agent.source` 再以 `agent.assistant` 为 owner，显式保护 profile-only 源码与 PR 工具；`runtimeParentKey=agent` 只提供模块启停耦合。只有 Workspace AI0004 获得 source grants，本地开发、直接提交和部署属于外部运行时。
+- Headless module 必须声明 `presentation: "headless"` 和 `noPageReason`；其 capability 必须声明独立 resource 与 `capabilityOwnerKey`，不能借 capability 权限生成管理页面。Agent 已是普通 L1，`/agent` 会话、工具栏与 `/api/agent/**` 直接复用 `agent`，不能再为同一调用能力建立重复 capability。Agent 模型面固定为三个受保护业务 API connector，不得为源码、领域 adapter、内部 RPC 或部署能力再建 capability；本地开发、直接提交和部署属于外部运行时。
 - Settings 下的 account/admin/api 是标准 L2。默认权限、隐式继承和 Open API 边界只在 `docs/engineering/security/rbac.md` 维护，不在 registry 或页面层写特判。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
@@ -250,10 +254,10 @@ app/* route shell
 Core UI registry 治理：
 
 - Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
-- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
-- 标准新建流只有一个声明入口 `CreateSurface`，通过 `BodySurface kind="create"` 使用。Agent 分别选择 toolbar/surface trigger、inline/block/modal presentation、可选 block anchor 与 form/sections content；这些维度不得互相改变语义或非 inline 表单格式。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
+- 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/governance` 的 UI Tab 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
+- 标准页面级新建流只有一个 `PageSurface.create` slot；body 含 split 时 Core 将 inline/block 投影到右侧详情并在新建期间锁定主栏可见，禁止全页横跨分栏。局部新建通过 `BodySurface kind="create"` 使用 `CreateSurface trigger="surface"`。业务不得声明 toolbar trigger。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
 - Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用 Platform `ModuleHomePage`；三个 L2 分别通过公开的 `PageSurface` / `BodySurface` contract 组合配置、分析和汇报视图。
-- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
+- 改 `packages/core/ui/**`、Core UI registry 或 `/settings/governance` 的 UI 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：
 
@@ -307,7 +311,7 @@ Structure 任务拆解规则：
 动作: refactor
 目标层: api-shell + package
 依赖: 先补 package service -> route 改调用 service -> 删除 route 内 Prisma/业务计算 -> ratchet baseline
-禁止触碰: packages/work, .workspace/config/scripts/generate-product-stage-tests.mjs
+禁止触碰: packages/work, .workspace/tools/qc/generate-product-stage-tests.mjs
 验证: npm run arch:gate; npm run typecheck:scope -- finance
 风险: medium
 ```
@@ -317,7 +321,7 @@ Feature/Data/Operations agent 的执行细则、baseline 权限和验证矩阵�
 `app/` 层规则：
 
 - `app/(modules|system|auth|docs)/**/page.tsx`、`layout.tsx` 等只做认证、预取和挂载 package component，不写业务渲染、筛选、表格、表单或弹窗。
-- 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；新增业务页面必须挂在对应 L1 module 下，例如 `/work` 对应 `app/(modules)/work/page.tsx`。
+- 页面源码使用 Next route groups 收口：所有正常 L1 页面放 `app/(modules)/*`，平台保留页放 `app/(system)/*`，登录放 `app/(auth)/*`。这些 group 不改变 URL；新增业务页面必须挂在对应 L1 module 下，例如 `/docs` 对应 `app/(modules)/docs/page.tsx`。
 - `app/api/*/route.ts` 只做认证、权限、Zod 参数校验、调用 package service 或 Platform 通用 factory、返回 DTO；业务模块 route 必须位于 `app/api/modules/<module>/*`，不得新增一级业务 API 目录或旧路径兼容壳。
 - `scripts/arch/level15-baseline.json` 同时锁定历史 app JSX 文件、非入口实现文件和 `components/hooks/lib` 目录；新增 `FooClient.tsx`、`useFoo.ts`、字段 helper、route-local component 这类文件都会被 `npm run arch:gate` 阻断，迁移删除后必须同步删 baseline。
 
@@ -339,7 +343,7 @@ Feature/Data/Operations agent 的执行细则、baseline 权限和验证矩阵�
 
 - `prisma/schema.prisma` 已经很长，应按领域拆分。
 - 部分历史文档、脚本或部署配置仍可能引用旧 route；清理代码入口时必须一并清理引用，避免 CI/CD 或 agent 按旧路径执行。
-- `packages/platform/ui/admin` 里旧权限 tab 文件仍存在，统一权限矩阵稳定后可以删除。
+- `packages/settings/ui/admin` 里旧权限 tab 文件仍存在，统一权限矩阵稳定后可以删除。
 - `lib/` 中有部分 server-only 逻辑，新代码优先放到 `server/`。
 - `scripts/` 需要继续区分 check/import/migrate/generate。
 

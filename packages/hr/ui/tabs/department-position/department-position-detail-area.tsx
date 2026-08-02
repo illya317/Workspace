@@ -1,13 +1,14 @@
 "use client";
 
-import { createPageBody, BodySurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, BodySurface, type BodySurfaceSectionSpec, type PageSurfaceCreateSpec } from "@workspace/core/ui";
 import { useDepartmentCreateSurface } from "./department-create-panel";
-import type { Department } from "./types";
+import type { Department, OrganizationCodeConfig } from "./types";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 
 export function useDepartmentPositionDetailSections({
   createPanel,
   departments,
+  codeConfig,
   departmentById,
   actionRuntime,
   onCreatePanelChange,
@@ -17,15 +18,17 @@ export function useDepartmentPositionDetailSections({
 }: {
   createPanel: "department" | "position" | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
   detailSections: BodySurfaceSectionSpec[];
-}): BodySurfaceSectionSpec[] {
+}): { sections: BodySurfaceSectionSpec[]; create: PageSurfaceCreateSpec & { presentation: "block" } } {
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
+    codeConfig,
     departmentById,
     actionRuntime,
     open: createPanel === "department",
@@ -33,15 +36,16 @@ export function useDepartmentPositionDetailSections({
     onCancel,
     onCreated,
   });
-  return [
-    { key: "department-create", body: { kind: "create", create: createDepartmentSurface } },
-    ...(createPanel === "department" ? [] : detailSections),
-  ];
+  return {
+    create: createDepartmentSurface,
+    sections: createPanel === "department" ? [] : detailSections,
+  };
 }
 
 export function DepartmentPositionDetailArea(props: {
   createPanel: "department" | "position" | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
@@ -49,6 +53,9 @@ export function DepartmentPositionDetailArea(props: {
   onCreated: () => void | Promise<void>;
   detailSections: BodySurfaceSectionSpec[];
 }) {
-  const sections = useDepartmentPositionDetailSections(props);
-  return <BodySurface {...createPageBody(sections)} />;
+  const workspace = useDepartmentPositionDetailSections(props);
+  return <BodySurface {...createPageBody([
+    { key: "department-create", body: { kind: "create", create: { ...workspace.create, trigger: "surface" } } },
+    ...workspace.sections,
+  ])} />;
 }

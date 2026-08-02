@@ -1,5 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { defineBusinessActionCommandAdapter, executeDirectBusinessActionCommand } from "@workspace/platform/server/business-action-executor";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";

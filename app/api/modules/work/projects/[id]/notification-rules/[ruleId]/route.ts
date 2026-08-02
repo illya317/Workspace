@@ -1,0 +1,27 @@
+import { z } from "zod";
+
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildUpdateProjectNotificationRuleCommand,
+  updateProjectNotificationRule,
+  projectNotificationRuleUpdateRequestSchema,
+} from "@workspace/work/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+  ruleId: z.coerce.number().int().positive(),
+}).strict();
+
+export const PUT = createCommandRoute({
+  paramsSchema,
+  paramsError: "项目或规则 ID 无效",
+  bodySchema: projectNotificationRuleUpdateRequestSchema,
+  bodyError: "项目通知规则无效",
+  buildCommand: ({ params, body, user }) => buildUpdateProjectNotificationRuleCommand({
+    userId: user.userId,
+    projectId: params.id,
+    ruleId: params.ruleId,
+    body,
+  }),
+  action: updateProjectNotificationRule,
+});

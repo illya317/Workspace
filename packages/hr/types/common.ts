@@ -7,6 +7,8 @@ export interface HRUser {
   visibleUpdateResourceKeys: string[];
   /** Resource keys the user can submit or start workflow requests for. */
   visibleSubmitResourceKeys?: string[];
+  /** Resource keys where the user may correct an already-recorded fact. */
+  visibleReviseResourceKeys?: string[];
   isAdmin: boolean;
   company?: string | null;
 }
@@ -24,6 +26,10 @@ export function hrCanEdit(user: HRUser, key: string = "hr.roster"): boolean {
 /** Check if user can start a workflow submission for a resource. */
 export function hrCanSubmit(user: HRUser, key: string = "hr.roster"): boolean {
   return user.isAdmin || (user.visibleSubmitResourceKeys || []).includes(key);
+}
+
+export function hrCanRevise(user: HRUser, key: string = "hr.roster"): boolean {
+  return user.isAdmin || (user.visibleReviseResourceKeys || []).includes(key);
 }
 
 export interface RosterEmployee {

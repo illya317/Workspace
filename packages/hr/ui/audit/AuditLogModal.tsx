@@ -92,6 +92,7 @@ export function useAuditLogModal({ open, onClose, entityType, onRestored }: Audi
 
   return {
         key: "audit-log",
+        purpose: "audit-history",
         open,
         title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
         onClose,

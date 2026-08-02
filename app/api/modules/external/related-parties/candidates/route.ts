@@ -1,0 +1,12 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import {
+  ExternalPartyQuerySchema,
+  listExternalRelatedPartyCandidates,
+} from "@workspace/external/server";
+
+export const GET = createCommandRoute({
+  querySchema: ExternalPartyQuerySchema,
+  buildCommand: ({ query, user }) => okCommand({ ...query, userId: user.userId }),
+  action: listExternalRelatedPartyCandidates,
+});

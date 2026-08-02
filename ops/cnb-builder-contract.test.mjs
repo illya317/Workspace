@@ -13,20 +13,24 @@ test("CNB Builder pins Node Bookworm by digest and removes apt metadata", () => 
   );
   assert.match(dockerfile, /openssh-client/);
   assert.match(dockerfile, /rsync/);
+  assert.match(dockerfile, /ripgrep/);
   assert.match(dockerfile, /rm -rf \/var\/lib\/apt\/lists\/\*/);
+  assert.match(dockerfile, /postgresql/);
 });
 
 test("Builder smoke enforces repository Node and every release tool", () => {
   assert.match(verifyBuilder, /\.node-version/);
-  for (const command of ["node", "npm", "ssh", "rsync", "git", "tar", "python3", "make", "g++"]) {
+  for (const command of ["node", "npm", "ssh", "rsync", "git", "tar", "python3", "make", "g++", "rg", "psql", "pg_ctlcluster", "createdb", "runuser"]) {
     assert.ok(verifyBuilder.includes(command), `missing Builder smoke command: ${command}`);
   }
   assert.match(verifyBuilder, /uname -s/);
 });
 
-test("timed CNB stage runner binds records to the exact injection parent", () => {
+test("timed CNB stage runner separates the Controller Ready parent from Application Ready", () => {
   assert.match(stageRunner, /\.cnb-release\.json\\n\.cnb\.yml/);
   assert.match(stageRunner, /git rev-parse HEAD\^/);
+  assert.match(stageRunner, /RELEASE_CONTROLLER_SOURCE_SHA/);
+  assert.match(stageRunner, /metadata_source_sha/);
   assert.match(stageRunner, /RELEASE_TIMING_FILE/);
   assert.match(stageRunner, /release_timing_run "\$stage" "\$@"/);
   assert.doesNotMatch(stageRunner, /echo .*"\$@"|printf .*"\$@"/);

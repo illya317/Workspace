@@ -16,6 +16,14 @@ export function safeRatio(numerator: number, denominator: number) {
   return Math.abs(denominator) > 0.005 ? numerator / denominator : null;
 }
 
+export function safePositiveBaseRatio(numerator: number, denominator: number) {
+  return denominator > 0.005 ? numerator / denominator : null;
+}
+
+export function safeNonNegativeRatio(numerator: number, denominator: number) {
+  return numerator >= 0 && denominator > 0.005 ? numerator / denominator : null;
+}
+
 export function changeRate(current: number, previous: number) {
   return Math.abs(previous) > 0.005 ? (current - previous) / Math.abs(previous) : null;
 }
@@ -80,6 +88,17 @@ export function buildWorkingCapital(
   const currentAssets = amount(current, "totalCurrentAssets");
   const currentLiabilities = amount(current, "totalCurrentLiabilities");
   const average = (currentValue: number, priorValue: number) => (currentValue + priorValue) / 2;
+  const averageReceivables = average(receivables, priorReceivables);
+  const averageInventory = average(inventory, priorInventory);
+  const averagePayables = average(payables, priorPayables);
+  const receivableTurnover = safeNonNegativeRatio(revenue, averageReceivables);
+  const inventoryTurnover = safeNonNegativeRatio(operatingCost, averageInventory);
+  const payableTurnover = safeNonNegativeRatio(operatingCost, averagePayables);
+  const receivableDays = safeNonNegativeRatio(averageReceivables * elapsedDays, revenue);
+  const inventoryDays = safeNonNegativeRatio(averageInventory * elapsedDays, operatingCost);
+  const payableDays = safeNonNegativeRatio(averagePayables * elapsedDays, operatingCost);
+  const operatingCycleDays = receivableDays !== null && inventoryDays !== null ? receivableDays + inventoryDays : null;
+  const cashConversionCycleDays = operatingCycleDays !== null && payableDays !== null ? operatingCycleDays - payableDays : null;
   const components = [
     ["cash", "货币资金", amount(previous, "cash"), cash, "asset"],
     ["receivables", "应收票据及账款", priorReceivables, receivables, "asset"],
@@ -94,12 +113,17 @@ export function buildWorkingCapital(
     currentAssets: roundMoney(currentAssets),
     currentLiabilities: roundMoney(currentLiabilities),
     netWorkingCapital: roundMoney(currentAssets - currentLiabilities),
-    currentRatio: safeRatio(currentAssets, currentLiabilities),
-    quickRatio: safeRatio(currentAssets - inventory - prepayments, currentLiabilities),
-    cashRatio: safeRatio(cash, currentLiabilities),
-    receivableDays: safeRatio(average(receivables, priorReceivables) * elapsedDays, revenue),
-    inventoryDays: safeRatio(average(inventory, priorInventory) * elapsedDays, operatingCost),
-    payableDays: safeRatio(average(payables, priorPayables) * elapsedDays, operatingCost),
+    currentRatio: safeNonNegativeRatio(currentAssets, currentLiabilities),
+    quickRatio: safeNonNegativeRatio(currentAssets - inventory - prepayments, currentLiabilities),
+    cashRatio: safeNonNegativeRatio(cash, currentLiabilities),
+    receivableTurnover,
+    inventoryTurnover,
+    payableTurnover,
+    receivableDays,
+    inventoryDays,
+    payableDays,
+    operatingCycleDays,
+    cashConversionCycleDays,
     components: components.map(([key, label, opening, closing, kind]) => ({
       key,
       label,
@@ -136,28 +160,60 @@ export function buildCashScenarios(input: {
 export function buildPerformanceKpis(input: {
   revenue: number;
   priorRevenue: number;
+  grossProfit: number;
+  priorGrossProfit: number;
+  operatingProfit: number;
+  priorOperatingProfit: number;
   netProfit: number;
   priorNetProfit: number;
   totalAssets: number;
-  priorAssets: number;
+  openingAssets: number;
   totalEquity: number;
-  priorEquity: number;
+  openingEquity: number;
   totalLiabilities: number;
   currentRatio: number | null;
+  quickRatio: number | null;
+  cashRatio: number | null;
+  receivableDays: number | null;
+  inventoryDays: number | null;
+  payableDays: number | null;
+  cashConversionCycleDays: number | null;
   operatingCashFlow: number;
   freeCashFlow: number;
 }): ManagementPerformanceKpi[] {
-  const averageAssets = (input.totalAssets + input.priorAssets) / 2;
-  const averageEquity = (input.totalEquity + input.priorEquity) / 2;
+  const averageAssets = (input.totalAssets + input.openingAssets) / 2;
+  const averageEquity = (input.totalEquity + input.openingEquity) / 2;
+  const grossMargin = safePositiveBaseRatio(input.grossProfit, input.revenue);
+  const priorGrossMargin = safePositiveBaseRatio(input.priorGrossProfit, input.priorRevenue);
+  const operatingMargin = safePositiveBaseRatio(input.operatingProfit, input.revenue);
+  const priorOperatingMargin = safePositiveBaseRatio(input.priorOperatingProfit, input.priorRevenue);
+  const netMargin = safePositiveBaseRatio(input.netProfit, input.revenue);
+  const priorNetMargin = safePositiveBaseRatio(input.priorNetProfit, input.priorRevenue);
   return [
-    { key: "revenue-growth", label: "营业收入增长率", value: changeRate(input.revenue, input.priorRevenue), priorValue: null, format: "percent", direction: "higher", source: "ledger" },
-    { key: "net-profit", label: "净利润", value: input.netProfit, priorValue: input.priorNetProfit, format: "amount", direction: "higher", source: "ledger" },
-    { key: "roa", label: "总资产收益率", value: safeRatio(input.netProfit, averageAssets), priorValue: null, format: "percent", direction: "higher", source: "derived" },
-    { key: "roe", label: "净资产收益率", value: averageEquity > 0 ? safeRatio(input.netProfit, averageEquity) : null, priorValue: null, format: "percent", direction: "higher", source: "derived" },
-    { key: "asset-liability", label: "资产负债率", value: safeRatio(input.totalLiabilities, input.totalAssets), priorValue: null, format: "percent", direction: "lower", source: "derived" },
-    { key: "current-ratio", label: "流动比率", value: input.currentRatio, priorValue: null, format: "ratio", direction: "higher", source: "derived" },
-    { key: "operating-cash", label: "经营现金净额", value: input.operatingCashFlow, priorValue: null, format: "amount", direction: "higher", source: "ledger" },
-    { key: "free-cash", label: "自由现金流", value: input.freeCashFlow, priorValue: null, format: "amount", direction: "higher", source: "derived" },
+    { category: "growth", key: "revenue-growth", label: "营业收入增长率", value: changeRate(input.revenue, input.priorRevenue), priorValue: null, format: "percent", direction: "higher", source: "ledger" },
+    { category: "growth", key: "gross-profit-growth", label: "毛利增长率", value: changeRate(input.grossProfit, input.priorGrossProfit), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "growth", key: "operating-profit-growth", label: "营业利润增长率", value: changeRate(input.operatingProfit, input.priorOperatingProfit), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "growth", key: "net-profit-growth", label: "净利润增长率", value: changeRate(input.netProfit, input.priorNetProfit), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "profitability", key: "gross-margin", label: "毛利率", value: grossMargin, priorValue: priorGrossMargin, format: "percent", direction: "higher", source: "derived" },
+    { category: "profitability", key: "operating-margin", label: "营业利润率", value: operatingMargin, priorValue: priorOperatingMargin, format: "percent", direction: "higher", source: "derived" },
+    { category: "profitability", key: "net-margin", label: "净利率", value: netMargin, priorValue: priorNetMargin, format: "percent", direction: "higher", source: "derived" },
+    { category: "profitability", key: "net-profit", label: "净利润", value: input.netProfit, priorValue: input.priorNetProfit, format: "amount", direction: "higher", source: "ledger" },
+    { category: "profitability", key: "roa", label: "总资产收益率（累计）", value: safePositiveBaseRatio(input.netProfit, averageAssets), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "profitability", key: "roe", label: "净资产收益率（累计）", value: safePositiveBaseRatio(input.netProfit, averageEquity), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "efficiency", key: "asset-turnover", label: "总资产周转率（累计）", value: safeNonNegativeRatio(input.revenue, averageAssets), priorValue: null, format: "ratio", direction: "higher", source: "derived" },
+    { category: "efficiency", key: "receivable-days", label: "应收周转天数", value: input.receivableDays, priorValue: null, format: "days", direction: "lower", source: "derived" },
+    { category: "efficiency", key: "inventory-days", label: "存货周转天数", value: input.inventoryDays, priorValue: null, format: "days", direction: "lower", source: "derived" },
+    { category: "efficiency", key: "payable-days", label: "应付周转天数", value: input.payableDays, priorValue: null, format: "days", direction: "context", source: "derived" },
+    { category: "efficiency", key: "cash-conversion-cycle", label: "现金转换周期", value: input.cashConversionCycleDays, priorValue: null, format: "days", direction: "lower", source: "derived" },
+    { category: "solvency", key: "current-ratio", label: "流动比率", value: input.currentRatio, priorValue: null, format: "ratio", direction: "higher", source: "derived" },
+    { category: "solvency", key: "quick-ratio", label: "速动比率", value: input.quickRatio, priorValue: null, format: "ratio", direction: "higher", source: "derived" },
+    { category: "solvency", key: "cash-ratio", label: "现金比率", value: input.cashRatio, priorValue: null, format: "ratio", direction: "higher", source: "derived" },
+    { category: "solvency", key: "asset-liability", label: "资产负债率", value: safePositiveBaseRatio(input.totalLiabilities, input.totalAssets), priorValue: null, format: "percent", direction: "lower", source: "derived" },
+    { category: "solvency", key: "debt-equity", label: "产权比率", value: safePositiveBaseRatio(input.totalLiabilities, input.totalEquity), priorValue: null, format: "ratio", direction: "lower", source: "derived" },
+    { category: "cash", key: "operating-cash", label: "经营现金净额", value: input.operatingCashFlow, priorValue: null, format: "amount", direction: "higher", source: "ledger" },
+    { category: "cash", key: "free-cash", label: "自由现金流", value: input.freeCashFlow, priorValue: null, format: "amount", direction: "higher", source: "derived" },
+    { category: "cash", key: "operating-cash-margin", label: "经营现金流量/营业收入", value: safePositiveBaseRatio(input.operatingCashFlow, input.revenue), priorValue: null, format: "percent", direction: "higher", source: "derived" },
+    { category: "cash", key: "profit-cash-ratio", label: "净利润现金含量", value: safePositiveBaseRatio(input.operatingCashFlow, input.netProfit), priorValue: null, format: "ratio", direction: "higher", source: "derived" },
   ];
 }
 

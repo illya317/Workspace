@@ -34,22 +34,38 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/autocomplete.ts` 和 `server/autocomplete-config.ts`：HR FK/autocomplete 查询与搜索字段配置。
 - `server/crud.ts`：HR 字段级 CRUD wrapper，统一注入 HR 权限检查并复用 Platform CRUD 契约。
 - 公司事实查询、编码解析和缓存由共享的 `@workspace/platform/server/company-directory` 提供；公司及股权关系维护归资本证券，HR 只消费公司候选。
-- `server/contracts.ts`：合同 JSON 解析、列表、创建、更新、删除和主合同同步。
+- `server/contracts.ts`：基于正式 `EmploymentAgreement` 的合同只读清单与数据库分页；旧创建、整表覆盖和物理删除入口均为 410 tombstone。历史 JSON 只能用于 baseline 发布核对，不得成为正常列表事实源。
+- `server/employment-agreements.ts`：稳定协议身份、有效期限和不可变条款修订的唯一在线写入 seam，所有命令要求 optimistic `expectedVersion`。
+- `server/employment-agreement-legacy.ts`：`Employment.contracts` JSON 的稳定 fingerprint 解析与标准合同 DTO 投影，仅用于受控 baseline 数据发布和迁移核对，不作为正常在线合同的数据源。
 - `server/departments.ts`：部门列表、创建、更新、删除和部门说明书保存。
-- `server/edps.ts`：EDP 列表、创建、更新和删除。
-- `server/employees.ts`：员工列表、创建账号、字段更新、删除和员工搜索。
-- `server/employments.ts`：雇佣列表、创建、字段更新和禁止删除策略。
+- `server/edps.ts`：EDP 只读列表；期间结构写入统一进入员工生命周期 service。
+- `server/employees.ts`：员工列表、创建账号、字段更新和员工搜索；员工身份不提供在线 hard delete。
+- `server/employments.ts`：雇佣列表与旧批量非期间资料修正；员工详情的新建进入轻量 create service，既有记录的资料与日期修正进入按记录 PATCH seam。
 - `server/employee-profile.ts`：员工详情聚合 DTO。
-- `server/employee-contracts.ts`：员工合同保存和合同 JSON 校验。
-- `server/employee-edps.ts`：员工部门岗位保存和工作占比校验。
+- `server/employee-contracts.ts`：旧员工详情 whole-array 保存 tombstone；新入口是 `/employee-profiles/:id/agreements`。
+- `server/employee-lifecycle.ts`：未来生效或跨多条记录的入职、调岗、兼岗、汇报关系变化和离职事件 seam。
+- `server/employee-period-creates.ts`：员工详情直接新增 Employment / EDP；服务端派生 actor、业务日和内部命令标识。
+- `server/employee-period-corrections.ts`：Employment / EDP 当前编辑与历史纠错 seam；调用方只提交目标、字段 patch 和 optimistic version，服务端校验完整时间线，并只在真实变化时记录 `EmployeePeriodRevision` 与历史快照。
+- `scripts/check/hr-business-temporal-preflight.ts`：上线前在同一只读快照内扫描 Employment / EDP / EmployeeProject 期间与当前态一致性；开放结束必须为 `null`，通过 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD` 执行。
+- `scripts/repair/repair-hr-lifecycle-compatibility.mjs`：受 `hr-lifecycle-compatibility-v1` 私有数据发布 handler 调用，按精确版本和历史证据修复可确定的旧 Employment / EDP 期间矛盾，并写入审计快照；不接受任意 SQL 或模糊匹配。
 - `server/employee-history.ts`：员工详情历史记录聚合。
-- `server/field-validation.ts`：HR 字段日期、选项、身份证、公司名和工作占比校验。
+- `server/field-validation.ts`：HR 字段日期、选项、身份证、公司名、岗位投入权重与折算占比派生。
 - `server/position-description-template-store.ts`：岗位说明书视图模板读写。
 - `server/position-descriptions.ts`：岗位说明书树、列表、详情和保存。
 - `server/positions.ts`：岗位列表、创建、更新和删除。
 - `server/roster.ts`：HR 名册列表、导出和筛选选项。
 - `server/search.ts`：HR 员工和主数据搜索语义。
-- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣、合同、员工详情合同/EDP、部门、岗位、EDP 和岗位说明书，统一收口 FK、日期、枚举、百分比、汇报岗位、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
+- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣非期间修正、雇佣协议 lifecycle、人员生命周期、部门、岗位和岗位说明书，统一收口 FK、日期、枚举、百分比、汇报岗位、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
+
+雇佣协议采用 `EmploymentAgreement` anchor + `EmploymentAgreementTerm` 含首尾日合同期间 + append-only `EmploymentAgreementRevision`。提前续签允许与上一段期限重叠，合同期限也允许按历史日期补录；数据库和 service 不得把重叠或早于当前业务日当成无效历史。员工详情按“合同资料、当前合同期限、待生效合同期限、历史合同期限”展示；历史 baseline 与新建合同使用同一标准合同界面，UI 不得出现 `legacy`、`baseline`、迁移前、只读投影、`vnull`、状态未知或内部来源说明。新建合同时，UI 按合同开始日期自动匹配唯一一条 Employment，不向用户暴露技术性的“雇佣记录”外键；未命中或命中多条时必须先修订雇佣周期，服务端也校验合同开始日期属于该 Employment。新建合同、续签、终止、期限修订、合同资料修订、设主合同和取消待生效期限全部经过同一命令 module；合同资料保存会直接新增 superseding revision 并移动 anchor 当前指针，旧 revision 永不覆盖，UI 不暴露草稿、发布、替代等技术动作。
+
+同一签约公司可以有多份独立法律协议，不能以公司名合并 anchor。员工详情先选择签约主体，再在该主体的协议表中按类型、签署日期、到期日期、结束日期、状态和附件数区分协议；点击行后只展开当前协议，不暴露内部 `version`。Term 的 `effectiveThrough` 是约定到期日期；anchor 的 `actualEndDate` 是真实结束日期，只由明确终止事实写入。登记终止只更新 `actualEndDate`，不得覆盖 Term 的原约定到期日期，两者不得互相派生或混用。
+
+社会保险使用独立 `EmployeeSocialInsurancePeriod`，并登记为 `HR_SOCIAL_INSURANCE_TEMPORAL`。`insured / stopped / uninsured / retired` 是显式业务状态，不从日期空值推导；新登记的公司、参保月份、停保月份与原因按状态条件必填，UI 星号与 domain contract 同源，月份统一使用 Core 月份选择器。历史 baseline 的已知状态必须进入正式表，公司或月份缺失时保留空值并写 `missingFieldsJson`，普通查询仍返回，不能因字段不完整丢失记录。记录页使用 Platform 标准 lifecycle record table + selected detail seam；补充模式由通用 mutation 配置校验，只开放仍在 `missingFieldsJson` 中的字段，保存追加 `EmployeeSocialInsurancePeriodRevision` 并保留 before/after/reason。
+
+历史合同 baseline 是上线前的受控数据发布，不是用户首次保存时才触发的惰性迁移。凡是能建立稳定身份且不违反硬性业务规则的历史合同，都必须预先写入正式 `EmploymentAgreement / EmploymentAgreementTerm / EmploymentAgreementRevision` 表。缺失值按 `HR_EMPLOYMENT_AGREEMENT_TEMPORAL.baseline` 处理：没有明确无效/取消标记时按有效事实保留；缺少开始日期按开放下界保留，缺少到期日期按开放上界保留；其他缺失属性保持 `null`。实际缺失字段写入 `EmploymentAgreement.missingFieldsJson` 并按真实字段名提示；只有 `baseline.requiredFields` 声明的必填字段缺失才形成 `baseline-incomplete` 并阻断依赖动作，非必填字段缺失不影响续签、终止或普通保存。`employment-agreement-field-contract` 是请求 schema、domain validator 与 UI `required` 的共同规则源，所有可见字段严格满足 `star === required`。普通查询继续包含该合同。无法稳定识别、归属/FK 冲突、重复身份、JSON 无法解析或期限倒置等真正违反硬规则的数据才进入异常清单，不得静默丢失或伪装成新合同。原 `Employment.contracts` 永久保留为来源证据，正式记录保留 `sourceKind / sourceRef` 用于审计和幂等，不在业务界面展示。在线读取和保存只操作正式合同表；保存仍按正常合同的版本与不可变修订规则执行，不承担 baseline 建档。在线路径不得按数组下标更新或删除，也不得把整组前端 rows 覆盖回 JSON。
+
+Employment、EDP 与雇佣协议均显式登记 `overlaps + retrospectiveChanges + revision`。默认允许补录历史日期；Employment 禁止重叠，EDP 按业务槽位/占比/唯一主岗约束，雇佣协议允许重叠。普通新增和字段纠错登记为轻量 ActionContract，调用方只提供目标、业务字段和 optimistic version；actor、业务日期、默认原因和内部命令标识由服务端派生。未来生效、追溯业务变化或跨多条记录的结构事件才进入显式 lifecycle command；如将这类事件切换为流程执行，direct service 必须失败关闭，不能绕过审批。
 
 旧的 `app/hr/*` 类型和 helper 文件保留为 re-export，避免一次性改动大量页面引用。
 旧的 HR UI 大组件和第一批字段组件路径保留为 re-export，Next route 和现有页面入口保持不变。

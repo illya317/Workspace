@@ -2,7 +2,7 @@ import { z } from "zod";
 import {
   executeCreateDocsEditorTemplate,
   getEditorBootstrap,
-} from "@workspace/platform/server/docs-editor";
+} from "@workspace/docs/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 

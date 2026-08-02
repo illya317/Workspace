@@ -4,10 +4,8 @@
  */
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
-import { resolveAgentToolAccess, sourceCodeAgentTools } from "@workspace/platform/server/agent";
-import { loadRemoteAgentTools } from "@workspace/platform/server/agent/remote-domain-rpc";
+import { agentBusinessApiTools, resolveAgentToolAccess } from "@workspace/agent/server";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
-import { docsEditorAgentTools } from "@workspace/platform/server/docs-editor";
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
@@ -16,7 +14,6 @@ export async function GET(request: Request) {
   const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) return jsonErrorResponse("Unauthorized", 401);
 
-  const domainTools = await loadRemoteAgentTools();
-  const { capabilities } = await resolveAgentToolAccess(user, [...sourceCodeAgentTools, ...domainTools, ...docsEditorAgentTools]);
+  const { capabilities } = await resolveAgentToolAccess(user, agentBusinessApiTools);
   return NextResponse.json({ capabilities });
 }

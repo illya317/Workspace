@@ -21,7 +21,7 @@ import { REPORT_TYPE_OPTIONS } from "./report-options";
 import type { ConsolidationPeriodKind } from "./consolidation-period";
 import { buildStatementPeriodToolbarItems } from "./consolidation-toolbar";
 import { buildStandaloneStatementAssistantContext } from "./statement-assistant-context";
-import { downloadStatementWorkbook } from "./statement-download";
+import { downloadFinanceWorkbook } from "../workbook-download";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
 
 function balanceCheck(label: string, assets: number, liabilitiesAndEquity: number) {
@@ -159,7 +159,7 @@ export default function ReportTab({
         month: String(monthFilter),
         periodKind,
       });
-      await downloadStatementWorkbook(
+      await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/statements/reports/export?${query.toString()}`),
         `${companyName}-${year}.${String(monthFilter).padStart(2, "0")}-财务报表.xlsx`,
       );

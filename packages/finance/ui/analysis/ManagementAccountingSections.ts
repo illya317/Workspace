@@ -41,6 +41,10 @@ function ratio(value: number | null) {
   return value === null ? "—" : value.toFixed(2);
 }
 
+function turnover(value: number | null) {
+  return value === null ? "—" : `${value.toFixed(2)} 次`;
+}
+
 function days(value: number | null) {
   return value === null ? "—" : `${value.toFixed(1)} 天`;
 }
@@ -92,6 +96,16 @@ export function buildManagementOverviewSections(data: ManagementAnalysis): BodyS
         { key: "ending-cash", label: "期末货币资金", value: formatFinanceAmount(data.workingCapital.components.find((row) => row.key === "cash")?.closing ?? 0) },
         { key: "working-capital", label: "净营运资金", value: signed(data.workingCapital.netWorkingCapital) },
         { key: "risk", label: "高风险 / 全部发现", value: `${criticalCount} / ${data.risks.length}` },
+      ],
+    }),
+    createMetricsSection("management-overview-ratios", {
+      metrics: [
+        { key: "revenue-growth", label: "营业收入同比", value: percent(data.profitability.revenueChangeRate) },
+        { key: "gross-margin", label: "毛利率", value: percent(data.profitability.grossMargin) },
+        { key: "net-margin", label: "净利率", value: percent(data.profitability.netMargin) },
+        { key: "current-ratio", label: "流动比率", value: ratio(data.workingCapital.currentRatio) },
+        { key: "quick-ratio", label: "速动比率", value: ratio(data.workingCapital.quickRatio) },
+        { key: "asset-liability", label: "资产负债率", value: percent(data.capital.assetLiabilityRatio) },
       ],
     }),
     createAnalysisSection("management-diagnosis", {
@@ -146,9 +160,16 @@ export function buildWorkingCapitalSections(data: ManagementAnalysis): BodySurfa
     createMetricsSection("working-capital-efficiency", {
       metrics: [
         { key: "receivable-days", label: "应收周转天数", value: days(data.workingCapital.receivableDays) },
+        { key: "receivable-turnover", label: "应收周转率", value: turnover(data.workingCapital.receivableTurnover) },
         { key: "inventory-days", label: "存货周转天数", value: days(data.workingCapital.inventoryDays) },
+        { key: "inventory-turnover", label: "存货周转率", value: turnover(data.workingCapital.inventoryTurnover) },
         { key: "payable-days", label: "应付周转天数", value: days(data.workingCapital.payableDays) },
+        { key: "cash-conversion", label: "现金转换周期", value: days(data.workingCapital.cashConversionCycleDays) },
       ],
+    }),
+    createMessageSection("working-capital-basis", {
+      tone: "muted",
+      content: "周转率和周转天数按本年累计收入/成本及期初、期末平均余额自动计算；现金转换周期＝应收天数＋存货天数－应付天数。",
     }),
   ];
 }

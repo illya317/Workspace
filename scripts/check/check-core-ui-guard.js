@@ -225,8 +225,8 @@ function findSectionCreatePlacementContractViolations() {
   if (!types.includes("body: BodySurfaceSectionBodyProps;")) {
     violations.push(`${BODY_SURFACE_TYPES}: nested section bodies must use the placement-safe body contract`);
   }
-  if (!types.includes("BodySurfaceToolbarCreateProps<TForm>")) {
-    violations.push(`${BODY_SURFACE_TYPES}: nested create bodies must be limited to toolbar-triggered creates`);
+  if (!types.includes("BodySurfaceCreateProps<TForm>")) {
+    violations.push(`${BODY_SURFACE_TYPES}: nested create bodies must be limited to local surface-triggered creates`);
   }
   if (!types.includes('{ anchor?: never }')) {
     violations.push(`${BODY_SURFACE_TYPES}: section header block create must reject caller-provided anchors`);

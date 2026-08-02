@@ -28,12 +28,14 @@ export type AggregateFinanceSourceLedgerMapping = {
 
 export type FinanceSourceLedgerMappingAvgAggregateOutputType = {
   id: number | null
+  companyId: number | null
   effectiveFromYear: number | null
   effectiveToYear: number | null
 }
 
 export type FinanceSourceLedgerMappingSumAggregateOutputType = {
   id: number | null
+  companyId: number | null
   effectiveFromYear: number | null
   effectiveToYear: number | null
 }
@@ -41,6 +43,7 @@ export type FinanceSourceLedgerMappingSumAggregateOutputType = {
 export type FinanceSourceLedgerMappingMinAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceName: string | null
@@ -61,6 +64,7 @@ export type FinanceSourceLedgerMappingMinAggregateOutputType = {
 export type FinanceSourceLedgerMappingMaxAggregateOutputType = {
   id: number | null
   companyCode: string | null
+  companyId: number | null
   sourceSystem: string | null
   sourceLedger: string | null
   sourceName: string | null
@@ -81,6 +85,7 @@ export type FinanceSourceLedgerMappingMaxAggregateOutputType = {
 export type FinanceSourceLedgerMappingCountAggregateOutputType = {
   id: number
   companyCode: number
+  companyId: number
   sourceSystem: number
   sourceLedger: number
   sourceName: number
@@ -102,12 +107,14 @@ export type FinanceSourceLedgerMappingCountAggregateOutputType = {
 
 export type FinanceSourceLedgerMappingAvgAggregateInputType = {
   id?: true
+  companyId?: true
   effectiveFromYear?: true
   effectiveToYear?: true
 }
 
 export type FinanceSourceLedgerMappingSumAggregateInputType = {
   id?: true
+  companyId?: true
   effectiveFromYear?: true
   effectiveToYear?: true
 }
@@ -115,6 +122,7 @@ export type FinanceSourceLedgerMappingSumAggregateInputType = {
 export type FinanceSourceLedgerMappingMinAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceName?: true
@@ -135,6 +143,7 @@ export type FinanceSourceLedgerMappingMinAggregateInputType = {
 export type FinanceSourceLedgerMappingMaxAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceName?: true
@@ -155,6 +164,7 @@ export type FinanceSourceLedgerMappingMaxAggregateInputType = {
 export type FinanceSourceLedgerMappingCountAggregateInputType = {
   id?: true
   companyCode?: true
+  companyId?: true
   sourceSystem?: true
   sourceLedger?: true
   sourceName?: true
@@ -262,6 +272,7 @@ export type FinanceSourceLedgerMappingGroupByArgs<ExtArgs extends runtime.Types.
 export type FinanceSourceLedgerMappingGroupByOutputType = {
   id: number
   companyCode: string
+  companyId: number | null
   sourceSystem: string
   sourceLedger: string
   sourceName: string
@@ -305,6 +316,7 @@ export type FinanceSourceLedgerMappingWhereInput = {
   NOT?: Prisma.FinanceSourceLedgerMappingWhereInput | Prisma.FinanceSourceLedgerMappingWhereInput[]
   id?: Prisma.IntFilter<"FinanceSourceLedgerMapping"> | number
   companyCode?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceLedgerMapping"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
   sourceName?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
@@ -321,11 +333,13 @@ export type FinanceSourceLedgerMappingWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
   imports?: Prisma.FinanceLedgerImportListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceSourceLedgerMappingOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceName?: Prisma.SortOrder
@@ -342,6 +356,7 @@ export type FinanceSourceLedgerMappingOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   imports?: Prisma.FinanceLedgerImportOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceSourceLedgerMappingWhereUniqueInput = Prisma.AtLeast<{
@@ -351,6 +366,7 @@ export type FinanceSourceLedgerMappingWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.FinanceSourceLedgerMappingWhereInput[]
   NOT?: Prisma.FinanceSourceLedgerMappingWhereInput | Prisma.FinanceSourceLedgerMappingWhereInput[]
   companyCode?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceLedgerMapping"> | number | null
   sourceSystem?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
   sourceLedger?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
   sourceName?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
@@ -367,11 +383,13 @@ export type FinanceSourceLedgerMappingWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
   imports?: Prisma.FinanceLedgerImportListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "companyCode_sourceSystem_sourceLedger_effectiveFromYear">
 
 export type FinanceSourceLedgerMappingOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceName?: Prisma.SortOrder
@@ -400,6 +418,7 @@ export type FinanceSourceLedgerMappingScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FinanceSourceLedgerMappingScalarWhereWithAggregatesInput | Prisma.FinanceSourceLedgerMappingScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceSourceLedgerMapping"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceSourceLedgerMapping"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceSourceLedgerMapping"> | number | null
   sourceSystem?: Prisma.StringWithAggregatesFilter<"FinanceSourceLedgerMapping"> | string
   sourceLedger?: Prisma.StringWithAggregatesFilter<"FinanceSourceLedgerMapping"> | string
   sourceName?: Prisma.StringWithAggregatesFilter<"FinanceSourceLedgerMapping"> | string
@@ -435,11 +454,13 @@ export type FinanceSourceLedgerMappingCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   imports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutSourceLedgerMappingInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceLedgerMappingsInput
 }
 
 export type FinanceSourceLedgerMappingUncheckedCreateInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceName: string
@@ -476,11 +497,13 @@ export type FinanceSourceLedgerMappingUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   imports?: Prisma.FinanceLedgerImportUpdateManyWithoutSourceLedgerMappingNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceLedgerMappingsNestedInput
 }
 
 export type FinanceSourceLedgerMappingUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -502,6 +525,7 @@ export type FinanceSourceLedgerMappingUncheckedUpdateInput = {
 export type FinanceSourceLedgerMappingCreateManyInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceName: string
@@ -541,6 +565,7 @@ export type FinanceSourceLedgerMappingUpdateManyMutationInput = {
 export type FinanceSourceLedgerMappingUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
   sourceName?: Prisma.StringFieldUpdateOperationsInput | string
@@ -568,6 +593,7 @@ export type FinanceSourceLedgerMappingCompanyCodeSourceSystemSourceLedgerEffecti
 export type FinanceSourceLedgerMappingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceName?: Prisma.SortOrder
@@ -587,6 +613,7 @@ export type FinanceSourceLedgerMappingCountOrderByAggregateInput = {
 
 export type FinanceSourceLedgerMappingAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   effectiveFromYear?: Prisma.SortOrder
   effectiveToYear?: Prisma.SortOrder
 }
@@ -594,6 +621,7 @@ export type FinanceSourceLedgerMappingAvgOrderByAggregateInput = {
 export type FinanceSourceLedgerMappingMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceName?: Prisma.SortOrder
@@ -614,6 +642,7 @@ export type FinanceSourceLedgerMappingMaxOrderByAggregateInput = {
 export type FinanceSourceLedgerMappingMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   sourceSystem?: Prisma.SortOrder
   sourceLedger?: Prisma.SortOrder
   sourceName?: Prisma.SortOrder
@@ -633,6 +662,7 @@ export type FinanceSourceLedgerMappingMinOrderByAggregateInput = {
 
 export type FinanceSourceLedgerMappingSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   effectiveFromYear?: Prisma.SortOrder
   effectiveToYear?: Prisma.SortOrder
 }
@@ -640,6 +670,16 @@ export type FinanceSourceLedgerMappingSumOrderByAggregateInput = {
 export type FinanceSourceLedgerMappingNullableScalarRelationFilter = {
   is?: Prisma.FinanceSourceLedgerMappingWhereInput | null
   isNot?: Prisma.FinanceSourceLedgerMappingWhereInput | null
+}
+
+export type FinanceSourceLedgerMappingListRelationFilter = {
+  every?: Prisma.FinanceSourceLedgerMappingWhereInput
+  some?: Prisma.FinanceSourceLedgerMappingWhereInput
+  none?: Prisma.FinanceSourceLedgerMappingWhereInput
+}
+
+export type FinanceSourceLedgerMappingOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput = {
@@ -656,6 +696,48 @@ export type FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput = {
   delete?: Prisma.FinanceSourceLedgerMappingWhereInput | boolean
   connect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceSourceLedgerMappingUpdateToOneWithWhereWithoutImportsInput, Prisma.FinanceSourceLedgerMappingUpdateWithoutImportsInput>, Prisma.FinanceSourceLedgerMappingUncheckedUpdateWithoutImportsInput>
+}
+
+export type FinanceSourceLedgerMappingCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput[] | Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceLedgerMappingCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+}
+
+export type FinanceSourceLedgerMappingUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput[] | Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceLedgerMappingCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+}
+
+export type FinanceSourceLedgerMappingUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput[] | Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceSourceLedgerMappingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceLedgerMappingCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  update?: Prisma.FinanceSourceLedgerMappingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceSourceLedgerMappingUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceSourceLedgerMappingScalarWhereInput | Prisma.FinanceSourceLedgerMappingScalarWhereInput[]
+}
+
+export type FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput> | Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput[] | Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceSourceLedgerMappingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceSourceLedgerMappingCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  disconnect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  delete?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  connect?: Prisma.FinanceSourceLedgerMappingWhereUniqueInput | Prisma.FinanceSourceLedgerMappingWhereUniqueInput[]
+  update?: Prisma.FinanceSourceLedgerMappingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceSourceLedgerMappingUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceSourceLedgerMappingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceSourceLedgerMappingScalarWhereInput | Prisma.FinanceSourceLedgerMappingScalarWhereInput[]
 }
 
 export type FinanceSourceLedgerMappingCreateWithoutImportsInput = {
@@ -675,11 +757,13 @@ export type FinanceSourceLedgerMappingCreateWithoutImportsInput = {
   evidence: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceSourceLedgerMappingsInput
 }
 
 export type FinanceSourceLedgerMappingUncheckedCreateWithoutImportsInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   sourceSystem: string
   sourceLedger: string
   sourceName: string
@@ -730,9 +814,183 @@ export type FinanceSourceLedgerMappingUpdateWithoutImportsInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutFinanceSourceLedgerMappingsNestedInput
 }
 
 export type FinanceSourceLedgerMappingUncheckedUpdateWithoutImportsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  mappingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFromYear?: Prisma.IntFieldUpdateOperationsInput | number
+  effectiveToYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  successorSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  successorSourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountingStandard?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceSourceLedgerMappingCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceName: string
+  mappingMode: string
+  effectiveFromYear: number
+  effectiveToYear?: number | null
+  successorSourceSystem?: string | null
+  successorSourceLedger?: string | null
+  baseCurrencyCode?: string | null
+  baseCurrencyName?: string | null
+  accountingStandard?: string | null
+  entityType?: string | null
+  evidence: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  imports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutSourceLedgerMappingInput
+}
+
+export type FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceName: string
+  mappingMode: string
+  effectiveFromYear: number
+  effectiveToYear?: number | null
+  successorSourceSystem?: string | null
+  successorSourceLedger?: string | null
+  baseCurrencyCode?: string | null
+  baseCurrencyName?: string | null
+  accountingStandard?: string | null
+  entityType?: string | null
+  evidence: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  imports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutSourceLedgerMappingInput
+}
+
+export type FinanceSourceLedgerMappingCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceSourceLedgerMappingWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceSourceLedgerMappingCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceSourceLedgerMappingCreateManyCompanyInput | Prisma.FinanceSourceLedgerMappingCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceSourceLedgerMappingUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceSourceLedgerMappingWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceSourceLedgerMappingUpdateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceSourceLedgerMappingCreateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceSourceLedgerMappingUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceSourceLedgerMappingWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceSourceLedgerMappingUpdateWithoutCompanyInput, Prisma.FinanceSourceLedgerMappingUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceSourceLedgerMappingUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceSourceLedgerMappingScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceSourceLedgerMappingUpdateManyMutationInput, Prisma.FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyInput>
+}
+
+export type FinanceSourceLedgerMappingScalarWhereInput = {
+  AND?: Prisma.FinanceSourceLedgerMappingScalarWhereInput | Prisma.FinanceSourceLedgerMappingScalarWhereInput[]
+  OR?: Prisma.FinanceSourceLedgerMappingScalarWhereInput[]
+  NOT?: Prisma.FinanceSourceLedgerMappingScalarWhereInput | Prisma.FinanceSourceLedgerMappingScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceSourceLedgerMapping"> | number
+  companyCode?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceSourceLedgerMapping"> | number | null
+  sourceSystem?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  sourceLedger?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  sourceName?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  mappingMode?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  effectiveFromYear?: Prisma.IntFilter<"FinanceSourceLedgerMapping"> | number
+  effectiveToYear?: Prisma.IntNullableFilter<"FinanceSourceLedgerMapping"> | number | null
+  successorSourceSystem?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  successorSourceLedger?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  baseCurrencyCode?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  baseCurrencyName?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  accountingStandard?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  entityType?: Prisma.StringNullableFilter<"FinanceSourceLedgerMapping"> | string | null
+  evidence?: Prisma.StringFilter<"FinanceSourceLedgerMapping"> | string
+  createdAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceSourceLedgerMapping"> | Date | string
+}
+
+export type FinanceSourceLedgerMappingCreateManyCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  sourceName: string
+  mappingMode: string
+  effectiveFromYear: number
+  effectiveToYear?: number | null
+  successorSourceSystem?: string | null
+  successorSourceLedger?: string | null
+  baseCurrencyCode?: string | null
+  baseCurrencyName?: string | null
+  accountingStandard?: string | null
+  entityType?: string | null
+  evidence: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceSourceLedgerMappingUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  mappingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFromYear?: Prisma.IntFieldUpdateOperationsInput | number
+  effectiveToYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  successorSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  successorSourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountingStandard?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  imports?: Prisma.FinanceLedgerImportUpdateManyWithoutSourceLedgerMappingNestedInput
+}
+
+export type FinanceSourceLedgerMappingUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  mappingMode?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveFromYear?: Prisma.IntFieldUpdateOperationsInput | number
+  effectiveToYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  successorSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  successorSourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  baseCurrencyName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountingStandard?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entityType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  imports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutSourceLedgerMappingNestedInput
+}
+
+export type FinanceSourceLedgerMappingUncheckedUpdateManyWithoutCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -786,6 +1044,7 @@ export type FinanceSourceLedgerMappingCountOutputTypeCountImportsArgs<ExtArgs ex
 export type FinanceSourceLedgerMappingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceName?: boolean
@@ -802,12 +1061,14 @@ export type FinanceSourceLedgerMappingSelect<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   imports?: boolean | Prisma.FinanceSourceLedgerMapping$importsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceSourceLedgerMappingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceLedgerMapping"]>
 
 export type FinanceSourceLedgerMappingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceName?: boolean
@@ -823,11 +1084,13 @@ export type FinanceSourceLedgerMappingSelectCreateManyAndReturn<ExtArgs extends 
   evidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceLedgerMapping"]>
 
 export type FinanceSourceLedgerMappingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceName?: boolean
@@ -843,11 +1106,13 @@ export type FinanceSourceLedgerMappingSelectUpdateManyAndReturn<ExtArgs extends 
   evidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeSourceLedgerMapping"]>
 
 export type FinanceSourceLedgerMappingSelectScalar = {
   id?: boolean
   companyCode?: boolean
+  companyId?: boolean
   sourceSystem?: boolean
   sourceLedger?: boolean
   sourceName?: boolean
@@ -865,22 +1130,29 @@ export type FinanceSourceLedgerMappingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceSourceLedgerMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceSystem" | "sourceLedger" | "sourceName" | "mappingMode" | "effectiveFromYear" | "effectiveToYear" | "successorSourceSystem" | "successorSourceLedger" | "baseCurrencyCode" | "baseCurrencyName" | "accountingStandard" | "entityType" | "evidence" | "createdAt" | "updatedAt", ExtArgs["result"]["financeSourceLedgerMapping"]>
+export type FinanceSourceLedgerMappingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "companyId" | "sourceSystem" | "sourceLedger" | "sourceName" | "mappingMode" | "effectiveFromYear" | "effectiveToYear" | "successorSourceSystem" | "successorSourceLedger" | "baseCurrencyCode" | "baseCurrencyName" | "accountingStandard" | "entityType" | "evidence" | "createdAt" | "updatedAt", ExtArgs["result"]["financeSourceLedgerMapping"]>
 export type FinanceSourceLedgerMappingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   imports?: boolean | Prisma.FinanceSourceLedgerMapping$importsArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceSourceLedgerMappingCountOutputTypeDefaultArgs<ExtArgs>
 }
-export type FinanceSourceLedgerMappingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
-export type FinanceSourceLedgerMappingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type FinanceSourceLedgerMappingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
+}
+export type FinanceSourceLedgerMappingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  company?: boolean | Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>
+}
 
 export type $FinanceSourceLedgerMappingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceSourceLedgerMapping"
   objects: {
     imports: Prisma.$FinanceLedgerImportPayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     companyCode: string
+    companyId: number | null
     sourceSystem: string
     sourceLedger: string
     sourceName: string
@@ -1291,6 +1563,7 @@ readonly fields: FinanceSourceLedgerMappingFieldRefs;
 export interface Prisma__FinanceSourceLedgerMappingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   imports<T extends Prisma.FinanceSourceLedgerMapping$importsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceSourceLedgerMapping$importsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceSourceLedgerMapping$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1322,6 +1595,7 @@ export interface Prisma__FinanceSourceLedgerMappingClient<T, Null = never, ExtAr
 export interface FinanceSourceLedgerMappingFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'Int'>
   readonly sourceSystem: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'String'>
   readonly sourceLedger: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'String'>
   readonly sourceName: Prisma.FieldRef<"FinanceSourceLedgerMapping", 'String'>
@@ -1591,6 +1865,10 @@ export type FinanceSourceLedgerMappingCreateManyAndReturnArgs<ExtArgs extends ru
    */
   data: Prisma.FinanceSourceLedgerMappingCreateManyInput | Prisma.FinanceSourceLedgerMappingCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourceLedgerMappingIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1661,6 +1939,10 @@ export type FinanceSourceLedgerMappingUpdateManyAndReturnArgs<ExtArgs extends ru
    * Limit how many FinanceSourceLedgerMappings to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourceLedgerMappingIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1751,6 +2033,25 @@ export type FinanceSourceLedgerMapping$importsArgs<ExtArgs extends runtime.Types
   take?: number
   skip?: number
   distinct?: Prisma.FinanceLedgerImportScalarFieldEnum | Prisma.FinanceLedgerImportScalarFieldEnum[]
+}
+
+/**
+ * FinanceSourceLedgerMapping.company
+ */
+export type FinanceSourceLedgerMapping$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

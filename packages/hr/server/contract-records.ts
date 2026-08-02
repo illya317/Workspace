@@ -1,5 +1,6 @@
 import { matchEmployee, matchSearchFields } from "@workspace/platform/search";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import type { ContractRow } from "@workspace/hr/types";
 
 interface RawContract {
   company?: unknown;
@@ -21,8 +22,7 @@ interface RawContract {
   endDate?: unknown;
 }
 
-export interface ContractRow {
-  id: number;
+export interface RosterContractRow {
   employmentId: number;
   employeeId: string;
   employeeName: string;
@@ -59,6 +59,7 @@ export const CONTRACT_DATE_FIELDS = [
   "thirdContractStartDate",
   "thirdContractEndDate",
   "permanentContractDate",
+  "expiryDate",
   "confidentialityDate",
   "nonCompeteDate",
   "endDate",
@@ -125,11 +126,11 @@ export function buildContractRows(employments: Array<{
   id: number;
   contracts: string | null;
   employee: { employeeId: string | null; name: string | null } | null;
-}>): ContractRow[] {
-  const rows: ContractRow[] = [];
+}>): RosterContractRow[] {
+  const rows: RosterContractRow[] = [];
   for (const emp of employments) {
     const list = parseContracts(emp.contracts).map(normalizeContractRecord);
-    for (let i = 0; i < list.length; i++) rows.push(contractRowFromRaw(emp, list[i] as RawContract, i));
+    for (const contract of list) rows.push(contractRowFromRaw(emp, contract as RawContract));
   }
   return rows;
 }
@@ -155,11 +156,9 @@ function normalizedString(value: unknown) {
 function contractRowFromRaw(
   employment: { id: number; employee: { employeeId: string | null; name: string | null } | null },
   contract: RawContract,
-  index: number,
-): ContractRow {
+): RosterContractRow {
   const insuredStatus = getTenantProfile().hr.options.insuranceStatusMapping.insured;
   return {
-    id: employment.id * 1000 + index,
     employmentId: employment.id,
     employeeId: employment.employee?.employeeId || "",
     employeeName: employment.employee?.name || "",

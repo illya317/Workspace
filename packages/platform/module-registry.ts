@@ -1,5 +1,14 @@
-import type { WorkspacePackageRegistration } from "@workspace/core";
+import type { WorkspacePackageRegistration } from "@workspace/core/module-contract";
 import type { RelationRegistration } from "./server/relation-targets";
+import {
+  ADMINISTRATION_RELATION_REGISTRATIONS,
+  CAPITAL_SECURITIES_RELATION_REGISTRATIONS,
+  DOCS_RELATION_REGISTRATIONS,
+  EXTERNAL_RELATION_REGISTRATIONS,
+  FINANCE_RELATION_REGISTRATIONS,
+  INVENTORY_RELATION_REGISTRATIONS,
+  WORK_RELATION_REGISTRATIONS,
+} from "./module-registry-relations";
 import { FINANCE_MODULE_REGISTRY_FRAGMENT } from "./module-registry-finance-operational-analytics";
 import { HR_RUNTIME_REGISTRY_FRAGMENT } from "./module-registry-hr-runtime";
 import { HR_RELATION_REGISTRATIONS } from "./module-registry-hr-relations";
@@ -8,64 +17,6 @@ import { apiResourceGuards, assistantIntegrationApiRoutes, systemApiRoutes, vali
 import { listWorkflowManagementResourceRegistrations } from "./workflow-management-resources";
 import { WORK_OKR_CONTROL_CAPABILITY_KEY } from "./work-reporting-policy";
 export type RelationAwareWorkspacePackageRegistration = Omit<WorkspacePackageRegistration, "fkRegistrations"> & { relationRegistrations?: RelationRegistration[] };
-const WORK_RELATION_REGISTRATIONS = [
-  { key: "work.plan.items", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkItem", field: "planId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "confirm_cascade", targetRestore: "auto_cascade_owned", sourceRelationChange: "retain" }, adapterKey: "work.plan.items", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan.kpi-assignments", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkKpiAssignment", field: "workPlanId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.kpi-assignments", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.kpi-assignment.item", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKpiAssignment", field: "workItemId" }, target: "workItem", targetLabel: "KPI 工作项", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.kpi-assignment.item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.kpi.assignment.results", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkKpiResultSnapshot", field: "assignmentId" }, target: "workKpiAssignment", targetLabel: "KPI 分配", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.kpi.assignment.results", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.kpi.assignment.derived", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKpiAssignment", field: "sourceAssignmentId" }, target: "workKpiAssignment", targetLabel: "承接来源 KPI", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.kpi.assignment.derived", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.kr-evidence.kr", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKrEvidence", field: "krWorkItemId" }, target: "workItem", targetLabel: "关键结果", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.kr-evidence.kr", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.kr-evidence.task", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKrEvidence", field: "taskWorkItemId" }, target: "workItem", targetLabel: "证据任务", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.kr-evidence.task", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.meeting-action.work-item", scope: "work", usage: "governance", semantics: "reference", source: { entity: "MeetingActionCandidate", field: "linkedWorkItemId" }, target: "workItem", targetLabel: "关联工作项", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.meeting-action.work-item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.meeting-action.work-plan", scope: "work", usage: "governance", semantics: "reference", source: { entity: "MeetingActionCandidate", field: "linkedWorkPlanId" }, target: "workPlan", targetLabel: "关联计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.meeting-action.work-plan", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan-alignment.source-item", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlanAlignment", field: "sourceWorkItemId" }, target: "workItem", targetLabel: "承接来源工作项", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan-alignment.source-item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.item.participants", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkParticipant", field: "workItemId" }, target: "workItem", targetLabel: "所属工作项", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.item.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.item.responsibility-reference", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkResponsibilityReference", field: "workItemId" }, target: "workItem", targetLabel: "所属工作项", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.item.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan.alignment-details", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkPlanAlignment", field: "childPlanId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.report-item.work-item", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkReportItem", field: "workItemId" }, target: "workItem", targetLabel: "快照工作项", nullable: true, lifecycle: { targetDelete: "retain", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.report-item.work-item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.report-item.work-plan", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkReportItem", field: "workPlanId" }, target: "workPlan", targetLabel: "快照计划", nullable: true, lifecycle: { targetDelete: "retain", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.report-item.work-plan", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan.governance-history", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkPlanGovernanceEvent", field: "workPlanId" }, target: "workPlan", targetLabel: "治理历史计划", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.governance-history", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.enablingDepartment", scope: "work", source: { entity: "ProjectEnablingDepartment", field: "departmentId" }, target: "department", targetLabel: "赋能部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.parent", scope: "work", source: { entity: "Project", field: "parentProjectId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.member.enablingDepartmentEmployee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", targetLabel: "赋能部门成员", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.member.project", scope: "work", usage: "both", semantics: "owned_child", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.enabling-department.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectEnablingDepartment", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.phase.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanPhase", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.dependency.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanDependency", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.baseline.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanBaseline", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.work-assignee.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectWorkAssignee", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.collaboration", scope: "work", source: { entity: "Any", field: "collaborationId" }, target: "departmentCollaboration", targetLabel: "部门协作", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.owner.position", scope: "work", source: { entity: "WorkResponsibilityReference", field: "lockedPositionId" }, target: "position", targetLabel: "关联岗位", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.item.responsibility-group", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "职责大类", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.item.responsibility", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "关联职责", nullable: false, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.linked.project", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.linked.project", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.linked.project-phase", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "linkedProjectPhaseId" }, target: "projectPlanPhase", targetLabel: "关联项目阶段", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.linked.project-phase", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan.linked.project", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlan", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.linked.project", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.plan.linked.project-phase", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlan", field: "linkedProjectPhaseId" }, target: "projectPlanPhase", targetLabel: "关联项目阶段", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.linked.project-phase", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.source.meeting", scope: "work", source: { entity: "WorkItem", field: "sourceMeetingId" }, target: "meeting", targetLabel: "来源会议", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.source.department", scope: "work", source: { entity: "Any", field: "sourceDepartmentId" }, target: "department", targetLabel: "来源部门", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.okr.cycle", scope: "work", source: { entity: "WorkPlan", field: "okrCycleId" }, target: "workOkrCycle", targetLabel: "OKR 周期", nullable: false, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.source.plan", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlan", field: "sourcePlanId" }, target: "workPlan", targetLabel: "来源 OKR 计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.source.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.parent.plan", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkPlan", field: "parentPeriodPlanId" }, target: "workPlan", targetLabel: "上级计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.parent.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.plan.alignment", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlanAlignment", field: "sourcePlanId" }, target: "workPlan", targetLabel: "承接来源", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.plan.alignment", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.plan.upper-alignment", scope: "work", source: { entity: "WorkPlanAlignment", field: "sourcePlanId" }, target: "workPlan", targetLabel: "上级", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.assigned.alignment.item", scope: "work", source: { entity: "WorkItem", field: "parentPeriodWorkItemId" }, target: "workItem", targetLabel: "承接内容", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.previous.plan", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlan", field: "previousPeriodPlanId" }, target: "workPlan", targetLabel: "前序计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.previous.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.parent.item", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkItem", field: "parentPeriodWorkItemId" }, target: "workItem", targetLabel: "上级节点", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.parent.item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.item.parent", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkItem", field: "parentWorkItemId" }, target: "workItem", targetLabel: "所属目标/常设职责", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.item.parent", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.previous.item", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "previousPeriodWorkItemId" }, target: "workItem", targetLabel: "前序节点", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.previous.item", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.meetings.participant.user", scope: "work", source: { entity: "MeetingParticipant", field: "userId" }, target: "user", targetLabel: "参会账号", nullable: false, permission: { resourceKey: "work.meetings", action: "read" } },
-] satisfies RelationRegistration[];
-const ADMINISTRATION_RELATION_REGISTRATIONS = [
-  { key: "administration.contracts.handler.employee", scope: "administration", usage: "both", semantics: "reference", source: { entity: "Contract", field: "handlerEmployeeId" }, target: "employee", targetLabel: "经办人", nullable: true, defaultLifecycleScope: "all", lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "administration.contracts.handler.employee", permission: { resourceKey: "administration.contracts", action: "read" } },
-] satisfies RelationRegistration[];
-const FINANCE_RELATION_REGISTRATIONS = [{ key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.groupAccount.parent", scope: "finance", source: { entity: "FinanceGroupAccountRevision", field: "parentGroupAccountId" }, target: "financeGroupAccount", targetLabel: "上级集团科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } }, { key: "finance.statements.consolidation.entrySource", scope: "finance", source: { entity: "FinanceConsolidationEntryLine", field: "sourceRecordId", valueKind: "semantic" }, target: "financeConsolidationEntrySource", targetLabel: "抵销业务来源", nullable: true, permission: { resourceKey: "finance.statements", action: "read" } }] satisfies RelationRegistration[];
-const EXTERNAL_RELATION_REGISTRATIONS = [{ key: "external.role.party", scope: "external", source: { entity: "ExternalPartyRole", field: "partyId" }, target: "party", targetLabel: "法定主体", nullable: false, permission: { resourceKey: "party.identity", action: "read" } }] satisfies RelationRegistration[];
-const CAPITAL_SECURITIES_RELATION_REGISTRATIONS = [{ key: "capitalSecurities.company.party", scope: "capitalSecurities", source: { entity: "Company", field: "partyId" }, target: "party", targetLabel: "法定主体", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }, { key: "capitalSecurities.ownership.owner", scope: "capitalSecurities", source: { entity: "OwnershipInterest", field: "ownerPartyId" }, target: "party", targetLabel: "持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }, { key: "capitalSecurities.ownership.issuer", scope: "capitalSecurities", source: { entity: "OwnershipInterest", field: "issuerCompanyId" }, target: "company", targetLabel: "被持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }] satisfies RelationRegistration[];
-const DOCS_RELATION_REGISTRATIONS = [] satisfies RelationRegistration[];
 // 模块台账：声明模块是谁、挂在哪个页面、归属哪个资源，以及暴露哪些 API contract。
 export const registeredModuleDefinitions = [
   {
@@ -188,6 +139,7 @@ export const registeredModuleDefinitions = [
     ],
     apiRoutes: [
       ...HR_RUNTIME_REGISTRY_FRAGMENT.apiRoutes,
+      { method: "GET", pathPrefix: "/api/open/v1/hr/generated/roster", access: "public", notes: "Open API client credentials and the hr.generated.roster.read scope are enforced by withOpenApiScope; no browser session is required." },
       { method: "POST", pathPrefix: "/api/modules/hr/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
     ],
   },
@@ -223,7 +175,7 @@ export const registeredModuleDefinitions = [
       { key: "administration.erpDiligence.viewAll", name: "ERP尽调全量查看", kind: "capability", capabilityOwnerKey: "administration.erpDiligence", runtimeParentKey: "administration.erpDiligence", sortOrder: 0 },
     ],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/administration/contracts", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/administration/contracts", ["GET", "POST", "PUT", "PATCH", "DELETE"]),
       ...apiResourceGuards("/api/modules/administration/erp-diligence", ["GET", "POST", "PUT", "DELETE"]),
     ],
     apiRoutes: [
@@ -236,13 +188,11 @@ export const registeredModuleDefinitions = [
     layer: "domain",
     ...FINANCE_MODULE_REGISTRY_FRAGMENT,
     relationRegistrations: FINANCE_RELATION_REGISTRATIONS,
-    apiRoutes: [
-      ...FINANCE_MODULE_REGISTRY_FRAGMENT.apiRoutes,
-      { method: "POST", pathPrefix: "/api/modules/finance/internal/library-source", access: "internal", notes: "Signed caller-bound Finance authoritative snapshot transport; only the Library caller unit is accepted." },
-      { method: "POST", pathPrefix: "/api/modules/finance/agent/rpc", access: "internal", notes: "Signed internal RPC Finance Agent catalog and execution boundary; only the Assistant caller unit is accepted." },
-    ],
+    apiRoutes: [...FINANCE_MODULE_REGISTRY_FRAGMENT.apiRoutes, { method: "POST", pathPrefix: "/api/modules/finance/internal/library-source", access: "internal", notes: "Signed caller-bound Finance authoritative snapshot transport; only the Library caller unit is accepted." }],
     apiGuards: [
-      ...apiResourceGuards("/api/modules/finance/ledger"),
+      ...apiResourceGuards("/api/modules/finance/ledger"), ...apiResourceGuards("/api/modules/finance/assets", ["GET", "POST", "PUT"]),
+      ...apiResourceGuards("/api/modules/finance/assets/policies", ["DELETE"]),
+      ...apiResourceGuards("/api/modules/finance/treasury", ["GET", "POST", "PUT"]), ...apiResourceGuards("/api/modules/finance/tax", ["GET", "POST", "PUT"]),
       ...apiResourceGuards("/api/modules/finance/statements"),
       ...apiResourceGuards("/api/modules/finance/budget", ["GET", "POST"]),
       ...apiResourceGuards("/api/modules/finance/analysis", ["GET"]),
@@ -280,6 +230,7 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/inventory",
     layer: "domain",
+    relationRegistrations: INVENTORY_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "inventory",
       label: "存货管理",
@@ -299,17 +250,17 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/modules/inventory/receipts", ["GET", "POST", "PATCH", "DELETE"]),
     ],
     apiRoutes: [
+      { method: "POST", pathPrefix: "/api/modules/inventory/internal/closing-inspection", access: "internal", notes: "Signed read-only Inventory closing inspection; only the Finance caller unit is accepted." },
       { method: "POST", pathPrefix: "/api/modules/inventory/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
     ],
   },
   {
     packageName: "@workspace/external",
-    layer: "domain",
-    relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
+    layer: "domain", relationRegistrations: EXTERNAL_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "external",
       label: "外部关系",
-      desc: "客户与供应商往来主数据",
+      desc: "客户、供应商与关联方主数据",
       href: "/external",
       iconKey: "customers",
       color: "orange",
@@ -319,11 +270,12 @@ export const registeredModuleDefinitions = [
       children: [
         { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
         { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
+        { key: "relatedParties", label: "关联方", desc: "从客户和供应商中登记关联方并维护披露关系性质", href: "/external/related-parties", iconKey: "investors", color: "orange", resourceKey: "external.relatedParties", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/related-parties"] },
       ],
     },
     apiGuards: [
       ...apiResourceGuards("/api/modules/external/customers", ["GET", "POST", "PATCH", "DELETE"]),
-      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]), ...apiResourceGuards("/api/modules/external/related-parties", ["GET", "POST", "DELETE"]),
     ],
     apiRoutes: [
       { method: "POST", pathPrefix: "/api/modules/external/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
@@ -345,11 +297,15 @@ export const registeredModuleDefinitions = [
       lifecycleStatus: "workspace-owned",
       children: [
         { key: "investors", label: "投资人关系", desc: "股东关系、历史追溯与 Captable", href: "/capital-securities/investors", iconKey: "investors", color: "amber", resourceKey: "capitalSecurities.investors", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/capitalSecurities/investors"] },
+        { key: "investments", label: "投资企业", desc: "档案、治理、尽调、合同、投后与智能资料", href: "/capital-securities/investments", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.investments", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/capitalSecurities/investments"] },
+        { key: "marketIntelligence", label: "市场情报", desc: "指数、大宗商品、汇率与股票观察清单", href: "/capital-securities/market-intelligence", iconKey: "analysis", color: "amber", resourceKey: "capitalSecurities.marketIntelligence", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/capitalSecurities/market-intelligence"] },
         { key: "governance", label: "治理架构", desc: "治理组织、公司信息与股权关系查阅", href: "/capital-securities/governance", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.governance", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/capitalSecurities/governance"] },
       ],
     },
     apiGuards: [
-      ...apiResourceGuards("/api/modules/capitalSecurities/investors", ["GET"], { migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/investors." }),
+      ...apiResourceGuards("/api/modules/capitalSecurities/investors", ["GET", "POST", "PUT", "PATCH", "DELETE"], { migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/investors." }),
+      ...apiResourceGuards("/api/modules/capitalSecurities/investments", ["GET", "POST", "PUT"], { migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/investments." }),
+      ...apiResourceGuards("/api/modules/capitalSecurities/market-intelligence", ["GET"], { migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/market-intelligence." }),
       ...apiResourceGuards("/api/modules/capitalSecurities/governance", ["GET", "POST", "PUT"], {
         migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/governance.",
       }),
@@ -360,8 +316,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:docs",
-    layer: "platform",
+    packageName: "@workspace/docs",
+    layer: "domain",
     moduleDef: {
       key: "docs",
       label: "文档中心",
@@ -373,7 +329,7 @@ export const registeredModuleDefinitions = [
       resourceSortOrder: 7,
       apiPrefixes: ["/api/modules/docs"],
       children: [
-        { key: "company", label: "公司管理", desc: "员工手册、管理手册与权限授权手册", href: "/docs/company", iconKey: "company", color: "purple", resourceKey: "docs.company", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/docs/company"] },
+        { key: "company", label: "公司管理", desc: "公司制度、产品指南、API 与权限手册", href: "/docs/company", iconKey: "company", color: "purple", resourceKey: "docs.company", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/docs/company"] },
         { key: "editor", label: "模板编辑器", desc: "模板空间、纸面编辑、字段公式和 DOCX 导出", href: "/docs/editor", iconKey: "docs", color: "purple", resourceKey: "docs.editor", mobileExperience: { strategy: "native", overrides: [{ pathPrefix: "/docs/editor/templates", strategy: "landscape", reason: "模板画布需要同时保留结构、字段和纸面预览，详情编辑采用横屏工作台。" }] }, apiPrefixes: ["/api/modules/docs/editor"] },
       ],
     },
@@ -438,7 +394,7 @@ export const registeredModuleDefinitions = [
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents", access: "protected", notes: "File upload creates immutable V1 and starts the Library processing pipeline." },
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/review", access: "protected", notes: "Importer confirms the pending upload after metadata review." },
       { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/delete", access: "protected", notes: "Configure-only permanent deletion is distinct from archive and cleans managed runtime storage." },
-      { method: "POST", pathPrefix: "/api/modules/library/agent/rpc", access: "internal", notes: "Signed internal RPC Library Agent catalog and execution boundary; only the Assistant caller unit is accepted." },
+      { method: "POST", pathPrefix: "/api/modules/library/internal/business-document-intelligence", access: "internal", notes: "Signed Capital Securities caller uploads exact investment-enterprise documents, reads linked processing status, and performs permission-bound vector search." },
       { method: "POST", pathPrefix: "/api/modules/library/internal/workspace-analysis-sources", access: "internal", notes: "Signed internal RPC with requester authorization; only the Finance caller unit is accepted." },
       { method: "GET", pathPrefix: "/api/modules/library/integrations/onlyoffice/documents", access: "internal", notes: "Library-owned immutable document source; the legacy integration URL redirects here." },
       { method: "GET", pathPrefix: "/api/modules/library/integrations/wecom/agent/artifacts", access: "internal", notes: "Library-owned artifact stream for the Assistant WeCom bridge." },
@@ -447,8 +403,26 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:settings",
-    layer: "platform",
+    packageName: "@workspace/news",
+    layer: "domain",
+    moduleDef: {
+      key: "news",
+      label: "资讯",
+      desc: "外部资讯与每日简报",
+      href: "/news",
+      iconKey: "reports",
+      color: "orange",
+      resourceKey: "news",
+      resourceSortOrder: 9,
+      apiPrefixes: ["/api/modules/news"],
+    },
+    apiGuards: [
+      ...apiResourceGuards("/api/modules/news", ["GET", "POST"]),
+    ],
+  },
+  {
+    packageName: "@workspace/settings",
+    layer: "domain",
     moduleDef: {
       key: "settings",
       label: "设置",
@@ -459,21 +433,29 @@ export const registeredModuleDefinitions = [
       resourceKey: "settings",
       resourceSortOrder: 100,
       children: [
-        { key: "account", label: "账号与接入", desc: "账号资料、头像和个人 API 接入", href: "/settings/account", iconKey: "account", color: "blue", resourceKey: "settings.account", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/account"] },
+        { key: "account", label: "账号与接入", desc: "账号资料、通知订阅和个人 API 接入", href: "/settings/account", iconKey: "account", color: "blue", resourceKey: "settings.account", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/account"] },
         { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", iconKey: "shieldCheck", color: "indigo", resourceKey: "settings.admin", mobileExperience: { strategy: "native" }, pageAccess: "adminManage", apiPrefixes: ["/api/settings/admin"] },
         { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", iconKey: "api", color: "purple", resourceKey: "settings.api", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/api"] },
-        { key: "ui", label: "UI 组件库", desc: "查看核心 UI 组件注册表", href: "/settings/ui", iconKey: "ui", color: "emerald", resourceKey: "settings.ui", mobileExperience: { strategy: "unavailable", reason: "组件注册表是开发与治理工具，手机端不提供入口。" }, noApiReason: "纯客户端组件浏览页面，无服务端 API" },
+        { key: "governance", label: "平台治理", desc: "UI、数据关系、模块运行和运维记录", href: "/settings/governance", iconKey: "ui", color: "emerald", resourceKey: "settings.governance", mobileExperience: { strategy: "unavailable", reason: "平台治理工具只在桌面端开放。" }, apiPrefixes: ["/api/settings/governance"] },
       ],
     },
     resourceDefs: [
       { key: "party.identity", name: "法定主体治理", kind: "capability", capabilityOwnerKey: "settings.admin", runtimeParentKey: "settings.admin", sortOrder: 0 },
       { key: "settings.account.apiAccess", name: "个人 API 使用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "settings.account", apiPrefixes: ["/api/settings/account/api-key"], sortOrder: 0 },
       { key: "settings.api.manage", name: "Open API Client 管理", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", apiPrefixes: ["/api/settings/api/open/clients"], sortOrder: 0 },
+      { key: "settings.notifications", name: "通知开放", kind: "capability", capabilityOwnerKey: "settings.api", runtimeParentKey: "settings.api", apiPrefixes: [
+        "/api/modules/settings/notifications",
+        "/api/settings/api/open/notification-definitions",
+        "/api/settings/api/open/group-notifications",
+        "/api/settings/api/open/managed-groups",
+        "/api/settings/api/open/group-policies",
+      ], sortOrder: 1 },
       ...listWorkflowManagementResourceRegistrations(),
     ],
-    routes: ["/settings/api/hr-generated"],
     apiRoutes: [
       { method: "GET", pathPrefix: "/api/settings/version", access: "public", notes: "Public build/version metadata; returns no user or business-resource data." },
+      { method: "GET", pathPrefix: "/api/open/v1/notifications/definitions", access: "public", notes: "Open API client credentials and the notification definitions read scope are enforced by withOpenApiScope; no browser session is required." },
+      { method: "POST", pathPrefix: "/api/open/v1/notifications/publications", access: "public", notes: "Open API client credentials and the notification publication write scope are enforced by withOpenApiScope; publication remains idempotent and source-bound." },
       { method: "GET", pathPrefix: "/api/settings/account/api-key", access: "protected", migrationNote: "Legacy settings account API key URL; migrate to /api/modules/settings/account/api-access/key." },
       { method: "POST", pathPrefix: "/api/settings/account/api-key", access: "protected", migrationNote: "Legacy settings account API key URL; migrate to /api/modules/settings/account/api-access/key." },
       { method: "GET", pathPrefix: "/api/settings/account", access: "protected", migrationNote: "Legacy settings account URL; migrate to /api/modules/settings/account.", notes: "Current-session self-service account APIs; all logged-in users receive default settings.account entry access." },
@@ -483,9 +465,25 @@ export const registeredModuleDefinitions = [
       { method: "DELETE", pathPrefix: "/api/settings/account", access: "protected", migrationNote: "Legacy settings account URL; migrate to /api/modules/settings/account.", notes: "Current-session self-service account APIs; all logged-in users receive default settings.account entry access." },
     ],
     apiGuards: [
+      ...apiResourceGuards("/api/modules/settings/account/notification-subscriptions", ["GET", "PUT", "DELETE"]),
+      ...apiResourceGuards("/api/modules/settings/governance", ["GET"]),
+      ...apiResourceGuards("/api/modules/settings/notifications", ["GET", "POST"]),
+      ...apiResourceGuards("/api/settings/api/open/notification-definitions", ["GET", "POST"], {
+        migrationNote: "Settings notification-definition management remains a console URL; programmatic publication uses /api/modules/settings/notifications.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/group-notifications", ["GET"], {
+        migrationNote: "Settings managed-group console data remains under the legacy settings URL.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/managed-groups", ["POST", "PATCH"], {
+        migrationNote: "Settings managed-group lifecycle commands remain under the legacy settings URL.",
+      }),
+      ...apiResourceGuards("/api/settings/api/open/group-policies", ["POST", "PATCH"], {
+        migrationNote: "Settings managed-group policy commands remain under the legacy settings URL.",
+      }),
       ...apiResourceGuards("/api/settings/admin", ["GET", "POST", "PUT", "PATCH", "DELETE"], {
         migrationNote: "Legacy settings URL; migrate to /api/modules/settings/admin.",
       }),
+      ...apiResourceGuards("/api/settings/governance", ["GET", "PATCH"], { migrationNote: "Legacy settings URL; migrate to /api/modules/settings/governance." }),
       ...apiResourceGuards("/api/settings/api", ["GET"], {
         migrationNote: "Legacy settings URL; migrate to /api/modules/settings/api.",
       }),
@@ -495,8 +493,8 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
-    packageName: "@workspace/platform:agent",
-    layer: "platform",
+    packageName: "@workspace/agent",
+    layer: "domain",
     moduleDef: {
       key: "agent",
       label: "智能体",
@@ -504,15 +502,10 @@ export const registeredModuleDefinitions = [
       href: "/agent",
       iconKey: "assistant",
       color: "purple",
-      presentation: "headless",
-      noPageReason: "不再提供独立 Agent 管理页面，仅保留工具栏助手与 API 能力",
       resourceKey: "agent",
       resourceSortOrder: 90,
+      apiPrefixes: ["/api/agent"],
     },
-    resourceDefs: [
-      { key: "agent.assistant", name: "Agent 助手调用", kind: "capability", capabilityOwnerKey: "settings.account", runtimeParentKey: "agent", apiPrefixes: ["/api/agent"], sortOrder: 0 },
-      { key: "agent.source", name: "Workspace 源码与 PR", kind: "capability", capabilityOwnerKey: "agent.assistant", runtimeParentKey: "agent", sortOrder: 1 },
-    ],
     apiRoutes: assistantIntegrationApiRoutes(),
   },
   {
@@ -527,18 +520,13 @@ export const registeredModuleDefinitions = [
     apiRoutes: systemApiRoutes(),
   },
 ] satisfies RelationAwareWorkspacePackageRegistration[];
-export const registeredModules = registeredModuleDefinitions
-  .map((definition) => definition.moduleDef?.key)
+export const registeredModules = registeredModuleDefinitions.map((definition) => definition.moduleDef?.key)
   .filter((key): key is string => Boolean(key));
 validateModuleRegistry(registeredModuleDefinitions, registeredModules);
-export const registeredDomainPackageNames = registeredModuleDefinitions
-  .filter((definition) => definition.layer === "domain")
+export const registeredDomainPackageNames = registeredModuleDefinitions.filter((definition) => definition.layer === "domain")
   .map((definition) => definition.packageName);
-
 export function getRegisteredModuleDefinition(packageName: string): RelationAwareWorkspacePackageRegistration {
   const definition = registeredModuleDefinitions.find((item) => item.packageName === packageName);
-  if (!definition) {
-    throw new Error(`Module package is not registered: ${packageName}`);
-  }
+  if (!definition) throw new Error(`Module package is not registered: ${packageName}`);
   return definition;
 }

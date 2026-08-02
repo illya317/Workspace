@@ -1,12 +1,14 @@
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { currentEmploymentDateWhere } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 import { selectVisibleSystemOkrCycles, systemOkrCycleContains } from "./domain/work-system-okr-cycle-visibility";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureWorkOkrCyclesForYears } from "./work-okr-cycles";
 import type { WorkPlanRow } from "./work-plan-dto";
 import { buildWorkPlanGovernanceBinding } from "./work-plan-governance";
+import { projectMemberHasActiveEmploymentOnDate } from "./project-access-temporal";
 
 const SYSTEM_OKR_PLAN_START = new Date(Date.UTC(2026, 0, 1));
 const PROJECT_LEADER_ROLES = ["负责人", "项目负责人"];
@@ -202,15 +204,8 @@ async function resolveDepartmentOwnerEmployeeId(departmentId: number) {
     where: { id: departmentId },
     select: {
       managerPositionId: true,
-      managerEmployees: {
-        where: { employee: { employments: { some: currentEmploymentDateWhere() } } },
-        select: { employeeId: true },
-        orderBy: { id: "asc" },
-        take: 1,
-      },
     },
   });
-  if (department?.managerEmployees[0]?.employeeId) return department.managerEmployees[0].employeeId;
   if (!department?.managerPositionId) return null;
   const employee = await prisma.employee.findFirst({
     where: {
@@ -224,16 +219,28 @@ async function resolveDepartmentOwnerEmployeeId(departmentId: number) {
 }
 
 async function resolveProjectOwnerEmployeeId(projectId: number) {
-  const leader = await prisma.employeeProject.findFirst({
+  const leaders = await prisma.employeeProject.findMany({
     where: {
       projectId,
       role: { in: PROJECT_LEADER_ROLES },
-      employee: { employments: { some: currentEmploymentDateWhere() } },
+      recordState: "confirmed",
     },
-    select: { employeeId: true },
+    select: {
+      employeeId: true,
+      startDate: true,
+      endDate: true,
+      employee: {
+        select: {
+          employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+        },
+      },
+    },
     orderBy: { id: "asc" },
   });
-  return leader?.employeeId ?? null;
+  const asOfDate = workspaceBusinessDate(new Date());
+  return leaders.find((leader) => (
+    projectMemberHasActiveEmploymentOnDate(leader, leader.employee.employments, asOfDate)
+  ))?.employeeId ?? null;
 }
 
 function planningCycleYears(now: Date) {

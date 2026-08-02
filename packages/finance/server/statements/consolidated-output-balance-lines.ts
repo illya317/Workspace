@@ -1,4 +1,5 @@
 import type { ConsolidatedOutputLine } from "@workspace/finance/types";
+import { setDerivedLineAmounts, sumLineAmounts } from "./consolidated-line-amounts";
 
 function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -53,4 +54,26 @@ export function ensureLiabilityGrandTotal(
   });
   const equityIndex = orderedCodes.findIndex((lineCode) => outputByCode.get(lineCode)?.section === "equity");
   orderedCodes.splice(equityIndex >= 0 ? equityIndex : orderedCodes.length, 0, "totalLiabilities");
+}
+
+export function recomputeBalance(lines: ConsolidatedOutputLine[]) {
+  for (const line of lines.filter((candidate) => candidate.isTotal)) {
+    const total = sumLineAmounts(lines, (candidate) => (
+      candidate.section === line.section
+      && !candidate.isHeader
+      && !candidate.isTotal
+      && !candidate.isGrandTotal
+    ));
+    setDerivedLineAmounts(line, total.amount, total.previousAmount, total.currentMonthAmount);
+  }
+  const grandSections: Record<string, string[]> = {
+    totalAssets: ["currentAssets", "nonCurrentAssets"],
+    totalLiabilities: ["currentLiabilities", "nonCurrentLiabilities"],
+  };
+  for (const line of lines.filter((candidate) => candidate.isGrandTotal)) {
+    const sections = grandSections[line.lineCode];
+    if (!sections) continue;
+    const total = sumLineAmounts(lines, (candidate) => candidate.isTotal && sections.includes(candidate.section));
+    setDerivedLineAmounts(line, total.amount, total.previousAmount, total.currentMonthAmount);
+  }
 }

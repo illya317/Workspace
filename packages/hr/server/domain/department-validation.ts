@@ -1,17 +1,33 @@
-import { Prisma } from "@workspace/platform/server/prisma";
+import type { Prisma } from "@workspace/platform/server/prisma";
 import {
   failCommand,
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { currentEmploymentDateWhere, currentOpenEndedDateWhere, validateFkValue } from "@workspace/platform/server/relation-registry";
-import { prisma } from "@workspace/platform/server/prisma";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { HR_FK_REGISTRY } from "../fk-registry";
 import { getManagerPositionScopeDepartmentIds } from "../department-manager-positions";
 import { guardDepartmentArchive } from "../reference-guards";
+import {
+  findActiveDepartmentByCode,
+  findDepartmentIdByCode,
+  findDepartmentParentId,
+  findDepartmentParentReference,
+  findDepartmentUpdateReference,
+  findPositionDepartmentReference,
+} from "../department-reference-adapter";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
+import {
+  isDepartmentIdentifier,
+  type DepartmentCodeRule,
+} from "@workspace/platform/business-code-config";
+import {
+  parseOrganizationLifecycleMeta,
+  type OrganizationLifecycleMeta,
+} from "./organization-effective-version";
 
-export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "hierarchyKind", "level", "levelLabel", "levelCode", "parentId", "managerPositionId", "managerEmployeeIds", "isArchived", "archivedAt"];
+export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "hierarchyKind", "level", "levelLabel", "levelCode", "parentId", "managerPositionId", "isArchived", "archivedAt"];
 
 type DepartmentHierarchyKind = "G" | "M";
 
@@ -22,9 +38,9 @@ export interface DepartmentCreateInput {
   level?: unknown;
   parentId?: unknown;
   managerPositionId?: unknown;
-  managerEmployeeIds?: unknown;
   alias?: unknown;
   descriptions?: unknown;
+  lifecycle?: unknown;
 }
 
 export interface DepartmentUpdateInput {
@@ -36,17 +52,17 @@ export interface DepartmentUpdateInput {
   level?: number;
   parentId?: number | string | null;
   managerPositionId?: number | string | null;
-  managerEmployeeIds?: unknown;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
   descriptions?: unknown;
+  lifecycle?: unknown;
 }
 
 export interface DepartmentUpdateCommand {
   id: number;
   data: Prisma.DepartmentUncheckedUpdateInput;
-  managerEmployeeIds?: number[];
   descriptions: Array<{ id?: number; sourceFile: string; codeRaw?: string | null; details?: string | null }> | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 export interface DepartmentCreateCommand {
@@ -57,18 +73,26 @@ export interface DepartmentCreateCommand {
   level: number;
   parentId: number | null;
   managerPositionId: number | null;
-  managerEmployeeIds: number[];
   descriptions: DepartmentUpdateCommand["descriptions"];
+  lifecycle: OrganizationLifecycleMeta;
 }
 
-function departmentPrefix(code: string) {
-  const prefix = code.slice(0, 3);
-  return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
+function departmentPrefix(code: string, rule: DepartmentCodeRule) {
+  const prefix = code.slice(0, rule.identifierLength);
+  return isDepartmentIdentifier(prefix, rule) ? prefix : "";
 }
 
-function departmentNumber(code: string) {
-  const suffix = code.slice(3);
+function departmentNumber(code: string, rule: DepartmentCodeRule) {
+  const separator = code.slice(rule.identifierLength, rule.identifierLength + rule.separator.length);
+  if (separator !== rule.separator) return "";
+  const suffix = code.slice(rule.identifierLength + rule.separator.length);
   return /^\d+$/.test(suffix) ? suffix : "";
+}
+
+function departmentIdentifierDescription(rule: DepartmentCodeRule) {
+  if (rule.identifierFormat === "uppercaseLetters") return `${rule.identifierLength} 位大写字母`;
+  if (rule.identifierFormat === "uppercaseAlphanumeric") return `${rule.identifierLength} 位大写字母或数字`;
+  return `${rule.identifierLength} 位非空字符`;
 }
 
 function normalizeHierarchyKind(value: unknown): DepartmentHierarchyKind {
@@ -77,18 +101,29 @@ function normalizeHierarchyKind(value: unknown): DepartmentHierarchyKind {
 
 async function findOperatingCommitteeId() {
   const committeeCode = getTenantProfile().organization.operatingCommittee.departmentCode;
-  const committee = await prisma.department.findFirst({
-    where: { code: committeeCode, hierarchyKind: "G", isArchived: false },
-    select: { id: true },
-  });
+  const committee = await findActiveDepartmentByCode(committeeCode, "G");
   return committee?.id ?? null;
 }
 
 async function resolveDepartmentParent(hierarchyKind: DepartmentHierarchyKind, level: number, code: string, parentId: number | null) {
+  const codeConfig = await getBusinessCodeConfig();
+  const departmentRule = codeConfig.department;
   const levelCode = `${hierarchyKind}${level}`;
-  if (hierarchyKind === "G" && !/^[A-Z]{3}$/.test(code)) return `${levelCode} 组织编码必须是 3 位大写字母`;
+  if (hierarchyKind === "G" && !isDepartmentIdentifier(code, departmentRule)) {
+    return `${levelCode} 组织编码必须是${departmentIdentifierDescription(departmentRule)}`;
+  }
   if (level === 1) {
-    if (hierarchyKind === "M" && !/^[A-Z]{3}001$/.test(code)) return "M1 组织编码必须是 3 位大写字母加 001";
+    if (hierarchyKind === "M") {
+      const prefix = departmentPrefix(code, departmentRule);
+      const separator = code.slice(
+        departmentRule.identifierLength,
+        departmentRule.identifierLength + departmentRule.separator.length,
+      );
+      const suffix = code.slice(departmentRule.identifierLength + departmentRule.separator.length);
+      if (!prefix || separator !== departmentRule.separator || suffix !== departmentRule.managementRootSuffix) {
+        return `M1 组织编码必须是${departmentIdentifierDescription(departmentRule)}加 ${departmentRule.managementRootSuffix}`;
+      }
+    }
     if (hierarchyKind === "M") {
       const committeeName = getTenantProfile().organization.operatingCommittee.departmentName;
       const operatingCommitteeId = await findOperatingCommitteeId();
@@ -99,22 +134,37 @@ async function resolveDepartmentParent(hierarchyKind: DepartmentHierarchyKind, l
     return { parentId: null };
   }
   if (!parentId || !Number.isInteger(parentId)) return `${levelCode} 组织必须选择上级组织`;
-  const parent = await prisma.department.findUnique({ where: { id: parentId }, select: { code: true, hierarchyKind: true, level: true } });
+  const parent = await findDepartmentParentReference(parentId);
   if (!parent) return "上级组织不存在";
   if (parent.hierarchyKind !== hierarchyKind) return `${levelCode} 组织只能挂在同一体系的上级组织下`;
   if (parent.level !== level - 1) return `${levelCode} 组织只能挂在 ${hierarchyKind}${level - 1} 组织下`;
   if (hierarchyKind === "G") return { parentId };
-  const prefix = departmentPrefix(parent.code);
+  const prefix = departmentPrefix(parent.code, departmentRule);
   if (!prefix || !code.startsWith(prefix)) return "组织编码必须继承上级组织前缀";
-  const number = departmentNumber(code);
+  const number = departmentNumber(code, departmentRule);
   if (!number) return `M${level} 编码必须是前缀后接纯数字`;
-  if (level === 2 && !/^[1-9]\d*00$/.test(number)) return "M2 编码数字段必须为正整数并以 00 结尾";
+  if (level === 2) {
+    const stem = number.slice(0, -departmentRule.level2Suffix.length);
+    if (
+      !number.endsWith(departmentRule.level2Suffix)
+      || !/^[1-9]\d*$/.test(stem)
+      || stem.length > departmentRule.level2SequenceLength
+    ) {
+      return `M2 编码数字段必须为正整数并以 ${departmentRule.level2Suffix} 结尾`;
+    }
+  }
   if (level === 3) {
-    const parentNumber = departmentNumber(parent.code);
-    if (!parentNumber.endsWith("00")) return "上级 M2 编码不合法";
-    const tail = number.slice(-2);
-    if (number.length !== parentNumber.length || number.slice(0, -2) !== parentNumber.slice(0, -2) || tail === "00") {
-      return `M3 编码必须只替换 ${parentNumber} 的最后两位`;
+    const parentNumber = departmentNumber(parent.code, departmentRule);
+    if (!parentNumber.endsWith(departmentRule.level2Suffix)) return "上级 M2 编码不合法";
+    const sequenceLength = departmentRule.level3SequenceLength;
+    const tail = number.slice(-sequenceLength);
+    if (
+      number.length !== parentNumber.length - departmentRule.level2Suffix.length + sequenceLength
+      || number.slice(0, -sequenceLength) !== parentNumber.slice(0, -departmentRule.level2Suffix.length)
+      || !/^\d+$/.test(tail)
+      || Number(tail) < 1
+    ) {
+      return `M3 编码必须按 ${sequenceLength} 位流水替换 ${parentNumber} 的层级后缀`;
     }
   }
   return { parentId };
@@ -128,45 +178,12 @@ async function validateNullableFk(fkKey: string, value: unknown, requiredLabel: 
 async function validateManagerPosition(value: unknown, departmentId: number) {
   const managerPosition = await validateNullableFk("hr.department.manager.position", value, "负责人岗位");
   if (!managerPosition.ok || managerPosition.data === null) return managerPosition;
-  const position = await prisma.position.findUnique({
-    where: { id: managerPosition.data },
-    select: { departmentId: true },
-  });
+  const position = await findPositionDepartmentReference(managerPosition.data);
   const scopeDepartmentIds = await getManagerPositionScopeDepartmentIds(departmentId);
   if (!position?.departmentId || !scopeDepartmentIds.includes(position.departmentId)) {
     return failCommand("负责人岗位必须属于当前组织及其上下级归属组织", 400);
   }
   return managerPosition;
-}
-
-function normalizeManagerEmployeeIds(value: unknown): DomainValidationResult<number[] | undefined> {
-  if (value === undefined) return okCommand(undefined);
-  if (value === null || value === "") return okCommand([]);
-  const rawItems = Array.isArray(value) ? value : [value];
-  const ids: number[] = [];
-  for (const item of rawItems) {
-    const id = Number(item);
-    if (!Number.isInteger(id) || id <= 0) return failCommand("组织负责人无效", 400);
-    if (!ids.includes(id)) ids.push(id);
-  }
-  return okCommand(ids);
-}
-
-async function validateManagerEmployees(value: unknown, managerPositionId: number | null) {
-  const normalized = normalizeManagerEmployeeIds(value);
-  if (!normalized.ok || normalized.data === undefined) return normalized;
-  if (normalized.data.length === 0) return okCommand([]);
-  if (!managerPositionId) return failCommand("请先选择负责人岗位", 400);
-  const employees = await prisma.employee.findMany({
-    where: {
-      id: { in: normalized.data },
-      employments: { some: currentEmploymentDateWhere() },
-      positions: { some: currentOpenEndedDateWhere({ positionId: managerPositionId }) },
-    },
-    select: { id: true },
-  });
-  if (employees.length !== normalized.data.length) return failCommand("组织负责人必须来自负责人岗位的在岗员工", 400);
-  return okCommand(normalized.data);
 }
 
 async function hasCyclicParent(id: number, parentId: number | null): Promise<boolean> {
@@ -177,7 +194,7 @@ async function hasCyclicParent(id: number, parentId: number | null): Promise<boo
     if (current === id) return true;
     if (visited.has(current)) return false;
     visited.add(current);
-    const parent: { parentId: number | null } | null = await prisma.department.findUnique({ where: { id: current }, select: { parentId: true } });
+    const parent: { parentId: number | null } | null = await findDepartmentParentId(current);
     if (!parent) return false;
     current = parent.parentId;
   }
@@ -209,6 +226,14 @@ function normalizeDescriptionList(descriptions: unknown): DomainValidationResult
   return okCommand(result);
 }
 
+function normalizeLifecycleMeta(input: unknown) {
+  try {
+    return okCommand(parseOrganizationLifecycleMeta(input));
+  } catch (error) {
+    return failCommand(error instanceof Error ? error.message : "组织结构生命周期命令无效", 400, "lifecycle");
+  }
+}
+
 export async function buildDepartmentCreateCommand(
   input: DepartmentCreateInput,
 ): Promise<DomainValidationResult<DepartmentCreateCommand>> {
@@ -220,16 +245,17 @@ export async function buildDepartmentCreateCommand(
   const alias = input.alias == null || input.alias === "" ? null : String(input.alias).trim();
   const managerPositionId = input.managerPositionId == null || input.managerPositionId === "" ? null : Number(input.managerPositionId);
   if (managerPositionId !== null && (!Number.isInteger(managerPositionId) || managerPositionId <= 0)) return failCommand("负责人岗位无效", 400);
-  const managerEmployeeIds = await validateManagerEmployees(input.managerEmployeeIds, managerPositionId);
-  if (!managerEmployeeIds.ok) return managerEmployeeIds;
   if (!name) return failCommand("组织名不能为空");
   if (![1, 2, 3].includes(level)) return failCommand("组织层级不合法");
-  if (await prisma.department.findFirst({ where: { code }, select: { id: true } })) return failCommand("组织编码已存在", 409);
+  if (await findDepartmentIdByCode(code)) return failCommand("组织编码已存在", 409);
   const parent = await resolveDepartmentParent(hierarchyKind, level, code, parentId);
   if (typeof parent === "string") return failCommand(parent);
   const descriptions = normalizeDescriptionList(input.descriptions);
   if (!descriptions.ok) return descriptions;
-  return okCommand({ code, name, alias, hierarchyKind, level, parentId: parent.parentId, managerPositionId, managerEmployeeIds: managerEmployeeIds.data ?? [], descriptions: descriptions.data });
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (lifecycle.data.kind !== "schedule" || lifecycle.data.expectedSequence !== 0) return failCommand("新建组织必须使用初始 schedule 命令", 409, "lifecycle");
+  return okCommand({ code, name, alias, hierarchyKind, level, parentId: parent.parentId, managerPositionId, descriptions: descriptions.data, lifecycle: lifecycle.data });
 }
 
 export async function buildDepartmentFieldUpdateCommand(field: string, value: unknown, id?: number) {
@@ -243,11 +269,7 @@ export async function buildDepartmentFieldUpdateCommand(field: string, value: un
     return managerPosition.ok ? okCommand({ field, value: managerPosition.data }) : managerPosition;
   }
   if (field === "managerEmployeeIds") {
-    if (!id) return failCommand("缺少组织ID");
-    const department = await prisma.department.findUnique({ where: { id }, select: { managerPositionId: true } });
-    if (!department) return failCommand("组织不存在", 404);
-    const managers = await validateManagerEmployees(value, department.managerPositionId);
-    return managers.ok ? okCommand({ field, value: managers.data }) : managers;
+    return failCommand("组织负责人由负责人岗位的当前任职自动派生，请维护负责人岗位或任职记录", 409);
   }
   if (field === "isArchived") {
     const archived = Boolean(value);
@@ -264,10 +286,7 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
   const id = Number(input.id);
   if (!id) return failCommand("缺少id");
 
-  const existing = await prisma.department.findUnique({
-    where: { id },
-    select: { code: true, hierarchyKind: true, level: true, parentId: true, managerPositionId: true },
-  });
+  const existing = await findDepartmentUpdateReference(id);
   if (!existing) return failCommand("组织不存在", 404);
 
   const data: Prisma.DepartmentUncheckedUpdateInput = {};
@@ -291,7 +310,7 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
   if (![1, 2, 3].includes(level)) return failCommand("组织层级不合法");
 
   if (input.code !== undefined && input.code !== existing.code) {
-    const duplicate = await prisma.department.findFirst({ where: { code: input.code }, select: { id: true } });
+    const duplicate = await findDepartmentIdByCode(input.code);
     if (duplicate) return failCommand("组织编码已存在", 409);
   }
 
@@ -302,15 +321,11 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
 
   if (await hasCyclicParent(id, parentId)) return failCommand("不能将当前组织或其子孙组织设为上级", 409);
 
-  let managerPositionId = existing.managerPositionId;
   if (input.managerPositionId !== undefined) {
     const managerPosition = await validateManagerPosition(input.managerPositionId, id);
     if (!managerPosition.ok) return managerPosition;
     data.managerPositionId = managerPosition.data;
-    managerPositionId = managerPosition.data;
   }
-  const managerEmployees = await validateManagerEmployees(input.managerEmployeeIds, managerPositionId);
-  if (!managerEmployees.ok) return managerEmployees;
   if (input.isArchived !== undefined) {
     const archived = Boolean(input.isArchived);
     if (archived) {
@@ -323,7 +338,11 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
 
   const descriptions = normalizeDescriptionList(input.descriptions);
   if (!descriptions.ok) return descriptions;
-  return okCommand({ id, data, managerEmployeeIds: managerEmployees.data, descriptions: descriptions.data });
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (Boolean(input.isArchived) && lifecycle.data.kind !== "end-date") return failCommand("归档组织必须使用 end-date 命令", 409, "lifecycle");
+  if (input.isArchived === false && lifecycle.data.kind !== "schedule") return failCommand("恢复组织必须使用 schedule 命令", 409, "lifecycle");
+  return okCommand({ id, data, descriptions: descriptions.data, lifecycle: lifecycle.data });
 }
 
 export async function validateDepartmentDelete(id: number, actionLabel = "删除组织") {

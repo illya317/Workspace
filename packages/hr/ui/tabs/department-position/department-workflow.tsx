@@ -9,6 +9,7 @@ import {
   createPanelSection,
 } from "@workspace/core/ui";
 import { postJson, putJson, requestJson } from "@workspace/platform/ui/api-client";
+import type { ApprovalRequestViewDto } from "@workspace/platform/workflow-request-contract";
 import { createDepartmentDescriptionDetailsSections } from "@workspace/platform/ui/organization-units";
 import {
   formatWorkflowDateTime,
@@ -20,26 +21,11 @@ import {
 } from "@workspace/platform/ui/workflow";
 import { departmentCodeEditableSegment } from "./department-code-input";
 import { sanitizeDepartmentDescriptionDetails } from "./draft-utils";
-import type { Department, DepartmentDescriptionDraft } from "./types";
+import type { Department, DepartmentDescriptionDraft, OrganizationCodeConfig } from "./types";
 import { canUseDepartmentAsParentForHierarchy } from "./utils";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
 const HR_DEPARTMENT_WORKFLOW_ENDPOINT = "/api/modules/hr/roster/submissions";
-
-export type HrDepartmentWorkflowStatus = "draft" | "submitted" | "committing" | "withdrawn" | "rejected" | "approved" | "cancelled";
-
-export type HrDepartmentWorkflowEvent = {
-  id: number;
-  sequence: number;
-  eventType: string;
-  actorUserId: number;
-  actorName: string;
-  fromStatus: HrDepartmentWorkflowStatus | null;
-  toStatus: HrDepartmentWorkflowStatus | null;
-  comment: string | null;
-  payloadSnapshot: HrDepartmentWorkflowPayload | null;
-  createdAt: string;
-};
 
 export type HrDepartmentWorkflowPayload = {
   entityType: "department";
@@ -47,37 +33,7 @@ export type HrDepartmentWorkflowPayload = {
   data: Record<string, unknown>;
 };
 
-export type HrDepartmentWorkflowRequest = {
-  id: number;
-  resourceKey: string;
-  scopeId: string | null;
-  businessActionKey: string;
-  flowType: "approval" | "review" | "publish";
-  separationPolicy: "independent_required"  | "auto_pass_if_authorized";
-  subjectType: string;
-  subjectId: string | null;
-  operation: "create" | "update";
-  status: HrDepartmentWorkflowStatus;
-  handlerCanRevise: boolean;
-  requestCanWithdraw: boolean;
-  requestCanResubmit: boolean;
-  requestCanCancel: boolean;
-  requestCanRevise: boolean;
-  latestPayload: HrDepartmentWorkflowPayload;
-  submitterUserId: number;
-  submitterName: string;
-  submittedAt: string | null;
-  resolvedByUserId: number | null;
-  resolvedAt: string | null;
-  committedEntityType: string | null;
-  committedEntityId: string | null;
-  committedAt: string | null;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-  events: HrDepartmentWorkflowEvent[];
-  canProcess?: boolean;
-};
+export type HrDepartmentWorkflowRequest = ApprovalRequestViewDto<HrDepartmentWorkflowPayload>;
 
 export async function createHrDepartmentWorkflowDraft(input: {
   operation: "create" | "update";
@@ -134,20 +90,27 @@ export function HrDepartmentWorkflowPage({
 }) {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
   const [departments, setDepartments] = useState<Department[]>([]);
+  const [codeConfig, setCodeConfig] = useState<OrganizationCodeConfig | null>(null);
   useEffect(() => {
     let mounted = true;
-    void requestJson<{ departments?: Department[] }>("/api/modules/hr/roster/departments?pageSize=500", {
+    void requestJson<{ departments?: Department[]; codeConfig?: OrganizationCodeConfig }>("/api/modules/hr/roster/departments?pageSize=500", {
       fallbackMessage: "加载组织列表失败",
     }).then((data) => {
-      if (mounted) setDepartments(data.departments ?? []);
+      if (mounted) {
+        setDepartments(data.departments ?? []);
+        setCodeConfig(data.codeConfig ?? null);
+      }
     }).catch(() => {
-      if (mounted) setDepartments([]);
+      if (mounted) {
+        setDepartments([]);
+        setCodeConfig(null);
+      }
     });
     return () => { mounted = false; };
   }, []);
   return (
     <WorkflowRequestsPage<HrDepartmentWorkflowRequest>
-      {...hrDepartmentWorkflowPanelProps({ currentUserId, notify, departments, operatingCommitteeCode })}
+      {...hrDepartmentWorkflowPanelProps({ currentUserId, notify, departments, codeConfig, operatingCommitteeCode })}
       navigation={navigation}
     />
   );
@@ -165,8 +128,20 @@ export function useHrDepartmentWorkflowSection({
   notify: (toast: { message: string; type: "success" | "error" }) => void;
 }): BodySurfaceSectionSpec {
   const operatingCommitteeCode = useTenantConfig().organization.operatingCommittee.departmentCode;
+  const [codeConfig, setCodeConfig] = useState<OrganizationCodeConfig | null>(null);
+  useEffect(() => {
+    let mounted = true;
+    void requestJson<{ codeConfig?: OrganizationCodeConfig }>("/api/modules/hr/roster/departments?pageSize=1", {
+      fallbackMessage: "加载组织编码规则失败",
+    }).then((data) => {
+      if (mounted) setCodeConfig(data.codeConfig ?? null);
+    }).catch(() => {
+      if (mounted) setCodeConfig(null);
+    });
+    return () => { mounted = false; };
+  }, []);
   return useWorkflowRequestsSection<HrDepartmentWorkflowRequest>({
-    ...hrDepartmentWorkflowPanelProps({ currentUserId, notify, onCommitted: reloadData, operatingCommitteeCode }),
+    ...hrDepartmentWorkflowPanelProps({ currentUserId, notify, onCommitted: reloadData, codeConfig, operatingCommitteeCode }),
     filterRequests: (requests) => {
       if (!selectedDepartmentId) return requests;
       const related = requests.filter((request) => (
@@ -184,12 +159,14 @@ function hrDepartmentWorkflowPanelProps({
   notify,
   onCommitted,
   departments = [],
+  codeConfig,
   operatingCommitteeCode,
 }: {
   currentUserId: number;
   notify: (toast: { message: string; type: "success" | "error" }) => void;
   onCommitted?: () => void | Promise<void>;
   departments?: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   operatingCommitteeCode: string;
 }) {
   return {
@@ -199,22 +176,12 @@ function hrDepartmentWorkflowPanelProps({
     currentUserId,
     notify,
     onCommitted,
-    requestTitle,
-    requestDescription: requestDetail,
-    requestMeta: (request: HrDepartmentWorkflowRequest) => `${request.submitterName} · ${formatWorkflowDateTime(request.updatedAt)}`,
     requestBadges,
     requestFields,
-    requestTimelineEvents: (request: HrDepartmentWorkflowRequest) => request.events.map((event) => ({
-      id: event.id,
-      actor: event.actorName,
-      type: eventLabel(event.eventType),
-      at: formatWorkflowDateTime(event.createdAt),
-      comment: event.comment,
-    })),
     canEditPayload: (request: HrDepartmentWorkflowRequest) => canEditDepartmentWorkflowPayload(request, currentUserId),
     payloadValue: (request: HrDepartmentWorkflowRequest) => ({ ...request.latestPayload.data }),
     payloadText: (request: HrDepartmentWorkflowRequest) => JSON.stringify(request.latestPayload.data, null, 2),
-    requestPayloadSections: departmentWorkflowPayloadSections({ departments, operatingCommitteeCode }),
+    requestPayloadSections: departmentWorkflowPayloadSections({ departments, codeConfig, operatingCommitteeCode }),
     updateBody: (request: HrDepartmentWorkflowRequest, data: Record<string, unknown>) => ({
       payload: data,
       version: request.version,
@@ -234,9 +201,11 @@ function canEditDepartmentWorkflowPayload(request: HrDepartmentWorkflowRequest, 
 
 function departmentWorkflowPayloadSections({
   departments,
+  codeConfig,
   operatingCommitteeCode,
 }: {
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   operatingCommitteeCode: string;
 }) {
   return ({
@@ -247,7 +216,7 @@ function departmentWorkflowPayloadSections({
     onSave,
   }: WorkflowRequestPayloadSectionsContext<HrDepartmentWorkflowRequest>): BodySurfaceSectionSpec[] => {
     const draft = normalizeDepartmentPayload(value);
-    const fieldState = editable && !saving ? "normal" as const : "disabled" as const;
+    const fieldState = editable && !saving && codeConfig ? "normal" as const : "disabled" as const;
     const parentOptions = [
       { value: "", label: "无" },
       ...departments
@@ -304,7 +273,7 @@ function departmentWorkflowPayloadSections({
                 spec: {
                   valueType: "string",
                   control: "text",
-                  mask: { kind: "editableSegment", ...departmentCodeEditableSegment(draft.level, draft.hierarchyKind) },
+                  mask: { kind: "editableSegment", ...departmentCodeEditableSegment(draft.level, draft.hierarchyKind, codeConfig) },
                   state: fieldState,
                 },
                 value: draft.code,
@@ -465,28 +434,10 @@ function requestBadges(request: HrDepartmentWorkflowRequest): BodySurfaceBadgeSp
   ];
 }
 
-function requestTitle(request: HrDepartmentWorkflowRequest) {
-  return `${request.operation === "create" ? "新建" : "修改"} · ${request.latestPayload.data.name || request.latestPayload.data.code || "未命名组织"}`;
-}
-
 function requestDetail(request: HrDepartmentWorkflowRequest) {
   return String(request.latestPayload.data.name || request.latestPayload.data.code || request.latestPayload.departmentId || "-");
 }
 
 function readonlyField(key: string, label: string, value: string): FormSurfaceReadOnlyFieldSpec {
   return { kind: "readonly", key, label, value };
-}
-
-function eventLabel(eventType: string) {
-  if (eventType === "create_draft") return "创建草稿";
-  if (eventType === "submit") return "提交审批";
-  if (eventType === "withdraw") return "撤回";
-  if (eventType === "revise") return "修订";
-  if (eventType === "review_update") return "审核修改";
-  if (eventType === "approve") return "同意";
-  if (eventType === "reject") return "驳回";
-  if (eventType === "cancel") return "删除请求";
-  if (eventType === "comment") return "评论";
-  if (eventType === "commit_failed") return "提交正式数据失败";
-  return eventType;
 }

@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import {
   parseAgentMarkdown,
   type AgentMarkdownInline,
-} from "./agent-markdown";
+} from "@workspace/platform/ui/agent-markdown";
 
 export function AgentMessageMarkdown({ content }: { content: string }) {
   const blocks = parseAgentMarkdown(content);

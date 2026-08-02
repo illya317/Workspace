@@ -5,11 +5,12 @@ import type {
 } from "@workspace/core/ui";
 import type { CompanyRecord, CompanyRegistryChangeRecord, OwnershipInterestRecord } from "../types";
 
-export type CompanyDraft = Omit<CompanyRecord, "id" | "version" | "partyId" | "partyVersion" | "registryChanges"> & {
+export type CompanyDraft = Omit<CompanyRecord, "id" | "version" | "partyId" | "partyVersion" | "legalFactRevision" | "registryChanges"> & {
   id?: number;
   version?: number;
   partyId?: number;
   partyVersion?: number;
+  legalFactRevision?: number;
 };
 
 export const COMPANY_REGISTRY_CHANGE_COLUMNS: DataSurfaceColumnSpec<CompanyRegistryChangeRecord>[] = [

@@ -38,16 +38,12 @@ mock.module("./department-collaboration-route-command", {
   namedExports: { executeListDepartmentCollaborationsCommand: async () => ({ ok: true, data: { collaborations: [] } }) },
 } as never);
 mock.module("./project-members", { namedExports: { listProjectMembers: async () => ({ entries: [], total: 0 }) } } as never);
-mock.module("./project-plan-baselines", {
+mock.module("./projects/plan", {
   namedExports: {
     listProjectPlanBaselines: async (input: Record<string, unknown>) => {
       calls.push({ service: "project-baselines", input });
       return { ok: true, data: projectBaselinesFixture() };
     },
-  },
-} as never);
-mock.module("./project-plan", {
-  namedExports: {
     listProjectPlanGantt: async (input: Record<string, unknown>) => {
       calls.push({ service: "project-gantt", input });
       return { ok: true, data: projectGanttFixture() };
@@ -62,7 +58,7 @@ mock.module("./projects", { namedExports: {
   listProjectGantt: async () => ({ projects: [], tasks: [] }),
   listProjects: async () => ({ projects: [], total: 0 }),
 } } as never);
-mock.module("./meetings", { namedExports: {
+mock.module("./meetings/application", { namedExports: {
   getMeetingDetail: async () => ({ ok: false, error: "unused" }),
   listMeetings: async () => ({ ok: true, data: { meetings: [] } }),
 } } as never);

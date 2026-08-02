@@ -14,20 +14,42 @@ model DepartmentDescription {
   @@index([departmentId])
 }
 
-/// 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+/// 岗位说明书稳定身份；正文只存在于不可变 revision 中。
 model PositionDescription {
-  id                  Int                          @id @default(autoincrement())
-  positionPurpose     String?
-  summary             String?
-  headcount           Int?
-  version             String?
-  effectiveDate       String?
-  sourceFile          String
-  details             String?
-  editedBy            Int?
-  editedAt            DateTime?
+  id                  Int                           @id @default(autoincrement())
+  createdBy           Int?
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @default(now()) @updatedAt
   positions           Position[]
+  revisions           PositionDescriptionRevision[] @relation("PositionDescriptionRevisions")
   responsibilityNodes PositionResponsibilityNode[]
+  workResponsibilityReferences WorkResponsibilityReference[] @relation("WorkResponsibilityPositionDescription")
+}
+
+/// 岗位说明书不可变修订；正常变更和纠错都新增 revision，禁止覆盖旧正文。
+model PositionDescriptionRevision {
+  id                    Int                         @id @default(autoincrement())
+  revisionUid           String                      @unique
+  positionDescriptionId Int
+  sequence              Int
+  changeKind            String                      @default("change")
+  supersedesRevisionId  Int?
+  positionPurpose       String?
+  summary               String?
+  headcount             Int?
+  version               String?
+  effectiveDate         String?
+  sourceFile            String
+  details               String?
+  changeReason          String?
+  createdBy             Int?
+  createdAt             DateTime                    @default(now())
+  positionDescription   PositionDescription         @relation("PositionDescriptionRevisions", fields: [positionDescriptionId], references: [id], onDelete: Restrict)
+  supersedesRevision    PositionDescriptionRevision? @relation("PositionDescriptionRevisionSupersedes", fields: [supersedesRevisionId], references: [id], onDelete: Restrict)
+  supersededByRevisions PositionDescriptionRevision[] @relation("PositionDescriptionRevisionSupersedes")
+  responsibilityNodes   PositionResponsibilityNode[]
+
+  @@unique([positionDescriptionId, sequence])
+  @@index([positionDescriptionId, effectiveDate, sequence], map: "PositionDescriptionRevision_effective_idx")
+  @@index([supersedesRevisionId])
 }

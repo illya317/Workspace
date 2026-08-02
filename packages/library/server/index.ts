@@ -17,7 +17,6 @@ export * from "./route-commands";
 export * from "./schemas";
 export * from "./scan";
 export * from "./search";
-export * from "./agent-tools";
 export * from "./versions";
 export * from "./uploads";
 export * from "./version-content";

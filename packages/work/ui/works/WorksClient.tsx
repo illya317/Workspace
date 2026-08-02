@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type CreateSurfaceToolbarProps, type FormSurfaceProps } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type FormSurfaceProps, type PageSurfaceCreateSpec } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
@@ -895,9 +895,8 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
     execute: () => planCommands.handleCreatePlan({ feedback: false, rethrow: true }),
   });
   const globalCreateSubmission = planCreating ? planCreateSubmission : nodeCreateSubmission;
-  const globalCreate: CreateSurfaceToolbarProps = {
+  const globalCreate: PageSurfaceCreateSpec = {
     id: "work-create",
-    trigger: "toolbar",
     presentation: "block",
     title: planCreating ? "新建计划" : isolatedRoutineTaskCreate ? "新建任务" : "新建",
     open: globalCreateOpen,
@@ -944,7 +943,7 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
   }));
   const workPlanSection = createWorkPlanContentSection({
     planCreating,
-    globalCreate,
+    globalCreateOpen,
     sectionTitle: isolatedRoutineTaskCreate ? "新建任务" : "工作计划",
     hideWorkSections: isolatedRoutineTaskCreate,
     activePlan,
@@ -1042,6 +1041,7 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
     user,
     headerSelector: spaceSelector,
     children: <PageSurface kind="standard"
+      create={activeTab === "tasks" && !assignedNavigation.assignedBodySection ? globalCreate : undefined}
       tabbar={pageNavigation}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
       body={activeTab === "settings" ? settingsBody : activeTab === WORK_KPI_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: kpiNavigationBody, right: kpiBody, label: "KPI 周期计划", ratio: [0.3, 0.7] }) : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", ratio: [0.3, 0.7] }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", ratio: [0.24, 0.76] }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", ratio: [0.3, 0.7] })}

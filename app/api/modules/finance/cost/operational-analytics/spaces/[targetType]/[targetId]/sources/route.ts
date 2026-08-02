@@ -4,6 +4,7 @@ import {
 } from "@workspace/finance/server/cost";
 import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 registerFinanceWorkSpaceAccessProvider();
@@ -15,7 +16,7 @@ export const GET = createCommandRoute({
     userId: user.userId,
     scopeType: params.targetType,
     scopeId: params.targetId,
-    viaApiKey: Boolean(request.headers.get("x-api-key")),
+    viaApiKey: isProgrammaticApiRequest(request),
   }),
   action: ({ userId, scopeType, scopeId, viaApiKey }) => listOperationalAnalysisSources(
     userId,

@@ -1,19 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { useFeedback } from "@workspace/core/ui";
 import { useCodeData } from "./hooks/useCodeData";
 import { useCodeTable } from "./hooks/useCodeTable";
 import { useCodeEdit } from "./hooks/useCodeEdit";
-import {
-  getDetailList as getDetailListFromEmployees,
-} from "../code-helpers";
-
 import type { HRUser as User } from "@workspace/hr/types";
-import type { Employee, CodeItem } from "@workspace/hr/types";
+import type { CodeItem } from "@workspace/hr/types";
 
-export type { Employee, CodeItem };
+export type { CodeItem };
 
 export function useCodeTab({
   user,
@@ -31,7 +27,7 @@ export function useCodeTab({
   departmentCode?: string;
 }) {
   const feedback = useFeedback();
-  const { codes, setCodes, employees, stats, loading } = useCodeData({
+  const { codes, setCodes, stats, loading } = useCodeData({
     type,
     apiPath,
     companyCode,
@@ -53,41 +49,40 @@ export function useCodeTab({
     showToast: feedback.notify,
   });
 
-  const [detailModal, setDetailModal] = useState<{
-    open: boolean;
-    code: string;
-    name: string;
-  } | null>(null);
-  const [positionDeptModal, setPositionDeptModal] = useState<{
-    open: boolean;
+  const [positionDepartments, setPositionDepartments] = useState<{
     code: string;
     name: string;
     departments: string[];
+    loading: boolean;
+    error?: string;
   } | null>(null);
   const [showHistory, setShowHistory] = useState(false);
 
   const entityType = type === "department" ? "Department" : "Position";
 
-  function getDetailListWrapper(codeItem: CodeItem): Employee[] {
-    return getDetailListFromEmployees(employees, type, codeItem);
-  }
+  useEffect(() => {
+    setPositionDepartments(null);
+  }, [companyCode, departmentCode]);
 
   async function loadPositionDepts(item: CodeItem) {
-    if (type !== "position") {
-      setDetailModal({ open: true, code: item.code, name: item.name });
-      return;
-    }
-    const res = await fetch(
-      workspacePath(`/api/modules/hr/roster/position-codes?positionCode=${encodeURIComponent(item.code)}`)
-    );
-    if (res.ok) {
+    if (type !== "position") return;
+    setPositionDepartments({ code: item.code, name: item.name, departments: [], loading: true });
+    try {
+      const res = await fetch(
+        workspacePath(`/api/modules/hr/roster/position-codes?positionCode=${encodeURIComponent(item.code)}`)
+      );
+      if (!res.ok) throw new Error(`岗位关联部门加载失败（${res.status}）`);
       const data = await res.json();
-      setPositionDeptModal({
-        open: true,
+      setPositionDepartments({
         code: item.code,
         name: item.name,
         departments: data.departments || [],
+        loading: false,
       });
+    } catch (cause) {
+      const message = cause instanceof Error ? cause.message : "岗位关联部门加载失败";
+      feedback.error(message);
+      setPositionDepartments({ code: item.code, name: item.name, departments: [], loading: false, error: message });
     }
   }
 
@@ -99,14 +94,11 @@ export function useCodeTab({
     sortedCodes,
     stats,
     ...edit,
-    detailModal,
-    setDetailModal,
-    positionDeptModal,
-    setPositionDeptModal,
+    positionDepartments,
+    setPositionDepartments,
     showHistory,
     setShowHistory,
     entityType,
-    getDetailList: getDetailListWrapper,
     loadPositionDepts,
   };
 }

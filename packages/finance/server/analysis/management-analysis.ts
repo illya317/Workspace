@@ -13,6 +13,7 @@ import {
   buildWorkingCapital,
   changeRate,
   roundMoney,
+  safeNonNegativeRatio,
   safeRatio,
   summarizeProfitability,
   type AmountMap,
@@ -142,7 +143,8 @@ function companyRows(
     const assets = value(row.balance, "totalAssets");
     const liabilities = value(row.balance, "totalLiabilities");
     const equity = value(row.balance, "totalEquity");
-    const averageEquity = (equity + value(row.priorBalance, "totalEquity")) / 2;
+    const openingEquity = row.openingBalanceSource === "missing" ? equity : value(row.openingBalance, "totalEquity");
+    const averageEquity = (equity + openingEquity) / 2;
     return {
       code: company.code,
       name: company.name,
@@ -153,8 +155,8 @@ function companyRows(
       netMargin: profit.netMargin,
       operatingCashFlow: roundMoney(value(row.cashFlow, "operatingNet")),
       endingCash: company.endingCash,
-      currentRatio: safeRatio(value(row.balance, "totalCurrentAssets"), value(row.balance, "totalCurrentLiabilities")),
-      assetLiabilityRatio: safeRatio(liabilities, assets),
+      currentRatio: safeNonNegativeRatio(value(row.balance, "totalCurrentAssets"), value(row.balance, "totalCurrentLiabilities")),
+      assetLiabilityRatio: safeNonNegativeRatio(liabilities, assets),
       roe: averageEquity > 0 ? safeRatio(profit.netProfit, averageEquity) : null,
       incomeSource: row.incomeSource,
       balanceSource: row.balanceSource,
@@ -173,11 +175,13 @@ export async function getManagementAnalysis(input: FundFlowAnalysisInput): Promi
   const income = sumMaps(statementFacts.map((row) => row.income));
   const priorIncome = sumMaps(statementFacts.map((row) => row.priorIncome));
   const balance = sumMaps(statementFacts.map((row) => row.balance));
-  const priorBalance = sumMaps(statementFacts.map((row) => row.priorBalance));
+  const openingBalance = sumMaps(statementFacts.map((row) => (
+    row.openingBalanceSource === "missing" ? row.balance : row.openingBalance
+  )));
   const profitability = summarizeProfitability(income, priorIncome);
   const workingCapital = buildWorkingCapital(
     balance,
-    priorBalance,
+    openingBalance,
     profitability.revenue,
     profitability.operatingCost,
     Math.round(365 * month / 12),
@@ -220,8 +224,8 @@ export async function getManagementAnalysis(input: FundFlowAnalysisInput): Promi
     otherPayables: roundMoney(value(balance, "otherPayables")),
     paidInCapital: roundMoney(value(balance, "paidInCapital")),
     capitalReserve: roundMoney(value(balance, "capitalReserve")),
-    assetLiabilityRatio: safeRatio(totalLiabilities, totalAssets),
-    debtToEquity: totalEquity > 0 ? safeRatio(totalLiabilities, totalEquity) : null,
+    assetLiabilityRatio: safeNonNegativeRatio(totalLiabilities, totalAssets),
+    debtToEquity: safeNonNegativeRatio(totalLiabilities, totalEquity),
     investingInflow: investing.inflow,
     investingOutflow: investing.outflow,
     financingInflow: financing.inflow,
@@ -233,14 +237,24 @@ export async function getManagementAnalysis(input: FundFlowAnalysisInput): Promi
   const performance = buildPerformanceKpis({
     revenue: profitability.revenue,
     priorRevenue: profitability.priorRevenue,
+    grossProfit: profitability.grossProfit,
+    priorGrossProfit: roundMoney(value(priorIncome, "revenue") - value(priorIncome, "cost")),
+    operatingProfit: profitability.operatingProfit,
+    priorOperatingProfit: value(priorIncome, "operatingProfit"),
     netProfit: profitability.netProfit,
     priorNetProfit: profitability.priorNetProfit,
     totalAssets,
-    priorAssets: value(priorBalance, "totalAssets"),
+    openingAssets: value(openingBalance, "totalAssets"),
     totalEquity,
-    priorEquity: value(priorBalance, "totalEquity"),
+    openingEquity: value(openingBalance, "totalEquity"),
     totalLiabilities,
     currentRatio: workingCapital.currentRatio,
+    quickRatio: workingCapital.quickRatio,
+    cashRatio: workingCapital.cashRatio,
+    receivableDays: workingCapital.receivableDays,
+    inventoryDays: workingCapital.inventoryDays,
+    payableDays: workingCapital.payableDays,
+    cashConversionCycleDays: workingCapital.cashConversionCycleDays,
     operatingCashFlow: operating.net,
     freeCashFlow: capital.freeCashFlow,
   });
@@ -259,9 +273,18 @@ export async function getManagementAnalysis(input: FundFlowAnalysisInput): Promi
     const messages: string[] = [];
     if (row.incomeSource === "ledger") messages.push(`${company.name}：利润表按已记账凭证方向发生额计算管理口径。`);
     if (row.balanceSource === "ledger") messages.push(`${company.name}：资产负债表按期末科目余额计算管理口径，未包含报表重分类。`);
-    if (row.priorIncomeSource === "missing" || row.priorBalanceSource === "missing") messages.push(`${company.name}：${year - 1}年同期比较事实不完整，同比和平均资产/权益指标仅作数据缺口提示。`);
+    if (row.priorIncomeSource === "missing" || row.priorBalanceSource === "missing") messages.push(`${company.name}：${year - 1}年同期比较事实不完整，同比指标仅作数据缺口提示。`);
+    if (row.openingBalanceSource === "missing") messages.push(`${company.name}：本年期初余额缺失，周转率、周转天数及平均资产/权益指标暂以当前期末余额代替期初余额。`);
     return messages;
   });
+  const calculationWarnings = [
+    ...(workingCapital.currentAssets < 0 || workingCapital.currentLiabilities <= 0.005 || [workingCapital.currentRatio, workingCapital.quickRatio, workingCapital.cashRatio].some((item) => item === null) ? ["流动资产、速动资产、现金或流动负债不具备非负分子和正数分母口径，相关偿债比率显示为“—”。"] : []),
+    ...([workingCapital.receivableTurnover, workingCapital.inventoryTurnover, workingCapital.payableTurnover].some((item) => item === null) ? ["部分周转指标所需的累计收入、累计成本或期初期末平均余额不是正数，相关指标显示为“—”。"] : []),
+    ...([
+      workingCapital.receivableDays, workingCapital.inventoryDays, workingCapital.payableDays,
+    ].some((item) => item !== null && Math.abs(item) > 3_650)
+      ? ["部分周转天数超过十年，通常表示本期收入/成本覆盖不足、长期挂账或科目映射异常；系统保留计算值并要求结合明细复核。"] : []),
+  ];
   const operationalCoverage = `发货覆盖${operational.shipmentMonths.length ? operational.shipmentMonths.join("、") : "无"}月，成本覆盖${operational.costMonths.length ? operational.costMonths.join("、") : "无"}月`;
   return {
     fundFlow,
@@ -296,6 +319,7 @@ export async function getManagementAnalysis(input: FundFlowAnalysisInput): Promi
     warnings: [
       ...fundFlow.warnings,
       ...sourceWarnings,
+      ...calculationWarnings,
       `成本业务数据未分配到具体公司；${operationalCoverage}，不得与所选单家公司法定口径直接相加。`,
     ],
   };

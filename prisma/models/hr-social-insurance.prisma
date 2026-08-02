@@ -1,0 +1,51 @@
+/// 员工社会保险月份期间（事实表；页面按一整套参保关系维护，不拆分险种）。
+model EmployeeSocialInsurancePeriod {
+  id             Int       @id @default(autoincrement())
+  periodUid      String    @unique @default(uuid())
+  employeeId     Int
+  insuranceStatus String   @default("insured")
+  companyId      Int?
+  companyNameSnapshot String?
+  startMonth     DateTime? @db.Date
+  endMonth       DateTime? @db.Date
+  stopReason     String?
+  note           String?
+  missingFieldsJson String @default("[]")
+  recordState    String    @default("confirmed")
+  sourceKind     String    @default("workspace")
+  sourceRef      String?
+  createdBy      Int?
+  updatedBy      Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  version        Int       @default(1)
+  employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  company        Company?  @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  creator        User?     @relation("EmployeeSocialInsuranceCreator", fields: [createdBy], references: [id], onDelete: SetNull)
+  updater        User?     @relation("EmployeeSocialInsuranceUpdater", fields: [updatedBy], references: [id], onDelete: SetNull)
+  revisions      EmployeeSocialInsurancePeriodRevision[]
+
+  @@index([employeeId, startMonth, endMonth])
+  @@index([companyId, startMonth, endMonth])
+  @@index([employeeId, recordState])
+}
+
+/// 社保记录的不可变资料修订；baseline 补缺与既有事实纠错不得覆盖历史证据。
+model EmployeeSocialInsurancePeriodRevision {
+  id          Int       @id @default(autoincrement())
+  revisionUid String    @unique @default(uuid())
+  periodId    Int
+  revisionNo  Int
+  changeKind  String
+  beforeJson  String
+  afterJson   String
+  reason      String
+  recordedBy  Int
+  recordedAt  DateTime  @default(now())
+  period      EmployeeSocialInsurancePeriod @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  actor       User      @relation("EmployeeSocialInsuranceRevisionRecorder", fields: [recordedBy], references: [id], onDelete: Restrict)
+
+  @@unique([periodId, revisionNo])
+  @@index([periodId, recordedAt])
+  @@index([recordedBy])
+}

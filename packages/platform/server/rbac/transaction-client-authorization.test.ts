@@ -5,8 +5,6 @@ const resourceRows = [
   { id: 1, key: "settings", parentId: null },
   { id: 2, key: "settings.account", parentId: 1 },
   { id: 3, key: "agent", parentId: null },
-  { id: 5, key: "agent.assistant", parentId: null },
-  { id: 6, key: "agent.source", parentId: null },
 ];
 
 function globalDelegate(name: string) {
@@ -61,7 +59,7 @@ const tx = {
     },
   },
   userResourceActionGrant: {
-    findMany: async () => [{ resourceId: 5 }],
+    findMany: async () => [{ resourceId: 3 }],
     findFirst: async () => ({ id: 1 }),
   },
   positionResourceActionGrant: {
@@ -84,17 +82,16 @@ const { canManageResourceGrant, getManageableResourceKeys } = await import("./ad
 const { authorizePermissionGrantRequest } = await import("./action-grant-request");
 
 test("lock-time Agent authorization uses only the injected transaction client through the full RBAC chain", async () => {
-  assert.equal(await evaluatePermissionAction(7, "agent.assistant", "read", { client: tx as never }), true);
+  assert.equal(await evaluatePermissionAction(7, "agent", "read", { client: tx as never }), true);
   const manageable = await getManageableResourceKeys(7, tx as never);
-  assert.equal(manageable.has("agent.assistant"), true);
-  assert.equal(manageable.has("agent.source"), true);
-  assert.equal(await canManageResourceGrant(7, "agent.source", "grant", tx as never), true);
+  assert.equal(manageable.has("agent"), true);
+  assert.equal(await canManageResourceGrant(7, "agent", "grant", tx as never), true);
 
   const authorization = await authorizePermissionGrantRequest({
     actorUserId: 7,
     subjectType: "position",
     subjectId: 9,
-    resourceKey: "agent.source",
+    resourceKey: "agent",
     actionKey: "read",
     value: true,
     isSystemAdmin: false,
@@ -106,7 +103,7 @@ test("lock-time Agent authorization uses only the injected transaction client th
       actorUserId: 7,
       subjectType: "user",
       subjectId: 9,
-      resourceKey: "agent.source",
+      resourceKey: "agent",
       actionKey: "read",
       value,
       isSystemAdmin: false,

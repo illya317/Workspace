@@ -1,19 +1,16 @@
 import type { PermissionContext } from "./types";
-import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_KEYS } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
-import { permissionGrantContributesToAction } from "../../permission-action-grantability";
 
 export {
   getImplicitAllAdminEmployeeIds,
 } from "./implicit-admins";
-
-const DEFAULT_RESOURCE_ACTIONS = {
-  "settings.account": "read",
-  docs: "read",
-} as const satisfies Record<string, PermissionActionKey>;
-const DEFAULT_ACCESS_RESOURCE_KEYS = Object.keys(DEFAULT_RESOURCE_ACTIONS);
+export {
+  defaultResourceActionAllows,
+  getDefaultResourceAction,
+  isDefaultAccessResource,
+} from "../../permission-default-actions";
 let activeResourceIdsCache: Set<number> | null = null;
 
 async function getActiveResourceIds() {
@@ -37,26 +34,6 @@ function grantsContainConfigureAction(
     if (roles.has("configure")) return true;
   }
   return false;
-}
-
-export function isDefaultAccessResource(resourceKey: string | undefined | null) {
-  return Boolean(resourceKey && DEFAULT_ACCESS_RESOURCE_KEYS.includes(resourceKey));
-}
-
-export function getDefaultResourceAction(resourceKey: string | undefined | null) {
-  if (!resourceKey) return null;
-  return DEFAULT_RESOURCE_ACTIONS[resourceKey as keyof typeof DEFAULT_RESOURCE_ACTIONS] ?? null;
-}
-
-export function defaultResourceActionAllows(
-  resourceKey: string | undefined | null,
-  actionKey: PermissionActionKey,
-) {
-  const defaultAction = getDefaultResourceAction(resourceKey);
-  return Boolean(
-    defaultAction
-    && permissionGrantContributesToAction(resourceKey, defaultAction, actionKey),
-  );
 }
 
 export async function hasAnyAdminGrantForContext(ctx: PermissionContext) {

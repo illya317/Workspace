@@ -8,6 +8,7 @@ import {
   getPositionList,
   PositionCreateSchema,
   updatePosition,
+  organizationStructureLifecycleMetaFromRequest,
 } from "@workspace/hr/server";
 import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const positionsQuerySchema = z.object({
@@ -20,6 +21,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";const 
 
 const updatePositionBodySchema = PositionCreateSchema.partial().extend({
   id: z.coerce.number().int().positive(),
+  version: z.coerce.number().int().min(0),
   isArchived: z.boolean().optional(),
 }).passthrough();
 
@@ -37,14 +39,17 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: PositionCreateSchema,
-  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  buildCommand: ({ request, body, user }) => buildHrRouteCommand({
+    body: { ...body, lifecycle: organizationStructureLifecycleMetaFromRequest(request, { ...body.lifecycle, expectedSequence: 0 }) },
+    userId: user.userId,
+  }),
   action: ({ body, userId }) => createPosition(body, userId),
 });
 
 export const PUT = createCommandRoute({
   bodySchema: updatePositionBodySchema,
   bodyError: "缺少id",
-  buildCommand: ({ body, user }) => buildHrRouteCommand({
+  buildCommand: ({ request, body, user }) => buildHrRouteCommand({
     id: body.id,
     body: {
       code: body.code,
@@ -54,6 +59,10 @@ export const PUT = createCommandRoute({
       reportToPositionId: body.reportToPositionId,
       positionDescription: body.positionDescription,
       isArchived: body.isArchived,
+      lifecycle: organizationStructureLifecycleMetaFromRequest(request, {
+        ...body.lifecycle,
+        expectedSequence: readRequestExpectedVersion(request) ?? body.version,
+      }),
     },
     userId: user.userId,
   }),

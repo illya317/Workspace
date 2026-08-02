@@ -23,23 +23,6 @@ function uniqueCompanyCodes(codes: string[]) {
   return [...new Set(codes.map((code) => code.trim()).filter(Boolean))];
 }
 
-function commonPeriods(
-  rows: Array<{ companyCode: string; year: number; month: number }>,
-  companyCodes: string[],
-) {
-  const byPeriod = new Map<string, Set<string>>();
-  for (const row of rows) {
-    const key = `${row.year}-${row.month}`;
-    const companies = byPeriod.get(key) ?? new Set<string>();
-    companies.add(row.companyCode);
-    byPeriod.set(key, companies);
-  }
-  return [...byPeriod.entries()].filter(([, companies]) => companyCodes.every((code) => companies.has(code))).map(([key]) => {
-    const [year, month] = key.split("-").map(Number);
-    return { year, month };
-  });
-}
-
 function aggregateChannels(
   rows: FundFlowChannel[][],
   total: number,
@@ -100,7 +83,7 @@ function companyRole(
 
 export async function getFundFlowAnalysis(input: FundFlowAnalysisInput): Promise<FundFlowAnalysis> {
   const companyCodes = uniqueCompanyCodes(input.companyCodes);
-  const [companies, cashFlowPeriods] = await Promise.all([
+  const [companies, analysisPeriods] = await Promise.all([
     prisma.company.findMany({
       where: { code: { in: companyCodes }, isActive: true },
       select: {
@@ -117,16 +100,25 @@ export async function getFundFlowAnalysis(input: FundFlowAnalysisInput): Promise
       orderBy: { sortOrder: "asc" },
     }),
     prisma.financePeriod.findMany({
-      where: { companyCode: { in: companyCodes }, cashFlowAllocations: { some: {} } },
-      select: { companyCode: true, year: true, month: true },
+      where: { companyCode: { in: companyCodes } },
+      select: {
+        companyCode: true,
+        year: true,
+        month: true,
+        isClosed: true,
+        _count: { select: { vouchers: true, cashFlowAllocations: true } },
+      },
     }),
   ]);
   if (companies.length === 0) throw new Error("所选公司不存在或未启用");
   const activeCodes = companies.map((company) => company.code);
-  const periods = commonPeriods(cashFlowPeriods, activeCodes);
-  const availableYears = [...new Set(periods.map((period) => period.year))].sort((a, b) => b - a);
-  const commonMonths = periods.filter((period) => period.year === input.year).map((period) => period.month);
-  const month = input.month ?? (commonMonths.length > 0 ? Math.max(...commonMonths) : 12);
+  const periods = analysisPeriods.filter((period) => (
+    period.isClosed || period._count.vouchers > 0 || period._count.cashFlowAllocations > 0
+  )).map(({ year, month }) => ({ year, month }));
+  const uniquePeriods = [...new Map(periods.map((period) => [`${period.year}-${period.month}`, period])).values()];
+  const availableYears = [...new Set(uniquePeriods.map((period) => period.year))].sort((a, b) => b - a);
+  const availableMonths = [...new Set(uniquePeriods.filter((period) => period.year === input.year).map((period) => period.month))].sort((a, b) => a - b);
+  const month = input.month ?? (availableMonths.length > 0 ? Math.max(...availableMonths) : 12);
   const facts = await Promise.all(activeCodes.map((code) => loadCompanyFundFlowFacts(code, input.year, month)));
   const inflow = roundMoney(facts.reduce((sum, row) => sum + row.breakdown.inflow, 0));
   const outflow = roundMoney(facts.reduce((sum, row) => sum + row.breakdown.outflow, 0));
@@ -201,6 +193,7 @@ export async function getFundFlowAnalysis(input: FundFlowAnalysisInput): Promise
       periodLabel: `${input.year}年${month === 12 ? "全年" : `1—${month}月`}`,
       aggregation: companies.length > 1 ? "uneliminated" : "single",
       availableYears,
+      availableMonths,
     },
     metrics: {
       inflow,

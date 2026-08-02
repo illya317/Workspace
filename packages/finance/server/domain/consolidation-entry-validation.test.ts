@@ -32,6 +32,29 @@ test("accepts balanced typed elimination lines", () => {
   assert.equal(result.data.input.lines.length, 2);
 });
 
+test("accepts a manually prepared group adjustment without bilateral matching facts", () => {
+  const result = buildSaveConsolidationEntryCommand(7, {
+    expectedRevision: 1,
+    entryNo: "2026-06-合-0013",
+    postingDate: "2026-06-30",
+    documentType: "groupAdjustment",
+    postingLevel: "30",
+    entryType: "groupAdjustment",
+    title: "在建工程历史集团调整",
+    description: "江苏欣晨建设工程有限公司在建工程款",
+    evidence: "人工底稿：借记在建工程，贷记其他应付款",
+    lines: [
+      { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "constructionInProgress", accountCode: "1604", debit: 94_191_934.71, credit: 0 },
+      { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "otherPayables", accountCode: "2241", debit: 0, credit: 94_191_934.71 },
+    ],
+  }, 9);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.input.entryType, "groupAdjustment");
+  assert.equal(result.data.input.documentType, "groupAdjustment");
+  assert.equal(result.data.input.postingLevel, "30");
+});
+
 test("rejects an unbalanced elimination entry", () => {
   const result = buildSaveConsolidationEntryCommand(7, {
     ...balancedEntry,
@@ -150,29 +173,57 @@ test("builds audited per-entry approve and return commands", () => {
   }, 9).ok, false);
 });
 
-test("review target only accepts generated matches in draft batches", () => {
+test("review target accepts generated matches and manual group journals in draft batches", () => {
   assert.deepEqual(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "draft",
     entryOrigin: "system",
+    entryStatus: "draft",
     generationKey: "pair-1",
     matchStatus: "matched",
   }), { ok: true, data: { entryStatus: "approved", matchStatus: "accepted" } });
   assert.deepEqual(validateConsolidationEntryReviewTarget("return", {
     batchStatus: "draft",
     entryOrigin: "system",
+    entryStatus: "approved",
     generationKey: "pair-1",
     matchStatus: "accepted",
   }), { ok: true, data: { entryStatus: "draft", matchStatus: "rejected" } });
   assert.equal(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "submitted",
     entryOrigin: "system",
+    entryStatus: "draft",
     generationKey: "pair-1",
     matchStatus: "matched",
   }).ok, false);
-  assert.equal(validateConsolidationEntryReviewTarget("approve", {
+  assert.deepEqual(validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "draft",
     entryOrigin: "manual",
+    entryStatus: "draft",
     generationKey: null,
     matchStatus: null,
-  }).ok, false);
+  }), { ok: true, data: { entryStatus: "approved", matchStatus: null } });
+  const pendingEvidence = validateConsolidationEntryReviewTarget("approve", {
+    batchStatus: "draft",
+    entryOrigin: "manual",
+    entryStatus: "draft",
+    generationKey: null,
+    matchStatus: null,
+    evidence: "固定人民币金额已确认；具体设立日及对应科目待补证。",
+  });
+  assert.equal(pendingEvidence.ok, false);
+  if (!pendingEvidence.ok) {
+    assert.equal(pendingEvidence.issue.field, "evidence");
+    assert.match(pendingEvidence.issue.message, /补齐来源/);
+  }
+  const samePersonReview = validateConsolidationEntryReviewTarget("approve", {
+    batchStatus: "draft",
+    entryOrigin: "manual",
+    entryStatus: "draft",
+    generationKey: null,
+    matchStatus: null,
+    preparedBy: 9,
+    reviewerId: 9,
+  });
+  assert.equal(samePersonReview.ok, false);
+  if (!samePersonReview.ok) assert.match(samePersonReview.issue.message, /编制人与复核人必须分离/);
 });

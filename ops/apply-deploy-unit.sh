@@ -2,6 +2,12 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=ops/deploy-unit-sidecar.sh
+source "$SCRIPT_DIR/deploy-unit-sidecar.sh"
+# shellcheck source=ops/release/deploy/unit-lock-qualification.sh
+source "$SCRIPT_DIR/release/deploy/unit-lock-qualification.sh"
+# shellcheck source=ops/release/deploy/unit-runtime-pm2.sh
+source "$SCRIPT_DIR/release/deploy/unit-runtime-pm2.sh"
 COMMAND="${1:-}"
 UNIT_ID="${2:-}"
 STAGING_DIR="${3:-}"
@@ -50,6 +56,11 @@ INTERNAL_SIGNING_PRIVATE_KEY_FILE="$INTERNAL_IDENTITY_ROOT/private/$UNIT_ID.pem"
 INTERNAL_TRUSTED_PUBLIC_KEYS_FILE="$INTERNAL_IDENTITY_ROOT/trusted-public-keys.json"
 INTERNAL_REPLAY_DIRECTORY="$INTERNAL_IDENTITY_ROOT/replay/$UNIT_ID"
 GATEWAY_ROOT="$CONFIG_ROOT/gateway"
+MONOLITH_WECOM_PROCESS_NAME="${WORKSPACE_MONOLITH_WECOM_PROCESS_NAME:-workspace-wecom-agent}"
+[[ "$MONOLITH_WECOM_PROCESS_NAME" =~ ^[A-Za-z0-9._-]+$ ]] || {
+  echo "[错误] WORKSPACE_MONOLITH_WECOM_PROCESS_NAME 不是安全的 PM2 名称" >&2
+  exit 1
+}
 UNIT_ROOT="$REMOTE_DIR/deploy-units/$UNIT_ID"
 RELEASE_ROOT="$UNIT_ROOT/releases"
 RECEIPT_ROOT="$UNIT_ROOT/receipts"
@@ -58,29 +69,70 @@ CURRENT_STATE_ROOT="$CURRENT_GATEWAY/unit-states"
 CURRENT_STATE_FILE="$CURRENT_STATE_ROOT/$UNIT_ID.json"
 EMPTY_STATE_ROOT="$UNIT_ROOT/empty-states"
 LOCK_FILE="$CONFIG_ROOT/deploy.lock"
+LOCK_OWNER_FILE="$CONFIG_ROOT/deploy-lock.owner"
 
-mkdir -p "$CONFIG_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
-chmod 700 "$CONFIG_ROOT" "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
+qualify_apply_deploy_unit_lock "$CONFIG_ROOT" "$LOCK_FILE" "$LOCK_OWNER_FILE"
+unit_runtime_pm2_initialize || exit 1
+
+[ -d "$CONFIG_ROOT" ] || {
+  echo "[错误] 共享 runtime config root 不存在，unit apply 禁止创建或重设它" >&2
+  exit 1
+}
+mkdir -p "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
+chmod 700 "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
 if [ "$MODE" = "prepare" ]; then
   mkdir -p "$PREPARED_STATE_ROOT"
   chmod 700 "$PREPARED_STATE_ROOT"
 fi
-command -v flock >/dev/null
-exec 9>"$LOCK_FILE"
-if ! flock -n 9; then
-  echo "[错误] 另一生产部署正在 backup→switch 临界区运行" >&2
-  exit 73
-fi
-
 STARTED_PROCESS=""
 STARTED_SIDECAR=""
 GATEWAY_COMMITTED=0
+SIDECAR_TRANSITION=0
+SIDECAR_HANDOFF_COMMITTED=0
+SIDECAR_OLD_STOPPED=0
+SIDECAR_MONOLITH_WAS_ONLINE=0
+SIDECAR_NEW_STARTED=0
+SIDECAR_RESTORE_GATEWAY=""
+SIDECAR_OLD_RELEASE=""
+SIDECAR_OLD_MANIFEST=""
+SIDECAR_OLD_SLOT=""
+SIDECAR_NEW_RELEASE=""
+SIDECAR_NEW_MANIFEST=""
+SIDECAR_NEW_SLOT=""
 cleanup_candidate() {
   local exit_code=$?
-  if [ "$exit_code" -ne 0 ] && [ "$GATEWAY_COMMITTED" = "0" ]; then
-    [ -z "$STARTED_SIDECAR" ] || pm2 delete "$STARTED_SIDECAR" >/dev/null 2>&1 || true
-    [ -z "$STARTED_PROCESS" ] || pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
-    pm2 save >/dev/null 2>&1 || true
+  set +e
+  if [ "$exit_code" -ne 0 ]; then
+    if [ "$SIDECAR_TRANSITION" = "1" ] && [ "$SIDECAR_HANDOFF_COMMITTED" = "0" ]; then
+      local gateway_restored=1
+      if [ "$SIDECAR_NEW_STARTED" = "1" ]; then
+        workspace_stop_deploy_unit_sidecar assistant "$SIDECAR_NEW_RELEASE" "$SIDECAR_NEW_SLOT" || true
+      fi
+      if [ "$GATEWAY_COMMITTED" = "1" ]; then
+        if [ -n "$SIDECAR_RESTORE_GATEWAY" ]; then
+          WORKSPACE_GATEWAY_ROOT="$GATEWAY_ROOT" \
+            WORKSPACE_GATEWAY_NGINX_SITE="${WORKSPACE_GATEWAY_NGINX_SITE:-}" \
+            "$SCRIPT_DIR/switch-deploy-gateway.sh" --generation "$SIDECAR_RESTORE_GATEWAY" \
+            || gateway_restored=0
+        else
+          gateway_restored=0
+        fi
+      fi
+      if [ "$SIDECAR_OLD_STOPPED" = "1" ] && [ "$gateway_restored" = "1" ]; then
+        workspace_start_deploy_unit_sidecar \
+          assistant "$CONFIG_ROOT" "$SIDECAR_OLD_MANIFEST" "$SIDECAR_OLD_RELEASE" "$SIDECAR_OLD_SLOT" \
+          "$SCRIPT_DIR/assistant-runtime.mjs" || true
+      elif [ "$SIDECAR_MONOLITH_WAS_ONLINE" = "1" ] && [ "$gateway_restored" = "1" ]; then
+        WORKSPACE_MONOLITH_WECOM_SIDECAR_WAS_ONLINE=1
+        workspace_restore_monolith_wecom_sidecar "$MONOLITH_WECOM_PROCESS_NAME" || true
+      fi
+      [ -z "$STARTED_PROCESS" ] || runtime_pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
+      runtime_pm2 save >/dev/null 2>&1 || true
+    elif [ "$GATEWAY_COMMITTED" = "0" ]; then
+      [ -z "$STARTED_SIDECAR" ] || pm2 delete "$STARTED_SIDECAR" >/dev/null 2>&1 || true
+      [ -z "$STARTED_PROCESS" ] || runtime_pm2 delete "$STARTED_PROCESS" >/dev/null 2>&1 || true
+      runtime_pm2 save >/dev/null 2>&1 || true
+    fi
   fi
   exit "$exit_code"
 }
@@ -136,17 +188,6 @@ write_unit_deploy_event() {
   node "$SCRIPT_DIR/deploy-notification.mjs" "${notification_args[@]}"
 }
 
-load_runtime_environment() {
-  if [ -f "$CONFIG_ROOT/.env" ]; then
-    set +u
-    set -a
-    # shellcheck source=/dev/null
-    source "$CONFIG_ROOT/.env"
-    set +a
-    set -u
-  fi
-}
-
 wait_for_runtime() {
   local manifest_file=$1
   local port=$2
@@ -191,75 +232,36 @@ start_release() {
   node "$SCRIPT_DIR/internal-unit-identity.mjs" ensure \
     --root "$INTERNAL_IDENTITY_ROOT" \
     --unit "$UNIT_ID" >/dev/null
-  pm2 delete "$process_name" >/dev/null 2>&1 || true
-  load_runtime_environment
+  runtime_pm2 delete "$process_name" >/dev/null 2>&1 || true
   PORT="$port" HOSTNAME=127.0.0.1 BUILD_VERSION="$deployment_id" NEXT_PUBLIC_BUILD_VERSION="$deployment_id" \
-    WORKSPACE_INTERNAL_ORIGIN="${WORKSPACE_INTERNAL_ORIGIN:-http://127.0.0.1}" \
+    WORKSPACE_INTERNAL_ORIGIN="${WORKSPACE_INTERNAL_ORIGIN:-${WORKSPACE_PUBLIC_ORIGIN:-http://127.0.0.1}}" \
     WORKSPACE_DEPLOY_UNIT_ID="$UNIT_ID" \
+    WORKSPACE_DEPLOY_SLOT="$slot" \
+    WORKSPACE_DEPLOY_CURRENT_STATE_FILE="$CURRENT_STATE_FILE" \
     WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE="$INTERNAL_SIGNING_PRIVATE_KEY_FILE" \
     WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE="$INTERNAL_TRUSTED_PUBLIC_KEYS_FILE" \
     WORKSPACE_INTERNAL_REPLAY_DIRECTORY="$INTERNAL_REPLAY_DIRECTORY" \
     PG_POOL_MAX="$database_pool_max" PG_APPLICATION_NAME="workspace-$UNIT_ID-$slot" \
-    pm2 start "$release_dir/$server_entry" --name "$process_name" --cwd "$app_dir" \
+    runtime_pm2 start "$release_dir/$server_entry" --name "$process_name" --cwd "$app_dir" \
       --max-memory-restart "${memory_mib}M" --update-env
   STARTED_PROCESS="$process_name"
   wait_for_runtime "$manifest_file" "$port" "$deployment_id"
-}
-
-wait_for_pm2_online() {
-  local process_name=$1
-  for _ in $(seq 1 15); do
-    if pm2 jlist | PM2_PROCESS_NAME="$process_name" node -e '
-const fs = require("node:fs");
-const processes = JSON.parse(fs.readFileSync(0, "utf8"));
-const match = processes.find((item) => item?.name === process.env.PM2_PROCESS_NAME);
-if (match?.pm2_env?.status !== "online") process.exit(1);
-'; then
-      return
-    fi
-    sleep 1
-  done
-  echo "[错误] Assistant sidecar 未进入 online: $process_name" >&2
-  return 1
 }
 
 start_release_sidecars() {
   local manifest_file=$1
   local release_dir=$2
   local slot=$3
-  [ "$UNIT_ID" = "assistant" ] || return 0
-  local descriptor="$release_dir/.assistant-runtime.json"
-  [ -f "$descriptor" ] || { echo "[错误] Assistant runtime descriptor 不存在" >&2; return 1; }
-  load_runtime_environment
-  node "$SCRIPT_DIR/assistant-runtime.mjs" env-assert --release-root "$release_dir"
-  local sidecar_name entry memory_mib bridge_path base_path port process_name
-  sidecar_name="$(read_json_field "$descriptor" sidecars.0.processName)"
-  entry="$(read_json_field "$descriptor" sidecars.0.entry)"
-  memory_mib="$(read_json_field "$descriptor" sidecars.0.memoryMiB)"
-  bridge_path="$(read_json_field "$descriptor" sidecars.0.bridgePath)"
-  base_path="$(read_json_field "$manifest_file" build.basePath)"
-  port="$(read_json_field "$manifest_file" "runtime.slots.${slot}.port")"
-  process_name="$sidecar_name-$slot"
-  pm2 delete "$process_name" >/dev/null 2>&1 || true
-  PORT="$port" NEXT_PUBLIC_BASE_PATH="$base_path" WORKSPACE_CONFIG_DIR="$CONFIG_ROOT" \
-    WORKSPACE_DEPLOY_UNIT_ID="$UNIT_ID" \
-    WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE="$INTERNAL_SIGNING_PRIVATE_KEY_FILE" \
-    WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE="$INTERNAL_TRUSTED_PUBLIC_KEYS_FILE" \
-    WORKSPACE_INTERNAL_REPLAY_DIRECTORY="$INTERNAL_REPLAY_DIRECTORY" \
-    WECHAT_BOT_BRIDGE_URL="http://127.0.0.1:$port$base_path$bridge_path" \
-    pm2 start "$release_dir/$entry" --name "$process_name" --cwd "$release_dir" \
-      --max-memory-restart "${memory_mib}M" --update-env
-  STARTED_SIDECAR="$process_name"
-  wait_for_pm2_online "$process_name"
+  workspace_start_deploy_unit_sidecar \
+    "$UNIT_ID" "$CONFIG_ROOT" "$manifest_file" "$release_dir" "$slot" \
+    "$SCRIPT_DIR/assistant-runtime.mjs"
+  STARTED_SIDECAR="$WORKSPACE_DEPLOY_UNIT_SIDECAR_PROCESS"
 }
 
 stop_release_sidecars() {
   local release_dir=$1
   local slot=$2
-  [ "$UNIT_ID" = "assistant" ] || return 0
-  local descriptor="$release_dir/.assistant-runtime.json"
-  [ -f "$descriptor" ] || return 0
-  pm2 delete "$(read_json_field "$descriptor" sidecars.0.processName)-$slot" >/dev/null 2>&1 || true
+  workspace_stop_deploy_unit_sidecar "$UNIT_ID" "$release_dir" "$slot"
 }
 
 safe_extract_artifact() {
@@ -305,6 +307,59 @@ create_gateway_generation() {
     --state "$UNIT_ID=$proposed_state" \
     --output-root "$GATEWAY_ROOT" \
     --generated-at "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+}
+
+create_fallback_gateway_generation() {
+  local graph_file=$1
+  node "$SCRIPT_DIR/gateway-generation.mjs" create-fallback \
+    --graph "$graph_file" \
+    --output-root "$GATEWAY_ROOT" \
+    --generated-at "$(date -u +%Y-%m-%dT%H:%M:%S.000Z)"
+}
+
+prepare_sidecar_handoff() {
+  local previous_state=$1
+  local next_manifest=$2
+  local next_release=$3
+  local next_slot=$4
+  [ "$UNIT_ID" = "assistant" ] || return 0
+  SIDECAR_TRANSITION=1
+  SIDECAR_NEW_MANIFEST="$next_manifest"
+  SIDECAR_NEW_RELEASE="$next_release"
+  SIDECAR_NEW_SLOT="$next_slot"
+  SIDECAR_RESTORE_GATEWAY=""
+  if [ -L "$CURRENT_GATEWAY" ]; then
+    SIDECAR_RESTORE_GATEWAY="$(readlink -f "$CURRENT_GATEWAY")"
+  elif [ -e "$CURRENT_GATEWAY" ]; then
+    echo "[错误] Gateway current 必须是 symlink" >&2
+    return 1
+  fi
+  if [ -f "$previous_state" ]; then
+    SIDECAR_OLD_RELEASE="$(read_json_field "$previous_state" active.releaseDir)"
+    SIDECAR_OLD_SLOT="$(read_json_field "$previous_state" active.slot)"
+    SIDECAR_OLD_MANIFEST="$SIDECAR_OLD_RELEASE/artifact.manifest.json"
+    [ -f "$SIDECAR_OLD_MANIFEST" ] || { echo "[错误] Assistant 旧 release manifest 不存在" >&2; return 1; }
+  fi
+}
+
+stop_previous_sidecar_for_handoff() {
+  [ "$SIDECAR_TRANSITION" = "1" ] || return 0
+  workspace_suspend_monolith_wecom_sidecar "$MONOLITH_WECOM_PROCESS_NAME"
+  SIDECAR_MONOLITH_WAS_ONLINE="$WORKSPACE_MONOLITH_WECOM_SIDECAR_WAS_ONLINE"
+  if [ -n "$SIDECAR_OLD_RELEASE" ]; then
+    SIDECAR_OLD_STOPPED=1
+    workspace_stop_deploy_unit_sidecar assistant "$SIDECAR_OLD_RELEASE" "$SIDECAR_OLD_SLOT"
+  fi
+}
+
+start_next_sidecar_for_handoff() {
+  [ "$SIDECAR_TRANSITION" = "1" ] || return 0
+  SIDECAR_NEW_STARTED=1
+  workspace_start_deploy_unit_sidecar \
+    assistant "$CONFIG_ROOT" "$SIDECAR_NEW_MANIFEST" "$SIDECAR_NEW_RELEASE" "$SIDECAR_NEW_SLOT" \
+    "$SCRIPT_DIR/assistant-runtime.mjs"
+  STARTED_SIDECAR="$WORKSPACE_DEPLOY_UNIT_SIDECAR_PROCESS"
+  SIDECAR_HANDOFF_COMMITTED=1
 }
 
 switch_gateway() {
@@ -391,7 +446,7 @@ NODE
   fi
 
   if [ "$MODE" = "shadow" ]; then
-    pm2 save
+    runtime_pm2 save
     write_unit_deploy_event deploy "$manifest_copy" "$release_dir/deploy-unit-contract.json" "$release_id" "" shadow
     echo "$UNIT_ID shadow-ready: $release_id ($slot)"
     return
@@ -410,20 +465,26 @@ NODE
     cp "$CURRENT_STATE_FILE" "$proposed_state"
   fi
   node "$SCRIPT_DIR/deploy-unit-release.mjs" state-promote --state "$proposed_state" --activation "$activation_file"
-  start_release_sidecars "$manifest_copy" "$release_dir" "$slot"
   if [ "$MODE" = "prepare" ]; then
-    pm2 save
+    runtime_pm2 save
     rm -f "$activation_file"
     echo "$UNIT_ID profile-prepared: $release_id ($slot), state $proposed_state"
     return
   fi
-  generation_id="$(create_gateway_generation "$graph" "$proposed_state")"
-  switch_gateway "$generation_id"
-  if [ -n "$active_slot" ]; then
-    pm2 delete "$(read_json_field "$manifest_copy" runtime.processName)-$active_slot" >/dev/null 2>&1 || true
-    stop_release_sidecars "$release_dir" "$active_slot"
+  prepare_sidecar_handoff "$CURRENT_STATE_FILE" "$manifest_copy" "$release_dir" "$slot"
+  if [ "$SIDECAR_TRANSITION" = "1" ] && [ -z "$SIDECAR_RESTORE_GATEWAY" ]; then
+    local fallback_generation_id
+    fallback_generation_id="$(create_fallback_gateway_generation "$graph")"
+    SIDECAR_RESTORE_GATEWAY="$GATEWAY_ROOT/generations/$fallback_generation_id"
   fi
-  pm2 save
+  generation_id="$(create_gateway_generation "$graph" "$proposed_state")"
+  stop_previous_sidecar_for_handoff
+  switch_gateway "$generation_id"
+  start_next_sidecar_for_handoff
+  if [ -n "$active_slot" ]; then
+    runtime_pm2 delete "$(read_json_field "$manifest_copy" runtime.processName)-$active_slot" >/dev/null 2>&1 || true
+  fi
+  runtime_pm2 save
   write_unit_deploy_event deploy "$manifest_copy" "$release_dir/deploy-unit-contract.json" "$release_id" "$generation_id" activate
   rm -f "$activation_file" "$proposed_state"
   echo "$UNIT_ID active: $release_id ($slot), Gateway $generation_id"
@@ -449,12 +510,13 @@ rollback_unit() {
   node "$SCRIPT_DIR/deploy-unit-release.mjs" control-plane-assert \
     --manifest "$manifest" --control-plane-receipt "$CONTROL_PLANE_RECEIPT" --tenant-manifest "$TENANT_MANIFEST" >/dev/null
   start_release "$manifest" "$release_dir" "$slot" >/dev/null
+  prepare_sidecar_handoff "$CURRENT_STATE_FILE" "$manifest" "$release_dir" "$slot"
   generation_id="$(create_gateway_generation "$graph" "$proposed_state")"
-  start_release_sidecars "$manifest" "$release_dir" "$slot"
+  stop_previous_sidecar_for_handoff
   switch_gateway "$generation_id"
-  pm2 delete "$(read_json_field "$manifest" runtime.processName)-$former_slot" >/dev/null 2>&1 || true
-  stop_release_sidecars "$release_dir" "$former_slot"
-  pm2 save
+  start_next_sidecar_for_handoff
+  runtime_pm2 delete "$(read_json_field "$manifest" runtime.processName)-$former_slot" >/dev/null 2>&1 || true
+  runtime_pm2 save
   write_unit_deploy_event rollback "$manifest" "$contract" "$release_id" "$generation_id" rollback
   rm -f "$proposed_state"
   echo "$UNIT_ID rolled back to $(read_json_field "$manifest" build.deploymentId), Gateway $generation_id"

@@ -1,4 +1,8 @@
-import type { CreateDepartmentDraft, Department, Position } from "./types";
+import type { CreateDepartmentDraft, Department, OrganizationCodeConfig, Position } from "./types";
+import {
+  isDepartmentIdentifier,
+  normalizeDepartmentIdentifier,
+} from "@workspace/platform/business-code-config";
 
 export type OrganizationHierarchyKind = "G" | "M";
 
@@ -112,134 +116,207 @@ export function shortPositionCode(code: string) {
   return parts[parts.length - 1] || code;
 }
 
-export function positionCodeSuffix(code: string) {
-  const match = String(code || "").trim().match(/-(\d{1,2})$/);
-  if (match) return match[1];
-  const tail = String(code || "").trim().split("-").pop() || "";
-  const digits = tail.replace(/\D/g, "").slice(0, 2);
-  return digits ? digits.padStart(2, "0") : "";
+export function positionCodeSuffix(
+  code: string,
+  codeConfig?: OrganizationCodeConfig | null,
+) {
+  const normalized = String(code || "").trim();
+  const separator = codeConfig?.position.separator;
+  const tail = separator
+    ? normalized.split(separator).pop() || ""
+    : normalized.match(/(\d+)$/)?.[1] ?? "";
+  const digits = tail.replace(/\D/g, "");
+  if (!codeConfig) return digits;
+  return digits
+    .slice(0, codeConfig.position.sequenceLength)
+    .padStart(codeConfig.position.sequenceLength, "0");
 }
 
-export function positionCodePrefix(department: Department | undefined) {
-  return department?.code ? `GW-${department.code}-` : "";
+export function positionCodePrefix(
+  department: Department | undefined,
+  codeConfig: OrganizationCodeConfig,
+) {
+  const { prefix, separator } = codeConfig.position;
+  return department?.code ? `${prefix}${separator}${department.code}${separator}` : "";
 }
 
-export function positionCodePrefixFromCode(code: string) {
-  const suffix = positionCodeSuffix(code);
+export function positionCodePrefixFromCode(
+  code: string,
+  codeConfig?: OrganizationCodeConfig | null,
+) {
+  const suffix = positionCodeSuffix(code, codeConfig);
   return suffix ? code.slice(0, -suffix.length) : "";
 }
 
-export function composePositionCode(department: Department | undefined, suffix: string, fallbackCode: string) {
-  const cleanSuffix = suffix.replace(/\D/g, "").slice(0, 2);
-  const prefix = positionCodePrefix(department);
+export function composePositionCode(
+  department: Department | undefined,
+  suffix: string,
+  fallbackCode: string,
+  codeConfig: OrganizationCodeConfig,
+) {
+  const cleanSuffix = suffix.replace(/\D/g, "").slice(0, codeConfig.position.sequenceLength);
+  const prefix = positionCodePrefix(department, codeConfig);
   if (!prefix) return fallbackCode;
   return `${prefix}${cleanSuffix}`;
 }
 
-export function usedDepartmentPrefixes(departments: Department[]) {
-  return new Set(departments.map((department) => department.code.slice(0, 3)).filter((prefix) => /^[A-Z]{3}$/.test(prefix)));
+export function usedDepartmentPrefixes(
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
+  const rule = codeConfig.department;
+  return new Set(departments
+    .map((department) => department.code.slice(0, rule.identifierLength))
+    .filter((prefix) => isDepartmentIdentifier(prefix, rule)));
 }
 
-export function nextGeneratedDepartmentPrefix(departments: Department[]) {
-  const used = usedDepartmentPrefixes(departments);
-  for (const preferred of ["ORG", "NEW", "DPT", "BPW"]) {
-    if (!used.has(preferred)) return preferred;
-  }
-  for (let first = 65; first <= 90; first += 1) {
-    for (let second = 65; second <= 90; second += 1) {
-      for (let third = 65; third <= 90; third += 1) {
-        const prefix = String.fromCharCode(first, second, third);
-        if (!used.has(prefix)) return prefix;
-      }
+export function nextGeneratedDepartmentPrefix(
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
+  const used = usedDepartmentPrefixes(departments, codeConfig);
+  const preferred = codeConfig.department.functionalPrefix;
+  if (isDepartmentIdentifier(preferred, codeConfig.department) && !used.has(preferred)) return preferred;
+  const alphabet = codeConfig.department.identifierFormat === "uppercaseAlphanumeric"
+    ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    : "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  for (let sequence = 0; sequence < 10_000; sequence += 1) {
+    let value = sequence;
+    let candidate = "";
+    for (let index = 0; index < codeConfig.department.identifierLength; index += 1) {
+      candidate = alphabet[value % alphabet.length] + candidate;
+      value = Math.floor(value / alphabet.length);
     }
+    if (!used.has(candidate)) return candidate;
   }
   return "";
 }
 
-export function normalizeDepartmentCodeInput(level: CreateDepartmentDraft["level"], value: string, hierarchyKind: OrganizationHierarchyKind = "M") {
-  if (hierarchyKind === "G") return value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 3);
-  if (level === 1) return value.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 3);
-  if (level === 2) return value.replace(/\D/g, "").slice(0, 4);
-  return value.replace(/\D/g, "").slice(0, 2);
+export function normalizeDepartmentCodeInput(
+  level: CreateDepartmentDraft["level"],
+  value: string,
+  hierarchyKind: OrganizationHierarchyKind,
+  codeConfig: OrganizationCodeConfig,
+) {
+  if (hierarchyKind === "G" || level === 1) {
+    return normalizeDepartmentIdentifier(value, codeConfig.department);
+  }
+  if (level === 2) return value.replace(/\D/g, "").slice(0, codeConfig.department.level2SequenceLength);
+  return value.replace(/\D/g, "").slice(0, codeConfig.department.level3SequenceLength);
 }
 
-export function normalizeDepartmentFullCodeInput(value: string) {
-  return value.replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 6);
+export function departmentCodePrefix(
+  department: Department | undefined,
+  codeConfig: OrganizationCodeConfig,
+) {
+  const prefix = department?.code.slice(0, codeConfig.department.identifierLength) || "";
+  return isDepartmentIdentifier(prefix, codeConfig.department) ? prefix : "";
 }
 
-export function departmentCodePrefix(department: Department | undefined) {
-  const prefix = department?.code.slice(0, 3) || "";
-  return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
-}
-
-export function departmentCodeNumber(department: Department | undefined) {
-  const suffix = department?.code.slice(3) || "";
+export function departmentCodeNumber(
+  department: Department | undefined,
+  codeConfig: OrganizationCodeConfig,
+) {
+  const code = department?.code ?? "";
+  const start = codeConfig.department.identifierLength;
+  if (code.slice(start, start + codeConfig.department.separator.length) !== codeConfig.department.separator) {
+    return "";
+  }
+  const suffix = code.slice(start + codeConfig.department.separator.length);
   return /^\d+$/.test(suffix) ? suffix : "";
 }
 
-export function suggestDepartmentCodeInput(draft: CreateDepartmentDraft, departments: Department[]) {
+export function suggestDepartmentCodeInput(
+  draft: CreateDepartmentDraft,
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
   if (draft.hierarchyKind === "G") {
-    return nextGeneratedDepartmentPrefix(departments);
+    return nextGeneratedDepartmentPrefix(departments, codeConfig);
   }
   if (draft.level === 1) {
-    return nextGeneratedDepartmentPrefix(departments);
+    return nextGeneratedDepartmentPrefix(departments, codeConfig);
   }
   const parent = departments.find((department) => department.id === draft.parentId);
   if (!parent) return "";
-  const prefix = departmentCodePrefix(parent);
+  const prefix = departmentCodePrefix(parent, codeConfig);
   if (!prefix) return "";
   const usedCodes = new Set(departments.map((department) => department.code));
   if (draft.level === 2) {
-    for (let number = 1; number <= 999; number += 1) {
-      const suffix = `${number}00`;
-      if (!usedCodes.has(`${prefix}${suffix}`)) return String(number);
+    const maximum = (10 ** codeConfig.department.level2SequenceLength) - 1;
+    for (let number = 1; number <= maximum; number += 1) {
+      const suffix = `${number}${codeConfig.department.level2Suffix}`;
+      if (!usedCodes.has(`${prefix}${codeConfig.department.separator}${suffix}`)) return String(number);
     }
     return "";
   }
-  const parentNumber = departmentCodeNumber(parent);
-  if (!parentNumber || !parentNumber.endsWith("00")) return "";
-  const stem = parentNumber.slice(0, -2);
-  for (let number = 1; number <= 99; number += 1) {
-    const tail = String(number).padStart(2, "0");
+  const parentNumber = departmentCodeNumber(parent, codeConfig);
+  const level2Suffix = codeConfig.department.level2Suffix;
+  if (!parentNumber || !parentNumber.endsWith(level2Suffix)) return "";
+  const stem = parentNumber.slice(0, -level2Suffix.length);
+  const maximum = (10 ** codeConfig.department.level3SequenceLength) - 1;
+  for (let number = 1; number <= maximum; number += 1) {
+    const tail = String(number).padStart(codeConfig.department.level3SequenceLength, "0");
     const suffix = `${stem}${tail}`;
-    if (!usedCodes.has(`${prefix}${suffix}`)) return tail;
+    if (!usedCodes.has(`${prefix}${codeConfig.department.separator}${suffix}`)) return tail;
   }
   return "";
 }
 
-export function composeDepartmentCode(draft: CreateDepartmentDraft, departments: Department[]) {
+export function composeDepartmentCode(
+  draft: CreateDepartmentDraft,
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
   const codeInput = draft.code.trim();
-  if (draft.hierarchyKind === "G") return /^[A-Z]{3}$/.test(codeInput) ? codeInput : "";
-  if (draft.level === 1) return /^[A-Z]{3}$/.test(codeInput) ? `${codeInput}001` : "";
+  if (draft.hierarchyKind === "G") return isDepartmentIdentifier(codeInput, codeConfig.department) ? codeInput : "";
+  if (draft.level === 1) return isDepartmentIdentifier(codeInput, codeConfig.department)
+    ? `${codeInput}${codeConfig.department.separator}${codeConfig.department.managementRootSuffix}`
+    : "";
   const parent = departments.find((department) => department.id === draft.parentId);
-  const prefix = departmentCodePrefix(parent);
+  const prefix = departmentCodePrefix(parent, codeConfig);
   if (!prefix || !/^\d+$/.test(codeInput)) return "";
-  if (draft.level === 2) return `${prefix}${Number(codeInput)}00`;
-  const parentNumber = departmentCodeNumber(parent);
-  if (!parentNumber || !parentNumber.endsWith("00")) return "";
-  return `${prefix}${parentNumber.slice(0, -2)}${codeInput.padStart(2, "0")}`;
+  if (draft.level === 2) return `${prefix}${codeConfig.department.separator}${Number(codeInput)}${codeConfig.department.level2Suffix}`;
+  const parentNumber = departmentCodeNumber(parent, codeConfig);
+  const level2Suffix = codeConfig.department.level2Suffix;
+  if (!parentNumber || !parentNumber.endsWith(level2Suffix)) return "";
+  return `${prefix}${codeConfig.department.separator}${parentNumber.slice(0, -level2Suffix.length)}${codeInput.padStart(codeConfig.department.level3SequenceLength, "0")}`;
 }
 
 function departmentCodeExists(code: string, departments: Department[], exceptDepartmentId?: number) {
   return departments.some((department) => department.id !== exceptDepartmentId && department.code === code);
 }
 
-function departmentCodeSegmentForLevel(code: string, level: CreateDepartmentDraft["level"], hierarchyKind: OrganizationHierarchyKind = "M") {
+function departmentCodeSegmentForLevel(
+  code: string,
+  level: CreateDepartmentDraft["level"],
+  hierarchyKind: OrganizationHierarchyKind,
+  codeConfig: OrganizationCodeConfig,
+) {
   if (hierarchyKind === "G") {
-    const prefix = code.slice(0, 3).toUpperCase();
-    return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
+    const prefix = code.slice(0, codeConfig.department.identifierLength);
+    return isDepartmentIdentifier(prefix, codeConfig.department) ? prefix : "";
   }
   if (level === 1) {
-    const prefix = code.slice(0, 3).toUpperCase();
-    return /^[A-Z]{3}$/.test(prefix) ? prefix : "";
+    const prefix = code.slice(0, codeConfig.department.identifierLength);
+    return isDepartmentIdentifier(prefix, codeConfig.department) ? prefix : "";
   }
   if (level === 2) {
-    const segment = code.slice(3, -2).replace(/\D/g, "");
+    const segment = code
+      .slice(
+        codeConfig.department.identifierLength + codeConfig.department.separator.length,
+        -codeConfig.department.level2Suffix.length,
+      )
+      .replace(/\D/g, "");
     return /^[1-9]\d*$/.test(segment) ? segment : "";
   }
-  const tail = code.slice(-2).replace(/\D/g, "");
+  const sequenceLength = codeConfig.department.level3SequenceLength;
+  const tail = code.slice(-sequenceLength).replace(/\D/g, "");
   const tailNumber = Number(tail);
-  return tailNumber >= 1 && tailNumber <= 99 ? tail.padStart(2, "0") : "";
+  const maximum = (10 ** sequenceLength) - 1;
+  return tailNumber >= 1 && tailNumber <= maximum
+    ? tail.padStart(sequenceLength, "0")
+    : "";
 }
 
 export function rebaseDepartmentCodeForParentChange({
@@ -249,6 +326,7 @@ export function rebaseDepartmentCodeForParentChange({
   hierarchyKind,
   parentId,
   departments,
+  codeConfig,
 }: {
   code: string;
   departmentId: number;
@@ -256,29 +334,34 @@ export function rebaseDepartmentCodeForParentChange({
   hierarchyKind: OrganizationHierarchyKind;
   parentId: number | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig;
 }) {
-  const segment = departmentCodeSegmentForLevel(code, level, hierarchyKind);
+  const segment = departmentCodeSegmentForLevel(code, level, hierarchyKind, codeConfig);
   const draft = { hierarchyKind, level, parentId, code: segment, name: "" };
-  const candidate = composeDepartmentCode(draft, departments);
+  const candidate = composeDepartmentCode(draft, departments, codeConfig);
   if (candidate && !departmentCodeExists(candidate, departments, departmentId)) return candidate;
 
-  const suggestion = suggestDepartmentCodeInput({ ...draft, code: "" }, departments);
-  const fallback = composeDepartmentCode({ ...draft, code: suggestion }, departments);
+  const suggestion = suggestDepartmentCodeInput({ ...draft, code: "" }, departments, codeConfig);
+  const fallback = composeDepartmentCode({ ...draft, code: suggestion }, departments, codeConfig);
   if (fallback && !departmentCodeExists(fallback, departments, departmentId)) return fallback;
   return candidate || code;
 }
 
-export function departmentCodeError(draft: CreateDepartmentDraft, departments: Department[]) {
+export function departmentCodeError(
+  draft: CreateDepartmentDraft,
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
   const codeInput = draft.code.trim();
   if (draft.hierarchyKind === "G") {
-    if (!/^[A-Z]{3}$/.test(codeInput)) return `${organizationLevelCode(draft)} 编码必须是 3 位大写字母。`;
+    if (!isDepartmentIdentifier(codeInput, codeConfig.department)) return `${organizationLevelCode(draft)} 编码不符合组织简称规则。`;
     if (draft.level > 1) {
       const parent = departments.find((department) => department.id === draft.parentId);
       if (!parent) return `${organizationLevelCode(draft)} 组织必须选择上级组织。`;
       if (parent.hierarchyKind !== "G" || parent.level !== draft.level - 1) return `${organizationLevelCode(draft)} 组织只能挂在 G${draft.level - 1} 组织下。`;
     }
   } else if (draft.level === 1) {
-    if (!/^[A-Z]{3}$/.test(codeInput)) return "M1 编码必须是 3 位大写字母。";
+    if (!isDepartmentIdentifier(codeInput, codeConfig.department)) return "M1 编码不符合组织简称规则。";
     const parent = departments.find((department) => department.id === draft.parentId);
     if (!parent || parent.hierarchyKind !== "G") return "M1 组织上级组织必须选择委员会。";
   } else {
@@ -287,42 +370,63 @@ export function departmentCodeError(draft: CreateDepartmentDraft, departments: D
     if (parent.hierarchyKind !== "M" || parent.level !== draft.level - 1) return `M${draft.level} 组织只能挂在 M${draft.level - 1} 组织下。`;
     if (!/^\d+$/.test(codeInput)) return `M${draft.level} 编码必须是纯数字。`;
     if (draft.level === 2) {
-      if (Number(codeInput) < 1) return "M2 编码必须是正整数，系统会自动补 00。";
+      if (
+        Number(codeInput) < 1
+        || codeInput.length > codeConfig.department.level2SequenceLength
+      ) {
+        return `M2 编码必须是最多 ${codeConfig.department.level2SequenceLength} 位正整数，系统会自动补 ${codeConfig.department.level2Suffix}。`;
+      }
     } else {
-      const parentNumber = departmentCodeNumber(parent);
-      if (!parentNumber || !parentNumber.endsWith("00")) return "上级 M2 编码不合法。";
-      if (codeInput.length < 1 || codeInput.length > 2 || Number(codeInput) < 1) return "M3 编码只输入最后两位，范围 01-99。";
+      const parentNumber = departmentCodeNumber(parent, codeConfig);
+      if (!parentNumber || !parentNumber.endsWith(codeConfig.department.level2Suffix)) return "上级 M2 编码不合法。";
+      const maximum = (10 ** codeConfig.department.level3SequenceLength) - 1;
+      if (codeInput.length < 1 || codeInput.length > codeConfig.department.level3SequenceLength || Number(codeInput) < 1 || Number(codeInput) > maximum) {
+        return `M3 编码输入 ${codeConfig.department.level3SequenceLength} 位流水。`;
+      }
     }
   }
-  const fullCode = composeDepartmentCode(draft, departments);
+  const fullCode = composeDepartmentCode(draft, departments, codeConfig);
   if (!fullCode) return "组织编码不合法。";
   if (departments.some((department) => department.code === fullCode)) return "组织编码已存在。";
   return "";
 }
 
-export function departmentCodePlaceholder(level: CreateDepartmentDraft["level"], hierarchyKind: OrganizationHierarchyKind = "M") {
-  if (hierarchyKind === "G") return "ABC";
-  if (level === 1) return "ABC";
-  if (level === 2) return "1";
-  return "01";
-}
-
-export function departmentCodeAffixes(draft: CreateDepartmentDraft, departments: Department[]) {
+export function departmentCodeAffixes(
+  draft: CreateDepartmentDraft,
+  departments: Department[],
+  codeConfig: OrganizationCodeConfig,
+) {
   if (draft.hierarchyKind === "G") return { prefix: "", suffix: "" };
-  if (draft.level === 1) return { prefix: "", suffix: "001" };
+  if (draft.level === 1) return {
+    prefix: "",
+    suffix: `${codeConfig.department.separator}${codeConfig.department.managementRootSuffix}`,
+  };
   const parent = departments.find((department) => department.id === draft.parentId);
-  const prefix = departmentCodePrefix(parent);
-  if (draft.level === 2) return { prefix, suffix: "00" };
-  const parentNumber = departmentCodeNumber(parent);
-  return { prefix: parentNumber ? `${prefix}${parentNumber.slice(0, -2)}` : prefix, suffix: "" };
+  const prefix = departmentCodePrefix(parent, codeConfig);
+  if (draft.level === 2) return {
+    prefix: `${prefix}${codeConfig.department.separator}`,
+    suffix: codeConfig.department.level2Suffix,
+  };
+  const parentNumber = departmentCodeNumber(parent, codeConfig);
+  return {
+    prefix: parentNumber
+      ? `${prefix}${codeConfig.department.separator}${parentNumber.slice(0, -codeConfig.department.level2Suffix.length)}`
+      : `${prefix}${codeConfig.department.separator}`,
+    suffix: "",
+  };
 }
 
-export function generatePositionCode(department: Department | undefined, positions: Position[]) {
-  const prefix = positionCodePrefix(department);
+export function generatePositionCode(
+  department: Department | undefined,
+  positions: Position[],
+  codeConfig: OrganizationCodeConfig,
+) {
+  const prefix = positionCodePrefix(department, codeConfig);
   if (!prefix) return "";
   const usedCodes = new Set(positions.map((position) => position.code));
-  for (let number = 1; number <= 99; number += 1) {
-    const code = `${prefix}${String(number).padStart(2, "0")}`;
+  const maximum = (10 ** codeConfig.position.sequenceLength) - 1;
+  for (let number = codeConfig.position.sequenceStart; number <= maximum; number += 1) {
+    const code = `${prefix}${String(number).padStart(codeConfig.position.sequenceLength, "0")}`;
     if (!usedCodes.has(code)) return code;
   }
   return "";

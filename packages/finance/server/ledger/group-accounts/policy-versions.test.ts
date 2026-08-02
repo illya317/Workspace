@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { isFinanceAccountingPolicyVersionEffectiveAt } from "./policy-versions";
+import { isFinanceAccountingPolicyVersionEffectiveAt } from "./policy-version-rules";
 
 test("V1 covers all history until the V2 effective boundary", () => {
   const boundary = new Date("2027-01-01T00:00:00.000Z");

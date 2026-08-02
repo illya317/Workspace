@@ -12,10 +12,14 @@ import { checkSurfaceRawContentWarnings } from "./surface-raw-content";
 import { checkSurfaceDeclareBoundaries } from "./surface-boundaries";
 import { checkUiHelperPurityWarnings } from "./ui-helper-purity";
 import { checkActionRuntimeUi } from "./action-runtime-ui";
+import { checkModalGovernance } from "./modal-governance";
+import { checkTableRowInteraction } from "./table-row-interaction";
+import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
+import { UI_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 
-type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
-
-export const uiGateChecks: GateCheck[] = [
+export const uiGateChecks: AggregateGateCheck[] = [
+  ["modal-governance", checkModalGovernance],
+  ["table-row-interaction", checkTableRowInteraction],
   ["create-surface-entry", checkCreateSurfaceEntries],
   ["field-layout-debt", checkFieldLayoutDebt],
   ["form-surface-actions", checkFormSurfaceActions],
@@ -32,19 +36,20 @@ export const uiGateChecks: GateCheck[] = [
   ["core-ui-registry", checkCoreUiRegistry],
 ];
 
-export async function uiGate() {
-  for (const [name, run] of uiGateChecks) {
-    const ok = await run();
-    if (!ok) {
-      console.error("❌ UI GATE FAILED:", name);
-      return false;
-    }
-  }
+export function uiGate(checks: AggregateGateCheck[] = uiGateChecks) {
+  return runAggregateGate({ checks, displayName: "UI", logName: "UI" });
+}
 
-  console.log("✅ UI GATE PASSED");
-  return true;
+export function selectUiGateChecks(name?: string) {
+  if (!name) return uiGateChecks;
+  if (!UI_GATE_CHECK_NAMES.includes(name)) throw new Error(`unknown UI detector: ${name}`);
+  return uiGateChecks.filter(([candidate]) => candidate === name);
 }
 
 if (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\/g, "/"))) {
-  uiGate().then((ok) => process.exit(ok ? 0 : 1));
+  const checkIndex = process.argv.indexOf("--check");
+  const selected = checkIndex < 0 ? undefined : process.argv[checkIndex + 1];
+  uiGate(selectUiGateChecks(selected))
+    .then((ok) => process.exit(ok ? 0 : 1))
+    .catch((error) => { console.error(error instanceof Error ? error.message : String(error)); process.exit(2); });
 }

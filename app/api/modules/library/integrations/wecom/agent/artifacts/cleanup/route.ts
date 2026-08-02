@@ -1,5 +1,5 @@
 import { cleanupExpiredLibraryExports } from "@workspace/library/server/export";
-import { isWecomAgentBridgeRequestAuthorized } from "@workspace/platform/server/agent/wecom-bridge";
+import { isWecomAgentBridgeRequestAuthorized } from "@workspace/platform/server/wecom-agent-bridge-auth";
 import { createInternalApiRoute } from "@workspace/platform/server/api-route";
 
 export const runtime = "nodejs";

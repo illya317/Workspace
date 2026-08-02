@@ -1,4 +1,4 @@
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
@@ -77,6 +77,10 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
         parentGroupAccountId: data.parentGroupAccountId,
         isActive: true,
         reviewStatus: "pending_review",
+        consolidationRole: data.consolidationRole,
+        counterpartyRequirement: data.counterpartyRequirement,
+        movementType: data.movementType,
+        translationRateType: data.translationRateType,
       } });
       return created;
     });

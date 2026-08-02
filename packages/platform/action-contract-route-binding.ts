@@ -1,8 +1,12 @@
 import type { ActionContractMetadata } from "./action-contract";
-import type { BusinessActionRegistration } from "./business-action-registry";
+
+interface ActionRouteBindingRegistration {
+  key: string;
+  apiRoutes?: ReadonlyArray<{ method: string; path: string }>;
+}
 
 export function listActionContractRouteBindingIssues(
-  actions: readonly BusinessActionRegistration[],
+  actions: readonly ActionRouteBindingRegistration[],
   contracts: readonly ActionContractMetadata[],
 ) {
   const contractByKey = new Map(contracts.map((contract) => [contract.key, contract]));
@@ -28,4 +32,3 @@ export function listActionContractRouteBindingIssues(
   }
   return issues;
 }
-

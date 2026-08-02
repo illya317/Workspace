@@ -1,6 +1,6 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 
-import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "../group-accounts/policy-versions";
+import { resolveFinanceAccountingPolicyVersionAtInTransaction } from "../group-accounts/policy-version-service";
 import type { ResolvableReclassRule } from "./resolution";
 
 export interface ReclassRulePeriodScope {

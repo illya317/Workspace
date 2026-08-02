@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Feature"
+  short_description: "Implement Workspace UI, API, and business features"
+  default_prompt: "Use $workspace-feature to implement this Workspace product change within its domain boundaries."

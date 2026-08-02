@@ -102,7 +102,7 @@ export function scheduleCreateSurfaceSpec({
   return {
     id: modal.key,
     trigger: "surface",
-    presentation: "modal",
+    presentation: "block",
     title: modal.title,
     open,
     disabled,

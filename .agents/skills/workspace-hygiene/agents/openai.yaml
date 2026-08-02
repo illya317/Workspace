@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Hygiene"
+  short_description: "Reduce Workspace debt and governance drift"
+  default_prompt: "Use $workspace-hygiene to inspect and reduce this Workspace governance debt."

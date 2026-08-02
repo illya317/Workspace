@@ -12,6 +12,7 @@ import {
   createPageBody,
   createPageTabBar,
   useFeedback,
+  type PageSurfaceCreateSpec,
   type SelectorSurfaceProps,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -329,13 +330,13 @@ export default function InventoryReceiptClient({ canCreate, canUpdate, canDelete
     onSelect: (row) => void selectRow(row),
   };
 
-  const createSection = { key: "inventory-receipts-create", body: { kind: "create" as const, create: {
-      id: "inventory-receipts-create", trigger: "toolbar" as const, presentation: "block" as const, title: draft?.batchId ? "同批号新增产量" : "新增成品入库报单记录",
+  const pageCreate: PageSurfaceCreateSpec = {
+      id: "inventory-receipts-create", presentation: "block", title: draft?.batchId ? "同批号新增产量" : "新增成品入库报单记录",
       open: Boolean(draft), canCreate, disabled: saving || entryPeriodLocked,
-      content: { kind: "sections" as const, sections: inventoryReceiptFormSections(draft ?? emptyDraft(), changeDraft, data.rows, data.productCatalog) },
-      submission: { action: "save" as const, disabled: saving || !validInventoryReceiptDraft(draft), execute: createRecord },
+      content: { kind: "sections", sections: inventoryReceiptFormSections(draft ?? emptyDraft(), changeDraft, data.rows, data.productCatalog) },
+      submission: { action: "save", disabled: saving || !validInventoryReceiptDraft(draft), execute: createRecord },
       onOpenChange: (open: boolean) => setDraft(open ? emptyDraft() : null), onCancel: () => setDraft(null),
-    } } };
+    };
 
   const detailSection = editing && selectedRow
     ? createFieldsSection("inventory-receipts-edit", inventoryReceiptFormFields(editing, changeEditing, false, [], data.productCatalog, !canUpdate || !canEditSelected, true), {
@@ -394,7 +395,7 @@ export default function InventoryReceiptClient({ canCreate, canUpdate, canDelete
     : createPageBody([createEmptySection("inventory-receipts-summary-empty", { content: loading ? "正在加载月度汇总…" : "当前月份暂无成品入库报单数据", presentation: "card" })]);
   const entryBody = createMasterDetailBody({
     master: { label: "成品入库报单记录", presentation: "compact", body: { kind: "selector", selector } },
-    detail: createPageBody([createSection, ...(draft ? [] : [detailSection])]),
+    detail: createPageBody(draft ? [] : [detailSection]),
     desktop: { ratio: [1, 2] },
     mobile: { detailActive: Boolean(draft || editing) },
   });
@@ -409,6 +410,7 @@ export default function InventoryReceiptClient({ canCreate, canUpdate, canDelete
 
   return <PageSurface
     kind="standard"
+    create={activeTab === "entry" ? pageCreate : undefined}
     tabbar={createPageTabBar({
       items: [{ key: "summary", label: "汇总表" }, { key: "entry", label: "数据填写" }],
       active: activeTab,

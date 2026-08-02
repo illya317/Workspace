@@ -1,4 +1,8 @@
-import { postJson, putJson } from "@workspace/platform/ui/api-client";
+import {
+  postDirectCommandJson,
+  putDirectCommandJson,
+  requestDirectCommandJson,
+} from "@workspace/platform/ui/api-client";
 import type {
   CreatePositionDraft,
   Department,
@@ -8,6 +12,7 @@ import type {
   Position,
   PositionDraft,
   Selection,
+  OrganizationCodeConfig,
 } from "./types";
 import { composePositionCode, positionCodeSuffix, serializeAlias } from "./utils";
 import {
@@ -46,6 +51,7 @@ export function useDepartmentPositionActions({
   setSelection,
   setToast,
   showActionPrompt,
+  codeConfig,
 }: {
   createPositionCode: string;
   createPositionDescriptionDraft: DescriptionDraft;
@@ -70,6 +76,7 @@ export function useDepartmentPositionActions({
   setSelection: (selection: Selection) => void;
   setToast: ToastSetter;
   showActionPrompt: ActionPrompt;
+  codeConfig: OrganizationCodeConfig | null;
 }) {
   const dirty = positionDirty || descriptionDirty;
 
@@ -77,10 +84,12 @@ export function useDepartmentPositionActions({
     if (!dirty) return;
     if (draft && (!draft.code.trim() || !draft.name.trim())) return setToast({ type: "error", message: "岗位编码和名称不能为空" });
     if (draft?.departmentId) {
+      if (!codeConfig) return setToast({ type: "error", message: "编码配置尚未加载" });
       const department = departmentById.get(draft.departmentId);
-      const suffix = positionCodeSuffix(draft.code);
-      if (!department || !/^\d{2}$/.test(suffix) || draft.code !== composePositionCode(department, suffix, draft.code)) {
-        setToast({ type: "error", message: "岗位编码必须由直属组织编码和两位序号组成" });
+      const suffix = positionCodeSuffix(draft.code, codeConfig);
+      const sequencePattern = new RegExp(`^\\d{${codeConfig.position.sequenceLength}}$`);
+      if (!department || !sequencePattern.test(suffix) || draft.code !== composePositionCode(department, suffix, draft.code, codeConfig)) {
+        setToast({ type: "error", message: `岗位编码必须由直属组织编码和 ${codeConfig.position.sequenceLength} 位序号组成` });
         return;
       }
     }
@@ -93,15 +102,22 @@ export function useDepartmentPositionActions({
     await withSaving(setSaving, setToast, async () => {
       const shouldCreateDescription = Boolean(selectedPosition && !selectedPosition.positionDescriptionId && descriptionDraft && descriptionDirty);
       if (draft && (positionDirty || shouldCreateDescription)) {
-        await putJson("/api/modules/hr/roster/positions", {
+        await putDirectCommandJson("/api/modules/hr/roster/positions", {
           ...draftPayload(draft),
+          version: selectedPosition?.version,
           ...(shouldCreateDescription && descriptionDraft ? {
             positionDescription: descriptionPayload(descriptionDraft),
           } : {}),
         }, "保存岗位失败");
       }
       if (descriptionDraft && descriptionDirty && selectedPosition?.positionDescriptionId) {
-        await putJson("/api/modules/hr/roster/position-descriptions", descriptionPayload(descriptionDraft), "保存岗位说明书失败");
+        if (!selectedPosition.positionDescriptionSequence) throw new Error("岗位说明书修订序号缺失，请刷新后重试");
+        await requestDirectCommandJson("/api/modules/hr/roster/position-descriptions", {
+          method: "PUT",
+          headers: { "If-Match": String(selectedPosition.positionDescriptionSequence) },
+          body: JSON.stringify(descriptionPayload(descriptionDraft)),
+          fallbackMessage: "保存岗位说明书失败",
+        });
       }
       setToast({ type: "success", message: "岗位资料已保存" });
       await loadData();
@@ -116,7 +132,7 @@ export function useDepartmentPositionActions({
     if (positionDescription && !isPositiveIntegerText(positionDescription.headcount)) return setToast({ type: "error", message: "编制必须是正整数" });
     if (positionDescription?.details.trim() && !isJson(positionDescription.details)) return setToast({ type: "error", message: "说明书明细 JSON 不是合法格式" });
     await withSaving(setSaving, setToast, async () => {
-      const data = await postJson<CreateResponse>("/api/modules/hr/roster/positions", {
+      const data = await postDirectCommandJson<CreateResponse>("/api/modules/hr/roster/positions", {
         code: createPositionCode,
         name,
         departmentId: createPositionDraft.departmentId,
@@ -137,8 +153,9 @@ export function useDepartmentPositionActions({
     const departmentName = departmentDraft.name.trim();
     if (!departmentName) return setToast({ type: "error", message: "组织名称不能为空" });
     await withSaving(setSaving, setToast, async () => {
-      const outcome = await putJson<{ executionMode: "direct" | "workflow" }>("/api/modules/hr/roster/departments", {
+      const outcome = await putDirectCommandJson<{ executionMode: "direct" | "workflow" }>("/api/modules/hr/roster/departments", {
         id: selectedDepartment.id,
+        version: selectedDepartment.version,
         code: departmentDraft.code.trim(),
         name: departmentName,
         alias: serializeAlias(departmentDraft.alias || ""),
@@ -158,11 +175,11 @@ export function useDepartmentPositionActions({
   }
 
   async function setDepartmentArchived(departmentId: number, archived: boolean) {
-    await setArchived("/api/modules/hr/roster/departments", departmentId, archived, "组织", loadData, setSaving, showActionPrompt);
+    await setArchived("/api/modules/hr/roster/departments", departmentId, archived, selectedDepartment?.version, "组织", loadData, setSaving, showActionPrompt);
   }
 
   async function setPositionArchived(positionId: number, archived: boolean) {
-    await setArchived("/api/modules/hr/roster/positions", positionId, archived, "岗位", loadData, setSaving, showActionPrompt);
+    await setArchived("/api/modules/hr/roster/positions", positionId, archived, selectedPosition?.version, "岗位", loadData, setSaving, showActionPrompt);
   }
 
   return { createPosition, saveDepartmentInfo, savePosition, setDepartmentArchived, setPositionArchived };
@@ -192,6 +209,7 @@ async function setArchived(
   path: string,
   id: number,
   archived: boolean,
+  version: number | undefined,
   label: "组织" | "岗位",
   loadData: () => Promise<void>,
   setSaving: (saving: boolean) => void,
@@ -199,7 +217,7 @@ async function setArchived(
 ) {
   setSaving(true);
   try {
-    await postJson(`${path}/${id}/archive`, { archived }, "操作失败");
+    await postDirectCommandJson(`${path}/${id}/archive`, { archived, version }, "操作失败");
     await loadData();
     await showActionPrompt(archived ? "归档成功" : "恢复成功", archived ? `${label}已归档` : `${label}已恢复`, false);
   } catch (err) {

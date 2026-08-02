@@ -7,6 +7,14 @@ OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 source "$OPS_ENV_FILE"
 SOURCE_DIR="${RELEASE_SOURCE_DIR:-${SOURCE_DIR:-}}"
 
+MODE="${1:-promote}"
+shift || true
+case "$MODE" in
+  promote|verify) ;;
+  *) echo "[错误] release 候选模式必须是 promote 或 verify"; exit 2 ;;
+esac
+[ "$#" = "0" ] || { echo "[错误] release 候选模式不接受额外参数"; exit 2; }
+
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
 RELEASE_PROMOTION_BRANCH="${RELEASE_PROMOTION_BRANCH:-main}"
@@ -22,6 +30,11 @@ if [ -n "$(git status --short)" ]; then
   echo "[错误] release worktree 存在未提交改动"
   git status --short
   exit 1
+fi
+
+if [ "$MODE" = "verify" ]; then
+  echo "==> deploy 固定使用已 prepare 的 release: $(git rev-parse --short=12 HEAD)"
+  exit 0
 fi
 
 git show-ref --verify --quiet "refs/heads/$RELEASE_PROMOTION_BRANCH" || {

@@ -304,7 +304,6 @@ async function collaborationDepartmentRecipientUserIds(departmentId: number) {
     where: { id: departmentId },
     select: {
       managerPositionId: true,
-      managerEmployees: { select: { employee: { select: { userId: true } } } },
       workAssignees: { where: { kind: "task" }, select: { userId: true } },
     },
   });
@@ -320,7 +319,6 @@ async function collaborationDepartmentRecipientUserIds(departmentId: number) {
       })
     : [];
   const preferred = [
-    ...department.managerEmployees.flatMap((entry) => entry.employee.userId ? [entry.employee.userId] : []),
     ...department.workAssignees.map((entry) => entry.userId),
     ...managerPositionUsers.flatMap((entry) => entry.employee.userId ? [entry.employee.userId] : []),
   ];

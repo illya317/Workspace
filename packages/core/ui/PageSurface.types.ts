@@ -1,5 +1,8 @@
 import type { BodySurfaceProps } from "./BodySurface.types";
+import type { PageSurfaceCreateSpec } from "./CreateSurface.types";
 import type { SurfacePaginationSpec, SurfaceToolbarItems } from "./SurfaceContractTypes";
+
+export type { PageSurfaceCreateSpec } from "./CreateSurface.types";
 
 export type PageSurfaceKind = "login" | "directory" | "standard";
 
@@ -58,6 +61,7 @@ export type PageSurfaceLoginProps = {
   kind: "login";
   body?: PageSurfaceBodySpec;
   brand: PageSurfaceLoginBrandSpec;
+  create?: never;
   footer?: never;
   tabbar?: never;
   toolbar?: never;
@@ -66,6 +70,7 @@ export type PageSurfaceLoginProps = {
 export type PageSurfaceDirectoryProps = {
   kind: "directory";
   body?: PageSurfaceBodySpec;
+  create?: never;
   footer?: never;
   tabbar?: never;
   toolbar?: never;
@@ -73,6 +78,7 @@ export type PageSurfaceDirectoryProps = {
 
 export type PageSurfaceStandardProps = PageSurfaceChromeProps & {
   kind?: "standard";
+  create?: PageSurfaceCreateSpec;
   tabbar?: PageSurfaceTabBarSpec;
   toolbar?: PageSurfaceToolbarSpec;
 };

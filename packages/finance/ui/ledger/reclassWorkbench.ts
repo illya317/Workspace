@@ -4,14 +4,7 @@ import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { ReclassBasis, ReclassEntry } from "@workspace/finance/types";
 import { formatFinanceAmount } from "../formatters";
 
-export type ReclassWorkbenchFilter = "all" | "pending" | "automatic" | "manual" | "no_process" | "historical";
 export type GroupRuleStatusFilter = "all" | "reclassified" | "no_reclass" | "unconfirmed";
-
-export interface ReclassTargetOption {
-  value: string;
-  label: string;
-  searchText?: string;
-}
 
 export function reclassBasisLabel(basis: ReclassBasis) {
   return basis === "counterparty_gross" ? "按户逐户" : "科目净额";
@@ -28,28 +21,15 @@ export function isGrossRowWithoutFacts(row: ReclassEntry) {
   return row.basis === "counterparty_gross" && row.currentAbnormalAmount === null;
 }
 
-export function filterReclassEntries(entries: readonly ReclassEntry[], filter: ReclassWorkbenchFilter, keyword: string) {
+export function filterReclassEntries(entries: readonly ReclassEntry[], keyword: string) {
   return entries.filter((row) => {
-    const inFilter = filter === "all"
-      || (filter === "pending" && row.status === "pending")
-      || (filter === "automatic" && row.status === "automatic")
-      || (filter === "manual" && row.status === "manual")
-      || (filter === "no_process" && row.status === "no_process")
-      || (filter === "historical" && row.status === "historical");
-    if (!inFilter) return false;
     if (!keyword) return true;
     return [row.accountCode, row.accountName, row.targetAccountCode, row.targetAccountName]
       .some((value) => value && matchText(value, keyword));
   });
 }
 
-export function createReclassWorkbenchColumns(input: {
-  canRevise: boolean;
-  editMode: boolean;
-  targetOptionsForRow: (row: ReclassEntry) => ReclassTargetOption[];
-  targetValue: (row: ReclassEntry) => string;
-  onTargetChange: (row: ReclassEntry, value: string) => void;
-}): DataSurfaceColumnSpec<ReclassEntry>[] {
+export function createReclassWorkbenchColumns(): DataSurfaceColumnSpec<ReclassEntry>[] {
   return [
     {
       key: "account",
@@ -106,13 +86,6 @@ export function createReclassWorkbenchColumns(input: {
           : { kind: "badge", label: row.balanceSide === "debit" ? "借" : "贷", tone: "red" },
     },
     {
-      key: "classification",
-      label: "判断口径",
-      required: true,
-      align: "center",
-      cell: (row) => classificationBadge(row),
-    },
-    {
       key: "basis",
       label: "计算口径",
       required: true,
@@ -126,78 +99,11 @@ export function createReclassWorkbenchColumns(input: {
       required: true,
       width: "lg",
       cell: (row) => {
-        if (input.editMode && isRuleEditable(row, input.canRevise)) {
-          return {
-            kind: "input",
-            spec: {
-              valueType: "string",
-              control: "choice",
-              options: { source: "static", items: input.targetOptionsForRow(row), visibleCount: 8 },
-            },
-            value: input.targetValue(row),
-            onChange: (value) => input.onTargetChange(row, String(value ?? "")),
-            placeholder: "输入科目编码或名称",
-            emptyText: "无匹配科目",
-            density: "compact",
-          };
-        }
         const label = targetLabel(row);
-        if (!isRuleEditable(row, input.canRevise)) return label ? { kind: "text", value: label } : { kind: "empty" };
-        return {
-          kind: "selectionGrid",
-          options: [{ value: row.id, label: label || "选择目标科目" }],
-          mode: "readOnly",
-          presentation: "card",
-          columns: 1,
-          layout: "fixed",
-          truncate: true,
-          ariaLabel: `配置科目 ${row.accountCode} 的目标科目`,
-        };
+        return label ? { kind: "text", value: label } : { kind: "empty" };
       },
     },
-    {
-      key: "status",
-      label: "处理状态",
-      required: true,
-      align: "center",
-      cell: (row) => statusBadge(row),
-    },
   ];
-}
-
-function isRuleEditable(row: ReclassEntry, canRevise: boolean) {
-  return canRevise
-    && row.sourceType !== "legacy_voucher"
-    && (row.classification === "reclass_candidate" || row.classification === "pending_review")
-    && row.status !== "historical"
-    && (row.stale || (row.currentAbnormalAmount !== null && row.currentAbnormalAmount > 0));
-}
-
-function classificationBadge(row: ReclassEntry) {
-  const specs = {
-    reclass_candidate: { label: "重分类候选", tone: "green" as const },
-    pending_review: { label: "待财务确认", tone: "orange" as const },
-    allowed_negative: { label: "允许负数", tone: "blue" as const },
-    contra_account: { label: "抵减科目", tone: "gray" as const },
-    non_balance_sheet_negative: { label: "非资产负债表", tone: "gray" as const },
-    legacy_voucher_adjustment: { label: "历史凭证调整", tone: "orange" as const },
-  };
-  return { kind: "badge" as const, ...specs[row.classification] };
-}
-
-function statusBadge(row: ReclassEntry) {
-  const historicalLabel = row.historicalMethod === "manual" ? "历史 · 人工"
-    : row.historicalMethod === "no_process" ? "历史 · 无需处理"
-      : row.historicalMethod === "automatic" ? "历史 · 自动"
-        : "历史记录";
-  const specs = {
-    pending: { label: row.ruleId ? "待生成" : "未配置", tone: "orange" as const },
-    automatic: { label: "自动分类", tone: "green" as const },
-    manual: { label: "人工分类", tone: "blue" as const },
-    no_process: { label: "无需处理", tone: "gray" as const },
-    historical: { label: historicalLabel, tone: "gray" as const },
-  };
-  return { kind: "badge" as const, ...specs[row.status] };
 }
 
 function targetLabel(row: ReclassEntry) {

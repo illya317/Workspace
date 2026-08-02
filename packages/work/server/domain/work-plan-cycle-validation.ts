@@ -1,4 +1,4 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { findOkrPlanForCycle } from "../work-plan-cycle-reference-adapter";
 
 export async function validateSingleOkrPlanPerCycle(input: {
   targetType?: string | null;
@@ -11,16 +11,11 @@ export async function validateSingleOkrPlanPerCycle(input: {
   const okrCycleId = positiveId(input.okrCycleId);
   const targetId = positiveId(input.targetId);
   if (kind !== "okr" || !okrCycleId || !targetId) return null;
-  const duplicate = await prisma.workPlan.findFirst({
-    where: {
-      targetType: input.targetType || "department",
-      targetId,
-      kind: "okr",
-      okrCycleId,
-      isArchived: false,
-      ...(input.currentPlanId ? { id: { not: input.currentPlanId } } : {}),
-    },
-    select: { title: true },
+  const duplicate = await findOkrPlanForCycle({
+    targetType: input.targetType || "department",
+    targetId,
+    okrCycleId,
+    currentPlanId: input.currentPlanId,
   });
   return duplicate ? `该周期已存在计划：${duplicate.title}` : null;
 }

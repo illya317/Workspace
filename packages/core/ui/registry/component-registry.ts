@@ -35,7 +35,7 @@ const PAGE_CONTENT_DECLARATIONS = new Set([
 export const coreUiDeclarationCategoryMeta = {
   "page-layout": {
     label: "页面布局",
-    description: "PageSurface 及页面级 tabbar、toolbar、body、footer 声明；header 由 Platform AppShell 唯一拥有。",
+    description: "PageSurface 及页面级 tabbar、toolbar、create、body、footer 声明；header 由 Platform AppShell 唯一拥有。",
   },
   "page-content": {
     label: "页面内容",

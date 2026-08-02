@@ -231,6 +231,7 @@ async function applyDelete(
         ...auditUpdateData(record, input.userId),
         [archiveField]: archiveValue,
         ...("archivedAt" in record ? { archivedAt: now } : {}),
+        ...("archivedBy" in record ? { archivedBy: input.userId } : {}),
       },
     });
   } else if (mode === "deactivate") {
@@ -275,12 +276,16 @@ export async function guardedDelete(input: GuardedDeleteInput): Promise<DeleteGu
       const referenceBlock = await guardReferences(input.references, tx, actionLabel);
       if (referenceBlock) return referenceBlock;
 
-      if ((input.auditPolicy ?? "history") === "history") {
+      const historyAudit = (input.auditPolicy ?? "history") === "history";
+      if (historyAudit) {
         await ensureEditHistoryBaseline(input.entityType, input.id, input.userId, tx);
-        await snapshotHistory(input.entityType, input.id, input.userId, tx);
+        if (mode === "hard") await snapshotHistory(input.entityType, input.id, input.userId, tx);
       }
       await cleanupReferences(input.references, tx);
       await applyDelete(model, input, record);
+      if (historyAudit && mode !== "hard") {
+        await snapshotHistory(input.entityType, input.id, input.userId, tx);
+      }
 
       return { ok: true, data: { success: true, id: input.id } };
     };

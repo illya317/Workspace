@@ -28,6 +28,7 @@ test("capital securities registers governed list projections under canonical sou
     "capital-securities.shareholders",
   ]);
   assert.equal(catalog.get("capital-securities.companies", 1)?.authorization.resourceKey, "capitalSecurities.governance");
+  assert.equal(catalog.get("capital-securities.companies", 1)?.fields.some((field) => field.key === "legalFactRevision"), true);
   assert.equal(catalog.get("capital-securities.shareholders", 1)?.authorization.resourceKey, "capitalSecurities.investors");
   assert.equal(catalog.list().every((source) => source.scopeBindings.project?.mode === "workspace"), true);
 });

@@ -81,7 +81,7 @@ export async function listFinanceGroupAccountMappedLocalAccounts(input: {
       mappingMethod: mapping.mappingMethod as FinanceGroupAccountMappedLocalAccountsResponse["rows"][number]["mappingMethod"],
       reviewClass: mapping.mappingMethod === "manual_override" || mapping.mappingMethod === "hierarchy_match"
         ? "reviewed" as const
-        : "confirmed" as const,
+        : "pending_review" as const,
     };
   }).sort((left, right) => left.companyName.localeCompare(right.companyName, "zh-CN", { numeric: true })
     || left.sourceScopeKey.localeCompare(right.sourceScopeKey)

@@ -8,6 +8,7 @@ export default function FinanceDepartmentShipmentView({ departmentId }: { depart
 
   return (
     <DepartmentHomeViewSurface
+      create={page.create}
       toolbarItems={page.toolbarItems}
       right={page.body}
       footer={page.footer}

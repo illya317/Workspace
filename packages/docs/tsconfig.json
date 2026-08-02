@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "declaration": true,
+    "declarationMap": false,
+    "emitDeclarationOnly": true,
+    "rootDir": ".",
+    "outDir": "../../.cache/types/packages/docs",
+    "tsBuildInfoFile": "../../.cache/tsbuild/docs.tsbuildinfo"
+  },
+  "include": ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts", "**/*.json"],
+  "exclude": ["node_modules"],
+  "references": [{ "path": "../core" }, { "path": "../platform" }]
+}

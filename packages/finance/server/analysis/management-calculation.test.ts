@@ -3,6 +3,7 @@ import test from "node:test";
 
 import {
   buildCashScenarios,
+  buildPerformanceKpis,
   buildRiskFindings,
   buildWorkingCapital,
   summarizeProfitability,
@@ -55,6 +56,46 @@ test("profitability and working-capital formulas use period facts consistently",
   assert.equal(working.currentRatio, 1.5);
   assert.equal(working.quickRatio, 0.875);
   assert.equal(working.components.find((row) => row.key === "receivables")?.change, 80);
+  assert.equal(working.receivableTurnover, 6.25);
+  assert.equal(working.inventoryTurnover, 10 / 3);
+  assert.equal(working.payableTurnover, 10 / 3);
+  assert.equal(working.receivableDays, 58.4);
+  assert.equal(working.inventoryDays, 109.5);
+  assert.equal(working.payableDays, 109.5);
+  assert.ok(Math.abs((working.cashConversionCycleDays ?? 0) - 58.4) < 1e-9);
+});
+
+test("returns null instead of misleading ratios when business denominators are not positive", () => {
+  const working = buildWorkingCapital({
+    cash: 10, receivable: -20, inventory: -30, payables: -40,
+    totalCurrentAssets: 100, totalCurrentLiabilities: -50,
+  }, {
+    cash: 10, receivable: -10, inventory: -20, payables: -30,
+  }, 100, 60, 180);
+  assert.equal(working.currentRatio, null);
+  assert.equal(working.quickRatio, null);
+  assert.equal(working.cashRatio, null);
+  assert.equal(working.receivableTurnover, null);
+  assert.equal(working.inventoryTurnover, null);
+  assert.equal(working.payableTurnover, null);
+  assert.equal(working.cashConversionCycleDays, null);
+});
+
+test("builds standard growth, profitability, efficiency, solvency and cash KPIs", () => {
+  const rows = buildPerformanceKpis({
+    revenue: 1_000, priorRevenue: 800, grossProfit: 400, priorGrossProfit: 280,
+    operatingProfit: 230, priorOperatingProfit: 160, netProfit: 180, priorNetProfit: 120,
+    totalAssets: 2_000, openingAssets: 1_600, totalEquity: 800, openingEquity: 600,
+    totalLiabilities: 1_200, currentRatio: 1.5, quickRatio: 0.9, cashRatio: 0.25,
+    receivableDays: 58.4, inventoryDays: 109.5, payableDays: 109.5, cashConversionCycleDays: 58.4,
+    operatingCashFlow: 210, freeCashFlow: 150,
+  });
+  assert.deepEqual([...new Set(rows.map((row) => row.category))], ["growth", "profitability", "efficiency", "solvency", "cash"]);
+  assert.equal(rows.find((row) => row.key === "revenue-growth")?.value, 0.25);
+  assert.equal(rows.find((row) => row.key === "gross-margin")?.value, 0.4);
+  assert.equal(rows.find((row) => row.key === "asset-turnover")?.value, 5 / 9);
+  assert.equal(rows.find((row) => row.key === "quick-ratio")?.value, 0.9);
+  assert.equal(rows.find((row) => row.key === "profit-cash-ratio")?.value, 7 / 6);
 });
 
 test("cash scenarios and risk rules remain explicit and deterministic", () => {

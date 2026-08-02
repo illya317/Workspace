@@ -5,6 +5,8 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { isActualDateAfterToday } from "@workspace/platform/completion-date-policy";
 import { WORK_FK_REGISTRY } from "./fk-registry";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import { formatProjectBusinessCode } from "@workspace/platform/business-code-config";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
 const DATE_FIELDS = ["plannedStartDate", "plannedEndDate", "actualStartDate", "actualEndDate"];
 const NUMBER_FIELDS = ["budgetAmount", "completionPercent"];
@@ -169,29 +171,43 @@ export async function normalizeLeadingDepartmentForProjectType(
   return normalizeLeadingDepartmentId(requestedId);
 }
 
-function planCodePrefix(prefixCode: string, dateValue?: Date | string | null) {
+function planCodePrefix(
+  prefixCode: string,
+  separator: string,
+  yearDigits: 2 | 4,
+  dateValue?: Date | string | null,
+) {
   const date = dateValue ? new Date(dateValue) : new Date();
   const year = Number.isNaN(date.getTime()) ? new Date().getFullYear() : date.getFullYear();
-  return `${prefixCode.trim()}-${String(year % 100).padStart(2, "0")}`;
+  const yearText = yearDigits === 4 ? String(year) : String(year % 100).padStart(2, "0");
+  return `${prefixCode.trim()}${separator}${yearText}`;
 }
 
 export async function generateProjectCode(input: { projectType: ProjectType; departmentCode?: string | null; dateValue?: Date | string | null }) {
-  const numbering = getTenantProfile().work;
-  const prefixCode = input.projectType === "department" ? input.departmentCode : numbering.companyProjectCodePrefix;
+  const numbering = (await getBusinessCodeConfig()).project;
+  const prefixCode = input.projectType === "department" ? input.departmentCode : numbering.companyPrefix;
   if (!prefixCode) return null;
-  const prefix = planCodePrefix(prefixCode, input.dateValue);
-  const sequenceStart = input.projectType === "other" ? numbering.otherProjectSequenceStart : numbering.companyProjectSequenceStart;
-  const sequenceEnd = input.projectType === "company" ? numbering.companyProjectSequenceEnd : Number.POSITIVE_INFINITY;
+  const prefix = planCodePrefix(prefixCode, numbering.separator, numbering.yearDigits, input.dateValue);
+  const sequenceStart = input.projectType === "other"
+    ? numbering.otherSequenceStart
+    : input.projectType === "department"
+      ? numbering.departmentSequenceStart
+      : numbering.companySequenceStart;
+  const sequenceEnd = input.projectType === "company" ? numbering.companySequenceEnd : Number.POSITIVE_INFINITY;
   const sequenceWidth = input.projectType === "department"
-    ? numbering.departmentProjectSequenceWidth
-    : numbering.companyProjectSequenceWidth;
+    ? numbering.departmentSequenceLength
+    : input.projectType === "other"
+      ? numbering.otherSequenceLength
+      : numbering.companySequenceLength;
   const existing = await prisma.project.findMany({
-    where: { code: { startsWith: `${prefix}-` } },
+    where: { code: { startsWith: `${prefix}${numbering.separator}` } },
     select: { code: true },
   });
   let maxSequence = 0;
   for (const project of existing) {
-    const match = project.code?.match(new RegExp(`^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}-(\\d+)$`));
+    const match = project.code?.match(new RegExp(
+      `^${prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}${numbering.separator.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(\\d+)$`,
+    ));
     if (!match) continue;
     const sequence = Number(match[1]);
     if (sequence < sequenceStart || sequence > sequenceEnd) continue;
@@ -199,7 +215,16 @@ export async function generateProjectCode(input: { projectType: ProjectType; dep
   }
   const nextSequence = Math.max(maxSequence + 1, sequenceStart);
   if (nextSequence > sequenceEnd) throw new Error("公司项目年度编号已用完");
-  return `${prefix}-${String(nextSequence).padStart(sequenceWidth, "0")}`;
+  const date = input.dateValue ? new Date(input.dateValue) : new Date();
+  const year = Number.isNaN(date.getTime()) ? new Date().getFullYear() : date.getFullYear();
+  return formatProjectBusinessCode({
+    prefix: prefixCode,
+    year,
+    sequence: nextSequence,
+    separator: numbering.separator,
+    yearDigits: numbering.yearDigits,
+    sequenceLength: sequenceWidth,
+  });
 }
 
 async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: number): Promise<ProjectFieldUpdateResult> {

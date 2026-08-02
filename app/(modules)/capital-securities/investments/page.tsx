@@ -1,0 +1,18 @@
+import { InvestmentEnterprisesClient } from "@workspace/capital-securities/ui";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
+
+export default async function InvestmentEnterprisesPage() {
+  const user = await requireRouteAccess("/capital-securities/investments");
+  const [canCreate, canUpdate, canImport] = await Promise.all([
+    evaluatePermissionAction(user.id, "capitalSecurities.investments", "create"),
+    evaluatePermissionAction(user.id, "capitalSecurities.investments", "update"),
+    evaluatePermissionAction(user.id, "capitalSecurities.investments", "import"),
+  ]);
+  return renderAppShellPage({
+    title: "投资企业",
+    backHref: "/capital-securities",
+    user,
+    children: <InvestmentEnterprisesClient canCreate={canCreate} canUpdate={canUpdate} canImport={canImport} />,
+  });
+}

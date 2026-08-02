@@ -13,7 +13,10 @@ model Party {
   updatedAt                     DateTime                              @default(now()) @updatedAt
   externalProfile               ExternalPartyProfile?
   externalRoles                 ExternalPartyRole[]
+  employeeIdentityLink          EmployeePartyIdentityLink?
+  financeAuxiliaryMembers       FinanceAuxiliaryMember[]             @relation("FinanceAuxiliaryMemberLinkedParty")
   nameHistory                   PartyNameHistory[]
+  legalFactRevisions            PartyLegalFactRevision[]
   company                       Company?
   ownedInterests                OwnershipInterest[]
   shareCapitalOutflows          ShareCapitalTransaction[]             @relation("ShareCapitalTransferor")
@@ -21,7 +24,13 @@ model Party {
   shareCapitalSnapshotPositions ShareCapitalSnapshotPosition[]
   controlledAfterCapitalEvents  ShareCapitalEvent[]                   @relation("ShareCapitalEventController")
   shareholderGroupMemberships   ShareholderGroupMembership[]
+  investorShareholderProfiles   InvestorShareholderProfile[]          @relation("InvestorShareholderProfileParty")
+  investorDueDiligenceRecords   InvestorDueDiligenceRecord[]          @relation("InvestorDueDiligenceInvestorParty")
   registryOwnershipParticipants CompanyRegistryOwnershipParticipant[]
+  contractsAsPartyA             Contract[]                            @relation("ContractPartyA")
+  contractsAsPartyB             Contract[]                            @relation("ContractPartyB")
+  financeLoansAsLender          FinanceLoan[]
+  inventoryDocuments           InventoryDocument[]
 
   @@unique([subjectType, identityNumber])
   @@index([name])
@@ -83,17 +92,43 @@ model ExternalPartyRole {
   creditDays          Int?
   taxRate             Float?
   remark              String?
+  /// 当前租户业务日的可用性缓存；权威事实来自 availabilityPeriods。
   isActive            Boolean                      @default(true)
+  availabilityVersion Int                          @default(1)
   createdAt           DateTime                     @default(now())
   updatedAt           DateTime                     @default(now()) @updatedAt
   party               Party                        @relation(fields: [partyId], references: [id], onDelete: Restrict)
   financeShipments    FinanceShipment[]
   sourceMappings      ExternalPartySourceMapping[]
+  availabilityPeriods ExternalPartyRolePeriod[]
 
   @@unique([partyId, category])
   @@unique([category, code])
   @@index([category, isActive])
   @@index([category, classification])
+}
+
+/// 外部往来角色的不可变可用期间修订；终止、取消和纠错均追加新行并链接被替代行
+model ExternalPartyRolePeriod {
+  id             Int                       @id @default(autoincrement())
+  roleId         Int
+  sequence       Int
+  validFrom      String?
+  validThrough   String?
+  recordState    String                    @default("confirmed")
+  commandKind    String
+  supersedesId   Int?                      @unique
+  idempotencyKey String                    @unique
+  requestFingerprint String
+  reason         String?
+  recordedBy     Int?
+  recordedAt     DateTime                  @default(now())
+  role           ExternalPartyRole         @relation(fields: [roleId], references: [id], onDelete: Restrict)
+  supersedes     ExternalPartyRolePeriod?  @relation("ExternalPartyRolePeriodSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy   ExternalPartyRolePeriod[] @relation("ExternalPartyRolePeriodSupersession")
+
+  @@unique([roleId, sequence])
+  @@index([roleId, recordState, validFrom, validThrough], map: "ExternalPartyRolePeriod_role_state_period_idx")
 }
 
 /// 外部往来角色的公司/来源主数据映射（事实表，来源于受治理的客户、供应商和业务事实导入）

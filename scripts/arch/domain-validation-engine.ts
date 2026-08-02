@@ -67,7 +67,7 @@ const WRITE_FUNCTION_PREFIXES = [
 
 const LOW_LEVEL_RULE_TOKENS = [
   "validateFkValue",
-  "parseWorkPercent",
+  "parseAllocationWeight",
   "isValidDateValue",
   "rejectInvalidDateField",
   "validateEdpReportTo",
@@ -101,7 +101,6 @@ const LOW_LEVEL_HELPER_FILE_PATTERNS = [
 const QUERY_ONLY_FILE_PATTERNS = [
   /\/server\/index\.ts$/,
   /\/server\/autocomplete(?:-config)?\.ts$/,
-  /\/server\/agent-tools\.ts$/,
   /\/server\/admin-/,
   /\/server\/company-directory\.ts$/,
   /\/server\/department-codes\.ts$/,
@@ -193,11 +192,11 @@ function domainPackages(): DomainPackage[] {
 }
 
 function hasDomainValidatorImport(source: string) {
-  return /from\s+["'][^"']*\/domain\/[^"']*-validation["']/.test(source);
+  return /from\s+["'][^"']*(?:\/domain\/[^"']*-validation|\/validation)["']/.test(source);
 }
 
 function reexportsDomainValidator(source: string) {
-  return /export\s+(?:\*|\{[^}]*\})\s+from\s+["']\.\/domain\/[^"']*-validation["']/.test(source);
+  return /export\s+(?:\*|\{[^}]*\})\s+from\s+["'][^"']*(?:\/domain\/[^"']*-validation|\/validation)["']/.test(source);
 }
 
 function workspaceServerImports(source: string, packageName: string): WorkspaceServerImports {
@@ -246,8 +245,8 @@ function namespaceForbiddenUsages(source: string, namespace: string, forbiddenNa
 
 function exportedDomainValidatorNames(pkg: DomainPackage) {
   const names = new Set<string>();
-  for (const file of collectTsFiles(`${pkg.serverDir}/domain`)) {
-    if (!file.endsWith("-validation.ts")) continue;
+  for (const file of collectTsFiles(pkg.serverDir)) {
+    if (!/(?:\/domain\/[^/]+-validation|\/validation)\.ts$/.test(file)) continue;
     const source = readFile(file);
     for (const match of source.matchAll(/export\s+(?:async\s+)?(?:function|const|class)\s+([A-Za-z_$][\w$]*)/g)) {
       names.add(match[1]);
@@ -281,9 +280,11 @@ function hasCrudWriteSignal(source: string) {
 
 function hasExportedWriteFunction(source: string) {
   const prefix = WRITE_FUNCTION_PREFIXES.join("|");
-  return new RegExp(
-    `export\\s+(?:(?:async\\s+)?function\\s+|const\\s+)(?:${prefix})[A-Z\\w]*\\s*(?:\\(|=)`,
-  ).test(source);
+  const matches = source.matchAll(new RegExp(
+    `export\\s+(?:(?:async\\s+)?function\\s+|const\\s+)((?:${prefix})[A-Z\\w]*)\\s*(?:\\(|=)`,
+    "g",
+  ));
+  return [...matches].some((match) => !/^create[A-Z\w]*Route$/.test(match[1] ?? ""));
 }
 
 function isWriteService(file: string, source: string) {
@@ -352,7 +353,7 @@ function domainValidatorImportLocals(file: string, source: string) {
   for (const statement of sourceFile.statements) {
     if (!ts.isImportDeclaration(statement)) continue;
     if (!ts.isStringLiteral(statement.moduleSpecifier)) continue;
-    if (!/\/domain\/[^"']*-validation$/.test(statement.moduleSpecifier.text)) continue;
+    if (!/(?:\/domain\/[^"']*-validation|\/validation)$/.test(statement.moduleSpecifier.text)) continue;
     const importClause = statement.importClause;
     if (!importClause || importClause.isTypeOnly) continue;
     if (importClause.name) names.push(importClause.name.text);
@@ -597,7 +598,7 @@ function createCommandRouteInlineBranchWarnings(source: string) {
 function commandRouteShellWarnings(file: string, source: string) {
   if (!file.endsWith("/route.ts")) return [];
   const warnings: string[] = [];
-  if (!/\bcreateCommandRoute\b|\bcreateInternalApiRoute\b|\bcreateAgentDomainRpcHandler\b|\bcreateAuthoritativeLibrarySourceRoute\b|\bcreateWorkspaceAnalysisSourceRpcHandler\b/.test(source)) {
+  if (!/\bcreateCommandRoute\b|\bcreateInternalApiRoute\b|\bcreateAuthoritativeLibrarySourceRoute\b|\bcreateWorkspaceAnalysisSourceRpcHandler\b/.test(source)) {
     warnings.push("business API route does not use createCommandRoute/createInternalApiRoute");
   }
   if (/\brequest\.json\s*\(\s*\)\.catch\s*\(/.test(source)) {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { buildHrRouteCommand, deleteDepartment, executeCreateDepartmentWithWorkflowGuard, executeUpdateDepartmentWithWorkflowGuard, listDepartments } from "@workspace/hr/server";
+import { buildHrRouteCommand, deleteDepartment, executeCreateDepartmentWithWorkflowGuard, executeUpdateDepartmentWithWorkflowGuard, listDepartments, organizationStructureLifecycleMetaFromRequest } from "@workspace/hr/server";
 import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const departmentsQuerySchema = z.object({
   keyword: z.string().catch(""),
@@ -27,13 +27,25 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: departmentBodySchema,
-  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  buildCommand: ({ request, body, user }) => buildHrRouteCommand({
+    body: { ...body, lifecycle: organizationStructureLifecycleMetaFromRequest(request, { ...lifecycleInput(body), expectedSequence: 0 }) },
+    userId: user.userId,
+  }),
   action: executeCreateDepartmentWithWorkflowGuard,
 });
 
 export const PUT = createCommandRoute({
   bodySchema: departmentBodySchema,
-  buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
+  buildCommand: ({ request, body, user }) => buildHrRouteCommand({
+    body: {
+      ...body,
+      lifecycle: organizationStructureLifecycleMetaFromRequest(request, {
+        ...lifecycleInput(body),
+        expectedSequence: readRequestExpectedVersion(request) ?? body.version,
+      }),
+    },
+    userId: user.userId,
+  }),
   action: executeUpdateDepartmentWithWorkflowGuard,
 });
 
@@ -47,3 +59,9 @@ export const DELETE = createCommandRoute({
   }),
   action: deleteDepartment,
 });
+
+function lifecycleInput(body: Record<string, unknown>) {
+  return body.lifecycle && typeof body.lifecycle === "object"
+    ? body.lifecycle as Record<string, unknown>
+    : {};
+}

@@ -13,15 +13,13 @@ import {
   validateConsolidationEntryWriteMode,
   validateConsolidationVersionTarget,
 } from "../domain/consolidation-entry-validation";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
-import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { resolveUserBusinessActorName } from "@workspace/platform/server/user-identity";
 import {
   CONSOLIDATION_BATCH_INCLUDE,
   consolidationBatchSnapshot,
-  loadConsolidationBatchRow,
 } from "./consolidation-dto";
 import {
   appendConsolidationBatchEvent,
@@ -29,30 +27,12 @@ import {
   immutableAuditSnapshot,
 } from "./consolidation-mutations";
 import { resolveConsolidationEntrySource } from "./consolidation-entry-sources";
-
-class ConsolidationEntryError extends Error {
-  constructor(message: string, readonly status = 400) {
-    super(message);
-  }
-}
-
-async function directAction(actionKey: string, userId: number, blockedMessage: string) {
-  return assertBusinessActionDirectExecutionAllowed({
-    businessActionKey: actionKey,
-    actorUserId: userId,
-    resourceKey: "finance.statements",
-    scopeType: "global",
-    scopeId: null,
-    blockedMessage,
-  });
-}
-
-async function loadDraftBatch(batchId: number) {
-  const batch = await loadConsolidationBatchRow(batchId);
-  if (!batch) throw new ConsolidationEntryError("合并批次不存在", 404);
-  if (batch.status !== "draft") throw new ConsolidationEntryError("只有草稿批次允许编制抵销和税务底稿", 409);
-  return batch;
-}
+import {
+  ConsolidationEntryError,
+  directAction,
+  loadDraftBatch,
+} from "./consolidation-entry-write-context";
+import { resolveSavedGroupVoucherNumber } from "./group-voucher-numbering";
 
 async function loadVersionTarget(
   id: number,
@@ -87,6 +67,11 @@ async function lineData(
   batch: Awaited<ReturnType<typeof loadDraftBatch>>,
 ) {
   const entityById = new Map(batch.entities.map((entity) => [entity.id, entity]));
+  const explicitCounterpartyIds = [...new Set(command.input.lines.map((line) => line.counterpartyCompanyId).filter((id): id is number => Boolean(id)))];
+  const explicitCounterparties = explicitCounterpartyIds.length
+    ? await prisma.company.findMany({ where: { id: { in: explicitCounterpartyIds } }, select: { id: true } })
+    : [];
+  const validCounterpartyCompanyIds = new Set(explicitCounterparties.map((company) => company.id));
   const matchedEntry = ["intercompanyBalance", "internalTrading", "cashFlow"].includes(command.input.entryType);
   const lines = await Promise.all(command.input.lines.map(async (line, index) => {
     const entity = entityById.get(line.entitySnapshotId);
@@ -94,6 +79,9 @@ async function lineData(
     const counterparty = line.counterpartyEntitySnapshotId ? entityById.get(line.counterpartyEntitySnapshotId) : null;
     if (line.counterpartyEntitySnapshotId && !counterparty) {
       throw new ConsolidationEntryError("结构化配对引用了批次范围外对方主体", 409);
+    }
+    if (line.counterpartyCompanyId && !validCounterpartyCompanyIds.has(line.counterpartyCompanyId)) {
+      throw new ConsolidationEntryError("集团凭证引用的对方公司不存在", 409);
     }
     let source = {
       sourceId: null as string | null,
@@ -129,6 +117,7 @@ async function lineData(
       statementType: line.statementType,
       lineCode: line.lineCode,
       accountCode: line.accountCode,
+      groupAccountId: line.groupAccountId,
       debit: line.debit,
       credit: line.credit,
       currencyCode: line.currencyCode || "CNY",
@@ -138,7 +127,7 @@ async function lineData(
       sourceKind: line.sourceKind,
       ...source,
       counterpartyEntitySnapshotId: counterparty?.id ?? null,
-      counterpartyCompanyId: counterparty?.companyId ?? null,
+      counterpartyCompanyId: counterparty?.companyId ?? line.counterpartyCompanyId ?? null,
     };
   }));
   if (!matchedEntry) return { lines, matchDifference: null, differenceResolution: command.input.differenceResolution };
@@ -233,13 +222,21 @@ export async function saveConsolidationEntry(rawCommand: SaveConsolidationEntryC
       if (!batchRevision) {
         throw new ConsolidationEntryError("合并批次已被提交或被其他人修改，请刷新后重试", 409);
       }
+      const postingDate = command.input.postingDate ?? new Date(Date.UTC(batch.year, batch.month, 0)).toISOString().slice(0, 10);
+      const entryNo = await resolveSavedGroupVoucherNumber(tx, {
+        batchId: batch.id, year: batch.year, month: batch.month,
+        existingEntryNumber: existing?.entryNo, supersededEntryNumber: supersedes?.entryNo,
+      });
       let entryId: number;
       if (writeMode.data.mode === "updateDraft" && existing) {
         await tx.financeConsolidationEntryLine.deleteMany({ where: { entryId: existing.id } });
         const updated = await tx.financeConsolidationEntry.update({
           where: { id: existing.id },
           data: {
-            entryNo: command.input.entryNo,
+            entryNo,
+            postingDate,
+            documentType: command.input.documentType ?? "groupAdjustment",
+            postingLevel: command.input.postingLevel ?? "30",
             entryType: command.input.entryType,
             title: command.input.title,
             description: command.input.description,
@@ -255,7 +252,10 @@ export async function saveConsolidationEntry(rawCommand: SaveConsolidationEntryC
         const created = await tx.financeConsolidationEntry.create({
           data: {
             batchId: batch.id,
-            entryNo: command.input.entryNo,
+            entryNo,
+            postingDate,
+            documentType: command.input.documentType ?? "groupAdjustment",
+            postingLevel: command.input.postingLevel ?? "30",
             entryType: command.input.entryType,
             title: command.input.title,
             description: command.input.description,
@@ -527,7 +527,6 @@ export async function deleteConsolidationTaxEffect(rawCommand: DeleteConsolidati
     throw cause;
   }
 }
-
 export async function loadConsolidationBatchWithEntries(batchId: number) {
   const row = await prisma.financeConsolidationBatch.findUnique({
     where: { id: batchId },

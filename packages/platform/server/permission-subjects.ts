@@ -29,6 +29,13 @@ import {
 } from "../permission-natural-space-actions";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
+import { workspaceBusinessDate } from "./business-date";
+import {
+  effectiveDateIntervalWhere,
+  employmentDateWhereAt,
+  employmentIsActiveOnDate,
+} from "./relation-registry";
+import { inclusiveBusinessPeriodContains } from "@workspace/platform/contracts/business-temporal";
 
 export interface SubjectInfo {
   id: number;
@@ -320,14 +327,17 @@ function resolveCompany(map: Map<string, unknown>, code: string | null | undefin
 export async function getUserSubjects(): Promise<SubjectInfo[]> {
   const { getDeptPath } = await buildDeptPathMaps();
   const companyMap = await loadCompanyMap();
+  const asOfDate = workspaceBusinessDate(new Date());
 
   const activeEmpIds = new Set(
     (
       await prisma.employment.findMany({
-        where: { isActive: true },
-        select: { employeeId: true },
+        where: employmentDateWhereAt({}, asOfDate),
+        select: { employeeId: true, isActive: true, joinDate: true, leaveDate: true },
       })
-    ).map((e) => e.employeeId)
+    )
+      .filter((employment) => employmentIsActiveOnDate(employment, asOfDate))
+      .map((employment) => employment.employeeId)
   );
 
   const employees = await prisma.employee.findMany({
@@ -335,6 +345,7 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
     orderBy: [{ employeeId: "asc" }],
     include: {
       positions: {
+        where: effectiveDateIntervalWhere({}, "startDate", "endDate", asOfDate),
         include: {
           department: { select: { name: true, code: true, id: true } },
           position: { select: { name: true, alias: true } },
@@ -373,10 +384,14 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
 
   const result: SubjectInfo[] = [];
   for (const emp of employees) {
+    const currentPositions = emp.positions.filter((position) => inclusiveBusinessPeriodContains({
+      validFrom: position.startDate,
+      validThrough: position.endDate,
+    }, asOfDate));
     const userId = userIdByEmployeeId.get(emp.employeeId);
     const userMeta = userMetaByEmployeeId.get(emp.employeeId);
-    const dept = emp.positions[0]?.department;
-    const positionIds = emp.positions
+    const dept = currentPositions[0]?.department;
+    const positionIds = currentPositions
       .map((p) => p.positionId)
       .filter((id): id is number => id !== null);
     const isAllResourceAdmin = implicitAllAdminEmployeeIds.includes(emp.employeeId);
@@ -394,7 +409,7 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
         canLogin: userMeta?.canLogin ?? false,
         company: resolveCompany(companyMap, dept?.code),
         department: dept?.name || "",
-        position: emp.positions[0]?.position?.name || "",
+        position: currentPositions[0]?.position?.name || "",
         isAllResourceAdmin,
         isAllResourceGrant,
         isDepartmentManager,
@@ -402,7 +417,7 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
         positionIds,
         departmentIds: [
           ...new Set(
-            emp.positions
+            currentPositions
               .map((p) => p.departmentId)
               .filter((id): id is number => id !== null)
           ),

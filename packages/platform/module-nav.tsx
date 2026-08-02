@@ -2,7 +2,7 @@ import type {
   ModuleDef,
   ModuleRegistration,
   SubModuleDef,
-} from "@workspace/core";
+} from "@workspace/core/module-contract";
 import type { SessionUser } from "./types";
 import { moduleIcons } from "./icons";
 import { workspacePackages } from "./modules";

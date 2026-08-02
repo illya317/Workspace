@@ -13,7 +13,7 @@ export const FIELD_LABELS: Record<string, string> = {
   insuranceStatus: "参保状态",
   isActive: "在职", isPrimary: "主岗", startDate: "开始日期", endDate: "结束日期",
   personnelType: "人员类型", rank: "职级", reportTo: "直接上级", reportToPositionId: "汇报岗位", reportTo2: "第二汇报线",
-  workPercent: "工作占比", isResearch: "研发", description: "说明", type: "类型",
+  allocationWeight: "岗位投入权重", isResearch: "研发", description: "说明", type: "类型",
   departmentName: "所属部门", positionPurpose: "岗位目的", summary: "职责概要",
   headcount: "编制人数", effectiveDate: "生效日期", sourceFile: "源文件",
   shareRatio: "持股比例", isConsolidated: "并表", sortOrder: "排序",

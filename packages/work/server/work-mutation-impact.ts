@@ -14,14 +14,16 @@ import { Prisma } from "@workspace/platform/server/prisma";
 import { validateWorkPlanItemCascade } from "./domain/work-mutation-impact-validation";
 import { workKpiMutationImpactAdapters } from "./work-kpi-mutation-impact-adapters";
 import {
+  getWorkMutationImpactPolicyRevision,
   resolveWorkMutationImpactPolicy,
   WorkImpactConcurrencyError,
   workItemRevision,
 } from "./work-mutation-impact-runtime";
 import { workPilotInboundImpactAdapters } from "./work-pilot-inbound-impact-adapters";
 import { projectMutationImpactAdapters } from "./work-project-mutation-impact-adapters";
+import { projectMembershipHistoryImpactAdapters } from "./project-membership-mutation-impact-adapters";
 
-export const WORK_MUTATION_IMPACT_POLICY_REVISION = "work-mutation-impact-v1";
+export { WORK_MUTATION_IMPACT_POLICY_REVISION } from "./work-mutation-impact-runtime";
 export const WORK_PLAN_ITEMS_RELATION = "work.plan.items";
 
 type ArchiveSource = {
@@ -48,9 +50,11 @@ export function buildWorkMutationImpactEngine(input: {
 }): MutationImpactEngine<WorkMutationImpactContext> {
   return createMutationImpactEngine({
     adapters: workMutationImpactAdapters(),
-    resolvePolicy: ({ relationKey, intent }) => resolveWorkMutationImpactPolicy(relationKey, intent),
+    resolvePolicy: ({ context, relationKey, intent }) => (
+      resolveWorkMutationImpactPolicy(context, relationKey, intent)
+    ),
     tokenCodec: createHmacMutationImpactTokenCodec(input.secret),
-    getPolicyRevision: () => WORK_MUTATION_IMPACT_POLICY_REVISION,
+    getPolicyRevision: getWorkMutationImpactPolicyRevision,
     audit: input.audit,
     auditAttempt: input.auditAttempt,
   });
@@ -197,7 +201,6 @@ function planItemsAdapter(): MutationImpactAdapter<WorkMutationImpactContext> {
         : rows;
       if (!matchedRows.length) return null;
       return {
-        policy: current.intent === "restore" ? "auto_cascade_owned" : "confirm_cascade",
         records: matchedRows.map(workItemRecord),
         reason: current.intent === "delete"
           ? "删除计划会同时删除其工作项"
@@ -490,6 +493,7 @@ function workMutationImpactAdapters(): MutationImpactAdapter<WorkMutationImpactC
     ...workKpiMutationImpactAdapters(),
     ...workPilotInboundImpactAdapters(),
     ...projectMutationImpactAdapters({ workItemRevision }),
+    ...projectMembershipHistoryImpactAdapters(),
     restoreProvenanceAdapter(),
     staleRestoreItemsAdapter(),
     planReferenceBlocker({ relationKey: "work.tasks.source.plan", field: "sourcePlanId", reason: "存在由该计划派生的计划" }),

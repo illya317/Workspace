@@ -14,7 +14,7 @@ import {
   readTemplateContentJson,
   templateContentFilesStatus,
   writeTemplateContentJson,
-} from "../packages/platform/server/docs-editor/content-store";
+} from "../packages/docs/server/content-store";
 
 type TemplateWithSpace = Awaited<ReturnType<typeof loadTemplates>>[number];
 

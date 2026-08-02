@@ -30,6 +30,7 @@ export type ProductionQcAuditEventAvgAggregateOutputType = {
   id: number | null
   batchId: number | null
   actorUserId: number | null
+  actorEmployeeRefId: number | null
   recordVersion: number | null
 }
 
@@ -37,6 +38,7 @@ export type ProductionQcAuditEventSumAggregateOutputType = {
   id: number | null
   batchId: number | null
   actorUserId: number | null
+  actorEmployeeRefId: number | null
   recordVersion: number | null
 }
 
@@ -53,6 +55,7 @@ export type ProductionQcAuditEventMinAggregateOutputType = {
   role: string | null
   actorUserId: number | null
   actorEmployeeId: string | null
+  actorEmployeeRefId: number | null
   actorName: string | null
   signatureMeaning: string | null
   signedPayloadHash: string | null
@@ -75,6 +78,7 @@ export type ProductionQcAuditEventMaxAggregateOutputType = {
   role: string | null
   actorUserId: number | null
   actorEmployeeId: string | null
+  actorEmployeeRefId: number | null
   actorName: string | null
   signatureMeaning: string | null
   signedPayloadHash: string | null
@@ -97,6 +101,7 @@ export type ProductionQcAuditEventCountAggregateOutputType = {
   role: number
   actorUserId: number
   actorEmployeeId: number
+  actorEmployeeRefId: number
   actorName: number
   signatureMeaning: number
   signedPayloadHash: number
@@ -113,6 +118,7 @@ export type ProductionQcAuditEventAvgAggregateInputType = {
   id?: true
   batchId?: true
   actorUserId?: true
+  actorEmployeeRefId?: true
   recordVersion?: true
 }
 
@@ -120,6 +126,7 @@ export type ProductionQcAuditEventSumAggregateInputType = {
   id?: true
   batchId?: true
   actorUserId?: true
+  actorEmployeeRefId?: true
   recordVersion?: true
 }
 
@@ -136,6 +143,7 @@ export type ProductionQcAuditEventMinAggregateInputType = {
   role?: true
   actorUserId?: true
   actorEmployeeId?: true
+  actorEmployeeRefId?: true
   actorName?: true
   signatureMeaning?: true
   signedPayloadHash?: true
@@ -158,6 +166,7 @@ export type ProductionQcAuditEventMaxAggregateInputType = {
   role?: true
   actorUserId?: true
   actorEmployeeId?: true
+  actorEmployeeRefId?: true
   actorName?: true
   signatureMeaning?: true
   signedPayloadHash?: true
@@ -180,6 +189,7 @@ export type ProductionQcAuditEventCountAggregateInputType = {
   role?: true
   actorUserId?: true
   actorEmployeeId?: true
+  actorEmployeeRefId?: true
   actorName?: true
   signatureMeaning?: true
   signedPayloadHash?: true
@@ -290,6 +300,7 @@ export type ProductionQcAuditEventGroupByOutputType = {
   role: string | null
   actorUserId: number | null
   actorEmployeeId: string | null
+  actorEmployeeRefId: number | null
   actorName: string | null
   signatureMeaning: string | null
   signedPayloadHash: string | null
@@ -336,6 +347,7 @@ export type ProductionQcAuditEventWhereInput = {
   role?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   actorUserId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
   actorEmployeeId?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  actorEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
   actorName?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   signatureMeaning?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   signedPayloadHash?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
@@ -344,6 +356,7 @@ export type ProductionQcAuditEventWhereInput = {
   recordVersion?: Prisma.IntFilter<"ProductionQcAuditEvent"> | number
   payload?: Prisma.JsonNullableFilter<"ProductionQcAuditEvent">
   createdAt?: Prisma.DateTimeFilter<"ProductionQcAuditEvent"> | Date | string
+  actorEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
 }
 
 export type ProductionQcAuditEventOrderByWithRelationInput = {
@@ -359,6 +372,7 @@ export type ProductionQcAuditEventOrderByWithRelationInput = {
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorName?: Prisma.SortOrderInput | Prisma.SortOrder
   signatureMeaning?: Prisma.SortOrderInput | Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -367,6 +381,7 @@ export type ProductionQcAuditEventOrderByWithRelationInput = {
   recordVersion?: Prisma.SortOrder
   payload?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  actorEmployee?: Prisma.EmployeeOrderByWithRelationInput
 }
 
 export type ProductionQcAuditEventWhereUniqueInput = Prisma.AtLeast<{
@@ -385,6 +400,7 @@ export type ProductionQcAuditEventWhereUniqueInput = Prisma.AtLeast<{
   role?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   actorUserId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
   actorEmployeeId?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  actorEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
   actorName?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   signatureMeaning?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
   signedPayloadHash?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
@@ -393,6 +409,7 @@ export type ProductionQcAuditEventWhereUniqueInput = Prisma.AtLeast<{
   recordVersion?: Prisma.IntFilter<"ProductionQcAuditEvent"> | number
   payload?: Prisma.JsonNullableFilter<"ProductionQcAuditEvent">
   createdAt?: Prisma.DateTimeFilter<"ProductionQcAuditEvent"> | Date | string
+  actorEmployee?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
 }, "id">
 
 export type ProductionQcAuditEventOrderByWithAggregationInput = {
@@ -408,6 +425,7 @@ export type ProductionQcAuditEventOrderByWithAggregationInput = {
   role?: Prisma.SortOrderInput | Prisma.SortOrder
   actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorEmployeeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrderInput | Prisma.SortOrder
   actorName?: Prisma.SortOrderInput | Prisma.SortOrder
   signatureMeaning?: Prisma.SortOrderInput | Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -439,6 +457,7 @@ export type ProductionQcAuditEventScalarWhereWithAggregatesInput = {
   role?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | string | null
   actorUserId?: Prisma.IntNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | number | null
   actorEmployeeId?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | string | null
+  actorEmployeeRefId?: Prisma.IntNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | number | null
   actorName?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | string | null
   signatureMeaning?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | string | null
   signedPayloadHash?: Prisma.StringNullableWithAggregatesFilter<"ProductionQcAuditEvent"> | string | null
@@ -469,6 +488,7 @@ export type ProductionQcAuditEventCreateInput = {
   recordVersion: number
   payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
+  actorEmployee?: Prisma.EmployeeCreateNestedOneWithoutProductionQcAuditEventsInput
 }
 
 export type ProductionQcAuditEventUncheckedCreateInput = {
@@ -484,6 +504,7 @@ export type ProductionQcAuditEventUncheckedCreateInput = {
   role?: string | null
   actorUserId?: number | null
   actorEmployeeId?: string | null
+  actorEmployeeRefId?: number | null
   actorName?: string | null
   signatureMeaning?: string | null
   signedPayloadHash?: string | null
@@ -514,6 +535,7 @@ export type ProductionQcAuditEventUpdateInput = {
   recordVersion?: Prisma.IntFieldUpdateOperationsInput | number
   payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  actorEmployee?: Prisma.EmployeeUpdateOneWithoutProductionQcAuditEventsNestedInput
 }
 
 export type ProductionQcAuditEventUncheckedUpdateInput = {
@@ -529,6 +551,7 @@ export type ProductionQcAuditEventUncheckedUpdateInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actorEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signatureMeaning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedPayloadHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -552,6 +575,7 @@ export type ProductionQcAuditEventCreateManyInput = {
   role?: string | null
   actorUserId?: number | null
   actorEmployeeId?: string | null
+  actorEmployeeRefId?: number | null
   actorName?: string | null
   signatureMeaning?: string | null
   signedPayloadHash?: string | null
@@ -597,6 +621,7 @@ export type ProductionQcAuditEventUncheckedUpdateManyInput = {
   role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actorEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorEmployeeRefId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signatureMeaning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   signedPayloadHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -605,6 +630,16 @@ export type ProductionQcAuditEventUncheckedUpdateManyInput = {
   recordVersion?: Prisma.IntFieldUpdateOperationsInput | number
   payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionQcAuditEventListRelationFilter = {
+  every?: Prisma.ProductionQcAuditEventWhereInput
+  some?: Prisma.ProductionQcAuditEventWhereInput
+  none?: Prisma.ProductionQcAuditEventWhereInput
+}
+
+export type ProductionQcAuditEventOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type ProductionQcAuditEventCountOrderByAggregateInput = {
@@ -620,6 +655,7 @@ export type ProductionQcAuditEventCountOrderByAggregateInput = {
   role?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorEmployeeId?: Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
   signatureMeaning?: Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrder
@@ -634,6 +670,7 @@ export type ProductionQcAuditEventAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrder
   recordVersion?: Prisma.SortOrder
 }
 
@@ -650,6 +687,7 @@ export type ProductionQcAuditEventMaxOrderByAggregateInput = {
   role?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorEmployeeId?: Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
   signatureMeaning?: Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrder
@@ -672,6 +710,7 @@ export type ProductionQcAuditEventMinOrderByAggregateInput = {
   role?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
   actorEmployeeId?: Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrder
   actorName?: Prisma.SortOrder
   signatureMeaning?: Prisma.SortOrder
   signedPayloadHash?: Prisma.SortOrder
@@ -685,7 +724,239 @@ export type ProductionQcAuditEventSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchId?: Prisma.SortOrder
   actorUserId?: Prisma.SortOrder
+  actorEmployeeRefId?: Prisma.SortOrder
   recordVersion?: Prisma.SortOrder
+}
+
+export type ProductionQcAuditEventCreateNestedManyWithoutActorEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput> | Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput[] | Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput[]
+  createMany?: Prisma.ProductionQcAuditEventCreateManyActorEmployeeInputEnvelope
+  connect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+}
+
+export type ProductionQcAuditEventUncheckedCreateNestedManyWithoutActorEmployeeInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput> | Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput[] | Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput[]
+  createMany?: Prisma.ProductionQcAuditEventCreateManyActorEmployeeInputEnvelope
+  connect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+}
+
+export type ProductionQcAuditEventUpdateManyWithoutActorEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput> | Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput[] | Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput[]
+  upsert?: Prisma.ProductionQcAuditEventUpsertWithWhereUniqueWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpsertWithWhereUniqueWithoutActorEmployeeInput[]
+  createMany?: Prisma.ProductionQcAuditEventCreateManyActorEmployeeInputEnvelope
+  set?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  delete?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  connect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  update?: Prisma.ProductionQcAuditEventUpdateWithWhereUniqueWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpdateWithWhereUniqueWithoutActorEmployeeInput[]
+  updateMany?: Prisma.ProductionQcAuditEventUpdateManyWithWhereWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpdateManyWithWhereWithoutActorEmployeeInput[]
+  deleteMany?: Prisma.ProductionQcAuditEventScalarWhereInput | Prisma.ProductionQcAuditEventScalarWhereInput[]
+}
+
+export type ProductionQcAuditEventUncheckedUpdateManyWithoutActorEmployeeNestedInput = {
+  create?: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput> | Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput[] | Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput[]
+  connectOrCreate?: Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput[]
+  upsert?: Prisma.ProductionQcAuditEventUpsertWithWhereUniqueWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpsertWithWhereUniqueWithoutActorEmployeeInput[]
+  createMany?: Prisma.ProductionQcAuditEventCreateManyActorEmployeeInputEnvelope
+  set?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  disconnect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  delete?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  connect?: Prisma.ProductionQcAuditEventWhereUniqueInput | Prisma.ProductionQcAuditEventWhereUniqueInput[]
+  update?: Prisma.ProductionQcAuditEventUpdateWithWhereUniqueWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpdateWithWhereUniqueWithoutActorEmployeeInput[]
+  updateMany?: Prisma.ProductionQcAuditEventUpdateManyWithWhereWithoutActorEmployeeInput | Prisma.ProductionQcAuditEventUpdateManyWithWhereWithoutActorEmployeeInput[]
+  deleteMany?: Prisma.ProductionQcAuditEventScalarWhereInput | Prisma.ProductionQcAuditEventScalarWhereInput[]
+}
+
+export type ProductionQcAuditEventCreateWithoutActorEmployeeInput = {
+  batchId?: number | null
+  batchRecordUid: string
+  batchNumber: string
+  eventType: string
+  action?: string | null
+  fieldKey?: string | null
+  stageKey?: string | null
+  testName?: string | null
+  role?: string | null
+  actorUserId?: number | null
+  actorEmployeeId?: string | null
+  actorName?: string | null
+  signatureMeaning?: string | null
+  signedPayloadHash?: string | null
+  beforeValue?: string | null
+  afterValue?: string | null
+  recordVersion: number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput = {
+  id?: number
+  batchId?: number | null
+  batchRecordUid: string
+  batchNumber: string
+  eventType: string
+  action?: string | null
+  fieldKey?: string | null
+  stageKey?: string | null
+  testName?: string | null
+  role?: string | null
+  actorUserId?: number | null
+  actorEmployeeId?: string | null
+  actorName?: string | null
+  signatureMeaning?: string | null
+  signedPayloadHash?: string | null
+  beforeValue?: string | null
+  afterValue?: string | null
+  recordVersion: number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ProductionQcAuditEventCreateOrConnectWithoutActorEmployeeInput = {
+  where: Prisma.ProductionQcAuditEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput>
+}
+
+export type ProductionQcAuditEventCreateManyActorEmployeeInputEnvelope = {
+  data: Prisma.ProductionQcAuditEventCreateManyActorEmployeeInput | Prisma.ProductionQcAuditEventCreateManyActorEmployeeInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProductionQcAuditEventUpsertWithWhereUniqueWithoutActorEmployeeInput = {
+  where: Prisma.ProductionQcAuditEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProductionQcAuditEventUpdateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedUpdateWithoutActorEmployeeInput>
+  create: Prisma.XOR<Prisma.ProductionQcAuditEventCreateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedCreateWithoutActorEmployeeInput>
+}
+
+export type ProductionQcAuditEventUpdateWithWhereUniqueWithoutActorEmployeeInput = {
+  where: Prisma.ProductionQcAuditEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProductionQcAuditEventUpdateWithoutActorEmployeeInput, Prisma.ProductionQcAuditEventUncheckedUpdateWithoutActorEmployeeInput>
+}
+
+export type ProductionQcAuditEventUpdateManyWithWhereWithoutActorEmployeeInput = {
+  where: Prisma.ProductionQcAuditEventScalarWhereInput
+  data: Prisma.XOR<Prisma.ProductionQcAuditEventUpdateManyMutationInput, Prisma.ProductionQcAuditEventUncheckedUpdateManyWithoutActorEmployeeInput>
+}
+
+export type ProductionQcAuditEventScalarWhereInput = {
+  AND?: Prisma.ProductionQcAuditEventScalarWhereInput | Prisma.ProductionQcAuditEventScalarWhereInput[]
+  OR?: Prisma.ProductionQcAuditEventScalarWhereInput[]
+  NOT?: Prisma.ProductionQcAuditEventScalarWhereInput | Prisma.ProductionQcAuditEventScalarWhereInput[]
+  id?: Prisma.IntFilter<"ProductionQcAuditEvent"> | number
+  batchId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
+  batchRecordUid?: Prisma.StringFilter<"ProductionQcAuditEvent"> | string
+  batchNumber?: Prisma.StringFilter<"ProductionQcAuditEvent"> | string
+  eventType?: Prisma.StringFilter<"ProductionQcAuditEvent"> | string
+  action?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  fieldKey?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  stageKey?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  testName?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  role?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  actorUserId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
+  actorEmployeeId?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  actorEmployeeRefId?: Prisma.IntNullableFilter<"ProductionQcAuditEvent"> | number | null
+  actorName?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  signatureMeaning?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  signedPayloadHash?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  beforeValue?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  afterValue?: Prisma.StringNullableFilter<"ProductionQcAuditEvent"> | string | null
+  recordVersion?: Prisma.IntFilter<"ProductionQcAuditEvent"> | number
+  payload?: Prisma.JsonNullableFilter<"ProductionQcAuditEvent">
+  createdAt?: Prisma.DateTimeFilter<"ProductionQcAuditEvent"> | Date | string
+}
+
+export type ProductionQcAuditEventCreateManyActorEmployeeInput = {
+  id?: number
+  batchId?: number | null
+  batchRecordUid: string
+  batchNumber: string
+  eventType: string
+  action?: string | null
+  fieldKey?: string | null
+  stageKey?: string | null
+  testName?: string | null
+  role?: string | null
+  actorUserId?: number | null
+  actorEmployeeId?: string | null
+  actorName?: string | null
+  signatureMeaning?: string | null
+  signedPayloadHash?: string | null
+  beforeValue?: string | null
+  afterValue?: string | null
+  recordVersion: number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Date | string
+}
+
+export type ProductionQcAuditEventUpdateWithoutActorEmployeeInput = {
+  batchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  batchRecordUid?: Prisma.StringFieldUpdateOperationsInput | string
+  batchNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  actorEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureMeaning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedPayloadHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionQcAuditEventUncheckedUpdateWithoutActorEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  batchRecordUid?: Prisma.StringFieldUpdateOperationsInput | string
+  batchNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  actorEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureMeaning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedPayloadHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProductionQcAuditEventUncheckedUpdateManyWithoutActorEmployeeInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  batchRecordUid?: Prisma.StringFieldUpdateOperationsInput | string
+  batchNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  action?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stageKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  testName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  role?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  actorEmployeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actorName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signatureMeaning?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  signedPayloadHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  beforeValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterValue?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  payload?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -703,6 +974,7 @@ export type ProductionQcAuditEventSelect<ExtArgs extends runtime.Types.Extension
   role?: boolean
   actorUserId?: boolean
   actorEmployeeId?: boolean
+  actorEmployeeRefId?: boolean
   actorName?: boolean
   signatureMeaning?: boolean
   signedPayloadHash?: boolean
@@ -711,6 +983,7 @@ export type ProductionQcAuditEventSelect<ExtArgs extends runtime.Types.Extension
   recordVersion?: boolean
   payload?: boolean
   createdAt?: boolean
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcAuditEvent"]>
 
 export type ProductionQcAuditEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -726,6 +999,7 @@ export type ProductionQcAuditEventSelectCreateManyAndReturn<ExtArgs extends runt
   role?: boolean
   actorUserId?: boolean
   actorEmployeeId?: boolean
+  actorEmployeeRefId?: boolean
   actorName?: boolean
   signatureMeaning?: boolean
   signedPayloadHash?: boolean
@@ -734,6 +1008,7 @@ export type ProductionQcAuditEventSelectCreateManyAndReturn<ExtArgs extends runt
   recordVersion?: boolean
   payload?: boolean
   createdAt?: boolean
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcAuditEvent"]>
 
 export type ProductionQcAuditEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -749,6 +1024,7 @@ export type ProductionQcAuditEventSelectUpdateManyAndReturn<ExtArgs extends runt
   role?: boolean
   actorUserId?: boolean
   actorEmployeeId?: boolean
+  actorEmployeeRefId?: boolean
   actorName?: boolean
   signatureMeaning?: boolean
   signedPayloadHash?: boolean
@@ -757,6 +1033,7 @@ export type ProductionQcAuditEventSelectUpdateManyAndReturn<ExtArgs extends runt
   recordVersion?: boolean
   payload?: boolean
   createdAt?: boolean
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
 }, ExtArgs["result"]["productionQcAuditEvent"]>
 
 export type ProductionQcAuditEventSelectScalar = {
@@ -772,6 +1049,7 @@ export type ProductionQcAuditEventSelectScalar = {
   role?: boolean
   actorUserId?: boolean
   actorEmployeeId?: boolean
+  actorEmployeeRefId?: boolean
   actorName?: boolean
   signatureMeaning?: boolean
   signedPayloadHash?: boolean
@@ -782,11 +1060,22 @@ export type ProductionQcAuditEventSelectScalar = {
   createdAt?: boolean
 }
 
-export type ProductionQcAuditEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "batchRecordUid" | "batchNumber" | "eventType" | "action" | "fieldKey" | "stageKey" | "testName" | "role" | "actorUserId" | "actorEmployeeId" | "actorName" | "signatureMeaning" | "signedPayloadHash" | "beforeValue" | "afterValue" | "recordVersion" | "payload" | "createdAt", ExtArgs["result"]["productionQcAuditEvent"]>
+export type ProductionQcAuditEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "batchRecordUid" | "batchNumber" | "eventType" | "action" | "fieldKey" | "stageKey" | "testName" | "role" | "actorUserId" | "actorEmployeeId" | "actorEmployeeRefId" | "actorName" | "signatureMeaning" | "signedPayloadHash" | "beforeValue" | "afterValue" | "recordVersion" | "payload" | "createdAt", ExtArgs["result"]["productionQcAuditEvent"]>
+export type ProductionQcAuditEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
+}
+export type ProductionQcAuditEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
+}
+export type ProductionQcAuditEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  actorEmployee?: boolean | Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>
+}
 
 export type $ProductionQcAuditEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ProductionQcAuditEvent"
-  objects: {}
+  objects: {
+    actorEmployee: Prisma.$EmployeePayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     batchId: number | null
@@ -800,6 +1089,7 @@ export type $ProductionQcAuditEventPayload<ExtArgs extends runtime.Types.Extensi
     role: string | null
     actorUserId: number | null
     actorEmployeeId: string | null
+    actorEmployeeRefId: number | null
     actorName: string | null
     signatureMeaning: string | null
     signedPayloadHash: string | null
@@ -1202,6 +1492,7 @@ readonly fields: ProductionQcAuditEventFieldRefs;
  */
 export interface Prisma__ProductionQcAuditEventClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  actorEmployee<T extends Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1243,6 +1534,7 @@ export interface ProductionQcAuditEventFieldRefs {
   readonly role: Prisma.FieldRef<"ProductionQcAuditEvent", 'String'>
   readonly actorUserId: Prisma.FieldRef<"ProductionQcAuditEvent", 'Int'>
   readonly actorEmployeeId: Prisma.FieldRef<"ProductionQcAuditEvent", 'String'>
+  readonly actorEmployeeRefId: Prisma.FieldRef<"ProductionQcAuditEvent", 'Int'>
   readonly actorName: Prisma.FieldRef<"ProductionQcAuditEvent", 'String'>
   readonly signatureMeaning: Prisma.FieldRef<"ProductionQcAuditEvent", 'String'>
   readonly signedPayloadHash: Prisma.FieldRef<"ProductionQcAuditEvent", 'String'>
@@ -1268,6 +1560,10 @@ export type ProductionQcAuditEventFindUniqueArgs<ExtArgs extends runtime.Types.E
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionQcAuditEvent to fetch.
    */
   where: Prisma.ProductionQcAuditEventWhereUniqueInput
@@ -1286,6 +1582,10 @@ export type ProductionQcAuditEventFindUniqueOrThrowArgs<ExtArgs extends runtime.
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionQcAuditEvent to fetch.
    */
   where: Prisma.ProductionQcAuditEventWhereUniqueInput
@@ -1303,6 +1603,10 @@ export type ProductionQcAuditEventFindFirstArgs<ExtArgs extends runtime.Types.Ex
    * Omit specific fields from the ProductionQcAuditEvent
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
   /**
    * Filter, which ProductionQcAuditEvent to fetch.
    */
@@ -1352,6 +1656,10 @@ export type ProductionQcAuditEventFindFirstOrThrowArgs<ExtArgs extends runtime.T
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
+  /**
    * Filter, which ProductionQcAuditEvent to fetch.
    */
   where?: Prisma.ProductionQcAuditEventWhereInput
@@ -1399,6 +1707,10 @@ export type ProductionQcAuditEventFindManyArgs<ExtArgs extends runtime.Types.Ext
    * Omit specific fields from the ProductionQcAuditEvent
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
   /**
    * Filter, which ProductionQcAuditEvents to fetch.
    */
@@ -1448,6 +1760,10 @@ export type ProductionQcAuditEventCreateArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
+  /**
    * The data needed to create a ProductionQcAuditEvent.
    */
   data: Prisma.XOR<Prisma.ProductionQcAuditEventCreateInput, Prisma.ProductionQcAuditEventUncheckedCreateInput>
@@ -1481,6 +1797,10 @@ export type ProductionQcAuditEventCreateManyAndReturnArgs<ExtArgs extends runtim
    */
   data: Prisma.ProductionQcAuditEventCreateManyInput | Prisma.ProductionQcAuditEventCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1495,6 +1815,10 @@ export type ProductionQcAuditEventUpdateArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the ProductionQcAuditEvent
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
   /**
    * The data needed to update a ProductionQcAuditEvent.
    */
@@ -1547,6 +1871,10 @@ export type ProductionQcAuditEventUpdateManyAndReturnArgs<ExtArgs extends runtim
    * Limit how many ProductionQcAuditEvents to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1561,6 +1889,10 @@ export type ProductionQcAuditEventUpsertArgs<ExtArgs extends runtime.Types.Exten
    * Omit specific fields from the ProductionQcAuditEvent
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
   /**
    * The filter to search for the ProductionQcAuditEvent to update in case it exists.
    */
@@ -1588,6 +1920,10 @@ export type ProductionQcAuditEventDeleteArgs<ExtArgs extends runtime.Types.Exten
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
+  /**
    * Filter which ProductionQcAuditEvent to delete.
    */
   where: Prisma.ProductionQcAuditEventWhereUniqueInput
@@ -1608,6 +1944,25 @@ export type ProductionQcAuditEventDeleteManyArgs<ExtArgs extends runtime.Types.E
 }
 
 /**
+ * ProductionQcAuditEvent.actorEmployee
+ */
+export type ProductionQcAuditEvent$actorEmployeeArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Employee
+   */
+  select?: Prisma.EmployeeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Employee
+   */
+  omit?: Prisma.EmployeeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeInclude<ExtArgs> | null
+  where?: Prisma.EmployeeWhereInput
+}
+
+/**
  * ProductionQcAuditEvent without action
  */
 export type ProductionQcAuditEventDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1619,4 +1974,8 @@ export type ProductionQcAuditEventDefaultArgs<ExtArgs extends runtime.Types.Exte
    * Omit specific fields from the ProductionQcAuditEvent
    */
   omit?: Prisma.ProductionQcAuditEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProductionQcAuditEventInclude<ExtArgs> | null
 }

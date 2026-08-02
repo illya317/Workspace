@@ -12,14 +12,14 @@ mock.module("./assets/service", { namedExports: {
   listFinanceAssetWorkspace: async (input: unknown) => {
     calls.push({ service: "assets", input });
     return {
-      scope: { companyCode: "ZX01", year: 2026, month: 6, periodId: 12, isClosed: false },
-      cards: [], periodRows: [], adjustments: [], reconciliation: [],
-      metrics: { normalAmount: 10, adjustmentAmount: 2, periodAmount: 12, voucherAmount: 11, ledgerAmount: 11, difference: 1 },
+      scope: { companyId: 1, companyCode: "ZX01", companyName: "测试公司", year: 2026, month: 6, periodId: 12, isClosed: false },
+      cards: [], periodRows: [], adjustments: [],
+      metrics: { normalAmount: 10, adjustmentAmount: 2, periodAmount: 12 },
     };
   },
 } } as never);
 mock.module("./analysis/fund-flow-analysis", { namedExports: { getFundFlowAnalysis: async () => ({
-  scope: { companyCodes: ["ZX01"], label: "甲公司", year: 2026, month: 6, periodLabel: "2026年1—6月", aggregation: "single", availableYears: [2026, 2025] },
+  scope: { companyCodes: ["ZX01"], label: "甲公司", year: 2026, month: 6, periodLabel: "2026年1—6月", aggregation: "single", availableYears: [2026, 2025], availableMonths: [1, 2, 3, 4, 5, 6] },
   metrics: { inflow: 100, outflow: 80, netCashChange: 20, endingCash: 30, financingInflowShare: 0.1, operatingCoverage: 1.2 },
   evidence: { cashFlowCompanyCount: 1, voucherCount: 2, voucherItemCount: 4, cashLinkedVoucherCount: 1, cashFlowNetCashChange: 20, ledgerNetCashChange: 20, balanceNetCashChange: 20 },
   warnings: ["口径警告"], activities: [], sources: [], uses: [], ledgerChannels: [], balanceSignals: [], companies: [],
@@ -102,13 +102,13 @@ test("normalizes department budget arrays into complete monthly facts before pag
 
 test("returns asset metrics as one honest company-period row", async () => {
   const page = await loadFinanceGeneralWorkspaceAnalysisSourcePage({
-    sourceKey: "finance.ledger.asset-metrics",
+    sourceKey: "finance.assets.metrics",
     parameters: { companyCode: "ZX01", year: 2026, month: 6 },
     page: 1,
     pageSize: 10,
   });
   assert.deepEqual(page, {
-    rows: [{ companyCode: "ZX01", year: 2026, month: 6, periodId: 12, isClosed: false, normalAmount: 10, adjustmentAmount: 2, periodAmount: 12, voucherAmount: 11, ledgerAmount: 11, difference: 1 }],
+    rows: [{ companyId: 1, companyCode: "ZX01", companyName: "测试公司", year: 2026, month: 6, periodId: 12, isClosed: false, normalAmount: 10, adjustmentAmount: 2, periodAmount: 12 }],
     totalRows: 1,
   });
 });

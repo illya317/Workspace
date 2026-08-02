@@ -12,7 +12,7 @@ mockModule("@workspace/platform/permission-resource-policy", {
     getSpaceChildResourceKeyForTargetType: (targetType: string) => `space.${targetType}.analytics`,
   },
 });
-mockModule("@workspace/platform/server/api", {
+mockModule("@workspace/platform/service-result", {
   namedExports: {
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),
     serviceOk: <T>(data: T) => ({ ok: true, data }),

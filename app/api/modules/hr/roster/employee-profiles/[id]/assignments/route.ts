@@ -1,0 +1,30 @@
+import { z } from "zod";
+
+import { buildHrRouteCommand, createEmployeeAssignment } from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const bodySchema = z.object({
+  reportingCompanyId: z.number().int().positive(),
+  departmentId: z.number().int().positive(),
+  positionId: z.number().int().positive(),
+  positionReportOverrideId: z.number().int().positive().nullable().optional(),
+  isPrimary: z.boolean(),
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+  reportToPositionId: z.number().int().positive().nullable().optional(),
+  allocationWeight: z.union([z.string(), z.number()]),
+}).strict();
+
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "员工ID无效",
+  bodySchema,
+  bodyError: "任职记录内容无效",
+  buildCommand: ({ params, body, user }) => buildHrRouteCommand({
+    employeeId: params.id,
+    input: body,
+    userId: user.userId,
+  }),
+  action: ({ employeeId, input, userId }) => createEmployeeAssignment(employeeId, input, userId),
+});

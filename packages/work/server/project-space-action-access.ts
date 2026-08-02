@@ -19,6 +19,8 @@ import {
 import { prisma } from "@workspace/platform/server/prisma";
 import { canEnterResource } from "@workspace/platform/server/rbac/resource-entry";
 import { canUserActAsActiveEmployee } from "@workspace/platform/server/user-identity";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { activeEmployeeAssignmentScopeIds } from "./project-access-temporal";
 
 type ProjectSpaceProject = {
   projectType?: string | null;
@@ -237,10 +239,7 @@ async function listScopedSpaceGrantTargetIds(
   const prefix = `${targetType}:`;
   const resourceKey = getWorkProjectSpacePermissionResourceKey(targetType);
   const actionKeys = PERMISSION_ACTION_KEYS.filter((actionKey) => actionImplies(actionKey, requiredAction));
-  const [positionIds, departmentIds] = await Promise.all([
-    getUserPositionIds(userId),
-    getUserDepartmentIds(userId),
-  ]);
+  const { positionIds, departmentIds } = await getUserProjectSpaceGrantScopeIds(userId);
   const [userRows, positionRows, departmentRows] = await Promise.all([
     prisma.userResourceActionGrant.findMany({
       where: { userId, resource: { key: resourceKey }, actionKey: { in: actionKeys }, scopeId: { startsWith: prefix } },
@@ -262,18 +261,20 @@ async function listScopedSpaceGrantTargetIds(
   })));
 }
 
-async function getUserPositionIds(userId: number): Promise<number[]> {
-  const rows = await prisma.eDP.findMany({
-    where: { employee: { userId } },
-    select: { positionId: true },
+async function getUserProjectSpaceGrantScopeIds(userId: number) {
+  const employees = await prisma.employee.findMany({
+    where: { userId },
+    select: {
+      employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+      positions: {
+        select: {
+          positionId: true,
+          departmentId: true,
+          startDate: true,
+          endDate: true,
+        },
+      },
+    },
   });
-  return Array.from(new Set(rows.map((row) => row.positionId).filter((id): id is number => id !== null)));
-}
-
-async function getUserDepartmentIds(userId: number): Promise<number[]> {
-  const rows = await prisma.eDP.findMany({
-    where: { employee: { userId } },
-    select: { departmentId: true },
-  });
-  return Array.from(new Set(rows.map((row) => row.departmentId).filter((id): id is number => id !== null)));
+  return activeEmployeeAssignmentScopeIds(employees, workspaceBusinessDate(new Date()));
 }

@@ -2,8 +2,8 @@ import { z } from "zod";
 
 import { getLibraryExportFile } from "@workspace/library/server/export";
 import { getLibraryFileByVersionUid } from "@workspace/library/server/file-access";
-import { isWecomAgentBridgeRequestAuthorized } from "@workspace/platform/server/agent/wecom-bridge";
-import { verifyWecomArtifactToken } from "@workspace/platform/server/agent/wecom-artifacts";
+import { isWecomAgentBridgeRequestAuthorized } from "@workspace/platform/server/wecom-agent-bridge-auth";
+import { verifyWecomArtifactToken } from "@workspace/platform/server/wecom-artifacts";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { createInternalApiRoute } from "@workspace/platform/server/api-route";
 

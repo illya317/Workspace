@@ -1,4 +1,4 @@
-import type { MobileExperienceStrategy, SubModuleRegistration } from "@workspace/core";
+import type { MobileExperienceStrategy, SubModuleRegistration } from "@workspace/core/module-contract";
 import { activeModuleDefinitions } from "./effective-module-registry";
 
 export const mobileExperienceEntries: SubModuleRegistration[] = activeModuleDefinitions

@@ -16,10 +16,15 @@ export type DataSurfaceTone = "default" | "muted" | "success" | "warning" | "dan
 export type DataSurfaceEmphasis = "normal" | "medium" | "strong";
 export type DataSurfaceFont = "default" | "mono";
 export type DataSurfaceFrame = "plain" | "clipped" | "bordered";
+export type DataSurfaceCellState = "normal" | "selected" | "muted" | "success" | "warning" | "danger" | "info";
 export type DataSurfaceRowState = "normal" | "selected" | "section" | "total" | "muted" | "warning" | "danger" | "info";
 export type DataSurfaceStructuredCellRole = "header" | "label" | "value" | "empty" | "title" | "signature";
 export type DataSurfaceRowHeight = "sm" | "md" | "lg" | number;
 export type DataSurfaceMobilePresentation = "list" | "landscape" | "unavailable";
+
+export type DataSurfaceDisclosureSpec =
+  | { groupKey: string; role: "trigger"; expanded: boolean }
+  | { groupKey: string; role: "detail" };
 
 export interface DataSurfaceMobileSpec {
   presentation?: DataSurfaceMobilePresentation;
@@ -70,14 +75,15 @@ export interface DataSurfaceAmountSpec {
 }
 
 export type DataSurfaceDisplaySpec =
-  | { kind: "text"; value: ReactNode; title?: string; tone?: DataSurfaceTone; emphasis?: DataSurfaceEmphasis; font?: DataSurfaceFont; wrap?: DataSurfaceWrap }
+  | { kind: "text"; value: ReactNode; title?: string; tone?: DataSurfaceTone; emphasis?: DataSurfaceEmphasis; font?: DataSurfaceFont; wrap?: DataSurfaceWrap; maxChars?: number }
   | { kind: "empty"; content?: ReactNode }
   | { kind: "stack"; items: Array<ReactNode | DataSurfaceDisplaySpec>; gap?: "none" | "xs" | "sm" }
   | { kind: "disclosure"; label: ReactNode; expanded: boolean; level?: number; emphasis?: DataSurfaceEmphasis }
   | { kind: "link"; label: ReactNode; href: string; external?: boolean; tone?: DataSurfaceTone; font?: DataSurfaceFont }
   | ({ kind: "badge" } & DataSurfaceBadgeSpec)
   | ({ kind: "number" } & DataSurfaceNumberSpec)
-  | ({ kind: "amount" } & DataSurfaceAmountSpec);
+  | ({ kind: "amount" } & DataSurfaceAmountSpec)
+  | { kind: "meter"; value: number; max: number; label: ReactNode; title?: string };
 
 export interface DataSurfaceCellInputSpec {
   kind: "input";
@@ -116,6 +122,8 @@ export interface DataSurfaceCellActionSpec extends DataSurfaceCommandSpec {
   stopPropagation?: boolean;
   presentation?: "button" | "glyph";
   tone?: DataSurfaceBadgeTone;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
 }
 
 export type DataSurfaceRowActionSpec = SurfaceDataRowActionSpec;
@@ -137,6 +145,8 @@ export interface DataSurfaceCellInteractiveSpec {
   kind: "interactive";
   content: DataSurfaceCellSpec;
   onClick: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
   ariaLabel: string;
 }
 
@@ -234,7 +244,13 @@ export interface DataSurfaceColumnSpec<T> {
   emphasis?: DataSurfaceEmphasis;
   font?: DataSurfaceFont;
   numeric?: boolean;
+  /** 横向展开组语义；Core 统一渲染触发列、明细范围和首尾边界。 */
+  disclosure?: DataSurfaceDisclosureSpec;
   onHeaderClick?: () => void;
+  /** 单元格关系状态；调用方只声明语义，背景、文字和选中描边由 Core 统一渲染。 */
+  cellState?: (row: T) => DataSurfaceCellState;
+  /** 单元格是否为当前选择；Core 使用独立中性描边，不占用关系状态色。 */
+  cellSelected?: (row: T) => boolean;
   cell: (row: T) => ReactNode | DataSurfaceCellSpec;
 }
 

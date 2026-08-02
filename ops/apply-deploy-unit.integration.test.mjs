@@ -5,7 +5,11 @@ import {
   cpSync,
   mkdtempSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
+  realpathSync,
+  rmSync,
+  statSync,
   writeFileSync,
 } from "node:fs";
 import os from "node:os";
@@ -21,8 +25,13 @@ import {
   writePrivateJson,
 } from "./deploy-unit-release.mjs";
 import { canonicalJson, sha256 } from "./gateway-generation.mjs";
-
+import { normalizeRuntimeTree } from "./release/artifact/runtime-tree-permissions.mjs";
 const applyScript = path.resolve("ops/apply-deploy-unit.sh");
+const sidecarScript = path.resolve("ops/deploy-unit-sidecar.sh");
+const promoteProfileScript = path.resolve("ops/promote-deploy-profile.sh");
+const rollbackProfileScript = path.resolve("ops/rollback-deploy-profile.sh");
+const gatewayGenerationTool = path.resolve("ops/gateway-generation.mjs");
+const switchGatewayScript = path.resolve("ops/switch-deploy-gateway.sh");
 
 function digest(value) {
   return createHash("sha256").update(value).digest("hex");
@@ -92,16 +101,10 @@ function graph(activeUnitId = "finance") {
 function tenantAndControlPlane(root) {
   mkdirSync(root, { recursive: true });
   const resourceManifestFile = path.join(root, "resource-defs.json");
-  const dataReleaseDir = path.join(root, "data-releases");
   const lifecycleRoot = path.join(root, "lifecycle");
   const tenantManifestFile = path.join(root, "tenant-config-manifest.json");
-  mkdirSync(dataReleaseDir);
   for (const relativePath of [
     "node_modules/prisma/package.json",
-    "ops/apply-data-release.mjs",
-    "ops/data-release.mjs",
-    "ops/data-release-handlers.mjs",
-    "ops/data-release-transfer.mjs",
     "ops/prisma-genesis-cutover.mjs",
     "scripts/check/check-permission-action-grants.mjs",
     "scripts/check/check-prisma-deploy-status.js",
@@ -116,7 +119,6 @@ function tenantAndControlPlane(root) {
     writeFileSync(file, `${relativePath}\n`);
   }
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
-  writeFileSync(path.join(dataReleaseDir, "one.json"), "{\"id\":\"one\"}\n");
   const tenantFiles = [
     { path: "manifest.json", size: 2, sha256: digest("{}") },
     { path: "config/tenant/profile.json", size: 2, sha256: digest("{}") },
@@ -136,7 +138,6 @@ function tenantAndControlPlane(root) {
     sourceTree: "b".repeat(40),
     migrationSetSha256: "c".repeat(64),
     resourceManifestFile,
-    dataReleaseDir,
     tenantManifestFile,
     lifecycleRoot,
     completedAt: "2026-07-25T00:00:00.000Z",
@@ -177,7 +178,6 @@ function contract(graphValue, unitId = "finance") {
     },
     routes: { pagePrefixes: unit.pageRoutes, apiPrefixes: unit.apiPrefixes, assetPrefix: unit.runtime.assetPrefix },
     compiler: { projects: [], typecheckScopes: [unit.id] },
-    checks: { typecheckScopes: [unit.id], e2eSuites: [], unmatchedChangePolicy: "fail-closed" },
     controlPlane: { authority: "workspace-control-plane-job", policy: "require-existing", minimumSchemaReceipt: "required-before-unit-start" },
     readiness: { contributorBlockers: [] },
   };
@@ -186,24 +186,19 @@ function contract(graphValue, unitId = "finance") {
 function buildStaging(files, version, sourceCharacter, unitId = "finance") {
   const staging = path.join(files.root, `staging-${version}`);
   const payload = path.join(files.root, `payload-${version}`);
-  mkdirSync(staging);
-  mkdirSync(payload);
+  for (const directory of [staging, payload]) mkdirSync(directory);
   writeFileSync(path.join(payload, "server.js"), `// ${version}\n`);
+  writeFileSync(path.join(payload, ".server-entry"), "server.js\n");
+  mkdirSync(path.join(payload, ".next"));
+  writeFileSync(path.join(payload, ".next/BUILD_ID"), `${version}\n`);
+  writePrivateJson(path.join(payload, ".next/routes-manifest.json"), { basePath: "/workspace" });
   if (unitId === "assistant") {
     const sidecarEntry = path.join(payload, ASSISTANT_RUNTIME_DESCRIPTOR.sidecars[0].entry);
     mkdirSync(path.dirname(sidecarEntry), { recursive: true });
     writeFileSync(sidecarEntry, "// test Assistant sidecar\n");
-    writeFileSync(
-      path.join(payload, ".assistant-runtime.json"),
-      `${JSON.stringify(ASSISTANT_RUNTIME_DESCRIPTOR, null, 2)}\n`,
-    );
+    writeFileSync(path.join(payload, ".assistant-runtime.json"), `${JSON.stringify(ASSISTANT_RUNTIME_DESCRIPTOR, null, 2)}\n`);
   }
-  const artifactFile = path.join(staging, "artifact.tgz");
-  const tar = spawnSync("tar", ["-C", payload, "-czf", artifactFile, "."], { encoding: "utf8" });
-  assert.equal(tar.status, 0, tar.stderr);
-  const graphFile = path.join(staging, "deploy-graph.json");
-  const contractFile = path.join(staging, "deploy-unit-contract.json");
-  const requirementsFile = path.join(staging, "control-plane-requirements.json");
+  const [graphFile, contractFile, requirementsFile] = ["deploy-graph.json", "deploy-unit-contract.json", "control-plane-requirements.json"].map((file) => path.join(staging, file));
   writePrivateJson(graphFile, files.graph);
   writePrivateJson(contractFile, contract(files.graph, unitId));
   writePrivateJson(requirementsFile, {
@@ -213,11 +208,16 @@ function buildStaging(files, version, sourceCharacter, unitId = "finance") {
     inputs: {
       migrationSetSha256: files.control.receipt.inputs.migrationSetSha256,
       resourceManifestSha256: files.control.receipt.inputs.resourceManifestSha256,
-      dataReleaseManifestSetSha256: files.control.receipt.inputs.dataReleaseManifestSetSha256,
       lifecycleToolSetSha256: files.control.receipt.inputs.lifecycleToolSetSha256,
     },
     createdAt: "2026-07-25T00:10:00.000Z",
   });
+  cpSync(contractFile, path.join(payload, ".deploy-unit-contract.json"));
+  cpSync(requirementsFile, path.join(payload, ".control-plane-requirements.json"));
+  const artifactFile = path.join(staging, "artifact.tgz");
+  normalizeRuntimeTree(payload);
+  const tar = spawnSync("tar", ["-C", payload, "-czf", artifactFile, "."], { encoding: "utf8" });
+  assert.equal(tar.status, 0, tar.stderr);
   const manifest = createDeployUnitArtifactManifest({
     contractFile,
     artifactFile,
@@ -240,17 +240,18 @@ function fixture(activeUnitId = "finance") {
   const runtimeRoot = path.join(root, "runtime");
   const nginxSite = path.join(root, "workspace.conf");
   const preparedStateRoot = path.join(remoteDir, ".workspace", "gateway", "profile-preparations", "test-rollout");
-  mkdirSync(path.join(remoteDir, ".workspace", ".deployment"), { recursive: true });
+  const deployLockToken = "apply-deploy-unit-integration";
+  mkdirSync(path.join(remoteDir, ".workspace", ".deployment"), { recursive: true }); chmodSync(path.join(remoteDir, ".workspace"), 0o710);
   mkdirSync(fakeBin);
   mkdirSync(runtimeRoot);
   const control = tenantAndControlPlane(path.join(root, "control"));
   cpSync(control.controlPlaneReceiptFile, path.join(remoteDir, ".workspace", "control-plane-release.json"));
   cpSync(control.tenantManifestFile, path.join(remoteDir, ".workspace", ".deployment", "tenant-config-manifest.json"));
+  writeFileSync(path.join(remoteDir, ".workspace", "deploy-lock.owner"), `${deployLockToken}\n`);
   writeFileSync(nginxSite, "server {\n    location /workspace {\n        proxy_pass http://127.0.0.1:3000;\n    }\n}\n");
-  executable(path.join(fakeBin, "sudo"), "#!/bin/sh\nexec \"$@\"\n");
+  executable(path.join(fakeBin, "sudo"), "#!/bin/sh\n[ \"${1:-}\" != -n ] || shift\n[ \"${1:-}\" != -- ] || shift\nexec \"$@\"\n");
   executable(path.join(fakeBin, "nginx"), "#!/bin/sh\n[ \"$1\" = '-t' ]\n");
   executable(path.join(fakeBin, "systemctl"), "#!/bin/sh\nexit 0\n");
-  executable(path.join(fakeBin, "flock"), "#!/bin/sh\nexit 0\n");
   executable(path.join(fakeBin, "pm2"), `#!/bin/sh
 case "$1" in
   start)
@@ -260,24 +261,49 @@ case "$1" in
       if [ "$1" = "--name" ]; then shift; process_name="$1"; break; fi
       shift
     done
+    if [ -n "\${FAIL_PM2_PROCESS_NAME:-}" ] && [ "\${process_name:-}" = "$FAIL_PM2_PROCESS_NAME" ]; then
+      exit 1
+    fi
     if [ -n "\${process_name:-}" ]; then
+      rm -f "$FAKE_RUNTIME_ROOT/stopped-$process_name"
       : > "$FAKE_RUNTIME_ROOT/process-$process_name"
       printf '%s' "\${WORKSPACE_DEPLOY_UNIT_ID:-}" > "$FAKE_RUNTIME_ROOT/identity-unit-$process_name"
+      printf '%s' "\${WORKSPACE_DEPLOY_SLOT:-}" > "$FAKE_RUNTIME_ROOT/deploy-slot-$process_name"
+      printf '%s' "\${WORKSPACE_DEPLOY_CURRENT_STATE_FILE:-}" > "$FAKE_RUNTIME_ROOT/current-state-$process_name"
       printf '%s' "\${WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE:-}" > "$FAKE_RUNTIME_ROOT/identity-private-$process_name"
       printf '%s' "\${WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE:-}" > "$FAKE_RUNTIME_ROOT/identity-registry-$process_name"
+      printf '%s' "\${WORKSPACE_INTERNAL_ORIGIN:-}" > "$FAKE_RUNTIME_ROOT/internal-origin-$process_name"
     fi
     ;;
   delete)
-    rm -f "$FAKE_RUNTIME_ROOT/process-$2"
+    rm -f "$FAKE_RUNTIME_ROOT/process-$2" "$FAKE_RUNTIME_ROOT/stopped-$2"
+    ;;
+  stop)
+    if [ -f "$FAKE_RUNTIME_ROOT/process-$2" ]; then
+      mv "$FAKE_RUNTIME_ROOT/process-$2" "$FAKE_RUNTIME_ROOT/stopped-$2"
+    fi
+    ;;
+  restart)
+    if [ -f "$FAKE_RUNTIME_ROOT/stopped-$2" ]; then
+      mv "$FAKE_RUNTIME_ROOT/stopped-$2" "$FAKE_RUNTIME_ROOT/process-$2"
+    elif [ ! -f "$FAKE_RUNTIME_ROOT/process-$2" ]; then
+      exit 1
+    fi
     ;;
   jlist)
     node - "$FAKE_RUNTIME_ROOT" <<'NODE'
 const fs = require("node:fs");
 const path = require("node:path");
 const root = process.argv[2];
-const processes = fs.readdirSync(root)
-  .filter((name) => name.startsWith("process-"))
-  .map((name) => ({ name: name.slice("process-".length), pm2_env: { status: "online" } }));
+const processes = fs.readdirSync(root).flatMap((name) => {
+  if (name.startsWith("process-")) {
+    return [{ name: name.slice("process-".length), pid: 4100, pm2_env: { status: "online" } }];
+  }
+  if (name.startsWith("stopped-")) {
+    return [{ name: name.slice("stopped-".length), pid: 0, pm2_env: { status: "stopped" } }];
+  }
+  return [];
+});
 process.stdout.write(JSON.stringify(processes));
 NODE
     ;;
@@ -294,32 +320,157 @@ case "$url" in
   *) printf '{"ok":true}\n' ;;
 esac
 `);
-  return { root, remoteDir, fakeBin, runtimeRoot, nginxSite, preparedStateRoot, graph: graph(activeUnitId), control };
+  return { root, remoteDir, fakeBin, runtimeRoot, nginxSite, preparedStateRoot, deployLockToken, graph: graph(activeUnitId), control };
+}
+function commandEnvironment(files, extraEnvironment = {}) {
+  return {
+    ...process.env,
+    PATH: `${files.fakeBin}:${process.env.PATH}`,
+    REMOTE_DIR: files.remoteDir,
+    FAKE_RUNTIME_ROOT: files.runtimeRoot,
+    WORKSPACE_GATEWAY_NGINX_SITE: files.nginxSite, WORKSPACE_RUNTIME_PM2_RUNNER: path.join(files.fakeBin, "pm2"),
+    DEPLOY_PROFILE_PREPARED_STATE_ROOT: files.preparedStateRoot,
+    DEPLOY_LOCK_TOKEN: files.deployLockToken,
+    WECHAT_BOT_ID: "test-bot",
+    WECHAT_BOT_SECRET: "test-secret",
+    WECOM_WORKER_BRIDGE_SECRET: "test-worker-bridge-secret-at-least-32-characters",
+    WORKSPACE_PUBLIC_ORIGIN: "https://workspace.example.test",
+    DEPLOY_EVENT_FILE: path.join(files.root, "deploy-event.json"),
+    DEPLOY_PACKAGE_VERSION: "0.1.2",
+    ...extraEnvironment,
+  };
+}
+function apply(files, args, extraEnvironment = {}) {
+  const lockFile = path.join(files.remoteDir, ".workspace", "deploy.lock");
+  return spawnSync("flock", ["-x", lockFile, "bash", applyScript, ...args], {
+    encoding: "utf8", env: commandEnvironment(files, extraEnvironment),
+  });
 }
 
-function apply(files, args) {
-  return spawnSync("bash", [applyScript, ...args], {
+function createProfileInputs(files) {
+  const state = readDeployUnitState(path.join(files.preparedStateRoot, "assistant.json"));
+  const graphSha256 = sha256(canonicalJson(files.graph));
+  const profileBody = {
+    schemaVersion: 1,
+    kind: "workspace-deployment-profile",
+    id: "assistant-profile",
+    label: "Assistant",
+    version: 1,
+    graphSha256,
+    unitIds: ["assistant"],
+    units: [{ id: "assistant", moduleKeys: ["assistant"], moduleLabels: ["智能体"] }],
+    rollout: { strategy: "shadow-all-then-atomic-gateway", requireSignedProvenance: true },
+  };
+  const profile = { ...profileBody, profileSha256: sha256(canonicalJson(profileBody)) };
+  const manifest = JSON.parse(readFileSync(path.join(state.active.releaseDir, "artifact.manifest.json"), "utf8"));
+  const releaseBody = {
+    schemaVersion: 1,
+    kind: "workspace-deployment-profile-release",
+    profile: { id: profile.id, version: profile.version, sha256: profile.profileSha256 },
+    graphSha256,
+    sourceSetSha256: "a".repeat(64),
+    controlPlaneRequirementsSha256: manifest.controlPlane.requirementsSha256,
+    rollout: profile.rollout,
+    units: [{
+      unitId: "assistant",
+      source: manifest.source,
+      controlPlaneRequirementsSha256: manifest.controlPlane.requirementsSha256,
+      artifact: state.active.artifact,
+    }],
+    createdAt: "2026-07-25T01:00:00.000Z",
+  };
+  const release = { ...releaseBody, releaseSetSha256: sha256(canonicalJson(releaseBody)) };
+  const rolloutBody = {
+    schemaVersion: 1,
+    kind: "workspace-deployment-profile-rollout",
+    profile: { id: profile.id, version: profile.version, sha256: profile.profileSha256 },
+    releaseSetSha256: release.releaseSetSha256,
+    targetUnitIds: ["assistant"],
+  };
+  const rollout = { ...rolloutBody, rolloutSha256: sha256(canonicalJson(rolloutBody)) };
+  const observation = {
+    status: "passed",
+    releaseSetSha256: release.releaseSetSha256,
+    resultSha256: "b".repeat(64),
+  };
+  const paths = Object.fromEntries([
+    ["profile", profile],
+    ["release", release],
+    ["rollout", rollout],
+    ["observation", observation],
+  ].map(([name, value]) => {
+    const file = path.join(files.root, `${name}.json`);
+    writePrivateJson(file, value);
+    return [name, file];
+  }));
+  const graphFile = path.join(files.root, "profile-deploy-graph.json");
+  writePrivateJson(graphFile, files.graph);
+  return { ...paths, graph: graphFile };
+}
+
+function promoteProfile(files, inputs, extraEnvironment = {}) {
+  return spawnSync("bash", [promoteProfileScript,
+    inputs.profile, inputs.release, inputs.rollout, inputs.observation,
+    inputs.graph, files.preparedStateRoot,
+  ], { encoding: "utf8", env: commandEnvironment(files, extraEnvironment) });
+}
+
+function rollbackProfile(files, receipt) {
+  return spawnSync("bash", [rollbackProfileScript, receipt], {
     encoding: "utf8",
-    env: {
-      ...process.env,
-      PATH: `${files.fakeBin}:${process.env.PATH}`,
-      REMOTE_DIR: files.remoteDir,
-      FAKE_RUNTIME_ROOT: files.runtimeRoot,
-      WORKSPACE_GATEWAY_NGINX_SITE: files.nginxSite,
-      DEPLOY_PROFILE_PREPARED_STATE_ROOT: files.preparedStateRoot,
-      WECHAT_BOT_ID: "test-bot",
-      WECHAT_BOT_SECRET: "test-secret",
-      DEPLOY_EVENT_FILE: path.join(files.root, "deploy-event.json"),
-      DEPLOY_PACKAGE_VERSION: "0.1.2",
-    },
+    env: commandEnvironment(files),
   });
+}
+
+function captureAssistantOwner(gatewayRoot) {
+  return spawnSync("bash", [
+    "-c",
+    'source "$1"; workspace_capture_gateway_assistant_owner "$2"',
+    "capture-assistant-owner",
+    sidecarScript,
+    gatewayRoot,
+  ], { encoding: "utf8" });
+}
+function activateFallbackGateway(files) {
+  const graphFile = path.join(files.root, "fallback-deploy-graph.json");
+  writePrivateJson(graphFile, files.graph);
+  const gatewayRoot = path.join(files.remoteDir, ".workspace", "gateway");
+  const created = spawnSync(process.execPath, [
+    gatewayGenerationTool, "create-fallback",
+    "--graph", graphFile,
+    "--output-root", gatewayRoot,
+    "--generated-at", "2026-07-25T00:30:00.000Z",
+  ], { encoding: "utf8" });
+  assert.equal(created.status, 0, created.stderr);
+  const generation = path.join(gatewayRoot, "generations", created.stdout.trim());
+  const switched = spawnSync("bash", [switchGatewayScript, "--generation", generation], {
+    encoding: "utf8",
+    env: commandEnvironment(files, { WORKSPACE_GATEWAY_ROOT: gatewayRoot }),
+  });
+  assert.equal(switched.status, 0, `${switched.stderr}\n${switched.stdout}`);
+}
+
+function runningAssistantSidecars(files) {
+  return readdirSync(files.runtimeRoot)
+    .filter((name) => name.startsWith("process-workspace-assistant-wecom-"))
+    .sort();
+}
+
+function seedMonolithWecomSidecar(files) {
+  writeFileSync(path.join(files.runtimeRoot, "process-workspace-wecom-agent"), "");
+}
+
+function monolithWecomState(files) {
+  if (readdirSync(files.runtimeRoot).includes("process-workspace-wecom-agent")) return "online";
+  if (readdirSync(files.runtimeRoot).includes("stopped-workspace-wecom-agent")) return "inactive";
+  return "missing";
 }
 
 test("prepare starts the inactive slot and writes a proposed state without switching Gateway", () => {
   const files = fixture();
   const staging = buildStaging(files, "finance-profile-v1", "5");
   const prepared = apply(files, ["deploy", "finance", staging, "prepare"]);
-  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`); assert.equal(statSync(path.join(files.remoteDir, ".workspace")).mode & 0o777, 0o710);
   assert.match(prepared.stdout, /profile-prepared/);
   const state = readDeployUnitState(path.join(files.preparedStateRoot, "finance.json"));
   assert.equal(state.active.slot, "blue");
@@ -334,9 +485,29 @@ test("prepare starts the inactive slot and writes a proposed state without switc
   assert.equal(registry.kind, "workspace-internal-trusted-public-keys");
   assert.match(registry.keys.finance, /BEGIN PUBLIC KEY/);
   assert.equal(readFileSync(path.join(files.runtimeRoot, "identity-unit-workspace-finance-blue"), "utf8"), "finance");
+  assert.equal(readFileSync(path.join(files.runtimeRoot, "deploy-slot-workspace-finance-blue"), "utf8"), "blue");
+  assert.equal(
+    readFileSync(path.join(files.runtimeRoot, "current-state-workspace-finance-blue"), "utf8"),
+    path.join(files.remoteDir, ".workspace", "gateway", "current", "unit-states", "finance.json"),
+  );
   assert.equal(readFileSync(path.join(files.runtimeRoot, "identity-private-workspace-finance-blue"), "utf8"), privateKeyFile);
   assert.equal(readFileSync(path.join(files.runtimeRoot, "identity-registry-workspace-finance-blue"), "utf8"), registryFile);
   assert.equal(spawnSync("test", ["-e", path.join(files.remoteDir, ".workspace", ".env")]).status, 1);
+});
+
+test("deploy units default signed internal RPC to the managed public Gateway origin", () => {
+  const files = fixture();
+  writeFileSync(
+    path.join(files.remoteDir, ".workspace", ".env"),
+    "WORKSPACE_PUBLIC_ORIGIN=https://workspace.example.test\n",
+  );
+  const staging = buildStaging(files, "finance-gateway-origin-v1", "7");
+  const prepared = apply(files, ["deploy", "finance", staging, "prepare"]);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
+  assert.equal(
+    readFileSync(path.join(files.runtimeRoot, "internal-origin-workspace-finance-blue"), "utf8"),
+    "https://workspace.example.test",
+  );
 });
 
 test("prepare fails closed while a deploy unit is still only a candidate", () => {
@@ -385,26 +556,153 @@ test("two active deploys alternate slots and rollback selects the exact previous
   assert.equal(JSON.parse(readFileSync(path.join(files.root, "deploy-event.json"), "utf8")).action, "rollback");
 });
 
-test("Assistant sidecar stays off in shadow and follows the active slot across activate and rollback", () => {
+test("Assistant sidecar stays off in shadow and prepare, then follows the committed active slot", () => {
   const files = fixture("assistant");
+  seedMonolithWecomSidecar(files);
   const firstStaging = buildStaging(files, "assistant-v1", "3", "assistant");
   const shadow = apply(files, ["deploy", "assistant", firstStaging, "shadow"]);
   assert.equal(shadow.status, 0, `${shadow.stderr}\n${shadow.stdout}`);
   assert.equal(readFileSync(path.join(files.runtimeRoot, "3208"), "utf8"), "assistant-v1");
-  assert.equal(spawnSync("test", ["-e", path.join(files.runtimeRoot, "process-workspace-assistant-wecom-blue")]).status, 1);
+  assert.deepEqual(runningAssistantSidecars(files), []);
+  assert.equal(monolithWecomState(files), "online");
+
+  const prepared = apply(files, ["deploy", "assistant", firstStaging, "prepare"]);
+  assert.equal(prepared.status, 0);
+  assert.deepEqual(runningAssistantSidecars(files), []);
+  assert.equal(monolithWecomState(files), "online");
 
   const firstActive = apply(files, ["deploy", "assistant", firstStaging, "activate"]);
   assert.equal(firstActive.status, 0, `${firstActive.stderr}\n${firstActive.stdout}`);
-  assert.equal(readFileSync(path.join(files.runtimeRoot, "process-workspace-assistant-wecom-blue"), "utf8"), "");
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+  assert.equal(monolithWecomState(files), "inactive");
 
   const secondStaging = buildStaging(files, "assistant-v2", "4", "assistant");
   const secondActive = apply(files, ["deploy", "assistant", secondStaging, "activate"]);
   assert.equal(secondActive.status, 0, `${secondActive.stderr}\n${secondActive.stdout}`);
-  assert.equal(readFileSync(path.join(files.runtimeRoot, "process-workspace-assistant-wecom-green"), "utf8"), "");
-  assert.equal(spawnSync("test", ["-e", path.join(files.runtimeRoot, "process-workspace-assistant-wecom-blue")]).status, 1);
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-green"]);
+  assert.equal(monolithWecomState(files), "inactive");
 
   const rolledBack = apply(files, ["rollback", "assistant"]);
   assert.equal(rolledBack.status, 0, `${rolledBack.stderr}\n${rolledBack.stdout}`);
-  assert.equal(readFileSync(path.join(files.runtimeRoot, "process-workspace-assistant-wecom-blue"), "utf8"), "");
-  assert.equal(spawnSync("test", ["-e", path.join(files.runtimeRoot, "process-workspace-assistant-wecom-green")]).status, 1);
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+  assert.equal(monolithWecomState(files), "inactive");
+});
+
+test("first Assistant activation restores the monolith Bot when the unit sidecar cannot start", () => {
+  const files = fixture("assistant");
+  seedMonolithWecomSidecar(files);
+  const staging = buildStaging(files, "assistant-failed-v1", "a", "assistant");
+  const failed = apply(files, ["deploy", "assistant", staging, "activate"], {
+    FAIL_PM2_PROCESS_NAME: "workspace-assistant-wecom-blue",
+  });
+  assert.notEqual(failed.status, 0);
+  assert.deepEqual(runningAssistantSidecars(files), []);
+  assert.equal(monolithWecomState(files), "online");
+  assert.equal(
+    spawnSync("test", ["-e", path.join(
+      files.remoteDir, ".workspace", "gateway", "current", "unit-states", "assistant.json",
+    )]).status,
+    1,
+  );
+});
+
+test("Assistant owner capture rejects a missing committed marker only when Assistant state exists", () => {
+  const fallbackFiles = fixture("assistant");
+  seedMonolithWecomSidecar(fallbackFiles);
+  activateFallbackGateway(fallbackFiles);
+  const fallbackGatewayRoot = path.join(fallbackFiles.remoteDir, ".workspace", "gateway");
+  rmSync(path.join(fallbackGatewayRoot, "committed-generation"));
+  const markerlessFallback = captureAssistantOwner(fallbackGatewayRoot);
+  assert.equal(markerlessFallback.status, 1, markerlessFallback.stderr);
+  const firstStaging = buildStaging(fallbackFiles, "assistant-markerless-fallback", "c", "assistant");
+  const firstActive = apply(fallbackFiles, ["deploy", "assistant", firstStaging, "activate"]);
+  assert.equal(firstActive.status, 0, `${firstActive.stderr}\n${firstActive.stdout}`);
+  assert.deepEqual(runningAssistantSidecars(fallbackFiles), [
+    "process-workspace-assistant-wecom-blue",
+  ]);
+
+  const activeFiles = fixture("assistant");
+  seedMonolithWecomSidecar(activeFiles);
+  const activeStaging = buildStaging(activeFiles, "assistant-marker-v1", "d", "assistant");
+  const active = apply(activeFiles, ["deploy", "assistant", activeStaging, "activate"]);
+  assert.equal(active.status, 0, `${active.stderr}\n${active.stdout}`);
+  const activeGatewayRoot = path.join(activeFiles.remoteDir, ".workspace", "gateway");
+  rmSync(path.join(activeGatewayRoot, "committed-generation"));
+  const rejected = captureAssistantOwner(activeGatewayRoot);
+  assert.equal(rejected.status, 2);
+  assert.match(rejected.stderr, /Assistant state 存在但 committed generation marker 缺失/);
+  assert.deepEqual(runningAssistantSidecars(activeFiles), [
+    "process-workspace-assistant-wecom-blue",
+  ]);
+});
+
+test("Assistant profile promotion and rollback transfer exactly one sidecar and restore it on start failure", () => {
+  const files = fixture("assistant");
+  const firstStaging = buildStaging(files, "assistant-profile-v1", "8", "assistant");
+  const firstActive = apply(files, ["deploy", "assistant", firstStaging, "activate"]);
+  assert.equal(firstActive.status, 0, `${firstActive.stderr}\n${firstActive.stdout}`);
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+
+  const secondStaging = buildStaging(files, "assistant-profile-v2", "9", "assistant");
+  const prepared = apply(files, ["deploy", "assistant", secondStaging, "prepare"]);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+  const inputs = createProfileInputs(files);
+
+  const failed = promoteProfile(files, inputs, {
+    FAIL_PM2_PROCESS_NAME: "workspace-assistant-wecom-green",
+  });
+  assert.notEqual(failed.status, 0);
+  const currentStateFile = path.join(
+    files.remoteDir, ".workspace", "gateway", "current", "unit-states", "assistant.json",
+  );
+  assert.equal(readDeployUnitState(currentStateFile).active.deploymentId, "assistant-profile-v1");
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+  const gatewayRoot = path.join(files.remoteDir, ".workspace", "gateway");
+  assert.equal(
+    readFileSync(path.join(gatewayRoot, "committed-generation"), "utf8").trim(),
+    path.basename(realpathSync(path.join(gatewayRoot, "current"))),
+  );
+
+  const promoted = promoteProfile(files, inputs);
+  assert.equal(promoted.status, 0, `${promoted.stderr}\n${promoted.stdout}`);
+  assert.equal(readDeployUnitState(currentStateFile).active.deploymentId, "assistant-profile-v2");
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-green"]);
+  const receiptMatch = promoted.stdout.match(/promotion receipt: (.+)$/m);
+  assert.ok(receiptMatch);
+
+  const rolledBack = rollbackProfile(files, receiptMatch[1].trim());
+  assert.equal(rolledBack.status, 0, `${rolledBack.stderr}\n${rolledBack.stdout}`);
+  assert.equal(readDeployUnitState(currentStateFile).active.deploymentId, "assistant-profile-v1");
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+});
+
+test("Assistant profile rollback to a fallback generation returns Bot ownership to monolith", () => {
+  const files = fixture("assistant");
+  seedMonolithWecomSidecar(files);
+  activateFallbackGateway(files);
+  const staging = buildStaging(files, "assistant-profile-first-v1", "b", "assistant");
+  const prepared = apply(files, ["deploy", "assistant", staging, "prepare"]);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
+  assert.equal(monolithWecomState(files), "online");
+  assert.deepEqual(runningAssistantSidecars(files), []);
+
+  const inputs = createProfileInputs(files);
+  const promoted = promoteProfile(files, inputs);
+  assert.equal(promoted.status, 0, `${promoted.stderr}\n${promoted.stdout}`);
+  assert.equal(monolithWecomState(files), "inactive");
+  assert.deepEqual(runningAssistantSidecars(files), ["process-workspace-assistant-wecom-blue"]);
+  const receiptMatch = promoted.stdout.match(/promotion receipt: (.+)$/m);
+  assert.ok(receiptMatch);
+
+  const rolledBack = rollbackProfile(files, receiptMatch[1].trim());
+  assert.equal(rolledBack.status, 0, `${rolledBack.stderr}\n${rolledBack.stdout}`);
+  assert.equal(monolithWecomState(files), "online");
+  assert.deepEqual(runningAssistantSidecars(files), []);
+  assert.equal(
+    spawnSync("test", ["-e", path.join(
+      files.remoteDir, ".workspace", "gateway", "current", "unit-states", "assistant.json",
+    )]).status,
+    1,
+  );
 });

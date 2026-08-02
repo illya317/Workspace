@@ -1,4 +1,3 @@
-import { prisma } from "@workspace/platform/server/prisma";
 import {
   isValidDateValue,
   rejectInvalidDateField,
@@ -6,17 +5,15 @@ import {
 import { isAllowedHrOption, normalizeProfessionalTitle, tenantHrFieldOptions } from "@workspace/hr/constants/field-options";
 import { getTenantPublicConfig } from "@workspace/platform/server/tenant-config";
 import { normalizePhoneValue, validateChineseIdNumber } from "@workspace/hr/utils/identity";
+import { STANDARD_EMPLOYMENT_AGREEMENT_TYPES } from "@workspace/hr/constants";
+import { companyNameExists } from "./field-reference-adapter";
 
 export { isValidDateValue, rejectInvalidDateField };
 
 export async function isValidCompanyName(value: unknown) {
   if (value === null || value === undefined || value === "") return true;
   if (typeof value !== "string") return false;
-  const company = await prisma.company.findFirst({
-    where: { party: { name: value } },
-    select: { id: true },
-  });
-  return Boolean(company);
+  return companyNameExists(value);
 }
 
 export function normalizeEmployeeOption(field: string, value: unknown) {
@@ -60,17 +57,31 @@ export function validateEmploymentOption(field: string, value: unknown) {
 export function validateContractOption(field: string, value: unknown) {
   const options = tenantHrFieldOptions(getTenantPublicConfig());
   if (field === "legalRelation" && !isAllowedHrOption(value, options.legalRelations)) return null;
-  if (field === "contractType" && !isAllowedHrOption(value, options.contractTypes)) return null;
+  if (field === "contractType" && !isAllowedHrOption(value, [...options.contractTypes, ...STANDARD_EMPLOYMENT_AGREEMENT_TYPES])) return null;
   if (field === "employmentForm" && !isAllowedHrOption(value, options.employmentForms)) return null;
   if (field === "insuranceStatus" && !isAllowedHrOption(value, options.insuranceStatuses)) return null;
   return { field, value };
 }
 
-export function parseWorkPercent(value: unknown) {
+export function parseAllocationWeight(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
-  const text = String(value).trim();
-  const numberText = text.endsWith("%") ? text.slice(0, -1).trim() : text;
-  const parsed = Number(numberText);
+  const parsed = Number(String(value).trim());
   if (!Number.isFinite(parsed)) return Number.NaN;
-  return text.endsWith("%") ? parsed / 100 : parsed;
+  return parsed;
+}
+
+export function deriveAllocationPercent(
+  weight: unknown,
+  activeWeights: readonly unknown[],
+) {
+  const parsedWeight = parseAllocationWeight(weight);
+  const parsedWeights = activeWeights.map(parseAllocationWeight);
+  if (
+    parsedWeight === null
+    || Number.isNaN(parsedWeight)
+    || parsedWeight <= 0
+    || parsedWeights.some((value) => value === null || Number.isNaN(value) || value <= 0)
+  ) return null;
+  const total = parsedWeights.reduce<number>((sum, value) => sum + (value ?? 0), 0);
+  return total > 0 ? parsedWeight / total : null;
 }

@@ -2,6 +2,7 @@
 model FinanceCashFlowItem {
   id             Int                         @id @default(autoincrement())
   companyCode    String
+  companyId Int?
   sourceSystem   String
   sourceLedger   String
   sourceCode     String
@@ -17,10 +18,12 @@ model FinanceCashFlowItem {
   parent         FinanceCashFlowItem?        @relation("FinanceCashFlowHierarchy", fields: [parentId], references: [id])
   children       FinanceCashFlowItem[]       @relation("FinanceCashFlowHierarchy")
   allocations    FinanceCashFlowAllocation[]
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, sourceSystem, sourceLedger, sourceCode])
   @@index([parentId])
   @@index([latestImportId])
+  @@index([companyId])
 }
 
 /// 凭证现金流量分配事实
@@ -28,6 +31,7 @@ model FinanceCashFlowAllocation {
   id                      Int                                  @id @default(autoincrement())
   importId                Int
   companyCode             String
+  companyId Int?
   periodId                Int
   voucherId               Int
   cashFlowItemId          Int
@@ -48,11 +52,13 @@ model FinanceCashFlowAllocation {
   counterpartItem         FinanceVoucherItem?                  @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id])
   consolidationEntryLines FinanceConsolidationEntryLine[]
   statementAdjustment     FinanceCashFlowAllocationAdjustment?
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
   @@index([companyCode, periodId, cashFlowItemId])
   @@index([voucherId])
+  @@index([companyId])
 }
 
 /// 现金流分配的报表列示调整：来源事实不变，只把指定金额从来源行转入目标行
@@ -60,6 +66,7 @@ model FinanceCashFlowAllocationAdjustment {
   id             Int      @id @default(autoincrement())
   allocationId   Int      @unique
   companyCode    String
+  companyId Int?
   sourceLineCode String
   targetLineCode String
   amount         Decimal  @db.Decimal(20, 2)
@@ -70,6 +77,8 @@ model FinanceCashFlowAllocationAdjustment {
   updatedAt      DateTime @default(now()) @updatedAt
 
   allocation FinanceCashFlowAllocation @relation(fields: [allocationId], references: [id], onDelete: Cascade)
+  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@index([companyCode, enabled])
+  @@index([companyId])
 }

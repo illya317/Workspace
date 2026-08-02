@@ -1,5 +1,5 @@
 import type { MutationImpactAdapter, MutationImpactRecord } from "@workspace/platform/server/mutation-impact";
-import type { Prisma } from "@workspace/platform/server/prisma";
+import { Prisma } from "@workspace/platform/server/prisma";
 
 type WorkProjectMutationImpactContext = { tx: Prisma.TransactionClient };
 
@@ -70,7 +70,6 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
     async inspect({ context, current }) {
       const projectId = Number(current.id);
       const groups = await Promise.all([
-        ownedRows(context.tx.employeeProject.findMany({ where: { projectId }, select: { id: true } }), "EmployeeProject", "项目成员"),
         ownedRows(context.tx.projectEnablingDepartment.findMany({ where: { projectId }, select: { id: true } }), "ProjectEnablingDepartment", "赋能部门"),
         ownedRows(context.tx.projectPlanPhase.findMany({ where: { projectId }, select: { id: true } }), "ProjectPlanPhase", "项目阶段"),
         ownedRows(context.tx.projectPlanDependency.findMany({ where: { projectId }, select: { id: true } }), "ProjectPlanDependency", "项目依赖"),
@@ -79,7 +78,6 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
       ]);
       const records = groups.flat();
       return records.length ? {
-        policy: "auto_cascade_owned",
         records,
         reason: "删除项目会同步清理项目自有技术明细",
         requiresPerItemPermission: false,
@@ -87,6 +85,85 @@ function projectOwnedChildrenAdapter(): MutationImpactAdapter<WorkProjectMutatio
     },
     cascade() {
       // Physical owned relations cascade with the root Project delete.
+    },
+  };
+}
+
+function projectMembershipsAdapter(): MutationImpactAdapter<WorkProjectMutationImpactContext> {
+  return {
+    relationKey: "work.project.memberships",
+    sourceEntity: "Project",
+    intents: ["delete"],
+    async inspect({ context, current }) {
+      const rows = await context.tx.employeeProject.findMany({
+        where: { projectId: Number(current.id) },
+        select: { id: true },
+        orderBy: { id: "asc" },
+      });
+      return rows.length ? {
+        policy: "block",
+        records: rows.map((row) => ({
+          entity: "EmployeeProject",
+          id: String(row.id),
+          label: `项目成员 #${row.id}`,
+        })),
+        reason: "项目成员是受生命周期保护的事实记录，请先按成员退出流程处理",
+        requiresPerItemPermission: false,
+      } : null;
+    },
+  };
+}
+
+function projectNotificationGovernanceHistoryAdapter(): MutationImpactAdapter<WorkProjectMutationImpactContext> {
+  return {
+    relationKey: "work.project.notification-governance-history",
+    sourceEntity: "Project",
+    intents: ["delete"],
+    async inspect({ context, current }) {
+      const projectId = Number(current.id);
+      const [rule, evaluation, signals] = await Promise.all([
+        context.tx.projectNotificationRule.findFirst({
+          where: { projectId },
+          select: { id: true, key: true },
+          orderBy: { id: "asc" },
+        }),
+        context.tx.projectNotificationEvaluation.findFirst({
+          where: { projectId },
+          select: { id: true, signalId: true },
+          orderBy: { evaluatedAt: "asc" },
+        }),
+        context.tx.$queryRaw<Array<{ id: string; signalId: string }>>(Prisma.sql`
+          SELECT "id", "signalId"
+          FROM "ProjectNotificationSignal"
+          WHERE "projectId" = ${projectId}
+          ORDER BY "createdAt" ASC, "id" ASC
+          LIMIT 1
+        `),
+      ]);
+      const signal = signals[0] ?? null;
+      const records: MutationImpactRecord[] = [
+        ...(rule ? [{
+          entity: "ProjectNotificationRule",
+          id: String(rule.id),
+          label: `通知监管规则 ${rule.key}`,
+        }] : []),
+        ...(evaluation ? [{
+          entity: "ProjectNotificationEvaluation",
+          id: evaluation.id,
+          label: `通知评估记录 ${evaluation.signalId}`,
+        }] : []),
+        ...(signal ? [{
+          entity: "ProjectNotificationSignal",
+          id: signal.id,
+          label: `通知事件信号 ${signal.signalId}`,
+        }] : []),
+      ];
+      return records.length ? {
+        policy: "block",
+        records,
+        reason: "项目通知监管信号、规则和评估记录属于审计事实，请归档项目并保留账本，不能硬删除",
+        requiresPerItemPermission: false,
+      } : null;
     },
   };
 }
@@ -108,6 +185,8 @@ export function projectMutationImpactAdapters(input: {
     projectWorkReferenceAdapter({ ...input, relationKey: "work.tasks.linked.project-phase", source: "item", viaPhase: true }),
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project", source: "plan", viaPhase: false }),
     projectWorkReferenceAdapter({ ...input, relationKey: "work.plan.linked.project-phase", source: "plan", viaPhase: true }),
+    projectMembershipsAdapter(),
+    projectNotificationGovernanceHistoryAdapter(),
     projectOwnedChildrenAdapter(),
   ];
 }

@@ -1,6 +1,6 @@
 import path from "path";
 import { access, mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
-import { normalizeDocumentTemplatePayload } from "@workspace/platform/server/docs-editor";
+import { normalizeDocumentTemplatePayload } from "@workspace/platform/document-editor/document-template-validation";
 import { convertQcTemplateToEditorDocument } from "./editor-adapter";
 import type {
   QcEditorImportAudit,
@@ -161,7 +161,11 @@ export async function generateQcEditorTemplates(options: GenerateQcEditorTemplat
     const conversion = convertQcTemplateToEditorDocument(detail, {
       dryingWeightMultipliers: getTenantProfile().docs.formulaRules.dryingWeightMultipliers,
     });
-    const normalized = normalizeDocumentTemplatePayload(conversion.document, conversion.fieldModel);
+    const normalized = normalizeDocumentTemplatePayload(
+      conversion.document,
+      conversion.fieldModel,
+      getTenantProfile().docs.formulaRules.dryingWeightMultipliers,
+    );
     if (normalized.ok === false) {
       throw new Error(`QC 编辑器模板数据无效：${detail.id} ${normalized.issue.message}`);
     }

@@ -8,7 +8,8 @@ import type {
   ApprovalSeparationPolicy,
   ApprovalStatus,
 } from "./types";
-import { parseWorkflowNodes } from "../workflows";
+import { isApprovalRequestStatus } from "../../workflow-request-contract";
+import { parseWorkflowNodes } from "../workflow-policy-nodes";
 
 export type ApprovalRequestRow = {
   id: number;
@@ -67,7 +68,6 @@ export type ApprovalRequestRowWithEvents = ApprovalRequestRow & {
   submitter?: UserDisplayRow | null;
 };
 
-const STATUS_SET = new Set<ApprovalStatus>(["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled"]);
 const OPERATION_SET = new Set<ApprovalOperation>(["create", "update"]);
 const FLOW_TYPE_SET = new Set<ApprovalFlowType>(["approval", "review", "publish"]);
 const SEPARATION_POLICY_SET = new Set<ApprovalSeparationPolicy>([
@@ -207,7 +207,7 @@ export function normalizeComment(comment: string | null | undefined) {
 }
 
 function normalizeStatus(status: string): ApprovalStatus {
-  return STATUS_SET.has(status as ApprovalStatus) ? status as ApprovalStatus : "draft";
+  return isApprovalRequestStatus(status) ? status : "draft";
 }
 
 function normalizeOperation(operation: string): ApprovalOperation {

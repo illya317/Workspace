@@ -1,6 +1,13 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 
 import { compareAccountCodes } from "./mapping-policy";
+import { financeAccountSourceScopeKey, financeGroupMappingKey } from "./source-account-keys";
+
+export {
+  financeAccountSourceScopeKey,
+  financeGroupMappingKey,
+  financeGroupScopedLocalKey,
+} from "./source-account-keys";
 
 export interface FinanceGroupSourceAccount {
   id: number;
@@ -18,24 +25,6 @@ export interface FinanceGroupSourceAccount {
   sourceLedger: string | null;
   sourceScopeKey: string;
   parentAccountCode: string | null;
-}
-
-export function financeAccountSourceScopeKey(input: {
-  sourceSystem: string | null;
-  sourceDatabase: string | null;
-  sourceLedger: string | null;
-}) {
-  return [input.sourceSystem ?? "workspace", input.sourceLedger ?? input.sourceDatabase ?? "default"]
-    .map((part) => encodeURIComponent(part))
-    .join("::");
-}
-
-export function financeGroupMappingKey(companyCode: string, sourceScopeKey: string, localAccountCode: string) {
-  return `${companyCode}\u001f${sourceScopeKey}\u001f${localAccountCode}`;
-}
-
-export function financeGroupScopedLocalKey(sourceScopeKey: string, localAccountCode: string) {
-  return `${sourceScopeKey}\u001f${localAccountCode}`;
 }
 
 export async function loadLatestGroupSourceAccounts(

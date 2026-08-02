@@ -183,7 +183,7 @@ mock.module("./project-members", {
     },
   },
 } as never);
-mock.module("./meetings", {
+mock.module("./meetings/application", {
   namedExports: {
     getMeetingDetail: async () => ({ ok: false, error: "unused" }),
     listMeetings: async (input: Record<string, unknown>) => {

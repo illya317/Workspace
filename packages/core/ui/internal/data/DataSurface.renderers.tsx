@@ -18,6 +18,7 @@ import FormSurface from "../../FormSurface";
 import CreateSurface from "../../CreateSurface";
 import MobileExperienceBoundary from "../../MobileExperienceBoundary";
 import { CreateSurfaceAnchorTarget } from "../create/CreateSurfaceAnchorContext";
+import { DataSurfaceMeter } from "./DataSurfaceMeter";
 import { joinClassNames } from "../common/card-utils";
 import { textOverflowTitle } from "../common/text-overflow";
 import { resolveDataTableScroll, resolveTableToneClass } from "./table-presentation";
@@ -42,23 +43,16 @@ import type {
 type StructuredDataSurfaceProps = Extract<DataSurfaceProps, { kind: "structured" }>;
 
 const MATRIX_ROW_HEADER_WIDTH = "20rem";
+const DISPLAY_SPEC_KINDS = new Set([
+  "text", "empty", "stack", "disclosure", "link", "badge", "number", "amount", "meter",
+]);
 
 function hasSpecKind(value: unknown): value is { kind: string } {
   return Boolean(value !== null && value !== undefined && typeof value === "object" && "kind" in value);
 }
 
 function isDisplaySpec(value: ReactNode | DataSurfaceDisplaySpec): value is DataSurfaceDisplaySpec {
-  if (!hasSpecKind(value)) return false;
-  return (
-    value.kind === "text"
-    || value.kind === "empty"
-    || value.kind === "stack"
-    || value.kind === "disclosure"
-    || value.kind === "link"
-    || value.kind === "badge"
-    || value.kind === "number"
-    || value.kind === "amount"
-  );
+  return hasSpecKind(value) && DISPLAY_SPEC_KINDS.has(value.kind);
 }
 
 export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactNode {
@@ -77,6 +71,9 @@ export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactN
   if (value.kind === "amount") {
     const { kind: _kind, ...props } = value;
     return <span className="block w-full text-right tabular-nums"><AmountCell {...props} /></span>;
+  }
+  if (value.kind === "meter") {
+    return <DataSurfaceMeter spec={value} />;
   }
   if (value.kind === "stack") {
     const gapClass = value.gap === "none" ? "" : value.gap === "sm" ? "space-y-2" : "space-y-1";
@@ -110,7 +107,8 @@ export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactN
     : value.wrap === "truncate"
       ? "block min-w-0 max-w-full truncate"
       : "";
-  return <span title={value.title ?? (value.wrap === "truncate" ? textOverflowTitle(value.value) : undefined)} className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)}>{value.value}</span>;
+  const maxChars = value.maxChars && value.maxChars > 0 ? Math.floor(value.maxChars) : undefined;
+  return <span title={value.title ?? (value.wrap === "truncate" ? textOverflowTitle(value.value) : undefined)} className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)} style={maxChars ? { maxWidth: `${maxChars}ch` } : undefined}>{value.value}</span>;
 }
 
 function groupItemClassName(item: DataSurfaceCellSpec, direction: "row" | "column") {
@@ -218,8 +216,7 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
       {action.label}
     </CommandButton>
   );
-  if (action.stopPropagation === false) return button;
-  return <span className="inline-flex" onClick={(event) => event.stopPropagation()}>{button}</span>;
+  return <span className="inline-flex" onClick={action.stopPropagation === false ? undefined : (event) => event.stopPropagation()} onMouseEnter={action.onMouseEnter} onMouseLeave={action.onMouseLeave}>{button}</span>;
 }
 
 function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
@@ -261,7 +258,7 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (value.kind === "form") return <FormSurface {...value.form} />;
   if (value.kind === "create-trigger") return <CreateSurface {...value.create} />;
   if (value.kind === "create-anchor") return <CreateSurfaceAnchorTarget anchor={value.anchor} />;
-  if (value.kind === "interactive") return <div role="button" tabIndex={0} aria-label={value.ariaLabel} onClick={(event) => { event.stopPropagation(); value.onClick(); }} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); value.onClick(); } }}>{renderCell(value.content)}</div>;
+  if (value.kind === "interactive") return <div role="button" tabIndex={0} aria-label={value.ariaLabel} onClick={(event) => { event.stopPropagation(); value.onClick(); }} onMouseEnter={value.onMouseEnter} onMouseLeave={value.onMouseLeave} onKeyDown={(event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); value.onClick(); } }}>{renderCell(value.content)}</div>;
   if (value.kind === "action") return renderCellAction(value.action);
   if (value.kind === "actions") {
     const alignClass = value.align === "center" ? "justify-center" : value.align === "right" ? "justify-end" : "justify-start";

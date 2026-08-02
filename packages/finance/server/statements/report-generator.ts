@@ -1,9 +1,7 @@
-import { NextResponse } from "next/server";
 import { prisma } from "@workspace/platform/server/prisma";
 import { BalanceItem, ReportPeriod, ReclassEntry } from "./report-helpers";
 import { generateBalanceSheet } from "./reports/balance-sheet";
 import { generateDirectStatementReport } from "./reports/direct";
-import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { loadBalanceSheetPeriodReclassEntries } from "./balance-sheet-reclass-entries";
 import {
@@ -31,6 +29,11 @@ export interface GenerateFinanceReportInput {
   month?: number;
   periodKind?: StatementPeriodKind;
   reportType: "balance" | "income" | "cashflow";
+}
+
+function jsonErrorResponse(error: string, status: number) {
+  const payload = { error };
+  return Response.json(payload, { status });
 }
 
 export async function generateFinanceReport(input: GenerateFinanceReportInput) {
@@ -104,7 +107,7 @@ export async function generateReport(params: GenerateReportParams) {
     reportType === "income" ? "incomeStatement" : "cashFlow",
   );
 
-  return NextResponse.json({
+  return Response.json({
     type: reportType,
     period: { id: period.id, year: period.year, month: period.month, companyCode: period.companyCode },
     source: statementReport.source,

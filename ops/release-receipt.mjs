@@ -8,7 +8,8 @@ import { pathToFileURL } from "node:url";
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
 const CNB_TRANSPORT = "cnb";
-const RETIRED_TRANSPORT_OPTIONS = ["transport", "scope_policy", "risk_class", "build_image"];
+const RELEASE_TRANSPORTS = new Set([CNB_TRANSPORT, "local"]);
+const RETIRED_TRANSPORT_OPTIONS = ["scope_policy", "risk_class", "build_image"];
 
 function requireString(value, label) {
   if (typeof value !== "string" || value.length === 0) throw new Error(`${label} is required`);
@@ -35,6 +36,18 @@ function optionalDigest(value, label) {
   return requireDigest(value, label);
 }
 
+function normalizeController(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("schema v4 deployed-release controller is required");
+  }
+  return {
+    sourceSha: requireSha(value.sourceSha, "controller source SHA"),
+    treeId: requireSha(value.treeId, "controller tree id"),
+    controlDigest: requireDigest(value.controlDigest, "controller control digest"),
+    receiptDigest: requireDigest(value.receiptDigest, "Controller Ready receipt digest"),
+  };
+}
+
 export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
   if (!record || typeof record !== "object" || Array.isArray(record)) {
     throw new Error("deployed-release must be an object");
@@ -55,18 +68,20 @@ export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
   }
 
   let injectionSha;
+  let transport = CNB_TRANSPORT;
   let canonicalSource;
   let migrationSetSha256 = null;
+  let controller = null;
   if (schemaVersion === 1 && !("releaseCommitSha" in (record.cnb ?? {}))) {
     injectionSha = requireSha(record.cnb?.injectionSha, "CNB injection SHA");
     canonicalSource = runtimeSource;
   } else if (schemaVersion === 2 && !("injectionSha" in (record.cnb ?? {}))) {
     injectionSha = requireSha(record.cnb?.releaseCommitSha, "legacy CNB release SHA");
     canonicalSource = runtimeSource;
-  } else if (schemaVersion === 3) {
+  } else if (schemaVersion === 3 || schemaVersion === 4) {
     injectionSha = requireSha(record.cnb?.injectionSha, "CNB injection SHA");
-    const transport = requireString(record.transport?.kind, "release transport");
-    if (transport !== CNB_TRANSPORT) throw new Error(`unsupported release transport: ${transport}`);
+    transport = requireString(record.transport?.kind, "release transport");
+    if (!RELEASE_TRANSPORTS.has(transport)) throw new Error(`unsupported release transport: ${transport}`);
     canonicalSource = {
       commitSha: requireSha(record.canonicalSource?.commitSha, "canonical source SHA"),
       treeSha: requireSha(record.canonicalSource?.treeSha, "canonical tree SHA"),
@@ -75,8 +90,9 @@ export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
     migrationSetSha256 = requireDigest(record.migration?.setSha256, "migration-set digest");
     if (runtimeSource.commitSha !== canonicalSource.commitSha
       || runtimeSource.treeSha !== canonicalSource.treeSha) {
-      throw new Error("canonical CNB receipt must bind runtime and canonical source equally");
+      throw new Error("canonical release receipt must bind runtime and canonical source equally");
     }
+    if (schemaVersion === 4) controller = normalizeController(record.controller);
   } else {
     throw new Error("unsupported deployed-release schema");
   }
@@ -87,7 +103,8 @@ export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
     canonicalSource,
     artifact,
     migrationSetSha256,
-    transport: CNB_TRANSPORT,
+    transport,
+    controller,
     cnb: {
       repository,
       sourceBranch: record.cnb?.sourceBranch ?? "",
@@ -146,6 +163,10 @@ function inspectReceipt(options) {
     receipt.cnb.repository,
     receipt.cnb.sourceBranch,
     receipt.migrationSetSha256 ?? "",
+    receipt.controller?.sourceSha ?? "",
+    receipt.controller?.treeId ?? "",
+    receipt.controller?.controlDigest ?? "",
+    receipt.controller?.receiptDigest ?? "",
   ].join("\t") + "\n");
 }
 
@@ -161,8 +182,14 @@ function assertReceipt(options) {
     ["canonical tree", receipt.canonicalSource.treeSha, options.canonical_tree],
     ["artifact digest", receipt.artifact.sha256, options.artifact_sha],
     ["manifest digest", receipt.artifact.manifestSha256, options.manifest_sha],
+    ["migration set", receipt.migrationSetSha256, options.migration_set],
     ["CNB injection", receipt.cnb.injectionSha, options.cnb_injection],
+    ["transport", receipt.transport, options.transport],
     ["release directory", receipt.deployment.releaseDir, options.release_dir],
+    ["controller source", receipt.controller?.sourceSha, options.controller_source || undefined],
+    ["controller tree", receipt.controller?.treeId, options.controller_tree || undefined],
+    ["controller control digest", receipt.controller?.controlDigest, options.controller_control_digest || undefined],
+    ["Controller Ready receipt digest", receipt.controller?.receiptDigest, options.controller_receipt_digest || undefined],
   ];
   for (const [label, actual, expected] of comparisons) {
     if (expected !== undefined && actual !== expected) {
@@ -175,6 +202,8 @@ function assertReceipt(options) {
 function writeReceipt(options) {
   rejectRetiredTransportOptions(options);
   const file = resolve(requireOption(options, "file"));
+  const transport = requireOption(options, "transport");
+  if (!RELEASE_TRANSPORTS.has(transport)) throw new Error(`unsupported release transport: ${transport}`);
   const runtimeSource = {
     commitSha: requireSha(requireOption(options, "runtime_source"), "runtime source SHA"),
     treeSha: requireSha(requireOption(options, "runtime_tree"), "runtime tree SHA"),
@@ -185,10 +214,10 @@ function writeReceipt(options) {
   };
   if (runtimeSource.commitSha !== canonicalSource.commitSha
     || runtimeSource.treeSha !== canonicalSource.treeSha) {
-    throw new Error("canonical CNB receipt must bind runtime and canonical source equally");
+    throw new Error("canonical release receipt must bind runtime and canonical source equally");
   }
   const record = {
-    schemaVersion: 3,
+    schemaVersion: 4,
     source: runtimeSource,
     canonicalSource,
     artifact: {
@@ -198,7 +227,13 @@ function writeReceipt(options) {
     migration: {
       setSha256: requireDigest(requireOption(options, "migration_set"), "migration-set digest"),
     },
-    transport: { kind: CNB_TRANSPORT },
+    transport: { kind: transport },
+    controller: normalizeController({
+      sourceSha: requireOption(options, "controller_source"),
+      treeId: requireOption(options, "controller_tree"),
+      controlDigest: requireOption(options, "controller_control_digest"),
+      receiptDigest: requireOption(options, "controller_receipt_digest"),
+    }),
     cnb: {
       repository: requireOption(options, "cnb_repository"),
       sourceBranch: requireOption(options, "cnb_branch"),
@@ -216,12 +251,48 @@ function writeReceipt(options) {
   renameSync(temporary, file);
 }
 
+function activateController(options) {
+  const file = resolve(requireOption(options, "file"));
+  const record = JSON.parse(readFileSync(file, "utf8"));
+  const receipt = normalizeDeployedRelease(record, { expectedRepository: options.expected_repository });
+  const comparisons = [
+    ["runtime source", receipt.runtimeSource.commitSha, requireOption(options, "runtime_source")],
+    ["runtime tree", receipt.runtimeSource.treeSha, requireOption(options, "runtime_tree")],
+    ["canonical source", receipt.canonicalSource.commitSha, requireOption(options, "canonical_source")],
+    ["canonical tree", receipt.canonicalSource.treeSha, requireOption(options, "canonical_tree")],
+    ["artifact digest", receipt.artifact.sha256, requireOption(options, "artifact_sha")],
+    ["migration set", receipt.migrationSetSha256, requireOption(options, "migration_set")],
+    ["CNB injection", receipt.cnb.injectionSha, requireOption(options, "cnb_injection")],
+  ];
+  for (const [label, actual, expected] of comparisons) {
+    if (actual !== expected) throw new Error(`${label} changed before controller activation`);
+  }
+  const controller = normalizeController({
+    sourceSha: requireOption(options, "controller_source"),
+    treeId: requireOption(options, "controller_tree"),
+    controlDigest: requireOption(options, "controller_control_digest"),
+    receiptDigest: requireOption(options, "controller_receipt_digest"),
+  });
+  if (JSON.stringify(receipt.controller) === JSON.stringify(controller)) {
+    process.stdout.write("UNCHANGED\n");
+    return;
+  }
+  record.schemaVersion = 4;
+  record.controller = controller;
+  normalizeDeployedRelease(record, { expectedRepository: options.expected_repository });
+  const temporary = resolve(dirname(file), `.${file.split("/").at(-1)}.tmp-${process.pid}-${randomUUID()}`);
+  writeFileSync(temporary, `${JSON.stringify(record, null, 2)}\n`, { mode: 0o600 });
+  renameSync(temporary, file);
+  process.stdout.write("ACTIVATED\n");
+}
+
 export async function main(argv = process.argv.slice(2)) {
   const [command, ...rest] = argv;
   const options = parseArguments(rest);
   if (command === "inspect") return inspectReceipt(options);
   if (command === "assert") return assertReceipt(options);
   if (command === "write") return writeReceipt(options);
+  if (command === "activate-controller") return activateController(options);
   throw new Error(`unknown command: ${command ?? "<missing>"}`);
 }
 

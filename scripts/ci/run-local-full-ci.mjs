@@ -80,7 +80,12 @@ export function runLocalFullCi({
     stdout.write(`Full CI receipt skipped: ${eligibility.reason}.\n`);
   }
 
-  const status = runSuites(["ci"], { cwd, env, stdout });
+  const status = runSuites(["ci"], {
+    cwd,
+    env,
+    stdout,
+    collectFailures: true,
+  });
   if (status !== 0) return status;
   if (!cleanTreeBefore || !receiptFile) return 0;
 

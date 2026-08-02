@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model PositionDescription
- * 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+ * 岗位说明书稳定身份；正文只存在于不可变 revision 中。
  */
 export type PositionDescriptionModel = runtime.Types.Result.DefaultSelection<Prisma.$PositionDescriptionPayload>
 
@@ -28,57 +28,31 @@ export type AggregatePositionDescription = {
 
 export type PositionDescriptionAvgAggregateOutputType = {
   id: number | null
-  headcount: number | null
-  editedBy: number | null
+  createdBy: number | null
 }
 
 export type PositionDescriptionSumAggregateOutputType = {
   id: number | null
-  headcount: number | null
-  editedBy: number | null
+  createdBy: number | null
 }
 
 export type PositionDescriptionMinAggregateOutputType = {
   id: number | null
-  positionPurpose: string | null
-  summary: string | null
-  headcount: number | null
-  version: string | null
-  effectiveDate: string | null
-  sourceFile: string | null
-  details: string | null
-  editedBy: number | null
-  editedAt: Date | null
+  createdBy: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type PositionDescriptionMaxAggregateOutputType = {
   id: number | null
-  positionPurpose: string | null
-  summary: string | null
-  headcount: number | null
-  version: string | null
-  effectiveDate: string | null
-  sourceFile: string | null
-  details: string | null
-  editedBy: number | null
-  editedAt: Date | null
+  createdBy: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type PositionDescriptionCountAggregateOutputType = {
   id: number
-  positionPurpose: number
-  summary: number
-  headcount: number
-  version: number
-  effectiveDate: number
-  sourceFile: number
-  details: number
-  editedBy: number
-  editedAt: number
+  createdBy: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -87,57 +61,31 @@ export type PositionDescriptionCountAggregateOutputType = {
 
 export type PositionDescriptionAvgAggregateInputType = {
   id?: true
-  headcount?: true
-  editedBy?: true
+  createdBy?: true
 }
 
 export type PositionDescriptionSumAggregateInputType = {
   id?: true
-  headcount?: true
-  editedBy?: true
+  createdBy?: true
 }
 
 export type PositionDescriptionMinAggregateInputType = {
   id?: true
-  positionPurpose?: true
-  summary?: true
-  headcount?: true
-  version?: true
-  effectiveDate?: true
-  sourceFile?: true
-  details?: true
-  editedBy?: true
-  editedAt?: true
+  createdBy?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type PositionDescriptionMaxAggregateInputType = {
   id?: true
-  positionPurpose?: true
-  summary?: true
-  headcount?: true
-  version?: true
-  effectiveDate?: true
-  sourceFile?: true
-  details?: true
-  editedBy?: true
-  editedAt?: true
+  createdBy?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type PositionDescriptionCountAggregateInputType = {
   id?: true
-  positionPurpose?: true
-  summary?: true
-  headcount?: true
-  version?: true
-  effectiveDate?: true
-  sourceFile?: true
-  details?: true
-  editedBy?: true
-  editedAt?: true
+  createdBy?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -231,15 +179,7 @@ export type PositionDescriptionGroupByArgs<ExtArgs extends runtime.Types.Extensi
 
 export type PositionDescriptionGroupByOutputType = {
   id: number
-  positionPurpose: string | null
-  summary: string | null
-  headcount: number | null
-  version: string | null
-  effectiveDate: string | null
-  sourceFile: string
-  details: string | null
-  editedBy: number | null
-  editedAt: Date | null
+  createdBy: number | null
   createdAt: Date
   updatedAt: Date
   _count: PositionDescriptionCountAggregateOutputType | null
@@ -269,36 +209,24 @@ export type PositionDescriptionWhereInput = {
   OR?: Prisma.PositionDescriptionWhereInput[]
   NOT?: Prisma.PositionDescriptionWhereInput | Prisma.PositionDescriptionWhereInput[]
   id?: Prisma.IntFilter<"PositionDescription"> | number
-  positionPurpose?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  summary?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  headcount?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
-  version?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  effectiveDate?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  sourceFile?: Prisma.StringFilter<"PositionDescription"> | string
-  details?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"PositionDescription"> | Date | string | null
+  createdBy?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
   createdAt?: Prisma.DateTimeFilter<"PositionDescription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionDescription"> | Date | string
   positions?: Prisma.PositionListRelationFilter
+  revisions?: Prisma.PositionDescriptionRevisionListRelationFilter
   responsibilityNodes?: Prisma.PositionResponsibilityNodeListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }
 
 export type PositionDescriptionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  positionPurpose?: Prisma.SortOrderInput | Prisma.SortOrder
-  summary?: Prisma.SortOrderInput | Prisma.SortOrder
-  headcount?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  effectiveDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  sourceFile?: Prisma.SortOrder
-  details?: Prisma.SortOrderInput | Prisma.SortOrder
-  editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   positions?: Prisma.PositionOrderByRelationAggregateInput
+  revisions?: Prisma.PositionDescriptionRevisionOrderByRelationAggregateInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeOrderByRelationAggregateInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceOrderByRelationAggregateInput
 }
 
 export type PositionDescriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -306,32 +234,18 @@ export type PositionDescriptionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PositionDescriptionWhereInput | Prisma.PositionDescriptionWhereInput[]
   OR?: Prisma.PositionDescriptionWhereInput[]
   NOT?: Prisma.PositionDescriptionWhereInput | Prisma.PositionDescriptionWhereInput[]
-  positionPurpose?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  summary?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  headcount?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
-  version?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  effectiveDate?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  sourceFile?: Prisma.StringFilter<"PositionDescription"> | string
-  details?: Prisma.StringNullableFilter<"PositionDescription"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"PositionDescription"> | Date | string | null
+  createdBy?: Prisma.IntNullableFilter<"PositionDescription"> | number | null
   createdAt?: Prisma.DateTimeFilter<"PositionDescription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionDescription"> | Date | string
   positions?: Prisma.PositionListRelationFilter
+  revisions?: Prisma.PositionDescriptionRevisionListRelationFilter
   responsibilityNodes?: Prisma.PositionResponsibilityNodeListRelationFilter
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceListRelationFilter
 }, "id">
 
 export type PositionDescriptionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  positionPurpose?: Prisma.SortOrderInput | Prisma.SortOrder
-  summary?: Prisma.SortOrderInput | Prisma.SortOrder
-  headcount?: Prisma.SortOrderInput | Prisma.SortOrder
-  version?: Prisma.SortOrderInput | Prisma.SortOrder
-  effectiveDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  sourceFile?: Prisma.SortOrder
-  details?: Prisma.SortOrderInput | Prisma.SortOrder
-  editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdBy?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PositionDescriptionCountOrderByAggregateInput
@@ -346,184 +260,107 @@ export type PositionDescriptionScalarWhereWithAggregatesInput = {
   OR?: Prisma.PositionDescriptionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.PositionDescriptionScalarWhereWithAggregatesInput | Prisma.PositionDescriptionScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"PositionDescription"> | number
-  positionPurpose?: Prisma.StringNullableWithAggregatesFilter<"PositionDescription"> | string | null
-  summary?: Prisma.StringNullableWithAggregatesFilter<"PositionDescription"> | string | null
-  headcount?: Prisma.IntNullableWithAggregatesFilter<"PositionDescription"> | number | null
-  version?: Prisma.StringNullableWithAggregatesFilter<"PositionDescription"> | string | null
-  effectiveDate?: Prisma.StringNullableWithAggregatesFilter<"PositionDescription"> | string | null
-  sourceFile?: Prisma.StringWithAggregatesFilter<"PositionDescription"> | string
-  details?: Prisma.StringNullableWithAggregatesFilter<"PositionDescription"> | string | null
-  editedBy?: Prisma.IntNullableWithAggregatesFilter<"PositionDescription"> | number | null
-  editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PositionDescription"> | Date | string | null
+  createdBy?: Prisma.IntNullableWithAggregatesFilter<"PositionDescription"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PositionDescription"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PositionDescription"> | Date | string
 }
 
 export type PositionDescriptionCreateInput = {
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateInput = {
   id?: number
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUpdateInput = {
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionCreateManyInput = {
   id?: number
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type PositionDescriptionUpdateManyMutationInput = {
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PositionDescriptionUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PositionDescriptionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  positionPurpose?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  headcount?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  effectiveDate?: Prisma.SortOrder
-  sourceFile?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  editedBy?: Prisma.SortOrder
-  editedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PositionDescriptionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  headcount?: Prisma.SortOrder
-  editedBy?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
 }
 
 export type PositionDescriptionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  positionPurpose?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  headcount?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  effectiveDate?: Prisma.SortOrder
-  sourceFile?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  editedBy?: Prisma.SortOrder
-  editedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PositionDescriptionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  positionPurpose?: Prisma.SortOrder
-  summary?: Prisma.SortOrder
-  headcount?: Prisma.SortOrder
-  version?: Prisma.SortOrder
-  effectiveDate?: Prisma.SortOrder
-  sourceFile?: Prisma.SortOrder
-  details?: Prisma.SortOrder
-  editedBy?: Prisma.SortOrder
-  editedAt?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type PositionDescriptionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  headcount?: Prisma.SortOrder
-  editedBy?: Prisma.SortOrder
+  createdBy?: Prisma.SortOrder
+}
+
+export type PositionDescriptionScalarRelationFilter = {
+  is?: Prisma.PositionDescriptionWhereInput
+  isNot?: Prisma.PositionDescriptionWhereInput
 }
 
 export type PositionDescriptionNullableScalarRelationFilter = {
@@ -531,9 +368,18 @@ export type PositionDescriptionNullableScalarRelationFilter = {
   isNot?: Prisma.PositionDescriptionWhereInput | null
 }
 
-export type PositionDescriptionScalarRelationFilter = {
-  is?: Prisma.PositionDescriptionWhereInput
-  isNot?: Prisma.PositionDescriptionWhereInput
+export type PositionDescriptionCreateNestedOneWithoutRevisionsInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutRevisionsInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+}
+
+export type PositionDescriptionUpdateOneRequiredWithoutRevisionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedCreateWithoutRevisionsInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutRevisionsInput
+  upsert?: Prisma.PositionDescriptionUpsertWithoutRevisionsInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionDescriptionUpdateToOneWithWhereWithoutRevisionsInput, Prisma.PositionDescriptionUpdateWithoutRevisionsInput>, Prisma.PositionDescriptionUncheckedUpdateWithoutRevisionsInput>
 }
 
 export type PositionDescriptionCreateNestedOneWithoutPositionsInput = {
@@ -566,35 +412,91 @@ export type PositionDescriptionUpdateOneRequiredWithoutResponsibilityNodesNested
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionDescriptionUpdateToOneWithWhereWithoutResponsibilityNodesInput, Prisma.PositionDescriptionUpdateWithoutResponsibilityNodesInput>, Prisma.PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput>
 }
 
-export type PositionDescriptionCreateWithoutPositionsInput = {
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+export type PositionDescriptionCreateNestedOneWithoutWorkResponsibilityReferencesInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+}
+
+export type PositionDescriptionUpdateOneRequiredWithoutWorkResponsibilityReferencesNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  connectOrCreate?: Prisma.PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput
+  upsert?: Prisma.PositionDescriptionUpsertWithoutWorkResponsibilityReferencesInput
+  connect?: Prisma.PositionDescriptionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionDescriptionUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput>, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type PositionDescriptionCreateWithoutRevisionsInput = {
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionUncheckedCreateWithoutRevisionsInput = {
+  id?: number
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionCreateOrConnectWithoutRevisionsInput = {
+  where: Prisma.PositionDescriptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedCreateWithoutRevisionsInput>
+}
+
+export type PositionDescriptionUpsertWithoutRevisionsInput = {
+  update: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedUpdateWithoutRevisionsInput>
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedCreateWithoutRevisionsInput>
+  where?: Prisma.PositionDescriptionWhereInput
+}
+
+export type PositionDescriptionUpdateToOneWithWhereWithoutRevisionsInput = {
+  where?: Prisma.PositionDescriptionWhereInput
+  data: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutRevisionsInput, Prisma.PositionDescriptionUncheckedUpdateWithoutRevisionsInput>
+}
+
+export type PositionDescriptionUpdateWithoutRevisionsInput = {
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionUncheckedUpdateWithoutRevisionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionCreateWithoutPositionsInput = {
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateWithoutPositionsInput = {
   id?: number
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionCreateOrConnectWithoutPositionsInput = {
@@ -614,65 +516,41 @@ export type PositionDescriptionUpdateToOneWithWhereWithoutPositionsInput = {
 }
 
 export type PositionDescriptionUpdateWithoutPositionsInput = {
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateWithoutPositionsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
   responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionCreateWithoutResponsibilityNodesInput = {
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionUncheckedCreateWithoutResponsibilityNodesInput = {
   id?: number
-  positionPurpose?: string | null
-  summary?: string | null
-  headcount?: number | null
-  version?: string | null
-  effectiveDate?: string | null
-  sourceFile: string
-  details?: string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
+  createdBy?: number | null
   createdAt?: Date | string
   updatedAt?: Date | string
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedCreateNestedManyWithoutPositionDescriptionInput
 }
 
 export type PositionDescriptionCreateOrConnectWithoutResponsibilityNodesInput = {
@@ -692,34 +570,76 @@ export type PositionDescriptionUpdateToOneWithWhereWithoutResponsibilityNodesInp
 }
 
 export type PositionDescriptionUpdateWithoutResponsibilityNodesInput = {
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 export type PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  positionPurpose?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  version?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  effectiveDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  sourceFile?: Prisma.StringFieldUpdateOperationsInput | string
-  details?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  workResponsibilityReferences?: Prisma.WorkResponsibilityReferenceUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput = {
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.PositionCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput = {
+  id?: number
+  createdBy?: number | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedCreateNestedManyWithoutPositionDescriptionInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedCreateNestedManyWithoutPositionDescriptionInput
+}
+
+export type PositionDescriptionCreateOrConnectWithoutWorkResponsibilityReferencesInput = {
+  where: Prisma.PositionDescriptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type PositionDescriptionUpsertWithoutWorkResponsibilityReferencesInput = {
+  update: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+  create: Prisma.XOR<Prisma.PositionDescriptionCreateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedCreateWithoutWorkResponsibilityReferencesInput>
+  where?: Prisma.PositionDescriptionWhereInput
+}
+
+export type PositionDescriptionUpdateToOneWithWhereWithoutWorkResponsibilityReferencesInput = {
+  where?: Prisma.PositionDescriptionWhereInput
+  data: Prisma.XOR<Prisma.PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput, Prisma.PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput>
+}
+
+export type PositionDescriptionUpdateWithoutWorkResponsibilityReferencesInput = {
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUpdateManyWithoutPositionDescriptionNestedInput
+}
+
+export type PositionDescriptionUncheckedUpdateWithoutWorkResponsibilityReferencesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  revisions?: Prisma.PositionDescriptionRevisionUncheckedUpdateManyWithoutPositionDescriptionNestedInput
+  responsibilityNodes?: Prisma.PositionResponsibilityNodeUncheckedUpdateManyWithoutPositionDescriptionNestedInput
 }
 
 
@@ -729,12 +649,16 @@ export type PositionDescriptionUncheckedUpdateWithoutResponsibilityNodesInput = 
 
 export type PositionDescriptionCountOutputType = {
   positions: number
+  revisions: number
   responsibilityNodes: number
+  workResponsibilityReferences: number
 }
 
 export type PositionDescriptionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positions?: boolean | PositionDescriptionCountOutputTypeCountPositionsArgs
+  revisions?: boolean | PositionDescriptionCountOutputTypeCountRevisionsArgs
   responsibilityNodes?: boolean | PositionDescriptionCountOutputTypeCountResponsibilityNodesArgs
+  workResponsibilityReferences?: boolean | PositionDescriptionCountOutputTypeCountWorkResponsibilityReferencesArgs
 }
 
 /**
@@ -757,78 +681,64 @@ export type PositionDescriptionCountOutputTypeCountPositionsArgs<ExtArgs extends
 /**
  * PositionDescriptionCountOutputType without action
  */
+export type PositionDescriptionCountOutputTypeCountRevisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PositionDescriptionRevisionWhereInput
+}
+
+/**
+ * PositionDescriptionCountOutputType without action
+ */
 export type PositionDescriptionCountOutputTypeCountResponsibilityNodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.PositionResponsibilityNodeWhereInput
+}
+
+/**
+ * PositionDescriptionCountOutputType without action
+ */
+export type PositionDescriptionCountOutputTypeCountWorkResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
 }
 
 
 export type PositionDescriptionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  positionPurpose?: boolean
-  summary?: boolean
-  headcount?: boolean
-  version?: boolean
-  effectiveDate?: boolean
-  sourceFile?: boolean
-  details?: boolean
-  editedBy?: boolean
-  editedAt?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   positions?: boolean | Prisma.PositionDescription$positionsArgs<ExtArgs>
+  revisions?: boolean | Prisma.PositionDescription$revisionsArgs<ExtArgs>
   responsibilityNodes?: boolean | Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.PositionDescriptionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionDescription"]>
 
 export type PositionDescriptionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  positionPurpose?: boolean
-  summary?: boolean
-  headcount?: boolean
-  version?: boolean
-  effectiveDate?: boolean
-  sourceFile?: boolean
-  details?: boolean
-  editedBy?: boolean
-  editedAt?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["positionDescription"]>
 
 export type PositionDescriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  positionPurpose?: boolean
-  summary?: boolean
-  headcount?: boolean
-  version?: boolean
-  effectiveDate?: boolean
-  sourceFile?: boolean
-  details?: boolean
-  editedBy?: boolean
-  editedAt?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["positionDescription"]>
 
 export type PositionDescriptionSelectScalar = {
   id?: boolean
-  positionPurpose?: boolean
-  summary?: boolean
-  headcount?: boolean
-  version?: boolean
-  effectiveDate?: boolean
-  sourceFile?: boolean
-  details?: boolean
-  editedBy?: boolean
-  editedAt?: boolean
+  createdBy?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PositionDescriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionPurpose" | "summary" | "headcount" | "version" | "effectiveDate" | "sourceFile" | "details" | "editedBy" | "editedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["positionDescription"]>
+export type PositionDescriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "createdBy" | "createdAt" | "updatedAt", ExtArgs["result"]["positionDescription"]>
 export type PositionDescriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   positions?: boolean | Prisma.PositionDescription$positionsArgs<ExtArgs>
+  revisions?: boolean | Prisma.PositionDescription$revisionsArgs<ExtArgs>
   responsibilityNodes?: boolean | Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>
+  workResponsibilityReferences?: boolean | Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>
   _count?: boolean | Prisma.PositionDescriptionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PositionDescriptionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -838,19 +748,13 @@ export type $PositionDescriptionPayload<ExtArgs extends runtime.Types.Extensions
   name: "PositionDescription"
   objects: {
     positions: Prisma.$PositionPayload<ExtArgs>[]
+    revisions: Prisma.$PositionDescriptionRevisionPayload<ExtArgs>[]
     responsibilityNodes: Prisma.$PositionResponsibilityNodePayload<ExtArgs>[]
+    workResponsibilityReferences: Prisma.$WorkResponsibilityReferencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    positionPurpose: string | null
-    summary: string | null
-    headcount: number | null
-    version: string | null
-    effectiveDate: string | null
-    sourceFile: string
-    details: string | null
-    editedBy: number | null
-    editedAt: Date | null
+    createdBy: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["positionDescription"]>
@@ -1248,7 +1152,9 @@ readonly fields: PositionDescriptionFieldRefs;
 export interface Prisma__PositionDescriptionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   positions<T extends Prisma.PositionDescription$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  revisions<T extends Prisma.PositionDescription$revisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$revisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionDescriptionRevisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   responsibilityNodes<T extends Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$responsibilityNodesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResponsibilityNodePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  workResponsibilityReferences<T extends Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionDescription$workResponsibilityReferencesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkResponsibilityReferencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1279,15 +1185,7 @@ export interface Prisma__PositionDescriptionClient<T, Null = never, ExtArgs exte
  */
 export interface PositionDescriptionFieldRefs {
   readonly id: Prisma.FieldRef<"PositionDescription", 'Int'>
-  readonly positionPurpose: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly summary: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly headcount: Prisma.FieldRef<"PositionDescription", 'Int'>
-  readonly version: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly effectiveDate: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly sourceFile: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly details: Prisma.FieldRef<"PositionDescription", 'String'>
-  readonly editedBy: Prisma.FieldRef<"PositionDescription", 'Int'>
-  readonly editedAt: Prisma.FieldRef<"PositionDescription", 'DateTime'>
+  readonly createdBy: Prisma.FieldRef<"PositionDescription", 'Int'>
   readonly createdAt: Prisma.FieldRef<"PositionDescription", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PositionDescription", 'DateTime'>
 }
@@ -1513,7 +1411,7 @@ export type PositionDescriptionCreateArgs<ExtArgs extends runtime.Types.Extensio
   /**
    * The data needed to create a PositionDescription.
    */
-  data: Prisma.XOR<Prisma.PositionDescriptionCreateInput, Prisma.PositionDescriptionUncheckedCreateInput>
+  data?: Prisma.XOR<Prisma.PositionDescriptionCreateInput, Prisma.PositionDescriptionUncheckedCreateInput>
 }
 
 /**
@@ -1707,6 +1605,30 @@ export type PositionDescription$positionsArgs<ExtArgs extends runtime.Types.Exte
 }
 
 /**
+ * PositionDescription.revisions
+ */
+export type PositionDescription$revisionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PositionDescriptionRevision
+   */
+  select?: Prisma.PositionDescriptionRevisionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PositionDescriptionRevision
+   */
+  omit?: Prisma.PositionDescriptionRevisionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionDescriptionRevisionInclude<ExtArgs> | null
+  where?: Prisma.PositionDescriptionRevisionWhereInput
+  orderBy?: Prisma.PositionDescriptionRevisionOrderByWithRelationInput | Prisma.PositionDescriptionRevisionOrderByWithRelationInput[]
+  cursor?: Prisma.PositionDescriptionRevisionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PositionDescriptionRevisionScalarFieldEnum | Prisma.PositionDescriptionRevisionScalarFieldEnum[]
+}
+
+/**
  * PositionDescription.responsibilityNodes
  */
 export type PositionDescription$responsibilityNodesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1728,6 +1650,30 @@ export type PositionDescription$responsibilityNodesArgs<ExtArgs extends runtime.
   take?: number
   skip?: number
   distinct?: Prisma.PositionResponsibilityNodeScalarFieldEnum | Prisma.PositionResponsibilityNodeScalarFieldEnum[]
+}
+
+/**
+ * PositionDescription.workResponsibilityReferences
+ */
+export type PositionDescription$workResponsibilityReferencesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkResponsibilityReference
+   */
+  select?: Prisma.WorkResponsibilityReferenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkResponsibilityReference
+   */
+  omit?: Prisma.WorkResponsibilityReferenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkResponsibilityReferenceInclude<ExtArgs> | null
+  where?: Prisma.WorkResponsibilityReferenceWhereInput
+  orderBy?: Prisma.WorkResponsibilityReferenceOrderByWithRelationInput | Prisma.WorkResponsibilityReferenceOrderByWithRelationInput[]
+  cursor?: Prisma.WorkResponsibilityReferenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkResponsibilityReferenceScalarFieldEnum | Prisma.WorkResponsibilityReferenceScalarFieldEnum[]
 }
 
 /**

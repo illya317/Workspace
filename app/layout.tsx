@@ -26,7 +26,7 @@ export default async function RootLayout({
   const appVersion = getAppVersion();
   const tenantConfig = getTenantPublicConfig();
   const user = await getCurrentUser();
-  const canUseAgentAssistant = user?.visibleSubmitResourceKeys?.includes("agent.assistant") ?? false;
+  const canUseAgentAssistant = user?.visibleSubmitResourceKeys?.includes("agent") ?? false;
 
   return (
     <html lang="zh-CN" className="h-full antialiased">

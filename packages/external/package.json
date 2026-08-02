@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./business-temporal": "./business-temporal.ts",
     "./module": "./module.ts",
     "./server": "./server/index.ts",
     "./server/*": "./server/*.ts",

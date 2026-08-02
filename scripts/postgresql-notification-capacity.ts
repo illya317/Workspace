@@ -2,6 +2,7 @@ import "dotenv/config";
 
 import { listUserNotifications } from "@workspace/platform/server/notifications";
 import { prisma } from "@workspace/platform/server/prisma";
+import { assertNotificationPublicationTransactions } from "./postgresql-notification-publication";
 import {
   WORK_TASK_APPROVAL_SUBJECT,
   getWorkTaskApprovalResourceKey,
@@ -50,6 +51,7 @@ async function main() {
   registerWorkWorkflowTodoProvider();
 
   try {
+    await assertNotificationPublicationTransactions();
     await prisma.user.createMany({
       data: usernames.map((username) => ({ username, canLogin: true })),
     });

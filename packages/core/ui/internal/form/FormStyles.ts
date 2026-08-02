@@ -174,7 +174,7 @@ export function getFieldInputClassName(className = "") {
 
 export function getTextareaInputClassName(className = "") {
   return [
-    `min-h-9 w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-2 font-sans ${FIELD_CONTROL_TEXT_CLASS} leading-6 text-slate-800 shadow-sm max-sm:min-h-24 max-sm:text-base`,
+    `min-h-9 w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-2 font-sans ${FIELD_CONTROL_TEXT_CLASS} leading-6 text-slate-800 shadow-sm max-sm:min-h-11 max-sm:text-base`,
     FIELD_FOCUS_RING_CLASS,
     FIELD_DISABLED_CLASS,
     className,
@@ -218,18 +218,25 @@ export function getFieldGridCellClassName(className = "") {
   ].filter(Boolean).join(" ");
 }
 
-export function getFieldGridMainRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
+export function getFieldGridMainRowClassName(
+  className = "",
+  mode?: "view" | "edit" | "mixed" | "detail" | "control",
+  fieldLayout: "inline" | "stack" = "inline",
+) {
   return [
-    mode === "detail"
-      ? "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-2"
-      : "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-2",
+    fieldLayout === "stack"
+      ? "grid min-h-11 grid-cols-1 items-start gap-2"
+      : "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[var(--field-grid-label-width)_minmax(8rem,1fr)] sm:items-center sm:gap-2",
+    mode === "detail" ? "" : "",
     className,
   ].filter(Boolean).join(" ");
 }
 
-export function getFieldGridLabelClassName(className = "") {
+export function getFieldGridLabelClassName(className = "", fieldLayout: "inline" | "stack" = "inline") {
   return [
-    `min-w-0 break-words sm:whitespace-normal sm:leading-snug ${FIELD_LABEL_TEXT_CLASS}`,
+    fieldLayout === "stack"
+      ? `flex min-w-0 items-start break-words whitespace-normal leading-snug ${FIELD_LABEL_TEXT_CLASS}`
+      : `flex min-w-0 items-center break-words sm:overflow-hidden sm:whitespace-nowrap sm:leading-none ${FIELD_LABEL_TEXT_CLASS}`,
     className,
   ].filter(Boolean).join(" ");
 }
@@ -244,9 +251,13 @@ export function getFieldGridValueClassName(className = "", mode?: "view" | "edit
   ].filter(Boolean).join(" ");
 }
 
-export function getFieldGridHelperRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
+export function getFieldGridHelperRowClassName(
+  className = "",
+  mode?: "view" | "edit" | "mixed" | "detail" | "control",
+  fieldLayout: "inline" | "stack" = "inline",
+) {
   return [
-    "grid grid-cols-1 items-start gap-1 sm:grid-cols-[8rem_minmax(0,1fr)] sm:gap-2",
+    fieldLayout === "stack" ? "min-w-0" : "min-w-0 sm:col-start-2",
     mode === "detail" ? "" : "",
     className,
   ].filter(Boolean).join(" ");

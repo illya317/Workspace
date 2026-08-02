@@ -65,11 +65,16 @@ export function checkStructureRatchet(scope: StructureDetectorScope = "all") {
   try {
     const baseline = readBaseline();
     const report = createStructureReport();
+    let passed = true;
 
     for (const { name, current } of collectStructureRatchetChecks(report, scope)) {
-      if (!checkRatchet(name, current, baseline[name] ?? [])) return false;
+      if (!checkRatchet(name, current, baseline[name] ?? [])) passed = false;
     }
 
+    if (!passed) {
+      console.error(`✗ Structure ${scope} baseline ratchet completed with all detected failures.`);
+      return false;
+    }
     console.log(`✓ Structure ${scope} baseline ratchet passed.`);
     return true;
   } catch (error) {

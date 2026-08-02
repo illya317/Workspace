@@ -4,10 +4,18 @@ import { E2E_ADMIN_STORAGE_STATE } from "./support/auth";
 test.use({ storageState: E2E_ADMIN_STORAGE_STATE });
 test.describe.configure({ mode: "serial", retries: 0 });
 
+const PORTAL_SLOTS = [
+  { key: "work", pinned: false },
+  { key: "hr.roster", pinned: false },
+  ...Array.from({ length: 10 }, () => ({ key: null, pinned: false })),
+  { key: "hr.roster", pinned: true },
+  { key: "docs.editor", pinned: true },
+];
+
 for (const width of [360, 375, 390]) {
   test(`${width}px：桌面提供十二个卡槽，入口按一级再二级选择`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await mockPortalSlots(page);
+    await setPortalSlots(page);
     await page.goto("/workspace/settings/account");
 
     await expect(page.getByRole("button", { name: "切换到默认桌面", exact: true })).toBeVisible();
@@ -49,7 +57,7 @@ for (const width of [360, 375, 390]) {
 
   test(`${width}px：自选只显示所选卡片，默认桌面只显示一级入口`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
-    await mockPortalSlots(page);
+    await setPortalSlots(page);
     const preferencesLoaded = page.waitForResponse((response) => (
       response.request().method() === "GET"
       && response.url().endsWith("/workspace/api/settings/account/portal-slots")
@@ -84,7 +92,7 @@ for (const width of [360, 375, 390]) {
 
 test("桌面端使用三列并同样只渲染所选卡片", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
-  await mockPortalSlots(page);
+  await setPortalSlots(page);
   const preferencesLoaded = page.waitForResponse((response) => response.url().endsWith("/workspace/api/settings/account/portal-slots"));
   await page.goto("/workspace/portal");
   await preferencesLoaded;
@@ -94,26 +102,11 @@ test("桌面端使用三列并同样只渲染所选卡片", async ({ page }) => 
   await expectGridColumns(page, 3);
 });
 
-async function mockPortalSlots(page: import("@playwright/test").Page) {
-  await page.route(/\/workspace\/api\/settings\/account\/portal-slots$/, async (route) => {
-    if (route.request().method() !== "GET") {
-      await route.continue();
-      return;
-    }
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      json: {
-        slots: [
-          { key: "work", pinned: false },
-          { key: "hr.roster", pinned: false },
-          ...Array.from({ length: 10 }, () => ({ key: null, pinned: false })),
-          { key: "hr.roster", pinned: true },
-          { key: "docs.editor", pinned: true },
-        ],
-      },
-    });
+async function setPortalSlots(page: import("@playwright/test").Page) {
+  const response = await page.request.put("/workspace/api/settings/account/portal-slots", {
+    data: { slots: PORTAL_SLOTS },
   });
+  expect(response.ok()).toBeTruthy();
 }
 
 async function expectModuleTitlesFit(section: import("@playwright/test").Locator) {

@@ -126,4 +126,5 @@ test("employment activity uses dates and only falls back to isActive for undated
   assert.equal(employmentIsActiveOnDate({ isActive: false, joinDate: "2026-08-01", leaveDate: null }, date), false);
   assert.equal(employmentIsActiveOnDate({ isActive: false, joinDate: "2026-01-01", leaveDate: "2026-08-01" }, date), true);
   assert.equal(employmentIsActiveOnDate({ isActive: false, joinDate: null, leaveDate: null }, date), false);
+  assert.equal(employmentIsActiveOnDate({ isActive: true, joinDate: "not-a-date", leaveDate: null }, date), false);
 });

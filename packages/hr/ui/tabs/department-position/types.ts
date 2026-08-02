@@ -1,3 +1,5 @@
+import type { BusinessCodeConfig } from "@workspace/platform/business-code-config";
+
 export type Department = {
   id: number;
   code: string;
@@ -55,6 +57,7 @@ export type Position = {
   headcountPlan: number | null;
   version: number;
   positionDescriptionVersion: string | null;
+  positionDescriptionSequence: number | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
@@ -137,3 +140,8 @@ export type CreatePositionDraft = {
 export type DepartmentPositionMode = "organization" | "position";
 
 export type ArchivedEntityTab = "departments" | "positions";
+
+export type OrganizationCodeConfig = Pick<
+  BusinessCodeConfig,
+  "department" | "position"
+>;

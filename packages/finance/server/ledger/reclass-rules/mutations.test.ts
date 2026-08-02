@@ -3,7 +3,7 @@ import test, { mock } from "node:test";
 
 const materializedScopes: number[][] = [];
 
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     isPlatformServiceResult: () => false,
     jsonErrorResponse: () => new Response(null, { status: 400 }),

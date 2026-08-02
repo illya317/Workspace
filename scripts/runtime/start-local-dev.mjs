@@ -1,16 +1,20 @@
 #!/usr/bin/env node
 
 import { spawn } from "node:child_process";
-import { promises as fs } from "node:fs";
+import { existsSync, promises as fs } from "node:fs";
 import net from "node:net";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+import { superviseNextDev } from "./local-dev-supervisor.mjs";
 
 export const LOCAL_DEV_PORT = 3000;
 
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock");
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
+const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
+const sourceCodeAnalysisPath = path.join(repositoryRoot, "scripts/arch/source-code-analysis/cli.ts");
 
 export function assertFixedDevArguments(args) {
   if (args.length === 0) return;
@@ -18,6 +22,46 @@ export function assertFixedDevArguments(args) {
   throw new Error(
     `Workspace 本地开发固定使用 ${LOCAL_DEV_PORT} 端口，禁止传入启动参数或改用其他端口。请直接运行 npm run dev。`,
   );
+}
+
+function parsePostgresqlUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "postgresql:" || url.protocol === "postgres:" ? url : null;
+  } catch {
+    return null;
+  }
+}
+
+export function assertRuntimeDatabaseEnvironment(env = process.env, fileExists = existsSync) {
+  const databaseUrl = env.DATABASE_URL?.trim() ?? "";
+  const parsedUrl = parsePostgresqlUrl(databaseUrl);
+  if (!parsedUrl) {
+    throw new Error("Workspace 长期开发进程必须通过 DATABASE_URL 使用 PostgreSQL runtime 账号。");
+  }
+
+  const sslRootCertificate = parsedUrl.searchParams.get("sslrootcert") ?? "";
+  const runtimeContractErrors = [];
+  if (parsedUrl.username !== "workspace_dev_runtime") runtimeContractErrors.push("username 必须是 workspace_dev_runtime");
+  if (parsedUrl.pathname !== "/workspace_dev") runtimeContractErrors.push("database 必须是 workspace_dev");
+  if (parsedUrl.searchParams.get("sslmode") !== "verify-full") runtimeContractErrors.push("sslmode 必须是 verify-full");
+  if (sslRootCertificate !== "/run/secrets/postgres_ca") {
+    runtimeContractErrors.push("sslrootcert 必须是 /run/secrets/postgres_ca");
+  } else if (!fileExists(sslRootCertificate)) {
+    runtimeContractErrors.push("sslrootcert 文件不存在");
+  }
+  if (runtimeContractErrors.length > 0) {
+    throw new Error(`Workspace runtime DATABASE_URL 不符合安全合同：${runtimeContractErrors.join("；")}。`);
+  }
+
+  const migrationVariables = ["DIRECT_URL", "SHADOW_DATABASE_URL"].filter(
+    (name) => env[name]?.trim(),
+  );
+  if (migrationVariables.length > 0) {
+    throw new Error(
+      `Workspace 长期开发进程禁止持有迁移凭据：${migrationVariables.join(", ")}。请先运行一次性 npm run db:migrate:dev。`,
+    );
+  }
 }
 
 export function occupiedPortMessage(port = LOCAL_DEV_PORT) {
@@ -102,41 +146,63 @@ async function acquireDevServerLock() {
   throw new Error("无法取得本地开发服务锁，请确认没有其他 npm run dev 正在启动。");
 }
 
-async function runNextDev() {
-  const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
+async function runWorkspacePreflight() {
+  const child = spawn(process.execPath, [workspaceCheckPath], {
     cwd: repositoryRoot,
-    env: { ...process.env, PORT: String(LOCAL_DEV_PORT) },
+    env: {
+      ...process.env,
+      WORKSPACE_RUNTIME_DATABASE_ONLY: "1",
+    },
     stdio: "inherit",
   });
-
-  const forwardSignal = (signal) => {
-    if (!child.killed) child.kill(signal);
-  };
-  const onSigint = () => forwardSignal("SIGINT");
-  const onSigterm = () => forwardSignal("SIGTERM");
-  process.on("SIGINT", onSigint);
-  process.on("SIGTERM", onSigterm);
-
-  try {
-    return await new Promise((resolve, reject) => {
-      child.once("error", reject);
-      child.once("exit", (code, signal) => resolve({ code, signal }));
-    });
-  } finally {
-    process.off("SIGINT", onSigint);
-    process.off("SIGTERM", onSigterm);
+  const result = await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    throw new Error("Workspace 私有配置检查未通过，本地服务未启动；先完成 npm run workspace:init、租户配置和 npm run workspace:check。");
   }
+}
+
+async function runSourceCodeAnalysisSnapshot(mode = "--write") {
+  const child = spawn(process.execPath, ["--import", "tsx", sourceCodeAnalysisPath, mode], {
+    cwd: repositoryRoot,
+    env: process.env,
+    stdio: "inherit",
+  });
+  const result = await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    throw new Error("源码分析 snapshot 未生成，dev server 未启动；生成物目录和文件必须可从当前源码自动建立。");
+  }
+}
+
+async function runNextDev() {
+  return superviseNextDev({
+    repositoryRoot,
+    nextCliPath,
+    port: LOCAL_DEV_PORT,
+    isPortAvailable: () => isPortAvailable(LOCAL_DEV_PORT),
+  });
 }
 
 export async function main(args = process.argv.slice(2)) {
   assertFixedDevArguments(args);
+  assertRuntimeDatabaseEnvironment();
 
-  if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
+  if (!(await isPortAvailable())) {
+    await runSourceCodeAnalysisSnapshot("--ensure");
+    throw new Error(occupiedPortMessage());
+  }
 
   const releaseLock = await acquireDevServerLock();
   try {
     if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
 
+    await runSourceCodeAnalysisSnapshot();
+    await runWorkspacePreflight();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

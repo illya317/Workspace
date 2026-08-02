@@ -1,28 +1,28 @@
-# Agent 详细手册
+# 工程系统手册
 
-这份文档承接原 `AGENTS.md` 中的大段细则。`AGENTS.md` 只做入口和导航；规则细节、流程清单和速查表统一放在这里或对应专题文档。
+这份文档汇总跨专题工程事实，供维护者阅读，也供 coding agent 按需引用。Agent 的开工入口和角色流程分别以 `AGENTS.md`、`.agents/skills/workspace-role-router` 和对应 role skill 为准；不要在这里维护第二套路由。
 
 ## 1. 技术栈
 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 负责 PR/合并质量与按风险选择的 E2E；生产由本地精确 tree 的一次全量 CI 凭证放行，CNB 构建 canonical Linux standalone 并部署
+- **CI/CD**: GitHub 是唯一源码/CI/应用构建平台；CNB 只镜像和部署同一个不可变 OCI digest，并负责回滚
 
 ## 2. 部署与运行态同步
 
-`origin`（GitHub）继续承载协作、PR 和公开 CI；生产部署真源是本地已提交 source SHA/tree 生成的 CNB `cnb-release` request。历史 `codeup` 远端已废弃，不再配置或同步。
+Mac `/Users/koito/Project/workspace/workspace` 是正式代码真源。远端 `workspace-dev` 只做 Linux/运行态调试，不配置 GitHub/CNB push；远端改动按任务文件白名单同步回 Mac 后复核、检查、提交并推送 GitHub。
 
-- 普通候选不直接 push `main`。Git 跟踪的 `ops/publish.sh push` 先跑自适应本地 gate，再更新稳定 staging ref；受信任的 GitHub workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上触发 CI。桌面 ops 的同名脚本只是加载私有 `.env` 后转交此脚本。
-- 不把 `cnb/main` 当发布源码入口。正式发布时，底层脚本在当前已提交 source 的 child commit 中只注入由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 产生的 `.cnb.yml` 与发布元数据，然后触发 `cnb-release` 的 `api_trigger_manual`；仓库内 `ops/cnb-release.yml` 只保留通用形状。
+- 普通候选从 Mac 正式仓库推送任务分支并通过 PR 进入 `main`。`ops/publish.sh push` 只允许 Mac、干净已提交分支和 `origin/main` 的快进后代；它不再创建 staging/candidate 分支或调用自建 promotion workflow。
+- CNB 不执行源码 CI 或构建。它只接受 GitHub 传入的 exact SHA/tree、GHCR image digest、`release.json` URL 和 GitHub Run ID，把同一 digest 镜像到 CNB Registry 后部署。
 - 生产维护尽量在本地完成代码、migration、文档和检查。`publish.sh deploy` 是唯一生产发布入口；不要在服务器 `current` 上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
-- 生产发布必须先 commit 且工作区干净；GitHub PR/CI 可以继续用于协作质量，但 `deploy` 不调用 GitHub API、Actions、Release 或 GitHub token。
-- `publish.sh deploy` 对精确 source tree 运行或复用一次 `npm run check:ci` 并把凭证写入 release request；CNB 校验 request/tree/凭证后运行 `build-standalone-artifact.sh`，复核 manifest/digest 并上传服务器。
+- 只有受保护 `main`/正式 release tag 的 `CI / required` 全部通过后，GitHub 才把预构建 standalone 包装成唯一的 `linux/amd64` 应用镜像、推送 GHCR 并生成 `release.json`。PR 永远不能触发 CNB 生产事件。
+- GitHub 用最小权限 `CNB_TRIGGER_TOKEN` 调用 `api_trigger_rehearsal` 或 `api_trigger_deploy`。CNB 只拉取 digest、镜像同一 manifest、执行迁移预检/锁/备份/切换/健康/回执/回滚；生产服务器不 checkout GitHub，也不现场安装应用依赖或构建。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
-- 页面助手源码阅读默认使用服务端受管 Git 源码缓存；本地/内网调试可配置 `AGENT_SOURCE_WORKTREE=/absolute/path/to/workspace`，让助手只读当前 checkout 和未提交源码改动。生产部署时 `ops/deploy.sh` 会将精确 runtime source 同步到 `$REMOTE_DIR/source/Workspace`，并把远端 `.workspace/.env` 的 `AGENT_SOURCE_WORKTREE` 指向该 git worktree。
+- 页面助手不挂载或读取源码、Git worktree、数据库、`.env` 或服务器 home。其运行态是 API-only 薄壳，只能使用 Platform 注入的三个受保护业务 API connector；源码同步、检查、提交和部署留在外部 Codex/CI/服务器流程。
 
 候选提交流程：
 
@@ -35,13 +35,18 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
 
 生产发布流程：
 
-1. 确认当前 HEAD 是要发布的已提交版本、分支为 `main` 且工作区干净，然后运行私有发布入口；deploy 不要求或查询 GitHub 状态：
+1. 确认候选已提交。代码完成时运行一次 CI，签发 Ready；部署请求到达后只运行 deploy：
 
 ```bash
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh ci
 OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 ```
 
-2. `publish.sh deploy` 将当前已提交 source SHA/tree、本地全量 CI 凭证和可选的一次性 production bootstrap context 写入 CNB release request，触发 CNB 后轮询同一个 SN；CNB 只做 Linux 打包、digest 校验和部署。成功后本地复验 schema-v3 `deployed-release.json` 的 runtime/canonical source、CNB/artifact、PM2、health 与版本。诊断时使用同一个 SN 拉日志，不要额外 push 制造第二条部署记录。
+2. CI 在任务图冻结后运行全部独立检查；source 失败不阻止 artifact build/rehearsal。完整通过后 Ready 绑定 source/config/task evidence/artifact。
+3. CI 失败后集中修复完整清单并做针对性验证，再运行增量 CI；成功 exact-input 回执直接复用。
+4. `publish.sh deploy` 不运行源码门禁或构建。成功后复验 `deployed-release.json` 的 canonical source、artifact、PM2、health 与版本。
+
+首次切换生产前，`api_trigger_rehearsal` 必须先证明 GHCR 拉取、CNB Registry digest 一致、非生产启动和回滚。通过后才把仓库变量 `CNB_RELEASE_EVENT` 从 rehearsal 改为 `api_trigger_deploy`，并在私有环境中启用 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
@@ -66,7 +71,7 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 | Apps 业务包 | `packages/hr/`, `packages/production/`, `packages/finance/`, `packages/<domain>/` | 各业务模块自己的 UI、server、types、constants、import、module 注册 |
 | 业务页面壳 | `app/(modules)/<domain>/` | Next 路由 facade，只组合 package UI，保留领域 `ARCHITECTURE.md` |
 | API 路由壳 | `app/api/modules/<domain>/<l2-kebab>/` | 鉴权、权限、Zod 参数校验、调用 package service、返回 DTO |
-| 开发辅助 | `app/api/auth/dev-login-bypass/` | 开发环境快速登录，仅本地 |
+| 远端开发 | `docs/engineering/ops/remote-development.md` | 先确认 Codex 实际工作目录；服务器项目走 SSH/Remote SSH，不提供免认证登录 bypass |
 | 旧业务服务 | `server/services/<domain>/` | 存量兼容/待迁移旧代码；新增业务 service 不再优先放这里 |
 | 认证权限 | `@workspace/platform/server/auth`, `@workspace/platform/permissions`, `packages/platform/server/auth/`, `packages/platform/server/rbac/` | 登录、session、RBAC、资源树；新代码使用 Platform 契约 |
 | 数据库 | `prisma/` | Prisma schema、migration、seed |
@@ -88,7 +93,7 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 - HR 人员查询必须提供姓名、工号或别名关键词，禁止空关键词返回全员名单；候选按精确值、前缀和包含关系排序，最多给模型 20 人。经 `hr.roster.read` 校验后的姓名和工号必须原样显示，不得用星号脱敏，其他非必要个人字段不进入模型投影。
 - 图片原文件作为不可变 session asset 保存，附件展示和下载继续使用原始文件名、类型与字节数；禁止用模型压缩副本覆盖原图。
 - 企业微信 `image` / `mixed` 由长连接 worker 在五分钟有效期内下载并用消息 `aeskey` 解密，随后进入与网页一致的 4 张、单张 5MiB 图片校验链路；不得把临时下载 URL 直接交给模型。模型返回的资料库 JPG/PNG 原件可作为最终流的 `msg_item` 图文发送，其他图片走企业微信 image media，普通资料仍走 file media。
-- 发送模型前由 `packages/platform/server/agent/model-image.ts` 生成衍生图：输入最大 2500 万像素、单图最长边 2000px，多图共享 800 万像素和 1MiB 原始字节预算，单图最多 512KiB。图片数量为 4 时每张预算为 256KiB、最长边上限约 1414px。
+- 发送模型前由 `packages/agent/server/model-image.ts` 生成衍生图：输入最大 2500 万像素、单图最长边 2000px，多图共享 800 万像素和 1MiB 原始字节预算，单图最多 512KiB。图片数量为 4 时每张预算为 256KiB、最长边上限约 1414px。
 - 截图、表格和透明图片优先保留 PNG；超过预算后使用抗锯齿缩放和 JPEG 80/60/40/20 质量阶梯，文字类图片使用 4:4:4 色度采样。处理时自动应用 EXIF 方向、转 sRGB、禁止放大，并通过重新编码剥离非必要元数据。
 - GIF/动画 WebP 只有在原始尺寸和字节预算内才直传；超限时明确拒绝并要求转为静态图片，不得静默丢帧。模型副本生成失败时也不得回退发送超限原图。
 
@@ -96,25 +101,13 @@ Pi DeepSeek Flash、Kimi SDK/CLI 的固定版本、模型认证和生产校验�
 
 ### Agent 接力和文件隔离
 
-开工前先读 `AGENTS.md`、`docs/engineering/project-overview.md` 和 `docs/engineering/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Coordinator、Architecture、Feature、Data、Operations、Review、Hygiene 不能混用职责：
-
-| 角色 | 权威说明 |
-|---|---|
-| Coordinator / Integrator | `docs/roles/coordinator.md` |
-| Architecture | `docs/roles/architecture.md` |
-| Feature | `docs/roles/feature.md` |
-| Data | `docs/roles/data.md` |
-| Operations | `docs/roles/operations.md` |
-| Review | `docs/roles/review.md` |
-| Hygiene | `docs/roles/hygiene.md` |
-
-Coordinator 负责规划、拆包、分配、跟进、集成和收口自检；最终 Review 必须保持独立，不审自己刚实现或刚集成的改动。
+开工角色由 `.agents/skills/workspace-role-router/SKILL.md` 选择，具体边界由对应 `workspace-*` skill 定义。Coordinator 负责规划、拆包、分配、跟进、集成和收口自检；最终 Review 必须保持独立，不审自己刚实现或刚集成的改动。
 
 并行时只 stage 自己的文件。`git status --short` 中出现其他 agent 的范围时，不要提交、回滚、格式化或改名。确实需要干净工作区验证时，先 stage 自己的文件，再用 `git stash push --keep-index --include-untracked` 临时隔离，验证后恢复 stash。
 
 ## 4. 必读文档触发条件
 
-`AGENTS.md` 保留简版触发表。完整治理规则见 `docs/engineering/architecture-governance.md`。
+`AGENTS.md` 保留 Role Gate，角色 skill 保留任务触发，完整治理规则见 `docs/engineering/architecture-governance.md`。
 
 如果任务同时命中多个条件，全部相关文档都要读。读完后在交付说明里写明参考了哪些文档，以及是否同步更新了文档。
 

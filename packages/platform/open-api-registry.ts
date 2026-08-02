@@ -28,6 +28,7 @@ export interface OpenApiRegistration {
   label: string;
   description: string;
   consoleHref: string;
+  consoleTab: string;
   runtimeParentResourceKey: string;
   resources: OpenApiResourceRegistration[];
   scopes: OpenApiScopeRegistration[];
@@ -39,7 +40,8 @@ export const openApiRegistrations = [
     key: "hr.generated",
     label: "HR 生成资料开放 API",
     description: "面向外部系统提供 HR 生成资料读取能力。",
-    consoleHref: "/settings/api/hr-generated",
+    consoleHref: "/settings/api",
+    consoleTab: "catalog",
     runtimeParentResourceKey: "hr.roster",
     resources: [
       {
@@ -64,6 +66,53 @@ export const openApiRegistrations = [
         pathPrefix: "/api/open/v1/hr/generated/roster",
         scopeKey: "hr.generated.roster.read",
         action: "read",
+      },
+    ],
+  },
+  {
+    key: "workspace.notifications",
+    label: "Workspace 通知开放 API",
+    description: "面向受信任外部系统提供已发布通知定义查询与幂等发布能力。",
+    consoleHref: "/settings/api",
+    consoleTab: "notifications",
+    runtimeParentResourceKey: "settings.notifications",
+    resources: [
+      {
+        key: "workspace.notifications",
+        label: "Workspace 通知",
+        description: "读取可调用定义并创建受控通知发布。",
+      },
+    ],
+    scopes: [
+      {
+        key: "workspace.notifications.definitions.read",
+        label: "读取通知定义",
+        resourceKey: "workspace.notifications",
+        action: "read",
+      },
+      {
+        key: "workspace.notifications.publications.write",
+        label: "发布通知",
+        resourceKey: "workspace.notifications",
+        action: "write",
+      },
+    ],
+    endpoints: [
+      {
+        key: "workspace.notifications.definitions.list",
+        label: "读取已发布通知定义",
+        method: "GET",
+        pathPrefix: "/api/open/v1/notifications/definitions",
+        scopeKey: "workspace.notifications.definitions.read",
+        action: "read",
+      },
+      {
+        key: "workspace.notifications.publications.create",
+        label: "创建通知发布",
+        method: "POST",
+        pathPrefix: "/api/open/v1/notifications/publications",
+        scopeKey: "workspace.notifications.publications.write",
+        action: "write",
       },
     ],
   },
@@ -111,6 +160,7 @@ export function getOpenApiEndpoints() {
       ...endpoint,
       registrationKey: registration.key,
       consoleHref: registration.consoleHref,
+      consoleTab: registration.consoleTab,
       runtimeParentResourceKey: registration.runtimeParentResourceKey,
     })),
   );
@@ -135,15 +185,13 @@ export function assertOpenApiRegistryValid() {
   const seenRoutes = new Map<string, string>();
   const seenResources = new Set<string>();
   const seenScopes = new Set<string>();
-  const seenConsoleHrefs = new Set<string>();
   for (const registration of openApiRegistrations) {
-    if (!registration.consoleHref.startsWith("/settings/api/")) {
-      throw new Error(`Open API consoleHref must be under /settings/api: ${registration.key}`);
+    if (registration.consoleHref !== "/settings/api") {
+      throw new Error(`Open API consoleHref must use the shared /settings/api page: ${registration.key}`);
     }
-    if (seenConsoleHrefs.has(registration.consoleHref)) {
-      throw new Error(`Duplicate Open API consoleHref: ${registration.consoleHref}`);
+    if (!/^[a-z][a-z0-9-]*$/.test(registration.consoleTab)) {
+      throw new Error(`Open API consoleTab must be a stable tab key: ${registration.key}`);
     }
-    seenConsoleHrefs.add(registration.consoleHref);
 
     const resourceKeys = new Set(registration.resources.map((resource) => resource.key));
     for (const resource of registration.resources) {

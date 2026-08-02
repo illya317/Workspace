@@ -86,6 +86,15 @@ function requireMatchingMarker(marker, identity) {
   return marker;
 }
 
+function isCompletedSourceReanchor(marker, identity) {
+  return marker?.schemaVersion === 1
+    && marker.kind === MARKER_KIND
+    && marker.status === "completed"
+    && marker.candidateSourceSha === identity.fromSourceSha
+    && marker.baselineMigration === identity.baselineMigration
+    && marker.baselineChecksum === identity.baselineChecksum;
+}
+
 export function classifyGenesisState({ rows, marker, ...options }) {
   const identity = markerIdentity(options);
   const active = normalizedMigrationRows(rows);
@@ -96,6 +105,9 @@ export function classifyGenesisState({ rows, marker, ...options }) {
     }
     if (baselineRows[0].appliedStepsCount !== 0) {
       fail("sanitized baseline receipt must be recorded by Prisma resolve without executing baseline SQL");
+    }
+    if (isCompletedSourceReanchor(marker, identity)) {
+      return { state: "completed", identity, marker, sourceReanchor: true };
     }
     const checkedMarker = requireMatchingMarker(marker, identity);
     return { state: checkedMarker.status === "completed" ? "completed" : "baseline-recorded", identity, marker: checkedMarker };

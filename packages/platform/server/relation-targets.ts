@@ -1,14 +1,13 @@
 import {
   createRelationCatalog,
   type RelationDefinition,
-  type RelationLifecyclePolicies,
-  type RelationPhysicalDefinition,
-  type RelationSemantics,
-  type RelationUsage,
   type SelectorRelationDefinition,
-  type LifecycleScope,
   UNCLASSIFIED_RELATION_LIFECYCLE,
 } from "./relation-registry";
+import type {
+  RelationRegistrationContract,
+  RelationTargetKind,
+} from "../relation-registration-contract";
 import {
   resolveFkCompany,
   resolveFkDepartment,
@@ -40,29 +39,6 @@ import {
   searchFkUsers,
 } from "./fk-search";
 
-export type RelationTargetKind =
-  | "company"
-  | "department"
-  | "employee"
-  | "financeAccount"
-  | "financeGroupAccount"
-  | "financeConsolidationEntrySource"
-  | "meeting"
-  | "meetingActionCandidate"
-  | "meetingDecision"
-  | "party"
-  | "position"
-  | "positionDescription"
-  | "positionResponsibilityNode"
-  | "project"
-  | "projectPlanPhase"
-  | "user"
-  | "departmentCollaboration"
-  | "workItem"
-  | "workKpiAssignment"
-  | "workPlan"
-  | "workOkrCycle";
-
 type RelationTargetSpec = Pick<SelectorRelationDefinition, "target" | "search" | "resolve">;
 
 const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
@@ -81,18 +57,43 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: ({ keyword, lifecycleScope }) => searchFkEmployees(keyword, lifecycleScope),
     resolve: resolveFkEmployee,
   },
+  employeePosition: {
+    target: { entity: "EDP", label: "员工岗位任职" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  employeeProject: {
+    target: { entity: "EmployeeProject", label: "项目成员版本" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   financeAccount: {
     target: { entity: "FinanceAccount", label: "财务科目" },
     search: ({ keyword }) => searchFkFinanceAccounts(keyword),
     resolve: resolveFkFinanceAccount,
+  },
+  financeAssetCategory: {
+    target: { entity: "FinanceAssetCategory", label: "资产分类" },
+    search: async () => [],
+    resolve: async () => null,
   },
   financeGroupAccount: {
     target: { entity: "FinanceGroupAccount", label: "集团科目" },
     search: ({ keyword }) => searchFkFinanceGroupAccounts(keyword),
     resolve: resolveFkFinanceGroupAccount,
   },
+  financeVoucherItem: {
+    target: { entity: "FinanceVoucherItem", label: "凭证明细" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   financeConsolidationEntrySource: {
     target: { entity: "FinanceConsolidationEntrySource", label: "抵销业务来源" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  investmentEnterpriseProfile: {
+    target: { entity: "InvestmentEnterpriseProfile", label: "投资企业档案" },
     search: async () => [],
     resolve: async () => null,
   },
@@ -111,6 +112,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: ({ keyword }) => searchFkMeetingDecisions(keyword),
     resolve: resolveFkMeetingDecision,
   },
+  notificationPublication: {
+    target: { entity: "NotificationPublication", label: "通知发布事实" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   party: {
     target: { entity: "Party", label: "主体" },
     search: ({ keyword }) => searchFkParties(keyword),
@@ -126,6 +132,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: ({ keyword }) => searchFkPositionDescriptions(keyword),
     resolve: resolveFkPositionDescription,
   },
+  positionDescriptionRevision: {
+    target: { entity: "PositionDescriptionRevision", label: "岗位说明书版本" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   positionResponsibilityNode: {
     target: { entity: "PositionResponsibilityNode", label: "岗位职责" },
     search: async () => [],
@@ -135,6 +146,26 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "Project", label: "项目" },
     search: ({ keyword, lifecycleScope }) => searchFkProjects(keyword, lifecycleScope),
     resolve: resolveFkProject,
+  },
+  projectMembershipChange: {
+    target: { entity: "ProjectMembershipChange", label: "项目成员命令" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationRule: {
+    target: { entity: "ProjectNotificationRule", label: "项目通知规则" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationRuleRevision: {
+    target: { entity: "ProjectNotificationRuleRevision", label: "项目通知规则版本" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  projectNotificationSignal: {
+    target: { entity: "ProjectNotificationSignal", label: "项目通知信号" },
+    search: async () => [],
+    resolve: async () => null,
   },
   projectPlanPhase: {
     target: { entity: "ProjectPlanPhase", label: "项目阶段" },
@@ -173,21 +204,7 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
   },
 };
 
-export interface RelationRegistration
-  extends Pick<
-    SelectorRelationDefinition,
-    "key" | "scope" | "source" | "nullable" | "updatePolicy" | "targetDeletePolicy" | "targetArchivePolicy" | "permission"
-  > {
-  usage?: RelationUsage;
-  semantics?: RelationSemantics;
-  lifecycle?: Partial<RelationLifecyclePolicies>;
-  physical?: RelationPhysicalDefinition | null;
-  adapterKey?: string;
-  exemptionReason?: string;
-  target: RelationTargetKind;
-  targetLabel?: string;
-  defaultLifecycleScope?: LifecycleScope;
-}
+export type RelationRegistration = RelationRegistrationContract;
 
 export type RelationRegistrationAdapter = Partial<Pick<SelectorRelationDefinition, "search" | "resolve">>;
 

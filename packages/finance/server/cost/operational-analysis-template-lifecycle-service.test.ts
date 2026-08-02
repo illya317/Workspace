@@ -36,7 +36,7 @@ let runtimeCalls = 0;
 let templateUpdate: Record<string, unknown> | null = null;
 let revisionCreate: Record<string, unknown> | null = null;
 
-mock.module("@workspace/platform/server/api", {
+mock.module("@workspace/platform/service-result", {
   namedExports: {
     serviceOk: (data: unknown) => ({ ok: true, data }),
     serviceError: (error: string, status: number) => ({ ok: false, error, status }),
@@ -77,7 +77,10 @@ mock.module("@workspace/platform/server/prisma", {
   },
 } as never);
 mock.module("./operational-analytics", {
-  namedExports: { canConfigureOperationalAnalytics: async () => true },
+  namedExports: {
+    canConfigureOperationalAnalytics: async () => true,
+    canUseOperationalAnalyticsApi: async () => true,
+  },
 } as never);
 mock.module("./workspace-analysis-runtime", {
   namedExports: {

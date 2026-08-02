@@ -14,6 +14,7 @@ WORKSPACE_CONFIG_DIR="${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}"
 
 DRY_RUN=0
 SOURCE_SHA=""
+DEPLOY_LOCK_TOKEN=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=1 ;;
@@ -21,10 +22,14 @@ while [ "$#" -gt 0 ]; do
       shift
       SOURCE_SHA="${1:-}"
       ;;
+    --lock-token)
+      shift
+      DEPLOY_LOCK_TOKEN="${1:-}"
+      ;;
     -h|--help)
       cat <<'EOF'
 用法:
-  OPS_ENV_FILE=/path/to/ops/.env ops/sync-tenant-config.sh [--dry-run] [--source-sha SHA]
+  OPS_ENV_FILE=/path/to/ops/.env ops/sync-tenant-config.sh [--dry-run] [--source-sha SHA] [--lock-token TOKEN]
 
 根据 config/tenant/profile.json 收集租户配置及其引用文件，先上传到服务器
 暂存目录并逐文件校验，再切换到 REMOTE_DIR/.workspace。失败时拒绝部署。
@@ -87,6 +92,14 @@ if [ "$DRY_RUN" = "1" ]; then
   exit 0
 fi
 
+[ -n "$DEPLOY_LOCK_TOKEN" ] || {
+  echo "[错误] 租户配置安装只能在已获取的共享 deploy.lock 内执行" >&2
+  exit 73
+}
+case "$DEPLOY_LOCK_TOKEN" in
+  *[!A-Za-z0-9._:-]*) echo "[错误] deploy lock token 格式无效" >&2; exit 73 ;;
+esac
+
 if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
   SSH_KEY="$KEY"
 elif [ -n "${KEY_CONTENT:-}" ]; then
@@ -107,29 +120,46 @@ RSYNC_SSH="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKe
 
 echo "==> 上传租户配置到服务器暂存目录..."
 ssh "${SSH_OPTIONS[@]}" "$SERVER" \
-  "set -e; mkdir -p '$REMOTE_STAGING_ROOT/.deployment' '$REMOTE_DIR/.workspace.backups/tenant-config'"
+  "set -e
+   owner_file='$REMOTE_WORKSPACE_CONFIG_DIR/deploy-lock.owner'
+   lock_file='$REMOTE_WORKSPACE_CONFIG_DIR/deploy.lock'
+   test \"\$(cat \"\$owner_file\" 2>/dev/null)\" = '$DEPLOY_LOCK_TOKEN'
+   if flock -n \"\$lock_file\" true; then
+     echo '[错误] 租户配置安装未检测到外层持有的共享 deploy.lock' >&2
+     exit 73
+   fi
+   mkdir -p '$REMOTE_STAGING_ROOT/.deployment' '$REMOTE_DIR/.workspace.backups/tenant-config'"
 rsync -az --files-from="$FILE_LIST" -e "$RSYNC_SSH" \
   "$WORKSPACE_CONFIG_DIR/" "$SERVER:$REMOTE_STAGING_ROOT/"
 rsync -az -e "$RSYNC_SSH" \
   "$MANIFEST_FILE" "$SCRIPT_DIR/tenant-config-manifest.mjs" \
+  "$SCRIPT_DIR/reconcile-runtime-config-permissions.sh" \
   "$SERVER:$REMOTE_STAGING_ROOT/.deployment/"
 
 echo "==> 服务器逐文件校验并切换租户配置..."
 ssh "${SSH_OPTIONS[@]}" "$SERVER" "
   set -e
+  test \"\$(cat '$REMOTE_WORKSPACE_CONFIG_DIR/deploy-lock.owner' 2>/dev/null)\" = '$DEPLOY_LOCK_TOKEN'
+  if flock -n '$REMOTE_WORKSPACE_CONFIG_DIR/deploy.lock' true; then
+    echo '[错误] 租户配置切换时共享 deploy.lock 已丢失' >&2
+    exit 73
+  fi
   tool='$REMOTE_STAGING_ROOT/.deployment/tenant-config-manifest.mjs'
   manifest='$REMOTE_STAGING_ROOT/.deployment/tenant-config-manifest.json'
+  reconciler='$REMOTE_STAGING_ROOT/.deployment/reconcile-runtime-config-permissions.sh'
   node \"\$tool\" verify --root '$REMOTE_STAGING_ROOT' --manifest \"\$manifest\"
   node \"\$tool\" install \
     --staging-root '$REMOTE_STAGING_ROOT' \
     --target-root '$REMOTE_WORKSPACE_CONFIG_DIR' \
     --backup-root '$REMOTE_BACKUP_ROOT' \
     --manifest \"\$manifest\"
+  sudo -n -- bash \"\$reconciler\" '$REMOTE_WORKSPACE_CONFIG_DIR' workspace-runtime
   node \"\$tool\" verify --root '$REMOTE_WORKSPACE_CONFIG_DIR' --manifest \"\$manifest\"
   rm -rf '$REMOTE_STAGING_ROOT'
   find '$REMOTE_DIR/.workspace.backups/tenant-config' -mindepth 1 -maxdepth 1 -type d \
-    -printf '%f\\n' | sort -r | tail -n +6 | while IFS= read -r stale; do
-      rm -rf '$REMOTE_DIR/.workspace.backups/tenant-config/'\"\$stale\"
+    -printf '%T@ %p\\0' | sort -z -nr | tail -z -n +6 | while IFS= read -r -d '' stale_entry; do
+      stale_path=\"\${stale_entry#* }\"
+      case \"\$stale_path\" in '$REMOTE_DIR/.workspace.backups/tenant-config/'*) rm -rf -- \"\$stale_path\" ;; esac
     done
 "
 echo "==> 租户配置同步完成并通过服务器摘要校验: $TENANT_CONFIG_DIGEST"

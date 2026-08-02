@@ -5,13 +5,14 @@ import type { RosterSurfaceTabBarProps } from "../../roster-surface";
 import { DepartmentPositionActiveWorkspace } from "./active-workspace";
 import { useDepartmentPositionDetailSections } from "./department-position-detail-area";
 import { buildDepartmentPositionToolbarItems } from "./department-position-toolbar-items";
-import type { Department, Selection } from "./types";
+import type { Department, OrganizationCodeConfig, Selection } from "./types";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 
 export function DepartmentPositionMainContent({
   treeSelector,
   createPanel,
   departments,
+  codeConfig,
   departmentById,
   departmentCreateRuntime,
   isOrganizationMode,
@@ -28,6 +29,7 @@ export function DepartmentPositionMainContent({
   treeSelector: SelectorSurfaceProps<Department>;
   createPanel: "department" | "position" | null;
   departments: Department[];
+  codeConfig: OrganizationCodeConfig | null;
   departmentById: Map<number, Department>;
   departmentCreateRuntime: ActionRuntime | null;
   isOrganizationMode: boolean;
@@ -57,9 +59,10 @@ export function DepartmentPositionMainContent({
     },
     assistantAction: surface?.assistantAction,
   });
-  const workspaceBlocks = useDepartmentPositionDetailSections({
+  const workspace = useDepartmentPositionDetailSections({
     createPanel,
     departments,
+    codeConfig,
     departmentById,
     actionRuntime: departmentCreateRuntime,
     onCreatePanelChange,
@@ -74,7 +77,8 @@ export function DepartmentPositionMainContent({
   return (
     <DepartmentPositionActiveWorkspace
       selector={treeSelector}
-      sections={workspaceBlocks}
+      create={workspace.create}
+      sections={workspace.sections}
       toolbarItems={toolbarItems}
       surface={surface}
     />

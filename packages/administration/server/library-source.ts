@@ -38,14 +38,15 @@ export function buildContractLedgerArtifact(
   }
   const sheet = workbook.Sheets["合同台账"]!;
   sheet["!cols"] = [
-    { wch: 10 }, { wch: 8 }, { wch: 20 }, { wch: 36 }, { wch: 28 }, { wch: 28 },
-    { wch: 24 }, { wch: 18 }, { wch: 48 }, { wch: 18 }, { wch: 14 }, { wch: 14 },
-    { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 28 }, { wch: 48 },
+    { wch: 10 }, { wch: 38 }, { wch: 8 }, { wch: 20 }, { wch: 36 }, { wch: 18 },
+    { wch: 28 }, { wch: 28 }, { wch: 24 }, { wch: 28 }, { wch: 20 }, { wch: 48 },
+    { wch: 18 }, { wch: 14 }, { wch: 14 }, { wch: 12 }, { wch: 12 }, { wch: 12 },
+    { wch: 16 }, { wch: 16 }, { wch: 8 }, { wch: 10 }, { wch: 28 }, { wch: 48 }, { wch: 48 },
   ];
   const content = XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
   const asOfDate = businessDate(generatedAt);
-  const withStatus = records.filter((record) => Boolean(record.status?.trim())).length;
-  const withoutStatus = records.length - withStatus;
+  const confirmedStatus = records.filter((record) => record.lifecycleStatus !== "unknown").length;
+  const needsStatusReview = records.length - confirmedStatus;
 
   return {
     sourceKey: SOURCE_KEY,
@@ -61,8 +62,8 @@ export function buildContractLedgerArtifact(
     verifiedAt: generatedAt.toISOString(),
     evidence: [
       `Contract:total:${records.length}`,
-      `Contract:with-status:${withStatus}`,
-      `Contract:without-status:${withoutStatus}`,
+      `Contract:confirmed-lifecycle-status:${confirmedStatus}`,
+      `Contract:needs-status-review:${needsStatusReview}`,
       "source:workspace-administration",
     ],
   };

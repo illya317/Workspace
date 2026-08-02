@@ -7,7 +7,8 @@ import type { DeploymentProfileSpec } from "./deployment-profile-spec";
 test("supported profiles are exact, buildable and capacity-bounded", () => {
   const full = resolveDeploymentProfile("full");
   const finance = resolveDeploymentProfile("finance-focused");
-  assert.equal(full.unitIds.length, 12);
+  assert.equal(full.unitIds.length, 13);
+  assert.ok(full.unitIds.includes("news"));
   assert.deepEqual(finance.unitIds, [
     "workspace-shell", "finance", "hr", "work", "library", "docs", "assistant",
     "capital-securities", "administration",

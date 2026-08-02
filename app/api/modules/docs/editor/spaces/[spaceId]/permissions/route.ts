@@ -4,8 +4,8 @@ import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantDat
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { serviceError } from "@workspace/platform/server/api";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { docsEditorScopeId } from "@workspace/platform/server/docs-editor/permissions";
-import { loadManageableDocsEditorPermissionSpace } from "@workspace/platform/server/docs-editor/space-permissions";
+import { docsEditorScopeId } from "@workspace/docs/server/permissions";
+import { loadManageableDocsEditorPermissionSpace } from "@workspace/docs/server/space-permissions";
 import {
   getSpaceChildResourceKeyForTargetType,
 } from "@workspace/platform/permission-resource-policy";

@@ -77,3 +77,216 @@ test("executable manifests select a registered handler instead of a script path"
     sourceRoot: "/srv/private/sources",
   }), /not registered/);
 });
+
+test("finance auxiliary identity releases use the registered repair handler", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-auxiliary-identity-links-v1",
+    parameters: { inputFile: "finance/auxiliary-identities.json" },
+  }, {
+    repositoryRoot: "/repo",
+    sourceRoot: "/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.deepEqual(command.args.slice(0, 4), [
+    "--conditions=react-server",
+    "--import",
+    "tsx",
+    "/repo/scripts/repair/repair-finance-auxiliary-identity-links.ts",
+  ]);
+  assert.equal(command.args.at(-1), "--input-file=/private/sources/finance/auxiliary-identities.json");
+});
+
+test("finance budget releases use private workbooks and a pinned reference map", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-budget-v1",
+    parameters: {
+      companyCode: "C01",
+      year: 2026,
+      versionName: "2026 初始预算",
+      departmentFile: "finance/department-budget.xlsx",
+      researchFile: "finance/research-budget.xlsx",
+      referenceFile: "finance/budget-references.json",
+    },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId,
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes(`--release-id=${releaseId}`));
+  assert.ok(command.args.includes("--department-file=/srv/private/sources/finance/department-budget.xlsx"));
+  assert.ok(command.args.includes("--reference-file=/srv/private/sources/finance/budget-references.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-budget-v1",
+    parameters: {
+      companyCode: "C01",
+      year: 2026,
+      versionName: "bad",
+      departmentFile: "../outside.xlsx",
+      researchFile: "finance/research-budget.xlsx",
+      referenceFile: "finance/budget-references.json",
+    },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId,
+  }), /escapes/);
+});
+
+test("June finance close cutover uses one pinned private payload", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-june-close-cutover-v1",
+    parameters: { inputFile: "finance/june-close-2026-06/cutover.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId: "finance-june-close-2026-06-v1",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--release-id=finance-june-close-2026-06-v1"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/june-close-2026-06/cutover.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-june-close-cutover-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+    releaseId: "finance-june-close-2026-06-v1",
+  }), /escapes/);
+});
+
+test("finance reviewed-origin repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-reviewed-origin-mappings-v1",
+    parameters: { inputFile: "finance/reviewed-origin-mappings.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/reviewed-origin-mappings.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-reviewed-origin-mappings-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("finance consolidation vouchers use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-voucher-v1",
+    parameters: { inputFile: "finance/consolidation-voucher.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/finance/consolidation-voucher.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-voucher-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("finance consolidation entry migrations use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-entry-migration-v1",
+    parameters: { inputFile: "finance/consolidation-entry-migration.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.deepEqual(command.args, [
+    "/srv/release/scripts/repair/repair-finance-consolidation-entry.mjs",
+    "--execute",
+    "--input-file=/srv/private/sources/finance/consolidation-entry-migration.json",
+  ]);
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "finance-consolidation-entry-migration-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("HR lifecycle compatibility repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-lifecycle-compatibility-v1",
+    parameters: { inputFile: "hr/lifecycle-compatibility.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/lifecycle-compatibility.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-lifecycle-compatibility-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("HR organization baseline compatibility repairs use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-organization-baseline-compatibility-v1",
+    parameters: { inputFile: "hr/organization-baseline-compatibility.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/organization-baseline-compatibility.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-organization-baseline-compatibility-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("HR employment agreement baselines use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-employment-agreement-baseline-v1",
+    parameters: { inputFile: "hr/employment-agreement-baseline.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.equal(command.executable, process.execPath);
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/employment-agreement-baseline.json"));
+  assert.throws(() => buildDataReleaseHandlerCommand({
+    handler: "hr-employment-agreement-baseline-v1",
+    parameters: { inputFile: "../outside.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  }), /escapes/);
+});
+
+test("HR social insurance baselines use a pinned private input file", () => {
+  const command = buildDataReleaseHandlerCommand({
+    handler: "hr-social-insurance-baseline-v1",
+    parameters: { inputFile: "hr/social-insurance-baseline.json" },
+  }, {
+    repositoryRoot: "/srv/release",
+    sourceRoot: "/srv/private/sources",
+  });
+  assert.ok(command.args.includes("--execute"));
+  assert.ok(command.args.includes("--input-file=/srv/private/sources/hr/social-insurance-baseline.json"));
+});

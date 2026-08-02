@@ -4,7 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { isProductionBatchNumber, PRODUCTION_BATCH_NUMBER_MESSAGE } from "@workspace/platform/production-batch-number";
-import { getPublishedQcOfficialTemplateByProductKey } from "@workspace/platform/server/docs-editor";
+import { getPublishedQcOfficialTemplateByProductKey } from "@workspace/platform/server/document-template-catalog";
 import { getActiveFinishedGood, normalizeProductReference } from "@workspace/platform/server/product-master";
 import {
   qcRuntimeFieldMetadata,

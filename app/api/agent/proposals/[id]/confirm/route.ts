@@ -6,11 +6,10 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import {
+  agentBusinessApiProposalExecutors,
   agentProposalActionErrorStatus,
   confirmProposalAction,
-  sourceAgentProposalExecutors,
-} from "@workspace/platform/server/agent";
-import { loadRemoteAgentProposalExecutors } from "@workspace/platform/server/agent/remote-domain-rpc";
+} from "@workspace/agent/server";
 import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
@@ -27,11 +26,11 @@ export async function POST(
   if (!parsedParams.success) return jsonErrorResponse("Invalid id", 400);
 
   try {
-    const domainExecutors = await loadRemoteAgentProposalExecutors();
-    const result = await confirmProposalAction(parsedParams.data.id, user, {
-      ...domainExecutors,
-      ...sourceAgentProposalExecutors,
-    });
+    const result = await confirmProposalAction(
+      parsedParams.data.id,
+      user,
+      agentBusinessApiProposalExecutors,
+    );
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "执行失败";

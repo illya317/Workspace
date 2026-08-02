@@ -32,6 +32,12 @@ test("permission action knowledge resolves an exact permission and its BusinessA
   )));
 });
 
+test("permission action knowledge exposes authenticated system-default Docs access", () => {
+  const companyRead = knowledge.permissions.find((permission) => permission.key === "docs.company.read");
+  assert.equal(companyRead?.grantMode, "system_default");
+  assert.match(companyRead?.grantDescription ?? "", /所有登录用户/);
+});
+
 test("permission action knowledge queries by BusinessAction, concrete route and readable text", () => {
   const byAction = queryPermissionActionKnowledge({
     businessActionKey: "finance.ledger.groupAccount.review",

@@ -31,6 +31,7 @@ export type StockPackagingAvgAggregateOutputType = {
   lastBalance: number | null
   currentInbound: number | null
   currentOutbound: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -40,6 +41,7 @@ export type StockPackagingSumAggregateOutputType = {
   lastBalance: number | null
   currentInbound: number | null
   currentOutbound: number | null
+  companyId: number | null
   editedBy: number | null
   version: number | null
 }
@@ -59,6 +61,7 @@ export type StockPackagingMinAggregateOutputType = {
   expiryDate: string | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -81,6 +84,7 @@ export type StockPackagingMaxAggregateOutputType = {
   expiryDate: string | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -103,6 +107,7 @@ export type StockPackagingCountAggregateOutputType = {
   expiryDate: number
   remark: number
   companyCode: number
+  companyId: number
   editedBy: number
   editedAt: number
   version: number
@@ -117,6 +122,7 @@ export type StockPackagingAvgAggregateInputType = {
   lastBalance?: true
   currentInbound?: true
   currentOutbound?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -126,6 +132,7 @@ export type StockPackagingSumAggregateInputType = {
   lastBalance?: true
   currentInbound?: true
   currentOutbound?: true
+  companyId?: true
   editedBy?: true
   version?: true
 }
@@ -145,6 +152,7 @@ export type StockPackagingMinAggregateInputType = {
   expiryDate?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -167,6 +175,7 @@ export type StockPackagingMaxAggregateInputType = {
   expiryDate?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -189,6 +198,7 @@ export type StockPackagingCountAggregateInputType = {
   expiryDate?: true
   remark?: true
   companyCode?: true
+  companyId?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -298,6 +308,7 @@ export type StockPackagingGroupByOutputType = {
   expiryDate: string | null
   remark: string | null
   companyCode: string | null
+  companyId: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -343,12 +354,14 @@ export type StockPackagingWhereInput = {
   expiryDate?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   remark?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockPackaging"> | Date | string | null
   version?: Prisma.IntFilter<"StockPackaging"> | number
   createdAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type StockPackagingOrderByWithRelationInput = {
@@ -366,12 +379,14 @@ export type StockPackagingOrderByWithRelationInput = {
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type StockPackagingWhereUniqueInput = Prisma.AtLeast<{
@@ -392,12 +407,14 @@ export type StockPackagingWhereUniqueInput = Prisma.AtLeast<{
   expiryDate?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   remark?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockPackaging"> | Date | string | null
   version?: Prisma.IntFilter<"StockPackaging"> | number
   createdAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "code">
 
 export type StockPackagingOrderByWithAggregationInput = {
@@ -415,6 +432,7 @@ export type StockPackagingOrderByWithAggregationInput = {
   expiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -445,6 +463,7 @@ export type StockPackagingScalarWhereWithAggregatesInput = {
   expiryDate?: Prisma.StringNullableWithAggregatesFilter<"StockPackaging"> | string | null
   remark?: Prisma.StringNullableWithAggregatesFilter<"StockPackaging"> | string | null
   companyCode?: Prisma.StringNullableWithAggregatesFilter<"StockPackaging"> | string | null
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"StockPackaging"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"StockPackaging"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"StockPackaging"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"StockPackaging"> | number
@@ -471,6 +490,7 @@ export type StockPackagingCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedStockPackagingsInput
+  company?: Prisma.CompanyCreateNestedOneWithoutStockPackagingsInput
 }
 
 export type StockPackagingUncheckedCreateInput = {
@@ -488,6 +508,7 @@ export type StockPackagingUncheckedCreateInput = {
   expiryDate?: string | null
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -514,6 +535,7 @@ export type StockPackagingUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedStockPackagingsNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutStockPackagingsNestedInput
 }
 
 export type StockPackagingUncheckedUpdateInput = {
@@ -531,6 +553,7 @@ export type StockPackagingUncheckedUpdateInput = {
   expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -553,6 +576,7 @@ export type StockPackagingCreateManyInput = {
   expiryDate?: string | null
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -595,6 +619,7 @@ export type StockPackagingUncheckedUpdateManyInput = {
   expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -627,6 +652,7 @@ export type StockPackagingCountOrderByAggregateInput = {
   expiryDate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -639,6 +665,7 @@ export type StockPackagingAvgOrderByAggregateInput = {
   lastBalance?: Prisma.SortOrder
   currentInbound?: Prisma.SortOrder
   currentOutbound?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -658,6 +685,7 @@ export type StockPackagingMaxOrderByAggregateInput = {
   expiryDate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -680,6 +708,7 @@ export type StockPackagingMinOrderByAggregateInput = {
   expiryDate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -692,6 +721,7 @@ export type StockPackagingSumOrderByAggregateInput = {
   lastBalance?: Prisma.SortOrder
   currentInbound?: Prisma.SortOrder
   currentOutbound?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -738,6 +768,48 @@ export type StockPackagingUncheckedUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.StockPackagingScalarWhereInput | Prisma.StockPackagingScalarWhereInput[]
 }
 
+export type StockPackagingCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput> | Prisma.StockPackagingCreateWithoutCompanyInput[] | Prisma.StockPackagingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockPackagingCreateOrConnectWithoutCompanyInput | Prisma.StockPackagingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockPackagingCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+}
+
+export type StockPackagingUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput> | Prisma.StockPackagingCreateWithoutCompanyInput[] | Prisma.StockPackagingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockPackagingCreateOrConnectWithoutCompanyInput | Prisma.StockPackagingCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.StockPackagingCreateManyCompanyInputEnvelope
+  connect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+}
+
+export type StockPackagingUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput> | Prisma.StockPackagingCreateWithoutCompanyInput[] | Prisma.StockPackagingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockPackagingCreateOrConnectWithoutCompanyInput | Prisma.StockPackagingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockPackagingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockPackagingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockPackagingCreateManyCompanyInputEnvelope
+  set?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  disconnect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  delete?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  connect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  update?: Prisma.StockPackagingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockPackagingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockPackagingUpdateManyWithWhereWithoutCompanyInput | Prisma.StockPackagingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockPackagingScalarWhereInput | Prisma.StockPackagingScalarWhereInput[]
+}
+
+export type StockPackagingUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput> | Prisma.StockPackagingCreateWithoutCompanyInput[] | Prisma.StockPackagingUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.StockPackagingCreateOrConnectWithoutCompanyInput | Prisma.StockPackagingCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.StockPackagingUpsertWithWhereUniqueWithoutCompanyInput | Prisma.StockPackagingUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.StockPackagingCreateManyCompanyInputEnvelope
+  set?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  disconnect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  delete?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  connect?: Prisma.StockPackagingWhereUniqueInput | Prisma.StockPackagingWhereUniqueInput[]
+  update?: Prisma.StockPackagingUpdateWithWhereUniqueWithoutCompanyInput | Prisma.StockPackagingUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.StockPackagingUpdateManyWithWhereWithoutCompanyInput | Prisma.StockPackagingUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.StockPackagingScalarWhereInput | Prisma.StockPackagingScalarWhereInput[]
+}
+
 export type StockPackagingCreateWithoutEditorInput = {
   code: string
   name: string
@@ -756,6 +828,7 @@ export type StockPackagingCreateWithoutEditorInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  company?: Prisma.CompanyCreateNestedOneWithoutStockPackagingsInput
 }
 
 export type StockPackagingUncheckedCreateWithoutEditorInput = {
@@ -773,6 +846,7 @@ export type StockPackagingUncheckedCreateWithoutEditorInput = {
   expiryDate?: string | null
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -823,11 +897,81 @@ export type StockPackagingScalarWhereInput = {
   expiryDate?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   remark?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
   companyCode?: Prisma.StringNullableFilter<"StockPackaging"> | string | null
+  companyId?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedBy?: Prisma.IntNullableFilter<"StockPackaging"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"StockPackaging"> | Date | string | null
   version?: Prisma.IntFilter<"StockPackaging"> | number
   createdAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"StockPackaging"> | Date | string
+}
+
+export type StockPackagingCreateWithoutCompanyInput = {
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  packagingType?: string
+  status?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  batchNo?: string | null
+  expiryDate?: string | null
+  remark?: string | null
+  companyCode?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedStockPackagingsInput
+}
+
+export type StockPackagingUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  packagingType?: string
+  status?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  batchNo?: string | null
+  expiryDate?: string | null
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockPackagingCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.StockPackagingWhereUniqueInput
+  create: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockPackagingCreateManyCompanyInputEnvelope = {
+  data: Prisma.StockPackagingCreateManyCompanyInput | Prisma.StockPackagingCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type StockPackagingUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockPackagingWhereUniqueInput
+  update: Prisma.XOR<Prisma.StockPackagingUpdateWithoutCompanyInput, Prisma.StockPackagingUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.StockPackagingCreateWithoutCompanyInput, Prisma.StockPackagingUncheckedCreateWithoutCompanyInput>
+}
+
+export type StockPackagingUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.StockPackagingWhereUniqueInput
+  data: Prisma.XOR<Prisma.StockPackagingUpdateWithoutCompanyInput, Prisma.StockPackagingUncheckedUpdateWithoutCompanyInput>
+}
+
+export type StockPackagingUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.StockPackagingScalarWhereInput
+  data: Prisma.XOR<Prisma.StockPackagingUpdateManyMutationInput, Prisma.StockPackagingUncheckedUpdateManyWithoutCompanyInput>
 }
 
 export type StockPackagingCreateManyEditorInput = {
@@ -845,6 +989,7 @@ export type StockPackagingCreateManyEditorInput = {
   expiryDate?: string | null
   remark?: string | null
   companyCode?: string | null
+  companyId?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -869,6 +1014,7 @@ export type StockPackagingUpdateWithoutEditorInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  company?: Prisma.CompanyUpdateOneWithoutStockPackagingsNestedInput
 }
 
 export type StockPackagingUncheckedUpdateWithoutEditorInput = {
@@ -886,6 +1032,7 @@ export type StockPackagingUncheckedUpdateWithoutEditorInput = {
   expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -907,6 +1054,94 @@ export type StockPackagingUncheckedUpdateManyWithoutEditorInput = {
   expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockPackagingCreateManyCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  spec?: string | null
+  unit?: string
+  packagingType?: string
+  status?: string
+  lastBalance?: number
+  currentInbound?: number
+  currentOutbound?: number
+  batchNo?: string | null
+  expiryDate?: string | null
+  remark?: string | null
+  companyCode?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type StockPackagingUpdateWithoutCompanyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedStockPackagingsNestedInput
+}
+
+export type StockPackagingUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type StockPackagingUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  spec?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unit?: Prisma.StringFieldUpdateOperationsInput | string
+  packagingType?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  lastBalance?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentInbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  currentOutbound?: Prisma.FloatFieldUpdateOperationsInput | number
+  batchNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  expiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -930,12 +1165,14 @@ export type StockPackagingSelect<ExtArgs extends runtime.Types.Extensions.Intern
   expiryDate?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockPackaging"]>
 
 export type StockPackagingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -953,12 +1190,14 @@ export type StockPackagingSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   expiryDate?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockPackaging"]>
 
 export type StockPackagingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -976,12 +1215,14 @@ export type StockPackagingSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   expiryDate?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }, ExtArgs["result"]["stockPackaging"]>
 
 export type StockPackagingSelectScalar = {
@@ -999,6 +1240,7 @@ export type StockPackagingSelectScalar = {
   expiryDate?: boolean
   remark?: boolean
   companyCode?: boolean
+  companyId?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1006,21 +1248,25 @@ export type StockPackagingSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StockPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "spec" | "unit" | "packagingType" | "status" | "lastBalance" | "currentInbound" | "currentOutbound" | "batchNo" | "expiryDate" | "remark" | "companyCode" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockPackaging"]>
+export type StockPackagingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "spec" | "unit" | "packagingType" | "status" | "lastBalance" | "currentInbound" | "currentOutbound" | "batchNo" | "expiryDate" | "remark" | "companyCode" | "companyId" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["stockPackaging"]>
 export type StockPackagingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }
 export type StockPackagingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }
 export type StockPackagingIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.StockPackaging$editorArgs<ExtArgs>
+  company?: boolean | Prisma.StockPackaging$companyArgs<ExtArgs>
 }
 
 export type $StockPackagingPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "StockPackaging"
   objects: {
     editor: Prisma.$UserPayload<ExtArgs> | null
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1037,6 +1283,7 @@ export type $StockPackagingPayload<ExtArgs extends runtime.Types.Extensions.Inte
     expiryDate: string | null
     remark: string | null
     companyCode: string | null
+    companyId: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1437,6 +1684,7 @@ readonly fields: StockPackagingFieldRefs;
 export interface Prisma__StockPackagingClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   editor<T extends Prisma.StockPackaging$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockPackaging$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  company<T extends Prisma.StockPackaging$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.StockPackaging$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1480,6 +1728,7 @@ export interface StockPackagingFieldRefs {
   readonly expiryDate: Prisma.FieldRef<"StockPackaging", 'String'>
   readonly remark: Prisma.FieldRef<"StockPackaging", 'String'>
   readonly companyCode: Prisma.FieldRef<"StockPackaging", 'String'>
+  readonly companyId: Prisma.FieldRef<"StockPackaging", 'Int'>
   readonly editedBy: Prisma.FieldRef<"StockPackaging", 'Int'>
   readonly editedAt: Prisma.FieldRef<"StockPackaging", 'DateTime'>
   readonly version: Prisma.FieldRef<"StockPackaging", 'Int'>
@@ -1902,6 +2151,25 @@ export type StockPackaging$editorArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   include?: Prisma.UserInclude<ExtArgs> | null
   where?: Prisma.UserWhereInput
+}
+
+/**
+ * StockPackaging.company
+ */
+export type StockPackaging$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

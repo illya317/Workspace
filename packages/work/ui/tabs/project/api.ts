@@ -1,4 +1,5 @@
 import { workspacePath } from "@workspace/core/routing";
+import { directCommandFetch } from "@workspace/platform/ui/api-client";
 import {
   MULTI_PROJECT_ROLES,
   normalizeProjectRole,
@@ -103,7 +104,7 @@ export async function deleteProject(projectId: number, version: number) {
 }
 
 async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
-  const res = await fetch(workspacePath("/api/modules/work/projects/members"), {
+  const res = await directCommandFetch("/api/modules/work/projects/members", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ employeeNumber: member.employeeNumber, projectId, role }),
@@ -114,10 +115,10 @@ async function createMember(projectId: number, member: EmployeeTag, role: string
   }
 }
 
-async function updateMemberRole(entryId: number, role: string | null) {
-  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
+async function updateMemberRole(entryId: number, version: number, role: string | null) {
+  const res = await directCommandFetch(`/api/modules/work/projects/members/${entryId}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "If-Match": String(version) },
     body: JSON.stringify({ field: "role", value: role }),
   });
   if (!res.ok) {
@@ -127,7 +128,7 @@ async function updateMemberRole(entryId: number, role: string | null) {
 }
 
 async function deleteMember(entryId: number, version: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
+  const res = await directCommandFetch(`/api/modules/work/projects/members/${entryId}`, {
     method: "DELETE",
     headers: { "If-Match": String(version) },
   });
@@ -161,7 +162,7 @@ export async function syncMembers(projectId: number, nextDraft: ProjectDraft, en
     if (!entry) {
       await createMember(projectId, member, role);
     } else if (normalizeProjectRole(entry.role) !== role) {
-      await updateMemberRole(entry.id, role);
+      await updateMemberRole(entry.id, entry.version, role);
     }
   }
 }

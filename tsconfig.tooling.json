@@ -18,7 +18,8 @@
     "e2e/**/*.cts",
     "scripts/**/*.ts",
     "scripts/**/*.mts",
-    "scripts/**/*.cts"
+    "scripts/**/*.cts",
+    "scripts/arch/gate-check-contracts.mjs"
   ],
   "exclude": ["node_modules", ".cache", "scripts/migrate/sqlite-legacy"],
   "references": [
@@ -26,13 +27,17 @@
     { "path": "./packages/core" },
     { "path": "./packages/platform" },
     { "path": "./packages/administration" },
+    { "path": "./packages/agent" },
     { "path": "./packages/capital-securities" },
+    { "path": "./packages/docs" },
     { "path": "./packages/external" },
     { "path": "./packages/finance" },
     { "path": "./packages/hr" },
     { "path": "./packages/inventory" },
     { "path": "./packages/library" },
+    { "path": "./packages/news" },
     { "path": "./packages/production" },
+    { "path": "./packages/settings" },
     { "path": "./packages/work" }
   ]
 }

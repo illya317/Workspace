@@ -1,0 +1,3 @@
+import { actionRuntime } from "@workspace/platform";
+
+export const runtime = actionRuntime;

@@ -42,10 +42,6 @@ export type WecomLoginResult =
   | { success: true; token: string }
   | { success: false; error: string };
 
-export type DevUserLoginResult =
-  | { success: true; token: string; message: string }
-  | { success: false; status: number; error: string };
-
 type CurrentUser = NonNullable<Awaited<ReturnType<typeof getCurrentUser>>>;
 
 export type CurrentSessionResult =
@@ -102,11 +98,11 @@ export async function changeUserProfile(
       username: true,
       alias: true,
       phone: true,
-      employeeId: true,
+      employees: { select: { employeeId: true }, take: 1 },
     },
   });
-
-  return { success: true, profile };
+  const { employees, ...userProfile } = profile;
+  return { success: true, profile: { ...userProfile, employeeId: employees[0]?.employeeId ?? null } };
 }
 
 export async function getUserAccountProfile(userId: number): Promise<AccountProfile> {
@@ -116,7 +112,7 @@ export async function getUserAccountProfile(userId: number): Promise<AccountProf
       username: true,
       alias: true,
       phone: true,
-      employeeId: true,
+      employees: { select: { employeeId: true }, take: 1 },
     },
   });
   if (!user) {
@@ -127,7 +123,8 @@ export async function getUserAccountProfile(userId: number): Promise<AccountProf
       employeeId: null,
     };
   }
-  return user;
+  const { employees, ...userProfile } = user;
+  return { ...userProfile, employeeId: employees[0]?.employeeId ?? null };
 }
 
 export async function changeUserAvatar(
@@ -235,22 +232,4 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
   });
 
   return { success: true, token };
-}
-
-export async function loginWithDevUserId(userId: number): Promise<DevUserLoginResult> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { id: true, username: true, sessionVersion: true },
-  });
-
-  if (!user) return { success: false, status: 404, error: "User not found" };
-
-  const token = await createToken({
-    userId: user.id,
-    wxUserId: "",
-    departmentId: 0,
-    sessionVersion: user.sessionVersion,
-  });
-
-  return { success: true, token, message: `已登录为 ${user.username}` };
 }

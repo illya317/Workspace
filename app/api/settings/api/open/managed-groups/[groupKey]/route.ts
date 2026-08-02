@@ -1,0 +1,16 @@
+import { z } from "zod";
+
+import { createApiRouteHandler } from "@workspace/platform/server/api-route";
+import {
+  managedGroupUpdateSchema,
+  updateWecomManagedGroup,
+} from "@workspace/platform/server/wecom-group-notifications";
+
+const paramsSchema = z.object({ groupKey: z.string().trim().min(3).max(80) });
+
+export const PATCH = createApiRouteHandler({
+  paramsSchema,
+  bodySchema: managedGroupUpdateSchema,
+  handler: ({ user, params, body }) =>
+    updateWecomManagedGroup(user.userId, params.groupKey, body),
+});

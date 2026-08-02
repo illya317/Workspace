@@ -69,9 +69,14 @@ export interface ManagementWorkingCapital {
   currentRatio: number | null;
   quickRatio: number | null;
   cashRatio: number | null;
+  receivableTurnover: number | null;
+  inventoryTurnover: number | null;
+  payableTurnover: number | null;
   receivableDays: number | null;
   inventoryDays: number | null;
   payableDays: number | null;
+  operatingCycleDays: number | null;
+  cashConversionCycleDays: number | null;
   components: ManagementWorkingCapitalComponent[];
 }
 
@@ -152,6 +157,7 @@ export interface ManagementCapitalAnalysis {
 }
 
 export interface ManagementPerformanceKpi {
+  category: "growth" | "profitability" | "efficiency" | "solvency" | "cash";
   key: string;
   label: string;
   value: number | null;

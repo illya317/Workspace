@@ -161,11 +161,8 @@ export async function listActiveDepartmentUsers(
 export async function listDepartmentResponsibleUserIds(departmentId: number) {
   const department = await prisma.department.findUnique({
     where: { id: departmentId },
-    select: { managerPositionId: true, managerEmployees: { select: { employee: { select: { userId: true, employments: { where: currentEmploymentDateWhere(), select: { id: true }, take: 1 } } } } } },
+    select: { managerPositionId: true },
   });
-  if (department?.managerEmployees.length) {
-    return Array.from(new Set(department.managerEmployees.flatMap((manager) => manager.employee.userId && manager.employee.employments.length > 0 ? [manager.employee.userId] : [])));
-  }
   if (!department?.managerPositionId) return [];
   const employees = await prisma.employee.findMany({
     where: {

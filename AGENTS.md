@@ -8,35 +8,45 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 # Agent Entry
 
-本文件只放开工入口和硬红线。详细规则不要继续堆在这里，按 `docs/README.md` 分层进入。
+本文件只放 always-on 开工入口和硬红线。开发 agent 的角色流程放在 `.agents/skills/`；给人阅读和共同维护的工程/产品事实仍按 `docs/README.md` 分层。
+
+## Environment Authority
+
+- `/Users/koito/Project/workspace/workspace` 是正式代码仓库和唯一源码真源；正式 diff、检查、commit 与 GitHub push 只在这里执行。
+- `workspace-dev:/home/ubuntu/workspace-dev/source` 只用于远端开发调试。调试完成后只按任务文件白名单同步回 Mac；禁止复制 `.env`、密钥、数据库、`.next`、`node_modules`、缓存、运行时数据和私有租户配置。
+- GitHub 是唯一源码平台、唯一 CI 和唯一应用构建平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
+- CNB 只负责同一镜像 digest 的中国侧 Registry 同步、CD、回滚和审计；禁止重新运行源码 CI、安装应用依赖或二次构建。
+- Mac 只提交源码，不中转构建制品或生产部署；生产服务器不 checkout GitHub 源码，CNB 通过 digest 部署。
+- Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 GitHub CI、GHCR digest、CNB Build ID/阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
 
 ## Start Here
 
-1. 先读本文件，确认红线和角色入口。
-2. 不要先扫全库；先读 `docs/engineering/project-overview.md`，确认项目地图、事实来源和新鲜度。
-3. 按任务读对应 `docs/roles/*.md`。
-4. 涉及具体模块时，再读 `app/(modules)/*/ARCHITECTURE.md` 或 `MODULE.md`。
-5. zsh 搜索含括号路径时要加引号或转义，例如 `rg foo 'app/(modules)/work'`，避免被 `()` 当成 glob 语法。
+1. 先读本文件，确认宿主环境、权威工作目录和硬红线。
+2. 在任何深度源码搜索、编辑或检查前，先选角色：Codex 调用 `$workspace-role-router`，Claude Code 调用 `/workspace-role-router`（真源为 `.agents/skills/workspace-role-router/SKILL.md`）。
+3. 选择一个主角色；读取 router 后的第一条角色声明更新应包含环境、主角色、辅助角色和将读取的专题文档，然后完整读取对应 role skill。此前可以只报告正在确认环境。
+4. 不要先扫全库；再读 `docs/engineering/project-overview.md`，确认项目地图、事实来源和新鲜度。
+5. 涉及具体模块时，再读 `app/(modules)/*/ARCHITECTURE.md` 或 `MODULE.md`。
+6. zsh 搜索含括号路径时要加引号或转义，例如 `rg foo 'app/(modules)/work'`，避免被 `()` 当成 glob 语法。
 
-| 任务 | 角色入口 |
-|---|---|
-| 规划、拆任务、多 agent 协调、集成收口 | `docs/roles/coordinator.md` |
-| UI 改造、业务功能、页面/API、顺手业务修复 | `docs/roles/feature.md` |
-| 架构边界、registry、RBAC/API contract、Core/Platform/App 规则 | `docs/roles/architecture.md` |
-| schema、migration、seed、导入、生成数据 | `docs/roles/data.md` |
-| CI、部署、环境、脚本运行态 | `docs/roles/operations.md` |
-| 历史债、baseline、lint/arch 漏洞、重复实现清理 | `docs/roles/hygiene.md` |
-| 最终独立 review | `docs/roles/review.md` |
+| 主角色 | 选择条件 | Skill |
+|---|---|---|
+| Coordinator | 规划、拆任务、多 agent、跨模块依赖、集成收口 | `workspace-coordinator` |
+| Feature | UI、业务功能、页面/API 壳、业务 service、普通 bug | `workspace-feature` |
+| Architecture | 架构边界、registry、RBAC/API contract、Core/Platform/App 规则 | `workspace-architecture` |
+| Data | schema、migration、seed、导入/导出、生成数据 | `workspace-data` |
+| Operations | CI、部署、环境、构建、脚本运行态 | `workspace-operations` |
+| Hygiene | 历史债、baseline、lint/arch 漏洞、重复实现清理 | `workspace-hygiene` |
+| Review | 完成后的独立 review；不能审自己实现或集成的改动 | `workspace-review` |
 
 ## Document Map
 
 | 层 | 位置 |
 |---|---|
-| 角色职责 | `docs/roles/*` |
+| Agent 角色流程 | `.agents/skills/workspace-*/SKILL.md`；Claude Code 入口为 `.claude/skills/*` 软链接 |
 | 工程规范 | `docs/engineering/*` |
 | 生成文档 | `docs/generated/*` |
 | 模块长期知识 | `app/(modules)/*/ARCHITECTURE.md`, `app/(modules)/*/MODULE.md` |
-| 用户/产品文档 | `docs/product/*`, `app/(docs)/docs/*` |
+| 用户/产品文档 | `docs/product/*`, `app/(modules)/docs/*` |
 | 文档 owner 和 stale 规则 | `docs/OWNERS.md` |
 | 规划治理原则 | `docs/planning/README.md`；实际计划只放 Git 忽略的 `.planning/` |
 | 特殊参考资料 | `docs/reference/*` |
@@ -54,10 +64,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 9. **删除要闭环**：删 L1/L2、route、API、registry child/resource、docs、seed resource 要同步，不能留下 stale 入口。
 10. **不为兼容污染协议**：破坏式收敛时，不要因为兼容旧调用点而在公开 contract、声明项或 kind 分支里增加额外选项；不兼容应暴露出来并通过迁移解决。
 11. **Playwright/Chrome 生命周期必须闭环**：默认使用 `npm run test:e2e` 和 `@playwright/test` fixture；禁止在 `tsx -e`、shell one-liner 或业务脚本中直接调用 `chromium/firefox/webkit.launch()`。确需手动启动 Browser 时只能经过 `scripts/testing/with-playwright.ts`，并保证 `try/finally`、`SIGINT/SIGTERM` 和最终 `browser.close()`；任务收尾必须通过 Playwright 进程检查。
-12. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
-13. **本地 dev 固定 3000 且全机单实例**：统一使用 `npm run dev`，禁止传端口参数或改用 3100 等其他端口；3000 已占用时复用现有 Workspace 实例，不得再启动一个。
-14. **本机任务默认串行**：除非用户对当前任务明确要求并行或多 agent，不启动 subagent，不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server。同一时间只允许一个重任务；发现已有同类进程时等待或复用，不再启动第二个。
-15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布门禁依然保留权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 只用于 CI/发布。禁止直接调用 TypeScript CLI 或绕过项目锁。
-16. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
+12. **提交先 stage 本任务**：开始提交检查前先看 `git status --short` 并只 stage 本任务文件；pre-commit 只验证该 index 快照。不要回滚、格式化或提交别人的改动。
+13. **先确认运行环境**：宿主项目入口声明的远端开发、容器、端口和生产边界优先。直接本地 checkout 才统一使用 `npm run dev` 的 3000 单实例；不得把外部映射端口误当成本地 dev 端口。需要端口连续性时按宿主规则取得并释放 `dev:guard` 租约。
+14. **并发服从宿主模式，重检查始终串行**：是否启动 subagent 服从当前 system / collaboration mode。无论是否允许多 agent，都不并发执行 npm 检查、测试、构建、Prisma generate 或 dev server；发现已有同类进程时等待或复用。
+15. **本地类型检查默认不运行**：普通开发、修复、review 和 commit 收口都不主动运行任何 `typecheck:*`。只在用户明确要求、任务直接修改 TypeScript 工程/类型基础设施或正在定位具体编译错误时做本地诊断，CI/发布验证按 base/head 保留受影响依赖闭包的权威类型检查。例外执行前必须先告知用户，且只串行跑一次最小 `typecheck:scope`；无法界定单一 scope 时才使用 `typecheck:quick`，`typecheck:full` 仅在用户显式要求全量诊断时运行。禁止直接调用 TypeScript CLI 或绕过项目锁。
+16. **本地检查内存硬上限 8GB**：本机受治理 typecheck、build、lint 和其他 Node 检查的 old-space 上限不得超过 `8192 MiB`，与开发应用容器 `10 GiB` 上限保留运行时余量；各入口必须使用 package script 声明的受治理上限。禁止临时取消上限或绕过检查锁重试。锁等待不足时可以提高 `CHECK_LOCK_TIMEOUT_MS` 或命令等待时间；在受治理上限内仍无法完成则停止并报告，交由 CI/发布门禁处理。
+17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
+18. **生产制品只有一个 OCI digest**：GitHub required CI 通过后构建一次 `linux/amd64` 镜像、推送 GHCR 并生成 `release.json`；CNB 只镜像同一 digest 并执行 migration、锁、备份、原子切换、健康、回执与回滚。禁止 CNB 二次 CI/build、生产现场安装或构建、可变 tag 部署、Mac 制品中转，以及 GitHub/CNB 产生两份制品。生产链启用前必须先完成非生产镜像拉取、Registry 同步、部署和回滚演练。
+19. **正式 CI 一次报全并按输入增量收敛**：独立 source/artifact/rehearsal 检查必须同轮执行并汇总全部失败；依赖链只在真实前置失败时显式 blocked。集中修复完整清单并做针对性验证后再次运行 CI，完整 input/command/runtime digest 未变化的成功回执直接复用。derived cache 损坏先 quarantine 再重算；禁止“全量一次、修一项、再全量”。
 
-检查命令按 `docs/engineering/checks.md` 选择，本地默认串行执行。如用户例外启用多 agent，由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。
+检查命令按 `docs/engineering/checks.md` 选择并串行执行。多 agent 任务由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

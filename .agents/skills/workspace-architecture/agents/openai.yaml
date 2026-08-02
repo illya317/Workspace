@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Architecture"
+  short_description: "Govern Workspace architecture and platform boundaries"
+  default_prompt: "Use $workspace-architecture to evaluate and change this Workspace architecture contract."

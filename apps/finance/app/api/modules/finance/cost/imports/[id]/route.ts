@@ -4,7 +4,7 @@ import {
   buildFinanceRouteIdCommand,
   executeDeleteCostImportCommand,
   executeGetCostImportCommand,
-} from "@workspace/finance/server/route-commands";
+} from "@workspace/finance/server/cost/route-commands";
 import { costImportIdSchema } from "@workspace/finance/server/cost/import-schemas";
 import { createCommandRoute } from "@workspace/platform/server/api-route";export const GET = createCommandRoute({
   paramsSchema: costImportIdSchema,

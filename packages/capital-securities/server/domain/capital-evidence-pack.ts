@@ -1,4 +1,4 @@
-import { normalizePartyName, validatePartyNameFacts } from "@workspace/platform/server/party-name-history";
+import { normalizePartyName, validatePartyNameFacts } from "@workspace/platform/server/party-name-rules";
 import { projectEquityLedger, type EquityLedgerEventState } from "./equity-ledger";
 
 export type EvidencePartySpec = {

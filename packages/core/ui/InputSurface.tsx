@@ -240,7 +240,7 @@ export function InputSurfaceRenderer({
         className={className}
         style={style}
         rows={rows}
-        autoGrow={autoGrow}
+        autoGrow={autoGrow ?? true}
         onChange={(next) => onChange?.(next)}
         onKeyDown={onKeyDown as never}
       />
@@ -277,6 +277,7 @@ export function InputSurfaceRenderer({
         displayValue={maskedDisplayValue}
         minDate={spec.validation?.minDate}
         maxDate={spec.validation?.maxDate}
+        precision={spec.precision === "month" ? "month" : "date"}
         disabled={disabled}
         readOnly={resolvedReadOnly}
         title={title}

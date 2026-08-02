@@ -1,0 +1,144 @@
+/// 公司期间关账运行头（事实表，来源于 Workspace 显式创建并由各台账贡献状态）
+model FinanceCloseRun {
+  id                  Int                @id @default(autoincrement())
+  companyId           Int
+  periodId            Int
+  startedByUserId     Int
+  status              String             @default("open")
+  openedAt            DateTime           @default(now())
+  completedAt         DateTime?
+  version             Int                @default(1)
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @default(now()) @updatedAt
+  company             Company            @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  period              FinancePeriod      @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  startedByUser       User                @relation(fields: [startedByUserId], references: [id], onDelete: Restrict)
+  tasks               FinanceCloseTask[]
+  events              FinanceCloseEvent[]
+
+  @@unique([companyId, periodId])
+  @@index([periodId, status])
+  @@index([startedByUserId])
+}
+
+/// 关账贡献项的当前状态投影（事实表，来源于各 owner 台账 contributor 的最近一次检查）
+model FinanceCloseTask {
+  id                 Int                            @id @default(autoincrement())
+  runId              Int
+  taskKey            String
+  contributorKey     String
+  assigneeEmployeeId Int?
+  ownerResourceKey   String
+  label              String
+  status             String                         @default("pending")
+  contributorVersion String?
+  inputFingerprint   String?
+  deepLink           String
+  inspectedAt        DateTime?
+  version            Int                            @default(1)
+  createdAt          DateTime                       @default(now())
+  updatedAt          DateTime                       @default(now()) @updatedAt
+  run                FinanceCloseRun                @relation(fields: [runId], references: [id], onDelete: Restrict)
+  assigneeEmployee   Employee?                      @relation(fields: [assigneeEmployeeId], references: [id], onDelete: Restrict)
+  evidenceSnapshots  FinanceCloseEvidenceSnapshot[]
+  events             FinanceCloseEvent[]
+
+  @@unique([runId, taskKey])
+  @@index([runId, status])
+  @@index([contributorKey])
+  @@index([assigneeEmployeeId])
+  @@index([ownerResourceKey])
+}
+
+/// 关账贡献项的不可变证据快照（事实表，来源于 contributor 检查结果冻结；数据库触发器拒绝更新和删除）
+model FinanceCloseEvidenceSnapshot {
+  id                 Int                 @id @default(autoincrement())
+  taskId             Int
+  inputFingerprint   String
+  payloadSha256      String
+  contributorVersion String
+  payload            Json
+  capturedAt         DateTime            @default(now())
+  task               FinanceCloseTask    @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  events             FinanceCloseEvent[]
+
+  @@unique([taskId, inputFingerprint, contributorVersion], map: "FinanceCloseEvidence_task_input_version_key")
+  @@index([payloadSha256])
+  @@index([capturedAt])
+}
+
+/// 关账状态追加事件（事实表，来源于显式刷新、状态变更或其冲销命令；数据库触发器拒绝更新和删除）
+model FinanceCloseEvent {
+  id                 Int                           @id @default(autoincrement())
+  runId              Int
+  taskId             Int?
+  evidenceSnapshotId Int?
+  actorUserId        Int
+  eventKind          String
+  fromStatus         String?
+  toStatus           String?
+  reason             String?
+  reversesEventId    Int?                          @unique
+  idempotencyKey     String                        @unique
+  requestFingerprint String?
+  recordedAt         DateTime                      @default(now())
+  run                FinanceCloseRun               @relation(fields: [runId], references: [id], onDelete: Restrict)
+  task               FinanceCloseTask?             @relation(fields: [taskId], references: [id], onDelete: Restrict)
+  evidenceSnapshot   FinanceCloseEvidenceSnapshot? @relation(fields: [evidenceSnapshotId], references: [id], onDelete: Restrict)
+  actorUser           User                          @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+  reversesEvent      FinanceCloseEvent?             @relation("FinanceCloseEventReversal", fields: [reversesEventId], references: [id], onDelete: Restrict)
+  reversedByEvent    FinanceCloseEvent?             @relation("FinanceCloseEventReversal")
+
+  @@index([runId, recordedAt])
+  @@index([taskId, recordedAt])
+  @@index([evidenceSnapshotId])
+  @@index([actorUserId])
+}
+
+/// 关账主观完整性事项的受控期间底稿；每个公司、期间和任务只能存在一份当前底稿。
+model FinanceCloseWorkpaper {
+  id                   Int                          @id @default(autoincrement())
+  companyId            Int
+  periodId             Int
+  taskKey              String
+  status               String                       @default("draft") // draft | prepared | reviewed | blocked
+  conclusion           String?
+  evidenceRefs         Json                         @default("[]")
+  voucherRefs          Json                         @default("[]")
+  preparedByUserId     Int?
+  preparedAt           DateTime?
+  reviewedByUserId     Int?
+  reviewedAt           DateTime?
+  version              Int                          @default(1)
+  createdAt            DateTime                     @default(now())
+  updatedAt            DateTime                     @default(now()) @updatedAt
+  company              Company                      @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  period               FinancePeriod                @relation(fields: [periodId], references: [id], onDelete: Restrict)
+  preparedBy           User?                        @relation("FinanceCloseWorkpaperPreparer", fields: [preparedByUserId], references: [id], onDelete: Restrict)
+  reviewedBy           User?                        @relation("FinanceCloseWorkpaperReviewer", fields: [reviewedByUserId], references: [id], onDelete: Restrict)
+  events               FinanceCloseWorkpaperEvent[]
+
+  @@unique([companyId, periodId, taskKey])
+  @@index([periodId, status])
+  @@index([preparedByUserId])
+  @@index([reviewedByUserId])
+}
+
+/// 关账底稿追加式审计事件；保存、提交复核、独立复核均冻结当次输入快照，数据库触发器拒绝更新和删除。
+model FinanceCloseWorkpaperEvent {
+  id                 Int                   @id @default(autoincrement())
+  workpaperId        Int
+  actorUserId        Int
+  eventKind          String
+  fromStatus         String?
+  toStatus           String
+  snapshot           Json
+  idempotencyKey     String                @unique
+  requestFingerprint String
+  recordedAt         DateTime              @default(now())
+  workpaper          FinanceCloseWorkpaper @relation(fields: [workpaperId], references: [id], onDelete: Restrict)
+  actor              User                  @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([workpaperId, recordedAt])
+  @@index([actorUserId])
+}

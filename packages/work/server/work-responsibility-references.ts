@@ -1,8 +1,10 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { currentOpenEndedDateWhere, matchesFkKeyword, type FkOption } from "@workspace/platform/server/relation-registry";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { validateWorkResponsibilityReferenceReplaceCommand } from "./domain/work-responsibility-reference-validation";
 import { workOwnerDepartmentScopeIds } from "./work-owner-scopes";
+import { projectMemberHasActiveEmploymentOnDate } from "./project-access-temporal";
 
 export type WorkResponsibilityReferenceTarget = {
   targetKind: "work_item";
@@ -107,6 +109,7 @@ export async function listWorkResponsibilityReferenceOptions(input: {
   ownerEmployeeId?: number | null;
   positionId?: number | null;
 }) {
+  const asOfDate = workspaceBusinessDate(new Date());
   const employeeIds = await resolveResponsibilityEmployeeIds(input);
   if (employeeIds.length === 0) return [];
   const targetId = normalizeNullablePositiveId(input.targetId);
@@ -131,17 +134,24 @@ export async function listWorkResponsibilityReferenceOptions(input: {
           name: true,
           positionDescription: {
             select: {
-              responsibilityNodes: {
-                where: { nodeType: input.nodeType, isActive: true },
-                orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+              revisions: {
+                where: { OR: [{ effectiveDate: null }, { effectiveDate: { lte: asOfDate } }] },
+                orderBy: [{ effectiveDate: { sort: "desc", nulls: "last" } }, { sequence: "desc" }],
+                take: 1,
                 select: {
-                  id: true,
-                  pathLabel: true,
-                  title: true,
-                  content: true,
-                  positionDescriptionId: true,
-                  nodeType: true,
-                  parent: { select: { nodeKey: true, pathLabel: true, title: true } },
+                  responsibilityNodes: {
+                    where: { nodeType: input.nodeType, isActive: true },
+                    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+                    select: {
+                      id: true,
+                      pathLabel: true,
+                      title: true,
+                      content: true,
+                      positionDescriptionId: true,
+                      nodeType: true,
+                      parent: { select: { nodeKey: true, pathLabel: true, title: true } },
+                    },
+                  },
                 },
               },
             },
@@ -155,7 +165,7 @@ export async function listWorkResponsibilityReferenceOptions(input: {
   const seen = new Set<string>();
   for (const row of rows) {
     if (!row.position) continue;
-    for (const node of row.position.positionDescription?.responsibilityNodes ?? []) {
+    for (const node of row.position.positionDescription?.revisions[0]?.responsibilityNodes ?? []) {
       const key = `${row.employee.id}:${node.id}`;
       if (seen.has(key)) continue;
       seen.add(key);
@@ -190,13 +200,14 @@ export async function listWorkResponsibilityReferenceOptions(input: {
 export async function resolveWorkResponsibilityReferenceOption(id: number) {
   const node = await prisma.positionResponsibilityNode.findUnique({
     where: { id },
-    select: { id: true, isActive: true, pathLabel: true, title: true, content: true },
+    select: { id: true, isActive: true, positionDescriptionId: true, positionDescriptionRevisionId: true, pathLabel: true, title: true, content: true },
   });
   if (!node) return null;
+  const currentRevisionId = await currentPositionDescriptionRevisionId(node.positionDescriptionId, prisma);
   return {
     id: node.id,
     label: formatResponsibilityLabel(node.pathLabel, node.title || node.content),
-    lifecycleStatus: node.isActive ? "active" as const : "inactive" as const,
+    lifecycleStatus: node.isActive && node.positionDescriptionRevisionId === currentRevisionId ? "active" as const : "inactive" as const,
   };
 }
 
@@ -256,6 +267,7 @@ async function buildWorkResponsibilityReferenceSnapshot(
       id: true,
       isActive: true,
       positionDescriptionId: true,
+      positionDescriptionRevisionId: true,
       nodeKey: true,
       nodeType: true,
       pathLabel: true,
@@ -267,6 +279,8 @@ async function buildWorkResponsibilityReferenceSnapshot(
     },
   });
   if (!node || !node.isActive) return serviceError("职责条目不存在或已停用", 404);
+  const currentRevisionId = await currentPositionDescriptionRevisionId(node.positionDescriptionId, tx);
+  if (node.positionDescriptionRevisionId !== currentRevisionId) return serviceError("职责条目已被岗位说明书新修订取代", 409);
 
   const ownerContext = await resolveResponsibilityNodeForOwner(node.id, input.ownerEmployeeId, tx, input.positionId);
   if (!ownerContext) return serviceError("负责人当前任职不属于该职责条目", 400);
@@ -358,8 +372,24 @@ async function resolveResponsibilityEmployeeIds(input: {
     return rows.map((row) => row.employeeId);
   }
   if (input.targetType === "project") {
-    const rows = await prisma.employeeProject.findMany({ where: { projectId: targetId }, select: { employeeId: true }, distinct: ["employeeId"] });
-    return rows.map((row) => row.employeeId);
+    const rows = await prisma.employeeProject.findMany({
+      where: { projectId: targetId, recordState: "confirmed" },
+      select: {
+        employeeId: true,
+        startDate: true,
+        endDate: true,
+        employee: {
+          select: {
+            employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+          },
+        },
+      },
+      distinct: ["employeeId"],
+    });
+    const asOfDate = workspaceBusinessDate(new Date());
+    return rows
+      .filter((row) => projectMemberHasActiveEmploymentOnDate(row, row.employee.employments, asOfDate))
+      .map((row) => row.employeeId);
   }
   return [];
 }
@@ -372,13 +402,31 @@ async function resolveResponsibilityNodeForOwner(
 ) {
   const node = await tx.positionResponsibilityNode.findUnique({
     where: { id: nodeId },
-    select: { id: true, positionDescriptionId: true, nodeType: true },
+    select: { id: true, positionDescriptionId: true, positionDescriptionRevisionId: true, nodeType: true, isActive: true },
   });
-  if (!node) return null;
+  if (!node || !node.isActive) return null;
+  const currentRevisionId = await currentPositionDescriptionRevisionId(node.positionDescriptionId, tx);
+  if (node.positionDescriptionRevisionId !== currentRevisionId) return null;
   const owner = normalizeNullablePositiveId(ownerEmployeeId);
   if (!owner) return null;
   const context = await resolveResponsibilityOwnerContext({ tx, ownerEmployeeId: owner, positionDescriptionId: node.positionDescriptionId, positionId });
   return context ? { ...context, node } : null;
+}
+
+async function currentPositionDescriptionRevisionId(
+  positionDescriptionId: number,
+  tx: Prisma.TransactionClient | typeof prisma,
+) {
+  const asOfDate = workspaceBusinessDate(new Date());
+  const revision = await tx.positionDescriptionRevision.findFirst({
+    where: {
+      positionDescriptionId,
+      OR: [{ effectiveDate: null }, { effectiveDate: { lte: asOfDate } }],
+    },
+    orderBy: [{ effectiveDate: { sort: "desc", nulls: "last" } }, { sequence: "desc" }],
+    select: { id: true },
+  });
+  return revision?.id ?? null;
 }
 
 function normalizeNullablePositiveId(value: unknown) {

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useDebouncedEffect } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import type { ExternalParty, ExternalPartyDraft, ExternalPartyListResponse } from "@workspace/external/types";
+import { directCommandFetch } from "@workspace/platform/ui/api-client";
 
 function errorMessage(value: unknown, fallback: string) {
   return value && typeof value === "object" && "error" in value && typeof value.error === "string"
@@ -53,7 +54,7 @@ export function useExternalParties(apiPath: string) {
 
   const save = useCallback(async (draft: ExternalPartyDraft) => {
     const editing = Boolean(draft.id);
-    const response = await fetch(editing ? `${endpoint}/${draft.id}` : endpoint, {
+    const response = await directCommandFetch(editing ? `${endpoint}/${draft.id}` : endpoint, {
       method: editing ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json",
@@ -82,7 +83,6 @@ export function useExternalParties(apiPath: string) {
         creditDays: draft.creditDays,
         taxRate: draft.taxRate,
         remark: draft.remark,
-        isActive: draft.isActive,
       }),
     });
     const data = await response.json().catch(() => null) as { record?: ExternalParty; error?: string } | null;
@@ -92,12 +92,12 @@ export function useExternalParties(apiPath: string) {
   }, [endpoint, load]);
 
   const remove = useCallback(async (item: ExternalParty) => {
-    const response = await fetch(`${endpoint}/${item.id}`, {
+    const response = await directCommandFetch(`${endpoint}/${item.id}`, {
       method: "DELETE",
       headers: { "If-Match": String(item.version) },
     });
     const data = await response.json().catch(() => null);
-    if (!response.ok) return { ok: false as const, error: errorMessage(data, `删除失败 (${response.status})`) };
+    if (!response.ok) return { ok: false as const, error: errorMessage(data, `结束失败 (${response.status})`) };
     await load();
     return { ok: true as const };
   }, [endpoint, load]);

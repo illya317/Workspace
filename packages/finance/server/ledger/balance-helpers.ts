@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { addToMap, type FinanceAccountLike, type SideBalance } from "./balance-utils";
-import { buildFinancePeriodScopeCommand } from "../domain/finance-validation";
+import { buildFinancePeriodScopeCommand } from "../domain/shared-validation";
 
 export async function getOrCreatePeriod(companyCode: string, year: number, month: number) {
   const command = buildFinancePeriodScopeCommand({ companyCode, year, month });

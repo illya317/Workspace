@@ -12,15 +12,19 @@ import {
 } from "@workspace/core/ui";
 import type {
   BodySurfaceSectionSpec,
+  PageSurfaceCreateSpec,
   PageSurfaceTabBarSpec,
   SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import type {
   FinanceGroupAccountCatalogResponse,
   FinanceGroupAccountCatalogRow,
+  FinanceGroupAccountReviewStatus,
+  FinanceGroupAccountUsage,
   FinanceGroupAccountMappedLocalAccountRow,
   FinanceGroupAccountMappedLocalAccountsResponse,
 } from "@workspace/finance/types";
+import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Dispatch, SetStateAction } from "react";
 
@@ -40,27 +44,30 @@ import {
   initialExpandedTreeIds,
   mappedAccountSections,
 } from "./groupAccountCatalogPresentation";
-import { REVIEW_STATUS_FILTER_OPTIONS, versionCreatedDate } from "./groupAccountMappingPresentation";
-
+import { versionCreatedDate } from "./groupAccountMappingPresentation";
+import { groupAccountFilterPanelItem } from "./groupAccountToolbarItems";
+import {
+  groupAccountConsolidationRuleSections,
+  groupAccountDraftDirtyParts,
+  groupAccountMasterFields,
+} from "./groupAccountConsolidationRule";
+import { groupAccountReclassSections, useGroupAccountReclassRule } from "./useGroupAccountReclassRule";
+import { useLedgerExportAction } from "./useLedgerExportAction";
 export default function GroupAccountTab({
-  navigation,
-  lifecycleBlocks = [],
-  canRevise,
-  canDelete,
-  canApprove,
+  navigation, lifecycleBlocks = [], canRevise, canDelete, canApprove, canExport,
 }: {
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
-  canRevise: boolean;
-  canDelete: boolean;
-  canApprove: boolean;
+  canRevise: boolean; canDelete: boolean; canApprove: boolean; canExport: boolean;
 }) {
+  const businessTimeZone = useTenantConfig().localization.businessTimeZone;
   const [response, setResponse] = useState<FinanceGroupAccountCatalogResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [versionFilter, setVersionFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
-  const [reviewStatusFilter, setReviewStatusFilter] = useState("");
+  const [accountUsageFilter, setAccountUsageFilter] = useState<"" | FinanceGroupAccountUsage>("");
+  const [reviewStatusFilter, setReviewStatusFilter] = useState<"" | FinanceGroupAccountReviewStatus>("");
   const [keyword, setKeyword] = useState("");
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [treeExpandedIds, setTreeExpandedIds] = useState<Set<number>>(() => new Set());
@@ -73,9 +80,29 @@ export default function GroupAccountTab({
     () => response?.treeRows.find((row) => row.id === selectedId) ?? null,
     [response, selectedId],
   );
-  const editDirty = Boolean(selected && editDraft && editDraft.id === selected.id
-    && !sameGroupAccountDraft(editDraft, groupAccountCatalogEditDraft(selected)));
+  const selectedVersionIsCurrent = response?.selectedPolicyVersionId === response?.currentPolicyVersionId;
+  const reclassRule = useGroupAccountReclassRule({
+    policyVersionId: response?.selectedPolicyVersionId ?? null,
+    selectedId,
+    canRevise: Boolean(selectedVersionIsCurrent && canRevise),
+  });
+  const {
+    dirty: reclassRuleDirty,
+    draft: reclassRuleDraft,
+    reload: reloadReclassRule,
+    save: saveReclassRule,
+  } = reclassRule;
+  const groupAccountDirtyParts = selected && editDraft && editDraft.id === selected.id
+    ? groupAccountDraftDirtyParts(editDraft, groupAccountCatalogEditDraft(selected))
+    : { master: false, consolidation: false };
+  const groupAccountDirty = groupAccountDirtyParts.master || groupAccountDirtyParts.consolidation;
+  const editDirty = groupAccountDirty || reclassRuleDirty;
   const feedback = useFeedback({ unsavedChanges: editDirty });
+  const exportAction = useLedgerExportAction({
+    canExport, view: "groupAccounts", policyVersionId: String(response?.selectedPolicyVersionId ?? ""), keyword,
+    accountCategory: categoryFilter, accountUsage: accountUsageFilter, reviewStatus: reviewStatusFilter,
+    fallbackFilename: `${response?.policyVersions.find((version) => version.id === response.selectedPolicyVersionId)?.code ?? "当前版本"}-集团科目.xlsx`,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -83,6 +110,7 @@ export default function GroupAccountTab({
     const query = new URLSearchParams();
     if (versionFilter) query.set("policyVersionId", versionFilter);
     if (categoryFilter) query.set("category", categoryFilter);
+    if (accountUsageFilter) query.set("accountUsage", accountUsageFilter);
     if (reviewStatusFilter) query.set("reviewStatus", reviewStatusFilter);
     if (keyword.trim()) query.set("keyword", keyword.trim());
     try {
@@ -99,7 +127,7 @@ export default function GroupAccountTab({
     } finally {
       setLoading(false);
     }
-  }, [categoryFilter, keyword, reviewStatusFilter, versionFilter]);
+  }, [accountUsageFilter, categoryFilter, keyword, reviewStatusFilter, versionFilter]);
 
   useEffect(() => { void load(); }, [load]);
 
@@ -112,7 +140,6 @@ export default function GroupAccountTab({
     setEditDraft(selected ? groupAccountCatalogEditDraft(selected) : null);
   }, [selected]);
 
-  const selectedVersionIsCurrent = response?.selectedPolicyVersionId === response?.currentPolicyVersionId;
   const createGroupAccount = useCallback(async () => {
     if (!createDraft) return;
     setSaving(true);
@@ -132,27 +159,33 @@ export default function GroupAccountTab({
     }
   }, [createDraft, load]);
 
-  const updateGroupAccount = useCallback(async () => {
+  async function updateGroupAccount() {
     if (!editDraft) return;
     setSaving(true);
     try {
-      const { id, ...body } = editDraft;
-      const result = await fetch(workspacePath(`/api/modules/finance/ledger/group-accounts/${id}`), {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await result.json().catch(() => null) as { error?: string } | null;
-      if (!result.ok) throw new Error(data?.error || "集团科目保存失败");
+      if (groupAccountDirty) {
+        const { id, ...body } = editDraft;
+        const result = await fetch(workspacePath(`/api/modules/finance/ledger/group-accounts/${id}`), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const data = await result.json().catch(() => null) as { error?: string } | null;
+        if (!result.ok) throw new Error(data?.error || "集团科目保存失败");
+      }
+      if (reclassRuleDirty) await saveReclassRule();
       setEditDraft(null);
-      feedback.success("集团科目已保存");
-      await load();
+      feedback.success(groupAccountDirty && reclassRuleDirty ? "集团科目及重分类规则已保存" : reclassRuleDirty ? "重分类规则已保存" : "集团科目已保存");
+      await Promise.all([
+        load(),
+        reloadReclassRule(),
+      ]);
     } catch (cause) {
       feedback.error(cause instanceof Error ? cause.message : "集团科目保存失败");
     } finally {
       setSaving(false);
     }
-  }, [editDraft, feedback, load]);
+  }
 
   const loadMappedAccounts = useCallback(async (row: FinanceGroupAccountCatalogRow) => {
     if (mappedRowsByGroup[row.id] || mappingDetailState[row.id] === "loading" || !response) return;
@@ -218,10 +251,16 @@ export default function GroupAccountTab({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ decision, expectedUpdatedAt: row.updatedAt }),
       });
-      const data = await result.json().catch(() => null) as { error?: string; reviewStatus?: string } | null;
+      const data = await result.json().catch(() => null) as {
+        error?: string;
+        reviewStatus?: string;
+        originMappingConfirmed?: boolean;
+      } | null;
       if (!result.ok) throw new Error(data?.error || "集团科目复核失败");
       feedback.success(data?.reviewStatus === "reviewed"
-        ? "集团科目已复核"
+        ? data.originMappingConfirmed
+          ? "集团科目及来源公司科目映射已复核"
+          : "集团科目已复核"
         : data?.reviewStatus === "pending_delete"
           ? "集团科目已标记为待删除"
           : "集团科目已删除");
@@ -245,32 +284,20 @@ export default function GroupAccountTab({
       })),
       onChange: setVersionFilter,
     },
-    {
-      kind: "select",
-      key: "category",
-      label: "科目类型",
-      value: categoryFilter,
-      placeholder: "全部",
-      options: [
-        { value: "asset", label: "资产" },
-        { value: "liability", label: "负债" },
-        { value: "common", label: "共同" },
-        { value: "equity", label: "权益" },
-        { value: "cost", label: "成本" },
-        { value: "revenue", label: "收入" },
-        { value: "expense", label: "费用" },
-      ],
-      onChange: setCategoryFilter,
-    },
-    {
-      kind: "select",
-      key: "review-status",
-      label: "复核状态",
-      value: reviewStatusFilter,
-      placeholder: "全部",
-      options: [...REVIEW_STATUS_FILTER_OPTIONS],
-      onChange: setReviewStatusFilter,
-    },
+    groupAccountFilterPanelItem({
+      category: categoryFilter,
+      accountUsage: accountUsageFilter,
+      reviewStatus: reviewStatusFilter,
+      onCategoryChange: setCategoryFilter,
+      onAccountUsageChange: setAccountUsageFilter,
+      onReviewStatusChange: setReviewStatusFilter,
+      onReset: () => {
+        setCategoryFilter("");
+        setAccountUsageFilter("");
+        setReviewStatusFilter("");
+      },
+    }),
+    ...(exportAction ? [exportAction] : []),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
     keyword,
@@ -315,15 +342,15 @@ export default function GroupAccountTab({
         ? [
             createFieldsSection(
               "group-account-detail",
-              selectedVersionIsCurrent && canRevise
+              groupAccountMasterFields(selectedVersionIsCurrent && canRevise
                 ? groupAccountEditFields(editDraft, setEditDraft)
-                : groupAccountDetailFields(selected),
+                : groupAccountDetailFields(selected, businessTimeZone)),
               {
               kind: selectedVersionIsCurrent && canRevise ? "fields" : "detail",
               layout: { columns: 2, density: "compact" },
               header: {
                 title: `${selected.code} ${selected.name}`,
-                description: editDirty ? "有未保存修改" : groupAccountParentDescription(selected),
+                description: groupAccountDirtyParts.master ? "有未保存科目修改" : groupAccountParentDescription(selected),
               },
               actions: [
                 ...(canRevise && selectedVersionIsCurrent ? [{
@@ -331,7 +358,9 @@ export default function GroupAccountTab({
                   action: "save" as const,
                   label: saving ? "保存中..." : "保存",
                   disabled: saving || !editDirty || !editDraft.code.trim()
-                    || !editDraft.name.trim() || !editDraft.currency,
+                    || !editDraft.name.trim() || !editDraft.currency
+                    || (reclassRuleDirty && (reclassRuleDraft?.decision === null
+                      || (reclassRuleDraft?.decision === "reclassify" && reclassRuleDraft.targetGroupAccountId === null))),
                   onClick: () => { void updateGroupAccount(); },
                 }] : []),
                 ...(canDelete && selectedVersionIsCurrent ? [{
@@ -375,6 +404,17 @@ export default function GroupAccountTab({
                 ] : []),
               ],
             }),
+            ...groupAccountConsolidationRuleSections({
+              fields: selectedVersionIsCurrent && canRevise
+                ? groupAccountEditFields(editDraft, setEditDraft)
+                : groupAccountDetailFields(selected, businessTimeZone),
+              editable: Boolean(selectedVersionIsCurrent && canRevise),
+              dirty: groupAccountDirtyParts.consolidation,
+            }),
+            ...groupAccountReclassSections({
+              selected,
+              controller: reclassRule,
+            }),
             ...mappedAccountSections(
               selected,
               mappedRowsByGroup[selected.id],
@@ -385,11 +425,8 @@ export default function GroupAccountTab({
             content: "从左侧选择集团科目查看详情",
             presentation: "card",
           })];
-  const createSections = canRevise && selectedVersionIsCurrent ? [{
-      key: "group-account-create",
-      body: { kind: "create" as const, create: {
+  const pageCreate: PageSurfaceCreateSpec | undefined = canRevise && selectedVersionIsCurrent ? {
         id: "finance-group-account-catalog-create",
-        trigger: "toolbar" as const,
         presentation: "block" as const,
         title: "新增集团科目",
         open: createDraft !== null,
@@ -409,17 +446,16 @@ export default function GroupAccountTab({
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyGroupAccountCatalogCreateDraft() : null),
         onCancel: () => setCreateDraft(null),
-      } },
-    }] : [];
+      } : undefined;
   const sections = [
     ...lifecycleBlocks,
-    ...createSections,
     ...detailContent,
   ];
 
   return (
     <PageSurface
       kind="standard"
+      create={pageCreate}
       tabbar={navigation}
       toolbar={{ items: toolbarItems }}
       body={createMasterDetailBody({
@@ -431,23 +467,11 @@ export default function GroupAccountTab({
     />
   );
 }
-
 function groupAccountEditFields(
-  draft: GroupAccountCatalogEditDraft,
-  setDraft: Dispatch<SetStateAction<GroupAccountCatalogEditDraft | null>>,
+  draft: GroupAccountCatalogEditDraft, setDraft: Dispatch<SetStateAction<GroupAccountCatalogEditDraft | null>>,
 ) {
   return groupAccountCatalogEditSections(
     draft,
     (change) => setDraft((current) => current ? { ...current, ...change } : null),
   ).flatMap((section) => section.items);
-}
-
-function sameGroupAccountDraft(left: GroupAccountCatalogEditDraft, right: GroupAccountCatalogEditDraft) {
-  return left.code === right.code
-    && left.name === right.name
-    && left.category === right.category
-    && left.balanceDirection === right.balanceDirection
-    && left.currency === right.currency
-    && left.parentGroupAccountId === right.parentGroupAccountId
-    && left.expectedUpdatedAt === right.expectedUpdatedAt;
 }

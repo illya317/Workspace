@@ -1,24 +1,39 @@
 # Deployment
 
-Reusable production release orchestration and its reviewable control plane live in this repository:
-`ops/publish.sh`, `ops/publish-cnb.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, and
-`ops/deploy.sh`. The private operations workspace contains secrets, runtime targets, environment
-values, and thin wrappers that load `.env` before executing these tracked scripts; it is not a
-second source of release logic. Tenant-specific CNB imports, server paths, and health target live in
-`WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml`.
+Reusable production release orchestration lives in `ops/publish.sh`, `ops/run-release-ci.sh`,
+`ops/release/readiness/`, and `ops/deploy.sh`. The private operations workspace contains only secrets,
+runtime targets, documentation, and a thin SSH wrapper to the authoritative remote checkout; it is not
+a second source of release logic.
 
-`ops/publish.sh deploy` is the public Full and single-unit deployment command. `publish-cnb.sh`,
-`release-to-cnb.sh`, and `deploy.sh` are internal stages covered by the publish/runtime contract
-tests; their separate names do not represent alternative release paths. Profile/Fleet commands are
-trusted pipeline internals rather than local alternatives to this operator entry.
+The only production lifecycle is `ci -> Ready Artifact -> deploy`. CI aggregates all independent source
+failures, builds or restores the exact target artifact independently, starts that exact archive in an
+isolated production runtime rehearsal, and signs one Ready receipt. Deploy only verifies and consumes
+that receipt. `prepare`, `validate`, `build`, fast mode, Release Plan, and `--new-plan` are removed.
 
-Production release requires an exact-tree local full-CI receipt, then goes directly to CNB. GitHub
-PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
+Warm single-unit releases share one frozen candidate snapshot and preserve a target-scoped Turbopack
+production compiler cache. Source validation and artifact build run concurrently only when the delta
+from that target's last successful deploy is entirely inside its private roots; otherwise they run
+serially. Dev,
+monolith release, and each deploy unit have disjoint cache roots. Static archive acceptance runs once
+and its exact receipt is consumed by rehearsal and Ready; deploy never reopens CI or build work.
+
+Successful task evidence is keyed by exact input/command/runtime digests. After a failed CI, the next CI
+reuses unchanged successes and reruns only invalidated tasks; corrupt derived cache entries are quarantined
+instead of permanently blocking the same task. GitHub is the only CI/application builder. Protected main
+packages the exact build once as `linux/amd64`, pushes it to GHCR, records `release.json`, then calls CNB.
+
+CNB is thin CD, not another CI channel. It verifies exact SHA/tree/release metadata, pulls the GHCR image by
+digest, pushes the identical manifest to CNB Registry, then performs migration, lock, backup, cutover,
+health, receipt and rollback. It must never install application dependencies, test, compile, or build.
 
 Repository-owned runtime dependency contracts:
 
 - [CI/CD 与测试分级](./ci-cd.md)
+- [Release CI attempt receipts](./release-ci-attempts.md)
+- [Deploy attempts and blocker ledger](./release-deploy-attempts.md)
 - [Deploy Unit Graph](./deploy-units.md)
+- [远端开发环境与 Codex SSH 项目](./remote-development.md)
+- [私有工作区与新租户初始化](./workspace-config.md)
 - [Agent runtime: Pi DeepSeek Flash and Kimi](./kimi-agent-runtime.md)
 - [数据发布批次与生产回执](./data-releases.md)
 
@@ -28,11 +43,53 @@ Repository-owned runtime dependency contracts:
 - Local/CI also defines `SHADOW_DATABASE_URL` for a separate disposable database. Production must not point the shadow URL at the live database.
 - Active Prisma history lives in `prisma/migrations` and starts at the sanitized schema-only baseline. Pre-genesis history is retained only in the private audit bundle under `WORKSPACE_CONFIG_DIR/audit`; it is never shipped in source or release artifacts.
 - `prisma db push` is forbidden for shared and production databases. Deploy executes `prisma migrate deploy`, checks migration/constraint state, seeds the resource registry, then runs the read-only permission-action check.
-- After migrations and resource seeding, deploy runs `scripts/provision-agent-workforce.mjs --execute` followed by `--check`. The provisioner resolves HR identities by stable codes, holds a PostgreSQL session advisory lock before opening its fixed-snapshot transaction, and aborts the release on ambiguity or immutable-binding drift before application processes are replaced. Its default mode is rollback-only dry-run. It creates missing canonical virtual employees, positions, Agent profiles and runtime bindings. Only the Workspace-bound AI0004 receives the exact `agent.assistant` entry/read/submit and `agent.source` read/submit grant set; it receives no `agent.config` management entry. These assistant/source capability grants remain separate from the global Agent action limits maintained in Settings. Provisioner-owned Workspace grants on external Codex/CI/server identities are revoked only while the latest ledger event still belongs to the provisioner; existing assistant grants are never copied into source grants. AI0004 is limited to source search and PR proposals; local development, direct commits, and deployment remain external runtime capabilities. The provisioner never reactivates ended employment/positions, resumes a suspended profile or runtime binding, restores an explicit RBAC revoke, or overwrites post-provision instructions and capability lists.
+- After migrations and resource seeding, deploy runs `scripts/provision-agent-workforce.mjs --execute` followed by `--check`. The provisioner resolves HR identities by stable codes, holds a PostgreSQL session advisory lock before opening its fixed-snapshot transaction, and aborts the release on ambiguity or immutable-binding drift before application processes are replaced. Its default mode is rollback-only dry-run. It creates missing canonical virtual employees, positions, Agent profiles and runtime bindings. The Workspace-bound AI0004 receives only the exact `agent` entry/read/submit grant set and the three fixed business API connector keys; it receives no source capability, repository access, direct write tool, or deployment ability. Provisioner-owned Workspace grants on external Codex/CI/server identities are revoked only while the latest ledger event still belongs to the provisioner. Local development, direct commits, and deployment remain external runtime capabilities. The provisioner never reactivates ended employment/positions, resumes a suspended profile or runtime binding, restores an explicit RBAC revoke, or overwrites post-provision instructions and capability lists.
 - The production Node runtime registers the tenant permission-review schedule after module overrides are loaded. AI0003 performs the full review every day at `08:00` in the tenant business time zone; successful permission-grant transactions trigger the same review engine immediately. The approved topology, all explicit grants, role assignments, implicit grant manager and separation rules live in `profile.files.permissionReview` and travel through the tenant-config manifest. Findings use a PostgreSQL advisory lock, persisted open-finding fingerprints, registered strong notifications and structured logs. See [`permission-review.md`](../security/permission-review.md).
 - The standalone artifact carries the governed External customer/supplier master importer and its XLS parser. This is a post-deploy, one-off data operation rather than an automatic deploy step: run dry-run from the active release, copy its database/file-hash/row-count evidence into the required execute guards, and use `--require-empty-master` for the initial production load. The source workbooks remain outside Git and release artifacts. The authoritative command and merge rules are documented in `app/(modules)/external/ARCHITECTURE.md`.
-- Business-data manifests and source files live under private `WORKSPACE_CONFIG_DIR/data-release-manifests` and `data-release-sources`. `publish.sh deploy --data-release <id>` makes the deploy agent inspect, upload, and remotely verify the exact payload before CNB is triggered; release metadata binds its digest, and production re-verifies the uploaded bundle before invoking a source-registered handler. Git and release artifacts contain only generic handlers, validators, and receipt contracts.
+- Business-data manifests and source files live under private `WORKSPACE_CONFIG_DIR/data-release-manifests` and `data-release-sources`. Upload and verification use the separate `publish.sh data upload|verify|status --id <id>` entrypoint. Code deployment never checks, uploads, binds, or applies a data batch. Git and release artifacts contain only generic handlers, validators, and receipt contracts.
 - Each normal deployment creates a custom-format `pg_dump`, verifies it with `pg_restore --list`, writes a SHA-256 sidecar, and only then replaces the application process.
+
+## Full deployment with database replacement
+
+`database-replace` is a separate Full-monolith deployment mode for an explicitly reconciled local
+PostgreSQL database that must become the next production database. Application source, candidate
+freezing, tenant configuration, one affected-scope validation, artifact verification, resource seed,
+candidate warmup, public cutover, release receipt, and final health/version checks remain the same as
+an ordinary Full deployment. Only the database mutation stage changes from incremental migration to
+an immutable custom-format dump restored into a new database and atomically renamed into the active
+database name.
+
+```bash
+# First stop every local writer, including the local 3000 dev server.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace ci
+
+# Consume the Ready Artifact and bound dump, then apply the replacement.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace deploy
+
+# Read-only local receipt status.
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh database-replace status
+```
+
+The CI command first signs the ordinary monolith Ready Artifact, then requires the local database to
+contain exactly the candidate Prisma migration set. It refuses an active local port 3000 or active
+database sessions, creates a `pg_dump --format=custom`, verifies it with `pg_restore --list`, and binds
+its byte size, SHA-256 and migration-set digest to the exact source commit/tree. The dump and receipt
+are stored under private `WORKSPACE_CONFIG_DIR/database-replacements` and uploaded to the immutable
+server `deploy-inputs/database-replacements` tree; neither enters Git or the CNB artifact.
+
+The CNB server stage accepts this mode only for a Full monolith and rejects bootstrap, genesis, unit,
+or mismatched receipt combinations. After the shared gate and the ordinary production backup, it
+stops Workspace, candidate, WeCom and other registered writers, restores the bound dump into a new
+PostgreSQL database, checks migrations, users and constraints, and atomically renames the prior
+database to a rollback name before the replacement takes the active name. The PostgreSQL role remains
+least-privileged; creation of the isolated database uses the server's audited non-interactive
+`postgres` sudo capability. A failure after the writer fence leaves production stopped and keeps both
+databases; it never restarts old application code against the replacement database. A successful
+release archives a database-replacement receipt and retains the old database for explicit recovery.
+
+This mode does not delete private data-release manifests or sources. Data already embodied in the
+replacement dump does not need to be replayed during that deployment, but its manifests remain audit
+and reconciliation evidence until a separate retention decision archives them.
 
 ## SQLite cutover contract
 

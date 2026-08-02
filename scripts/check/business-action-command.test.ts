@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildContractDeleteCommand } from "../../packages/administration/server/domain/administration-contract-validation";
+import { buildContractTargetCommand } from "../../packages/administration/server/domain/administration-contract-validation";
 import { serviceError, serviceOk } from "../../packages/platform/server/api";
 import type { ApprovalAdapter } from "../../packages/platform/server/approvals";
 import {
@@ -126,11 +126,11 @@ test("contract binding mismatch fails before validation or persistence", async (
   assert.deepEqual(calls, { validate: 0, commit: 0 });
 });
 
-test("contract delete command rejects a negative optimistic version", () => {
-  const invalid = buildContractDeleteCommand(1, 1, -1);
+test("contract target command rejects a non-positive optimistic version", () => {
+  const invalid = buildContractTargetCommand(1, 1, -1);
   assert.equal(invalid.ok, false);
 
-  const valid = buildContractDeleteCommand(1, 1, 0);
+  const valid = buildContractTargetCommand(1, 1, 1);
   assert.equal(valid.ok, true);
 });
 

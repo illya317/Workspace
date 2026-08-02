@@ -1,6 +1,7 @@
 export type ConsolidationVoucherMatchCategory = "investmentEquity" | "intercompanyBalance";
 
 export interface ConsolidationVoucherMatchFact {
+  sourceKind?: "voucher" | "auxiliaryBalance";
   itemId: number;
   voucherId: number;
   voucherNo: string;
@@ -12,11 +13,10 @@ export interface ConsolidationVoucherMatchFact {
   description: string | null;
   lineCode: string | null;
   signedAmount: number;
+  matchedSignedAmount?: number;
   currencyCode: string;
   sourceFingerprint: string;
   investmentRole?: "investment" | "equity";
-  investmentMatchingPolicy?: "direct" | "aggregateCnyMirror";
-  consolidationAmount?: number;
 }
 
 export interface ConsolidationVoucherMatchGroup {
@@ -34,12 +34,37 @@ export interface ConsolidationVoucherMatchGroup {
   matchingRule: string;
   matchingVersion: string;
   differenceResolution: string | null;
+  comparisonCurrencyCode: string | null;
+  requiredActions: ConsolidationMatchRequiredAction[];
+  ownershipShareRatio: number | null;
 }
+
+export type ConsolidationMatchRequiredAction =
+  | "identifyCounterpart"
+  | "mapStatementLine"
+  | "translateToCny"
+  | "allocateNonControllingInterest"
+  | "reconcileDifference";
 
 export interface ConsolidationInvestmentRelationship {
   investorCompanyId: number;
   investeeCompanyId: number;
   shareRatio: number | null;
+}
+
+export function intercompanyPresentationAccountCode(input: {
+  sourceAccountCode: string;
+  reclassTargetAccountCode: string | null;
+  balanceDirection: string;
+  signedAmount: number;
+}) {
+  const closingSide = input.signedAmount > 0 ? "debit" : input.signedAmount < 0 ? "credit" : null;
+  const hasAbnormalBalance = closingSide !== null
+    && (input.balanceDirection === "debit" || input.balanceDirection === "credit")
+    && closingSide !== input.balanceDirection;
+  return hasAbnormalBalance && input.reclassTargetAccountCode
+    ? input.reclassTargetAccountCode
+    : input.sourceAccountCode;
 }
 
 function cents(value: number) {
@@ -51,25 +76,7 @@ function money(value: number) {
 }
 
 function total(facts: readonly ConsolidationVoucherMatchFact[]) {
-  return money(facts.reduce((sum, fact) => sum + (fact.consolidationAmount ?? fact.signedAmount), 0));
-}
-
-function allocateAggregateMirror(
-  facts: readonly ConsolidationVoucherMatchFact[],
-  targetNetAmount: number,
-) {
-  const sourceNet = money(facts.reduce((sum, fact) => sum + fact.signedAmount, 0));
-  if (cents(sourceNet) === 0) return [...facts];
-  const result: ConsolidationVoucherMatchFact[] = [];
-  let allocated = 0;
-  for (const [index, fact] of facts.entries()) {
-    const consolidationAmount = index === facts.length - 1
-      ? money(targetNetAmount - allocated)
-      : money(fact.signedAmount * targetNetAmount / sourceNet);
-    allocated = money(allocated + consolidationAmount);
-    result.push({ ...fact, consolidationAmount });
-  }
-  return result;
+  return money(facts.reduce((sum, fact) => sum + fact.signedAmount, 0));
 }
 
 function bySourceOrder(
@@ -89,10 +96,66 @@ function hasMixedCurrencies(...groups: ReadonlyArray<readonly ConsolidationVouch
   return new Set(groups.flatMap((facts) => facts.map((fact) => fact.currencyCode))).size > 1;
 }
 
+function isCnyComparable(...groups: ReadonlyArray<readonly ConsolidationVoucherMatchFact[]>) {
+  return !hasMixedCurrencies(...groups)
+    && groups.flatMap((facts) => facts).every((fact) => fact.currencyCode.toUpperCase() === "CNY");
+}
+
+function allocateOppositeFacts(
+  leftFacts: readonly ConsolidationVoucherMatchFact[],
+  rightFacts: readonly ConsolidationVoucherMatchFact[],
+) {
+  const allocatedCents = new Map<ConsolidationVoucherMatchFact, number>();
+  const allocate = (
+    left: readonly ConsolidationVoucherMatchFact[],
+    right: readonly ConsolidationVoucherMatchFact[],
+  ) => {
+    let leftIndex = 0;
+    let rightIndex = 0;
+    let leftRemaining = left[0] ? Math.abs(cents(left[0].signedAmount)) : 0;
+    let rightRemaining = right[0] ? Math.abs(cents(right[0].signedAmount)) : 0;
+    while (leftIndex < left.length && rightIndex < right.length) {
+      const amount = Math.min(leftRemaining, rightRemaining);
+      const leftFact = left[leftIndex]!;
+      const rightFact = right[rightIndex]!;
+      allocatedCents.set(leftFact, (allocatedCents.get(leftFact) ?? 0) + amount);
+      allocatedCents.set(rightFact, (allocatedCents.get(rightFact) ?? 0) + amount);
+      leftRemaining -= amount;
+      rightRemaining -= amount;
+      if (leftRemaining === 0) {
+        leftIndex += 1;
+        leftRemaining = left[leftIndex] ? Math.abs(cents(left[leftIndex]!.signedAmount)) : 0;
+      }
+      if (rightRemaining === 0) {
+        rightIndex += 1;
+        rightRemaining = right[rightIndex] ? Math.abs(cents(right[rightIndex]!.signedAmount)) : 0;
+      }
+    }
+  };
+  allocate(
+    leftFacts.filter((fact) => cents(fact.signedAmount) > 0),
+    rightFacts.filter((fact) => cents(fact.signedAmount) < 0),
+  );
+  allocate(
+    leftFacts.filter((fact) => cents(fact.signedAmount) < 0),
+    rightFacts.filter((fact) => cents(fact.signedAmount) > 0),
+  );
+  const withAllocations = (facts: readonly ConsolidationVoucherMatchFact[]) => facts.map((fact) => {
+    const amount = allocatedCents.get(fact) ?? 0;
+    return { ...fact, matchedSignedAmount: amount === 0 ? 0 : money(Math.sign(fact.signedAmount) * amount / 100) };
+  });
+  return {
+    leftFacts: withAllocations(leftFacts),
+    rightFacts: withAllocations(rightFacts),
+    matchedAmount: money([...allocatedCents.entries()]
+      .filter(([fact]) => leftFacts.includes(fact))
+      .reduce((sum, [, amount]) => sum + amount, 0) / 100),
+  };
+}
+
 /**
- * Builds one voucher-detail match group per company pair. Every source journal line
- * remains visible in the group, so 1:N, N:1 and N:N evidence is not collapsed into
- * an auxiliary closing balance. Only exactly offsetting two-sided groups are matched.
+ * Builds one closing-balance match group per company pair. Every auxiliary balance
+ * remains visible; exactly offsetting portions are allocated even when a residual remains.
  */
 export function buildIntercompanyVoucherMatchGroups(
   facts: readonly ConsolidationVoucherMatchFact[],
@@ -108,7 +171,7 @@ export function buildIntercompanyVoucherMatchGroups(
     else grouped.set(key, [fact]);
   }
 
-  return [...grouped.entries()].map(([pairKey, rows]) => {
+  return [...grouped.entries()].map(([pairKey, rows]): ConsolidationVoucherMatchGroup => {
     const [leftCompanyId, rightCompanyId] = pairKey.split(":").map(Number) as [number, number];
     const leftFacts = rows.filter((fact) => fact.companyId === leftCompanyId).sort(bySourceOrder);
     const rightFacts = rows.filter((fact) => fact.companyId === rightCompanyId).sort(bySourceOrder);
@@ -116,7 +179,7 @@ export function buildIntercompanyVoucherMatchGroups(
     const rightNetAmount = total(rightFacts);
     const hasBothSides = leftFacts.length > 0 && rightFacts.length > 0;
     const mapped = !hasUnmappedLine(leftFacts, rightFacts);
-    const comparableCurrency = !hasMixedCurrencies(leftFacts, rightFacts);
+    const comparableCurrency = isCnyComparable(leftFacts, rightFacts);
     const offsets = cents(leftNetAmount) !== 0
       && cents(leftNetAmount) === -cents(rightNetAmount);
     const status = !hasBothSides || !mapped || !comparableCurrency
@@ -124,6 +187,9 @@ export function buildIntercompanyVoucherMatchGroups(
       : offsets
         ? "matched" as const
         : "difference" as const;
+    const partial = status === "difference"
+      ? allocateOppositeFacts(leftFacts, rightFacts)
+      : { leftFacts, rightFacts, matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0 };
     const differenceAmount = status === "matched"
       ? 0
       : money(Math.abs(leftNetAmount + rightNetAmount));
@@ -133,23 +199,38 @@ export function buildIntercompanyVoucherMatchGroups(
       status,
       leftCompanyId,
       rightCompanyId,
-      leftFacts,
-      rightFacts,
+      leftFacts: partial.leftFacts,
+      rightFacts: partial.rightFacts,
       leftNetAmount,
       rightNetAmount,
-      matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0,
+      matchedAmount: partial.matchedAmount,
       differenceAmount,
-      matchingRule: "按关联公司外键汇总双方全部已记账凭证明细；双方净额方向相反且分币一致",
-      matchingVersion: "voucher-counterparty-pair-v1",
+      matchingRule: "按关联公司外键汇总双方期末辅助余额；双方同方向可抵销金额先行匹配，未匹配余额继续保留差异",
+      matchingVersion: "auxiliary-closing-balance-pair-v2",
       differenceResolution: !hasBothSides
-        ? "缺少对方公司凭证明细"
+        ? "缺少对方公司期末辅助余额"
         : !mapped
           ? "存在未映射到合并报表项目的凭证明细"
           : !comparableCurrency
-            ? "双方功能币不一致，当前范围未启用交易级汇率折算，需人工复核"
+            ? "双方金额尚未在人民币列报口径下可比，需先应用有证据的汇率折算"
           : status === "difference"
-            ? "双方凭证明细净额不一致，需核对未达、错账或关联公司映射"
+            ? partial.matchedAmount > 0
+              ? `已匹配抵销 ${partial.matchedAmount.toFixed(2)} 元；剩余差异需核对未达、错账或关联公司映射`
+              : "双方期末辅助余额方向或金额不一致，需核对未达、错账或关联公司映射"
             : null,
+      comparisonCurrencyCode: comparableCurrency
+        ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null
+        : null,
+      requiredActions: !hasBothSides
+        ? ["identifyCounterpart"]
+        : !mapped
+          ? ["mapStatementLine"]
+          : !comparableCurrency
+            ? ["translateToCny"]
+            : status === "difference"
+              ? ["reconcileDifference"]
+              : [],
+      ownershipShareRatio: null,
     };
   }).filter((group) => cents(group.leftNetAmount) !== 0 || cents(group.rightNetAmount) !== 0)
     .sort((left, right) => left.generationKey.localeCompare(right.generationKey));
@@ -257,26 +338,22 @@ export function buildInvestmentVoucherMatchGroups(
       ? (equityFactsByCompany.get(relationship.investeeCompanyId) ?? []).sort(bySourceOrder)
       : [];
     if (leftFacts.length === 0 && sourceRightFacts.length === 0) return [];
-    const aggregateCnyMirror = leftFacts.length > 0
-      && leftFacts.every((fact) => fact.investmentMatchingPolicy === "aggregateCnyMirror");
     const leftNetAmount = total(leftFacts);
-    const rightFacts = aggregateCnyMirror
-      ? allocateAggregateMirror(sourceRightFacts, -leftNetAmount)
-      : sourceRightFacts;
+    const rightFacts = sourceRightFacts;
     const rightNetAmount = total(rightFacts);
     const hasBothSides = leftFacts.length > 0 && rightFacts.length > 0;
     const mapped = !hasUnmappedLine(leftFacts, rightFacts);
-    const comparableCurrency = !hasMixedCurrencies(leftFacts, rightFacts);
+    const comparableCurrency = isCnyComparable(leftFacts, rightFacts);
     const whollyOwned = relationship.shareRatio === 1;
-    const offsets = (comparableCurrency || aggregateCnyMirror)
+    const offsets = comparableCurrency
       && cents(leftNetAmount) !== 0
       && cents(leftNetAmount) === -cents(rightNetAmount);
-    const status = !hasBothSides || !mapped || !comparableCurrency && !aggregateCnyMirror || !whollyOwned && !aggregateCnyMirror
+    const status = !hasBothSides || !mapped || !comparableCurrency || !whollyOwned
       ? "unresolved" as const
       : offsets
         ? "matched" as const
         : "difference" as const;
-    const differenceAmount = status === "matched" || !comparableCurrency && !aggregateCnyMirror
+    const differenceAmount = status === "matched" || !comparableCurrency
       ? 0
       : money(Math.abs(leftNetAmount + rightNetAmount));
     const ownershipIssue = relationship.shareRatio === null
@@ -296,18 +373,14 @@ export function buildInvestmentVoucherMatchGroups(
       rightNetAmount,
       matchedAmount: status === "matched" ? money(Math.abs(leftNetAmount)) : 0,
       differenceAmount,
-      matchingRule: aggregateCnyMirror
-        ? "按已核定公司映射归集双方全部凭证明细；外币权益凭证按投资方人民币账面成本汇总镜像，保留每笔原币来源"
-        : "按批次冻结的直接持股关系归集投资方与被投资方全部凭证明细；组内保留 N:N 原始凭证证据",
-      matchingVersion: aggregateCnyMirror ? "investment-aggregate-cny-mirror-v1" : "investment-direct-relationship-nn-v1",
+      matchingRule: "按批次冻结的直接持股关系归集投资方与被投资方全部凭证明细；外币金额仅在存在投资日汇率证据时折合，不按一侧账面成本镜像；组内保留 N:N 原始凭证证据",
+      matchingVersion: "investment-direct-relationship-fx-evidence-v2",
       differenceResolution: !hasBothSides
         ? leftFacts.length === 0 && rightFacts.length === 0
           ? "直接持股关系下未找到投资方或被投资方相关凭证明细"
           : leftFacts.length === 0
             ? "缺少投资方长期股权投资凭证明细"
             : "缺少被投资方实收资本或资本公积凭证明细"
-        : aggregateCnyMirror
-          ? null
         : ownershipIssue && !comparableCurrency
           ? `${ownershipIssue}；双方功能币不同，还需按投资发生日历史汇率折算`
           : ownershipIssue
@@ -318,6 +391,19 @@ export function buildInvestmentVoucherMatchGroups(
               : status === "difference"
                 ? "同币种双方凭证明细净额不一致，需核对投资成本、权益构成或遗漏凭证"
                 : null),
+      comparisonCurrencyCode: comparableCurrency
+        ? leftFacts[0]?.currencyCode ?? rightFacts[0]?.currencyCode ?? null
+        : null,
+      requiredActions: [
+        ...(!hasBothSides ? ["identifyCounterpart" as const] : []),
+        ...(hasBothSides && !mapped ? ["mapStatementLine" as const] : []),
+        ...(hasBothSides && !comparableCurrency ? ["translateToCny" as const] : []),
+        ...(relationship.shareRatio !== 1 ? ["allocateNonControllingInterest" as const] : []),
+        ...(hasBothSides && mapped && comparableCurrency && whollyOwned && status === "difference"
+          ? ["reconcileDifference" as const]
+          : []),
+      ],
+      ownershipShareRatio: relationship.shareRatio,
     }];
   });
 
@@ -338,6 +424,9 @@ export function buildInvestmentVoucherMatchGroups(
       matchingRule: "投资凭证只能按批次冻结的直接持股关系归集，不根据摘要猜测被投资公司",
       matchingVersion: "investment-direct-relationship-nn-v1",
       differenceResolution: "投资方存在多个直接被投资公司，且凭证未携带唯一关联公司证据",
+      comparisonCurrencyCode: leftFacts[0]?.currencyCode ?? null,
+      requiredActions: ["identifyCounterpart"],
+      ownershipShareRatio: null,
     });
   }
   return result.filter((group) => cents(group.leftNetAmount) !== 0 || cents(group.rightNetAmount) !== 0)

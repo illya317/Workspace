@@ -4,7 +4,6 @@ import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import { SectionCard } from "../common/BaseCards";
 import { CreateConfirmActions, CreateStartButton } from "../action/CreateActionControls";
-import DetailModal from "../common/DetailModal";
 import { useCreateSurfaceAnchorTarget } from "./CreateSurfaceAnchorContext";
 
 export default function CreatePresentationPanel({
@@ -13,7 +12,6 @@ export default function CreatePresentationPanel({
   title,
   content,
   open,
-  presentation,
   canCreate = true,
   disabled,
   submitting,
@@ -29,7 +27,6 @@ export default function CreatePresentationPanel({
   title: string;
   content: ReactNode;
   open: boolean;
-  presentation: "block" | "modal";
   canCreate?: boolean;
   disabled?: boolean;
   submitting?: boolean;
@@ -56,22 +53,6 @@ export default function CreatePresentationPanel({
     <CreateStartButton label={title} disabled={disabled || submitting} onClick={onOpen} size="sm" />
   ) : null;
   if (!open) return start;
-  if (presentation === "modal") {
-    return (
-      <>
-        {trigger === "surface" ? <CreateStartButton label={title} active disabled={disabled || submitting} onClick={onOpen} size="sm" /> : null}
-        <DetailModal
-          open
-          title={title}
-          onClose={onCancel}
-          maxWidth="max-w-2xl"
-          footer={confirm ? <div className="flex justify-end">{confirm}</div> : undefined}
-        >
-          {content}
-        </DetailModal>
-      </>
-    );
-  }
   const panel = trigger === "toolbar" ? (
     <SectionCard title={<span className="inline-flex items-center gap-2"><span>{title}</span>{confirm}</span>}>
       {content}

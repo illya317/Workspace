@@ -1,29 +1,25 @@
-import type { ServiceResult } from "../api";
-import type { ApprovalCommitAuthorization } from "@workspace/platform/server/approval-commit-authorization";
+import type { ServiceResult } from "../../service-result";
+import type { ApprovalCommitAuthorization } from "../approval-commit-authorization-contract";
 import type {
   WorkflowFlowType,
   WorkflowHandlerSource,
-  WorkflowPolicyNodeDefinition,
-  WorkflowPolicyDefaults,
   WorkflowPolicyMode,
   WorkflowSeparationPolicy,
-} from "../workflows";
+} from "../workflow-types";
+import type { WorkflowPolicyNodeDefinition } from "../workflow-policy-node-contract";
+import type { WorkflowPolicyDefaults } from "../workflow-policy-defaults";
+import type {
+  ApprovalRequestDescription,
+  ApprovalRequestEventType,
+  ApprovalRequestEventViewDto,
+  ApprovalRequestOperation,
+  ApprovalRequestStatus,
+  ApprovalRequestViewDto,
+} from "../../workflow-request-contract";
 
-export type ApprovalStatus = "draft" | "submitted" | "committing" | "withdrawn" | "rejected" | "approved" | "cancelled";
-export type ApprovalOperation = "create" | "update";
-export type ApprovalEventType =
-  | "create_draft"
-  | "submit"
-  | "withdraw"
-  | "revise"
-  | "review_update"
-  | "approve"
-  | "review"
-  | "publish"
-  | "reject"
-  | "cancel"
-  | "comment"
-  | "commit_failed";
+export type ApprovalStatus = ApprovalRequestStatus;
+export type ApprovalOperation = ApprovalRequestOperation;
+export type ApprovalEventType = ApprovalRequestEventType;
 
 export type ApprovalFlowType = WorkflowFlowType;
 export type ApprovalSeparationPolicy = WorkflowSeparationPolicy;
@@ -116,66 +112,17 @@ export type ApprovalRequestRecord<TPayload> = {
   updatedAt: Date;
 };
 
-export type ApprovalEventDto<TPayload = unknown> = {
-  id: number;
-  sequence: number;
-  eventType: ApprovalEventType;
-  actorUserId: number;
-  actorName: string;
-  workflowNodeKey: string | null;
-  fromStatus: ApprovalStatus | null;
-  toStatus: ApprovalStatus | null;
-  comment: string | null;
-  payloadSnapshot: TPayload | null;
-  createdAt: string;
-};
+export type ApprovalEventDto<TPayload = unknown> = ApprovalRequestEventViewDto<TPayload>;
 
-export type ApprovalRequestDto<TPayload = unknown> = {
-  id: number;
-  resourceKey: string;
-  scopeId: string | null;
-  businessActionKey: string;
-  flowType: ApprovalFlowType;
-  separationPolicy: ApprovalSeparationPolicy;
+export type ApprovalRequestDto<TPayload = unknown> = ApprovalRequestViewDto<TPayload> & {
   handlerSource: ApprovalHandlerSource;
   workflowNodes: WorkflowPolicyNodeDefinition[];
   activeWorkflowNodeKey: string | null;
   activeWorkflowNodeKeys: string[];
   workflowJoinState: ApprovalWorkflowJoinState;
-  handlerCanRevise: boolean;
-  requestCanWithdraw: boolean;
-  requestCanResubmit: boolean;
-  requestCanCancel: boolean;
-  requestCanRevise: boolean;
-  sourceWorkflowPolicyId: number | null;
-  sourceWorkflowPolicyVersion: number | null;
-  sourceActionContractVersion: number | null;
-  sourceOkrControlVersion: number | null;
-  subjectType: string;
-  subjectId: string | null;
-  operation: ApprovalOperation;
-  status: ApprovalStatus;
-  latestPayload: TPayload;
-  submitterUserId: number;
-  submitterName: string;
-  submittedAt: string | null;
-  resolvedByUserId: number | null;
-  resolvedAt: string | null;
-  committedEntityType: string | null;
-  committedEntityId: string | null;
-  committedAt: string | null;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-  events: ApprovalEventDto<TPayload>[];
-  canProcess?: boolean;
 };
 
-export type ApprovalRequestDescription = {
-  title: string;
-  summary: string;
-  href: string;
-};
+export type { ApprovalRequestDescription };
 
 export type ApprovalCommitResult = {
   entityType: string;

@@ -6,8 +6,6 @@ import {
 import { getRegisteredModuleDefinition } from "@workspace/platform/module-registry";
 import {
   archivedBooleanFilter,
-  currentEmploymentDateWhere,
-  currentOpenEndedDateWhere,
   matchesFkKeyword,
   type FkOption,
   type LifecycleScope,
@@ -27,13 +25,6 @@ const HR_RELATION_ADAPTERS: RelationRegistrationAdapters = {
         keyword,
         lifecycleScope,
         departmentId: parseNullablePositiveId(params?.departmentId, "部门ID"),
-      }),
-  },
-  "hr.department.manager.employee": {
-    search: ({ keyword, params }) =>
-      searchDepartmentManagerEmployeeOptions({
-        keyword,
-        positionId: parseNullablePositiveId(params?.positionId, "负责人岗位ID"),
       }),
   },
   "hr.edp.position": {
@@ -107,36 +98,6 @@ async function searchDepartmentManagerPositionOptions(input: {
     }))
     .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
     .sort((left, right) => (rankByDepartmentId.get(left.departmentId ?? 0) ?? 99) - (rankByDepartmentId.get(right.departmentId ?? 0) ?? 99) || left.id - right.id)
-    .slice(0, 50);
-}
-
-async function searchDepartmentManagerEmployeeOptions(input: {
-  keyword: string;
-  positionId: number | null;
-}): Promise<FkOption[]> {
-  if (!input.positionId) return [];
-  const rows = await prisma.employee.findMany({
-    where: {
-      employments: { some: currentEmploymentDateWhere() },
-      positions: { some: currentOpenEndedDateWhere({ positionId: input.positionId }) },
-    },
-    select: {
-      id: true,
-      employeeId: true,
-      name: true,
-      userId: true,
-    },
-    orderBy: { employeeId: "asc" },
-    take: 200,
-  });
-  return rows
-    .map((row) => ({
-      id: row.id,
-      name: row.name || "未命名员工",
-      subtitle: [row.employeeId, row.userId ? `账号 ${row.userId}` : null].filter(Boolean).join(" · "),
-      lifecycleStatus: "active" as const,
-    }))
-    .filter((row) => matchesFkKeyword([row.name, row.subtitle], input.keyword))
     .slice(0, 50);
 }
 

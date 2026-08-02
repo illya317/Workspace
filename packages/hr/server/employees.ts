@@ -1,5 +1,4 @@
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
@@ -8,42 +7,47 @@ import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { uniqueUsernameFromName } from "@workspace/platform/server/usernames";
-import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
 import {
   buildEmployeeCreateCommand,
   buildEmployeePageDraftCommand,
-  validateEmployeeDeleteCommand,
 } from "./domain/employee-validation";
-import { primaryContractCompany } from "./employments";
+import { employmentCompanyName } from "./employments";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { logEmployeeListDiagnostics, startEmployeeListDiagnostics } from "./employee-list-diagnostics";
-import { queueHrDataQualityEvaluation } from "./data-quality-trigger";
+import { formatSequentialBusinessCode } from "@workspace/platform/business-code-config";
+import {
+  businessCodeScopeParts,
+  businessCodeSequenceSettings,
+} from "@workspace/platform/business-code-rule";
+import {
+  allocateBusinessCodeSequence,
+  businessCodeScopeKey,
+} from "@workspace/platform/server/business-code-sequence";
+import { getBusinessCodeConfig } from "@workspace/platform/server/system-config";
 
-const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 const EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS = new Set(["positionName", "directDepartmentName"]);
 const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
 
-async function nextEmployeeId() {
-  const [employees, users] = await Promise.all([
-    prisma.employee.findMany({ select: { employeeId: true } }),
-    prisma.user.findMany({ where: { employeeId: { not: null } }, select: { employeeId: true } }),
-  ]);
-  const usedIds = new Set(
-    employees.filter((employee) => EMPLOYEE_ID_PATTERN.test(employee.employeeId)).map((employee) => employee.employeeId),
-  );
-  for (const user of users) {
-    if (user.employeeId && EMPLOYEE_ID_PATTERN.test(user.employeeId)) usedIds.add(user.employeeId);
+async function nextEmployeeId(tx: Prisma.TransactionClient) {
+  const rule = (await getBusinessCodeConfig(tx)).employee;
+  const createdAt = new Date();
+  const sequenceSettings = businessCodeSequenceSettings(rule);
+  const configuredScope = businessCodeScopeParts(rule, { values: { createdAt }, sequence: sequenceSettings.start });
+  const scopeKey = businessCodeScopeKey(Object.keys(configuredScope).length ? configuredScope : { scope: "global" });
+  while (true) {
+    const sequence = await allocateBusinessCodeSequence(tx, {
+      ruleKey: "hr.employee",
+      scopeKey,
+      sequenceStart: sequenceSettings.start,
+    });
+    if (sequence > sequenceSettings.maximum) throw new Error("员工编号已用尽");
+    const employeeId = formatSequentialBusinessCode(rule, sequence, createdAt);
+    const employee = await tx.employee.findUnique({ where: { employeeId }, select: { id: true } });
+    if (!employee) return employeeId;
   }
-
-  for (let next = 1; next <= 99999; next += 1) {
-    const employeeId = String(next).padStart(5, "0");
-    if (!usedIds.has(employeeId)) return employeeId;
-  }
-
-  throw new Error("员工编号已用尽");
 }
 
 function formatAlias(value: string | null) {
@@ -54,50 +58,6 @@ function formatAlias(value: string | null) {
   } catch {
     return value;
   }
-}
-
-async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
-  const command = await validateEmployeeDeleteCommand(id);
-  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
-  const employee = await context.tx.employee.findUnique({
-    where: { id: command.data.id },
-    select: { employeeId: true, userId: true },
-  });
-  const agentProfile = !employee
-    ? null
-    : await context.tx.agentProfile.findFirst({
-      where: {
-        OR: [
-          ...(employee.userId == null ? [] : [{ actorUserId: employee.userId }]),
-          { actorUser: { employeeId: employee.employeeId } },
-        ],
-      },
-      select: { key: true },
-    });
-  if (agentProfile) {
-    return {
-      error: `Agent 虚拟员工 ${agentProfile.key} 不能通过普通 HR 删除，请使用 Agent 生命周期管理`,
-      status: 409,
-    };
-  }
-  const [salaryCount, shipmentCount, workshopCount, projectMemberCount] = await Promise.all([
-    context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
-    context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
-    context.tx.financeWorkshopReport.count({ where: { employeeId: command.data.id } }),
-    context.tx.employeeProject.count({ where: currentOpenEndedDateWhere({ employeeId: command.data.id }) }),
-  ]);
-  const blocks = [
-    salaryCount > 0 ? `财务销售工资 ${salaryCount} 条` : null,
-    shipmentCount > 0 ? `财务发货明细 ${shipmentCount} 条` : null,
-    workshopCount > 0 ? `财务车间日报 ${workshopCount} 条` : null,
-    projectMemberCount > 0 ? `现用项目成员记录 ${projectMemberCount} 条` : null,
-  ].filter(Boolean);
-  if (blocks.length > 0) {
-    return { error: `不能删除员工，请先处理引用：${blocks.join("、")}`, status: 409 };
-  }
-  await context.tx.employment.deleteMany({ where: { employeeId: command.data.id } });
-  await context.tx.eDP.deleteMany({ where: { employeeId: command.data.id } });
-  return { ok: true as const };
 }
 
 function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
@@ -144,7 +104,7 @@ function buildFastDirectoryWhere(input: {
   return where;
 }
 
-function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive: boolean; joinDate: string | null; leaveDate: string | null; currentCompany: string | null; contracts: string | null }>; positions: Array<{ position?: { name: string | null; department?: { name: string | null } | null } | null; department?: { name: string | null } | null }> }>(employees: T[]) {
+function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive: boolean; joinDate: string | null; leaveDate: string | null; currentCompany: string | null; contracts: string | null; company?: { party: { name: string } } | null }>; positions: Array<{ position?: { name: string | null; department?: { name: string | null } | null } | null; department?: { name: string | null } | null }> }>(employees: T[]) {
   const today = workspaceBusinessDate(new Date());
   for (const employee of employees) {
     for (const employment of employee.employments) {
@@ -156,7 +116,7 @@ function attachEmployeeDirectoryFields<T extends { employments: Array<{ isActive
       primaryPosition?.position?.department?.name ?? primaryPosition?.department?.name ?? null;
     const currentEmployment = employee.employments.find((employment) => employment.isActive) ?? employee.employments[0];
     (employee as Record<string, unknown>).currentCompany = currentEmployment
-      ? primaryContractCompany(currentEmployment.contracts, currentEmployment.currentCompany)
+      ? employmentCompanyName(currentEmployment.contracts, currentEmployment.currentCompany, currentEmployment.company?.party.name)
       : null;
   }
 }
@@ -218,7 +178,7 @@ export async function listEmployees(input: {
         where,
         include: {
           employments: {
-            select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true },
+            select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true, company: { select: { party: { select: { name: true } } } } },
             orderBy: [{ isActive: "desc" }, { id: "desc" }],
           },
           positions: {
@@ -244,7 +204,7 @@ export async function listEmployees(input: {
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
-        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true },
+        select: { isActive: true, joinDate: true, leaveDate: true, currentCompany: true, contracts: true, personnelType: true, company: { select: { party: { select: { name: true } } } } },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -276,7 +236,7 @@ export async function listEmployees(input: {
     employees = employees.filter((employee) =>
       employee.employments
         .filter((employment) => isActive === null || employment.isActive === isActive)
-        .some((employment) => primaryContractCompany(employment.contracts, employment.currentCompany) === input.company),
+        .some((employment) => employmentCompanyName(employment.contracts, employment.currentCompany, employment.company?.party.name) === input.company),
     );
     logEmployeeListDiagnostics(diagnostics, "slow:filter-company", { rows: employees.length });
   }
@@ -320,18 +280,19 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
   const command = mapValidationToServiceResult(buildEmployeeCreateCommand(name));
   if (!command.ok) return command;
 
-  const employeeId = await nextEmployeeId();
-  const username = await uniqueUsernameFromName(command.data.name, { suffix: employeeId });
-
   try {
     const result = await prisma.$transaction(async (tx) => {
+      const employeeId = await nextEmployeeId(tx);
+      const username = await uniqueUsernameFromName(command.data.name, {
+        suffix: employeeId,
+        client: tx,
+      });
       const linkedUser = await tx.user.create({
         data: {
           username,
-          employeeId,
           canLogin: true,
         },
-        select: { id: true, username: true, employeeId: true },
+        select: { id: true, username: true },
       });
       const employee = await tx.employee.create({
         data: {
@@ -371,19 +332,40 @@ export async function updateEmployeePageDraft(input: {
   if (!direct.ok) return direct;
 
   const ids = Array.from(new Set(command.data.changes.map((change) => change.id)));
-  const rows = await prisma.employee.findMany({ where: { id: { in: ids } }, select: { id: true } });
+  const rows = await prisma.employee.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, employeeId: true, userId: true },
+  });
   if (rows.length !== ids.length) return serviceError("部分员工不存在，请刷新后重试", 404);
   const changesById = new Map<number, Record<string, unknown>>();
   for (const change of command.data.changes) {
     changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), [change.field]: change.value ?? null });
   }
+  const nextEmployeeIds = rows.map((row) => String(changesById.get(row.id)?.employeeId ?? row.employeeId));
+  if (new Set(nextEmployeeIds).size !== nextEmployeeIds.length) return serviceError("员工编号不能重复", 409);
+  const conflictingEmployeeId = await prisma.employee.findFirst({
+    where: { id: { notIn: ids }, employeeId: { in: nextEmployeeIds } },
+    select: { id: true },
+  });
+  if (conflictingEmployeeId) return serviceError("员工编号已被使用", 409);
+  const nextUserIds = rows
+    .map((row) => changesById.get(row.id)?.userId ?? row.userId)
+    .filter((value): value is number => typeof value === "number");
+  if (new Set(nextUserIds).size !== nextUserIds.length) return serviceError("同一账号不能关联多名员工", 409);
+  const [users, conflictingUser] = await Promise.all([
+    prisma.user.findMany({ where: { id: { in: nextUserIds } }, select: { id: true } }),
+    prisma.employee.findFirst({ where: { id: { notIn: ids }, userId: { in: nextUserIds } }, select: { id: true } }),
+  ]);
+  if (users.length !== new Set(nextUserIds).size) return serviceError("关联账号不存在", 400);
+  if (conflictingUser) return serviceError("关联账号已绑定其他员工", 409);
   await prisma.$transaction(async (tx) => {
     for (const id of ids) {
+      const values = changesById.get(id) ?? {};
       await ensureEditHistoryBaseline("Employee", id, command.data.userId, tx);
       await tx.employee.update({
         where: { id },
         data: {
-          ...changesById.get(id),
+          ...values,
           editedBy: command.data.userId,
           editedAt: new Date(),
           version: { increment: 1 },
@@ -393,17 +375,6 @@ export async function updateEmployeePageDraft(input: {
     }
   });
   return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
-}
-
-export async function deleteEmployee(command: CrudDeleteCommand) {
-  const result = await executeDelete(command, {
-    entityType: "Employee",
-    modelKey: "employee" as const,
-    deleteMode: "hard" as const,
-    onBeforeDelete: normalizeEmployeeDelete,
-  });
-  if (result.ok) await queueHrDataQualityEvaluation("Employee", [command.id]);
-  return result;
 }
 
 export async function searchEmployeesForAccountLink(q: string) {

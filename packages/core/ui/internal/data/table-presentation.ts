@@ -2,6 +2,7 @@ import { joinClassNames } from "../common/card-utils";
 import type { DataTablePresentation } from "./DataTable.types";
 import type {
   DataSurfaceAlign,
+  DataSurfaceCellState,
   DataSurfaceEmphasis,
   DataSurfaceFont,
   DataSurfaceFrame,
@@ -75,7 +76,7 @@ export function resolveStandardTableMinWidth(columnCount: number, scroll?: DataS
 }
 
 export function resolveDataTableLayoutClass(matrix: boolean) {
-  return matrix ? "table-fixed min-w-max w-full" : "table-fixed w-full";
+  return matrix ? "table-fixed min-w-max w-full" : "table-auto w-full";
 }
 
 function resolveWrapClass(wrap?: DataSurfaceWrap) {
@@ -133,6 +134,48 @@ export function resolveTableRowStateClass(state: DataSurfaceRowState = "normal")
   if (state === "danger") return "bg-red-50 text-red-900";
   if (state === "info") return "bg-sky-50 text-sky-900";
   return "";
+}
+
+export function resolveTableCellStateClass(state: DataSurfaceCellState = "normal") {
+  if (state === "selected") return "!bg-slate-100 !text-slate-950 ring-2 ring-inset ring-slate-400";
+  if (state === "muted") return "!bg-slate-50/70 !text-slate-400";
+  if (state === "success") return "!bg-emerald-50 !text-emerald-900 ring-1 ring-inset ring-emerald-200";
+  if (state === "warning") return "!bg-amber-50 !text-amber-900";
+  if (state === "danger") return "!bg-red-50 !text-red-900";
+  if (state === "info") return "!bg-sky-50 !text-sky-900";
+  return "";
+}
+
+export function resolveTableCellSelectionClass(selected = false) {
+  return selected ? "relative z-[1] ring-2 ring-inset ring-slate-500" : "";
+}
+
+export function resolveTableDisclosureClass(options: {
+  axis: "column" | "row";
+  role: "trigger" | "detail";
+  expanded?: boolean;
+  surface?: "header" | "body";
+  start?: boolean;
+  end?: boolean;
+}) {
+  if (options.role === "trigger" && options.expanded === false) return "";
+  if (options.axis === "row") {
+    return options.role === "trigger"
+      ? "!bg-emerald-50 text-emerald-950 shadow-[inset_3px_0_0_#10b981]"
+      : "!bg-emerald-50/60 text-slate-800 shadow-[inset_3px_0_0_#6ee7b7]";
+  }
+  const tone = options.surface === "header"
+    ? options.role === "trigger"
+      ? "!bg-emerald-100 text-emerald-950"
+      : "!bg-emerald-50 text-emerald-900"
+    : options.role === "trigger"
+      ? "!bg-emerald-50 text-emerald-950"
+      : "!bg-emerald-50/60";
+  return joinClassNames(
+    tone,
+    options.start ? "!border-l-2 !border-l-emerald-300" : "",
+    options.end ? "!border-r-2 !border-r-emerald-300" : "",
+  );
 }
 
 export function resolveSurfaceFrameClass(frame: DataSurfaceFrame = "plain", scroll?: DataSurfaceScrollSpec) {

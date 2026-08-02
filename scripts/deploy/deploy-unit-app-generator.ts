@@ -24,6 +24,7 @@ const LIBRARY_RUNTIME_SOURCE_TRACE_EXCLUDES = [
 interface GeneratedFile {
   path: string;
   content: string;
+  requiredOnCheckout?: boolean;
 }
 
 function walk(directory: string): string[] {
@@ -102,6 +103,13 @@ function wrapperContent(repositoryRoot: string, sourceFile: string) {
   return `${GENERATED_BANNER}${fs.readFileSync(sourceFile, "utf8")}`;
 }
 
+function instrumentationContent(unitId: string) {
+  if (unitId !== "work") {
+    return `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport function register() {\n  return registerDeployUnitRuntime(${JSON.stringify(unitId)});\n}\n`;
+  }
+  return `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport async function register() {\n  await registerDeployUnitRuntime("work");\n  if (process.env.NEXT_RUNTIME !== "nodejs") return;\n  if (process.env.NEXT_PHASE === "phase-production-build") return;\n  const { startProjectNotificationScheduler } = await import(\n    "@workspace/work/server/project-notification-scheduler"\n  );\n  startProjectNotificationScheduler();\n}\n`;
+}
+
 function relativeReference(appRoot: string, compilerProject: string) {
   const withoutConfig = compilerProject.replace(/\/tsconfig\.json$/, "");
   let relative = path.relative(appRoot, withoutConfig).replaceAll(path.sep, "/");
@@ -116,10 +124,76 @@ function nextConfigContent(unit: ResolvedDeployUnit, graph: DeployGraph) {
     ? `\n  // Library runtime data lives outside the checkout; keep dynamic fs traces from copying repository sources.\n  outputFileTracingExcludes: {\n    "/*": ${JSON.stringify(LIBRARY_RUNTIME_SOURCE_TRACE_EXCLUDES)},\n  },`
     : "";
   return `${GENERATED_BANNER}import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import fs from "node:fs";
 import path from "node:path";
 import type { NextConfig } from "next";
 
+function assertRealDirectory(directory: string, label: string) {
+  const stat = fs.lstatSync(directory);
+  if (!stat.isDirectory() || fs.realpathSync(directory) !== path.resolve(directory)) {
+    throw new Error(\`\${label} must be a real directory: \${directory}\`);
+  }
+}
+
+function fileDigest(file: string, label: string) {
+  const stat = fs.lstatSync(file);
+  if (!stat.isFile()) throw new Error(\`\${label} must be a real file: \${file}\`);
+  return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+}
+
+function resolveDeployUnitTurbopackRoot(repositoryRoot: string) {
+  const resolvedRepositoryRoot = fs.realpathSync(repositoryRoot);
+  const configuredNodeModulesRoot = path.join(repositoryRoot, "node_modules");
+  const nodeModulesStat = fs.lstatSync(configuredNodeModulesRoot);
+
+  if (!nodeModulesStat.isSymbolicLink()) {
+    if (!nodeModulesStat.isDirectory()) {
+      throw new Error(\`deploy-unit node_modules must be a directory: \${configuredNodeModulesRoot}\`);
+    }
+    const expectedLocalRoot = path.join(resolvedRepositoryRoot, "node_modules");
+    if (fs.realpathSync(configuredNodeModulesRoot) !== expectedLocalRoot) {
+      throw new Error(\`deploy-unit node_modules must remain inside the repository: \${configuredNodeModulesRoot}\`);
+    }
+    return resolvedRepositoryRoot;
+  }
+
+  const repositoryParent = path.dirname(resolvedRepositoryRoot);
+  const trustedSourceRoot = path.join(repositoryParent, "source");
+  const trustedNodeModulesRoot = path.join(trustedSourceRoot, "node_modules");
+  const configuredTarget = path.resolve(
+    path.dirname(configuredNodeModulesRoot),
+    fs.readlinkSync(configuredNodeModulesRoot),
+  );
+  if (configuredTarget !== trustedNodeModulesRoot) {
+    throw new Error(
+      \`deploy-unit node_modules symlink must target trusted sibling \${trustedNodeModulesRoot}: \${configuredTarget}\`,
+    );
+  }
+
+  assertRealDirectory(trustedSourceRoot, "deploy-unit trusted source root");
+  assertRealDirectory(trustedNodeModulesRoot, "deploy-unit trusted node_modules root");
+  if (fs.realpathSync(configuredNodeModulesRoot) !== trustedNodeModulesRoot) {
+    throw new Error(\`deploy-unit node_modules symlink resolved outside trusted sibling: \${configuredNodeModulesRoot}\`);
+  }
+
+  const repositoryLockDigest = fileDigest(
+    path.join(resolvedRepositoryRoot, "package-lock.json"),
+    "deploy-unit release package-lock.json",
+  );
+  const sourceLockDigest = fileDigest(
+    path.join(trustedSourceRoot, "package-lock.json"),
+    "deploy-unit source package-lock.json",
+  );
+  if (repositoryLockDigest !== sourceLockDigest) {
+    throw new Error("deploy-unit package-lock.json drift between release and trusted source");
+  }
+
+  return repositoryParent;
+}
+
 const repositoryRoot = path.resolve(import.meta.dirname, "../..");
+const turbopackRoot = resolveDeployUnitTurbopackRoot(repositoryRoot);
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 
 function localBuildVersion() {
@@ -158,7 +232,10 @@ const nextConfig: NextConfig = {
   },
   deploymentId,
   images: { unoptimized: true },
-  experimental: { turbopackFileSystemCacheForDev: false },
+  experimental: {
+    turbopackFileSystemCacheForDev: false,
+    turbopackFileSystemCacheForBuild: true,
+  },
   serverExternalPackages: ["pinyin-pro"],
   basePath,
   assetPrefix,
@@ -169,8 +246,8 @@ const nextConfig: NextConfig = {
       ? process.env.ALLOWED_DEV_ORIGINS.split(",").map((value) => value.trim()).filter(Boolean)
       : []),
   ],
-  outputFileTracingRoot: repositoryRoot,${outputFileTracingExcludes}
-  turbopack: { root: repositoryRoot },
+  outputFileTracingRoot: turbopackRoot,${outputFileTracingExcludes}
+  turbopack: { root: turbopackRoot },
   generateBuildId: async () => buildVersion,
   async headers() {
     return [{
@@ -215,10 +292,11 @@ export function generatedDeployUnitAppFiles(
   files.push({
     path: path.join(appRoot, "next-env.d.ts"),
     content: `/// <reference types="next" />\n/// <reference types="next/image-types/global" />\nimport "./.next/types/routes.d.ts";\n\n// NOTE: This file should not be edited\n// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.\n`,
+    requiredOnCheckout: false,
   });
   files.push({
     path: path.join(appRoot, "instrumentation.ts"),
-    content: `${GENERATED_BANNER}import { registerDeployUnitRuntime } from "@workspace/platform/server/deploy-unit-runtime";\n\nexport function register() {\n  return registerDeployUnitRuntime(${JSON.stringify(unit.id)});\n}\n`,
+    content: instrumentationContent(unit.id),
   });
   files.push({
     path: path.join(appRoot, "tsconfig.json"),
@@ -300,17 +378,24 @@ export function writeDeployUnitApp(unitId: string) {
   return files;
 }
 
-export function assertDeployUnitApp(unitId: string) {
-  const files = generatedDeployUnitAppFiles(unitId);
+export function assertDeployUnitApp(
+  unitId: string,
+  options: { graph?: DeployGraph; repositoryRoot?: string } = {},
+) {
+  const files = generatedDeployUnitAppFiles(unitId, options);
   const expectedPaths = new Set(files.map((file) => file.path));
-  const generatedAppRoot = path.join(path.resolve(import.meta.dirname, "../.."), "apps", unitId, "app");
+  const repositoryRoot = options.repositoryRoot ?? path.resolve(import.meta.dirname, "../..");
+  const generatedAppRoot = path.join(repositoryRoot, "apps", unitId, "app");
   const staleGeneratedFiles = walk(generatedAppRoot).filter((file) => (
     !expectedPaths.has(file)
     && /\.(?:ts|tsx)$/.test(file)
     && fs.readFileSync(file, "utf8").startsWith(GENERATED_BANNER)
   ));
   const mismatches = [
-    ...files.filter((file) => !fs.existsSync(file.path) || fs.readFileSync(file.path, "utf8") !== file.content).map((file) => file.path),
+    ...files.filter((file) => {
+      if (!fs.existsSync(file.path)) return file.requiredOnCheckout !== false;
+      return fs.readFileSync(file.path, "utf8") !== file.content;
+    }).map((file) => file.path),
     ...staleGeneratedFiles,
   ];
   if (mismatches.length > 0) {

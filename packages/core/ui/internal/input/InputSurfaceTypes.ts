@@ -62,7 +62,7 @@ export type InputFormat = "text" | "number" | "percent" | "currency" | "date" | 
 export type InputState = "normal" | "readonly" | "disabled" | "required" | "hidden";
 export type InputUsage = "form" | "filter" | "table" | "search";
 export type InputBooleanPresentation = "checkbox" | "choice";
-export type InputTemporalPrecision = "date" | "time" | "datetime";
+export type InputTemporalPrecision = "date" | "month" | "time" | "datetime";
 export type InputCollectionItemControl = "text";
 
 export type InputMask =

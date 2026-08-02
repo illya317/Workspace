@@ -1,0 +1,20 @@
+import { z } from "zod";
+
+import {
+  buildFinanceBalanceCutoverReplayCommand,
+  executeFinanceBalanceCutoverReplayCommand,
+} from "@workspace/finance/server/ledger/route-commands";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const cutoverReplayQuerySchema = z.object({
+  companyCode: z.string().trim().min(1).max(64),
+  year: z.coerce.number().int().min(2000).max(2099),
+  month: z.coerce.number().int().min(1).max(12),
+});
+
+export const GET = createCommandRoute({
+  querySchema: cutoverReplayQuerySchema,
+  queryError: "余额切换重放范围参数无效",
+  buildCommand: ({ query }) => buildFinanceBalanceCutoverReplayCommand(query),
+  action: executeFinanceBalanceCutoverReplayCommand,
+});

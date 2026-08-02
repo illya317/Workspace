@@ -1,9 +1,19 @@
-import { createProtectedModulePage } from "@workspace/platform/server/protected-page";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { InvestorsClient } from "@workspace/capital-securities/ui";
 
-export default createProtectedModulePage({
-  route: "/capital-securities/investors",
-  title: "投资人关系",
-  backHref: "/capital-securities",
-  render: () => <InvestorsClient />,
-});
+export default async function InvestorsPage() {
+  const user = await requireRouteAccess("/capital-securities/investors");
+  const [canCreate, canUpdate, canDelete] = await Promise.all([
+    evaluatePermissionAction(user.id, "capitalSecurities.investors", "create"),
+    evaluatePermissionAction(user.id, "capitalSecurities.investors", "update"),
+    evaluatePermissionAction(user.id, "capitalSecurities.investors", "delete"),
+  ]);
+
+  return renderAppShellPage({
+    title: "投资人关系",
+    backHref: "/capital-securities",
+    user,
+    children: <InvestorsClient canCreate={canCreate} canUpdate={canUpdate} canDelete={canDelete} />,
+  });
+}

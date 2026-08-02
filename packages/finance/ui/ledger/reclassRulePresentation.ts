@@ -1,6 +1,7 @@
 import { matchText } from "@workspace/core/search";
 import type {
   FormSurfaceFieldSpec,
+  InputOption,
   SelectorSurfaceStatusSpec,
   SelectorSurfaceStructuredTreeItemSpec,
 } from "@workspace/core/ui";
@@ -11,7 +12,7 @@ import type {
 } from "@workspace/finance/types";
 
 import { balanceDirectionLabel, categoryLabel } from "./groupAccountMappingPresentation";
-import { reclassBasisLabel, type GroupRuleStatusFilter, type ReclassTargetOption } from "./reclassWorkbench";
+import { reclassBasisLabel, type GroupRuleStatusFilter } from "./reclassWorkbench";
 
 /** 左树节点负载：目录行提供层级与类别，候选提供规则状态。 */
 export interface RuleAccountTreeValue {
@@ -36,6 +37,33 @@ export function filterRuleCandidates(rows: readonly RuleCandidate[], keyword: st
     return [row.accountCode, row.accountName, row.existingTarget]
       .some((value) => value && matchText(value, keyword));
   });
+}
+
+export function visibleRuleCandidateIds(
+  rows: readonly Pick<RuleCandidate, "groupAccountId">[],
+  selectedId: number | null,
+  preserveFilteredOutSelection: boolean,
+) {
+  const ids = new Set(rows.map((row) => row.groupAccountId));
+  if (preserveFilteredOutSelection && selectedId !== null) ids.add(selectedId);
+  return ids;
+}
+
+export function resolveFilteredRuleSelection(input: {
+  currentId: number | null;
+  allRows: readonly Pick<RuleCandidate, "groupAccountId">[];
+  filteredRows: readonly Pick<RuleCandidate, "groupAccountId">[];
+  filterActive: boolean;
+  preserveFilteredOutSelection: boolean;
+}) {
+  const currentExists = input.currentId !== null
+    && input.allRows.some((row) => row.groupAccountId === input.currentId);
+  if (currentExists && (input.preserveFilteredOutSelection
+    || input.filteredRows.some((row) => row.groupAccountId === input.currentId))) {
+    return input.currentId;
+  }
+  return input.filteredRows[0]?.groupAccountId
+    ?? (input.filterActive ? null : input.allRows[0]?.groupAccountId ?? null);
 }
 
 /** 表单初值：处理方式和旧表格一致（existingDecision 优先，无异常历史派生为无需重分类），口径取 existingBasis ?? defaultBasis。 */
@@ -146,7 +174,9 @@ export function reclassRuleReadOnlyItems(candidate: RuleCandidate, targetLabel: 
       : "未确认";
   return [
     readOnlyDetail("decision", "处理方式", decisionLabel),
-    readOnlyDetail("basis", "计算口径", reclassBasisLabel(candidate.existingBasis ?? candidate.defaultBasis)),
+    ...(candidate.effectiveDecision === "reclassify"
+      ? [readOnlyDetail("basis", "计算口径", reclassBasisLabel(candidate.existingBasis ?? candidate.defaultBasis))]
+      : []),
   ];
 }
 
@@ -154,7 +184,7 @@ export function reclassRuleReadOnlyItems(candidate: RuleCandidate, targetLabel: 
 export function reclassRuleFormItems(input: {
   candidate: RuleCandidate;
   draft: ReclassRuleFormDraft;
-  targetOptions: ReclassTargetOption[];
+  targetOptions: InputOption[];
   onChange: (change: Partial<ReclassRuleFormDraft>) => void;
 }): FormSurfaceFieldSpec[] {
   const { candidate, draft } = input;
@@ -183,36 +213,38 @@ export function reclassRuleFormItems(input: {
         });
       },
     },
-    ...(draft.decision === "reclassify" ? [{
-      key: "targetGroupAccountId",
-      label: "目标科目",
-      required: true,
-      spec: {
-        valueType: "string" as const,
-        control: "choice" as const,
-        options: { source: "static" as const, items: input.targetOptions, visibleCount: 8 },
+    ...(draft.decision === "reclassify" ? [
+      {
+        key: "targetGroupAccountId",
+        label: "目标科目",
+        required: true,
+        spec: {
+          valueType: "string" as const,
+          control: "choice" as const,
+          options: { source: "static" as const, items: input.targetOptions, visibleCount: 8 },
+        },
+        value: draft.targetGroupAccountId === null ? "" : String(draft.targetGroupAccountId),
+        placeholder: "选择目标科目",
+        emptyText: "无匹配科目",
+        onChange: (value: unknown) => input.onChange({ targetGroupAccountId: value ? Number(value) : null }),
       },
-      value: draft.targetGroupAccountId === null ? "" : String(draft.targetGroupAccountId),
-      placeholder: "选择目标科目",
-      emptyText: "无匹配科目",
-      onChange: (value: unknown) => input.onChange({ targetGroupAccountId: value ? Number(value) : null }),
-    }] : []),
-    {
-      key: "basis",
-      label: "计算口径",
-      required: true,
-      spec: {
-        valueType: "string",
-        control: "choice",
-        options: { source: "static", items: [
-          { value: "account_net", label: "按科目净额" },
-          { value: "counterparty_gross", label: "按往来户逐户", disabled: !candidate.hasAuxiliaryFacts },
-        ] },
+      {
+        key: "basis",
+        label: "计算口径",
+        required: true,
+        spec: {
+          valueType: "string" as const,
+          control: "choice" as const,
+          options: { source: "static" as const, items: [
+            { value: "account_net", label: "按科目净额" },
+            { value: "counterparty_gross", label: "按往来户逐户", disabled: !candidate.hasAuxiliaryFacts },
+          ] },
+        },
+        value: draft.basis,
+        hint: candidate.hasAuxiliaryFacts ? undefined : "该科目无辅助余额事实，暂不能按往来户逐户",
+        onChange: (value: unknown) => input.onChange({ basis: value === "counterparty_gross" ? "counterparty_gross" : "account_net" }),
       },
-      value: draft.basis,
-      hint: candidate.hasAuxiliaryFacts ? undefined : "该科目无辅助余额事实，暂不能按往来户逐户",
-      onChange: (value) => input.onChange({ basis: value === "counterparty_gross" ? "counterparty_gross" : "account_net" }),
-    },
+    ] : []),
   ];
 }
 

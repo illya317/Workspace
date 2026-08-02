@@ -154,7 +154,7 @@ const SKIPPED_DIRS = new Set([
   "out",
   "tmp",
 ]);
-const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bparseAgentRequest\s*\(|\bwithWecomAgentBridgeAccess\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bcreate(AgentDomainRpc|WorkspaceAnalysisSourceRpc)Handler\s*\(|\bcreateAuthoritativeLibrarySourceRoute\s*\(|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute|InternalApiRoute)\s*\(/;
+const API_VALIDATION_SIGNAL_REGEX = /\b(safeParse|parse)\s*\(|\bz\s*\.|\bparseJson\s*\(|\bparseAgentRequest\s*\(|\bwithWecomAgentBridgeAccess\s*\(|\bvalidate(CompatibilityProxy|Passthrough)Body\s*\(|\bcreateValidatedIdProxyHandler\s*\(|\bcreate(AgentDomainRpc|WorkspaceAnalysisSourceRpc)Handler\s*\(|\bcreate(HrWorkspaceAnalysisSourceRoute|AuthoritativeLibrarySourceRoute)\s*\(|\bhandleWecomNotification(Claim|Heartbeat|DeliveryResult)Request\b|\bparseRouteId(Params)?\s*\(|\bcreate(ApiRouteHandler|CommandRoute|InternalApiRoute)\s*\(/;
 const ROUTE_PRIMITIVE_IMPORTS: Record<RoutePrimitiveSchemaKind, string[]> = {
   "route-id-params": ["routeIdParamsSchema", "routeStringIdParamsSchema"],
   "update-field-body": ["updateFieldBodySchema"],

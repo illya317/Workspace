@@ -1,0 +1,4 @@
+interface:
+  display_name: "Workspace Coordinator"
+  short_description: "Coordinate complex Workspace tasks and integrations"
+  default_prompt: "Use $workspace-coordinator to plan, delegate, integrate, and close this Workspace task."

@@ -13,9 +13,9 @@ import { validateConsolidatedOutputSnapshotPersistence } from "../domain/consoli
 import { consolidationFingerprint } from "./consolidation-fingerprints";
 import { immutableAuditSnapshot } from "./consolidation-mutations";
 
-export const CONSOLIDATED_OUTPUT_SNAPSHOT_VERSION = 1;
+export const CONSOLIDATED_OUTPUT_SNAPSHOT_VERSION = 2;
 const SHA256_FINGERPRINT = /^[a-f0-9]{64}$/;
-type SupportedConsolidatedOutputSnapshotVersion = 1;
+type SupportedConsolidatedOutputSnapshotVersion = 1 | 2;
 
 export interface PreparedConsolidatedOutputSnapshot {
   report: ConsolidatedReportOutputPackage;
@@ -40,7 +40,73 @@ export interface StoredConsolidatedOutputSnapshot {
 }
 
 function isSupportedSnapshotVersion(value: number): value is SupportedConsolidatedOutputSnapshotVersion {
-  return value === 1;
+  return value === 1 || value === 2;
+}
+
+function orderById<T extends { id: number }>(rows: T[]) {
+  return [...rows].sort((left, right) => left.id - right.id);
+}
+
+function reportInputFactsV2(batch: ConsolidationBatchSnapshot) {
+  const {
+    events: _events,
+    entities,
+    sources,
+    exchangeRates,
+    entries,
+    controlDecisions,
+    ...batchHeader
+  } = batch;
+  return {
+    ...batchHeader,
+    entities: orderById(entities),
+    sources: orderById(sources),
+    exchangeRates: orderById(exchangeRates).map((rate) => ({
+      ...rate,
+      applications: [...rate.applications].sort((left, right) =>
+        consolidationFingerprint(left).localeCompare(consolidationFingerprint(right)),
+      ),
+    })),
+    entries: orderById(entries).map((entry) => {
+      const {
+        createdAt: _createdAt,
+        updatedAt: _updatedAt,
+        lines,
+        taxEffects,
+        ...entryFacts
+      } = entry;
+      return {
+        ...entryFacts,
+        lines: orderById(lines),
+        taxEffects: orderById(taxEffects).map((taxEffect) => {
+          const {
+            createdAt: _taxCreatedAt,
+            updatedAt: _taxUpdatedAt,
+            ...taxEffectFacts
+          } = taxEffect;
+          return taxEffectFacts;
+        }),
+      };
+    }),
+    controlDecisions: orderById(controlDecisions),
+  };
+}
+
+function stableBatchHeader(batch: ConsolidationBatchSnapshot | ConsolidatedReportOutputPackage["batch"]) {
+  return {
+    id: batch.id,
+    parentCompanyId: batch.parentCompanyId,
+    parentCompanyCode: batch.parentCompanyCode,
+    parentCompanyName: batch.parentCompanyName,
+    year: batch.year,
+    month: batch.month,
+    periodKind: batch.periodKind ?? "month",
+    version: batch.version,
+    baseBatchId: batch.baseBatchId,
+    scopeFingerprint: batch.scopeFingerprint,
+    sourceFingerprint: batch.sourceFingerprint,
+    rateFingerprint: batch.rateFingerprint,
+  };
 }
 
 function reportInputFingerprint(
@@ -48,7 +114,10 @@ function reportInputFingerprint(
   version: SupportedConsolidatedOutputSnapshotVersion,
 ) {
   const { events: _events, ...reportInputs } = batch;
-  return consolidationFingerprint({ outputSnapshotVersion: version, reportInputs });
+  return consolidationFingerprint({
+    outputSnapshotVersion: version,
+    reportInputs: version === 1 ? reportInputs : reportInputFactsV2(batch),
+  });
 }
 
 export function prepareConsolidatedOutputSnapshot(
@@ -118,13 +187,19 @@ export function readConsolidatedOutputSnapshot(
   if (currentBatch.id !== expectedBatchId) {
     return failCommand("合并输出快照的输入批次不匹配", 409, "inputFingerprint");
   }
-  const frozenInputBatch: ConsolidationBatchSnapshot = {
-    ...currentBatch,
-    ...snapshot.reportPayload.batch,
-  };
-  const recomputedInput = reportInputFingerprint(frozenInputBatch, snapshotVersion);
-  if (recomputedInput !== snapshot.inputFingerprint) {
+  if (consolidationFingerprint(stableBatchHeader(currentBatch))
+    !== consolidationFingerprint(stableBatchHeader(snapshot.reportPayload.batch))) {
     return failCommand("合并输出快照输入指纹不一致", 409, "inputFingerprint");
+  }
+  if (snapshotVersion === 2) {
+    const frozenInputBatch: ConsolidationBatchSnapshot = {
+      ...currentBatch,
+      ...snapshot.reportPayload.batch,
+    };
+    const recomputedInput = reportInputFingerprint(frozenInputBatch, snapshotVersion);
+    if (recomputedInput !== snapshot.inputFingerprint) {
+      return failCommand("合并输出快照输入指纹不一致", 409, "inputFingerprint");
+    }
   }
   const recomputed = consolidationFingerprint(snapshot.reportPayload);
   if (recomputed !== snapshot.outputFingerprint) {

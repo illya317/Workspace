@@ -10,6 +10,9 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 |---|---|---|---|
 | `@workspace/core` | 底座 | 通用类型、模块注册契约、通用 UI/表格/筛选/搜索/分页/PageShell/表单组件 | 依赖平台、业务包、Prisma、权限、业务事实 |
 | `@workspace/platform` | 主体 | 登录后平台壳、模块聚合、导航、权限资源注册、审计和用户等平台能力 | 直接依赖某个业务页面或业务 service |
+| `@workspace/agent` | 业务 | Agent L1 页面、会话运行时、工具连接器和外部 Agent bridge | 直接依赖其他业务包或把业务 service 内嵌进 Agent |
+| `@workspace/docs` | 业务 | 公司文档、模板空间、文档编辑器 UI/server/types | 直接依赖其他业务包；共享模板读取走 Platform contract |
+| `@workspace/settings` | 业务 | 个人设置、系统治理 UI 和模块管理 command adapter | 反向承载 Platform runtime 或直接依赖其他业务包 |
 | `@workspace/hr` | 业务 | HR 模块注册、HR UI/server/import/types/constants 的归属入口 | 直接依赖财务或生产 |
 | `@workspace/production` | 业务 | 产品主档、生产/QC UI/server/import/types/constants 的归属入口 | 直接依赖其他业务包 |
 | `@workspace/finance` | 业务 | 财务模块注册、财务 UI/server/import/types/constants 的归属入口 | 直接依赖 HR 或生产 |
@@ -27,7 +30,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 - `docs/engineering/reusable-components.md` 是 Core/Platform/App 组件复用清单。下拉、搜索、筛选、日期、确认弹窗、tag、表格和页面模板必须先查这个文档；业务包不能绕开 Core/Platform 重复造通用控件。
 - `packages/core/hooks/useToast.ts` 已接收通用 Toast hook。
 - 全部 domain package 都通过 Platform canonical registry 取得自己的 `WorkspacePackageRegistration`，不得维护第二份模块定义。
-- HR、Production、Finance、Work、Administration、Library、Inventory、External、Capital Securities 都已建立 package-owned `ui/server/types` 边界；import/constants 按领域需要放在同一包内，后续功能继续按这些目录落位。
+- Agent、Docs、Settings、HR、Production、Finance、Work、Administration、Library、Inventory、External、Capital Securities 都已建立 package-owned `ui/server/types` 边界；import/constants 按领域需要放在同一包内，后续功能继续按这些目录落位。
 - `packages/hr/types` 已接收 HR 通用类型、员工详情 DTO、编码表类型。
 - `packages/hr/constants` 已接收 HR 人力分析维度常量、员工详情字段配置、学校库、HR 字段选项和批量表格 Tab 配置。
 - `packages/hr/utils` 已接收员工身份字段格式化/校验和部门路径格式化 helper。
@@ -56,17 +59,17 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 - `packages/platform/server/history.ts` 已接收审计快照写入契约；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `hr.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
-- `packages/platform/ui` 已接收登录后的 Portal、普通 L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；普通 L1 必须挂 `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面。Agent 是 headless 模块，不提供 `/agent` 页面；`/work` 是 page gate 显式登记的专用 L1 入口，部门空间由 `/work/department/:departmentId` 进入。
-- Agent 是无独立页面的 headless runtime。工具栏和 `/api/agent/**` 由 `agent.assistant` capability 保护，其 owner 是 `settings.account`，`runtimeParentKey=agent` 只负责启停耦合；profile-only 源码检索与 CNB PR 再叠加 owner=`agent.assistant` 的 `agent.source.read/submit`。只有 Workspace AI0004 维护这组 source grants；本地 Codex、CI、服务器运行时承担代码开发、检查和部署，不在 Workspace 对话中执行。
+- `packages/platform/ui` 承载登录后的 Portal、AppShell、跨页 NavLink、用户菜单和审计等共享平台 UI；Settings、Docs、Agent 的页面实现分别归自己的 L1 包。普通 L1 必须挂 `ModuleHomePage`、提供明确的专用首页，或只做鉴权后 redirect 到已注册的默认 L2 页面。
+- Agent 是带 `/agent` 首页的普通 L1。页面、工具栏和 `/api/agent/**` 直接由同一个 `agent` 资源保护，不再维护重复的助手 capability。模型侧固定只暴露业务 API 发现、只读调用和写入提案三个通用 connector；源码、文件系统、数据库、内部 RPC、任意网络和部署能力都不进入 Workspace Agent。代码开发、检查和部署仍由本地 Codex、CI、服务器运行时承担。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/basic-info/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。
 - 每个业务包的 `module.ts` 只导出 `moduleDefinition`。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
-- `packages/platform/ui/docs` 已接收文档中心 UI；个人 API 接入和接口契约展示归 `packages/platform/ui/settings` 的 `/settings/account` 正文。
+- `packages/docs/ui` 已接收文档中心 UI；个人 API 接入和接口契约展示归 `packages/settings/ui/settings` 的 `/settings/account` 正文。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入业务包。
 - `app/api/modules/hr/roster/autocomplete`、只读 `app/api/modules/hr/roster/companies`、`app/api/modules/hr/roster/contracts`、`app/api/modules/hr/roster/departments`、`app/api/modules/hr/roster/edps`、`app/api/modules/hr/roster/employees`、`app/api/modules/hr/roster/employee-profiles/*`、`app/api/modules/hr/roster/employments`、`app/api/modules/hr/roster/position-description-templates`、`app/api/modules/hr/roster/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/roster/position-descriptions` 已降级为认证/权限/响应壳。公司及股权关系写路由位于 `app/api/modules/capitalSecurities/governance/*`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 - `moduleDef.href` 必须是 L1 根路径；`children[*].href` 必须是直接 L2 route，并自动成为 page contract。`routes` 只登记 L2 以下真实页面或无 moduleDef 的系统页面；真实 app page 必须命中一个 page contract，不允许靠手写 gate 漏出 registry。
-- 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。
+- 页面源码使用 Next route groups 收口：所有正常 L1（包括 Agent、Docs、Settings）放 `app/(modules)/*`，平台保留页放 `app/(system)/*`，登录放 `app/(auth)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。
 
 ## 路由和服务迁移原则
 
@@ -79,8 +82,8 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 
 ```text
 app/* route shell
+  -> @workspace/<l1>
   -> @workspace/platform
-  -> @workspace/<domain>
   -> @workspace/core
 
 @workspace/core
@@ -113,7 +116,7 @@ app/* route shell
 Level 1/1.5 只有一个硬门禁入口：
 
 - `npm run arch:gate`：串行执行 AST 硬扫描、dependency-cruiser DAG、模块注册锁、资源注册、package 边界和 auth/API 检查。新增 UI 库 import、新增 app 层 UI、替代权限函数、`if (user.role)`、新增 RBAC 表直查、业务包 `@/server/*` alias 绕过、跨业务包 import、循环依赖、未注册或重复 module key 都会立即 `exit 1`。历史债由 `scripts/arch/level15-baseline.json` 和 `scripts/check/level1-api-baseline.json` 锁定，只能减少，不能扩写。
-- `scripts/arch/domain-validation.ts` 是唯一 gate 内的 domain validation 边界检查。它从 module registry 与 API Contract Registry 推导业务 API root，扫描 `app/api/modules/<domain>/**`、route-local helper 和 `packages/<domain>/server/**/*.ts`，强制新增写 service 走本包 `server/domain/*-validation.ts`，禁止 route 直接或通过 package root 间接 import domain validator，也禁止 service 直接消费 FK、日期、枚举、引用保护等底层业务规则。对于 exported `create/update/save/archive/delete/upsert/import` 写入口，gate 还会检查入口函数体是否调用 domain validator 或走带校验 hook 的 CRUD helper，避免在已合规 service 文件中新增裸写函数；`handleDelete` 必须在入口或引用的 config 中显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口。仅供内部复用的写 helper 不应 export。HR roster baseline 为 0；Finance、Work、Production、Administration、Library 等历史债由 `scripts/arch/domain-validation-baseline.json` ratchet 锁定，迁移减少时必须同步删除 baseline 项。
+- `scripts/arch/domain-validation.ts` 是唯一 gate 内的 domain validation 边界检查。它从 module registry 与 API Contract Registry 推导业务 API root，扫描 `app/api/modules/<domain>/**`、route-local helper 和 `packages/<domain>/server/**/*.ts`，强制新增写 service 走本包 `server/domain/*-validation.ts`，禁止 route 直接或通过 package root 间接 import domain validator，也禁止 service 直接消费 FK、日期、枚举、引用保护等底层业务规则。对于 exported `create/update/save/archive/delete/upsert/import` 写入口，gate 还会检查入口函数体是否调用 domain validator 或走带校验 hook 的 CRUD helper，避免在已合规 service 文件中新增裸写函数；`handleDelete` 必须在入口或引用的 config 中显式提供 `onBeforeDelete`，或入口直接调用已登记的 guarded/domain 删除验证入口。仅供内部复用的写 helper 不应 export。HR roster baseline 为 0；Finance、Work、Production、Administration、Library 等历史债由 `scripts/arch/domain-validation-baseline.json` ratchet 锁定。Agent/Docs 从 Platform 拆为正常 L1 时暴露的存量写入口也只允许作为 ratchet 基线，后续迁移减少时必须同步删除对应项。
 
 `app/` 层是 routing only：
 

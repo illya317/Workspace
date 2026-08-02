@@ -74,7 +74,7 @@ export function checkOpenApi() {
     if (!registration.scopes.length) errors.push(`${registration.key} missing Open API scopes`);
     if (!registration.endpoints.length) errors.push(`${registration.key} missing Open API endpoints`);
     if (!pageRoutes.has(registration.consoleHref)) {
-      errors.push(`${registration.key} console page not found: ${registration.consoleHref}`);
+      errors.push(`${registration.key} shared console page not found: ${registration.consoleHref}`);
     }
     for (const endpoint of registration.endpoints) {
       const routeFile = routeFileForApiPath(endpoint.pathPrefix);

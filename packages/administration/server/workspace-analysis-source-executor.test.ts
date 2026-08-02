@@ -100,7 +100,7 @@ test("administration owner executes the paginated list and projects canonical fi
     fields: ["name", "amount"],
     parameters: { keyword: "采购", category: "框架" },
   }));
-  assert.deepEqual(queries, [{ q: "采购", location: undefined, category: "框架", status: undefined, page: 1, pageSize: 100 }]);
+  assert.deepEqual(queries, [{ userId: 7, q: "采购", location: undefined, category: "框架", lifecycleStatus: undefined, ownerDepartmentId: undefined, page: 1, pageSize: 100 }]);
   assert.deepEqual(result.rows, [{ name: "采购框架", amount: 100 }]);
   assert.equal(JSON.stringify(result).includes("editedBy"), false);
 });

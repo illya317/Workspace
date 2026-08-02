@@ -74,6 +74,17 @@ test("requires an independent batch reviewer", () => {
   assert.deepEqual(independent, { ok: true, data: { nextStatus: "reviewed" } });
 });
 
+test("allows an authorized workpaper confirmation to lock a draft directly", () => {
+  const result = validateConsolidationBatchTransition({
+    status: "draft",
+    createdBy: 9,
+    submittedBy: null,
+    reviewedBy: null,
+    contributorUserIds: [9],
+  }, "lock", 9);
+  assert.deepEqual(result, { ok: true, data: { nextStatus: "locked" } });
+});
+
 test("accepts automatic refresh and preparation completion intents", () => {
   const result = buildSaveConsolidationSourcesCommand(3, {
     expectedRevision: 1,
@@ -125,7 +136,7 @@ test("submission requires immutable three-statement snapshots and explicit no-it
   assert.equal(result.ok, true);
 });
 
-test("defers NCI allocation while the active scope is investment and intercompany only", () => {
+test("requires an NCI allocation or explicit conclusion for a partially owned subsidiary", () => {
   const base = {
     entities: [
       { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
@@ -152,7 +163,8 @@ test("defers NCI allocation while the active scope is investment and intercompan
     periodEnd: "2026-06-30",
   };
   const result = validateConsolidationSubmission({ ...base, entries: [] });
-  assert.equal(result.ok, true);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "elimination:nonControllingInterest");
 });
 
 test("return requires a revision, a reason, and an independent executor", () => {
@@ -221,6 +233,41 @@ test("submission rejects a non-null but invalid ownership ratio", () => {
 });
 
 test("submission requires a saved closing-rate snapshot near period end", () => {
+  const flowRates = Array.from({ length: 6 }, (_, index) => {
+    const targetDate = new Date(Date.UTC(2026, index + 1, 0)).toISOString().slice(0, 10);
+    return {
+      exchangeRateId: 20 + index,
+      rateKind: "monthlyAverage",
+      rateDate: targetDate,
+      recordedBy: 10,
+      recordedAt: `${targetDate}T08:00:00.000Z`,
+      applications: [{
+        applicationType: "flowAverage" as const,
+        periodBasis: "current" as const,
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate,
+        evidence: "月平均汇率",
+        voucher: null,
+      }],
+    };
+  });
+  const cashPointRates = ["2025-12-31", "2026-05-31"].map((targetDate, index) => ({
+    exchangeRateId: 30 + index,
+    rateKind: "centralParity",
+    rateDate: targetDate,
+    recordedBy: 10,
+    recordedAt: `${targetDate}T08:00:00.000Z`,
+    applications: [{
+      applicationType: "cashPoint" as const,
+      periodBasis: "current" as const,
+      entitySnapshotId: 2,
+      voucherItemId: null,
+      targetDate,
+      evidence: "现金时点汇率",
+      voucher: null,
+    }],
+  }));
   const baseFacts = {
     entities: [
       { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
@@ -256,7 +303,7 @@ test("submission requires a saved closing-rate snapshot near period end", () => 
       recordedBy: 10,
       recordedAt: "2026-06-02T00:00:00.000Z",
       applications: [{ applicationType: "closing", periodBasis: "current", entitySnapshotId: 2, voucherItemId: null, targetDate: "2026-06-30", evidence: "期末折算", voucher: null }],
-    }],
+    }, ...flowRates, ...cashPointRates],
   });
   assert.equal(stale.ok, false);
   if (!stale.ok) assert.equal(stale.issue.field, "rateApplications");
@@ -270,7 +317,7 @@ test("submission requires a saved closing-rate snapshot near period end", () => 
       recordedBy: 10,
       recordedAt: "2026-06-30T08:00:00.000Z",
       applications: [{ applicationType: "closing", periodBasis: "current", entitySnapshotId: 2, voucherItemId: null, targetDate: "2026-06-30", evidence: "期末折算", voucher: null }],
-    }],
+    }, ...flowRates, ...cashPointRates],
   });
-  assert.equal(current.ok, true);
+  assert.equal(current.ok, true, current.ok ? undefined : JSON.stringify(current.issue));
 });

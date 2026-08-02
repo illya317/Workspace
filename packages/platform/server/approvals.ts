@@ -17,9 +17,9 @@ import {
   assertApprovalVersion,
   getApprovalRequestDto,
   loadApprovalRecord,
-  transitionApprovalWithNotification,
   updateApprovalPayload,
 } from "./approvals/store";
+import { transitionApprovalWithNotification } from "./approvals/transition";
 export type {
   ApprovalAccessAction,
   ApprovalAdapter,
@@ -38,6 +38,8 @@ export type {
   ApprovalWorkflowPolicyMode,
   ApprovalWorkflowPolicySnapshot,
 } from "./approvals/types";
+export { describeApprovalRequestFromContract, renderDescriptionTemplate } from "./approvals/contract-description";
+export { parseApprovalRequestStatusList } from "../workflow-request-contract";
 import type {
   ApprovalAdapter,
   ApprovalOperation,

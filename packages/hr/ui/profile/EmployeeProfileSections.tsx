@@ -147,7 +147,7 @@ export function useEdpSections({
   onDelete,
   className
 }: EdpSectionProps): BodySurfaceSectionSpec[] {
-  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "workPercent", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
+  const allFields = [...pickFields(edpFields, ["reportingCompanyId", "departmentId", "positionId", "isPrimary", "allocationWeight", "reportToPositionId"]), ...pickFields(edpFields, ["startDate", "endDate"])];
   const {
     getItemRef,
     requestScrollToIndex
@@ -167,7 +167,7 @@ export function useEdpSections({
                       <span>{row.isNew ? "新增岗位记录" : row.positionName || `岗位记录 #${row.id}`}</span>
                       <InlineStatusChip label={current ? "当前岗位" : "历史岗位"} tone={current ? "green" : "gray"} />
                       {row.isPrimary && <InlineStatusChip label="主岗" tone="blue" />}
-                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 占比 {row.workPercent || "未设置"}</span>
+                      <span className="text-xs font-medium text-slate-500">{row.departmentName || "未设置部门"} · 当前折算 {row.allocationPercent == null ? "未设置" : `${(row.allocationPercent * 100).toFixed(2)}%`}</span>
                     </div>,
           actions: row.isNew ? deleteActionSpec({ canEdit, saving, onDelete: () => onDelete(row, index) }) : [],
           sections: [createFieldGridSection(allFields, row as unknown as EditableRecord, !canEdit, (key, value, option) => {

@@ -1,0 +1,16 @@
+{
+  "name": "@workspace/news",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./server/domain/*": "./server/domain/*.ts",
+    "./server/integrations/*": "./server/integrations/*.ts",
+    "./types": "./types/index.ts",
+    "./ui": "./ui/index.ts"
+  }
+}

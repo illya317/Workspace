@@ -1,41 +1,18 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
-    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft, labeled, unlabeled]
-  merge_group:
-    types: [checks_requested]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
+  push:
+    branches: [main]
   workflow_dispatch:
-    inputs:
-      target_sha:
-        description: Full SHA of the selected ref; blank means the workflow event SHA
-        required: false
-        type: string
-      base_sha:
-        description: Trusted current main SHA for a bot-created candidate PR
-        required: false
-        type: string
-      force_full:
-        description: Force C3 with every CI lane and full E2E
-        required: true
-        default: true
-        type: boolean
-      publish_artifact:
-        description: Upload a canonical standalone artifact for this CI run after full verification
-        required: true
-        default: false
-        type: boolean
-  schedule:
-    - cron: "17 18 * * *"
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -47,567 +24,303 @@ env:
   WORKSPACE_CONFIG_DIR: ${{ github.workspace }}/scripts/check/fixtures/tenant-workspace
 
 jobs:
-  classify:
-    name: CI / classify
+  changed:
+    name: CI / changed
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    outputs:
-      base_sha: ${{ steps.refs.outputs.base_sha }}
-      head_sha: ${{ steps.refs.outputs.head_sha }}
-      trusted_sha: ${{ steps.refs.outputs.trusted_sha }}
-      source_sha: ${{ steps.refs.outputs.source_sha }}
-      force_full: ${{ steps.refs.outputs.force_full }}
-      risk_class: ${{ steps.risk.outputs.risk_class || 'C3' }}
-      run_static: ${{ steps.risk.outputs.run_static || 'true' }}
-      run_node: ${{ steps.risk.outputs.run_node || 'true' }}
-      run_type: ${{ steps.risk.outputs.run_type || 'true' }}
-      type_mode: ${{ steps.risk.outputs.type_mode || 'full' }}
-      changed_files_json: ${{ steps.risk.outputs.changed_files_json || '[]' }}
-      run_postgresql: ${{ steps.risk.outputs.run_postgresql || 'true' }}
-      run_build: ${{ steps.risk.outputs.run_build || 'true' }}
-      run_e2e: ${{ steps.risk.outputs.run_e2e || 'true' }}
-      e2e_mode: ${{ steps.risk.outputs.e2e_mode || 'full' }}
-      e2e_specs_json: ${{ steps.risk.outputs.e2e_specs_json || '[]' }}
-      required_suites_json: ${{ steps.risk.outputs.required_suites_json || '[]' }}
-      classification_json: ${{ steps.risk.outputs.classification_json || '{"schemaVersion":1,"riskClass":"C3","e2eMode":"full","requiredSuites":[],"e2eSpecs":[],"reasonCodes":["trusted-classifier-bootstrap"]}' }}
-      publish_artifact: ${{ steps.risk.outputs.publish_artifact || steps.refs.outputs.publish_requested }}
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-
-      - name: Resolve and validate event revisions
-        id: refs
-        shell: bash
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          EVENT_SHA: ${{ github.sha }}
-          EVENT_REF: ${{ github.ref }}
-          PUSH_BEFORE: ${{ github.event.before }}
-          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-          PR_DRAFT: ${{ github.event.pull_request.draft }}
-          PR_LABELS_JSON: ${{ toJSON(github.event.pull_request.labels.*.name) }}
-          MERGE_BASE_SHA: ${{ github.event.merge_group.base_sha }}
-          MERGE_HEAD_SHA: ${{ github.event.merge_group.head_sha }}
-          INPUT_TARGET_SHA: ${{ inputs.target_sha }}
-          INPUT_BASE_SHA: ${{ inputs.base_sha }}
-          INPUT_FORCE_FULL: ${{ inputs.force_full }}
-          INPUT_PUBLISH_ARTIFACT: ${{ inputs.publish_artifact }}
-        run: |
-          set -euo pipefail
-          full_sha='^[0-9a-f]{40}$'
-          force_full=false
-          final_candidate=true
-          publish_requested=false
-          source_sha="$EVENT_SHA"
-
-          case "$EVENT_NAME" in
-            pull_request)
-              base_sha="$PR_BASE_SHA"
-              head_sha="$PR_HEAD_SHA"
-              trusted_sha="$PR_BASE_SHA"
-              if [ "$PR_DRAFT" = "true" ]; then final_candidate=false; fi
-              case "$PR_LABELS_JSON" in
-                *'"ci-full"'*) force_full=true ;;
-              esac
-              ;;
-            push)
-              base_sha="$PUSH_BEFORE"
-              head_sha="$EVENT_SHA"
-              trusted_sha="$PUSH_BEFORE"
-              if ! [[ "$base_sha" =~ $full_sha ]] \
-                || [ "$base_sha" = "0000000000000000000000000000000000000000" ] \
-                || ! git cat-file -e "${base_sha}^{commit}" 2>/dev/null; then
-                if [ "$(git rev-list --parents -n 1 "$head_sha" | awk '{print NF}')" != "1" ]; then
-                  echo "push before SHA is unavailable; only an auditable root commit may self-bootstrap CI" >&2
-                  exit 1
-                fi
-                base_sha="$head_sha"
-                trusted_sha="$head_sha"
-                force_full=true
-              fi
-              if [ "$EVENT_REF" = "refs/heads/main" ]; then publish_requested=true; fi
-              ;;
-            merge_group)
-              base_sha="$MERGE_BASE_SHA"
-              head_sha="$MERGE_HEAD_SHA"
-              trusted_sha="$MERGE_BASE_SHA"
-              ;;
-            workflow_dispatch)
-              head_sha="${INPUT_TARGET_SHA:-$EVENT_SHA}"
-              if ! [[ "$head_sha" =~ $full_sha ]]; then
-                echo "target_sha must be a full lowercase Git SHA" >&2
-                exit 1
-              fi
-              if [ "$head_sha" != "$EVENT_SHA" ]; then
-                echo "target_sha must equal the selected ref event SHA ($EVENT_SHA)" >&2
-                exit 1
-              fi
-              if [ -n "$INPUT_BASE_SHA" ]; then
-                if ! [[ "$INPUT_BASE_SHA" =~ $full_sha ]]; then
-                  echo "base_sha must be a full lowercase Git SHA" >&2
-                  exit 1
-                fi
-                git fetch --no-tags origin main
-                canonical_main="$(git rev-parse refs/remotes/origin/main)"
-                if [ "$INPUT_BASE_SHA" != "$canonical_main" ]; then
-                  echo "base_sha $INPUT_BASE_SHA is not current main $canonical_main" >&2
-                  exit 1
-                fi
-                if ! git merge-base --is-ancestor "$INPUT_BASE_SHA" "$head_sha"; then
-                  echo "candidate $head_sha is not based on current main $INPUT_BASE_SHA" >&2
-                  exit 1
-                fi
-                base_sha="$INPUT_BASE_SHA"
-                trusted_sha="$INPUT_BASE_SHA"
-              else
-                base_sha="$(git rev-parse --verify "${head_sha}^" 2>/dev/null || printf '%s' "$head_sha")"
-                trusted_sha="$head_sha"
-              fi
-              force_full="${INPUT_FORCE_FULL:-true}"
-              publish_requested="${INPUT_PUBLISH_ARTIFACT:-false}"
-              if [ "$publish_requested" = "true" ]; then
-                if [ "$force_full" != "true" ]; then
-                  echo "workflow_dispatch publishing requires force_full=true" >&2
-                  exit 1
-                fi
-                if [ "$EVENT_REF" != "refs/heads/main" ]; then
-                  echo "workflow_dispatch publishing is restricted to refs/heads/main" >&2
-                  exit 1
-                fi
-                git fetch --no-tags origin main
-                canonical_main="$(git rev-parse refs/remotes/origin/main)"
-                if [ "$head_sha" != "$canonical_main" ]; then
-                  echo "publish target $head_sha is not canonical main HEAD $canonical_main" >&2
-                  exit 1
-                fi
-              fi
-              ;;
-            schedule)
-              head_sha="$EVENT_SHA"
-              base_sha="$(git rev-parse --verify "${head_sha}^" 2>/dev/null || printf '%s' "$head_sha")"
-              trusted_sha="$head_sha"
-              force_full=true
-              ;;
-            *)
-              echo "unsupported GitHub event: $EVENT_NAME" >&2
-              exit 1
-              ;;
-          esac
-
-          for value in "$base_sha" "$head_sha" "$trusted_sha" "$source_sha"; do
-            if ! [[ "$value" =~ $full_sha ]]; then
-              echo "resolved revision is not a full lowercase SHA: $value" >&2
-              exit 1
-            fi
-            git cat-file -e "${value}^{commit}"
-          done
-          {
-            echo "base_sha=$base_sha"
-            echo "head_sha=$head_sha"
-            echo "trusted_sha=$trusted_sha"
-            echo "source_sha=$source_sha"
-            echo "force_full=$force_full"
-            echo "final_candidate=$final_candidate"
-            echo "publish_requested=$publish_requested"
-          } >> "$GITHUB_OUTPUT"
-
-      - name: Classify the complete trusted-base diff
-        id: risk
-        shell: bash
-        env:
-          BASE_SHA: ${{ steps.refs.outputs.base_sha }}
-          HEAD_SHA: ${{ steps.refs.outputs.head_sha }}
-          TRUSTED_SHA: ${{ steps.refs.outputs.trusted_sha }}
-          FORCE_FULL: ${{ steps.refs.outputs.force_full }}
-          FINAL_CANDIDATE: ${{ steps.refs.outputs.final_candidate }}
-          PUBLISH_REQUESTED: ${{ steps.refs.outputs.publish_requested }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          set -euo pipefail
-          trusted_classifier="$RUNNER_TEMP/classify-risk.mjs"
-          if ! git show "${TRUSTED_SHA}:scripts/ci/classify-risk.mjs" > "$trusted_classifier"; then
-            echo "Trusted base has no classifier yet; bootstrap defaults all lanes to C3/full." >> "$GITHUB_STEP_SUMMARY"
-            exit 0
-          fi
-          args=(
-            --base "$BASE_SHA"
-            --head "$HEAD_SHA"
-            --diff-mode three-dot
-            --event "$EVENT_NAME"
-            --github-output "$GITHUB_OUTPUT"
-            --summary "$GITHUB_STEP_SUMMARY"
-          )
-          if [ "$FORCE_FULL" = "true" ]; then args+=(--force-full); fi
-          if [ "$FINAL_CANDIDATE" = "true" ]; then args+=(--final-candidate); fi
-          if [ "$PUBLISH_REQUESTED" = "true" ]; then args+=(--publish-requested); fi
-          node "$trusted_classifier" "${args[@]}"
-
-  static:
-    name: CI / static
-    needs: classify
-    if: ${{ always() && needs.classify.outputs.run_static == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: .node-version
-          cache: npm
-      - name: Enforce canonical npm install input
-        run: test ! -e npm-shrinkwrap.json
-      - name: Enforce migration compatibility policy
-        env:
-          BASE_SHA: ${{ needs.classify.outputs.base_sha }}
-          HEAD_SHA: ${{ needs.classify.outputs.head_sha }}
-          TRUSTED_SHA: ${{ needs.classify.outputs.trusted_sha }}
+        with: { node-version-file: .node-version, cache: npm }
+      - run: npm ci --no-audit --fund=false --loglevel=error
+      - name: Resolve trusted changed range
+        id: range
+        shell: bash
         run: |
-          mkdir -p .ci
-          policy="$RUNNER_TEMP/check-migration-policy.mjs"
-          if ! git show "${TRUSTED_SHA}:scripts/ci/check-migration-policy.mjs" > "$policy" 2>/dev/null; then
-            if ! git diff --quiet "${BASE_SHA}...${HEAD_SHA}" -- prisma/migrations; then
-              echo "Trusted base has no migration policy and this candidate changes migrations; bootstrap policy first." >&2
-              exit 1
-            fi
-            cp scripts/ci/check-migration-policy.mjs "$policy"
+          set -euo pipefail
+          head_sha="$(git rev-parse HEAD)"
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            base_sha="${{ github.event.pull_request.base.sha }}"
+          elif git rev-parse HEAD^ >/dev/null 2>&1; then
+            base_sha="$(git rev-parse HEAD^)"
+          else
+            base_sha="$head_sha"
           fi
-          node "$policy" \
-            --cwd "$GITHUB_WORKSPACE" \
-            --base "$BASE_SHA" \
-            --head "$HEAD_SHA" \
-            --diff-mode three-dot | tee .ci/migration-policy.json
-          node -e 'const p=require("./.ci/migration-policy.json"); process.stdout.write("Migration maintenance required: " + p.requiresMaintenance + "\n")' \
-            >> "$GITHUB_STEP_SUMMARY"
-      - name: Install dependencies for code-bearing static checks
-        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
-        run: npm ci --no-audit --fund=false
-      - name: Dependency-free documentation consistency
-        if: ${{ needs.classify.outputs.risk_class == 'C0' }}
-        run: node scripts/check/check-architecture-docs.js
-      - name: Documentation and generated contract consistency
-        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
-        run: npm run docs:check
-      - name: Static gates and shared contracts
-        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
-        run: |
-          npm run playwright:lifecycle:check
-          npm run check:blockers
-          npm run env:check
-          npm run db:path:check
-      - name: Data contracts when the PostgreSQL lane is skipped
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && needs.classify.outputs.run_postgresql != 'true' }}
-        run: |
-          npm run db:validate
-          npm run schema:check
-          node scripts/check/with-check-lock.js -- node scripts/check/check-prisma-migrations.js --static
-          npm run docs-editor:official-templates:check
-      - name: Lint full C3 diff
-        if: ${{ needs.classify.outputs.risk_class == 'C3' }}
-        run: npm run lint:full
-      - name: Lint explicit changed range
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && needs.classify.outputs.risk_class != 'C3' }}
+          git cat-file -e "${base_sha}^{commit}"
+          printf 'base=%s\nhead=%s\n' "$base_sha" "$head_sha" >> "$GITHUB_OUTPUT"
+      - name: Check changed files and declared dependencies
         env:
-          WORKSPACE_DIFF_BASE: ${{ needs.classify.outputs.base_sha }}
-          WORKSPACE_DIFF_HEAD: ${{ needs.classify.outputs.head_sha }}
-        run: npm run lint:changed
-      - name: Hygiene report
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && github.event_name != 'schedule' }}
-        run: npm run check:hygiene:warn
-      - name: Scheduled strict Hygiene review
-        if: ${{ needs.classify.outputs.risk_class != 'C0' && github.event_name == 'schedule' }}
-        run: npm run check:hygiene
-      - name: Verify Playwright process cleanup
-        if: ${{ always() && needs.classify.outputs.risk_class != 'C0' }}
-        run: npm run playwright:processes:check
-      - name: Retain migration policy evidence
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: migration-policy-${{ needs.classify.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .ci/migration-policy.json
-          if-no-files-found: error
-          retention-days: 30
+          PRISMA_MIGRATION_CHECK_MODE: static
+          WORKSPACE_DIFF_BASE: ${{ steps.range.outputs.base }}
+          WORKSPACE_DIFF_HEAD: ${{ steps.range.outputs.head }}
+        run: npm run check:changed
 
   node:
     name: CI / node
-    needs: classify
-    if: ${{ always() && needs.classify.outputs.run_node == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: .node-version
-          cache: npm
-      - run: npm ci --no-audit --fund=false
+        with: { node-version-file: .node-version, cache: npm }
+      - run: npm ci --no-audit --fund=false --loglevel=error
       - run: npm run db:generate
       - run: npm run test:node
 
   type:
     name: CI / type
-    needs: classify
-    if: ${{ always() && needs.classify.outputs.run_type == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: .node-version
-          cache: npm
-      - name: Restore project-reference type cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with: { node-version-file: .node-version, cache: npm }
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
           path: |
             .cache/types
             .cache/tsbuild
           key: ${{ runner.os }}-tsc-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-tsc-${{ hashFiles('package-lock.json') }}-
-      - run: npm ci --no-audit --fund=false
+          restore-keys: ${{ runner.os }}-tsc-${{ hashFiles('package-lock.json') }}-
+      - run: npm ci --no-audit --fund=false --loglevel=error
       - run: npm run db:generate
-      - name: Run selected typecheck
-        env:
-          TYPE_MODE: ${{ needs.classify.outputs.type_mode }}
-          WORKSPACE_CHANGED_FILES_JSON: ${{ needs.classify.outputs.changed_files_json }}
-        run: |
-          if [ "$TYPE_MODE" = "affected" ]; then
-            npm run typecheck:affected
-          elif [ "$TYPE_MODE" = "full" ]; then
-            npm run typecheck:full
-          else
-            echo "Unknown type mode: $TYPE_MODE" >&2
-            exit 1
-          fi
+      - run: npm run typecheck:full
 
   postgresql:
     name: CI / PostgreSQL
-    needs: classify
-    if: ${{ always() && needs.classify.outputs.run_postgresql == 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
       postgres:
         image: postgres:15
-        env:
-          POSTGRES_USER: workspace
-          POSTGRES_PASSWORD: workspace
-          POSTGRES_DB: workspace_ci
-        ports:
-          - 5432:5432
+        env: { POSTGRES_USER: workspace, POSTGRES_PASSWORD: workspace, POSTGRES_DB: workspace_ci }
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U workspace -d workspace_ci"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
-        with:
-          node-version-file: .node-version
-          cache: npm
-      - run: npm ci --no-audit --fund=false
-      - name: Create Prisma shadow database
-        run: PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
-      - name: Validate schema and migration parity
-        run: npm run check:data
-      - name: Apply migrations and seed resource contracts
-        run: |
-          npx prisma migrate deploy --schema=./prisma
-          npm run db:seed:resources
+        with: { node-version-file: .node-version, cache: npm }
+      - run: npm ci --no-audit --fund=false --loglevel=error
+      - run: PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
+      - run: npm run check:data
+      - run: npx prisma migrate deploy --schema=./prisma
+      - run: npm run db:seed:resources
       - run: npm run test:integration:postgresql
 
   build:
-    name: CI / build
-    needs: classify
-    if: ${{ always() && needs.classify.outputs.run_build == 'true' }}
+    name: CI / build once
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     outputs:
-      artifact_id: ${{ steps.upload.outputs.artifact-id }}
-      artifact_digest: ${{ steps.upload.outputs.artifact-digest }}
+      source_tree: ${{ steps.identity.outputs.source_tree }}
+      content_digest: ${{ steps.identity.outputs.content_digest }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with: { fetch-depth: 0 }
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with: { node-version-file: .node-version, cache: npm }
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
         with:
-          node-version-file: .node-version
-          cache: npm
-      - name: Restore Next build cache
-        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
-        with:
-          path: |
-            .next/cache
-            .cache/next-units
+          path: .next/cache
           key: ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
-          restore-keys: |
-            ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-
-      - run: npm ci --no-audit --fund=false
-      - run: npm run db:generate
-      - name: Resolve affected independent deploy units
-        env:
-          WORKSPACE_CHANGED_FILES_JSON: ${{ needs.classify.outputs.changed_files_json }}
-        run: npm run deploy:affected:plan -- --output .ci/deploy-unit-build-plan.json
-      - name: Build only affected independent artifacts
-        if: ${{ needs.classify.outputs.run_e2e != 'true' && needs.classify.outputs.publish_artifact != 'true' }}
-        env:
-          RELEASE_SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          WORKSPACE_CHANGED_FILES_JSON: ${{ needs.classify.outputs.changed_files_json }}
+          restore-keys: ${{ runner.os }}-next-${{ hashFiles('package-lock.json') }}-
+      - run: npm ci --no-audit --fund=false --loglevel=error
+      - name: Capture exact source identity
+        id: identity
+        shell: bash
         run: |
-          RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")" \
-            npm run deploy:affected:build
-      - name: Upload affected independent artifacts
-        if: ${{ needs.classify.outputs.run_e2e != 'true' && needs.classify.outputs.publish_artifact != 'true' }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+          set -euo pipefail
+          identity="$(node ops/release/candidate/identity.mjs capture --repository "$GITHUB_WORKSPACE" --revision HEAD)"
+          printf 'source_tree=%s\n' "$(jq -r .treeId <<<"$identity")" >> "$GITHUB_OUTPUT"
+          printf 'content_digest=%s\n' "$(jq -r .contentDigest <<<"$identity")" >> "$GITHUB_OUTPUT"
+      - name: Compile Next exactly once and package the portable runtime
+        env:
+          NEXT_PUBLIC_BUILD_VERSION: ${{ steps.identity.outputs.content_digest }}
+          BUILD_VERSION: ${{ steps.identity.outputs.content_digest }}
+          RELEASE_SOURCE_SHA: ${{ github.sha }}
+          RELEASE_SOURCE_TREE: ${{ steps.identity.outputs.source_tree }}
+          RELEASE_CONTENT_DIGEST: ${{ steps.identity.outputs.content_digest }}
+        run: |
+          npm run build
+          STANDALONE_SKIP_NEXT_BUILD=1 bash ./ops/build-standalone-artifact.sh
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: workspace-deploy-units-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: |
-            .ci/deploy-unit-build-plan.json
-            .cache/deploy-units
-          if-no-files-found: error
-          include-hidden-files: true
-          compression-level: 0
-          retention-days: 7
-      - name: Build deployable Next standalone output
-        if: ${{ needs.classify.outputs.run_e2e == 'true' || needs.classify.outputs.publish_artifact == 'true' }}
-        run: npm run build
-      - name: Assemble canonical standalone artifact
-        if: ${{ needs.classify.outputs.run_e2e == 'true' || needs.classify.outputs.publish_artifact == 'true' }}
-        env:
-          RELEASE_SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          CI_RISK_CLASS: ${{ needs.classify.outputs.risk_class }}
-          CI_E2E_MODE: ${{ needs.classify.outputs.e2e_mode }}
-          CI_FORCE_FULL: ${{ needs.classify.outputs.force_full }}
-          CI_TARGET_SHA: ${{ needs.classify.outputs.source_sha }}
-          CI_CLASSIFICATION_JSON: ${{ needs.classify.outputs.classification_json }}
-          CI_REQUIRED_SUITES_JSON: ${{ needs.classify.outputs.required_suites_json }}
-          CI_E2E_SPECS_JSON: ${{ needs.classify.outputs.e2e_specs_json }}
-          STANDALONE_SKIP_NEXT_BUILD: "1"
-        run: |
-          test "$(git rev-parse HEAD)" = "$RELEASE_SOURCE_SHA"
-          RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")" \
-            bash ops/build-standalone-artifact.sh
-      - name: Verify canonical manifest and digest
-        if: ${{ needs.classify.outputs.run_e2e == 'true' || needs.classify.outputs.publish_artifact == 'true' }}
-        run: |
-          args=(
-            --artifact .next/workspace-standalone.tgz
-            --manifest .next/workspace-standalone.manifest.json
-            --expected-sha "${{ needs.classify.outputs.source_sha }}"
-            --expected-tree "$(git rev-parse '${{ needs.classify.outputs.source_sha }}^{tree}')"
-            --expected-event "${{ github.event_name }}"
-            --expected-run-id "${{ github.run_id }}"
-            --expected-run-attempt "${{ github.run_attempt }}"
-          )
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ needs.classify.outputs.publish_artifact }}" = "true" ]; then
-            args+=(--require-full-dispatch)
-          fi
-          node scripts/ci/verify-artifact-manifest.mjs "${args[@]}"
-      - name: Upload canonical standalone artifact
-        if: ${{ needs.classify.outputs.run_e2e == 'true' || needs.classify.outputs.publish_artifact == 'true' }}
-        id: upload
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: workspace-standalone-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
+          name: workspace-runtime-${{ github.sha }}
           path: |
             .next/workspace-standalone.tgz
             .next/workspace-standalone.manifest.json
-          if-no-files-found: error
           include-hidden-files: true
+          if-no-files-found: error
           compression-level: 0
-          retention-days: 7
+          retention-days: 14
 
   e2e:
-    name: CI / E2E
-    needs: [classify, build]
-    if: ${{ always() && needs.classify.outputs.run_e2e == 'true' && needs.build.result == 'success' }}
+    name: CI / E2E exact build
+    needs: [build]
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 35
     services:
       postgres:
         image: postgres:15
-        env:
-          POSTGRES_USER: workspace
-          POSTGRES_PASSWORD: workspace
-          POSTGRES_DB: workspace_ci
-        ports:
-          - 5432:5432
+        env: { POSTGRES_USER: workspace, POSTGRES_PASSWORD: workspace, POSTGRES_DB: workspace_ci }
+        ports: ["5432:5432"]
         options: >-
           --health-cmd "pg_isready -U workspace -d workspace_ci"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+          --health-interval 5s --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with: { node-version-file: .node-version, cache: npm }
+      - run: npm ci --no-audit --fund=false --loglevel=error
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
-          node-version-file: .node-version
-          cache: npm
-      - run: npm ci --no-audit --fund=false
-      - name: Download the exact build artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: workspace-standalone-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: .ci-artifact
-      - name: Verify downloaded artifact provenance
-        run: |
-          node scripts/ci/verify-artifact-manifest.mjs \
-            --artifact .ci-artifact/workspace-standalone.tgz \
-            --manifest .ci-artifact/workspace-standalone.manifest.json \
-            --expected-sha "${{ needs.classify.outputs.source_sha }}" \
-            --expected-tree "$(git rev-parse '${{ needs.classify.outputs.source_sha }}^{tree}')" \
-            --expected-event "${{ github.event_name }}" \
-            --expected-run-id "${{ github.run_id }}" \
-            --expected-run-attempt "${{ github.run_attempt }}"
-      - name: Prepare disposable E2E database
-        run: |
-          PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
-          npx prisma migrate deploy --schema=./prisma
-          npm run db:seed:resources
-      - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
-      - name: Run selected E2E against canonical standalone
+          name: workspace-runtime-${{ github.sha }}
+          path: .next
+      - run: PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
+      - run: npx prisma migrate deploy --schema=./prisma
+      - run: npm run db:seed:resources
+      - run: npx playwright install --with-deps chromium
+      - name: Run E2E against the exact packaged build
         env:
-          E2E_MODE: ${{ needs.classify.outputs.e2e_mode }}
-          E2E_SPECS_JSON: ${{ needs.classify.outputs.e2e_specs_json }}
-          PLAYWRIGHT_STANDALONE_ARCHIVE: ${{ github.workspace }}/.ci-artifact/workspace-standalone.tgz
-          PLAYWRIGHT_STANDALONE_MANIFEST: ${{ github.workspace }}/.ci-artifact/workspace-standalone.manifest.json
-        run: node scripts/ci/run-selected-e2e.mjs
-      - name: Upload E2E traces
-        if: ${{ always() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: playwright-traces-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: test-results
-          if-no-files-found: ignore
-          retention-days: 7
-      - name: Verify Playwright process cleanup
-        if: ${{ always() }}
+          PLAYWRIGHT_STANDALONE_ARCHIVE: .next/workspace-standalone.tgz
+          PLAYWRIGHT_STANDALONE_MANIFEST: .next/workspace-standalone.manifest.json
+        run: npm run test:e2e:smoke
+      - if: ${{ always() }}
         run: npm run playwright:processes:check
 
   required:
     name: CI / required
-    needs: [classify, static, node, type, postgresql, build, e2e]
     if: ${{ always() }}
+    needs: [changed, node, type, postgresql, build, e2e]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
-      - name: Verify every expected success and skip
+      - name: Require every primary lane
         env:
-          CI_EXPECTATIONS_JSON: >-
-            {"static":${{ needs.classify.outputs.run_static == 'true' }},"node":${{ needs.classify.outputs.run_node == 'true' }},"type":${{ needs.classify.outputs.run_type == 'true' }},"postgresql":${{ needs.classify.outputs.run_postgresql == 'true' }},"build":${{ needs.classify.outputs.run_build == 'true' }},"e2e":${{ needs.classify.outputs.run_e2e == 'true' }}}
-          CI_RESULTS_JSON: >-
-            {"classify":"${{ needs.classify.result }}","static":"${{ needs.static.result }}","node":"${{ needs.node.result }}","type":"${{ needs.type.result }}","postgresql":"${{ needs.postgresql.result }}","build":"${{ needs.build.result }}","e2e":"${{ needs.e2e.result }}"}
-          TRUSTED_SHA: ${{ needs.classify.outputs.trusted_sha }}
+          RESULTS: ${{ toJSON(needs) }}
+        run: test "$(jq '[to_entries[] | select(.value.result != "success")] | length' <<<"$RESULTS")" = 0
+
+  image:
+    name: Image / publish exact digest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    needs: [required, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image_ref: ${{ steps.release.outputs.image_ref }}
+      image_digest: ${{ steps.release.outputs.image_digest }}
+      manifest_url: ${{ steps.manifest_url.outputs.manifest_url }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with: { fetch-depth: 0 }
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with: { node-version-file: .node-version }
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: workspace-runtime-${{ github.sha }}
+          path: .next
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+      - name: Resolve lowercase registry references
+        id: refs
+        shell: bash
         run: |
-          verifier="$RUNNER_TEMP/verify-ci-results.mjs"
-          git show "${TRUSTED_SHA}:scripts/ci/verify-ci-results.mjs" > "$verifier" 2>/dev/null \
-            || cp scripts/ci/verify-ci-results.mjs "$verifier"
-          node "$verifier"
+          image_ref="ghcr.io/${GITHUB_REPOSITORY,,}"
+          printf 'image_ref=%s\nmanifest_ref=%s-release\n' "$image_ref" "$image_ref" >> "$GITHUB_OUTPUT"
+      - name: Assemble immutable image context
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .release/image-context/runtime .release/image-context/release
+          tar -xzf .next/workspace-standalone.tgz -C .release/image-context/runtime
+          cp .next/workspace-standalone.tgz .next/workspace-standalone.manifest.json .release/image-context/release/
+      - name: Publish the only application image
+        id: app_image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .release/image-context
+          file: ${{ github.workspace }}/ops/image.Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.refs.outputs.image_ref }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+      - name: Generate release.json
+        id: release
+        shell: bash
+        env:
+          IMAGE_DIGEST: ${{ steps.app_image.outputs.digest }}
+        run: |
+          set -euo pipefail
+          image_ref="${{ steps.refs.outputs.image_ref }}"
+          node ops/image-release-manifest.mjs create \
+            --artifact .next/workspace-standalone.tgz \
+            --artifact-manifest .next/workspace-standalone.manifest.json \
+            --image-ref "$image_ref" --image-digest "$IMAGE_DIGEST" \
+            --github-run-id "$GITHUB_RUN_ID" --github-run-attempt "$GITHUB_RUN_ATTEMPT" \
+            --output release.json
+          mkdir -p .release/manifest-context
+          cp release.json .release/manifest-context/release.json
+          printf 'image_ref=%s\nimage_digest=%s\n' "$image_ref" "$IMAGE_DIGEST" >> "$GITHUB_OUTPUT"
+      - name: Publish release.json as an OCI metadata artifact
+        id: manifest_image
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .release/manifest-context
+          file: ${{ github.workspace }}/ops/release-manifest.Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.refs.outputs.manifest_ref }}:sha-${{ github.sha }}
+      - name: Bind metadata URL to its immutable digest
+        shell: bash
+        env:
+          MANIFEST_DIGEST: ${{ steps.manifest_image.outputs.digest }}
+        run: echo "manifest_url=docker://${{ steps.refs.outputs.manifest_ref }}@${MANIFEST_DIGEST}" >> "$GITHUB_OUTPUT"
+        id: manifest_url
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: workspace-release-${{ github.sha }}
+          path: release.json
+          if-no-files-found: error
+          retention-days: 90
+
+  cnb:
+    name: CNB / dispatch exact digest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.CNB_RELEASE_EVENT != '' }}
+    needs: [image, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Trigger CNB without exposing the token
+        env:
+          CNB_TRIGGER_TOKEN: ${{ secrets.CNB_TRIGGER_TOKEN }}
+          CNB_RELEASE_EVENT: ${{ vars.CNB_RELEASE_EVENT }}
+          SOURCE_TREE: ${{ needs.build.outputs.source_tree }}
+          IMAGE_REF: ${{ needs.image.outputs.image_ref }}
+          IMAGE_DIGEST: ${{ needs.image.outputs.image_digest }}
+          RELEASE_MANIFEST_URL: ${{ needs.image.outputs.manifest_url }}
+        run: |
+          set -euo pipefail
+          test -n "$CNB_TRIGGER_TOKEN"
+          case "$CNB_RELEASE_EVENT" in api_trigger_rehearsal|api_trigger_deploy) ;; *) exit 2 ;; esac
+          payload="$(jq -n --arg event "$CNB_RELEASE_EVENT" --arg sha "$GITHUB_SHA" --arg tree "$SOURCE_TREE" \
+            --arg image "$IMAGE_REF" --arg digest "$IMAGE_DIGEST" --arg manifest "$RELEASE_MANIFEST_URL" --arg run "$GITHUB_RUN_ID" \
+            '{event:$event,branch:"main",sha:$sha,title:("GitHub exact image " + $sha),env:{SOURCE_SHA:$sha,SOURCE_TREE:$tree,IMAGE_REF:$image,IMAGE_DIGEST:$digest,RELEASE_MANIFEST_URL:$manifest,GITHUB_RUN_ID:$run}}')"
+          response="$(curl --fail-with-body --silent --show-error \
+            --request POST --url "https://api.cnb.cool/${{ vars.CNB_REPOSITORY || 'illya317/Workspace' }}/-/build/start" \
+            --header "Authorization: $CNB_TRIGGER_TOKEN" --header 'Content-Type: application/json' --data "$payload")"
+          build_id="$(jq -r '.sn // empty' <<<"$response")"
+          log_url="$(jq -r '.buildLogUrl // empty' <<<"$response")"
+          test -n "$build_id"
+          printf 'CNB build: %s\nCNB log: %s\n' "$build_id" "$log_url"

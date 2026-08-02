@@ -54,7 +54,7 @@ export function useConsolidationDecisionWorkspace(input: {
     setTaxEntitySnapshotId((current) => current ?? entities[0]?.id ?? null);
   }, [data?.batch?.entities, data?.batch?.entries]);
 
-  const preparationSections = (onStarted: () => void): BodySurfaceSectionSpec[] => {
+  const preparationSections = (onWorkpaperBuilt: () => void): BodySurfaceSectionSpec[] => {
     const batch = data?.batch;
     if (!batch && !data?.batchCreation.allowed) {
       return [createStatusSection("consolidation-preparation-unavailable", {
@@ -72,17 +72,17 @@ export function useConsolidationDecisionWorkspace(input: {
       header: {
         title: "提交合并准备",
         description: sourcesReady
-          ? "全部单体报表已就绪。提交后系统会自动保存快照、采用本位币与适用汇率、生成抵销草稿，并直接进入对账与抵销。"
-          : `全部单体报表就绪后才能开始第二步；当前已就绪 ${data?.metrics.coveredSources ?? 0}/${data?.metrics.totalSources ?? 0} 份。`,
+          ? "全部单体报表已就绪。提交后系统会保存来源与汇率证据、生成合并凭证，并直接进入合并工作底稿。"
+          : `全部单体报表就绪后才能生成工作底稿；当前已就绪 ${data?.metrics.coveredSources ?? 0}/${data?.metrics.totalSources ?? 0} 份。`,
       },
       content: { items: [], layout: { flow: "grid", columns: 3, density: "compact", commandPlacement: "below" } },
       actions: [{
         key: "complete-preparation",
         action: "submit",
-        label: commands.busy ? "正在提交…" : "提交并开始对账抵销",
+        label: commands.busy ? "正在生成…" : "生成合并工作底稿",
         disabled: commands.busy || !canSubmit,
         onClick: () => void (batch ? commands.completePreparation() : commands.ensureBatch()).then((saved) => {
-          if (saved) onStarted();
+          if (saved) onWorkpaperBuilt();
         }),
       }, ...(batch ? [{
         key: "delete-batch",
@@ -198,11 +198,16 @@ export function useConsolidationDecisionWorkspace(input: {
     ];
   };
 
-  const lifecycleSections = (): BodySurfaceSectionSpec[] => {
+  const lifecycleSections = (onConfirmed?: () => void): BodySurfaceSectionSpec[] => {
     const batch = data?.batch;
     if (!batch) return [];
     const action = nextConsolidationLifecycleAction(batch.status);
-    const labels = { submit: "提交复核", review: "完成独立复核", lock: "锁定批次", publish: "发布合并报表" };
+    const labels = {
+      submit: "提交复核",
+      review: "完成独立复核",
+      lock: batch.status === "draft" ? "确认工作底稿并生成合并报表" : "锁定批次",
+      publish: "发布合并报表",
+    };
     return [
       ...(action ? [createFormSection("consolidation-lifecycle-action", {
         kind: "filters",
@@ -211,7 +216,7 @@ export function useConsolidationDecisionWorkspace(input: {
           description: action === "review"
             ? "复核人必须独立于当前批次编制人与提交人。"
             : batch.status === "draft"
-              ? "草稿发现期间、范围或来源错误时可直接删除，不需要继续提交。"
+              ? "确认后系统批准当前合并凭证、冻结工作底稿，并直接生成合并报表。"
               : undefined,
         },
         content: { items: action === "review" || action === "lock" ? [textField("returnReason", "仅退回时填写原因", returnReason, setReturnReason, { span: 3 })] : [], layout: { flow: "grid", columns: 3, density: "compact", commandPlacement: "below" } },
@@ -219,8 +224,11 @@ export function useConsolidationDecisionWorkspace(input: {
           key: action,
           action: action === "submit" ? "submit" : action === "review" ? "approve" : "confirm",
           label: labels[action],
-          disabled: commands.busy || (action === "submit" ? !capabilities.canSubmit : action === "lock" ? !capabilities.canLock : !capabilities.canApprove),
-          onClick: () => void commands.advanceLifecycle(),
+          disabled: commands.busy
+            || (action === "submit" ? !capabilities.canSubmit : action === "lock" ? !capabilities.canLock : !capabilities.canApprove),
+          onClick: () => void commands.advanceLifecycle().then((saved) => {
+            if (saved && action === "lock") onConfirmed?.();
+          }),
         }, ...(batch.status === "draft" ? [{
           key: "delete-batch",
           action: "delete" as const,

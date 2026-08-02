@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PageSurface, createMasterDetailBody, createPageBody, createStatusSection, useFeedback } from "@workspace/core/ui";
-import type { BodySurfaceSelectorProps, BodySurfaceToolbarCreateProps, FormSurfaceItemSpec, SelectorSurfaceStatusSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSelectorProps, FormSurfaceItemSpec, PageSurfaceCreateSpec, SelectorSurfaceStatusSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary, QcEditorRuntimeTemplate } from "@workspace/production/types";
 import { isProductionBatchNumber, normalizeProductionBatchNumberInput } from "@workspace/platform/production-batch-number";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
@@ -254,11 +254,8 @@ export default function QcBatchListClient({ initialRows, products, canCreate, ca
       maxLength: 8,
     },
   ];
-  const createBody: BodySurfaceToolbarCreateProps = {
-    kind: "create",
-    create: {
+  const pageCreate: PageSurfaceCreateSpec = {
       id: "qc-batch-create",
-      trigger: "toolbar",
       presentation: "inline",
       title: "新建批次",
       open: createOpen,
@@ -268,7 +265,6 @@ export default function QcBatchListClient({ initialRows, products, canCreate, ca
       submission: { action: "save", disabled: creatingBatch || !productKey || !isProductionBatchNumber(batchNumber), execute: createBatch },
       onOpenChange: setCreateOpen,
       onCancel: () => setBatchNumber(todayBatchNumber()),
-    },
   };
   const queueBody: BodySurfaceSelectorProps = {
     kind: "selector",
@@ -294,9 +290,9 @@ export default function QcBatchListClient({ initialRows, products, canCreate, ca
 
   return (
     <PageSurface kind="standard"
+      create={pageCreate}
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
-        { key: "qc-batch-create", body: createBody },
         { key: "qc-workbench", body: createMasterDetailBody({ master: { label: "质检批次", presentation: "compact", body: queueBody }, detail: detailBody }) },
       ])}
       footer={{ pagination: { page, totalPages, total: filtered.length, onPageChange: setPage, compact: true } }}

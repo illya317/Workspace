@@ -11,8 +11,10 @@ const path = require("path");
 const APP_DIR = path.resolve(__dirname, "../../app");
 
 const REQUIRED_ARCHITECTURE_FILES = [
+  "app/(modules)/agent/ARCHITECTURE.md",
   "app/(modules)/administration/contracts/ARCHITECTURE.md",
   "app/(modules)/capital-securities/ARCHITECTURE.md",
+  "app/(modules)/docs/ARCHITECTURE.md",
   "app/(modules)/external/ARCHITECTURE.md",
   "app/(modules)/finance/ARCHITECTURE.md",
   "app/(modules)/finance/budget/ARCHITECTURE.md",
@@ -22,8 +24,8 @@ const REQUIRED_ARCHITECTURE_FILES = [
   "app/(modules)/production/ARCHITECTURE.md",
   "app/(modules)/work/ARCHITECTURE.md",
   "app/(system)/portal/ARCHITECTURE.md",
-  "app/(system)/settings/ARCHITECTURE.md",
-  "app/(system)/settings/admin/ARCHITECTURE.md",
+  "app/(modules)/settings/ARCHITECTURE.md",
+  "app/(modules)/settings/admin/ARCHITECTURE.md",
 ];
 
 // 可选/辅助目录，不需要 ARCHITECTURE.md

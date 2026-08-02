@@ -1,0 +1,15 @@
+# Merge this file only with /home/ubuntu/workspace-dev/compose.yaml.
+# Keep the legacy network during cutover so the current app remains connected;
+# the external edge network survives either Compose project being stopped.
+services:
+  market-data:
+    networks:
+      workspace-dev-network: {}
+      workspace-dev-edge:
+        aliases:
+          - market-data
+
+networks:
+  workspace-dev-edge:
+    external: true
+    name: workspace-dev-edge

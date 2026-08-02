@@ -2,7 +2,7 @@ import type {
   ConsolidatedReportOutputPackage,
   ConsolidationBatchSnapshot,
 } from "@workspace/finance/types";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import {
   failCommand,
   type DomainValidationResult,
@@ -22,7 +22,6 @@ import {
   buildConsolidationPreviewPackage,
   buildConsolidationReplayPackage,
 } from "./consolidation-replay";
-import { loadConsolidationVoucherMatchGroups } from "./consolidation-voucher-matches";
 
 export type ConsolidatedOutputBuildMode = "official" | "lockCandidate";
 
@@ -66,8 +65,9 @@ export function buildConsolidatedPreviewFromBatchSnapshot(
     functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
   }
   if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
-    && batch.exchangeRates.some((rate) => rate.rateKind !== "centralParity")) {
-    return failCommand("当前草稿仍冻结旧汇率来源，请重新生成批次并抓取中国货币网人民币汇率中间价", 409, "exchangeRates");
+    && (batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage", "historicalInvestment"].includes(rate.rateKind))
+      || !batch.exchangeRates.some((rate) => rate.rateKind === "monthlyAverage"))) {
+    return failCommand("当前草稿缺少逐月平均汇率证据，请重新生成合并工作底稿", 409, "exchangeRates");
   }
   return buildConsolidatedReportOutput(
     buildConsolidationPreviewPackage(batch),
@@ -100,18 +100,6 @@ export async function loadConsolidatedReportOutput(batchId: number) {
   if (!row) return serviceError("合并批次不存在", 404);
   const batch = consolidationBatchSnapshot(row);
   if (row.status !== "locked" && row.status !== "published") {
-    const generatedByKey = new Map(row.matchGroups.map((group) => [group.generationKey, group]));
-    const currentMatchedGroups = (await loadConsolidationVoucherMatchGroups(row))
-      .filter((group) => group.status === "matched");
-    const pendingReviews = currentMatchedGroups.filter((group) => {
-      const persisted = generatedByKey.get(group.generationKey);
-      return !persisted?.entryId
-        || persisted.status !== "accepted"
-        || persisted.entry?.status !== "approved";
-    });
-    if (pendingReviews.length > 0) {
-      return serviceError(`仍有 ${pendingReviews.length} 组已形成抵销分录的事项未通过审阅，不能生成合并报表；无法抵销的例外事项不阻断`, 409);
-    }
     const preview = buildConsolidatedPreviewFromBatchSnapshot(batch);
     return preview.ok
       ? serviceOk({ report: preview.data, lifecycle: { status: row.status } })

@@ -13,6 +13,7 @@ import {
   findStandaloneServer,
   parsePlaywrightPort,
   prepareStandaloneAssets,
+  standaloneServerEnvironment,
   validateArchiveEntryList,
   verifyStandaloneArchive,
 } from "./e2e-standalone.mjs";
@@ -45,6 +46,18 @@ test("parsePlaywrightPort accepts valid ports and rejects unsafe values", () => 
   for (const value of ["0", "65536", "3.5", "not-a-port", ""]) {
     assert.throws(() => parsePlaywrightPort(value), /PLAYWRIGHT_PORT/);
   }
+});
+
+test("standalone E2E routes production internal RPC back through its own public origin", () => {
+  assert.equal(
+    standaloneServerEnvironment({}, 3100).WORKSPACE_PUBLIC_ORIGIN,
+    "http://127.0.0.1:3100",
+  );
+  assert.equal(
+    standaloneServerEnvironment({ WORKSPACE_PUBLIC_ORIGIN: "https://workspace.example.test" }, 3100)
+      .WORKSPACE_PUBLIC_ORIGIN,
+    "https://workspace.example.test",
+  );
 });
 
 test("prepareStandaloneAssets finds a nested server and copies static/public assets", (context) => {

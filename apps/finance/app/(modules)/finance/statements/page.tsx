@@ -20,6 +20,6 @@ export default async function FinanceStatementsPage() {
     title: "财务报表",
     backHref: "/finance",
     user,
-    children: <StatementsClient capabilities={{ canCreate, canUpdate, canDelete, canSubmit, canApprove, canReject, canLock, canExport }} />,
+    children: <StatementsClient capabilities={{ canCreate, canUpdate, canUpdateConsolidationScope: canUpdate, canDelete, canSubmit, canApprove, canReject, canLock, canExport }} />,
   });
 }

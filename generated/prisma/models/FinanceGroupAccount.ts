@@ -31,6 +31,7 @@ export type FinanceGroupAccountAvgAggregateOutputType = {
   subjectLevel: number | null
   parentId: number | null
   reviewedBy: number | null
+  originCompanyId: number | null
 }
 
 export type FinanceGroupAccountSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type FinanceGroupAccountSumAggregateOutputType = {
   subjectLevel: number | null
   parentId: number | null
   reviewedBy: number | null
+  originCompanyId: number | null
 }
 
 export type FinanceGroupAccountMinAggregateOutputType = {
@@ -55,6 +57,7 @@ export type FinanceGroupAccountMinAggregateOutputType = {
   reviewedBy: number | null
   reviewedAt: Date | null
   originCompanyCode: string | null
+  originCompanyId: number | null
   originSourceScopeKey: string | null
   originLocalAccountCode: string | null
   isActive: boolean | null
@@ -77,6 +80,7 @@ export type FinanceGroupAccountMaxAggregateOutputType = {
   reviewedBy: number | null
   reviewedAt: Date | null
   originCompanyCode: string | null
+  originCompanyId: number | null
   originSourceScopeKey: string | null
   originLocalAccountCode: string | null
   isActive: boolean | null
@@ -99,6 +103,7 @@ export type FinanceGroupAccountCountAggregateOutputType = {
   reviewedBy: number
   reviewedAt: number
   originCompanyCode: number
+  originCompanyId: number
   originSourceScopeKey: number
   originLocalAccountCode: number
   isActive: number
@@ -113,6 +118,7 @@ export type FinanceGroupAccountAvgAggregateInputType = {
   subjectLevel?: true
   parentId?: true
   reviewedBy?: true
+  originCompanyId?: true
 }
 
 export type FinanceGroupAccountSumAggregateInputType = {
@@ -120,6 +126,7 @@ export type FinanceGroupAccountSumAggregateInputType = {
   subjectLevel?: true
   parentId?: true
   reviewedBy?: true
+  originCompanyId?: true
 }
 
 export type FinanceGroupAccountMinAggregateInputType = {
@@ -137,6 +144,7 @@ export type FinanceGroupAccountMinAggregateInputType = {
   reviewedBy?: true
   reviewedAt?: true
   originCompanyCode?: true
+  originCompanyId?: true
   originSourceScopeKey?: true
   originLocalAccountCode?: true
   isActive?: true
@@ -159,6 +167,7 @@ export type FinanceGroupAccountMaxAggregateInputType = {
   reviewedBy?: true
   reviewedAt?: true
   originCompanyCode?: true
+  originCompanyId?: true
   originSourceScopeKey?: true
   originLocalAccountCode?: true
   isActive?: true
@@ -181,6 +190,7 @@ export type FinanceGroupAccountCountAggregateInputType = {
   reviewedBy?: true
   reviewedAt?: true
   originCompanyCode?: true
+  originCompanyId?: true
   originSourceScopeKey?: true
   originLocalAccountCode?: true
   isActive?: true
@@ -290,6 +300,7 @@ export type FinanceGroupAccountGroupByOutputType = {
   reviewedBy: number | null
   reviewedAt: Date | null
   originCompanyCode: string | null
+  originCompanyId: number | null
   originSourceScopeKey: string | null
   originLocalAccountCode: string | null
   isActive: boolean
@@ -335,6 +346,7 @@ export type FinanceGroupAccountWhereInput = {
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccount"> | Date | string | null
   originCompanyCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
+  originCompanyId?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   originSourceScopeKey?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   originLocalAccountCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   isActive?: Prisma.BoolFilter<"FinanceGroupAccount"> | boolean
@@ -349,6 +361,9 @@ export type FinanceGroupAccountWhereInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorListRelationFilter
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  originCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceGroupAccountOrderByWithRelationInput = {
@@ -366,6 +381,7 @@ export type FinanceGroupAccountOrderByWithRelationInput = {
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   originCompanyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   originSourceScopeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   originLocalAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -380,6 +396,9 @@ export type FinanceGroupAccountOrderByWithRelationInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleOrderByRelationAggregateInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentOrderByRelationAggregateInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentOrderByRelationAggregateInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorOrderByRelationAggregateInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  originCompany?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceGroupAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -400,6 +419,7 @@ export type FinanceGroupAccountWhereUniqueInput = Prisma.AtLeast<{
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccount"> | Date | string | null
   originCompanyCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
+  originCompanyId?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   originSourceScopeKey?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   originLocalAccountCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   isActive?: Prisma.BoolFilter<"FinanceGroupAccount"> | boolean
@@ -414,6 +434,9 @@ export type FinanceGroupAccountWhereUniqueInput = Prisma.AtLeast<{
   targetReclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentListRelationFilter
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorListRelationFilter
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  originCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "code">
 
 export type FinanceGroupAccountOrderByWithAggregationInput = {
@@ -431,6 +454,7 @@ export type FinanceGroupAccountOrderByWithAggregationInput = {
   reviewedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   originCompanyCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
   originSourceScopeKey?: Prisma.SortOrderInput | Prisma.SortOrder
   originLocalAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -461,6 +485,7 @@ export type FinanceGroupAccountScalarWhereWithAggregatesInput = {
   reviewedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccount"> | number | null
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceGroupAccount"> | Date | string | null
   originCompanyCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccount"> | string | null
+  originCompanyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccount"> | number | null
   originSourceScopeKey?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccount"> | string | null
   originLocalAccountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccount"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceGroupAccount"> | boolean
@@ -495,6 +520,9 @@ export type FinanceGroupAccountCreateInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateInput = {
@@ -512,6 +540,7 @@ export type FinanceGroupAccountUncheckedCreateInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -525,6 +554,8 @@ export type FinanceGroupAccountUncheckedCreateInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountUpdateInput = {
@@ -554,6 +585,9 @@ export type FinanceGroupAccountUpdateInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateInput = {
@@ -571,6 +605,7 @@ export type FinanceGroupAccountUncheckedUpdateInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -584,6 +619,8 @@ export type FinanceGroupAccountUncheckedUpdateInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountCreateManyInput = {
@@ -601,6 +638,7 @@ export type FinanceGroupAccountCreateManyInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -643,6 +681,7 @@ export type FinanceGroupAccountUncheckedUpdateManyInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -680,6 +719,7 @@ export type FinanceGroupAccountCountOrderByAggregateInput = {
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   originCompanyCode?: Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrder
   originSourceScopeKey?: Prisma.SortOrder
   originLocalAccountCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -692,6 +732,7 @@ export type FinanceGroupAccountAvgOrderByAggregateInput = {
   subjectLevel?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrder
 }
 
 export type FinanceGroupAccountMaxOrderByAggregateInput = {
@@ -709,6 +750,7 @@ export type FinanceGroupAccountMaxOrderByAggregateInput = {
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   originCompanyCode?: Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrder
   originSourceScopeKey?: Prisma.SortOrder
   originLocalAccountCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -731,6 +773,7 @@ export type FinanceGroupAccountMinOrderByAggregateInput = {
   reviewedBy?: Prisma.SortOrder
   reviewedAt?: Prisma.SortOrder
   originCompanyCode?: Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrder
   originSourceScopeKey?: Prisma.SortOrder
   originLocalAccountCode?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -743,11 +786,28 @@ export type FinanceGroupAccountSumOrderByAggregateInput = {
   subjectLevel?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
+  originCompanyId?: Prisma.SortOrder
 }
 
 export type FinanceGroupAccountScalarRelationFilter = {
   is?: Prisma.FinanceGroupAccountWhereInput
   isNot?: Prisma.FinanceGroupAccountWhereInput
+}
+
+export type FinanceGroupAccountCreateNestedOneWithoutConsolidationEntryLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutConsolidationEntryLinesInput
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput
+}
+
+export type FinanceGroupAccountUpdateOneWithoutConsolidationEntryLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutConsolidationEntryLinesInput
+  upsert?: Prisma.FinanceGroupAccountUpsertWithoutConsolidationEntryLinesInput
+  disconnect?: Prisma.FinanceGroupAccountWhereInput | boolean
+  delete?: Prisma.FinanceGroupAccountWhereInput | boolean
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceGroupAccountUpdateToOneWithWhereWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUpdateWithoutConsolidationEntryLinesInput>, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationEntryLinesInput>
 }
 
 export type FinanceGroupAccountCreateNestedOneWithoutChildrenInput = {
@@ -838,6 +898,22 @@ export type FinanceGroupAccountUpdateOneWithoutParentOfRevisionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceGroupAccountUpdateToOneWithWhereWithoutParentOfRevisionsInput, Prisma.FinanceGroupAccountUpdateWithoutParentOfRevisionsInput>, Prisma.FinanceGroupAccountUncheckedUpdateWithoutParentOfRevisionsInput>
 }
 
+export type FinanceGroupAccountCreateNestedOneWithoutConsolidationRuleSelectorsInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationRuleSelectorsInput>
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutConsolidationRuleSelectorsInput
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput
+}
+
+export type FinanceGroupAccountUpdateOneWithoutConsolidationRuleSelectorsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationRuleSelectorsInput>
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutConsolidationRuleSelectorsInput
+  upsert?: Prisma.FinanceGroupAccountUpsertWithoutConsolidationRuleSelectorsInput
+  disconnect?: Prisma.FinanceGroupAccountWhereInput | boolean
+  delete?: Prisma.FinanceGroupAccountWhereInput | boolean
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceGroupAccountUpdateToOneWithWhereWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUpdateWithoutConsolidationRuleSelectorsInput>, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationRuleSelectorsInput>
+}
+
 export type FinanceGroupAccountCreateNestedOneWithoutMappingsInput = {
   create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutMappingsInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutMappingsInput>
   connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutMappingsInput
@@ -916,6 +992,190 @@ export type FinanceGroupAccountUpdateOneWithoutTargetReclassAdjustmentsNestedInp
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceGroupAccountUpdateToOneWithWhereWithoutTargetReclassAdjustmentsInput, Prisma.FinanceGroupAccountUpdateWithoutTargetReclassAdjustmentsInput>, Prisma.FinanceGroupAccountUncheckedUpdateWithoutTargetReclassAdjustmentsInput>
 }
 
+export type FinanceGroupAccountCreateNestedManyWithoutOriginCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput> | Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput[] | Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput | Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountCreateManyOriginCompanyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountUncheckedCreateNestedManyWithoutOriginCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput> | Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput[] | Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput | Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountCreateManyOriginCompanyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountUpdateManyWithoutOriginCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput> | Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput[] | Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput | Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput[]
+  upsert?: Prisma.FinanceGroupAccountUpsertWithWhereUniqueWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpsertWithWhereUniqueWithoutOriginCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountCreateManyOriginCompanyInputEnvelope
+  set?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountUpdateWithWhereUniqueWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpdateWithWhereUniqueWithoutOriginCompanyInput[]
+  updateMany?: Prisma.FinanceGroupAccountUpdateManyWithWhereWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpdateManyWithWhereWithoutOriginCompanyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountScalarWhereInput | Prisma.FinanceGroupAccountScalarWhereInput[]
+}
+
+export type FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput> | Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput[] | Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput | Prisma.FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput[]
+  upsert?: Prisma.FinanceGroupAccountUpsertWithWhereUniqueWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpsertWithWhereUniqueWithoutOriginCompanyInput[]
+  createMany?: Prisma.FinanceGroupAccountCreateManyOriginCompanyInputEnvelope
+  set?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountWhereUniqueInput | Prisma.FinanceGroupAccountWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountUpdateWithWhereUniqueWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpdateWithWhereUniqueWithoutOriginCompanyInput[]
+  updateMany?: Prisma.FinanceGroupAccountUpdateManyWithWhereWithoutOriginCompanyInput | Prisma.FinanceGroupAccountUpdateManyWithWhereWithoutOriginCompanyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountScalarWhereInput | Prisma.FinanceGroupAccountScalarWhereInput[]
+}
+
+export type FinanceGroupAccountCreateWithoutConsolidationEntryLinesInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.FinanceGroupAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceGroupAccountCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
+}
+
+export type FinanceGroupAccountUncheckedCreateWithoutConsolidationEntryLinesInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  parentId?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originCompanyId?: number | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+}
+
+export type FinanceGroupAccountCreateOrConnectWithoutConsolidationEntryLinesInput = {
+  where: Prisma.FinanceGroupAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceGroupAccountUpsertWithoutConsolidationEntryLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationEntryLinesInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationEntryLinesInput>
+  where?: Prisma.FinanceGroupAccountWhereInput
+}
+
+export type FinanceGroupAccountUpdateToOneWithWhereWithoutConsolidationEntryLinesInput = {
+  where?: Prisma.FinanceGroupAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceGroupAccountUpdateWithoutConsolidationEntryLinesInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.FinanceGroupAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceGroupAccountUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
+}
+
+export type FinanceGroupAccountUncheckedUpdateWithoutConsolidationEntryLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+}
+
 export type FinanceGroupAccountCreateWithoutChildrenInput = {
   code: string
   name: string
@@ -942,6 +1202,9 @@ export type FinanceGroupAccountCreateWithoutChildrenInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutChildrenInput = {
@@ -959,6 +1222,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutChildrenInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -971,6 +1235,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutChildrenInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutChildrenInput = {
@@ -1004,6 +1270,9 @@ export type FinanceGroupAccountCreateWithoutParentInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutParentInput = {
@@ -1020,6 +1289,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutParentInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1033,6 +1303,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutParentInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutParentInput = {
@@ -1082,6 +1354,9 @@ export type FinanceGroupAccountUpdateWithoutChildrenInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutChildrenInput = {
@@ -1099,6 +1374,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutChildrenInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1111,6 +1387,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutChildrenInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountUpsertWithWhereUniqueWithoutParentInput = {
@@ -1147,6 +1425,7 @@ export type FinanceGroupAccountScalarWhereInput = {
   reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccount"> | Date | string | null
   originCompanyCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
+  originCompanyId?: Prisma.IntNullableFilter<"FinanceGroupAccount"> | number | null
   originSourceScopeKey?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   originLocalAccountCode?: Prisma.StringNullableFilter<"FinanceGroupAccount"> | string | null
   isActive?: Prisma.BoolFilter<"FinanceGroupAccount"> | boolean
@@ -1180,6 +1459,9 @@ export type FinanceGroupAccountCreateWithoutRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutRevisionsInput = {
@@ -1197,6 +1479,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutRevisionsInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1209,6 +1492,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutRevisionsInput = {
@@ -1242,6 +1527,9 @@ export type FinanceGroupAccountCreateWithoutParentOfRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutParentOfRevisionsInput = {
@@ -1259,6 +1547,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutParentOfRevisionsInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1271,6 +1560,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutParentOfRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutParentOfRevisionsInput = {
@@ -1315,6 +1606,9 @@ export type FinanceGroupAccountUpdateWithoutRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutRevisionsInput = {
@@ -1332,6 +1626,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutRevisionsInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1344,6 +1639,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountUpsertWithoutParentOfRevisionsInput = {
@@ -1383,6 +1680,9 @@ export type FinanceGroupAccountUpdateWithoutParentOfRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutParentOfRevisionsInput = {
@@ -1400,6 +1700,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutParentOfRevisionsInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1412,6 +1713,150 @@ export type FinanceGroupAccountUncheckedUpdateWithoutParentOfRevisionsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
+}
+
+export type FinanceGroupAccountCreateWithoutConsolidationRuleSelectorsInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.FinanceGroupAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceGroupAccountCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
+}
+
+export type FinanceGroupAccountUncheckedCreateWithoutConsolidationRuleSelectorsInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  parentId?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originCompanyId?: number | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
+}
+
+export type FinanceGroupAccountCreateOrConnectWithoutConsolidationRuleSelectorsInput = {
+  where: Prisma.FinanceGroupAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationRuleSelectorsInput>
+}
+
+export type FinanceGroupAccountUpsertWithoutConsolidationRuleSelectorsInput = {
+  update: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationRuleSelectorsInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutConsolidationRuleSelectorsInput>
+  where?: Prisma.FinanceGroupAccountWhereInput
+}
+
+export type FinanceGroupAccountUpdateToOneWithWhereWithoutConsolidationRuleSelectorsInput = {
+  where?: Prisma.FinanceGroupAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutConsolidationRuleSelectorsInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutConsolidationRuleSelectorsInput>
+}
+
+export type FinanceGroupAccountUpdateWithoutConsolidationRuleSelectorsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.FinanceGroupAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceGroupAccountUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
+}
+
+export type FinanceGroupAccountUncheckedUpdateWithoutConsolidationRuleSelectorsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountCreateWithoutMappingsInput = {
@@ -1440,6 +1885,9 @@ export type FinanceGroupAccountCreateWithoutMappingsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutMappingsInput = {
@@ -1457,6 +1905,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutMappingsInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1469,6 +1918,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutMappingsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutMappingsInput = {
@@ -1513,6 +1964,9 @@ export type FinanceGroupAccountUpdateWithoutMappingsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutMappingsInput = {
@@ -1530,6 +1984,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutMappingsInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1542,6 +1997,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutMappingsInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountCreateWithoutSourceReclassRulesInput = {
@@ -1570,6 +2027,9 @@ export type FinanceGroupAccountCreateWithoutSourceReclassRulesInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassRulesInput = {
@@ -1587,6 +2047,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassRulesInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1599,6 +2060,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassRulesInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutSourceReclassRulesInput = {
@@ -1632,6 +2095,9 @@ export type FinanceGroupAccountCreateWithoutTargetReclassRulesInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassRulesInput = {
@@ -1649,6 +2115,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassRulesInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1661,6 +2128,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassRulesInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutTargetReclassRulesInput = {
@@ -1705,6 +2174,9 @@ export type FinanceGroupAccountUpdateWithoutSourceReclassRulesInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassRulesInput = {
@@ -1722,6 +2194,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassRulesInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1734,6 +2207,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassRulesInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountUpsertWithoutTargetReclassRulesInput = {
@@ -1773,6 +2248,9 @@ export type FinanceGroupAccountUpdateWithoutTargetReclassRulesInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassRulesInput = {
@@ -1790,6 +2268,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassRulesInput = {
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1802,6 +2281,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassRulesInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountCreateWithoutSourceReclassAdjustmentsInput = {
@@ -1830,6 +2311,9 @@ export type FinanceGroupAccountCreateWithoutSourceReclassAdjustmentsInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassAdjustmentsInput = {
@@ -1847,6 +2331,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassAdjustmentsInp
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1859,6 +2344,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutSourceReclassAdjustmentsInp
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutSourceReclassAdjustmentsInput = {
@@ -1892,6 +2379,9 @@ export type FinanceGroupAccountCreateWithoutTargetReclassAdjustmentsInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+  originCompany?: Prisma.CompanyCreateNestedOneWithoutOriginFinanceGroupAccountsInput
 }
 
 export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassAdjustmentsInput = {
@@ -1909,6 +2399,7 @@ export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassAdjustmentsInp
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -1921,6 +2412,8 @@ export type FinanceGroupAccountUncheckedCreateWithoutTargetReclassAdjustmentsInp
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
 }
 
 export type FinanceGroupAccountCreateOrConnectWithoutTargetReclassAdjustmentsInput = {
@@ -1965,6 +2458,9 @@ export type FinanceGroupAccountUpdateWithoutSourceReclassAdjustmentsInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassAdjustmentsInput = {
@@ -1982,6 +2478,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassAdjustmentsInp
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1994,6 +2491,8 @@ export type FinanceGroupAccountUncheckedUpdateWithoutSourceReclassAdjustmentsInp
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
 export type FinanceGroupAccountUpsertWithoutTargetReclassAdjustmentsInput = {
@@ -2033,6 +2532,9 @@ export type FinanceGroupAccountUpdateWithoutTargetReclassAdjustmentsInput = {
   sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassAdjustmentsInput = {
@@ -2050,6 +2552,7 @@ export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassAdjustmentsInp
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -2062,6 +2565,97 @@ export type FinanceGroupAccountUncheckedUpdateWithoutTargetReclassAdjustmentsInp
   sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
+}
+
+export type FinanceGroupAccountCreateWithoutOriginCompanyInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  parent?: Prisma.FinanceGroupAccountCreateNestedOneWithoutChildrenInput
+  children?: Prisma.FinanceGroupAccountCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutGroupAccountInput
+}
+
+export type FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  parentId?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedCreateNestedManyWithoutParentInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedCreateNestedManyWithoutGroupAccountInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutGroupAccountInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutParentGroupAccountInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutSourceGroupAccountInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedCreateNestedManyWithoutTargetGroupAccountInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedCreateNestedManyWithoutGroupAccountInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutGroupAccountInput
+}
+
+export type FinanceGroupAccountCreateOrConnectWithoutOriginCompanyInput = {
+  where: Prisma.FinanceGroupAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput>
+}
+
+export type FinanceGroupAccountCreateManyOriginCompanyInputEnvelope = {
+  data: Prisma.FinanceGroupAccountCreateManyOriginCompanyInput | Prisma.FinanceGroupAccountCreateManyOriginCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceGroupAccountUpsertWithWhereUniqueWithoutOriginCompanyInput = {
+  where: Prisma.FinanceGroupAccountWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutOriginCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountCreateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedCreateWithoutOriginCompanyInput>
+}
+
+export type FinanceGroupAccountUpdateWithWhereUniqueWithoutOriginCompanyInput = {
+  where: Prisma.FinanceGroupAccountWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountUpdateWithoutOriginCompanyInput, Prisma.FinanceGroupAccountUncheckedUpdateWithoutOriginCompanyInput>
+}
+
+export type FinanceGroupAccountUpdateManyWithWhereWithoutOriginCompanyInput = {
+  where: Prisma.FinanceGroupAccountScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountUpdateManyMutationInput, Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyInput>
 }
 
 export type FinanceGroupAccountCreateManyParentInput = {
@@ -2078,6 +2672,7 @@ export type FinanceGroupAccountCreateManyParentInput = {
   reviewedBy?: number | null
   reviewedAt?: Date | string | null
   originCompanyCode?: string | null
+  originCompanyId?: number | null
   originSourceScopeKey?: string | null
   originLocalAccountCode?: string | null
   isActive?: boolean
@@ -2111,6 +2706,9 @@ export type FinanceGroupAccountUpdateWithoutParentInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+  originCompany?: Prisma.CompanyUpdateOneWithoutOriginFinanceGroupAccountsNestedInput
 }
 
 export type FinanceGroupAccountUncheckedUpdateWithoutParentInput = {
@@ -2122,6 +2720,114 @@ export type FinanceGroupAccountUncheckedUpdateWithoutParentInput = {
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.FinanceGroupAccountUncheckedUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUncheckedUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
+}
+
+export type FinanceGroupAccountUncheckedUpdateManyWithoutParentInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountCreateManyOriginCompanyInput = {
+  id?: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  currency?: string | null
+  subjectLevel?: number | null
+  parentId?: number | null
+  sourceKind: string
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  originCompanyCode?: string | null
+  originSourceScopeKey?: string | null
+  originLocalAccountCode?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountUpdateWithoutOriginCompanyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  originCompanyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originSourceScopeKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originLocalAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  parent?: Prisma.FinanceGroupAccountUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.FinanceGroupAccountUpdateManyWithoutParentNestedInput
+  mappings?: Prisma.FinanceGroupAccountMappingUpdateManyWithoutGroupAccountNestedInput
+  revisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutGroupAccountNestedInput
+  parentOfRevisions?: Prisma.FinanceGroupAccountRevisionUpdateManyWithoutParentGroupAccountNestedInput
+  sourceReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutTargetGroupAccountNestedInput
+  sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutSourceGroupAccountNestedInput
+  targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutGroupAccountNestedInput
+}
+
+export type FinanceGroupAccountUncheckedUpdateWithoutOriginCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2140,9 +2846,11 @@ export type FinanceGroupAccountUncheckedUpdateWithoutParentInput = {
   targetReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
   sourceReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutSourceGroupAccountNestedInput
   targetReclassAdjustments?: Prisma.FinanceBalanceReclassAdjustmentUncheckedUpdateManyWithoutTargetGroupAccountNestedInput
+  consolidationRuleSelectors?: Prisma.FinanceConsolidationRuleSelectorUncheckedUpdateManyWithoutGroupAccountNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutGroupAccountNestedInput
 }
 
-export type FinanceGroupAccountUncheckedUpdateManyWithoutParentInput = {
+export type FinanceGroupAccountUncheckedUpdateManyWithoutOriginCompanyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2151,6 +2859,7 @@ export type FinanceGroupAccountUncheckedUpdateManyWithoutParentInput = {
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.StringFieldUpdateOperationsInput | string
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
   reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2177,6 +2886,8 @@ export type FinanceGroupAccountCountOutputType = {
   targetReclassRules: number
   sourceReclassAdjustments: number
   targetReclassAdjustments: number
+  consolidationRuleSelectors: number
+  consolidationEntryLines: number
 }
 
 export type FinanceGroupAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2188,6 +2899,8 @@ export type FinanceGroupAccountCountOutputTypeSelect<ExtArgs extends runtime.Typ
   targetReclassRules?: boolean | FinanceGroupAccountCountOutputTypeCountTargetReclassRulesArgs
   sourceReclassAdjustments?: boolean | FinanceGroupAccountCountOutputTypeCountSourceReclassAdjustmentsArgs
   targetReclassAdjustments?: boolean | FinanceGroupAccountCountOutputTypeCountTargetReclassAdjustmentsArgs
+  consolidationRuleSelectors?: boolean | FinanceGroupAccountCountOutputTypeCountConsolidationRuleSelectorsArgs
+  consolidationEntryLines?: boolean | FinanceGroupAccountCountOutputTypeCountConsolidationEntryLinesArgs
 }
 
 /**
@@ -2256,6 +2969,20 @@ export type FinanceGroupAccountCountOutputTypeCountTargetReclassAdjustmentsArgs<
   where?: Prisma.FinanceBalanceReclassAdjustmentWhereInput
 }
 
+/**
+ * FinanceGroupAccountCountOutputType without action
+ */
+export type FinanceGroupAccountCountOutputTypeCountConsolidationRuleSelectorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationRuleSelectorWhereInput
+}
+
+/**
+ * FinanceGroupAccountCountOutputType without action
+ */
+export type FinanceGroupAccountCountOutputTypeCountConsolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+}
+
 
 export type FinanceGroupAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2272,6 +2999,7 @@ export type FinanceGroupAccountSelect<ExtArgs extends runtime.Types.Extensions.I
   reviewedBy?: boolean
   reviewedAt?: boolean
   originCompanyCode?: boolean
+  originCompanyId?: boolean
   originSourceScopeKey?: boolean
   originLocalAccountCode?: boolean
   isActive?: boolean
@@ -2286,6 +3014,9 @@ export type FinanceGroupAccountSelect<ExtArgs extends runtime.Types.Extensions.I
   targetReclassRules?: boolean | Prisma.FinanceGroupAccount$targetReclassRulesArgs<ExtArgs>
   sourceReclassAdjustments?: boolean | Prisma.FinanceGroupAccount$sourceReclassAdjustmentsArgs<ExtArgs>
   targetReclassAdjustments?: boolean | Prisma.FinanceGroupAccount$targetReclassAdjustmentsArgs<ExtArgs>
+  consolidationRuleSelectors?: boolean | Prisma.FinanceGroupAccount$consolidationRuleSelectorsArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceGroupAccount$consolidationEntryLinesArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceGroupAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccount"]>
 
@@ -2304,12 +3035,14 @@ export type FinanceGroupAccountSelectCreateManyAndReturn<ExtArgs extends runtime
   reviewedBy?: boolean
   reviewedAt?: boolean
   originCompanyCode?: boolean
+  originCompanyId?: boolean
   originSourceScopeKey?: boolean
   originLocalAccountCode?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   parent?: boolean | Prisma.FinanceGroupAccount$parentArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccount"]>
 
 export type FinanceGroupAccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2327,12 +3060,14 @@ export type FinanceGroupAccountSelectUpdateManyAndReturn<ExtArgs extends runtime
   reviewedBy?: boolean
   reviewedAt?: boolean
   originCompanyCode?: boolean
+  originCompanyId?: boolean
   originSourceScopeKey?: boolean
   originLocalAccountCode?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   parent?: boolean | Prisma.FinanceGroupAccount$parentArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccount"]>
 
 export type FinanceGroupAccountSelectScalar = {
@@ -2350,6 +3085,7 @@ export type FinanceGroupAccountSelectScalar = {
   reviewedBy?: boolean
   reviewedAt?: boolean
   originCompanyCode?: boolean
+  originCompanyId?: boolean
   originSourceScopeKey?: boolean
   originLocalAccountCode?: boolean
   isActive?: boolean
@@ -2357,7 +3093,7 @@ export type FinanceGroupAccountSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceGroupAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currency" | "subjectLevel" | "parentId" | "sourceKind" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "originCompanyCode" | "originSourceScopeKey" | "originLocalAccountCode" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccount"]>
+export type FinanceGroupAccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currency" | "subjectLevel" | "parentId" | "sourceKind" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "originCompanyCode" | "originCompanyId" | "originSourceScopeKey" | "originLocalAccountCode" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccount"]>
 export type FinanceGroupAccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.FinanceGroupAccount$parentArgs<ExtArgs>
   children?: boolean | Prisma.FinanceGroupAccount$childrenArgs<ExtArgs>
@@ -2368,13 +3104,18 @@ export type FinanceGroupAccountInclude<ExtArgs extends runtime.Types.Extensions.
   targetReclassRules?: boolean | Prisma.FinanceGroupAccount$targetReclassRulesArgs<ExtArgs>
   sourceReclassAdjustments?: boolean | Prisma.FinanceGroupAccount$sourceReclassAdjustmentsArgs<ExtArgs>
   targetReclassAdjustments?: boolean | Prisma.FinanceGroupAccount$targetReclassAdjustmentsArgs<ExtArgs>
+  consolidationRuleSelectors?: boolean | Prisma.FinanceGroupAccount$consolidationRuleSelectorsArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceGroupAccount$consolidationEntryLinesArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceGroupAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceGroupAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.FinanceGroupAccount$parentArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
 }
 export type FinanceGroupAccountIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   parent?: boolean | Prisma.FinanceGroupAccount$parentArgs<ExtArgs>
+  originCompany?: boolean | Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>
 }
 
 export type $FinanceGroupAccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2389,6 +3130,9 @@ export type $FinanceGroupAccountPayload<ExtArgs extends runtime.Types.Extensions
     targetReclassRules: Prisma.$FinanceReclassRulePayload<ExtArgs>[]
     sourceReclassAdjustments: Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>[]
     targetReclassAdjustments: Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>[]
+    consolidationRuleSelectors: Prisma.$FinanceConsolidationRuleSelectorPayload<ExtArgs>[]
+    consolidationEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    originCompany: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2405,6 +3149,7 @@ export type $FinanceGroupAccountPayload<ExtArgs extends runtime.Types.Extensions
     reviewedBy: number | null
     reviewedAt: Date | null
     originCompanyCode: string | null
+    originCompanyId: number | null
     originSourceScopeKey: string | null
     originLocalAccountCode: string | null
     isActive: boolean
@@ -2813,6 +3558,9 @@ export interface Prisma__FinanceGroupAccountClient<T, Null = never, ExtArgs exte
   targetReclassRules<T extends Prisma.FinanceGroupAccount$targetReclassRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$targetReclassRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReclassRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sourceReclassAdjustments<T extends Prisma.FinanceGroupAccount$sourceReclassAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$sourceReclassAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   targetReclassAdjustments<T extends Prisma.FinanceGroupAccount$targetReclassAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$targetReclassAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceReclassAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationRuleSelectors<T extends Prisma.FinanceGroupAccount$consolidationRuleSelectorsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$consolidationRuleSelectorsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationRuleSelectorPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationEntryLines<T extends Prisma.FinanceGroupAccount$consolidationEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$consolidationEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  originCompany<T extends Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccount$originCompanyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2856,6 +3604,7 @@ export interface FinanceGroupAccountFieldRefs {
   readonly reviewedBy: Prisma.FieldRef<"FinanceGroupAccount", 'Int'>
   readonly reviewedAt: Prisma.FieldRef<"FinanceGroupAccount", 'DateTime'>
   readonly originCompanyCode: Prisma.FieldRef<"FinanceGroupAccount", 'String'>
+  readonly originCompanyId: Prisma.FieldRef<"FinanceGroupAccount", 'Int'>
   readonly originSourceScopeKey: Prisma.FieldRef<"FinanceGroupAccount", 'String'>
   readonly originLocalAccountCode: Prisma.FieldRef<"FinanceGroupAccount", 'String'>
   readonly isActive: Prisma.FieldRef<"FinanceGroupAccount", 'Boolean'>
@@ -3470,6 +4219,73 @@ export type FinanceGroupAccount$targetReclassAdjustmentsArgs<ExtArgs extends run
   take?: number
   skip?: number
   distinct?: Prisma.FinanceBalanceReclassAdjustmentScalarFieldEnum | Prisma.FinanceBalanceReclassAdjustmentScalarFieldEnum[]
+}
+
+/**
+ * FinanceGroupAccount.consolidationRuleSelectors
+ */
+export type FinanceGroupAccount$consolidationRuleSelectorsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationRuleSelector
+   */
+  select?: Prisma.FinanceConsolidationRuleSelectorSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationRuleSelector
+   */
+  omit?: Prisma.FinanceConsolidationRuleSelectorOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationRuleSelectorInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationRuleSelectorWhereInput
+  orderBy?: Prisma.FinanceConsolidationRuleSelectorOrderByWithRelationInput | Prisma.FinanceConsolidationRuleSelectorOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationRuleSelectorWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationRuleSelectorScalarFieldEnum | Prisma.FinanceConsolidationRuleSelectorScalarFieldEnum[]
+}
+
+/**
+ * FinanceGroupAccount.consolidationEntryLines
+ */
+export type FinanceGroupAccount$consolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationEntryLine
+   */
+  select?: Prisma.FinanceConsolidationEntryLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationEntryLine
+   */
+  omit?: Prisma.FinanceConsolidationEntryLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationEntryLineInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+  orderBy?: Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput | Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceGroupAccount.originCompany
+ */
+export type FinanceGroupAccount$originCompanyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

@@ -27,13 +27,15 @@ model FinanceConsolidationMatchGroup {
   @@index([leftEntitySnapshotId, rightEntitySnapshotId])
 }
 
-/// 合并抵销匹配组的凭证分录来源（事实；allocatedAmount 允许同一来源在不同组中拆分）。
+/// 合并抵销匹配组来源（事实；资产负债表往来使用期末辅助余额，投资权益仍可使用凭证明细）。
 model FinanceConsolidationMatchSource {
   id                           Int                                 @id @default(autoincrement())
   matchGroupId                 Int
   entitySnapshotId             Int
   counterpartyEntitySnapshotId Int?
-  voucherItemId                Int
+  sourceKind                   String                              @default("voucher") // voucher | auxiliaryBalance
+  voucherItemId                Int?
+  auxiliaryBalanceId           Int?
   matchSide                    String // left | right
   sourceAmount                 Decimal                             @db.Decimal(20, 2)
   allocatedAmount              Decimal                             @db.Decimal(20, 2)
@@ -43,10 +45,13 @@ model FinanceConsolidationMatchSource {
   matchGroup                   FinanceConsolidationMatchGroup      @relation(fields: [matchGroupId], references: [id], onDelete: Cascade)
   entity                       FinanceConsolidationEntitySnapshot  @relation("ConsolidationMatchSourceEntity", fields: [entitySnapshotId], references: [id], onDelete: Restrict)
   counterpartyEntity           FinanceConsolidationEntitySnapshot? @relation("ConsolidationMatchSourceCounterparty", fields: [counterpartyEntitySnapshotId], references: [id], onDelete: Restrict)
-  voucherItem                  FinanceVoucherItem                  @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+  voucherItem                  FinanceVoucherItem?                 @relation(fields: [voucherItemId], references: [id], onDelete: Restrict)
+  auxiliaryBalance             FinanceAuxiliaryBalance?            @relation(fields: [auxiliaryBalanceId], references: [id], onDelete: Restrict)
 
   @@unique([matchGroupId, voucherItemId])
+  @@unique([matchGroupId, auxiliaryBalanceId])
   @@index([voucherItemId])
+  @@index([auxiliaryBalanceId])
   @@index([entitySnapshotId, counterpartyEntitySnapshotId])
 }
 
@@ -55,18 +60,21 @@ model FinanceVoucherCompanyMappingRule {
   id                Int      @id @default(autoincrement())
   purpose           String // investmentInvestee
   sourceCompanyCode String
+  sourceCompanyId   Int?
   linkedCompanyId   Int
   voucherDate       String?
   voucherNo         String?
   matchText         String?
-  matchingPolicy    String   @default("direct") // direct | aggregateCnyMirror
+  matchingPolicy    String   @default("direct") // direct；历史 aggregateCnyMirror 值仅用于识别被投资方，不参与金额折算
   priority          Int      @default(100)
   evidence          String
   isActive          Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @default(now()) @updatedAt
+  sourceCompany     Company? @relation("FinanceVoucherCompanyMappingRuleSourceCompany", fields: [sourceCompanyId], references: [id], onDelete: Restrict)
   linkedCompany     Company  @relation(fields: [linkedCompanyId], references: [id], onDelete: Restrict)
 
   @@index([purpose, sourceCompanyCode, isActive, priority], map: "FinanceVoucherCompanyMappingRule_purpose_sourceCompanyCode_isAc")
+  @@index([sourceCompanyId])
   @@index([linkedCompanyId])
 }

@@ -4,6 +4,7 @@ import {
   operationalAnalyticsShipmentAnalyticsQuerySchema,
 } from "@workspace/finance/server/cost";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { isProgrammaticApiRequest } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { registerFinanceWorkSpaceAccessProvider } from "@workspace/finance/server/cost/work-space-access-provider";
 
@@ -14,7 +15,7 @@ export const GET = createCommandRoute({
   queryError: "经营分析参数无效",
   buildCommand: ({ query, user, request }) => okCommand({
     userId: user.userId,
-    query: { ...query, viaPersonalApiKey: Boolean(request.headers.get("x-api-key")) },
+    query: { ...query, viaPersonalApiKey: isProgrammaticApiRequest(request) },
   }),
   action: ({ userId, query }) => executeOperationalAnalyticsShipmentAnalytics(userId, query),
 });

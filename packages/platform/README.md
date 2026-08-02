@@ -10,6 +10,7 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 从模块注册的 `lifecycleStatus` 派生模块生命周期提示
 - 提供 `getAccessibleModules`、`getSubModules`、`getEmptyMessage`
 - 提供登录后的 Portal、L1 模块首页、AppShell、跨页导航、用户菜单和审计日志 UI 壳
+- 提供 `@workspace/platform/ui` 的分类/直属子项/详情工作台组合：左侧选择分类，右侧顶部展示当前分类直属子项，选中后在下方进入详情或编辑。HR 部门岗位、Settings 编码管理和数据关系共同使用这套组合；分类、子项和编辑内容仍由各业务域提供，Platform 不保存业务事实
 - 提供 `SessionUser` 等登录态平台契约类型
 - 提供审计日志字段标签与值格式化工具；具体业务审计弹窗留在各业务包
 - 提供 `@workspace/platform/hooks` 的跨模块平台 hook，例如 `useCompanyOptions`
@@ -17,6 +18,7 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 提供 `@workspace/platform/server/permission-subjects` 作为 Settings、Docs、Work 共用的 RBAC 主体投影，不由 HR 反向承载平台授权能力
 - 提供 `@workspace/platform/calendar` 作为中国法定节假日与调休工作日查询契约；Core 只负责无事实的日期展示，HR、Work、Finance 等业务包通过该入口判断工作日、节假日和补班日
 - 提供 `@workspace/platform/completion-date-policy` 作为跨业务完成状态与计划/实际日期契约；项目、计划和任务统一使用 canonical date fields，并共享未来实际日期、完成后实际结束、日期顺序和 UI 可编辑状态规则
+- 提供 `@workspace/platform/contracts/business-temporal` 作为跨业务有效时间 Contract；统一业务日期、半开期间计算、对象 policy 登记和 runtime adapter 形状，各业务域继续拥有自己的 source of truth、validator、事务和 UI 组合
 - 提供 `@workspace/platform/workflow-category-registry` 作为流程业务分类的唯一注册表；workflow-eligible business action 必须声明合法的 `workflowCategoryKey`，设置、台账和收件箱不得另建映射
 - 提供 `packages/platform/workflow-management-resources.ts` 作为流程管理授权的唯一投影 interface；它生成 workflow root/category/action capability，并把授权资源反向解析为 effective business action 集合
 - 提供 `packages/platform/api-registry.ts` 作为 API Contract Registry，从 module registry 的 `apiGuards` 与 `apiRoutes` 派生 protected/public/dev/disabled API 契约
@@ -63,13 +65,15 @@ Platform 可以读取业务包的注册信息，但不能直接 import 业务页
 
 存量 `workspace.api` v2 模板只通过 `workspace-analysis-v2-upgrader` 的纯诊断入口评估，不会自动写库。owner 必须在 server-only registration 上显式声明 `migration.workspaceApiV2.equivalence = directRows`、可迁移 canonical 字段和动态路径参数映射；调用方还必须提供已按 requester + target 授权的 resolver，证明旧 path、rowsPath、scope、query、字段和精确 source 版本唯一等价。任一映射项缺失或歧义、v3 编译失败、key 规范化碰撞时，只返回结构化 `needsMigration`，不产生半成品；仅执行上限发生变化时可成功但必须返回 `execution_policy_changed` 提示。成功结果只包含 `sourceKey + sourceVersion + parameters`，不保留 URL、rowsPath、query 或分页机械信息。
 
-各独立 deploy unit 不依赖进程全局 Map 或路由导入副作用。Finance 显式组合本地 Finance provider 与 HR、Work、Inventory、Production、External、Administration、Capital Securities、Library 的 Ed25519 internal RPC；owner 从公钥注册表验签。签名绑定 caller、audience、keyId、一次性 requestId、时间、method/path/query 和 body digest，运行态 caller 必须等于部署器注入的 unit ID；8 个经营分析 owner 只接受 Finance。每个 receiver 用持久 replay ledger 原子消费 requestId。monolith 的共享 HMAC signer 只用于单进程开发/过渡，独立 unit receiver 永不接受它。当前共享 PM2 用户下的密钥文件只构成受信同机进程间的 provenance，不能抵御一个已被攻陷的 unit 读取其他私钥；仓库因此无条件阻断签名 RPC 的生产 Profile promotion，直到 launcher 真正实现并验证独立 OS identity/容器与单钥挂载，不能靠环境声明解锁。metadata discovery 只返回不含 adapter/path/rowsPath/pagination 的 source definition，execute 请求只携带 requester、可信目标空间、精确 source identity、静态参数、请求字段和剩余预算。每个 owner 在执行时再次确认 requester、目标空间和原业务权限/对象可见性，只返回请求的 canonical fields 及页数/字节数。所有内部 RPC 在 JSON 解析前默认限制为 `2 MiB`；catalog 显式为 `2 MiB`，execute 最多为本次行数据预算加 `64 KiB` 协议包络且行预算硬封顶 `10 MiB`。有效且超限的 `Content-Length` 可提前拒绝，缺失或失真的长度仍由逐 chunk 累加拦截，超限立即取消 reader。可选 provider 按支持的空间类型跳过并有界超时；不可用时保留其他 source 并给出明确 `unavailable`，已引用该 source 的执行则失败。重复 `sourceKey@version` 或 owner/definition 漂移都 fail closed，用户过滤结果不得做跨用户 catalog 缓存。
+各独立 deploy unit 不依赖进程全局 Map 或路由导入副作用。Finance 显式组合本地 Finance provider 与 HR、Work、Inventory、Production、External、Administration、Capital Securities、Library 的 Ed25519 internal RPC；owner 从公钥注册表验签。签名绑定 caller、audience、keyId、一次性 requestId、时间、method/path/query 和 body digest，运行态 caller 必须等于部署器注入的 unit ID；8 个经营分析 owner 只接受 Finance。每个 receiver 用持久 replay ledger 原子消费 requestId。monolith 的共享 HMAC signer 只用于单进程开发/过渡，独立 unit receiver 永不接受它。当前共享 PM2 用户下的密钥文件只构成受信同机进程间的 provenance，不能抵御一个已被攻陷的 unit 读取其他私钥；这一剩余风险不阻断正式单元发布或依赖闭包完整的 Profile promotion，但不能被描述为进程级隔离，后续仍需独立 OS identity/容器与单钥挂载并显式轮换旧密钥。metadata discovery 只返回不含 adapter/path/rowsPath/pagination 的 source definition，execute 请求只携带 requester、可信目标空间、精确 source identity、静态参数、请求字段和剩余预算。每个 owner 在执行时再次确认 requester、目标空间和原业务权限/对象可见性，只返回请求的 canonical fields 及页数/字节数。所有内部 RPC 在 JSON 解析前默认限制为 `2 MiB`；catalog 显式为 `2 MiB`，execute 最多为本次行数据预算加 `64 KiB` 协议包络且行预算硬封顶 `10 MiB`。有效且超限的 `Content-Length` 可提前拒绝，缺失或失真的长度仍由逐 chunk 累加拦截，超限立即取消 reader。可选 provider 按支持的空间类型跳过并有界超时；不可用时保留其他 source 并给出明确 `unavailable`，已引用该 source 的执行则失败。重复 `sourceKey@version` 或 owner/definition 漂移都 fail closed，用户过滤结果不得做跨用户 catalog 缓存。
 
 `finance.shipments@1` 继续只在个人空间强制本人销售归属；Finance 成本事实和没有部门/项目外键的主数据则明确标记为 `workspace`。`hr.employments@1` 在部门空间使用当前有效 EDP 绑定，在个人/项目空间只作为全公司 HR 数据展示。任何未来新增目标归集都必须由 owner 的真实字段/服务证明，不能由模板参数猜测。
 
 ## Relation Catalog
 
-关系唯一事实源是 `packages/platform/module-registry.ts` 的 `relationRegistrations`。selector 关系声明 key、source、target、nullable 和 permission，并复用 `@workspace/platform/server/relation-targets`；governance 关系还必须声明 usage、semantics、physical、四个 lifecycle policy 和 adapterKey。运行时 planner 从包含 governance-only 声明的完整 Catalog 解析策略，adapter 返回的 policy 只作一致性断言；关系未声明、intent 未分类或二者漂移都会 fail closed。旧 `fk-registry.ts` / `fk-targets.ts` / `fk-registrations.ts` 只保留无逻辑兼容 re-export，不得新增实现。DMMF coverage 通过 `npm run relation-policy:check` 以稳定顺序报告 missing、stale、adapter capability 和数据库 `onDelete` 冲突；全仓默认 report-only，各模块在 `scripts/check/relation-policy-ratchet.json` 独立收紧。Work 试点除模块基线外，强制 `WorkPlan / WorkItem / Project` 的所有物理入向关系均已治理，新增未知入向关系会阻断 gate。
+关系唯一事实源是 `packages/platform/module-registry.ts` 的 `relationRegistrations`。selector 关系声明 key、source、target、nullable 和 permission，并复用 `@workspace/platform/server/relation-targets`；governance 关系还必须声明 usage、semantics、physical、四个 lifecycle policy 和 adapterKey。`nullable` 只描述物理列；可配置业务必填必须另行显式声明 `businessRequired + configurableBusinessRequired`，并由业务 validator 和表单共同消费，不能从数据库可空性推断产品规则。物理非空关系固定为必填。
+
+Settings 只可写有运行时消费者的 `targetDelete` 和 relation-keyed `businessRequired`。旧 archive/restore/reference-change 字段仅为存储兼容与清理证据，不能从新 UI 写入，任何非空旧覆盖在运行时均 fail closed，直到 root 显式 reset；空 reset tombstone 只保留审计/CAS 版本，不改变当前代码基线。非空退役或无登记配置必须在 Settings 可见并保持 reset-only。物理 FK、端点、列可空性、约束和数据库 `onDelete` 只作证据，配置写入不执行 DDL。策略写入与业务消费者按稳定顺序取得同一 policy-key advisory transaction lock；required 空值预检、配置 CAS 和 revision 审计处于同一事务。运行时 planner 从包含 governance-only 声明的完整 Catalog 解析策略，adapter 返回的 policy 只作一致性断言；关系未声明、intent 未分类或二者漂移都会 fail closed。旧 `fk-registry.ts` / `fk-targets.ts` / `fk-registrations.ts` 只保留无逻辑兼容 re-export，不得新增实现。DMMF coverage 通过 `npm run relation-policy:check` 以稳定顺序报告 missing、stale、adapter capability 和数据库 `onDelete` 冲突；全仓默认 report-only，各模块在 `scripts/check/relation-policy-ratchet.json` 独立收紧。Work 试点除模块基线外，强制 `WorkPlan / WorkItem / Project` 的所有物理入向关系均已治理，新增未知入向关系会阻断 gate。
 
 ## Mutation Impact
 

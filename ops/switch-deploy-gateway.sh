@@ -121,6 +121,14 @@ os.replace(sys.argv[1], sys.argv[2])
 PY
 }
 
+write_committed_generation() {
+  local generation_id=$1
+  local temporary="$GATEWAY_ROOT/.committed-generation.swap-$generation_id-$$"
+  printf '%s\n' "$generation_id" > "$temporary"
+  chmod 600 "$temporary"
+  atomic_replace "$temporary" "$GATEWAY_ROOT/committed-generation"
+}
+
 NGINX_SITE="$(resolve_nginx_site)"
 [ -f "$NGINX_SITE" ] || { echo "[错误] Nginx site 不存在: $NGINX_SITE" >&2; exit 1; }
 PROPOSED_SITE="$(mktemp)"
@@ -151,7 +159,28 @@ fi
 node "$GENERATION_TOOL" assert --generation "$TARGET_GENERATION" >/dev/null
 
 CURRENT_LINK="$GATEWAY_ROOT/current"
-OLD_TARGET="$(readlink -f "$CURRENT_LINK" 2>/dev/null || true)"
+OLD_TARGET=""
+if [ -L "$CURRENT_LINK" ]; then
+  OLD_TARGET="$(readlink -f "$CURRENT_LINK")"
+elif [ -e "$CURRENT_LINK" ]; then
+  echo "[错误] Gateway current 必须是 symlink" >&2
+  exit 1
+fi
+if [ -n "$OLD_TARGET" ]; then
+  OLD_GENERATION_ID="$(node "$GENERATION_TOOL" assert --generation "$OLD_TARGET")"
+  if [ -f "$GATEWAY_ROOT/committed-generation" ]; then
+    IFS= read -r COMMITTED_GENERATION_ID < "$GATEWAY_ROOT/committed-generation" || true
+    [ "$COMMITTED_GENERATION_ID" = "$OLD_GENERATION_ID" ] || {
+      echo "[错误] committed Gateway generation 与 current 不一致" >&2
+      exit 1
+    }
+  else
+    write_committed_generation "$OLD_GENERATION_ID"
+  fi
+elif [ -e "$GATEWAY_ROOT/committed-generation" ]; then
+  echo "[错误] Gateway 没有 current generation 但存在 committed marker" >&2
+  exit 1
+fi
 SITE_BACKUP="$(mktemp)"
 CURRENT_SWAP="$GATEWAY_ROOT/.current.swap-$GENERATION_ID-$$"
 COMMITTED=0
@@ -187,8 +216,9 @@ if ! cmp -s "$NGINX_SITE" "$PROPOSED_SITE"; then
 fi
 sudo nginx -t
 sudo systemctl reload nginx
+write_committed_generation "$GENERATION_ID"
 COMMITTED=1
 rm -f "$SITE_BACKUP"
 trap cleanup_proposed EXIT
 
-echo "Workspace Gateway 已切换到 generation $GENERATION_ID"
+echo "Workspace Gateway 已切换并提交 generation $GENERATION_ID"

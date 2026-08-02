@@ -1,5 +1,5 @@
 import { getSpaceChildResourceKeyForTargetType } from "@workspace/platform/permission-resource-policy";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import {
   businessSpaceScopeId,
   canManageScopedPermissionGrant,

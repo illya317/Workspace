@@ -69,6 +69,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   typescript: {
     tsconfigPath: "tsconfig.app.json",
+    // CI/release runs the complete project-reference graph first. Skip only
+    // Next's duplicate, incomplete traversal after that authoritative gate.
+    ignoreBuildErrors: process.env.WORKSPACE_NEXT_TYPECHECK_AUTHORITY === "external",
   },
   env: {
     NEXT_PUBLIC_BUILD_VERSION: buildVersion,
@@ -78,6 +81,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     turbopackFileSystemCacheForDev: false,
+    turbopackFileSystemCacheForBuild: true,
   },
   serverExternalPackages: ["pinyin-pro"],
   basePath,

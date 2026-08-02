@@ -99,10 +99,8 @@ export default function CodeTab({
     setEditCodeValue,
     editNameValue,
     setEditNameValue,
-    detailModal,
-    setDetailModal,
-    positionDeptModal,
-    setPositionDeptModal,
+    positionDepartments,
+    setPositionDepartments,
     saving,
     showHistory,
     setShowHistory,
@@ -111,7 +109,6 @@ export default function CodeTab({
     toggleSort,
     startEditRow,
     handleAdd,
-    getDetailList,
     loadPositionDepts,
     handleSave,
   } = useCodeTab({
@@ -181,11 +178,8 @@ export default function CodeTab({
         handleAdd={handleAdd}
         onSelect={onSelect}
         selectedCode={selectedCode}
-        detailModal={detailModal}
-        setDetailModal={setDetailModal}
-        positionDeptModal={positionDeptModal}
-        setPositionDeptModal={setPositionDeptModal}
-        getDetailList={getDetailList}
+        positionDepartments={positionDepartments}
+        setPositionDepartments={setPositionDepartments}
         loadPositionDepts={loadPositionDepts}
         user={user}
         type={type}

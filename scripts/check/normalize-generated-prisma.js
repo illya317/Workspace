@@ -2,6 +2,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 
 const generatedPaths = [
+  "../../generated/prisma/internal/class.ts",
   "../../generated/prisma/internal/prismaNamespace.ts",
   "../../generated/prisma/models/MutationImpactBatch.ts",
   "../../generated/prisma/models/MutationImpactEffect.ts",
@@ -12,12 +13,14 @@ const generatedPaths = [
   "../../generated/prisma/models/FinanceGroupAccountMapping.ts",
   "../../generated/prisma/models/FinanceGroupAccountRevision.ts",
   "../../generated/prisma/models/FinanceStatementVoucherExclusion.ts",
+  "../../generated/prisma/models/FinanceConsolidationScopeSelection.ts",
   "../../generated/prisma/models/DataQualityCheckState.ts",
   "../../generated/prisma/models/DataQualityEvaluationRequest.ts",
   "../../generated/prisma/models/DataQualityFinding.ts",
   "../../generated/prisma/models/DataQualityNotificationDelivery.ts",
   "../../generated/prisma/models/DataQualityRun.ts",
   "../../generated/prisma/models/EmployeeLifecycleEvent.ts",
+  "../../generated/prisma/models/EmployeePartyIdentityLink.ts",
   "../../generated/prisma/models/CompanyRegistryChange.ts",
   "../../generated/prisma/models/CompanyRegistryOwnershipParticipant.ts",
   "../../generated/prisma/models/FinanceCounterpartyClassification.ts",
@@ -48,6 +51,21 @@ const generatedPaths = [
   "../../generated/prisma/models/ProductionQcBatch.ts",
   "../../generated/prisma/models/ProductionQcFieldValue.ts",
   "../../generated/prisma/models/ProductionQcSignature.ts",
+  "../../generated/prisma/models/ContractRevision.ts",
+  "../../generated/prisma/models/ContractStateEvent.ts",
+  "../../generated/prisma/models/DepartmentEffectiveVersion.ts",
+  "../../generated/prisma/models/EmploymentAgreement.ts",
+  "../../generated/prisma/models/EmploymentAgreementChange.ts",
+  "../../generated/prisma/models/EmploymentAgreementRevision.ts",
+  "../../generated/prisma/models/EmploymentAgreementTerm.ts",
+  "../../generated/prisma/models/ExternalPartyRolePeriod.ts",
+  "../../generated/prisma/models/OrganizationStructureChange.ts",
+  "../../generated/prisma/models/OwnershipProjectionRun.ts",
+  "../../generated/prisma/models/PartyLegalFactRevision.ts",
+  "../../generated/prisma/models/PositionDescriptionRevision.ts",
+  "../../generated/prisma/models/PositionEffectiveVersion.ts",
+  "../../generated/prisma/models/PositionReportOverrideEffectiveVersion.ts",
+  "../../generated/prisma/models/ProjectMembershipChange.ts",
 ].map((filePath) => path.resolve(__dirname, filePath));
 
 for (const filePath of generatedPaths) {

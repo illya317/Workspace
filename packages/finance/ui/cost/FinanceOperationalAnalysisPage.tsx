@@ -33,6 +33,7 @@ export default function FinanceOperationalAnalysisPage({
   return (
     <PageSurface
       kind="standard"
+      create={page.create}
       tabbar={tabbar}
       toolbar={{ items: page.toolbarItems, assistant: false }}
       body={page.body}

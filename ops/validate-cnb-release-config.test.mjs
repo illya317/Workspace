@@ -13,6 +13,13 @@ const tenantFixture = readFileSync(
 test("canonical CNB release config uses the pinned Builder and safe caches", () => {
   const pipeline = validateCnbReleaseConfig(canonical);
   assert.equal(pipeline.name, "deploy-prod");
+  assert.ok(
+    pipeline.docker.volumes.includes(
+      "workspace-release-playwright-v1:./.cache/release-check/playwright:copy-on-write",
+    ),
+  );
+  assert.equal(pipeline.docker.volumes.some((volume) => volume.includes("./.next/cache")), false);
+  assert.equal(pipeline.docker.volumes.some((volume) => volume.includes("./.cache/next-targets")), true);
   assert.equal(Object.hasOwn(pipeline, "imports"), false);
   assert.equal(pipeline.stages.at(-1).imports.length, 1);
 });
@@ -24,7 +31,7 @@ test("checked-in tenant fixture satisfies the same governed release contract", (
 test("CNB release config rejects cold setup and missing cache inputs", () => {
   const cold = canonical
     .replace(/        build:[\s\S]*?        volumes:/, "        image: node:24-bookworm\n        volumes:")
-    .replace("          - workspace-release-next-v1:./.next/cache:copy-on-write\n", "")
+    .replace("          - workspace-release-next-targets-v1:./.cache/next-targets:copy-on-write\n", "")
     .replace("        - name: verify-builder", "        - name: install-deploy-tools");
   assert.throws(() => validateCnbReleaseConfig(cold), /deploy-prod\.docker|governed release list|verify-builder/);
 });

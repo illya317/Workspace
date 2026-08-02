@@ -1,0 +1,64 @@
+/// 发行主体与股东之间的投资人关系资料；股本金额和持股比例仍只来源于股权事件账本
+model InvestorShareholderProfile {
+  id                      Int      @id @default(autoincrement())
+  issuerCompanyId         Int
+  shareholderPartyId      Int
+  investorCategory        String?
+  contactName             String?
+  contactTitle            String?
+  phone                   String?
+  email                   String?
+  address                 String?
+  relationshipOwner       String?
+  relationshipStatus      String   @default("active")
+  communicationPreference String?
+  notes                   String?  @db.Text
+  editedBy                Int?
+  editedAt                DateTime?
+  version                 Int      @default(1)
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @default(now()) @updatedAt
+  issuer                  Company  @relation("InvestorShareholderProfileIssuer", fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  shareholder             Party    @relation("InvestorShareholderProfileParty", fields: [shareholderPartyId], references: [id], onDelete: Restrict)
+
+  @@unique([issuerCompanyId, shareholderPartyId], map: "InvestorShareholderProfile_issuer_party_key")
+  @@index([shareholderPartyId], map: "InvestorShareholderProfile_party_idx")
+  @@index([issuerCompanyId, relationshipStatus], map: "InvestorShareholderProfile_issuer_status_idx")
+}
+
+/// 投资人尽调参与人员台账；一行记录一位外部参与人及其当次尽调、资料开放与跟进状态
+model InvestorDueDiligenceRecord {
+  id                   Int       @id @default(autoincrement())
+  sourceKey            String    @unique
+  issuerCompanyId      Int
+  investorPartyId      Int?
+  investorOrganization String
+  visitorName          String
+  visitorTitle         String?
+  phone                String?
+  email                String?
+  diligenceDate        DateTime  @db.Date
+  diligenceType        String    @default("comprehensive")
+  visitMethod          String    @default("onsite")
+  status               String    @default("planned")
+  hostName             String?
+  ndaStatus            String    @default("pending")
+  dataRoomStatus       String    @default("not_opened")
+  focusAreas           String?   @db.Text
+  followUpAction       String?   @db.Text
+  nextFollowUpDate     DateTime? @db.Date
+  notes                String?   @db.Text
+  isArchived           Boolean   @default(false)
+  archivedAt           DateTime?
+  editedBy             Int?
+  editedAt             DateTime?
+  version              Int       @default(1)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @default(now()) @updatedAt
+  issuer               Company   @relation("InvestorDueDiligenceIssuer", fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  investorParty        Party?    @relation("InvestorDueDiligenceInvestorParty", fields: [investorPartyId], references: [id], onDelete: SetNull)
+
+  @@index([issuerCompanyId, isArchived, diligenceDate], map: "InvestorDueDiligence_issuer_archive_date_idx")
+  @@index([investorPartyId, diligenceDate], map: "InvestorDueDiligence_party_date_idx")
+  @@index([issuerCompanyId, status], map: "InvestorDueDiligence_issuer_status_idx")
+}

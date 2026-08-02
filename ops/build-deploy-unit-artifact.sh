@@ -2,7 +2,10 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_PARENT="$(dirname "$PROJECT_ROOT")"
 cd "$PROJECT_ROOT"
+# shellcheck source=ops/release/artifact/next-compiler-cache-shell.sh
+source ./ops/release/artifact/next-compiler-cache-shell.sh
 
 UNIT_ID="${1:-}"
 if [ -z "$UNIT_ID" ] || [[ ! "$UNIT_ID" =~ ^[a-z][a-z0-9-]*$ ]]; then
@@ -54,6 +57,9 @@ fi
 
 DEPLOYMENT_ID="${DEPLOY_UNIT_DEPLOYMENT_ID:-$UNIT_ID-${SOURCE_SHA:0:12}}"
 OUTPUT_ROOT="${DEPLOY_UNIT_OUTPUT_ROOT:-.cache/deploy-units/$UNIT_ID}"
+OUTPUT_ROOT="$(node ops/release/artifact/next-compiler-cache.mjs resolve-output-root \
+  --repository-root "$PROJECT_ROOT" \
+  --output-root "$OUTPUT_ROOT")"
 CONTRACT_FILE="$OUTPUT_ROOT/deploy-unit-contract.json"
 DEPLOY_GRAPH_FILE="$OUTPUT_ROOT/deploy-graph.json"
 NAVIGATION_MANIFEST_FILE="$OUTPUT_ROOT/deploy-navigation-manifest.json"
@@ -107,7 +113,6 @@ ENGINE="$(read_contract_field runtime.engine)"
 BASE_PATH="$(read_contract_field build.basePath)"
 ASSET_PREFIX="$(node -e 'const c=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8")); process.stdout.write(c.build.assetPrefix ?? "")' "$CONTRACT_FILE")"
 NAVIGATION_MANIFEST="$(tr -d '\n' < "$NAVIGATION_MANIFEST_FILE")"
-NEXT_CACHE_ROOT=".cache/next-units/$UNIT_ID"
 
 if [ "$ENGINE" != "next-standalone" ]; then
   echo "[错误] $UNIT_ID 使用 $ENGINE；请走对应 headless runtime builder" >&2
@@ -119,19 +124,25 @@ fi
   exit 1
 }
 
-while IFS= read -r scope; do
-  npm run typecheck:scope -- "$scope"
-done < <(node -e '
+if [ "${DEPLOY_UNIT_SKIP_TYPECHECK:-0}" != "1" ]; then
+  while IFS= read -r scope; do
+    npm run typecheck:scope -- "$scope"
+  done < <(node -e '
 const c=JSON.parse(require("node:fs").readFileSync(process.argv[1],"utf8"));
 for (const scope of c.compiler.typecheckScopes) console.log(scope);
 ' "$CONTRACT_FILE")
+fi
+
+node ops/release/candidate/source-snapshot.mjs ensure
+test -s .cache/source-code-analysis/snapshot.json || {
+  echo "[错误] 源码分析 snapshot 未生成，禁止组装 deploy-unit artifact" >&2
+  exit 1
+}
 
 BUILD_DIRECTORY="$APP_ROOT/.next"
 rm -rf "$BUILD_DIRECTORY"
-if [ -d "$NEXT_CACHE_ROOT" ]; then
-  mkdir -p "$BUILD_DIRECTORY"
-  cp -R "$NEXT_CACHE_ROOT" "$BUILD_DIRECTORY/cache"
-fi
+next_compiler_cache_unit prepare "$PROJECT_ROOT" "$UNIT_ID" "$APP_ROOT" \
+  "$OUTPUT_ROOT" "$CONTRACT_FILE" "$NAVIGATION_MANIFEST_FILE"
 NEXT_PUBLIC_BASE_PATH="$BASE_PATH" \
 NEXT_PUBLIC_ASSET_PREFIX="$ASSET_PREFIX" \
 NEXT_PUBLIC_DEPLOY_UNIT_ID="$UNIT_ID" \
@@ -140,11 +151,18 @@ NEXT_DEPLOYMENT_ID="$DEPLOYMENT_ID" \
 NEXT_PUBLIC_BUILD_VERSION="$DEPLOYMENT_ID" \
 BUILD_VERSION="$DEPLOYMENT_ID" \
   ./node_modules/.bin/next build "$APP_ROOT"
-rm -rf "$NEXT_CACHE_ROOT"
-if [ -d "$BUILD_DIRECTORY/cache" ]; then
-  mkdir -p "$(dirname "$NEXT_CACHE_ROOT")"
-  cp -R "$BUILD_DIRECTORY/cache" "$NEXT_CACHE_ROOT"
+NEXT_BUILD_ID_FILE="$BUILD_DIRECTORY/BUILD_ID"
+if [ ! -f "$NEXT_BUILD_ID_FILE" ] || [ -L "$NEXT_BUILD_ID_FILE" ]; then
+  echo "[错误] $UNIT_ID Next build 缺少真实 .next/BUILD_ID" >&2
+  exit 1
 fi
+NEXT_BUILD_ID="$(< "$NEXT_BUILD_ID_FILE")"
+if [[ ! "$NEXT_BUILD_ID" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
+  echo "[错误] $UNIT_ID Next BUILD_ID 非法" >&2
+  exit 1
+fi
+next_compiler_cache_unit store "$PROJECT_ROOT" "$UNIT_ID" "$APP_ROOT" \
+  "$OUTPUT_ROOT" "$CONTRACT_FILE" "$NAVIGATION_MANIFEST_FILE"
 
 STANDALONE_ROOT="$BUILD_DIRECTORY/standalone"
 [ -d "$STANDALONE_ROOT" ] || { echo "[错误] $UNIT_ID 未生成 standalone 目录" >&2; exit 1; }
@@ -158,11 +176,64 @@ SERVER_ENTRY="$SERVER_ENTRIES"
 APP_DIRECTORY="$(dirname "$SERVER_ENTRY")"
 SERVER_ENTRY_RELATIVE="${SERVER_ENTRY#"$STANDALONE_ROOT/"}"
 
+rewrite_release_dependency_link() {
+  [ "${PROJECT_ROOT##*/}" = "release" ] || return 0
+  [ -L "$PROJECT_ROOT/node_modules" ] || return 0
+
+  local trusted_node_modules="$PROJECT_PARENT/source/node_modules"
+  local source_link_target
+  source_link_target="$(readlink "$PROJECT_ROOT/node_modules")"
+  if [ "$source_link_target" != "$trusted_node_modules" ]; then
+    echo "[错误] release node_modules 必须精确指向受信 sibling: $trusted_node_modules" >&2
+    return 1
+  fi
+  if [ ! -d "$trusted_node_modules" ] || [ -L "$trusted_node_modules" ]; then
+    echo "[错误] 受信 sibling node_modules 必须是真实目录: $trusted_node_modules" >&2
+    return 1
+  fi
+
+  local packaged_source_node_modules="$STANDALONE_ROOT/source/node_modules"
+  local packaged_release_node_modules="$STANDALONE_ROOT/release/node_modules"
+  if [ ! -d "$packaged_source_node_modules" ] || [ -L "$packaged_source_node_modules" ]; then
+    echo "[错误] standalone 缺少真实 source/node_modules" >&2
+    return 1
+  fi
+  if [ ! -L "$packaged_release_node_modules" ]; then
+    echo "[错误] standalone release/node_modules 必须保留为受信链接" >&2
+    return 1
+  fi
+  if [ "$(readlink "$packaged_release_node_modules")" != "$trusted_node_modules" ]; then
+    echo "[错误] standalone release/node_modules 包含任意依赖链接" >&2
+    return 1
+  fi
+
+  local temporary_link="${packaged_release_node_modules}.relative-${BASHPID}"
+  [ ! -e "$temporary_link" ] && [ ! -L "$temporary_link" ] || {
+    echo "[错误] standalone 依赖链接临时路径已存在" >&2
+    return 1
+  }
+  ln -s "../source/node_modules" "$temporary_link"
+  mv -Tf "$temporary_link" "$packaged_release_node_modules"
+  if [ "$(readlink "$packaged_release_node_modules")" != "../source/node_modules" ] \
+    || [ "$(realpath "$packaged_release_node_modules")" != "$(realpath "$packaged_source_node_modules")" ]; then
+    echo "[错误] standalone release/node_modules 相对链接验证失败" >&2
+    return 1
+  fi
+}
+
+rewrite_release_dependency_link
+
 rm -rf "$APP_DIRECTORY/.next/static"
 mkdir -p "$APP_DIRECTORY/.next"
 cp -R "$BUILD_DIRECTORY/static" "$APP_DIRECTORY/.next/static"
 rm -rf "$APP_DIRECTORY/public"
 cp -R public "$APP_DIRECTORY/public"
+mkdir -p "$APP_DIRECTORY/.workspace/source-code-analysis"
+cp .cache/source-code-analysis/snapshot.json "$APP_DIRECTORY/.workspace/source-code-analysis/snapshot.json"
+test -s "$APP_DIRECTORY/.workspace/source-code-analysis/snapshot.json" || {
+  echo "[错误] deploy-unit artifact 缺少源码分析 snapshot" >&2
+  exit 1
+}
 cp "$CONTRACT_FILE" "$STANDALONE_ROOT/.deploy-unit-contract.json"
 cp "$NAVIGATION_MANIFEST_FILE" "$STANDALONE_ROOT/.deploy-navigation-manifest.json"
 cp "$CONTROL_PLANE_REQUIREMENTS_FILE" "$STANDALONE_ROOT/.control-plane-requirements.json"
@@ -171,10 +242,20 @@ if [ "$UNIT_ID" = "assistant" ]; then
   node ops/assistant-runtime.mjs bundle \
     --repository-root "$PROJECT_ROOT" \
     --standalone-root "$STANDALONE_ROOT"
+  node -e 'const sharp=require(process.argv[1]); if (!sharp.versions?.sharp) throw new Error("Assistant sharp runtime is incomplete")' \
+    "$STANDALONE_ROOT/node_modules/sharp"
   node ops/assistant-runtime.mjs assert --release-root "$STANDALONE_ROOT"
 fi
+while IFS= read -r -d '' packaged_link; do
+  packaged_link_target="$(readlink "$packaged_link")"
+  if [[ "$packaged_link_target" = /* ]]; then
+    echo "[错误] standalone 禁止 absolute symlink: ${packaged_link#"$STANDALONE_ROOT/"}" >&2
+    exit 1
+  fi
+done < <(find "$STANDALONE_ROOT" -type l -print0)
 find "$STANDALONE_ROOT" \( -name '.DS_Store' -o -name '._*' \) -delete
 
+node ops/release/artifact/runtime-tree-permissions.mjs normalize --root "$STANDALONE_ROOT"
 mkdir -p "$(dirname "$ARTIFACT_FILE")" "$(dirname "$MANIFEST_FILE")"
 tar -C "$STANDALONE_ROOT" -czf "$ARTIFACT_FILE" .
 node ops/deploy-unit-release.mjs artifact-write \
@@ -183,7 +264,7 @@ node ops/deploy-unit-release.mjs artifact-write \
   --manifest "$MANIFEST_FILE" \
   --source-sha "$SOURCE_SHA" \
   --source-tree "$SOURCE_TREE" \
-  --build-id "$DEPLOYMENT_ID" \
+  --build-id "$NEXT_BUILD_ID" \
   --deployment-id "$DEPLOYMENT_ID" \
   --server-entry "$SERVER_ENTRY_RELATIVE" \
   --control-plane-requirements "$CONTROL_PLANE_REQUIREMENTS_FILE"

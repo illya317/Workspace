@@ -27,6 +27,17 @@ export interface PrismaSchemaMetadata {
   onDeleteByRelationField: Map<string, string>;
 }
 
+const STATIC_DATASOURCE_URL = "postgresql://relation_policy_static:unused@127.0.0.1:1/relation_policy_static";
+
+export function prismaDmmfEnvironment(environment: NodeJS.ProcessEnv = process.env) {
+  return {
+    ...environment,
+    DATABASE_URL: STATIC_DATASOURCE_URL,
+    DIRECT_URL: STATIC_DATASOURCE_URL,
+    SHADOW_DATABASE_URL: STATIC_DATASOURCE_URL,
+  };
+}
+
 function prismaFiles(schemaRoot: string) {
   const files = [path.join(schemaRoot, "schema.prisma")];
   const modelsRoot = path.join(schemaRoot, "models");
@@ -96,7 +107,7 @@ export function loadPrismaDmmf(repositoryRoot: string): DmmfDatamodelLike {
     ], {
       cwd: repositoryRoot,
       encoding: "utf8",
-      env: { ...process.env, RELATION_DMMF_OUTPUT: outputPath },
+      env: { ...prismaDmmfEnvironment(), RELATION_DMMF_OUTPUT: outputPath },
     });
     if (result.status !== 0 || !fs.existsSync(outputPath)) {
       const detail = [result.stdout, result.stderr].filter(Boolean).join("\n").trim();

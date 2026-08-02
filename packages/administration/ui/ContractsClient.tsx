@@ -1,14 +1,48 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useState } from "react";
-import { createEmptySection, createFieldsSection, createMasterDetailBody, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
-import type { FormSurfaceSectionSpec, SelectorSurfaceProps } from "@workspace/core/ui";
+import { useCallback, useState } from "react";
+import {
+  createEmptySection,
+  createFieldsSection,
+  createMasterDetailBody,
+  createPageBody,
+  createPageTabBar,
+  PageSurface,
+  useFeedback,
+} from "@workspace/core/ui";
+import type { FormSurfaceSectionSpec, PageSurfaceCreateSpec, PageSurfaceTabBarItemSpec, SelectorSurfaceProps } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
+import { directCommandFetch } from "@workspace/platform/ui/api-client";
+import {
+  CONTRACT_LIFECYCLE_OPTIONS,
+  contractOptionLabel,
+  type Contract,
+  type ContractEditorMode,
+  type ContractWorkView,
+} from "@workspace/administration/types";
 import { useContracts } from "./hooks/useContracts";
+import { useContractArchivePackage } from "./hooks/useContractArchivePackage";
 import getContractFilterToolbarItems from "./components/ContractFilters";
-import { contractFormSections } from "./components/contract-form";
-import type { Contract, ContractEditorMode } from "@workspace/administration/types";
+import {
+  contractFormSections,
+  missingRequiredContractRelationLabels,
+} from "./components/contract-form";
+
+const CONTRACT_LEDGER_TAB: PageSurfaceTabBarItemSpec = {
+  key: "contract-ledger",
+  label: "合同台账",
+  children: [
+    { key: "needs_attention", label: "待补全" },
+    { key: "expiring", label: "即将到期" },
+    { key: "expired", label: "已到期" },
+  ],
+};
+
+async function responseError(response: Response, fallback: string) {
+  const body = await response.json().catch(() => null) as { error?: string; message?: string } | null;
+  return body?.error || body?.message || `${fallback} (${response.status})`;
+}
 
 export default function ContractsClient({
   user: _user,
@@ -16,6 +50,7 @@ export default function ContractsClient({
   canCreate,
   canUpdate,
   canDelete,
+  canArchive,
   canExport,
 }: {
   user: SessionUser;
@@ -23,41 +58,99 @@ export default function ContractsClient({
   canCreate?: boolean;
   canUpdate?: boolean;
   canDelete?: boolean;
+  canArchive?: boolean;
   canExport?: boolean;
 }) {
   const {
     contracts, total, page, setPage, totalPages, pageSize, setPageSize,
-    q, setQ, locationFilter, setLocationFilter,
-    categoryFilter, setCategoryFilter, statusFilter, setStatusFilter,
-    locations, categories, statuses, refresh,
+    view, setView, q, setQ, locationFilter, setLocationFilter,
+    categoryFilter, setCategoryFilter, lifecycleStatusFilter, setLifecycleStatusFilter,
+    locations, categories, businessRequiredByRelation,
+    businessRequiredReady, businessRequiredError, refresh,
   } = useContracts();
-
   const feedback = useFeedback();
   const [editorMode, setEditorMode] = useState<ContractEditorMode>(null);
   const [editing, setEditing] = useState<Partial<Contract>>({});
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const missingRequiredRelations = missingRequiredContractRelationLabels(editing, businessRequiredByRelation);
+  const businessRequiredUnavailableMessage = businessRequiredError
+    ? "业务必填规则加载失败，请刷新后重试"
+    : "业务必填规则正在加载，请稍后重试";
+
+  const updateContractApproval = useCallback((
+    version: number,
+    approval: {
+      sourceKey: string;
+      externalRecordId: string;
+      externalUrl: string;
+      statusSnapshot: string;
+      approvedOn: string;
+    },
+    syncedAt: string | null,
+  ) => {
+    setEditing((previous) => ({
+      ...previous,
+      version,
+      approvalSourceKey: approval.sourceKey,
+      approvalRecordId: approval.externalRecordId,
+      approvalRecordUrl: approval.externalUrl.trim() || null,
+      approvalStatusSnapshot: approval.statusSnapshot.trim() || null,
+      approvedOn: approval.approvedOn,
+      approvalSyncedAt: syncedAt,
+    }));
+  }, []);
+
+  const archivePackage = useContractArchivePackage({
+    contractId: editorMode === "edit" ? editing.id ?? null : null,
+    contractVersion: editorMode === "edit" ? editing.version ?? null : null,
+    lifecycleStatus: editorMode === "edit" ? editing.lifecycleStatus ?? null : null,
+    canUpdate: Boolean(canUpdate),
+    onContractVersionChange: updateContractApproval,
+  });
+
+  const closeEditor = () => {
+    setEditorMode(null);
+    setEditing({});
+  };
 
   const openCreate = () => {
     if (!canCreate) return;
-    setEditing({ location: "上海办公区", status: "执行中" });
+    if (!businessRequiredReady) {
+      feedback.error(businessRequiredUnavailableMessage);
+      return;
+    }
+    setEditing({
+      lifecycleStatus: "active",
+      signatureStatus: "unknown",
+      performanceStatus: "not_started",
+      currencyCode: "CNY",
+      confidentialityLevel: 2,
+    });
     setEditorMode("create");
   };
 
-  const openEdit = (c: Contract) => {
-    setEditing({ ...c });
+  const openEdit = (contract: Contract) => {
+    setEditing({ ...contract });
     setEditorMode("edit");
+  };
+
+  const changeView = (key: string) => {
+    closeEditor();
+    setView(key as ContractWorkView);
   };
 
   const toolbarItems = getContractFilterToolbarItems({
     q,
     onQChange: setQ,
+    locationFilter,
+    onLocationChange: setLocationFilter,
     categoryFilter,
     onCategoryChange: setCategoryFilter,
-    statusFilter,
-    onStatusChange: setStatusFilter,
+    lifecycleStatusFilter,
+    onLifecycleStatusChange: setLifecycleStatusFilter,
+    locations,
     categories,
-    statuses,
     pageSize,
     onPageSizeChange: setPageSize,
     canDownload: canExport,
@@ -67,7 +160,7 @@ export default function ContractsClient({
       setQ("");
       setLocationFilter("");
       setCategoryFilter("");
-      setStatusFilter("");
+      setLifecycleStatusFilter("");
     },
   });
 
@@ -75,13 +168,13 @@ export default function ContractsClient({
     if (!canExport) return;
     setDownloading(true);
     try {
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({ view });
       if (q) params.set("q", q);
       if (locationFilter) params.set("location", locationFilter);
-      if (categoryFilter) params.set("category", categoryFilter);
-      if (statusFilter) params.set("status", statusFilter);
+      if (categoryFilter) params.set("categoryId", categoryFilter);
+      if (lifecycleStatusFilter) params.set("lifecycleStatus", lifecycleStatusFilter);
       const response = await fetch(workspacePath(`/api/modules/administration/contracts/export?${params.toString()}`));
-      if (!response.ok) throw new Error("合同下载失败");
+      if (!response.ok) throw new Error(await responseError(response, "合同下载失败"));
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -96,86 +189,111 @@ export default function ContractsClient({
     }
   }
 
-  const closeEditor = () => {
-    setEditorMode(null);
-    setEditing({});
-  };
-
-  const createContract = async () => {
+  async function createContract() {
     if (!canCreate) throw new Error("无权限执行该操作");
+    if (!businessRequiredReady) throw new Error(businessRequiredUnavailableMessage);
     if (!editing.name) throw new Error("合同名称为必填");
-    if (!editing.category) throw new Error("合同类型为必填");
+    if (!editing.categoryId) throw new Error("合同类型为必填");
+    if (missingRequiredRelations.length) throw new Error(`${missingRequiredRelations.join("、")}为必填`);
     setSaving(true);
     try {
-      const res = await fetch(workspacePath("/api/modules/administration/contracts"), {
+      const response = await directCommandFetch("/api/modules/administration/contracts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(editing),
       });
-      if (!res.ok) throw new Error("创建失败");
-      refresh();
+      if (!response.ok) throw new Error(await responseError(response, "创建失败"));
+      await refresh();
       return { outcome: "saved" as const, message: "合同已创建" };
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const saveContract = async () => {
-    if (editorMode !== "edit" || !canUpdate) {
-      feedback.error("无权限执行该操作");
+  async function saveContract() {
+    if (editorMode !== "edit" || !canUpdate || !editing.id || !editing.version) {
+      feedback.error("无权限执行该操作或合同版本无效");
       return;
     }
-    if (!editing.name) {
-      feedback.error("合同名称为必填");
+    if (!businessRequiredReady) {
+      feedback.error(businessRequiredUnavailableMessage);
       return;
     }
-    if (!editing.category) {
-      feedback.error("合同类型为必填");
+    if (!editing.name || !editing.categoryId) {
+      feedback.error("合同名称和合同类型为必填");
+      return;
+    }
+    if (missingRequiredRelations.length) {
+      feedback.error(`${missingRequiredRelations.join("、")}为必填`);
       return;
     }
     setSaving(true);
     try {
-      if (editing.id) {
-        const res = await fetch(workspacePath(`/api/modules/administration/contracts/${editing.id}`), {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(editing),
-        });
-        if (!res.ok) throw new Error("保存失败");
-        feedback.success("保存成功");
-      }
-      refresh();
-    } catch (e: unknown) {
-      feedback.error(e instanceof Error ? e.message : "操作失败");
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${editing.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "If-Match": String(editing.version) },
+        body: JSON.stringify(editing),
+      });
+      if (!response.ok) throw new Error(await responseError(response, "保存失败"));
+      const body = await response.json().catch(() => null) as { record?: Contract } | null;
+      if (body?.record) setEditing(body.record);
+      feedback.success("保存成功");
+      await refresh();
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "操作失败");
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  const deleteContract = async (contract: Pick<Contract, "id" | "version">) => {
+  async function archiveContract(contract: Pick<Contract, "id" | "version" | "name">) {
+    if (!canArchive) {
+      feedback.error("无权限归档合同");
+      return;
+    }
+    const confirmed = await feedback.confirm({
+      title: "归档合同",
+      message: `确定归档“${contract.name}”吗？归档后不再出现在现行合同台账中。`,
+      confirmLabel: "归档",
+    });
+    if (!confirmed) return;
+    try {
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${contract.id}/archive`, {
+        method: "POST",
+        headers: { "If-Match": String(contract.version) },
+      });
+      if (!response.ok) throw new Error(await responseError(response, "归档失败"));
+      feedback.success("合同已归档");
+      closeEditor();
+      await refresh();
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "归档失败");
+    }
+  }
+
+  async function deleteContract(contract: Pick<Contract, "id" | "version">) {
     if (!canDelete) {
       feedback.error("无权限删除合同");
       return;
     }
-    const ok = await feedback.confirmDelete({
-      message: "确定要删除这条合同记录吗？此操作不可撤销。",
-    });
-    if (!ok) return;
+    const confirmed = await feedback.confirmDelete({ message: "确定删除这条草稿合同吗？此操作不可撤销。" });
+    if (!confirmed) return;
     try {
-      const res = await fetch(workspacePath(`/api/modules/administration/contracts/${contract.id}`), {
+      const response = await directCommandFetch(`/api/modules/administration/contracts/${contract.id}`, {
         method: "DELETE",
         headers: { "If-Match": String(contract.version) },
       });
-      if (!res.ok) throw new Error("删除失败");
-      feedback.success("删除成功");
-      refresh();
-    } catch (e: unknown) {
-      feedback.error(e instanceof Error ? e.message : "删除失败");
+      if (!response.ok) throw new Error(await responseError(response, "删除失败"));
+      feedback.success("草稿已删除");
+      closeEditor();
+      await refresh();
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "删除失败");
     }
-  };
+  }
 
   const updateField = (field: keyof Contract, value: string | number | null) => {
-    setEditing((prev) => ({ ...prev, [field]: value }));
+    setEditing((previous) => ({ ...previous, [field]: value }));
   };
 
   const selector: SelectorSurfaceProps<Contract> = {
@@ -186,26 +304,34 @@ export default function ContractsClient({
       value: contract,
       card: {
         title: contract.name,
-        subtitle: contract.partyB || "未填写签署对方",
-        code: contract.contractNo || undefined,
-        status: contract.status ? { label: contract.status } : undefined,
+        subtitle: [contract.partyB || "未填写签署对方", contract.expiresOn ? `至 ${contract.expiresOn}` : null].filter(Boolean).join(" · "),
+        code: contract.contractNo || contract.contractUid.slice(0, 8),
+        status: { label: contractOptionLabel(CONTRACT_LIFECYCLE_OPTIONS, contract.lifecycleStatus) },
         active: editorMode === "edit" && editing.id === contract.id,
-        actions: canDelete ? [{
-          key: "delete",
-          label: "删除",
-          icon: "delete",
-          variant: "danger",
-          onClick: () => void deleteContract(contract),
-        }] : undefined,
+        actions: [
+          ...(canArchive ? [{
+            key: "archive",
+            label: "归档",
+            icon: "archive" as const,
+            onClick: () => void archiveContract(contract),
+          }] : []),
+          ...(canDelete && contract.canHardDelete ? [{
+            key: "delete",
+            label: "删除草稿",
+            icon: "delete" as const,
+            variant: "danger" as const,
+            onClick: () => void deleteContract(contract),
+          }] : []),
+        ],
       },
     })),
     selectedId: editorMode === "edit" ? editing.id ?? null : null,
     onSelect: openEdit,
-    emptyText: "暂无合同",
+    emptyText: "当前视图暂无合同",
   };
 
   const editSections = editorMode === "edit"
-    ? contractFormSections(editing, updateField, { locations, categories, readOnly: !canUpdate }).map<FormSurfaceSectionSpec>((section) => ({
+    ? contractFormSections(editing, updateField, { locations, categories, businessRequiredByRelation, readOnly: !canUpdate }).map<FormSurfaceSectionSpec>((section) => ({
         kind: "section",
         key: section.key,
         title: section.title,
@@ -215,38 +341,34 @@ export default function ContractsClient({
       }))
     : [];
 
+  const pageCreate: PageSurfaceCreateSpec = {
+    id: "contract-create",
+    presentation: "block",
+    title: "新增合同",
+    open: editorMode === "create",
+    canCreate,
+    disabled: saving || !businessRequiredReady,
+    content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories, businessRequiredByRelation }) },
+    submission: { action: "save", disabled: saving || !businessRequiredReady || !editing.name || !editing.categoryId || missingRequiredRelations.length > 0, execute: createContract },
+    onOpenChange: (open) => { if (open) openCreate(); else closeEditor(); },
+  };
+
   const detailBody = createPageBody([
-    {
-      key: "contract-create",
-      body: {
-        kind: "create",
-        create: {
-          id: "contract-create",
-          trigger: "toolbar",
-          presentation: "block",
-          title: "新增合同",
-          open: editorMode === "create",
-          canCreate,
-          disabled: saving,
-          content: { kind: "sections", sections: contractFormSections(editing, updateField, { locations, categories }) },
-          submission: { action: "save", disabled: saving || !editing.name || !editing.category, execute: createContract },
-          onOpenChange: (open) => { if (open) openCreate(); else closeEditor(); },
-        },
-      },
-    },
     ...(editorMode === "create" ? [] : editorMode === "edit"
       ? [createFieldsSection("contract-edit", editSections, {
           header: {
             title: editing.name || "合同详情",
-            description: editing.partyB || "未填写签署对方",
+            description: editing.dataQualityIssues?.length
+              ? `待补全：${editing.dataQualityIssues.join("；")}`
+              : editing.partyB || "合同主数据完整",
           },
           layout: { columns: 1 },
           submit: canUpdate ? { onSubmit: () => void saveContract() } : undefined,
           actions: canUpdate ? [
             { key: "reset", action: "reset", label: "取消编辑", disabled: saving, onClick: closeEditor },
-            { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving, onClick: () => void saveContract() },
+            { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving || !businessRequiredReady || missingRequiredRelations.length > 0, onClick: () => void saveContract() },
           ] : [],
-        })]
+        }), ...archivePackage.sections]
       : [createEmptySection("contract-detail-empty", {
           content: "从左侧选择合同查看详情，或点击新增合同",
           presentation: "card",
@@ -254,32 +376,34 @@ export default function ContractsClient({
   ]);
 
   return (
-      <PageSurface kind="standard"
-        toolbar={{
-          items: [
-            ...toolbarItems,
-            {
-              kind: "text",
-              key: "total",
-              content: `共 ${total} 条记录`,
-            },
-          ],
-        }}
-        body={createMasterDetailBody({
-          master: { label: "合同列表", presentation: "compact", body: { kind: "selector", selector } },
-          detail: detailBody,
-          desktop: { ratio: [3, 7] },
-          mobile: { detailActive: editorMode !== null, onNavigateToList: closeEditor },
-        })}
-        footer={{
-          pagination: {
-            page,
-            totalPages,
-            onPageChange: setPage,
-            compact: true,
-
-          },
-        }}
-      />
+    <PageSurface
+      kind="standard"
+      create={pageCreate}
+      tabbar={createPageTabBar({
+        items: [CONTRACT_LEDGER_TAB],
+        active: CONTRACT_LEDGER_TAB.key,
+        activeChild: view === "all" ? undefined : view,
+        onChange: () => changeView("all"),
+        onChildChange: changeView,
+        ariaLabel: "合同台账工作视图",
+      })}
+      toolbar={{
+        items: [
+          ...toolbarItems,
+          { kind: "text", key: "total", content: `共 ${total} 条记录` },
+        ],
+      }}
+      body={createMasterDetailBody({
+        master: {
+          label: "合同列表",
+          presentation: "compact",
+          body: { kind: "selector", selector },
+          footer: { pagination: { page, totalPages, onPageChange: setPage, compact: true } },
+        },
+        detail: detailBody,
+        desktop: { ratio: [3, 7] },
+        mobile: { detailActive: editorMode !== null, onNavigateToList: closeEditor },
+      })}
+    />
   );
 }

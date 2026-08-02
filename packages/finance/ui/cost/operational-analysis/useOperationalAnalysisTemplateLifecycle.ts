@@ -180,6 +180,7 @@ export function useOperationalAnalysisTemplateLifecycle(input: {
           ]
         : [createStatusSection("operational-analysis-lifecycle-empty", { kind: "empty", content: "请选择一个 Workspace 模板。" })];
     return createPageModalSection("operational-analysis-lifecycle-modal", {
+      purpose: "audit-history",
       open,
       title: current ? `${current.name} · 版本与发布` : "版本与发布",
       onClose: () => setOpen(false),

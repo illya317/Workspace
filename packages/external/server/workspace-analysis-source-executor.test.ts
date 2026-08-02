@@ -18,6 +18,12 @@ mock.module("./external-party-service", { namedExports: {
     return { items: [{ id: 3, code: "P003", category: input.category, name: input.category === "customer" ? "客户甲" : "供应商乙", identityNumber: "secret", roles: ["customer", "supplier"] }], total: 1 };
   },
 } } as never);
+mock.module("./related-parties", { namedExports: {
+  listExternalRelatedParties: async (input: unknown) => {
+    calls.push(input);
+    return { items: [{ id: 8, name: "关联方甲", relatedPartyType: "group", identityNumber: "related-secret", roles: ["customer"] }], total: 1 };
+  },
+} } as never);
 
 const { loadExternalWorkspaceAnalysisSource } = await import("./workspace-analysis-source-executor");
 
@@ -49,6 +55,18 @@ test("external owner normalizes every permission-filtered party role instead of 
   assert.deepEqual(calls, [
     { category: "customer", userId: 7, keyword: "甲", page: 1, pageSize: 500 },
   ]);
+});
+
+test("external owner loads the independent related-party directory without exposing role arrays", async () => {
+  calls.length = 0;
+  const result = await loadExternalWorkspaceAnalysisSource(request(
+    "external.related-parties",
+    ["name", "relatedPartyType", "identityNumber"],
+  ));
+
+  assert.deepEqual(result.rows, [{ name: "关联方甲", relatedPartyType: "group", identityNumber: "related-secret" }]);
+  assert.deepEqual(calls, [{ keyword: "甲", relatedPartyType: undefined, asOfDate: undefined, page: 1, pageSize: 100 }]);
+  assert.equal(JSON.stringify(result).includes("roles"), false);
 });
 
 function request(

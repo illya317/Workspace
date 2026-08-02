@@ -14,6 +14,7 @@ import {
   type BodySurfaceSectionSpec,
   type DataSurfaceRowActionSpec,
   type FormSurfaceFieldSpec,
+  type PageSurfaceCreateSpec,
   type PageSurfaceTabBarItemSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -96,11 +97,14 @@ export default function InventoryOperationsClient({
     ...(loading ? [createStatusSection("inventory-loading", { kind: "loading", content: "正在加载库存运营台" })] : []),
     ...(error ? [createStatusSection("inventory-error", { kind: "error", content: error })] : []),
     ...(!loading && !error ? buildSections(view, workspace, items, documents, lifecycleActions) : []),
-    ...(view === "movements" ? [documentCreateSection()] : []),
-    ...(view === "closing" ? [voucherLinkSection()] : []),
   ];
+  const pageCreate = view === "movements"
+    ? documentCreate()
+    : view === "closing"
+      ? voucherLinkCreate()
+      : undefined;
 
-  return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+  return <PageSurface kind="standard" create={pageCreate} tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 
   function closeDrafts() { setDocumentDraft(null); setVoucherDraft(null); }
 
@@ -131,22 +135,22 @@ export default function InventoryOperationsClient({
     finally { setSaving(false); }
   }
 
-  function documentCreateSection(): BodySurfaceSectionSpec {
+  function documentCreate(): PageSurfaceCreateSpec {
     const date = `${year}-${month.padStart(2, "0")}-01`;
     const empty = emptyDocumentDraft(companyCode, date, workspace?.items[0], workspace?.warehouses[0]);
-    return { key: "document-create", body: { kind: "create", create: {
-      id: "inventory-document-create", trigger: "toolbar", presentation: "modal", title: "新建出入库单", open: Boolean(documentDraft), canCreate, disabled: saving || workspace?.closing.status === "closed",
+    return {
+      id: "inventory-document-create", presentation: "block", title: "新建出入库单", open: Boolean(documentDraft), canCreate, disabled: saving || workspace?.closing.status === "closed",
       content: { kind: "sections", sections: documentFormSections(documentDraft ?? empty, workspace, setDocumentDraft) },
       submission: { action: "save", disabled: saving || !documentDraft?.documentNo || !documentDraft.lines[0]?.itemId || !documentDraft.lines[0]?.warehouseId, execute: saveDocument }, onOpenChange: (open) => setDocumentDraft(open ? empty : null), onCancel: () => setDocumentDraft(null),
-    } } };
+    };
   }
 
-  function voucherLinkSection(): BodySurfaceSectionSpec {
+  function voucherLinkCreate(): PageSurfaceCreateSpec {
     const field: FormSurfaceFieldSpec = { key: "voucherId", label: "已过账凭证ID", required: true, spec: { valueType: "number", control: "number", validation: { min: 1 } }, value: voucherDraft ?? "", step: 1, onChange: (value) => setVoucherDraft(Number(value) || null) };
-    return { key: "voucher-link", body: { kind: "create", create: {
-      id: "inventory-voucher-link", trigger: "toolbar", presentation: "modal", title: "关联成本结转凭证", open: voucherDraft !== null, canCreate: canLock && workspace?.closing.status !== "closed", disabled: saving,
+    return {
+      id: "inventory-voucher-link", presentation: "block", title: "关联成本结转凭证", open: voucherDraft !== null, canCreate: canLock && workspace?.closing.status !== "closed", disabled: saving,
       content: { kind: "sections", sections: [{ key: "voucher", title: "期间结转", layout: { columns: 1, density: "compact" }, items: [field] }] }, submission: { action: "save", disabled: saving || !voucherDraft, execute: linkVoucher }, onOpenChange: (open) => setVoucherDraft(open ? 0 : null), onCancel: () => setVoucherDraft(null),
-    } } };
+    };
   }
 }
 

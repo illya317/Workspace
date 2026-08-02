@@ -3,13 +3,21 @@
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const crypto = require("node:crypto");
 const { spawn, spawnSync } = require("node:child_process");
 const {
   captureWorkspaceSnapshot,
   resolveWorkspaceSnapshot,
   workspaceSnapshotMatches,
 } = require("./workspace-snapshot");
+const { enforceCheckMemoryLimit } = require("./check-memory-policy");
+
+let boundedNodeOptions;
+try {
+  boundedNodeOptions = enforceCheckMemoryLimit(process.env.NODE_OPTIONS);
+} catch (error) {
+  console.error(`Check memory policy rejected this command: ${error.message}`);
+  process.exit(2);
+}
 
 const args = process.argv.slice(2);
 const separatorIndex = args.indexOf("--");
@@ -34,155 +42,6 @@ const incompleteLockGraceMs = Number(
 const timeoutMs = Number(process.env.CHECK_LOCK_TIMEOUT_MS ?? 30 * 60 * 1000);
 const pollMs = Number(process.env.CHECK_LOCK_POLL_MS ?? 1000);
 const childTerminateGraceMs = Number(process.env.CHECK_CHILD_TERMINATE_GRACE_MS ?? 5 * 1000);
-const resultCacheTtlMs = Number(process.env.CHECK_RESULT_CACHE_TTL_MS ?? 6 * 60 * 60 * 1000);
-const resultCachePruneIntervalMs = 24 * 60 * 60 * 1000;
-const resultCachePruneMarker = path.join(resultCacheDir, ".last-prune");
-
-function commandString() {
-  return [command, ...commandRest].join(" ");
-}
-
-function commandFingerprint() {
-  return [command, ...commandRest].join("\0");
-}
-
-function runsTypeScriptLoader() {
-  return command === "tsx" ||
-    (command === "npx" && commandRest[0] === "tsx") ||
-    (command === "node" && commandRest.includes("--import") && commandRest.includes("tsx"));
-}
-
-function checkCacheKind() {
-  const joined = commandString();
-  const scriptPath = commandRest[commandRest.length - 1] ?? "";
-
-  if (command === "eslint") return "lint";
-  if (command === "node" && scriptPath === "scripts/check/run-eslint-changed.js") return "lint";
-  if (command === "node" && scriptPath === "scripts/check/run-typecheck.js") return "typecheck";
-
-  if (
-    runsTypeScriptLoader() &&
-    joined.includes("scripts/arch/") &&
-    (
-      joined.includes("gate.ts") ||
-      joined.includes("domain-gate.ts") ||
-      joined.includes("ui-gate.ts") ||
-      joined.includes("structure-enforce.ts")
-    )
-  ) {
-    return "gate";
-  }
-
-  if (
-    command === "node" &&
-    (
-      scriptPath === "scripts/check/check-business-identity-boundary.js" ||
-      scriptPath === "scripts/check/check-api-response-format.js" ||
-      scriptPath === "scripts/check/check-history-policy-registry.ts"
-    )
-  ) {
-    return "gate";
-  }
-
-  if (
-    runsTypeScriptLoader() &&
-    (
-      joined.includes("scripts/check/check-action-registry.ts") ||
-      joined.includes("scripts/check/check-business-action-registry.ts") ||
-      joined.includes("scripts/check/check-action-contracts.ts") ||
-      joined.includes("scripts/generate-core-ui-surface-contracts.ts --check")
-    )
-  ) {
-    return "gate";
-  }
-
-  return null;
-}
-
-function addHashPart(hash, label, value) {
-  hash.update(`${label}:${Buffer.byteLength(value)}\0`);
-  hash.update(value);
-  hash.update("\0");
-}
-
-function createCheckCacheDescriptor(workspaceSnapshot) {
-  const kind = checkCacheKind();
-  if (!kind) return null;
-  if (process.env.CHECK_RESULT_CACHE === "0") return null;
-
-  try {
-    const hash = crypto.createHash("sha256");
-    addHashPart(hash, "kind", `check-result-v3:${kind}`);
-    addHashPart(hash, "node", process.versions.node);
-    addHashPart(hash, "command", commandFingerprint());
-    addHashPart(hash, "workspaceSnapshot", workspaceSnapshot.key);
-
-    const key = hash.digest("hex");
-    return {
-      key,
-      file: path.join(resultCacheDir, `${key}.json`),
-      kind,
-      command: commandString(),
-    };
-  } catch (error) {
-    console.error(`Check result cache disabled: failed to calculate snapshot (${error.message})`);
-    return null;
-  }
-}
-
-function readSuccessfulCachedResult(cacheDescriptor) {
-  if (!cacheDescriptor) return null;
-  try {
-    const cached = JSON.parse(fs.readFileSync(cacheDescriptor.file, "utf8"));
-    const completedAt = Date.parse(cached?.completedAt);
-    if (
-      cached?.status === "passed"
-      && cached?.key === cacheDescriptor.key
-      && Number.isFinite(completedAt)
-      && Number.isFinite(resultCacheTtlMs)
-      && resultCacheTtlMs >= 0
-      && Date.now() - completedAt <= resultCacheTtlMs
-    ) return cached;
-  } catch {
-    return null;
-  }
-  return null;
-}
-
-function printCachedResult(cacheDescriptor, cached) {
-  const completedAt = cached.completedAt ? ` from ${cached.completedAt}` : "";
-  console.log(`✓ Reusing cached ${cacheDescriptor.kind} check result${completedAt}`);
-  console.log(`  snapshot: ${cacheDescriptor.key.slice(0, 16)}`);
-  console.log(`  command: ${cacheDescriptor.command}`);
-  if (Number.isFinite(cached.durationMs) || Number.isFinite(cached.waitMs)) {
-    console.log(`  timing: duration=${cached.durationMs ?? "unknown"}ms wait=${cached.waitMs ?? "unknown"}ms`);
-  }
-}
-
-function writeSuccessfulCachedResult(cacheDescriptor, {
-  directory = resultCacheDir,
-  durationMs = 0,
-  waitMs = 0,
-} = {}) {
-  if (!cacheDescriptor || !directory) return;
-  try {
-    fs.mkdirSync(directory, { recursive: true });
-    fs.writeFileSync(
-      path.join(directory, `${cacheDescriptor.key}.json`),
-      JSON.stringify({
-        key: cacheDescriptor.key,
-        status: "passed",
-        command: cacheDescriptor.command,
-        completedAt: new Date().toISOString(),
-        host: os.hostname(),
-        durationMs: Math.max(0, Math.round(durationMs)),
-        waitMs: Math.max(0, Math.round(waitMs)),
-      }, null, 2),
-    );
-  } catch (error) {
-    console.error(`Check result cache write skipped: ${error.message}`);
-  }
-}
 
 function pendingResultDirectoryFromEnvironment(workspaceSnapshot) {
   if (!workspaceSnapshot.inherited) return null;
@@ -221,21 +80,25 @@ function promotePendingResults(directory) {
 
   for (const relative of entries) {
     const normalized = relative.replaceAll(path.sep, "/");
-    const receiptMatch = normalized.match(/^([0-9a-f]{64})\.json$/);
+    const taskReceiptMatch = normalized.match(/^([a-z0-9][a-z0-9._-]*)\/([0-9a-f]{64})\.json$/);
     const structureMatch = normalized.match(/^structure-reports\/([0-9a-f]{64})\.json$/);
-    if (!receiptMatch && !structureMatch) continue;
+    if (!taskReceiptMatch && !structureMatch) continue;
     const source = path.join(directory, relative);
     try {
       const receipt = JSON.parse(fs.readFileSync(source, "utf8"));
-      const validReceipt = receiptMatch
+      const validTaskReceipt = taskReceiptMatch
+        && receipt?.schemaVersion === 2
+        && receipt?.kind === "workspace-check-task-receipt"
+        && receipt?.taskKey === taskReceiptMatch[1]
+        && receipt?.inputDigest === taskReceiptMatch[2]
         && ["passed", "warning"].includes(receipt?.status)
-        && receipt.key === receiptMatch[1];
+        && /^[0-9a-f]{64}$/.test(receipt?.receiptDigest ?? "");
       const validStructureReport = structureMatch
         && receipt?.schemaVersion === 1
         && receipt?.snapshotKey === structureMatch[1]
         && receipt?.report
         && typeof receipt.report === "object";
-      if (!validReceipt && !validStructureReport) continue;
+      if (!validTaskReceipt && !validStructureReport) continue;
       const destination = path.join(resultCacheDir, relative);
       fs.mkdirSync(path.dirname(destination), { recursive: true });
       fs.rmSync(destination, { force: true });
@@ -245,39 +108,6 @@ function promotePendingResults(directory) {
     }
   }
   removePendingResultDirectory(directory);
-}
-
-function pruneExpiredResultCache() {
-  if (process.env.CHECK_RESULT_CACHE === "0") return;
-  try {
-    const lastPrunedAt = fs.statSync(resultCachePruneMarker).mtimeMs;
-    if (Date.now() - lastPrunedAt < resultCachePruneIntervalMs) return;
-  } catch {
-    // Missing marker means the cache has not been pruned yet.
-  }
-
-  try {
-    const retentionMs = Math.max(
-      resultCachePruneIntervalMs,
-      Number.isFinite(resultCacheTtlMs) && resultCacheTtlMs >= 0 ? resultCacheTtlMs : 0,
-    );
-    const cutoff = Date.now() - retentionMs;
-    const visit = (directory) => {
-      if (!fs.existsSync(directory)) return;
-      for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-        const target = path.join(directory, entry.name);
-        if (entry.isDirectory()) visit(target);
-        else if (entry.isFile() && entry.name.endsWith(".json") && fs.statSync(target).mtimeMs < cutoff) {
-          fs.rmSync(target, { force: true });
-        }
-      }
-    };
-    visit(resultCacheDir);
-    fs.mkdirSync(resultCacheDir, { recursive: true });
-    fs.writeFileSync(resultCachePruneMarker, `${new Date().toISOString()}\n`, { mode: 0o600 });
-  } catch (error) {
-    console.error(`Check result cache pruning skipped: ${error.message}`);
-  }
 }
 
 function sleep(ms) {
@@ -329,7 +159,7 @@ function removeLockIfStale() {
   return false;
 }
 
-async function acquireLock(cacheDescriptor) {
+async function acquireLock() {
   if (process.env.CHECK_LOCK === "0") return { acquired: false, waited: false, waitMs: 0 };
 
   fs.mkdirSync(cacheDir, { recursive: true });
@@ -346,7 +176,7 @@ async function acquireLock(cacheDescriptor) {
         JSON.stringify({
           pid: process.pid,
           command: [command, ...commandRest].join(" "),
-          cacheKey: cacheDescriptor?.key ?? null,
+          receiptScope: "task-input",
           startedAt: new Date().toISOString(),
           host: os.hostname(),
         }, null, 2),
@@ -371,10 +201,7 @@ async function acquireLock(cacheDescriptor) {
       if (!announcedWait) {
         const meta = readLockMeta();
         const running = meta?.command ? `: ${meta.command}` : "";
-        const sameSnapshot = cacheDescriptor?.key && meta?.cacheKey === cacheDescriptor.key
-          ? " (same snapshot; will reuse result if it passes)"
-          : "";
-        console.error(`Waiting for project check lock${running}${sameSnapshot}`);
+        console.error(`Waiting for project check lock${running}`);
         announcedWait = true;
       }
 
@@ -413,44 +240,9 @@ function signalChildTree(child, signal) {
 (async () => {
   let workspaceSnapshot = resolveWorkspaceSnapshot({ cwd: repoRoot });
   const inheritedPendingResultDirectory = pendingResultDirectoryFromEnvironment(workspaceSnapshot);
-  let cacheDescriptor = createCheckCacheDescriptor(workspaceSnapshot);
-  const cachedBeforeLock = readSuccessfulCachedResult(cacheDescriptor);
-  if (cachedBeforeLock && workspaceSnapshot.inherited) {
-    printCachedResult(cacheDescriptor, cachedBeforeLock);
-    process.exit(0);
-  }
-
-  const lock = await acquireLock(cacheDescriptor);
-  if (lock.acquired && !workspaceSnapshot.inherited) pruneExpiredResultCache();
+  const lock = await acquireLock();
   if (lock.waited && !workspaceSnapshot.inherited) {
-    try {
-      workspaceSnapshot = captureWorkspaceSnapshot({ cwd: repoRoot });
-      cacheDescriptor = createCheckCacheDescriptor(workspaceSnapshot);
-    } catch (error) {
-      releaseLock(lock);
-      throw error;
-    }
-  }
-  const cachedAfterLock = readSuccessfulCachedResult(cacheDescriptor);
-  if (cachedAfterLock) {
-    if (workspaceSnapshot.inherited) {
-      releaseLock(lock);
-      printCachedResult(cacheDescriptor, cachedAfterLock);
-      process.exit(0);
-    }
-    try {
-      const verifiedSnapshot = captureWorkspaceSnapshot({ cwd: repoRoot });
-      if (workspaceSnapshotMatches(workspaceSnapshot, verifiedSnapshot)) {
-        releaseLock(lock);
-        printCachedResult(cacheDescriptor, cachedAfterLock);
-        process.exit(0);
-      }
-      workspaceSnapshot = verifiedSnapshot;
-      cacheDescriptor = createCheckCacheDescriptor(workspaceSnapshot);
-    } catch (error) {
-      releaseLock(lock);
-      throw error;
-    }
+    workspaceSnapshot = captureWorkspaceSnapshot({ cwd: repoRoot });
   }
 
   let child = null;
@@ -498,13 +290,13 @@ function signalChildTree(child, signal) {
     ...process.env,
     CHECK_LOCK: "0",
     CHECK_WORKSPACE_SNAPSHOT_KEY: workspaceSnapshot.key,
+    NODE_OPTIONS: boundedNodeOptions,
   };
   const checkLockOwnerPid = lock.acquired ? String(process.pid) : process.env.CHECK_LOCK_OWNER_PID;
   if (checkLockOwnerPid) childEnvironment.CHECK_LOCK_OWNER_PID = checkLockOwnerPid;
   else delete childEnvironment.CHECK_LOCK_OWNER_PID;
   if (pendingResultDirectory) childEnvironment.CHECK_CACHE_PENDING_DIR = pendingResultDirectory;
   else delete childEnvironment.CHECK_CACHE_PENDING_DIR;
-  const childStartedAt = Date.now();
 
   child = spawn(command, commandRest, {
     cwd: repoRoot,
@@ -516,7 +308,6 @@ function signalChildTree(child, signal) {
 
   child.on("exit", (code, signal) => {
     if (childTerminationTimer) clearTimeout(childTerminationTimer);
-    const durationMs = Date.now() - childStartedAt;
     if (pendingSignal) {
       removeOwnedPendingResults();
       releaseLock(lock);
@@ -535,7 +326,7 @@ function signalChildTree(child, signal) {
           const completedSnapshot = captureWorkspaceSnapshot({ cwd: repoRoot });
           if (workspaceSnapshotMatches(workspaceSnapshot, completedSnapshot)) {
             promotePendingResults(pendingResultDirectory);
-            console.error("Preserved successful partial check results for the unchanged workspace snapshot.");
+            console.error("Preserved successful task-input receipts after the aggregate failure.");
           } else {
             removeOwnedPendingResults();
           }
@@ -547,13 +338,7 @@ function signalChildTree(child, signal) {
       process.exit(code ?? 1);
     }
 
-    if (workspaceSnapshot.inherited) {
-      writeSuccessfulCachedResult(cacheDescriptor, {
-        directory: pendingResultDirectory,
-        durationMs,
-        waitMs: lock.waitMs,
-      });
-    } else {
+    if (!workspaceSnapshot.inherited) {
       let completedSnapshot;
       try {
         completedSnapshot = captureWorkspaceSnapshot({ cwd: repoRoot });
@@ -572,7 +357,6 @@ function signalChildTree(child, signal) {
         return;
       }
       promotePendingResults(pendingResultDirectory);
-      writeSuccessfulCachedResult(cacheDescriptor, { durationMs, waitMs: lock.waitMs });
     }
 
     releaseLock(lock);

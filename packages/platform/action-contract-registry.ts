@@ -3,6 +3,10 @@ import {
   type ActionContractMetadata,
 } from "./action-contract";
 import { ADDITIONAL_ACTION_CONTRACT_METADATA } from "./action-contract-registry-additional";
+import {
+  APPROVAL_REQUEST_STATUSES,
+  APPROVAL_REQUEST_TRANSITIONS,
+} from "./workflow-request-contract";
 
 const HR_ROSTER_RESOURCE = {
   resourceKey: "hr.roster",
@@ -148,8 +152,8 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
       canDisable: true,
       whenDisabled: "direct_write",
       entrySemantics: "form_finalization",
-      statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "failed"],
-      transitions: ["submit", "withdraw", "resubmit", "approve", "reject"],
+      statuses: APPROVAL_REQUEST_STATUSES,
+      transitions: APPROVAL_REQUEST_TRANSITIONS,
       mutationPolicy: HR_CREATE_WORKFLOW_MUTATION,
       routing: {
         handlerSource: "permission",
@@ -300,8 +304,8 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
       notes: "流程提交和流程详情应复用文档模板编辑器表单，不维护第二套字段。",
     },
     domain: {
-      validatorKey: "packages/platform/server/docs-editor/domain/document-template-validation.buildSaveDraftCommand",
-      commitKey: "packages/platform/server/docs-editor/service.saveDraft",
+      validatorKey: "packages/docs/server/domain/document-template-validation.buildSaveDraftCommand",
+      commitKey: "packages/docs/server/service.saveDraft",
       notes: "提交和通过都走同一套模板 domain validator。",
     },
     api: {
@@ -379,8 +383,8 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
       notes: "业务页和流程详情页应复用文档模板编辑器表单。",
     },
     domain: {
-      validatorKey: "packages/platform/server/docs-editor/domain/document-template-validation.buildSaveDraftCommand",
-      commitKey: "packages/platform/server/docs-editor/publish-service.publishTemplateSnapshot",
+      validatorKey: "packages/docs/server/domain/document-template-validation.buildSaveDraftCommand",
+      commitKey: "packages/docs/server/publish-service.publishTemplateSnapshot",
       notes: "提交发布和审批通过均复用模板 domain validator；通过时校验版本和完整快照。",
     },
     api: {

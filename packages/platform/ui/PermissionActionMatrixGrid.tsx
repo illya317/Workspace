@@ -5,16 +5,19 @@ import { ActionGlyph, type ActionGlyphKind, type DataSurfaceCellSpec, type DataS
 import {
   getPermissionActionGlyph,
   getPermissionActionLabel,
+  impliedActionKeys,
   type PermissionActionKey,
 } from "@workspace/platform/permission-actions";
 import {
   PERMISSION_MATRIX_ACTION_COLUMNS as ACTION_COLUMNS,
   getPermissionMatrixVisibleColumnActions,
+  permissionActionPreviewTone,
   permissionSourceLabel,
   permissionSourceTone,
   summarizePermissionActionColumn,
   type PermissionActionRecordLike,
   type PermissionMatrixColumn,
+  type PermissionMatrixHoveredAction,
   type PermissionMatrixSource,
 } from "./permission-matrix-model";
 
@@ -66,9 +69,15 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
   visibleActionKeys,
   columns = ACTION_COLUMNS,
   layout = "expandable",
+  hoveredAction = null,
+  onHoveredActionChange,
+  previewImpliedActions = true,
 }: Omit<PermissionActionMatrixGridProps<TSubject, TState>, "renderSubject"> & {
   renderSubject: (subject: TSubject) => DataSurfaceCellSpec;
   layout?: PermissionActionMatrixSurfaceLayout;
+  hoveredAction?: PermissionMatrixHoveredAction | null;
+  onHoveredActionChange?: (hovered: PermissionMatrixHoveredAction | null) => void;
+  previewImpliedActions?: boolean;
 }): DataSurfaceProps {
   const singleSubjectDetails = layout === "singleSubjectDetails";
   const visibleActionKeySet = visibleActionKeys?.length ? new Set(visibleActionKeys) : null;
@@ -109,7 +118,27 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
           const state = actionKey ? record.actionStates[actionKey] : null;
           if (!state) return { content: singleSubjectDetails ? "" : { kind: "empty" as const }, align: "center" as const };
           const disabled = savingKey === `${subjectKey}:${actionKey}` || !(canToggleAction?.(subject, state) ?? true) || state.pendingResourceMapping || !state.directGrantable;
-          return { content: { kind: "action" as const, action: { key: `${subjectKey}:${actionKey}`, label: getPermissionActionLabel(actionKey), title: chipTitle(state, disabled), icon: getPermissionActionGlyph(actionKey) as ActionGlyphKind, presentation: "glyph" as const, tone: state.has ? permissionSourceTone(state.source) : "gray", disabled, onClick: () => onToggleAction?.(subject, state) } }, align: "center" as const };
+          const previewsChildren = previewImpliedActions && hasImpliedChildActions(actionKey);
+          const hoveredActionKey = hoveredAction?.subjectKey === subjectKey ? hoveredAction.actionKey : null;
+          return { content: { kind: "action" as const, action: {
+            key: `${subjectKey}:${actionKey}`,
+            label: getPermissionActionLabel(actionKey),
+            title: chipTitle(state, disabled, previewImpliedActions),
+            icon: getPermissionActionGlyph(actionKey) as ActionGlyphKind,
+            presentation: "glyph" as const,
+            tone: permissionActionPreviewTone(state, hoveredActionKey),
+            disabled,
+            onClick: () => {
+              onHoveredActionChange?.(null);
+              onToggleAction?.(subject, state);
+            },
+            onMouseEnter: previewsChildren && !disabled
+              ? () => onHoveredActionChange?.({ subjectKey, actionKey })
+              : undefined,
+            onMouseLeave: previewsChildren && !disabled
+              ? () => onHoveredActionChange?.(null)
+              : undefined,
+          } }, align: "center" as const };
         }),
       ]);
       rowInteractions.push(null);
@@ -142,14 +171,30 @@ function stateSourceText(state: PermissionMatrixActionState) {
   return `${permissionSourceLabel(state.source)}${implied}${resource}`;
 }
 
-function chipTitle(state: PermissionMatrixActionState, disabled: boolean) {
+function hasImpliedChildActions(actionKey: PermissionActionKey) {
+  return impliedActionKeys(actionKey).some((impliedActionKey) => impliedActionKey !== actionKey);
+}
+
+function impliedChildrenText(actionKey: PermissionActionKey) {
+  const labels = impliedActionKeys(actionKey)
+    .filter((impliedActionKey) => impliedActionKey !== actionKey)
+    .map(getPermissionActionLabel);
+  return labels.length > 0 ? ` / 授权后同时获得：${labels.join("、")}` : "";
+}
+
+function chipTitle(
+  state: PermissionMatrixActionState,
+  disabled: boolean,
+  showImplication = true,
+) {
   const unsupported = state.pendingResourceMapping ? " / 该资源未接入" : "";
   const locked = disabled
     ? state.actionKey === "grant"
       ? " / 仅有授权管理权限者可维护"
       : " / 不可直接授予"
     : "";
-  return `${getPermissionActionLabel(state.actionKey)} (${state.actionKey}) · ${stateSourceText(state)}${unsupported}${locked}`;
+  const implication = showImplication ? impliedChildrenText(state.actionKey) : "";
+  return `${getPermissionActionLabel(state.actionKey)} (${state.actionKey}) · ${stateSourceText(state)}${implication}${unsupported}${locked}`;
 }
 
 function permissionChip<TSubject, TState extends PermissionMatrixActionState>({

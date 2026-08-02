@@ -29,6 +29,7 @@ export type AggregateFinanceOpenItem = {
 export type FinanceOpenItemAvgAggregateOutputType = {
   id: number | null
   importId: number | null
+  companyId: number | null
   periodId: number | null
   accountId: number | null
   voucherItemId: number | null
@@ -41,6 +42,7 @@ export type FinanceOpenItemAvgAggregateOutputType = {
 export type FinanceOpenItemSumAggregateOutputType = {
   id: number | null
   importId: number | null
+  companyId: number | null
   periodId: number | null
   accountId: number | null
   voucherItemId: number | null
@@ -54,6 +56,7 @@ export type FinanceOpenItemMinAggregateOutputType = {
   id: number | null
   importId: number | null
   companyCode: string | null
+  companyId: number | null
   periodId: number | null
   accountId: number | null
   voucherItemId: number | null
@@ -81,6 +84,7 @@ export type FinanceOpenItemMaxAggregateOutputType = {
   id: number | null
   importId: number | null
   companyCode: string | null
+  companyId: number | null
   periodId: number | null
   accountId: number | null
   voucherItemId: number | null
@@ -108,6 +112,7 @@ export type FinanceOpenItemCountAggregateOutputType = {
   id: number
   importId: number
   companyCode: number
+  companyId: number
   periodId: number
   accountId: number
   voucherItemId: number
@@ -136,6 +141,7 @@ export type FinanceOpenItemCountAggregateOutputType = {
 export type FinanceOpenItemAvgAggregateInputType = {
   id?: true
   importId?: true
+  companyId?: true
   periodId?: true
   accountId?: true
   voucherItemId?: true
@@ -148,6 +154,7 @@ export type FinanceOpenItemAvgAggregateInputType = {
 export type FinanceOpenItemSumAggregateInputType = {
   id?: true
   importId?: true
+  companyId?: true
   periodId?: true
   accountId?: true
   voucherItemId?: true
@@ -161,6 +168,7 @@ export type FinanceOpenItemMinAggregateInputType = {
   id?: true
   importId?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   accountId?: true
   voucherItemId?: true
@@ -188,6 +196,7 @@ export type FinanceOpenItemMaxAggregateInputType = {
   id?: true
   importId?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   accountId?: true
   voucherItemId?: true
@@ -215,6 +224,7 @@ export type FinanceOpenItemCountAggregateInputType = {
   id?: true
   importId?: true
   companyCode?: true
+  companyId?: true
   periodId?: true
   accountId?: true
   voucherItemId?: true
@@ -329,6 +339,7 @@ export type FinanceOpenItemGroupByOutputType = {
   id: number
   importId: number
   companyCode: string
+  companyId: number | null
   periodId: number | null
   accountId: number | null
   voucherItemId: number | null
@@ -379,6 +390,7 @@ export type FinanceOpenItemWhereInput = {
   id?: Prisma.IntFilter<"FinanceOpenItem"> | number
   importId?: Prisma.IntFilter<"FinanceOpenItem"> | number
   companyCode?: Prisma.StringFilter<"FinanceOpenItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   periodId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   accountId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   voucherItemId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
@@ -407,12 +419,14 @@ export type FinanceOpenItemWhereInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryListRelationFilter
   settlements?: Prisma.FinanceOpenItemSettlementListRelationFilter
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }
 
 export type FinanceOpenItemOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrderInput | Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -441,6 +455,7 @@ export type FinanceOpenItemOrderByWithRelationInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryOrderByRelationAggregateInput
   settlements?: Prisma.FinanceOpenItemSettlementOrderByRelationAggregateInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  company?: Prisma.CompanyOrderByWithRelationInput
 }
 
 export type FinanceOpenItemWhereUniqueInput = Prisma.AtLeast<{
@@ -451,6 +466,7 @@ export type FinanceOpenItemWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinanceOpenItemWhereInput | Prisma.FinanceOpenItemWhereInput[]
   importId?: Prisma.IntFilter<"FinanceOpenItem"> | number
   companyCode?: Prisma.StringFilter<"FinanceOpenItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   periodId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   accountId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   voucherItemId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
@@ -479,12 +495,14 @@ export type FinanceOpenItemWhereUniqueInput = Prisma.AtLeast<{
   members?: Prisma.FinanceOpenItemAuxiliaryListRelationFilter
   settlements?: Prisma.FinanceOpenItemSettlementListRelationFilter
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  company?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
 }, "id" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceOpenItemOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrderInput | Prisma.SortOrder
   periodId?: Prisma.SortOrderInput | Prisma.SortOrder
   accountId?: Prisma.SortOrderInput | Prisma.SortOrder
   voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -520,6 +538,7 @@ export type FinanceOpenItemScalarWhereWithAggregatesInput = {
   id?: Prisma.IntWithAggregatesFilter<"FinanceOpenItem"> | number
   importId?: Prisma.IntWithAggregatesFilter<"FinanceOpenItem"> | number
   companyCode?: Prisma.StringWithAggregatesFilter<"FinanceOpenItem"> | string
+  companyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceOpenItem"> | number | null
   periodId?: Prisma.IntNullableWithAggregatesFilter<"FinanceOpenItem"> | number | null
   accountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceOpenItem"> | number | null
   voucherItemId?: Prisma.IntNullableWithAggregatesFilter<"FinanceOpenItem"> | number | null
@@ -570,12 +589,14 @@ export type FinanceOpenItemCreateInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -629,12 +650,14 @@ export type FinanceOpenItemUpdateInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -665,6 +688,7 @@ export type FinanceOpenItemCreateManyInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -714,6 +738,7 @@ export type FinanceOpenItemUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -752,6 +777,7 @@ export type FinanceOpenItemCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
@@ -778,6 +804,7 @@ export type FinanceOpenItemCountOrderByAggregateInput = {
 export type FinanceOpenItemAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
@@ -791,6 +818,7 @@ export type FinanceOpenItemMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
@@ -818,6 +846,7 @@ export type FinanceOpenItemMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
@@ -844,6 +873,7 @@ export type FinanceOpenItemMinOrderByAggregateInput = {
 export type FinanceOpenItemSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   importId?: Prisma.SortOrder
+  companyId?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   accountId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
@@ -1080,6 +1110,48 @@ export type FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput = {
   deleteMany?: Prisma.FinanceOpenItemScalarWhereInput | Prisma.FinanceOpenItemScalarWhereInput[]
 }
 
+export type FinanceOpenItemCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceOpenItemCreateWithoutCompanyInput[] | Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceOpenItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+}
+
+export type FinanceOpenItemUncheckedCreateNestedManyWithoutCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceOpenItemCreateWithoutCompanyInput[] | Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput[]
+  createMany?: Prisma.FinanceOpenItemCreateManyCompanyInputEnvelope
+  connect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+}
+
+export type FinanceOpenItemUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceOpenItemCreateWithoutCompanyInput[] | Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceOpenItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceOpenItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceOpenItemCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  disconnect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  delete?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  connect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  update?: Prisma.FinanceOpenItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceOpenItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceOpenItemUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceOpenItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceOpenItemScalarWhereInput | Prisma.FinanceOpenItemScalarWhereInput[]
+}
+
+export type FinanceOpenItemUncheckedUpdateManyWithoutCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput> | Prisma.FinanceOpenItemCreateWithoutCompanyInput[] | Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput[]
+  connectOrCreate?: Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput | Prisma.FinanceOpenItemCreateOrConnectWithoutCompanyInput[]
+  upsert?: Prisma.FinanceOpenItemUpsertWithWhereUniqueWithoutCompanyInput | Prisma.FinanceOpenItemUpsertWithWhereUniqueWithoutCompanyInput[]
+  createMany?: Prisma.FinanceOpenItemCreateManyCompanyInputEnvelope
+  set?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  disconnect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  delete?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  connect?: Prisma.FinanceOpenItemWhereUniqueInput | Prisma.FinanceOpenItemWhereUniqueInput[]
+  update?: Prisma.FinanceOpenItemUpdateWithWhereUniqueWithoutCompanyInput | Prisma.FinanceOpenItemUpdateWithWhereUniqueWithoutCompanyInput[]
+  updateMany?: Prisma.FinanceOpenItemUpdateManyWithWhereWithoutCompanyInput | Prisma.FinanceOpenItemUpdateManyWithWhereWithoutCompanyInput[]
+  deleteMany?: Prisma.FinanceOpenItemScalarWhereInput | Prisma.FinanceOpenItemScalarWhereInput[]
+}
+
 export type FinanceOpenItemCreateWithoutConsolidationEntryLinesInput = {
   companyCode: string
   sourceSystem: string
@@ -1106,12 +1178,14 @@ export type FinanceOpenItemCreateWithoutConsolidationEntryLinesInput = {
   voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutOpenItemsInput
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutConsolidationEntryLinesInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -1179,12 +1253,14 @@ export type FinanceOpenItemUpdateWithoutConsolidationEntryLinesInput = {
   voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutOpenItemsNestedInput
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutConsolidationEntryLinesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1236,12 +1312,14 @@ export type FinanceOpenItemCreateWithoutSettlementsInput = {
   voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutOpenItemsInput
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutSettlementsInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -1309,12 +1387,14 @@ export type FinanceOpenItemUpdateWithoutSettlementsInput = {
   voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutOpenItemsNestedInput
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutSettlementsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1366,12 +1446,14 @@ export type FinanceOpenItemCreateWithoutMembersInput = {
   voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutOpenItemsInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutMembersInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -1439,12 +1521,14 @@ export type FinanceOpenItemUpdateWithoutMembersInput = {
   voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutOpenItemsNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutMembersInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1496,11 +1580,13 @@ export type FinanceOpenItemCreateWithoutImportInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -1560,6 +1646,7 @@ export type FinanceOpenItemScalarWhereInput = {
   id?: Prisma.IntFilter<"FinanceOpenItem"> | number
   importId?: Prisma.IntFilter<"FinanceOpenItem"> | number
   companyCode?: Prisma.StringFilter<"FinanceOpenItem"> | string
+  companyId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   periodId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   accountId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
   voucherItemId?: Prisma.IntNullableFilter<"FinanceOpenItem"> | number | null
@@ -1609,12 +1696,14 @@ export type FinanceOpenItemCreateWithoutAccountInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutAccountInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   voucherItemId?: number | null
   sourceSystem: string
@@ -1692,12 +1781,14 @@ export type FinanceOpenItemCreateWithoutPeriodInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutPeriodInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
   sourceSystem: string
@@ -1775,12 +1866,14 @@ export type FinanceOpenItemCreateWithoutVoucherItemInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
   settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+  company?: Prisma.CompanyCreateNestedOneWithoutFinanceOpenItemsInput
 }
 
 export type FinanceOpenItemUncheckedCreateWithoutVoucherItemInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   sourceSystem: string
@@ -1832,9 +1925,95 @@ export type FinanceOpenItemUpdateManyWithWhereWithoutVoucherItemInput = {
   data: Prisma.XOR<Prisma.FinanceOpenItemUpdateManyMutationInput, Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemInput>
 }
 
+export type FinanceOpenItemCreateWithoutCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  documentNo?: string | null
+  documentDate?: string | null
+  dueDate?: string | null
+  memo?: string | null
+  currencyCode?: string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: string
+  originType?: string | null
+  sourcePeriodBeginDetailId?: string | null
+  agingBaseDate?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  import: Prisma.FinanceLedgerImportCreateNestedOneWithoutOpenItemsInput
+  period?: Prisma.FinancePeriodCreateNestedOneWithoutOpenItemsInput
+  account?: Prisma.FinanceAccountCreateNestedOneWithoutOpenItemsInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutOpenItemsInput
+  members?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutOpenItemInput
+  settlements?: Prisma.FinanceOpenItemSettlementCreateNestedManyWithoutOpenItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceOpenItemInput
+}
+
+export type FinanceOpenItemUncheckedCreateWithoutCompanyInput = {
+  id?: number
+  importId: number
+  companyCode: string
+  periodId?: number | null
+  accountId?: number | null
+  voucherItemId?: number | null
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  documentNo?: string | null
+  documentDate?: string | null
+  dueDate?: string | null
+  memo?: string | null
+  currencyCode?: string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: string
+  originType?: string | null
+  sourcePeriodBeginDetailId?: string | null
+  agingBaseDate?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  members?: Prisma.FinanceOpenItemAuxiliaryUncheckedCreateNestedManyWithoutOpenItemInput
+  settlements?: Prisma.FinanceOpenItemSettlementUncheckedCreateNestedManyWithoutOpenItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceOpenItemInput
+}
+
+export type FinanceOpenItemCreateOrConnectWithoutCompanyInput = {
+  where: Prisma.FinanceOpenItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceOpenItemCreateManyCompanyInputEnvelope = {
+  data: Prisma.FinanceOpenItemCreateManyCompanyInput | Prisma.FinanceOpenItemCreateManyCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceOpenItemUpsertWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceOpenItemWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceOpenItemUpdateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedUpdateWithoutCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceOpenItemCreateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedCreateWithoutCompanyInput>
+}
+
+export type FinanceOpenItemUpdateWithWhereUniqueWithoutCompanyInput = {
+  where: Prisma.FinanceOpenItemWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceOpenItemUpdateWithoutCompanyInput, Prisma.FinanceOpenItemUncheckedUpdateWithoutCompanyInput>
+}
+
+export type FinanceOpenItemUpdateManyWithWhereWithoutCompanyInput = {
+  where: Prisma.FinanceOpenItemScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceOpenItemUpdateManyMutationInput, Prisma.FinanceOpenItemUncheckedUpdateManyWithoutCompanyInput>
+}
+
 export type FinanceOpenItemCreateManyImportInput = {
   id?: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
@@ -1884,11 +2063,13 @@ export type FinanceOpenItemUpdateWithoutImportInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1918,6 +2099,7 @@ export type FinanceOpenItemUncheckedUpdateWithoutImportInput = {
 export type FinanceOpenItemUncheckedUpdateManyWithoutImportInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1945,6 +2127,7 @@ export type FinanceOpenItemCreateManyAccountInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   voucherItemId?: number | null
   sourceSystem: string
@@ -1993,12 +2176,14 @@ export type FinanceOpenItemUpdateWithoutAccountInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2028,6 +2213,7 @@ export type FinanceOpenItemUncheckedUpdateManyWithoutAccountInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2054,6 +2240,7 @@ export type FinanceOpenItemCreateManyPeriodInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   accountId?: number | null
   voucherItemId?: number | null
   sourceSystem: string
@@ -2102,12 +2289,14 @@ export type FinanceOpenItemUpdateWithoutPeriodInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2137,6 +2326,7 @@ export type FinanceOpenItemUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2163,6 +2353,7 @@ export type FinanceOpenItemCreateManyVoucherItemInput = {
   id?: number
   importId: number
   companyCode: string
+  companyId?: number | null
   periodId?: number | null
   accountId?: number | null
   sourceSystem: string
@@ -2211,12 +2402,14 @@ export type FinanceOpenItemUpdateWithoutVoucherItemInput = {
   members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
   settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
   consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+  company?: Prisma.CompanyUpdateOneWithoutFinanceOpenItemsNestedInput
 }
 
 export type FinanceOpenItemUncheckedUpdateWithoutVoucherItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2246,8 +2439,122 @@ export type FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   importId?: Prisma.IntFieldUpdateOperationsInput | number
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  memo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePeriodBeginDetailId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agingBaseDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceOpenItemCreateManyCompanyInput = {
+  id?: number
+  importId: number
+  companyCode: string
+  periodId?: number | null
+  accountId?: number | null
+  voucherItemId?: number | null
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  documentNo?: string | null
+  documentDate?: string | null
+  dueDate?: string | null
+  memo?: string | null
+  currencyCode?: string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: string
+  originType?: string | null
+  sourcePeriodBeginDetailId?: string | null
+  agingBaseDate?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceOpenItemUpdateWithoutCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  memo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePeriodBeginDetailId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agingBaseDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutOpenItemsNestedInput
+  period?: Prisma.FinancePeriodUpdateOneWithoutOpenItemsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneWithoutOpenItemsNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutOpenItemsNestedInput
+  members?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutOpenItemNestedInput
+  settlements?: Prisma.FinanceOpenItemSettlementUpdateManyWithoutOpenItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceOpenItemNestedInput
+}
+
+export type FinanceOpenItemUncheckedUpdateWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  documentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  memo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originalDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  originalCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingDebit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  outstandingCredit?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePeriodBeginDetailId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  agingBaseDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  members?: Prisma.FinanceOpenItemAuxiliaryUncheckedUpdateManyWithoutOpenItemNestedInput
+  settlements?: Prisma.FinanceOpenItemSettlementUncheckedUpdateManyWithoutOpenItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceOpenItemNestedInput
+}
+
+export type FinanceOpenItemUncheckedUpdateManyWithoutCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  accountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
   sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
   sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2321,6 +2628,7 @@ export type FinanceOpenItemSelect<ExtArgs extends runtime.Types.Extensions.Inter
   id?: boolean
   importId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   accountId?: boolean
   voucherItemId?: boolean
@@ -2349,6 +2657,7 @@ export type FinanceOpenItemSelect<ExtArgs extends runtime.Types.Extensions.Inter
   members?: boolean | Prisma.FinanceOpenItem$membersArgs<ExtArgs>
   settlements?: boolean | Prisma.FinanceOpenItem$settlementsArgs<ExtArgs>
   consolidationEntryLines?: boolean | Prisma.FinanceOpenItem$consolidationEntryLinesArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceOpenItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeOpenItem"]>
 
@@ -2356,6 +2665,7 @@ export type FinanceOpenItemSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   id?: boolean
   importId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   accountId?: boolean
   voucherItemId?: boolean
@@ -2381,12 +2691,14 @@ export type FinanceOpenItemSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   period?: boolean | Prisma.FinanceOpenItem$periodArgs<ExtArgs>
   account?: boolean | Prisma.FinanceOpenItem$accountArgs<ExtArgs>
   voucherItem?: boolean | Prisma.FinanceOpenItem$voucherItemArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeOpenItem"]>
 
 export type FinanceOpenItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   importId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   accountId?: boolean
   voucherItemId?: boolean
@@ -2412,12 +2724,14 @@ export type FinanceOpenItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   period?: boolean | Prisma.FinanceOpenItem$periodArgs<ExtArgs>
   account?: boolean | Prisma.FinanceOpenItem$accountArgs<ExtArgs>
   voucherItem?: boolean | Prisma.FinanceOpenItem$voucherItemArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
 }, ExtArgs["result"]["financeOpenItem"]>
 
 export type FinanceOpenItemSelectScalar = {
   id?: boolean
   importId?: boolean
   companyCode?: boolean
+  companyId?: boolean
   periodId?: boolean
   accountId?: boolean
   voucherItemId?: boolean
@@ -2441,7 +2755,7 @@ export type FinanceOpenItemSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceOpenItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "companyCode" | "periodId" | "accountId" | "voucherItemId" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "documentNo" | "documentDate" | "dueDate" | "memo" | "currencyCode" | "originalDebit" | "originalCredit" | "outstandingDebit" | "outstandingCredit" | "status" | "originType" | "sourcePeriodBeginDetailId" | "agingBaseDate" | "createdAt" | "updatedAt", ExtArgs["result"]["financeOpenItem"]>
+export type FinanceOpenItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "importId" | "companyCode" | "companyId" | "periodId" | "accountId" | "voucherItemId" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "documentNo" | "documentDate" | "dueDate" | "memo" | "currencyCode" | "originalDebit" | "originalCredit" | "outstandingDebit" | "outstandingCredit" | "status" | "originType" | "sourcePeriodBeginDetailId" | "agingBaseDate" | "createdAt" | "updatedAt", ExtArgs["result"]["financeOpenItem"]>
 export type FinanceOpenItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinanceOpenItem$periodArgs<ExtArgs>
@@ -2450,6 +2764,7 @@ export type FinanceOpenItemInclude<ExtArgs extends runtime.Types.Extensions.Inte
   members?: boolean | Prisma.FinanceOpenItem$membersArgs<ExtArgs>
   settlements?: boolean | Prisma.FinanceOpenItem$settlementsArgs<ExtArgs>
   consolidationEntryLines?: boolean | Prisma.FinanceOpenItem$consolidationEntryLinesArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceOpenItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceOpenItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2457,12 +2772,14 @@ export type FinanceOpenItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Ty
   period?: boolean | Prisma.FinanceOpenItem$periodArgs<ExtArgs>
   account?: boolean | Prisma.FinanceOpenItem$accountArgs<ExtArgs>
   voucherItem?: boolean | Prisma.FinanceOpenItem$voucherItemArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
 }
 export type FinanceOpenItemIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
   period?: boolean | Prisma.FinanceOpenItem$periodArgs<ExtArgs>
   account?: boolean | Prisma.FinanceOpenItem$accountArgs<ExtArgs>
   voucherItem?: boolean | Prisma.FinanceOpenItem$voucherItemArgs<ExtArgs>
+  company?: boolean | Prisma.FinanceOpenItem$companyArgs<ExtArgs>
 }
 
 export type $FinanceOpenItemPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2475,11 +2792,13 @@ export type $FinanceOpenItemPayload<ExtArgs extends runtime.Types.Extensions.Int
     members: Prisma.$FinanceOpenItemAuxiliaryPayload<ExtArgs>[]
     settlements: Prisma.$FinanceOpenItemSettlementPayload<ExtArgs>[]
     consolidationEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    company: Prisma.$CompanyPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     importId: number
     companyCode: string
+    companyId: number | null
     periodId: number | null
     accountId: number | null
     voucherItemId: number | null
@@ -2902,6 +3221,7 @@ export interface Prisma__FinanceOpenItemClient<T, Null = never, ExtArgs extends 
   members<T extends Prisma.FinanceOpenItem$membersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceOpenItem$membersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemAuxiliaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   settlements<T extends Prisma.FinanceOpenItem$settlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceOpenItem$settlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemSettlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   consolidationEntryLines<T extends Prisma.FinanceOpenItem$consolidationEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceOpenItem$consolidationEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  company<T extends Prisma.FinanceOpenItem$companyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceOpenItem$companyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2934,6 +3254,7 @@ export interface FinanceOpenItemFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
   readonly importId: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
   readonly companyCode: Prisma.FieldRef<"FinanceOpenItem", 'String'>
+  readonly companyId: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
   readonly periodId: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
   readonly accountId: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
   readonly voucherItemId: Prisma.FieldRef<"FinanceOpenItem", 'Int'>
@@ -3482,6 +3803,25 @@ export type FinanceOpenItem$consolidationEntryLinesArgs<ExtArgs extends runtime.
   take?: number
   skip?: number
   distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceOpenItem.company
+ */
+export type FinanceOpenItem$companyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

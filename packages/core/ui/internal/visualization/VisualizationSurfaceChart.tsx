@@ -5,6 +5,7 @@ import { EmptyStateCard } from "../common/Card";
 import { joinClassNames } from "../common/card-utils";
 import type {
   VisualizationBarChartSpec,
+  VisualizationCandlestickSpec,
   VisualizationComparisonBarsSpec,
   VisualizationGroupedBarChartSpec,
   VisualizationLegendSpec,
@@ -15,6 +16,7 @@ import type {
 } from "../../VisualizationSurfaceTypes";
 
 const VisualizationNetwork = lazy(() => import("./VisualizationNetwork"));
+const VisualizationCandlestick = lazy(() => import("./VisualizationCandlestick"));
 
 function visualToneClass(tone: VisualizationTone = "slate", slot: "bar" | "text" | "soft" | "border" = "bar") {
   const classes = {
@@ -209,10 +211,19 @@ export function renderVisual(visual: VisualizationSpec) {
   if (visual.kind === "barChart") return renderBarChart(visual);
   if (visual.kind === "groupedBarChart") return renderGroupedBarChart(visual);
   if (visual.kind === "comparisonBars") return renderComparisonBars(visual);
+  if (visual.kind === "candlestick") return <CandlestickVisual visual={visual} />;
   if (visual.kind === "tree") return <VisualTree visual={visual} />;
   return (
     <Suspense fallback={<EmptyStateCard compact>正在加载关系图画布</EmptyStateCard>}>
       <VisualizationNetwork visual={visual} />
+    </Suspense>
+  );
+}
+
+function CandlestickVisual({ visual }: { visual: VisualizationCandlestickSpec }) {
+  return (
+    <Suspense fallback={<EmptyStateCard compact>正在加载 K 线画布</EmptyStateCard>}>
+      <VisualizationCandlestick visual={visual} />
     </Suspense>
   );
 }

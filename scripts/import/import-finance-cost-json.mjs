@@ -139,7 +139,7 @@ async function buildPositionMap() {
   const map = new Map();
   for (const p of positions) {
     const key = normalizeName(p.name);
-    if (key) map.set(key, p.id);
+    if (key) map.set(key, map.has(key) ? null : p.id);
   }
   return map;
 }
@@ -162,7 +162,9 @@ function parseShipments(json, sourceFile, sourcePath, employeeMap) {
       : null;
 
     const salesAttribution = resolveSalesAttribution(row.salesperson, employeeMap);
-    if (salesAttribution.salesChannel === "employee" && salesAttribution.employeeId === null) warnings += 1;
+    if (salesAttribution.salesChannel === "employee" && salesAttribution.employeeId === null) {
+      throw new Error(`发货销售人员必须唯一命中 Employee：${salesAttribution.salespersonName}`);
+    }
 
     const amount = safeFloat(row.shipmentTaxAmountBase);
     const received = reconcileShipmentReceivedAmount({
@@ -204,7 +206,9 @@ function parseSalesSalary(json, sourceFile, sourcePath, employeeMap) {
     if (row.recordType === "total" || isTotalRow(row)) continue;
 
     const salesAttribution = resolveSalesAttribution(row.name, employeeMap);
-    if (salesAttribution.salesChannel === "employee" && salesAttribution.employeeId === null) warnings += 1;
+    if (salesAttribution.salesChannel === "employee" && salesAttribution.employeeId === null) {
+      throw new Error(`销售人员必须唯一命中 Employee：${salesAttribution.salespersonName}`);
+    }
 
     facts.push({
       year: safeInt(row.year) ?? 0,
@@ -294,6 +298,8 @@ function parseWorkshopReports(json, sourceFile, sourcePath, employeeMap, positio
             const workType = normalizePosition(person.position);
             const employeeId = personName ? (employeeMap.get(personName) ?? null) : null;
             const positionId = workType ? (positionMap.get(workType) ?? null) : null;
+            if (personName && employeeId === null) throw new Error(`车间报表人员必须唯一命中 Employee：${person.name}`);
+            if (workType && positionId === null) throw new Error(`车间报表岗位必须命中 Position：${person.position}`);
 
             facts.push({
               year,
@@ -367,16 +373,35 @@ async function enrichShipmentFacts(facts) {
     }
   }
 
-  let warnings = 0;
+  const unresolved = [];
   const enriched = facts.map((fact) => {
     const productMatches = productsByReference.get(compositeProductReference(fact.productName, fact.spec)) ?? [];
     const customerMatches = customersByName.get(normalizedProductReference(fact.customerName)) ?? [];
     const productId = productMatches.length === 1 ? productMatches[0].id : null;
     const customerId = customerMatches.length === 1 ? customerMatches[0].id : null;
-    if ((fact.productName && productId === null) || (fact.customerName && customerId === null)) warnings += 1;
+    if (fact.productName && productId === null) unresolved.push(`产品 ${fact.productName}/${fact.spec ?? ""}`);
+    if (fact.customerName && customerId === null) unresolved.push(`客户 ${fact.customerName}`);
     return { ...fact, productId, customerId };
   });
-  return { facts: enriched, warnings };
+  if (unresolved.length) throw new Error(`发货明细主数据必须唯一命中：${[...new Set(unresolved)].join("、")}`);
+  return { facts: enriched, warnings: 0 };
+}
+
+async function enrichWorkshopFacts(facts) {
+  const products = await prisma.product.findMany({ select: { id: true, name: true } });
+  const productsByName = new Map();
+  for (const product of products) {
+    const key = normalizedProductReference(product.name);
+    productsByName.set(key, [...(productsByName.get(key) ?? []), product.id]);
+  }
+  const unresolved = [];
+  const enriched = facts.map((fact) => {
+    const matches = productsByName.get(normalizedProductReference(fact.productName)) ?? [];
+    if (matches.length !== 1) unresolved.push(fact.productName || "<空产品>");
+    return { ...fact, productId: matches.length === 1 ? matches[0] : null };
+  });
+  if (unresolved.length) throw new Error(`车间报表产品必须唯一命中 Product：${[...new Set(unresolved)].join("、")}`);
+  return { facts: enriched, warnings: 0 };
 }
 
 async function enrichCostStructureFacts(facts) {
@@ -420,7 +445,8 @@ async function enrichCostStructureFacts(facts) {
       ? []
       : reportsByPeriodProduct.get(`${fact.year}\u0000${fact.month}\u0000${receiptProductId}`) ?? [];
     const receiptReportId = reportMatches.length === 1 ? reportMatches[0].id : null;
-    if (productId === null || receiptReportId === null) warnings += 1;
+    if (productId === null) throw new Error(`成本结构产品必须唯一命中 InventoryItem：${fact.productName}`);
+    if (receiptReportId === null) warnings += 1;
     return { ...fact, productId, receiptReportId };
   });
   return { facts: enriched, warnings };
@@ -429,6 +455,7 @@ async function enrichCostStructureFacts(facts) {
 async function enrichProfileFacts(profile, facts) {
   if (profile === "shipments") return enrichShipmentFacts(facts);
   if (profile === "cost-structure") return enrichCostStructureFacts(facts);
+  if (profile === "workshop-reports") return enrichWorkshopFacts(facts);
   return { facts, warnings: 0 };
 }
 

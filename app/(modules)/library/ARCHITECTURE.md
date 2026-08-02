@@ -21,7 +21,8 @@ app/(modules)/library/
 packages/library/ui/
   LibraryClient.tsx           # 客户端入口：挂载 DocumentsTab
   components/DocumentsTab.tsx # 资料筛选、目录选择、Toolbar 上传和资料表；行点击进入独立阅读页
-  components/library-upload-modal.ts # 首版上传表单：文件、逻辑文件夹、标签和待复核元数据
+  components/library-upload-section.ts # 首版上传声明区块：文件、逻辑文件夹、标签和待复核元数据
+  components/library-version-upload-section.ts # 新版本上传声明区块
   components/LibraryDocumentReader.tsx # 资料信息编辑与自适应文档预览分栏
   hooks/useLibraryDocuments.ts         # 版本列表、所选 PDF 对象 URL 生命周期与 Office 阅读器路由选择
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryDirectories
@@ -41,6 +42,8 @@ app/api/modules/library/basic-info/
   generated-sources/route.ts            # GET 已启用生成来源列表（Phase 6）
   generated-sources/[key]/generate/route.ts # POST 执行生成并入库（Phase 6）
 
+app/api/modules/library/internal/business-document-intelligence/route.ts # Capital 受签名调用的资料智能协议
+
 app/api/integrations/onlyoffice/
   library-documents/[id]/versions/[versionId]/route.ts # GET 短时 JWT 绑定的原始 Office 版本文件流（无浏览器会话）
 
@@ -52,6 +55,8 @@ packages/library/server/
   permissions.ts              # 保密等级过滤 + 权限校验（Phase 2）
   versions.ts                 # 版本管理（Phase 2）
   uploads.ts                  # 首版上传、原文件 Markdown 抽取、PDF-only 预览编排和 Review 确认
+  business-document-intelligence.ts # 被投企业资料上传、处理状态与精确范围语义检索
+  embeddings.ts              # 本地固定模型生成版本级向量索引并返回带 locator 的片段
   office-preview.ts           # Library 版本鉴权、源文件短时 claims 与共享 ONLYOFFICE 宿主适配
   version-storage.ts          # 隐藏托管版本区的不可变文件写入和旧版本固化
   deletion.ts                 # 永久删除的引用保护、运行态文件暂存/恢复与 DB 删除
@@ -66,6 +71,9 @@ packages/library/server/
     roster-due-diligence.ts     # Workspace 尽调版花名册生成器
     generated-document.ts       # 统一入库：写文件 → upsert LibraryDocument → 创建 Version
 
+packages/library/import/catalog.ts              # 词表导入输入 adapter：一次性完成 Zod 与 domain command 校验
+packages/library/server/catalog-import-service.ts # 已校验 catalog command 的 Prisma 事务提交
+
 prisma/models/library.prisma  # 文档、版本、目录、分类、标签、尽调和生成来源
 prisma/models/library-processing.prisma # 处理任务、派生物、chunk、索引代次和导出任务
 prisma/models/library-governance.prisma # 标签候选、实体提及和检索/RAG 金标集
@@ -74,6 +82,8 @@ packages/platform/server/onlyoffice-viewer.ts # Library 与公司文档共用的
 packages/platform/server/authoritative-library-source-contract.ts # 跨部署单元的权威资料源稳定协议
 packages/platform/server/authoritative-library-source-client.ts   # Library 侧签名 RPC 客户端
 packages/platform/server/authoritative-library-source-route.ts    # 业务 owner 侧签名 RPC 路由适配
+packages/platform/server/business-document-intelligence-contract.ts # Capital 与 Library 间稳定请求/响应协议
+packages/platform/server/business-document-intelligence-client.ts   # Capital 侧签名内部 RPC 客户端
 ```
 
 ## 一条龙处理契约（Pipeline v1）
@@ -83,6 +93,12 @@ packages/platform/server/authoritative-library-source-route.ts    # 业务 owner
 任务状态只允许 `queued -> running -> succeeded|warning|failed|cancelled`。可重试错误限于临时解析/OCR、Agent 不可用、索引和导出失败；源文件缺失、checksum 不符、格式不支持、taxonomy 或 locator 违规必须先修复输入/规则，禁止盲目重试。新 pipeline/tool/model 版本通过新 idempotency key 重建，旧派生物可保留但不得继续作为 active index。
 
 派生物、chunk、索引和导出都引用稳定 UID：`artifactUid`、`chunkUid`、`indexUid`、`exportUid`。原件不建成派生物，也不被压缩/OCR 结果覆盖。chunk 必须保存 `locatorJson`，至少包含页码、幻灯片、工作表/单元格、章节或时间戳之一。
+
+### 被投企业文档智能
+
+Capital Securities 只传递企业编码、稳定资料 UID 和当前用户上下文，不直接读写 Library 表。Library 在 `投资企业/<companyCode>` 逻辑目录创建不可变资料版本，先复用现有抽取/OCR pipeline 生成带 locator 的 `LibraryContentChunk`，再为当前版本建立 generation 化的 `LibrarySearchIndex(kind=vector)` 与 `LibraryContentEmbedding`。向量模型固定为 `Qwen/Qwen3-Embedding-0.6B`、1024 维并归一化；索引保存 `modelKey + dimensions + vector`，新 generation 激活时旧 generation 退役。
+
+语义检索在向量化前先按调用用户重新校验 `capitalSecurities.investments.read`，并且只接受已链接的精确 `LibraryDocument.documentUid` 集合；结果返回原文片段、文件名、chunk UID、相似度和 locator。没有本地模型、没有可用 chunk 或没有 active vector generation 时返回明确的 `unavailable`，不得悄悄扩大到全资料库，也不得生成无来源结论。OCR 和模型抽取均是候选证据，正式尽调结论、合同义务和整改状态仍需人工确认后写入 Capital 业务表。
 
 ### Agent / Kimi 边界
 
@@ -216,8 +232,8 @@ Library 只依赖 Platform 的权威资料源 Interface，不直接 import Finan
 
 前端动作图标约定：
 
-- `update`：资料详情弹窗内编辑元数据，进入编辑使用 `edit`，保存使用 `save`；标题、简介、标签和分类属于普通元数据，`documentUid/docId` 均为系统只读身份。
-- `configure`：保密等级字段级配置，仍在资料详情弹窗内，不单独放全局设置按钮。
+- `update`：独立资料阅读页的信息区编辑元数据，进入编辑使用 `edit`，保存使用 `save`；标题、简介、标签和分类属于普通元数据，`documentUid/docId` 均为系统只读身份。
+- `configure`：保密等级字段级配置，仍在资料阅读页信息区，不单独放全局设置按钮。
 - `archive`：资料状态只能通过 Library lifecycle command 归档或恢复；元数据 PATCH 不接受 `status`，不得只靠 `update` 修改生命周期。
 - `delete`：永久删除与归档分离，仅 `configure` 可执行；有评测证据引用时拒绝。删除前把 `.versions/<documentUid>`、`artifacts/<documentUid>` 和生成资料自有的 `generated/...` 文件暂存到运行态回收区，数据库失败则恢复，成功后清理；扫描源永不删除。
 - `import`：扫描入库、生成文档、首版上传、确认入库和上传资料新版本都属于资料入库。首版上传先选择文件夹并填写标签/待复核元数据，service 创建待确认的 `LibraryDocument + V1`，随后直接从不可变原文件提取 Markdown；只有 PDF 进入 PDF 优化处理，Office 文件不生成 PDF。用户进入独立资料页调整信息并显式“确认入库”。已有资料的新版本上传仍只允许作用于 `active` 资料。文件形状先由 API Zod 校验，再由 domain validator 校验，最后由 service 写文件和事务推进版本。
@@ -268,10 +284,10 @@ Library 只依赖 Platform 的权威资料源 Interface，不直接 import Finan
 
 ## 当前资料页面
 
-- 页面 Toolbar：`+` 新建文件夹；“上传文件”打开首版上传表单并启动处理链
+- 页面 Toolbar：`+` 新建文件夹；“上传文件”把右侧资料表替换为首版上传区块并启动处理链，左侧目录上下文保持可见
 - 左侧文件夹树：来自 `LibraryDirectory` 与实际可见资料；新建空文件夹从页面 Toolbar 进入标准 CreateSurface，重命名在当前树节点内联完成，不再打开第二套弹窗
 - 右侧资料表：标题、简介、标签和更新时间；筛选包含关键词、状态、密级与文件夹
-- 独立资料阅读页：左侧展示/编辑简介、标签和保密等级；存在多个不可变版本时可选择版本，右侧预览和下载同步切换到所选版本
+- 独立资料阅读页：左侧展示/编辑简介、标签和保密等级；存在多个不可变版本时可选择版本，右侧预览和下载同步切换到所选版本；上传新版本时右侧预览临时替换为声明式上传区块
 - 当前下载走 `/api/modules/library/basic-info/documents/:id/download`，历史下载走 `/documents/:id/versions/:versionId/download`；后端按版本 `storagePath` 返回文件流，权限和路径校验都在服务端完成，前端不拼接文件路径
 
 ## 未来扩展方向

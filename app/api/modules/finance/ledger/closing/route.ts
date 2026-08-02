@@ -1,0 +1,20 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { financeCloseScopeSchema, openFinanceCloseSchema } from "@workspace/finance/server/close/schemas";
+import {
+  buildOpenFinanceCloseRouteCommand, buildReadFinanceCloseRouteCommand,
+  executeOpenFinanceCloseRouteCommand, executeReadFinanceCloseRouteCommand,
+} from "@workspace/finance/server/close/route-commands";
+
+export const GET = createCommandRoute({
+  querySchema: financeCloseScopeSchema,
+  queryError: "关账范围参数无效",
+  buildCommand: ({ query }) => buildReadFinanceCloseRouteCommand(query),
+  action: executeReadFinanceCloseRouteCommand,
+});
+
+export const POST = createCommandRoute({
+  bodySchema: openFinanceCloseSchema,
+  bodyError: "开启关账运行参数无效",
+  buildCommand: ({ body, user }) => buildOpenFinanceCloseRouteCommand(body, user.userId),
+  action: executeOpenFinanceCloseRouteCommand,
+});
