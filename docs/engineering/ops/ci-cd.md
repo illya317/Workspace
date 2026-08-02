@@ -99,6 +99,8 @@ Controller Ready 回执精确绑定：
 
 Deploy 同步控制工具时只消费 Controller Ready 已覆盖的 named bundle：先精确同步，再在远端对完整 manifest/digest/mode/import closure 做一次自验证，通过后才允许执行 gateway、receipt 或 lifecycle 工具。`node --check` 不能代替这个验证，因为它不会解析并加载相对 import；禁止在生产失败后临时向 rsync 清单补单个文件。
 
+Unit apply 只拥有 `deploy-units/<unit>` 及其 release/receipt/empty-state 子树，不得创建、`chmod`、`chown` 或重置共享 `.workspace`；该根目录的 `workspace-runtime` traverse ACL 只由受治理的 runtime permission reconciler 管理。每次 unit deploy/rollback 在返回成功前必须再次以 `workspace-runtime` 身份验证 `.workspace` 可穿越，并验证 monolith `/workspace/api/internal/health` 为 `ok/workspace-monolith`。任一不变量失败必须让 deploy attempt 失败并进入 blocker ledger，禁止留下“unit 成功、monolith 503”的假成功回执。
+
 当生产 Application source 已与 Application Ready 完全相同时，deploy 在生产锁内复验实时 health/version，并比较 deployed receipt 中的 Controller Ready 四元组。四元组相同是纯 no-op；四元组不同则只原子激活新的 controller identity，保留既有 source、artifact、migration 和 deployment identity，不重建 artifact、不执行 migration、不重启应用。旧 schema-v3 deployed receipt 可读，但下一次部署或 controller activation 会写成带完整 controller 的 schema v4。
 
 ### Deploy 零写入聚合、共享锁与 mutation barrier

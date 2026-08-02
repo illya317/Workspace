@@ -83,6 +83,9 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.doesNotMatch(client.slice(sharedLock), /sync-tenant-config\.sh --source-sha/);
   assert.match(client.slice(0, sharedLock), /tenant-config\.production-baseline/);
   assert.match(client, /DEPLOY_LOCK_TOKEN='\$REMOTE_DEPLOY_LOCK_TOKEN'/);
+  assert.match(client, /runuser -u workspace-runtime -- test -x '\$REMOTE_DIR\/\.workspace'/);
+  assert.match(client, /health\.status !== .*ok.* \|\| health\.unitId !== .*workspace-monolith/);
+  assert.equal((client.match(/verify_remote_monolith_invariants \|\|/g) ?? []).length, 2);
   assert.match(client, /install -o root -g root -m 0755[\s\S]*?production-runtime-pm2\.sh[\s\S]*?WORKSPACE_RUNTIME_PM2_RUNNER/);
   const unitRuntimePm2 = readFileSync("ops/release/deploy/unit-runtime-pm2.sh", "utf8");
   assert.match(apply, /source "\$SCRIPT_DIR\/release\/deploy\/unit-runtime-pm2\.sh"/);
@@ -91,7 +94,10 @@ test("client deploy accepts only trusted artifacts while rollback remains an exp
   assert.doesNotMatch(apply, /load_runtime_environment/);
   assert.match(unitLockQualification, /apply-deploy-unit 只能消费已获取的共享 deploy\.lock/);
   assert.match(apply, /qualify_apply_deploy_unit_lock "\$CONFIG_ROOT" "\$LOCK_FILE" "\$LOCK_OWNER_FILE"/);
-  assert.ok(apply.indexOf("qualify_apply_deploy_unit_lock") < apply.indexOf('mkdir -p "$CONFIG_ROOT"'));
+  assert.ok(apply.indexOf("qualify_apply_deploy_unit_lock") < apply.indexOf('[ -d "$CONFIG_ROOT" ]'));
+  assert.match(apply, /共享 runtime config root 不存在，unit apply 禁止创建或重设它/);
+  assert.doesNotMatch(apply, /mkdir -p "\$CONFIG_ROOT"/);
+  assert.doesNotMatch(apply, /chmod[^\n]*"\$CONFIG_ROOT"/);
   assert.doesNotMatch(client, /ops\/\.\/release\//);
   assert.doesNotMatch(client, /node --check '\$REMOTE_TOOL_ROOT\/release\//);
   assert.doesNotMatch(client, /rsync -azR/);

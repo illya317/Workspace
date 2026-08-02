@@ -74,8 +74,12 @@ LOCK_OWNER_FILE="$CONFIG_ROOT/deploy-lock.owner"
 qualify_apply_deploy_unit_lock "$CONFIG_ROOT" "$LOCK_FILE" "$LOCK_OWNER_FILE"
 unit_runtime_pm2_initialize || exit 1
 
-mkdir -p "$CONFIG_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
-chmod 700 "$CONFIG_ROOT" "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
+[ -d "$CONFIG_ROOT" ] || {
+  echo "[错误] 共享 runtime config root 不存在，unit apply 禁止创建或重设它" >&2
+  exit 1
+}
+mkdir -p "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
+chmod 700 "$UNIT_ROOT" "$RELEASE_ROOT" "$RECEIPT_ROOT" "$EMPTY_STATE_ROOT"
 if [ "$MODE" = "prepare" ]; then
   mkdir -p "$PREPARED_STATE_ROOT"
   chmod 700 "$PREPARED_STATE_ROOT"
