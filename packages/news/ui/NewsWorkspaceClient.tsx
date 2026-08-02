@@ -255,7 +255,7 @@ export default function NewsWorkspaceClient() {
     { kind: "text", key: "news-count", content: `显示 ${filteredItems.length} / ${workspace.briefing.items.length} 条` },
     { kind: "action-group", key: "news-actions", actions: [
       { key: "refresh", kind: "refresh", label: "刷新资讯", disabled: loading, onClick: () => void loadWorkspace() },
-      ...(workspace.briefing.sourceUrl ? [{ key: "source", kind: "open" as const, label: "打开资讯源", onClick: () => openExternal(workspace.briefing.sourceUrl) }] : []),
+      ...(workspace.briefing.sourceUrl ? [{ key: "source", kind: "open" as const, label: "打开资讯来源", onClick: () => openExternal(workspace.briefing.sourceUrl) }] : []),
     ] },
   ];
 
