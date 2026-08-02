@@ -71,8 +71,8 @@ test("only protected main publishes and dispatches an exact CNB release", () => 
 });
 
 test("CNB is thin CD: mirror, rehearsal, production and rollback only", () => {
-  assert.match(cnb, /^api_trigger_rehearsal:/m);
-  assert.match(cnb, /^api_trigger_deploy:/m);
+  assert.match(cnb, /^main:\n  api_trigger_rehearsal:/m);
+  assert.match(cnb, /^  api_trigger_deploy:/m);
   assert.match(cnb, /tag_deploy\.production:/);
   assert.match(cnb, /cnb-image-release\.sh prepare/);
   assert.match(cnb, /cnb-image-release\.sh rehearsal/);
