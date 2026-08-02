@@ -344,7 +344,7 @@ case "${1:-}" in
     if [ "$controller_receipt_ready" = 1 ]; then
       if ! node "$(release_deploy_attempt_tool)" assert-clear \
         --root "$deploy_attempt_root" \
-        --repository "$RELEASE_WORKTREE" \
+        --repository "$REPOSITORY_ROOT" \
         --target "$SELECTED_READY_TARGET" \
         --target-mode "$SELECTED_READY_MODE" \
         --source-content "$RELEASE_CONTENT_DIGEST" \

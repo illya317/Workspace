@@ -131,6 +131,7 @@ test("deploy retry is fenced by immutable classified blocker history", () => {
   assert.match(publish, /source "\$SCRIPT_DIR\/release\/attempts\/deploy-attempt-shell\.sh"/);
   assert.match(deployCase, /deploy-blocker\.mjs|release_deploy_attempt_tool/);
   assert.match(deployCase, /assert-clear/);
+  assert.match(deployCase, /assert-clear[\s\S]*?--repository "\$REPOSITORY_ROOT"[\s\S]*?--receipt "\$retry_fence_file"/);
   assert.ok(deployCase.indexOf("assert-clear") < deployCase.indexOf("publish-cnb.sh"));
   assert.match(deployCase, /release_deploy_attempt_run --/);
   assert.match(deployAttemptShell, /release_deploy_record_success_baseline\(\)[\s\S]*?deployed-baseline\.mjs/);
