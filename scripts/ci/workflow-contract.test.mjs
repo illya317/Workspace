@@ -87,6 +87,10 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCi, /run-node-tests\.mjs bucket/);
   assert.match(cnbCi, /suite="cnb-\$\{LANE\}"/);
   assert.match(cnbCi, /NODE_OPTIONS=--max-old-space-size=8192[\s\\]+CHECK_LOCK=0 node scripts\/check\/run-typecheck\.js --build/);
+  assert.match(cnbCi, /git ls-files -s --[\s\S]*'\*\.prisma'[\s\S]*git hash-object --stdin/);
+  assert.match(cnbCi, /CNB typecheck content cache hit/);
+  assert.match(cnbCi, /cnb-typecheck-results/);
+  assert.match(cnbCi, /-mtime \+30 -delete/);
   assert.match(cnbCi, /STANDALONE_SKIP_NEXT_BUILD=1/);
   assert.match(cnbCi, /npm run test:integration:postgresql/);
   assert.match(cnbCi, /npm run db:generate:inner/);

@@ -108,7 +108,7 @@ cnb-release.sh verify
 
 保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
 
-缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用；main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
+缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用；main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；TypeScript 另以受管输入的 Git blob 集合作为内容键，相同输入可直接复用已成功结果，任一 TS/JS/JSON/Prisma/lockfile/检查入口变更都会产生新键并重跑；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
 
 ## Agent 闭环
 

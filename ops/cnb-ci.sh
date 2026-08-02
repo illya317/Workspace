@@ -81,8 +81,24 @@ run_node_bucket() {
 }
 
 run_typecheck() {
+  cache_key="$({
+    printf '%s\n' 'cnb-typecheck-result-v1' 'NODE_OPTIONS=--max-old-space-size=8192' 'tsc --build --pretty false'
+    git ls-files -s -- \
+      '*.ts' '*.tsx' '*.mts' '*.cts' '*.js' '*.jsx' '*.mjs' '*.cjs' \
+      '*.json' '*.prisma' '.node-version' 'ops/cnb-ci.sh'
+  } | git hash-object --stdin)"
+  cache_dir=".cache/tsbuild/cnb-typecheck-results"
+  cache_marker="$cache_dir/$cache_key.ok"
+  if [ -s "$cache_marker" ] && [ "$(sed -n '1p' "$cache_marker")" = "$cache_key" ]; then
+    echo "CNB typecheck content cache hit: $cache_key"
+    return 0
+  fi
   NODE_OPTIONS=--max-old-space-size=8192 \
-    CHECK_LOCK=0 node scripts/check/run-typecheck.js --build --pretty false
+    CHECK_LOCK=0 node scripts/check/run-typecheck.js --build --pretty false || return
+  mkdir -p "$cache_dir"
+  printf '%s\n' "$cache_key" > "$cache_marker"
+  find "$cache_dir" -type f -name '*.ok' -mtime +30 -delete
+  echo "CNB typecheck content cache stored: $cache_key"
 }
 
 run_build_and_package() {
