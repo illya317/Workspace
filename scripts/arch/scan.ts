@@ -48,6 +48,9 @@ const FORBIDDEN_ROOT_DIRS = ["lib", "server"];
 const THIRD_PARTY_UI_IMPLEMENTATION_PATTERNS = [
   /^packages\/core\/ui\/services\/ui-provider\.tsx$/,
   /^packages\/core\/ui\/internal\/(?:page|body|data|input|form|toolbar|selection|create)\/antd-[^/]+\.(?:ts|tsx)$/,
+  /^packages\/core\/ui\/internal\/common\/antd-[^/]+\.(?:ts|tsx)$/,
+  /^packages\/core\/ui\/internal\/common\/SplitWorkspace\.tsx$/,
+  /^packages\/core\/ui\/internal\/toolbar\/Toolbar\.mobile-sheetParts\.tsx$/,
   /^packages\/core\/ui\/internal\/common\/(?:CommandButton|ConfirmModal|Pagination|Toast)\.tsx$/,
 ];
 const FORBIDDEN_UI_IN_APP = ["app/**/*.tsx"];

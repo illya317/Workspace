@@ -146,6 +146,7 @@ export const WORK_CAPABILITY_INTERFACE_FILES = {
     "ui/works/WorkSpaceTopNavigation.ts",
     "ui/works/WorksClient.tsx",
     "ui/works/WorksPage.tsx",
+    "ui/works/useWorkSpaceSession.ts",
     "ui/works/works-client-helpers.tsx",
   ],
   "work/task-workbench-model": [

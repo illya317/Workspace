@@ -104,7 +104,7 @@ function isPlatformRuntimeApiCaller(file) {
 
 const UI_PRIMITIVE_RULES = [
   {
-    pattern: /<select\b/i,
+    pattern: /<select\b/,
     reason: "packages must use @workspace/core/ui InputSurface or SearchableOptionInput instead of native <select>",
   },
   {

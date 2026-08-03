@@ -97,6 +97,7 @@ test("deploy-unit release source suite minimizes only lint, Node tests, and type
     "test-node.package.finance",
     "test-node.package.platform",
     "test-node.scripts.check",
+    "test-node.scripts.check.repository",
     "test-node.scripts.deploy",
   ]);
   assert.deepEqual(unitIds.filter((id) => id.startsWith("typecheck.")), [
@@ -151,6 +152,7 @@ test("assistant unit includes private scripts runtime tests while retaining tool
     "test-node.package.core",
     "test-node.package.platform",
     "test-node.scripts.check",
+    "test-node.scripts.check.repository",
     "test-node.scripts.deploy",
     "test-node.scripts.runtime",
   ]);

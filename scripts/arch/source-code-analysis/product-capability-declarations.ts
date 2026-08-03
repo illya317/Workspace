@@ -188,7 +188,7 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
       ],
       files: [
         "ui/works/WorkTaskDetail.tsx", "ui/works/WorkTaskFields.tsx", "ui/works/WorkTaskTable.tsx",
-        "ui/works/work-completion-options.ts", "ui/works/work-item-outline-cell.ts",
+        "ui/works/useWorkTaskWorkspace.ts", "ui/works/work-completion-options.ts", "ui/works/work-item-outline-cell.ts",
         "ui/works/work-status-filter.test.ts", "ui/works/work-status-filter.ts",
       ],
     }),
@@ -202,7 +202,8 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
       files: [
         "ui/works/WorkSpaceSidebar.tsx", "ui/works/WorkSpaceTopNavigation.ts",
         "ui/works/WorkToolbar.ts", "ui/works/WorksClient.tsx", "ui/works/WorksPage.tsx",
-        "ui/works/useWorks.ts", "ui/works/works-client-helpers.tsx",
+        "ui/works/useWorkSpaceSession.ts", "ui/works/useWorks.ts",
+        "ui/works/works-client-helpers.tsx", "ui/works/works-page-composition.ts",
       ],
     }),
     capability("work", "task-workbench-model", "任务工作台模型", {
@@ -210,6 +211,7 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
       files: [
         "ui/works/api.ts", "ui/works/model-paths.test.ts", "ui/works/model.ts",
         "ui/works/space-paths.ts", "ui/works/types.ts",
+        "ui/works/work-space-session.test.ts", "ui/works/work-space-session.ts",
         "ui/works/work-space-sidebar-sort.test.ts", "ui/works/work-status-filter.test.ts",
         "ui/works/work-status-filter.ts",
       ],
@@ -253,7 +255,8 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
         "ui/works/WorkPeriodScheduleMatrix.tsx", "ui/works/WorkPlanCommands.ts",
         "ui/works/WorkPlanFields.tsx", "ui/works/WorkPlanGanttSection.tsx",
         "ui/works/WorkPlanSections.tsx", "ui/works/period-collection-types.ts",
-        "ui/works/useWorkPlanGanttView.ts", "ui/works/useWorkPlanPagination.ts",
+        "ui/works/useWorkPeriodScheduleWorkspace.ts", "ui/works/useWorkPlanGanttView.ts",
+        "ui/works/useWorkPlanPagination.ts",
         "ui/works/work-period-schedule-create-modal.ts", "ui/works/work-plan-future-filter.test.ts",
         "ui/works/work-plan-future-filter.ts", "ui/works/work-plan-gantt-model.ts",
         "ui/works/work-plan-navigation-order.ts", "ui/works/work-plan-pagination.test.ts",
@@ -512,7 +515,8 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
         "ui/internal/input/CalendarDateInput.tsx", "ui/internal/input/CalendarDatePopover.tsx",
         "ui/internal/input/FieldShell.tsx", "ui/internal/input/InputSurfaceTypes.ts",
         "ui/internal/input/RemovableTag.tsx", "ui/internal/input/adaptive-control-width.ts",
-        "ui/internal/input/field-context.tsx", "ui/internal/input/input-surface-choice-renderers.tsx",
+        "ui/internal/input/antd-input-grouped.tsx", "ui/internal/input/field-context.tsx",
+        "ui/internal/input/input-surface-choice-renderers.tsx",
       ],
     }),
     capability("core", "surface-layout-feedback", "页面布局、内容与反馈运行时", {
@@ -537,7 +541,8 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
         "ui/internal/common/DisclosureRecordCard.tsx", "ui/internal/common/DropdownSurface.tsx",
         "ui/internal/common/FloatingPortalSurface.tsx", "ui/internal/common/SplitWorkspaceMasterContext.tsx",
         "ui/internal/common/SurfaceFrameContextParts.tsx", "ui/internal/common/card-utils.ts",
-        "ui/internal/common/interactionTokens.ts", "ui/internal/common/text-overflow.ts",
+        "ui/internal/common/antd-command.tsx", "ui/internal/common/interactionTokens.ts",
+        "ui/internal/common/text-overflow.ts", "ui/internal/common/workspace-colors.ts",
         "ui/internal/create/CreateSurfaceAnchorContext.tsx", "ui/internal/page/PageSurface.commands.tsx",
       ],
     }),
@@ -545,7 +550,7 @@ export function createProductCapabilityDeclarations(capability: SourceCapability
       parentKey: "surface-data-input",
       files: ["ui/internal/input/FieldValueFilter.tsx", "ui/internal/input/SearchInput.tsx"],
       prefixes: ["ui/internal/data/", "ui/internal/toolbar/"],
-      interfaceFiles: ["ui/internal/toolbar/toolbar-styles.ts"],
+      interfaceFiles: ["ui/internal/data/antd-data.tsx", "ui/internal/toolbar/toolbar-styles.ts"],
     }),
     capability("core", "field-references", "字段引用与选择", {
       parentKey: "surface-data-input",

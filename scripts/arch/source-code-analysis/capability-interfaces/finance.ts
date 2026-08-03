@@ -100,6 +100,7 @@ export const FINANCE_CAPABILITY_INTERFACE_FILES = {
     "server/statements/report-detail.ts",
     "server/statements/report-generator.ts",
     "server/statements/reports/cash-flow-system-amounts.ts",
+    "server/statements/reports/cash-flow-allocation-policy.ts",
     "server/statements/reports/direct.ts",
     "server/statements/statement-page-data.ts",
     "server/statements/shared/mapping-resolver.ts",

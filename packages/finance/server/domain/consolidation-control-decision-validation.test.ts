@@ -59,7 +59,7 @@ test("notApplicable rejects deferred elimination controls", () => {
   const result = buildSaveConsolidationControlDecisionCommand(7, {
     expectedRevision: 3,
     mode: "notApplicable",
-    controlKey: "elimination:cashFlow",
+    controlKey: "elimination:internalTrading",
     conclusion: "无事项",
     evidence: "测试依据",
   }, 11);

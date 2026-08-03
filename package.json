@@ -46,6 +46,7 @@
     "typecheck:references:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-typecheck-project-references.js",
     "typecheck:scope": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- node scripts/check/run-typecheck.js --scope",
     "typecheck:quick": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- node scripts/check/run-local-typecheck.js",
+    "typecheck:affected": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- node --conditions=react-server --import tsx scripts/deploy/run-affected-typecheck.ts",
     "typecheck:full": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- node scripts/check/run-typecheck.js --build --pretty false",
     "domain:changed": "node scripts/check/with-check-lock.js -- node scripts/check/run-domain-validation-changed.js",
     "db:migration:changed": "node scripts/check/with-check-lock.js -- node scripts/check/run-prisma-migrations-changed.js",
