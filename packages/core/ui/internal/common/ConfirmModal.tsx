@@ -3,6 +3,12 @@
 import type { ReactNode } from "react";
 import { Modal } from "antd";
 
+export const DEFAULT_CONFIRM_DANGER = false;
+
+export function resolveConfirmModalOkButtonProps(confirmDanger: boolean, busy: boolean) {
+  return { danger: confirmDanger, disabled: busy, type: confirmDanger ? "primary" as const : "default" as const };
+}
+
 export interface ConfirmModalProps {
   open: boolean;
   title: string;
@@ -22,7 +28,7 @@ export default function ConfirmModal({
   message,
   confirmLabel = "确定",
   cancelLabel = "取消",
-  confirmDanger = true,
+  confirmDanger = DEFAULT_CONFIRM_DANGER,
   showCancel = true,
   busy = false,
   onConfirm,
@@ -38,7 +44,7 @@ export default function ConfirmModal({
       destroyOnHidden
       keyboard={!busy}
       mask={{ closable: !busy }}
-      okButtonProps={{ danger: confirmDanger, disabled: busy }}
+      okButtonProps={resolveConfirmModalOkButtonProps(confirmDanger, busy)}
       okText={confirmLabel}
       onCancel={onCancel}
       onOk={onConfirm}

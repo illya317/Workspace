@@ -189,6 +189,18 @@ test("submit commands with click ownership never also submit the native form", (
   assert.match(markup, /事件提交/);
 });
 
+test("icon commands preserve the Core compact and default square sizes", () => {
+  const compact = renderClientSurface(<AntdFormCommands commands={[
+    { key: "compact-send", label: "发送", icon: "send", presentation: "icon", size: "sm" },
+  ]} />);
+  const normal = renderClientSurface(<AntdFormCommands commands={[
+    { key: "normal-delete", label: "删除", icon: "delete", presentation: "icon" },
+  ]} />);
+
+  assert.match(compact, /!h-8 !w-8/);
+  assert.match(normal, /!h-9 !w-9/);
+});
+
 test("renders filter commands in inline and below placements", () => {
   const props = (placement: "inline" | "below"): FormSurfaceProps => ({
     kind: "filters",

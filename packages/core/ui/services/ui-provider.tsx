@@ -79,13 +79,14 @@ export const workspaceTheme: ThemeConfig = {
     // Workspace 视觉语言是扁平化;antd v6 默认给按钮加底部投影,置 none 保持平面。
     Button: {
       defaultShadow: "none", primaryShadow: "none", dangerShadow: "none",
+      controlHeight: 36, controlHeightSM: 32, controlHeightLG: 40,
       defaultColor: workspaceColors.textStrong, defaultBg: workspaceColors.surface,
       defaultBorderColor: workspaceColors.border, defaultHoverBg: workspaceColors.primary.bg,
       defaultHoverColor: workspaceColors.primary.main, defaultHoverBorderColor: workspaceColors.primary.hover,
       defaultActiveBg: workspaceColors.primary.bgHover, defaultActiveColor: workspaceColors.primary.active,
       defaultActiveBorderColor: workspaceColors.primary.active, textTextColor: workspaceColors.textSecondary,
       textTextHoverColor: workspaceColors.primary.main, textTextActiveColor: workspaceColors.primary.active,
-      textHoverBg: workspaceColors.primary.bg, dangerColor: workspaceColors.danger.main,
+      textHoverBg: workspaceColors.primary.bg, dangerColor: workspaceColors.surface,
     },
     Card: { headerBg: workspaceColors.surface, extraColor: workspaceColors.textSecondary },
     Input: {

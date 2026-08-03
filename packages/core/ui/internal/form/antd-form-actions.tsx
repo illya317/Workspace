@@ -7,6 +7,7 @@ import {
   ActionGlyph,
   resolveActionGlyphAction,
 } from "../action/ActionGlyphs";
+import { CONTROL_SIZES, ICON_BUTTON_SIZE_CLASSES } from "../common/interactionTokens";
 import { isFormSurfaceNativeSubmitAction } from "./form-surface-submit";
 import type {
   FormSurfaceActionSpec,
@@ -31,6 +32,7 @@ export function AntdFormCommands({ commands }: { commands?: FormSurfaceCommandSp
   return (
     <Flex wrap gap="small" align="center" data-antd-form-commands="true">
       {commands.map((command) => {
+        const controlSize = command.size ?? "md";
         const text = labelText(command.label);
         const action = command.icon
           ? undefined
@@ -45,7 +47,8 @@ export function AntdFormCommands({ commands }: { commands?: FormSurfaceCommandSp
             danger={variant === "danger"}
             disabled={command.disabled}
             htmlType={nativeSubmit ? "submit" : "button"}
-            icon={icon ? <ActionGlyph kind={icon} className="size-4" /> : undefined}
+            className={icon ? ICON_BUTTON_SIZE_CLASSES[controlSize] : undefined}
+            icon={icon ? <ActionGlyph kind={icon} className={CONTROL_SIZES[controlSize].iconSize} /> : undefined}
             key={command.key}
             onClick={command.onClick}
             size={command.size === "sm" ? "small" : command.size === "lg" || command.size === "xl" ? "large" : "middle"}
@@ -81,6 +84,7 @@ export function AntdFormActions({
       data-antd-form-actions="true"
     >
       {ordered.map((action) => {
+        const controlSize = compact ? "sm" : "md";
         const definition = ACTION_GLYPH_ACTION_BY_KEY[action.action];
         const label = action.label ?? definition.label;
         const nativeSubmit = isFormSurfaceNativeSubmitAction(action);
@@ -92,7 +96,8 @@ export function AntdFormActions({
             danger={definition.variant === "danger"}
             disabled={action.disabled}
             htmlType={nativeSubmit ? "submit" : "button"}
-            icon={login ? undefined : <ActionGlyph kind={definition.icon} className="size-4" />}
+            className={login ? undefined : ICON_BUTTON_SIZE_CLASSES[controlSize]}
+            icon={login ? undefined : <ActionGlyph kind={definition.icon} className={CONTROL_SIZES[controlSize].iconSize} />}
             key={action.key}
             onClick={action.onClick}
             size={login ? "large" : compact ? "small" : "middle"}

@@ -44,7 +44,6 @@ export default function Toast({
         title={title ?? "操作失败"}
         message={message}
         confirmLabel="关闭"
-        confirmDanger
         showCancel={false}
         onConfirm={onClose}
         onCancel={onClose}
