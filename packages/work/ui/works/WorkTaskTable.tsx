@@ -8,7 +8,7 @@ import { useWorkTaskFormSurface } from "./WorkTaskFields";
 import { createWorkItemOutlineCell, WORK_ITEM_OUTLINE_COLUMN_WIDTH } from "./work-item-outline-cell";
 import { shouldShowWorkOwner } from "./work-target-presentation";
 import { matchesWorkStatusFilter, type WorkStatusFilter } from "./work-status-filter";
-import type { WorkItem, WorkItemDraft, WorkItemType, WorkTarget, WorkTaskApprovalRequest } from "./types";
+import type { WorkItem, WorkItemDraft, WorkItemType, WorkTarget } from "./types";
 
 type TreeRow = WorkItem & {
   depth: number;
@@ -37,7 +37,6 @@ export type WorkTaskTableProps = {
   resultDisabled?: boolean;
   target?: WorkTarget | null;
   showOwnerColumn?: boolean;
-  workflowRequests: WorkTaskApprovalRequest[];
   statusFilter: WorkStatusFilter;
   itemTypeFilter: "all" | WorkItemType;
   groupByObjective?: boolean;

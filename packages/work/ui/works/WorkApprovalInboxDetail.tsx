@@ -55,7 +55,6 @@ export default function WorkApprovalInboxDetail({
     works,
     target,
     persistenceMode: "workflowDraft",
-    workflowRole: request?.canProcess ? "processor" : "observer",
     editability: "readonly",
     onPlanDraftChange: () => undefined,
     table: {
@@ -68,7 +67,6 @@ export default function WorkApprovalInboxDetail({
       detailId,
       editingId: null,
       editDraft: null,
-      workflowRequests: request ? [request] : [],
       statusFilter: "active",
       itemTypeFilter: "all",
       groupByObjective: true,
