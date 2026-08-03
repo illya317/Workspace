@@ -252,6 +252,19 @@ PY
 legacy_pm2() { sudo -n -u "$LEGACY_PM2_USER" env PM2_HOME="$LEGACY_PM2_HOME" pm2 "$@"; }
 runtime_mounts=(-v "$REMOTE_DIR/.workspace:$REMOTE_DIR/.workspace")
 preflight_errors=()
+runtime_brand_dir="$REMOTE_DIR/.workspace/assets/brand/company"
+runtime_brand_logo=""
+for candidate_logo in logo.png logo.svg; do
+  if [ -s "$runtime_brand_dir/$candidate_logo" ]; then
+    runtime_brand_logo="$candidate_logo"
+    break
+  fi
+done
+if [ -z "$runtime_brand_logo" ]; then
+  preflight_errors+=("tenant brand logo is missing: $runtime_brand_dir/logo.png or logo.svg")
+else
+  runtime_mounts+=(-v "$runtime_brand_dir:/workspace/workspace/public/company:ro")
+fi
 for command in docker curl pg_dump pg_restore psql sha256sum flock python3 sudo pm2; do
   command -v "$command" >/dev/null 2>&1 || preflight_errors+=("missing command: $command")
 done
@@ -300,6 +313,11 @@ if [ "${#preflight_errors[@]}" -gt 0 ]; then
   exit 1
 fi
 echo "production deploy preflight passed"
+probe_logo() {
+  local url="$1" content_type
+  content_type="$(curl -fsSI "$url" | awk -F': *' 'tolower($1) == "content-type" {gsub(/\r/, "", $2); print tolower($2); exit}')"
+  [[ "$content_type" == image/* ]]
+}
 backup_dir="$REMOTE_DIR/.workspace.backups"
 mkdir -p "$backup_dir"
 stamp="$(date -u +%Y%m%dT%H%M%SZ)"
@@ -319,10 +337,14 @@ docker run -d --name "$candidate" --network host --env-file "$RUNTIME_DOCKER_ENV
   "${runtime_mounts[@]}" "$RUNTIME_IMAGE" >/dev/null
 candidate_ok=0
 for _ in $(seq 1 30); do
-  curl -fsS http://127.0.0.1:3101/workspace/api/internal/health >/dev/null 2>&1 && candidate_ok=1 && break
+  if curl -fsS http://127.0.0.1:3101/workspace/api/internal/health >/dev/null 2>&1 \
+    && probe_logo "http://127.0.0.1:3101/workspace/company/$runtime_brand_logo"; then
+    candidate_ok=1
+    break
+  fi
   sleep 1
 done
-[ "$candidate_ok" = 1 ] || { docker logs "$candidate" --tail 100 >&2; exit 1; }
+[ "$candidate_ok" = 1 ] || { docker logs "$candidate" --tail 100 >&2; echo "[错误] 候选容器健康或品牌 Logo 检查失败" >&2; exit 1; }
 previous_container=""
 legacy_pm2_running=0
 if docker inspect workspace >/dev/null 2>&1; then
@@ -343,7 +365,17 @@ trap rollback ERR
 docker run -d --name workspace --restart unless-stopped --network host --env-file "$RUNTIME_DOCKER_ENV" \
   -e PORT=3000 -e HOSTNAME=0.0.0.0 -e RELEASE_IMAGE_DIGEST="$IMAGE_DIGEST" \
   "${runtime_mounts[@]}" "$RUNTIME_IMAGE" >/dev/null
-for _ in $(seq 1 30); do curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 && break; sleep 1; done
+public_base_url="${HEALTHCHECK_URL%/api/internal/health}"
+public_ok=0
+for _ in $(seq 1 30); do
+  if curl -fsS "$HEALTHCHECK_URL" >/dev/null 2>&1 \
+    && probe_logo "$public_base_url/company/$runtime_brand_logo"; then
+    public_ok=1
+    break
+  fi
+  sleep 1
+done
+[ "$public_ok" = 1 ] || { docker logs workspace --tail 100 >&2; false; }
 version="$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version)"
 VERSION_RESPONSE="$version" EXPECTED_DIGEST="$IMAGE_DIGEST" python3 - <<'PY'
 import json, os

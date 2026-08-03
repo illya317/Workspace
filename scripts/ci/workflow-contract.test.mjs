@@ -44,6 +44,7 @@ function runCheckout(cwd, environment) {
     env: {
       ...process.env,
       CNB_PULL_REQUEST_LIKE: "false",
+      CNB_PULL_REQUEST_SHA: "",
       CNB_PULL_REQUEST_MERGE_SHA: "",
       ...environment,
     },
@@ -107,7 +108,7 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnbCi, /CNB 必须从干净 checkout 开始/);
 });
 
-test("CNB accepts only a clean event checkout and handles PR pre-merge identity", (t) => {
+test("CNB accepts only a clean event checkout and handles PR source or pre-merge identity", (t) => {
   const cwd = checkoutFixture(t);
   const sourceSha = git(cwd, ["rev-parse", "HEAD"]);
   assert.equal(runCheckout(cwd, { CNB_COMMIT: sourceSha }).status, 0);
@@ -118,14 +119,33 @@ test("CNB accepts only a clean event checkout and handles PR pre-merge identity"
   assert.match(dirty.stderr, /必须从干净 checkout 开始/);
   fs.rmSync(path.join(cwd, "untracked.txt"));
 
+  const sourceCheckout = runCheckout(cwd, {
+    CNB_COMMIT: sourceSha,
+    CNB_PULL_REQUEST_LIKE: "true",
+    CNB_PULL_REQUEST_SHA: sourceSha,
+    CNB_PULL_REQUEST_MERGE_SHA: "f".repeat(40),
+  });
+  assert.equal(sourceCheckout.status, 0, sourceCheckout.stderr);
+
   git(cwd, ["commit", "--allow-empty", "--quiet", "-m", "pre-merge"]);
   const mergeSha = git(cwd, ["rev-parse", "HEAD"]);
   const premerge = runCheckout(cwd, {
     CNB_COMMIT: sourceSha,
     CNB_PULL_REQUEST_LIKE: "true",
+    CNB_PULL_REQUEST_SHA: sourceSha,
     CNB_PULL_REQUEST_MERGE_SHA: mergeSha,
   });
   assert.equal(premerge.status, 0, premerge.stderr);
+
+  git(cwd, ["commit", "--allow-empty", "--quiet", "-m", "unexpected"]);
+  const unexpected = runCheckout(cwd, {
+    CNB_COMMIT: sourceSha,
+    CNB_PULL_REQUEST_LIKE: "true",
+    CNB_PULL_REQUEST_SHA: sourceSha,
+    CNB_PULL_REQUEST_MERGE_SHA: mergeSha,
+  });
+  assert.equal(unexpected.status, 1);
+  assert.match(unexpected.stderr, /CNB PR checkout SHA 不匹配/);
 });
 
 test("main packages and publishes one linux amd64 application image", () => {
