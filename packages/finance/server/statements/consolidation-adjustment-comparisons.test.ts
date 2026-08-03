@@ -6,6 +6,7 @@ import type { ConsolidationBatchRow } from "./consolidation-dto";
 import {
   buildConsolidationAdjustmentComparisons,
   buildTranslationOciComparisons,
+  historicalCapitalOpeningCoverageEntryId,
   selectFirstOpeningCapitalRows,
 } from "./consolidation-adjustment-comparisons";
 
@@ -112,6 +113,48 @@ test("comparison exposes persisted review state without losing voucher evidence"
     entry: { id: 18, status: "draft" },
   }]);
   assert.equal(returned?.reviewStatus, "returned");
+});
+
+test("historical capital policy entry covers its investment relationship comparison", () => {
+  const investment = group("unresolved");
+  investment.category = "investmentEquity";
+  investment.requiredActions = ["translateToCny", "allocateNonControllingInterest"];
+  const entries = [{
+    id: 77,
+    origin: "system",
+    generationKey: "policy:remittance-fx:historical-capital:1:2",
+    status: "approved",
+    lines: [],
+  }] as unknown as ConsolidationBatchRow["entries"];
+  const [row] = buildConsolidationAdjustmentComparisons(entities, [investment], [], 2026, entries);
+  assert.equal(row?.entryId, 77);
+  assert.equal(row?.reviewStatus, "exception");
+});
+
+test("opening capital coverage requires exact policy line source facts", () => {
+  const entries = [{
+    id: 77,
+    origin: "system",
+    generationKey: "policy:remittance-fx:historical-capital:1:2",
+    status: "approved",
+    lines: [{
+      companyId: 2,
+      accountCode: "3001",
+      matchSide: "right",
+      sourceAmount: 100_000,
+      sourceCurrency: "CAD",
+    }],
+  }] as unknown as ConsolidationBatchRow["entries"];
+  const input = {
+    investorCompanyId: 1,
+    investeeCompanyId: 2,
+    accountCode: "3001",
+    sourceAmount: 100_000,
+    sourceCurrency: "CAD",
+  };
+  assert.equal(historicalCapitalOpeningCoverageEntryId(entries, input), 77);
+  assert.equal(historicalCapitalOpeningCoverageEntryId(entries, { ...input, sourceAmount: 99_999 }), null);
+  assert.equal(historicalCapitalOpeningCoverageEntryId(entries, { ...input, accountCode: "3002" }), null);
 });
 
 test("opening capital selection collapses annual account versions by company and account code", () => {

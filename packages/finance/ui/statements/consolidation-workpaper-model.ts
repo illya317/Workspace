@@ -216,6 +216,26 @@ export function consolidationWorkpaperOpenItems(
   });
 }
 
+export function consolidationWorkpaperEvidenceItems(
+  comparisons: readonly ConsolidationAdjustmentComparison[],
+  entries: readonly ConsolidationEntrySnapshot[],
+): ConsolidationWorkpaperOpenItem[] {
+  const activeEntryIds = new Set(entries
+    .filter((entry) => entry.status === "draft" || entry.status === "approved")
+    .map((entry) => entry.id));
+  return comparisons.flatMap((comparison) => {
+    if (comparison.treatmentKind !== "confirmOpeningEquitySource"
+      || comparison.entryId === null
+      || !activeEntryIds.has(comparison.entryId)) return [];
+    const [item] = consolidationWorkpaperOpenItems([{ ...comparison, entryId: null }], []);
+    return item ? [{
+      ...item,
+      statusLabel: "金额已处理",
+      actionLabel: "补充原始出资证明",
+    }] : [];
+  });
+}
+
 function comparisonCategoryLabel(category: ConsolidationAdjustmentComparison["category"]) {
   return {
     investment: "投资与权益",

@@ -25,6 +25,44 @@ interface PersistedMatchReview {
   entry: { id: number; status: string } | null;
 }
 
+type ComparisonEntry = ConsolidationBatchRow["entries"][number];
+
+function activeHistoricalCapitalEntry(
+  entries: readonly ComparisonEntry[],
+  investorCompanyId: number,
+  investeeCompanyId: number,
+) {
+  const generationKey = `policy:remittance-fx:historical-capital:${investorCompanyId}:${investeeCompanyId}`;
+  return entries.find((entry) => (
+    entry.origin === "system"
+    && entry.generationKey === generationKey
+    && (entry.status === "draft" || entry.status === "approved")
+  )) ?? null;
+}
+
+export function historicalCapitalOpeningCoverageEntryId(
+  entries: readonly ComparisonEntry[],
+  input: {
+    investorCompanyId: number;
+    investeeCompanyId: number;
+    accountCode: string;
+    sourceAmount: number;
+    sourceCurrency: string;
+  },
+) {
+  const entry = activeHistoricalCapitalEntry(entries, input.investorCompanyId, input.investeeCompanyId);
+  if (!entry) return null;
+  const covered = entry.lines.some((line) => (
+    line.companyId === input.investeeCompanyId
+    && line.accountCode === input.accountCode
+    && line.matchSide === "right"
+    && line.sourceCurrency?.toUpperCase() === input.sourceCurrency.toUpperCase()
+    && line.sourceAmount != null
+    && Math.abs(Number(line.sourceAmount) - input.sourceAmount) < 0.005
+  ));
+  return covered ? entry.id : null;
+}
+
 function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -120,6 +158,7 @@ export function buildConsolidationAdjustmentComparisons(
   groups: readonly ConsolidationVoucherMatchGroup[],
   persistedReviews: readonly PersistedMatchReview[] = [],
   displayYear?: number,
+  entries: readonly ComparisonEntry[] = [],
 ): ConsolidationAdjustmentComparison[] {
   const entityById = new Map(entities.map((entity) => [entity.companyId, entity]));
   const persistedByKey = new Map(persistedReviews.map((review) => [review.generationKey, review]));
@@ -134,6 +173,9 @@ export function buildConsolidationAdjustmentComparisons(
         ? `借：${accountLabel(group.leftFacts)}；贷：${accountLabel(group.rightFacts)}`
         : "双方凭证明细方向不能形成抵销分录";
     const persisted = persistedByKey.get(group.generationKey);
+    const policyEntry = group.category === "investmentEquity" && group.rightCompanyId
+      ? activeHistoricalCapitalEntry(entries, group.leftCompanyId, group.rightCompanyId)
+      : null;
     const oneSidedSummary = group.leftFacts.length === 0 && group.rightFacts.length > 0
       ? `仅发现 ${right?.name ?? "账面二"} 方凭证，${left?.name ?? "账面一"} 方无对应凭证；补齐来源前不生成分录`
       : group.rightFacts.length === 0 && group.leftFacts.length > 0
@@ -155,7 +197,7 @@ export function buildConsolidationAdjustmentComparisons(
     const rowTreatment = treatment(group);
     return {
       key: group.generationKey,
-      entryId: persisted?.entryId ?? null,
+      entryId: persisted?.entryId ?? policyEntry?.id ?? null,
       category: group.category === "investmentEquity" ? "investment" as const : "intercompany" as const,
       title: `${left?.name ?? "待确认公司"} → ${right?.name ?? "待确认公司"} ${group.category === "investmentEquity" ? "投资款" : "往来款"}`,
       entrySummary: group.status === "matched" ? matchedSummary : oneSidedSummary ?? group.differenceResolution ?? matchedSummary,
@@ -230,9 +272,16 @@ async function loadOpeningCapitalExceptions(
     const currencyCode = snapshot.functionalCurrency?.toUpperCase() || "CNY";
     const period = `${row.period.year}-${String(row.period.month).padStart(2, "0")}`;
     const amount = money(Math.abs(signedOpening));
+    const entryId = investor ? historicalCapitalOpeningCoverageEntryId(batch.entries, {
+      investorCompanyId: investor.companyId,
+      investeeCompanyId: snapshot.companyId,
+      accountCode: row.account.code,
+      sourceAmount: amount,
+      sourceCurrency: currencyCode,
+    }) : null;
     return [{
       key: `investmentEquity:opening-capital:${snapshot.companyId}:${row.account.code}`,
-      entryId: null,
+      entryId,
       category: "reclassification",
       title: `${company?.name ?? "待确认公司"} 期初权益来源`,
       entrySummary: "先确认资金提供方、偿还义务和交易日；范围外主体代付形成偿还义务时转其他应付款，不与集团投资款抵销",
@@ -366,10 +415,11 @@ export async function loadConsolidationAdjustmentComparisons(input: {
   if (!input.batch) return [];
   return [
     ...buildConsolidationAdjustmentComparisons(
-    input.entities,
-    await loadConsolidationVoucherMatchGroups(input.batch),
-    input.batch.matchGroups,
-    input.batch.year,
+      input.entities,
+      await loadConsolidationVoucherMatchGroups(input.batch),
+      input.batch.matchGroups,
+      input.batch.year,
+      input.batch.entries,
     ),
     ...await loadOpeningCapitalExceptions(input.batch, input.entities),
     ...buildTranslationOciComparisons(input.batch, input.entities),
