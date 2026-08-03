@@ -7,6 +7,7 @@ import { readFileSync } from "node:fs";
 import { AntdDataTable } from "./antd-data-table";
 import { AntdStructuredTable } from "./antd-data-structured";
 import { AntdDataSurface } from "./antd-data";
+import { hasNestedInteractiveRowTarget } from "./row-interaction";
 import { renderAntdDataCell } from "./antd-data-cell";
 import type {
   DataSurfaceStructuredProps,
@@ -40,6 +41,15 @@ function tableProps(overrides: Partial<DataSurfaceTableProps<Record<string, unkn
     ...overrides,
   };
 }
+
+test("row interaction ignores the row's own button role and blocks only nested controls", () => {
+  const row = {} as Element;
+  const nestedButton = {} as Element;
+
+  assert.equal(hasNestedInteractiveRowTarget(null, row), false);
+  assert.equal(hasNestedInteractiveRowTarget(row, row), false);
+  assert.equal(hasNestedInteractiveRowTarget(nestedButton, row), true);
+});
 
 test("renders the mobile list presentation alongside the desktop table", () => {
   const markup = renderClientSurface(<AntdDataTable data={tableProps({
