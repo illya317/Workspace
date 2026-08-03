@@ -5,6 +5,7 @@ import {
   createPageTabBar,
   type BodySurfaceProps,
   type BodySurfaceSelectorProps,
+  type BodySurfaceSplitSectionProps,
   type NavigationSurfaceSelectorSpec,
   type PageSurfaceTabBarSpec,
   type SurfaceToolbarItem,
@@ -266,7 +267,7 @@ export function createSpaceWorkbenchBody({
   ratio?: [number, number];
   mobileDetailActive?: boolean;
   onMobileNavigateToList?: () => void;
-}): BodySurfaceProps {
+}): BodySurfaceSplitSectionProps {
   return createMasterDetailBody({
     master: { label, presentation: "compact", body: left },
     detail: right,
