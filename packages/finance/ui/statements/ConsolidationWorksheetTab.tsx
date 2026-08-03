@@ -175,6 +175,7 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
   };
 
   let sections: BodySurfaceSectionSpec[];
+  const lifecycleSections = batch ? workspace.lifecycleSections(props.onWorkpaperConfirmed) : [];
   if (!data) {
     sections = [createStatusSection("consolidation-workpaper-overview-status", {
       kind: overviewLoading ? "loading" : "error",
@@ -186,15 +187,15 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
       content: "请先在“合并准备”创建并维护期间批次。",
     })];
   } else if (output.loading) {
-    sections = [createStatusSection("consolidation-workpaper-loading", { kind: "loading", content: "正在重放合并工作底稿" })];
+    sections = [...lifecycleSections, createStatusSection("consolidation-workpaper-loading", { kind: "loading", content: "正在重放合并工作底稿" })];
   } else if (!output.report || !statement) {
-    sections = [createStatusSection("consolidation-workpaper-error", {
+    sections = [...lifecycleSections, createStatusSection("consolidation-workpaper-error", {
       kind: output.error ? "error" : "empty",
       content: output.error || "当前批次尚未形成可预览的合并工作底稿",
     })];
   } else {
     sections = [
-      ...workspace.lifecycleSections(props.onWorkpaperConfirmed),
+      ...lifecycleSections,
       {
         ...createPageTableSection("consolidation-workpaper-table", {
           rows: workpaperLines,

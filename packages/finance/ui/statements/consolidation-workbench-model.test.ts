@@ -3,9 +3,19 @@ import test from "node:test";
 
 import type { ConsolidationOverview } from "@workspace/finance/types";
 import {
+  consolidationPreparationAction,
   nextConsolidationLifecycleAction,
   statementLineOptions,
 } from "./consolidation-workbench-model";
+
+test("preparation can restart from the latest locked or published batch", () => {
+  assert.equal(consolidationPreparationAction(null), "create");
+  assert.equal(consolidationPreparationAction("draft"), "complete");
+  assert.equal(consolidationPreparationAction("submitted"), null);
+  assert.equal(consolidationPreparationAction("reviewed"), null);
+  assert.equal(consolidationPreparationAction("locked"), "createVersion");
+  assert.equal(consolidationPreparationAction("published"), "createVersion");
+});
 
 test("lifecycle exposes one auditable next action", () => {
   assert.equal(nextConsolidationLifecycleAction("draft"), "lock");

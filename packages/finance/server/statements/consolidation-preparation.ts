@@ -16,6 +16,7 @@ import {
   consolidationSourceBatchFingerprint,
   consolidationSourceContentBatchFingerprint,
 } from "./consolidation-fingerprints";
+import { hasMonthlyAverageRateEvidence } from "./consolidation-frozen-rates";
 import {
   comparativeEntitySnapshotIds,
   comparativePeriodEndDate,
@@ -397,7 +398,10 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     const nextSourceContent = consolidationSourceContentBatchFingerprint(sourceFacts);
     const sourcesChanged = currentSourceContent !== nextSourceContent;
     let preparedRates: ConsolidationRateFact[] | null = null;
-    if (command.input.intent === "refresh" || sourcesChanged || !hasCompleteFx(batch, null)) {
+    if (command.input.intent === "refresh"
+      || sourcesChanged
+      || !hasCompleteFx(batch, null)
+      || !hasMonthlyAverageRateEvidence(batch.exchangeRates)) {
       try {
         preparedRates = await loadAutomaticRateFacts(batch, sourceFacts, command.userId);
       } catch (cause) {
