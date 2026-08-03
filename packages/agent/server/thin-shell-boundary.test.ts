@@ -67,7 +67,9 @@ test("domain Agent Harness files and private Agent RPC routes cannot return", ()
 
 test("deployment no longer provisions an Agent source checkout", () => {
   const deploy = source("ops/deploy-image.sh");
+  const release = source("ops/cnb-release.sh");
   assert.doesNotMatch(deploy, /sync_remote_agent_source|source\.agent|REMOTE_AGENT_SOURCE_DIR/);
   assert.doesNotMatch(deploy, /git (?:clone|checkout|fetch)|npm (?:ci|install)|next build/);
-  assert.match(deploy, /docker .*pull/);
+  assert.match(release, /docker pull "\$\{IMAGE_REF\}@\$\{IMAGE_DIGEST\}"/);
+  assert.match(deploy, /verify_local_image/);
 });
