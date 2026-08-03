@@ -4,7 +4,7 @@ export const page_api_registry_entries = [
   {
     name: "Toolbar",
     description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +",
-    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
+    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {
     name: "useFeedback",
@@ -110,6 +110,10 @@ export const page_api_registry_entries = [
       { name: "openAssistant", description: "打开当前页面助手面板，并携带页面、tab 和源码定位上下文。" },
       { name: "setCurrentContext", description: "同步当前页面上下文，供 Toolbar 默认助手入口复用。" },
     ],
+  },
+  {
+    name: "UiProvider",
+    description: "Core UI 根 Provider；统一第三方渲染器的 SSR 样式、中文区域和 Workspace 全局语义配色。",
   },
   {
     name: "Pagination",

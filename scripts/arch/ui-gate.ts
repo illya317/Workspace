@@ -1,5 +1,6 @@
 import { checkCoreUiGuard } from "./core-ui-guard";
 import { checkCoreUiRegistry } from "./core-ui-registry";
+import { checkAntdSurfaceParity } from "./antd-surface-parity";
 import { checkCreateSurfaceEntries } from "./create-surface-entry";
 import { checkBodyCommandRenderer } from "./body-command-renderer";
 import { checkFeedbackApi } from "./feedback-api";
@@ -18,6 +19,7 @@ import { runAggregateGate, type AggregateGateCheck } from "./aggregate-gate";
 import { UI_GATE_CHECK_NAMES } from "./gate-check-contracts.mjs";
 
 export const uiGateChecks: AggregateGateCheck[] = [
+  ["antd-surface-parity", checkAntdSurfaceParity],
   ["modal-governance", checkModalGovernance],
   ["table-row-interaction", checkTableRowInteraction],
   ["create-surface-entry", checkCreateSurfaceEntries],

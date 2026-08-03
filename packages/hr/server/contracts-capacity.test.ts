@@ -9,6 +9,7 @@ const rawQueries: SqlFragment[] = [];
 let employmentFindManyCalls = 0;
 const employmentFindManyArgs: Array<Record<string, unknown> | undefined> = [];
 let employmentFindManyRows: Array<Record<string, unknown>> = [];
+let databaseSupportsInputValidation = true;
 
 function sql(strings: TemplateStringsArray, ...values: unknown[]): SqlFragment {
   return { strings: [...strings], values };
@@ -20,7 +21,8 @@ mockModule("@workspace/platform/server/prisma", {
     prisma: {
       $queryRaw: async (query: SqlFragment) => {
         rawQueries.push(query);
-        return rawQueries.length === 1
+        if (rawQueries.length === 1) return [{ supported: databaseSupportsInputValidation }];
+        return rawQueries.length === 2
           ? [{ total: 173 }]
           : [{
               employmentId: 5,
@@ -93,6 +95,7 @@ function collectValues(fragment: unknown): unknown[] {
 
 test("default contract tab expands and paginates contracts in PostgreSQL", async () => {
   rawQueries.length = 0;
+  databaseSupportsInputValidation = true;
   employmentFindManyCalls = 0;
   employmentFindManyArgs.length = 0;
   const result = await getContracts({
@@ -106,12 +109,13 @@ test("default contract tab expands and paginates contracts in PostgreSQL", async
   });
 
   assert.equal(employmentFindManyCalls, 0);
-  assert.equal(rawQueries.length, 2);
-  assert.match(JSON.stringify(rawQueries[0]), /pg_input_is_valid/);
-  assert.match(JSON.stringify(rawQueries[0]), /NULL::jsonb AS \\"contractJson\\"/);
-  assert.match(JSON.stringify(rawQueries[0]), /joinDate.*\\\\d\{4\}/);
-  assert.match(JSON.stringify(rawQueries[1]), /jsonb_array_elements/);
-  assert.deepEqual(collectValues(rawQueries[1]), ["2026-07-27", "9999-12-30", "2026-07-27", 100, 50]);
+  assert.equal(rawQueries.length, 3);
+  assert.match(JSON.stringify(rawQueries[0]), /server_version_num/);
+  assert.match(JSON.stringify(rawQueries[1]), /pg_input_is_valid/);
+  assert.match(JSON.stringify(rawQueries[1]), /NULL::jsonb AS \\"contractJson\\"/);
+  assert.match(JSON.stringify(rawQueries[1]), /joinDate.*\\\\d\{4\}/);
+  assert.match(JSON.stringify(rawQueries[2]), /jsonb_array_elements/);
+  assert.deepEqual(collectValues(rawQueries[2]), ["2026-07-27", "9999-12-30", "2026-07-27", 100, 50]);
   assert.equal(result.total, 173);
   assert.match(result.contracts[0]?.id ?? "", /^legacy:5:[0-9a-f]{24}:1$/);
   assert.equal(result.contracts[0]?.employeeName, "测试员工");
@@ -171,4 +175,35 @@ test("complex contract filters classify invalid dates consistently", async () =>
   assert.deepEqual(employmentFindManyArgs[1]?.where, {});
   assert.deepEqual(active.contracts.map((row) => row.employmentId), [20]);
   assert.deepEqual(inactive.contracts.map((row) => row.employmentId), [10, 30]);
+});
+
+test("PostgreSQL 15 falls back to safe in-memory legacy JSON parsing", async () => {
+  rawQueries.length = 0;
+  employmentFindManyCalls = 0;
+  employmentFindManyArgs.length = 0;
+  databaseSupportsInputValidation = false;
+  employmentFindManyRows = [{
+    id: 40,
+    isActive: true,
+    joinDate: "2026-01-01",
+    leaveDate: null,
+    contracts: JSON.stringify([{ company: "兼容公司" }]),
+    employee: { employeeId: "EMP-40", name: "兼容员工", positions: [] },
+  }];
+
+  const result = await getContracts({
+    keyword: "",
+    company: "",
+    department: "",
+    position: "",
+    isActive: "true",
+    page: 1,
+    pageSize: 50,
+  });
+
+  assert.equal(rawQueries.length, 1);
+  assert.match(JSON.stringify(rawQueries[0]), /server_version_num/);
+  assert.equal(employmentFindManyCalls, 1);
+  assert.equal(result.total, 1);
+  assert.equal(result.contracts[0]?.employeeName, "兼容员工");
 });

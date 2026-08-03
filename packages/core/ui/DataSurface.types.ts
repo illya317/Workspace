@@ -174,6 +174,8 @@ export interface DataSurfaceCellSelectionGridSpec {
   disabled?: boolean;
   emptyText?: ReactNode;
   ariaLabel: string;
+  /** Defaults to true inside table cells; set false when the parent row owns the interaction. */
+  stopPropagation?: boolean;
 }
 
 export type DataSurfaceCellSpec =

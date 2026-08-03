@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { renderContent } from "./internal/form/FormSurface.renderers";
+import { AntdFormSurface } from "./internal/form/antd-form";
 import { executeFormSurfaceSubmit } from "./internal/form/form-surface-submit";
 import {
   findMissingFormSurfaceRequiredFields,
@@ -42,6 +42,7 @@ export type {
 
 export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurfaceProps<T>) {
   const [requiredValidationAttempted, setRequiredValidationAttempted] = useState(false);
+  const insideFrame = useSurfaceFrameDepth() > 0;
   const missingRequiredFields = findMissingFormSurfaceRequiredFields(props.content.items);
   const validateRequiredFields = () => {
     if (missingRequiredFields.length === 0) return true;
@@ -67,12 +68,13 @@ export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurface
         : props.content.items,
     },
   } as FormSurfaceProps<T>;
-  const content = renderContent(renderedProps, useSurfaceFrameDepth() > 0);
+  const content = <AntdFormSurface surface={renderedProps} insideFrame={insideFrame} />;
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateRequiredFields()) return;
     executeFormSurfaceSubmit(props.submit, actions);
   };
-  const body = props.submit || props.actions?.length ? <form noValidate onSubmit={handleSubmit}>{content}</form> : content;
-  return body;
+  return props.submit || props.actions?.length
+    ? <form noValidate onSubmit={handleSubmit}>{content}</form>
+    : content;
 }

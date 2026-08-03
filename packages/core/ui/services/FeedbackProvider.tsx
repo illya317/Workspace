@@ -189,7 +189,6 @@ export default function FeedbackProvider({ children }: { children: ReactNode }) 
           title={overlay.title}
           message={overlay.message}
           confirmLabel="关闭"
-          confirmDanger
           showCancel={false}
           onConfirm={closeError}
           onCancel={closeError}

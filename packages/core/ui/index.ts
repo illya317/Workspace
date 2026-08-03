@@ -268,6 +268,7 @@ export type {
 
 export { default as FeedbackProvider, useFeedback } from "./services/FeedbackProvider";
 export type { ConfirmOptions, FeedbackApi, FeedbackHookOptions, FeedbackToastState, FeedbackToastType } from "./services/FeedbackProvider";
+export { default as UiProvider } from "./services/ui-provider";
 export { PageAssistantProvider, usePageAssistant } from "./services/PageAssistantProvider";
 export type { PageAssistantContextValue, PageAssistantOpenInput } from "./services/PageAssistantProvider";
 export {

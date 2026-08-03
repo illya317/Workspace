@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, type ComponentType } from "react";
-import { workspacePath } from "@workspace/core/routing";
+import { useCallback, useEffect, useMemo, useState, useTransition, type ComponentType } from "react";
+import { useRouter } from "next/navigation";
 import {
   createMetricsSection,
   createPageBody,
@@ -9,6 +9,7 @@ import {
   createPageTabBar,
   createSectionSection,
   PageSurface,
+  useFeedback,
   type DataSurfaceStructuredCellSpec,
   type PageSurfaceTabBarSpec,
 } from "@workspace/core/ui";
@@ -17,6 +18,7 @@ import { createStandardBusinessSpaceNavigationSelector } from "@workspace/platfo
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getWorkSpaceHomePath } from "../works/space-paths";
 import type { WorkTaskSpace } from "../works/types";
+import { loadWorkPersonalHomeNavigation } from "./WorkPersonalHomeApi";
 
 type PersonalHomeViewContributionBase = {
   key: string;
@@ -35,17 +37,50 @@ export type WorkPersonalHomeNavigationData = {
   preferredProjectIds: number[];
 };
 
+const EMPTY_NAVIGATION: WorkPersonalHomeNavigationData = {
+  spaces: [],
+  preferredDepartmentIds: [],
+  preferredProjectIds: [],
+};
+
 export function WorkPersonalHomePageView({
   user,
   navigation,
   contributions = [],
 }: {
   user: SessionUser;
-  navigation: WorkPersonalHomeNavigationData;
+  navigation?: WorkPersonalHomeNavigationData;
   contributions?: PersonalHomeViewContribution[];
 }) {
+  const router = useRouter();
+  const { notify } = useFeedback();
   const [activeTab, setActiveTab] = useState("overview");
-  const personalSpace = navigation.spaces.find((space) => space.targetType === "personal" && space.targetId === user.id) ?? null;
+  const [navigationData, setNavigationData] = useState<WorkPersonalHomeNavigationData>(() => navigation ?? EMPTY_NAVIGATION);
+  const [navigationLoading, setNavigationLoading] = useState(!navigation);
+  const [navigationPending, startNavigation] = useTransition();
+  const navigate = useCallback((href: string) => {
+    startNavigation(() => router.push(href));
+  }, [router]);
+  useEffect(() => {
+    router.prefetch("/work/me/space");
+  }, [router]);
+  useEffect(() => {
+    if (navigation) return;
+    let cancelled = false;
+    async function loadNavigation() {
+      try {
+        const data = await loadWorkPersonalHomeNavigation<WorkTaskSpace>();
+        if (!cancelled) setNavigationData(data);
+      } catch (error) {
+        if (!cancelled) notify(error instanceof Error ? error.message : "加载工作空间失败", "error");
+      } finally {
+        if (!cancelled) setNavigationLoading(false);
+      }
+    }
+    void loadNavigation();
+    return () => { cancelled = true; };
+  }, [navigation, notify]);
+  const personalSpace = navigationData.spaces.find((space) => space.targetType === "personal" && space.targetId === user.id) ?? null;
   const orderedContributions = useMemo(
     () => [...contributions].sort((left, right) => left.order - right.order || left.key.localeCompare(right.key)),
     [contributions],
@@ -60,7 +95,7 @@ export function WorkPersonalHomePageView({
     onChange: (key) => {
       const contribution = orderedContributions.find((candidate) => candidate.key === key);
       if (contribution?.href) {
-        window.location.assign(workspacePath(contribution.href));
+        navigate(contribution.href);
         return;
       }
       setActiveTab(key);
@@ -71,13 +106,13 @@ export function WorkPersonalHomePageView({
   const activeContribution = orderedContributions.find((contribution) => contribution.key === activeTab) ?? null;
   const ActiveContributionView = activeContribution?.component ?? null;
   const spaceSelector = createStandardBusinessSpaceNavigationSelector({
-    spaces: navigation.spaces,
-    preferredDepartmentIds: navigation.preferredDepartmentIds,
-    preferredProjectIds: navigation.preferredProjectIds,
+    spaces: navigationData.spaces,
+    preferredDepartmentIds: navigationData.preferredDepartmentIds,
+    preferredProjectIds: navigationData.preferredProjectIds,
     active: { targetType: "personal", targetId: user.id },
     label: "工作空间",
     order: ["personal", "departments", "projects"],
-    onChange: (space) => window.location.assign(workspacePath(getWorkSpaceHomePath(space.targetType, space.targetId))),
+    onChange: (space) => navigate(getWorkSpaceHomePath(space.targetType, space.targetId)),
   });
 
   return renderAppShellPage({
@@ -87,11 +122,29 @@ export function WorkPersonalHomePageView({
     headerSelector: spaceSelector,
     children: ActiveContributionView
       ? <ActiveContributionView userId={user.id} tabbar={tabbar} />
-      : <PageSurface kind="standard" tabbar={tabbar} body={personalOverviewBody(user, personalSpace)} />,
+      : <PageSurface kind="standard" tabbar={tabbar} body={personalOverviewBody({
+          user,
+          space: personalSpace,
+          loading: navigationLoading,
+          opening: navigationPending,
+          onOpen: () => navigate("/work/me/space"),
+        })} />,
   });
 }
 
-function personalOverviewBody(user: SessionUser, space: WorkTaskSpace | null) {
+function personalOverviewBody({
+  user,
+  space,
+  loading,
+  opening,
+  onOpen,
+}: {
+  user: SessionUser;
+  space: WorkTaskSpace | null;
+  loading: boolean;
+  opening: boolean;
+  onOpen: () => void;
+}) {
   const counts = space?.counts ?? { objective: 0, keyResult: 0, task: 0, archived: 0 };
   return createPageBody([
     createMetricsSection("personal-home-metrics", {
@@ -106,14 +159,15 @@ function personalOverviewBody(user: SessionUser, space: WorkTaskSpace | null) {
       title: "我的工作空间",
       actions: [{
         key: "open-personal-space",
-        label: "查看",
+        label: opening ? "打开中" : "查看",
         icon: "view",
         variant: "primary",
-        onClick: () => window.location.assign(workspacePath("/work/me/space")),
+        disabled: opening,
+        onClick: onOpen,
       }],
       sections: [createPageDataSection("personal-profile", {
         kind: "structured",
-        rows: personalRows(user, space),
+        rows: personalRows(user, space, loading),
         frame: "bordered",
         presentation: { density: "compact", header: "tinted" },
       })],
@@ -121,13 +175,13 @@ function personalOverviewBody(user: SessionUser, space: WorkTaskSpace | null) {
   ]);
 }
 
-function personalRows(user: SessionUser, space: WorkTaskSpace | null): DataSurfaceStructuredCellSpec[][] {
+function personalRows(user: SessionUser, space: WorkTaskSpace | null, loading: boolean): DataSurfaceStructuredCellSpec[][] {
   return [
     [header("字段"), header("内容")],
     [label("姓名"), value(user.employeeName || "未绑定员工")],
     [label("公司"), value(user.company || "-")],
-    [label("空间状态"), value(space?.lifecycleStatus === "inactive" ? "未在职" : "可用")],
-    [label("工作内容"), value(`目标 ${space?.counts.objective ?? 0} · KR ${space?.counts.keyResult ?? 0} · 任务 ${space?.counts.task ?? 0}`)],
+    [label("空间状态"), value(loading ? "加载中" : space?.lifecycleStatus === "inactive" ? "未在职" : "可用")],
+    [label("工作内容"), value(loading ? "加载中" : `目标 ${space?.counts.objective ?? 0} · KR ${space?.counts.keyResult ?? 0} · 任务 ${space?.counts.task ?? 0}`)],
   ];
 }
 

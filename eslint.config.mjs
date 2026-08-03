@@ -11,6 +11,13 @@ const {
 } = packagePolicy;
 
 const PACKAGES_WITH_STRICT_APP_ROOT_IMPORTS = new Set(["agent", "core", "docs", "settings"]);
+const CORE_ANTD_IMPLEMENTATION_FILES = [
+  "packages/core/ui/services/ui-provider.tsx",
+  ...["page", "body", "data", "input", "form", "toolbar", "selection", "create"]
+    .map((area) => `packages/core/ui/internal/${area}/antd-*.{ts,tsx}`),
+  "packages/core/ui/internal/common/{CommandButton,ConfirmModal,Pagination,SplitWorkspace,Toast,antd-command}.tsx",
+  "packages/core/ui/internal/toolbar/Toolbar.mobile-sheetParts.tsx",
+];
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const packageDependencyLintConfigs = PACKAGE_NAMES.map((packageName) => {
   const forbiddenWorkspaceImports = forbiddenPackageDependenciesFor(packageName)
@@ -62,9 +69,6 @@ const eslintConfig = defineConfig([
     ".claude/**",
     // Local check snapshots and caches are generated artifacts, not source.
     ".cache/**",
-    // Deploy-unit apps are deterministic mirrors of app/ plus generated runtime
-    // wiring. Their byte-for-byte contract is checked by deploy:apps:check.
-    "apps/**",
     // Temporary research/scrape artifacts are not product or tooling source.
     "tmp/**",
   ]),
@@ -89,6 +93,22 @@ const eslintConfig = defineConfig([
         {
           selector: "ExportNamedDeclaration[source.value=/^(antd|@mui\\/|react-bootstrap)(\\/.*)?$/]",
           message: "UI re-exports must come from @workspace/core/ui, not third-party UI libraries.",
+        },
+      ],
+    },
+  },
+  {
+    files: CORE_ANTD_IMPLEMENTATION_FILES,
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ImportDeclaration[source.value=/^(@mui\\/|react-bootstrap)(\\/.*)?$/]",
+          message: "Core Ant Design implementations may import antd only; other UI libraries still require their own reviewed Core implementation.",
+        },
+        {
+          selector: "ExportNamedDeclaration[source.value=/^(@mui\\/|react-bootstrap)(\\/.*)?$/]",
+          message: "Core Ant Design implementations must not re-export another third-party UI library.",
         },
       ],
     },

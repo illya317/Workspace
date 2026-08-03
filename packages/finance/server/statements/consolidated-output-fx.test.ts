@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import { buildConsolidatedReportOutput } from "./consolidated-output";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
-
 function line(
   lineCode: string,
   amount: number,
@@ -28,7 +26,6 @@ function line(
     ...(input.isGrandTotal ? { isGrandTotal: true as const } : {}),
   };
 }
-
 function entity(id: number, companyCode: string) {
   return {
     id,
@@ -50,7 +47,6 @@ function entity(id: number, companyCode: string) {
     currencyDecidedBy: 1,
   };
 }
-
 function monthlyFlowFacts(year: number, amounts: Record<string, number>) {
   return Array.from({ length: 12 }, (_, index) => ({
     periodEnd: new Date(Date.UTC(year, index + 1, 0)).toISOString().slice(0, 10),
@@ -60,7 +56,6 @@ function monthlyFlowFacts(year: number, amounts: Record<string, number>) {
     })),
   }));
 }
-
 function sourcePayloads(entitySnapshotId: number, idOffset: number) {
   const common = {
     entitySnapshotId,
@@ -151,7 +146,6 @@ function sourcePayloads(entitySnapshotId: number, idOffset: number) {
     },
   ];
 }
-
 function rateApplication(
   applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment",
   entitySnapshotId: number,
@@ -176,10 +170,10 @@ function rateApplication(
       bookedAmountCny: 350,
       currencyCode: "CAD",
       originalAmount: 70,
+      matchingLineCode: "paidInCapital",
     } : null,
   };
 }
-
 function appliedRate(
   exchangeRateId: number,
   rateKind: "centralParity" | "monthlyAverage",
@@ -205,7 +199,6 @@ function appliedRate(
     applications: [rateApplication(applicationType, entitySnapshotId, undefined, periodBasis, targetDate)],
   };
 }
-
 function translationRates(entitySnapshotId: number, rate: number) {
   let exchangeRateId = entitySnapshotId * 100;
   const rates = [
@@ -228,7 +221,6 @@ function translationRates(entitySnapshotId: number, rate: number) {
   }
   return rates;
 }
-
 function frozenRate(
   exchangeRateId: number,
   rateKind: "closing" | "historicalInvestment",
@@ -255,7 +247,6 @@ function frozenRate(
     )],
   };
 }
-
 function flowRate(
   exchangeRateId: number,
   rateDate: string,
@@ -287,7 +278,6 @@ function flowRate(
     }],
   };
 }
-
 function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
   const entities = entityIds.map((id, index) => entity(id, String(index + 2).padStart(2, "0")));
   return {
@@ -330,7 +320,6 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
     },
   };
 }
-
 test("CAD uses entity closing rates, historical capital, and derives CTA in OCI", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -347,7 +336,27 @@ test("CAD uses entity closing rates, historical capital, and derives CTA in OCI"
   assert.equal(balance.lines.find((item) => item.lineCode === "otherComprehensiveIncome")?.amount, 36.4);
   assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 1_064);
 });
-
+test("CAD keeps paid-in capital and capital reserve on their own historical rates", () => {
+  const replay = replayPackage();
+  const reserveRate = frozenRate(8, "historicalInvestment", 5.2, 101);
+  reserveRate.applications[0]!.voucher!.originalAmount = 30;
+  reserveRate.applications[0]!.voucher!.matchingLineCode = "capitalReserve";
+  replay.exchangeRates = [
+    ...translationRates(101, 5.32),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+    reserveRate,
+  ];
+  const balanceSource = replay.sources.find((source) => source.reportType === "balanceSheet")!;
+  const payload = balanceSource.reportPayload as { payload: { equity: Array<ReturnType<typeof line>> } };
+  payload.payload.equity.splice(1, 0, line("capitalReserve", 30, { section: "equity", side: "credit" }));
+  payload.payload.equity.find((item) => item.lineCode === "totalEquity")!.amount = 100;
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
+  if (!result.ok) return;
+  const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
+  assert.equal(balance.lines.find((item) => item.lineCode === "paidInCapital")?.amount, 336);
+  assert.equal(balance.lines.find((item) => item.lineCode === "capitalReserve")?.amount, 156);
+});
 test("CAD derives liabilities from section totals when source omits totalLiabilities", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -364,7 +373,6 @@ test("CAD derives liabilities from section totals when source omits totalLiabili
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "totalLiabilities")?.amount, 425.6);
 });
-
 test("two CAD entities use their own closing and historical applications", () => {
   const replay = replayPackage([101, 102]);
   replay.exchangeRates = [
@@ -381,7 +389,6 @@ test("two CAD entities use their own closing and historical applications", () =>
   assert.equal(balance.lines.find((item) => item.lineCode === "cash")?.amount, 1_518);
   assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 2_024);
 });
-
 test("CAD output blocks without an entity closing application", () => {
   const replay = replayPackage();
   replay.exchangeRates = [frozenRate(7, "historicalInvestment", 4.8, 101)];
@@ -389,7 +396,6 @@ test("CAD output blocks without an entity closing application", () => {
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "rateApplications");
 });
-
 test("CAD comparative numbers block until prior-period evidence is frozen", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -406,7 +412,6 @@ test("CAD comparative numbers block until prior-period evidence is frozen", () =
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "comparativeExchangeRates");
 });
-
 test("CAD retained earnings use the approved opening and monthly translated profit", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -434,7 +439,6 @@ test("CAD retained earnings use the approved opening and monthly translated prof
   const balance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 1_064);
 });
-
 test("CAD flow statements use monthly averages and retained earnings roll from the approved CNY opening", () => {
   const replay = replayPackage();
   replay.batch.month = 2;

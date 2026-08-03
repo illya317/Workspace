@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
-import { createMessageSection, BodySurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { useMemo, useState } from "react";
+import { createMessageSection, setSelectorTreeNodeExpanded, BodySurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createAdminSelectorSplitBody } from "../components/AdminSelectorSplit";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
@@ -27,6 +27,7 @@ function flattenResources(items: PermissionTreeNode[]): PermissionTreeNode[] {
 
 export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): BodySurfaceProps {
   const { selectedResource, setSelectedResource } = s;
+  const [expandedResourceIds, setExpandedResourceIds] = useState<Set<string>>(new Set());
   const resourceTree = useMemo<PermissionTreeNode[]>(() => {
     function attachCapability(capability: ResourceItem): PermissionTreeNode {
       const children = (capability.children ?? []).map(attachCapability);
@@ -73,11 +74,25 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
   ];
 
   return createAdminSelectorSplitBody({
+    expandedIds: expandedResourceIds,
+    onToggle: (id, expanded) => {
+      setExpandedResourceIds((current) => setSelectorTreeNodeExpanded(current, String(id), expanded));
+    },
     title: "资源模块",
     items: resourceTree,
     selectedId: selectedResource,
     sections: bodyBlocks,
-    onSelect: (resource) => selectResource(resource.key),
+    onSelect: (resource) => {
+      if (resource.children?.length && !resource.selectableWithChildren) {
+        setExpandedResourceIds((current) => setSelectorTreeNodeExpanded(
+          current,
+          resource.key,
+          !current.has(resource.key),
+        ));
+        return;
+      }
+      selectResource(resource.key);
+    },
   });
 }
 

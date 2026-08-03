@@ -250,17 +250,6 @@ export async function deleteWorkItem(id: number) {
   return readJson<{ success: true }>(response, "删除工作项失败");
 }
 
-export async function listWorkTaskSubmissions(target: WorkTarget, status?: string) {
-  const params = new URLSearchParams({
-    targetType: target.targetType,
-    targetId: String(target.targetId),
-  });
-  if (status) params.set("status", status);
-  const response = await fetch(workspacePath(`/api/modules/work/tasks/submissions?${params.toString()}`));
-  const data = await readJson<{ requests?: WorkTaskApprovalRequest[] }>(response, "加载审批单失败");
-  return data.requests || [];
-}
-
 export async function listMyWorkTaskSubmissions(status?: string, filter?: "all" | "todo" | "originated") {
   const params = new URLSearchParams({ view: "mine" });
   if (status) params.set("status", status);

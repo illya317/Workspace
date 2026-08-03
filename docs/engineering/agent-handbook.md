@@ -7,17 +7,17 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 负责 PR/合并质量；生产 CI 聚合源码、artifact build 和 exact runtime rehearsal并签发 Ready，部署只消费 Ready；local/CNB 只是同一合同的执行渠道
+- **CI/CD**: CNB 是唯一源码/CI/应用构建/Registry/CD 平台，同一个不可变 OCI digest 贯穿演练、生产和回滚
 
 ## 2. 部署与运行态同步
 
-`origin`（GitHub）继续承载协作、PR 和公开 CI；生产部署真源是本地已提交 source SHA/tree 生成的 CNB `cnb-release` request。历史 `codeup` 远端已废弃，不再配置或同步。
+远端 `/home/ubuntu/workspace-dev/worktrees/main` 是唯一可修改的正式提交工作区，也是 `/test` 实际服务的源码目录。Mac `/Users/koito/Project/workspace/workspace` 只是只读镜像，禁止编辑、stage、commit 或 push；`/home/ubuntu/workspace-dev/source` 是辅助分支 worktree，不是日常同步目标。
 
-- 普通候选不直接 push `main`。Git 跟踪的 `ops/publish.sh push` 先跑自适应本地 gate，再更新稳定 staging ref；受信任的 GitHub workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上触发 CI。桌面 ops 的同名脚本只是加载私有 `.env` 后转交此脚本。
-- 不把 `cnb/main` 当发布源码入口。正式发布时，底层脚本在当前已提交 source 的 child commit 中只注入由 `WORKSPACE_CONFIG_DIR/config/tenant/cnb-release.yml` 产生的 `.cnb.yml` 与发布元数据，然后触发 `cnb-release` 的 `api_trigger_manual`；仓库内 `ops/cnb-release.yml` 只保留通用形状。
-- 生产维护尽量在本地完成代码、migration、文档和检查。`publish.sh deploy` 是唯一生产发布入口；不要在服务器 `current` 上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
-- 生产发布必须先 commit 且工作区干净；GitHub PR/CI 可以继续用于协作质量，但 `deploy` 不调用 GitHub API、Actions、Release 或 GitHub token。
-- 生产发布只有 `publish.sh ci -> publish.sh deploy`。CI 一次汇总全部可运行的独立失败，同时构建并启动演练 exact artifact；成功后签发 Ready。deploy 只消费 Ready。修复后再次运行 CI 只重跑输入失效的任务；local/CNB 不得拥有不同阶段或在 deploy 重建。
+- 普通候选从远端正式工作树推送 CNB 任务分支并通过 PR 进入 `main`；仓库不提供自建 push/promotion 包装器。
+- CNB PR 运行 required CI；受保护 `main` 在同一 checkout 中安装一次依赖、执行一次 Next build、启动 exact standalone E2E，再把该产物包装为唯一 `linux/amd64` 应用镜像。
+- 镜像直接推送 CNB Registry；`release.json` 绑定 CNB Build ID、SHA、tree、content、artifact、migration 和 image digest。
+- 同一条 `main push` 流水线先完成 disposable PostgreSQL/应用启动/回滚演练，再按同一 digest 执行生产锁、备份、migration、候选健康、切换、线上 digest 回执。生产服务器不 checkout 源码，也不现场安装应用依赖或构建。
+- 不要在服务器上手改源码、生成物或数据库结构，也不要通过 SSH 建立旁路发布入口。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
@@ -30,25 +30,19 @@
 git status --short
 git add <files>
 git commit -m "<message>"
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
+git push cnb <branch>
 ```
 
 生产发布流程：
 
-1. 确认候选已提交。代码完成时运行一次 CI，签发 Ready；部署请求到达后只运行 deploy：
+1. 将任务分支通过 CNB PR 合入受保护 `main`，或由已授权维护者快进推送 exact commit。
+2. CNB required CI 汇总源码检查并完成唯一 Next build、PostgreSQL 与 exact-build E2E。
+3. CNB 把该 standalone 包装为唯一应用镜像并直接推送 CNB Registry；同一流水线先演练，再运行备份、migration、候选健康、容器切换和线上 digest 校验。
+4. 成功后复验 `deployed-image.json`、公网 health/version 与批准的 image digest；失败只按 previous digest 回滚。
 
-```bash
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh ci
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
-```
+生产 stage 前的 rehearsal 必须证明 CNB Registry digest 拉取、disposable PostgreSQL migration、非生产启动、健康/version 和回滚启动。`PRODUCTION_IMAGE_DEPLOY_ENABLED` 不为 `1` 时生产 stage 必须拒绝。
 
-2. CI 在任务图冻结后运行全部独立检查；source 失败不阻止 artifact build/rehearsal。完整通过后 Ready 绑定 source/config/task evidence/artifact。
-3. CI 失败后集中修复完整清单并做针对性验证，再运行增量 CI；成功 exact-input 回执直接复用。
-4. `publish.sh deploy` 不运行源码门禁或构建。成功后复验 `deployed-release.json` 的 canonical source、artifact、PM2、health 与版本。
-
-CNB 只是执行渠道；它若启用，必须持久化和消费同一种 Ready Artifact，不能用 CNB rebuild 伪装 deploy-only handoff。
-
-生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
+生产服务器与 SSH 凭据只由 CNB 私有密钥项目 `illya317/env` 的 `server-prod.yaml` 维护，应用仓库通过 `imports` 引用；生产服务器根目录与回环健康地址作为非敏感值版本化保存在受保护 Pipeline。本机私有 ops 只用于已授权的只读诊断，不中转凭据、镜像或生产部署。
 
 风险分级、artifact 命名、migration maintenance 和分支保护状态以 [`ops/ci-cd.md`](ops/ci-cd.md) 为准。新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `$PRIVATE_OPS_DIR/AGENTS.md`；私有部署细节见 `$PRIVATE_OPS_DIR/docs/deploy.md` 和 `$PRIVATE_OPS_DIR/docs/environment.md`。
 

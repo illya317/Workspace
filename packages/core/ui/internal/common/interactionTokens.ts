@@ -83,6 +83,14 @@ export const CONTROL_SIZES: Record<ControlSize, ControlSizeTokens> = {
   },
 };
 
+/** Icon-only action buttons remain square at the matching Core control height. */
+export const ICON_BUTTON_SIZE_CLASSES: Record<ControlSize, string> = {
+  sm: "!h-8 !w-8",
+  md: "!h-9 !w-9",
+  lg: "!h-10 !w-10",
+  xl: "!h-11 !w-11",
+};
+
 // ─── Option Group 内部按钮尺寸 ─────────────────────────────────────────────
 
 export interface ControlGroupTokens {

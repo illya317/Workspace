@@ -3,19 +3,19 @@ import test from "node:test";
 import * as React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
-import { renderDisplay } from "./DataSurface.renderers";
+import { renderAntdDataValue } from "./antd-data-value";
 
-test("DataSurface meter keeps the label authoritative and clamps its visual width", () => {
+test("Ant DataSurface meter keeps the label authoritative and clamps its visual width", () => {
   const previousReact = Reflect.get(globalThis, "React");
   Reflect.set(globalThis, "React", React);
   try {
-    const ordinary = renderToStaticMarkup(<>{renderDisplay({
+    const ordinary = renderToStaticMarkup(<>{renderAntdDataValue({
       kind: "meter",
       value: 60,
       max: 100,
       label: "0.60",
     })}</>);
-    const overflow = renderToStaticMarkup(<>{renderDisplay({
+    const overflow = renderToStaticMarkup(<>{renderAntdDataValue({
       kind: "meter",
       value: 120,
       max: 100,

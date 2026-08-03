@@ -14,6 +14,7 @@ import {
   consolidationWorkpaperEntities,
   consolidationWorkpaperEntityAmount,
   consolidationWorkpaperEntryEffects,
+  consolidationWorkpaperEvidenceItems,
   consolidationWorkpaperLines,
   consolidationWorkpaperOpenItems,
 } from "./consolidation-workpaper-model";
@@ -82,6 +83,41 @@ test("workpaper summarizes draft and approved entry effects once per group vouch
   }]);
 });
 
+test("cash flow workpaper exposes automatically generated internal cash flow vouchers", () => {
+  const cashFlowLine = {
+    ...line,
+    lineCode: "otherOpIn",
+    label: "收到其他与经营活动有关的现金",
+    direction: "in" as const,
+  };
+  const entries = [{
+    id: 16,
+    entryNo: "2026-06-合-0016",
+    entryType: "cashFlow",
+    title: "母公司 → 子公司 内部现金流抵销",
+    status: "draft",
+    lines: [{
+      id: 161,
+      statementType: "cashFlow",
+      lineCode: "otherOpIn",
+      periodBasis: "current",
+      companyCode: "ZX01",
+      debit: 0,
+      credit: 100,
+      note: "2026-06-18 记-18 · 内部资金往来",
+    }],
+  }] as ConsolidationEntrySnapshot[];
+  assert.deepEqual(consolidationWorkpaperEntryEffects(entries, "cashFlow", cashFlowLine), [{
+    key: "16-otherOpIn",
+    entryNo: "2026-06-合-0016",
+    title: "母公司 → 子公司 内部现金流抵销",
+    typeLabel: "内部现金流",
+    companies: "ZX01",
+    amount: -100,
+    note: "2026-06-18 记-18 · 内部资金往来",
+  }]);
+});
+
 test("workpaper open items exclude comparisons already represented by an active group voucher", () => {
   const entries = [{ id: 9, status: "draft" }] as ConsolidationEntrySnapshot[];
   const base = {
@@ -136,6 +172,56 @@ test("workpaper open items exclude comparisons already represented by an active 
     currencyCode: "CNY",
     statusLabel: "缺少对方",
     actionLabel: "生成抵销分录",
+  }]);
+});
+
+test("workpaper moves covered opening capital diagnostics into evidence follow-up", () => {
+  const entries = [{ id: 77, status: "approved" }] as ConsolidationEntrySnapshot[];
+  const comparisons = [{
+    key: "investmentEquity:opening-capital:2:3001",
+    entryId: 77,
+    category: "reclassification",
+    title: "子公司期初权益来源",
+    entrySummary: "期初来源待确认",
+    leftCompany: "母公司",
+    leftAccount: "—",
+    leftDirection: "—",
+    leftAmount: 0,
+    leftCurrencyCode: null,
+    leftSources: [],
+    leftHistoricalSourceCount: 0,
+    rightCompany: "子公司",
+    rightAccount: "3001 实收资本",
+    rightDirection: "贷",
+    rightAmount: 100_000,
+    rightCurrencyCode: "CAD",
+    rightSources: [],
+    rightHistoricalSourceCount: 0,
+    displayPeriodLabel: "期初余额",
+    sourceDisplayNote: "缺少原始凭证",
+    difference: 100_000,
+    differenceCurrencyCode: null,
+    status: "missingCounterpart",
+    reviewStatus: "exception",
+    matchingRule: "期初权益来源识别",
+    treatmentKind: "confirmOpeningEquitySource",
+    treatmentLabel: "确认来源；必要时转其他应付款",
+    treatmentDetail: "补充来源证明",
+    targetLineCode: "otherPayables",
+    targetLineLabel: "其他应付款",
+    ownershipShareRatio: 0.75,
+  }] as ConsolidationAdjustmentComparison[];
+  assert.deepEqual(consolidationWorkpaperOpenItems(comparisons, entries), []);
+  assert.deepEqual(consolidationWorkpaperEvidenceItems(comparisons, entries), [{
+    key: "investmentEquity:opening-capital:2:3001",
+    categoryLabel: "重分类",
+    title: "子公司期初权益来源",
+    parties: "母公司 ↔ 子公司",
+    bookAmounts: "— 0.00 / 贷 100000.00 CAD",
+    difference: 100_000,
+    currencyCode: null,
+    statusLabel: "金额已处理",
+    actionLabel: "补充原始出资证明",
   }]);
 });
 

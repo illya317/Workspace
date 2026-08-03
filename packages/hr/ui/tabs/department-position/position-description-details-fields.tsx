@@ -267,15 +267,24 @@ export function buildPositionDescriptionDetailFields({
               state: disabled ? "disabled" : "normal",
               options: {
                 source: "static",
-                items: HR_MAJOR_OPTIONS.map((option) => ({ value: option.specialty, label: option.specialty, subtitle: option.category, searchText: option.category })),
+                items: HR_MAJOR_OPTIONS.map((option) => ({
+                  value: option.specialty,
+                  label: option.specialty,
+                  subtitle: option.category,
+                  searchText: option.category,
+                })),
                 visibleCount: 5,
               },
             },
             value: "",
-            placeholder: "未设置",
+            placeholder: "新增专业要求",
             onChange: (next) => {
-              const selected = normalizeHrMajorItems(next)[0] ?? { category: "待选择", specialty: "" };
-              if (selected.specialty) updateDetailValue(key, [...items.filter(item => item.specialty !== selected.specialty), selected]);
+              const selected = normalizeHrMajorItems(next)[0];
+              if (!selected?.specialty) return;
+              updateDetailValue(key, [
+                ...items.filter((item) => item.specialty !== selected.specialty),
+                selected,
+              ]);
             },
           },
         },

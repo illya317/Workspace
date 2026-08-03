@@ -48,7 +48,6 @@ export interface SelectorSurfaceCardSpec {
   archived?: boolean;
   active?: boolean;
   tone?: "blue" | "emerald" | "amber" | "slate";
-  showToggle?: boolean;
   size?: "sm" | "md";
 }
 

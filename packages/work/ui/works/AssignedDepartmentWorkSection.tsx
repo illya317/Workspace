@@ -85,7 +85,6 @@ export function useReadOnlyAssignedWorkSection({
     detailId,
     editingId: null,
     editDraft: null,
-    workflowRequests: [],
     statusFilter: "active",
     itemTypeFilter: "all",
     groupByObjective: false,

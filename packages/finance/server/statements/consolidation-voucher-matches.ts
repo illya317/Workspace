@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 import {
+  buildCashFlowVoucherMatchGroups,
   buildIntercompanyVoucherMatchGroups,
   buildInvestmentVoucherMatchGroups,
   intercompanyPresentationAccountCode,
@@ -8,7 +9,13 @@ import {
 } from "../domain/consolidation-entry-generation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildFixedBalanceAssignments } from "./config/fixed-balance-definition";
+import { CASH_FLOW_LINES } from "./config/cash-flow-lines";
 import type { ConsolidationBatchRow } from "./consolidation-dto";
+import {
+  applyCashFlowPresentationAdjustment,
+  normalizeCashFlowAllocationAmount,
+} from "./reports/cash-flow-allocation-policy";
+import { cashFlowSourceLineCode } from "./reports/cash-flow-system-amounts";
 import { resolveMappedLineCode } from "./shared/mapping-resolver";
 
 function fingerprint(value: unknown) {
@@ -100,7 +107,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       .map((line) => typeof line.lineCode === "string" ? line.lineCode : null)
       .filter((line): line is string => Boolean(line))));
   }
-  const [investmentCompanyRules, items, auxiliaryBalances, reclassAdjustments] = await Promise.all([
+  const [investmentCompanyRules, items, auxiliaryBalances, reclassAdjustments, cashFlowAllocations] = await Promise.all([
     prisma.financeVoucherCompanyMappingRule.findMany({
       where: {
         purpose: "investmentInvestee",
@@ -188,6 +195,52 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       },
       select: { companyCode: true, sourceAccountCode: true, targetAccountCode: true },
     }),
+    prisma.financeCashFlowAllocation.findMany({
+      where: {
+        companyCode: { in: companyCodes },
+        period: { year: batch.year, month: { lte: batch.month } },
+        voucher: {
+          status: "posted",
+          OR: [{ sourceInvalid: false }, { sourceInvalid: null }],
+          statementExclusions: { none: { statementType: "cashflow", enabled: true } },
+        },
+      },
+      select: {
+        id: true,
+        companyCode: true,
+        sourceSystem: true,
+        sourceDatabase: true,
+        sourceKey: true,
+        direction: true,
+        amount: true,
+        period: { select: { year: true, month: true } },
+        voucher: {
+          select: {
+            id: true,
+            voucherNo: true,
+            date: true,
+            items: {
+              where: { auxiliaryLinks: { some: { member: { linkedCompanyId: { in: companyIds } } } } },
+              select: {
+                id: true,
+                account: { select: { code: true } },
+                auxiliaryLinks: {
+                  where: { member: { linkedCompanyId: { in: companyIds } } },
+                  select: { member: { select: { linkedCompanyId: true } } },
+                },
+              },
+            },
+          },
+        },
+        cashFlowItem: { select: { sourceCode: true, sourceName: true } },
+        ownerVoucherItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
+        counterpartItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
+        statementAdjustment: {
+          select: { sourceLineCode: true, targetLineCode: true, amount: true, enabled: true },
+        },
+      },
+      orderBy: [{ period: { month: "asc" } }, { voucher: { date: "asc" } }, { voucherId: "asc" }, { id: "asc" }],
+    }),
   ]);
   const investmentRulesByCompanyCode = new Map<string, typeof investmentCompanyRules>();
   for (const rule of investmentCompanyRules) {
@@ -204,6 +257,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
   )));
   const intercompanyFacts: ConsolidationVoucherMatchFact[] = [];
   const investmentFacts: ConsolidationVoucherMatchFact[] = [];
+  const cashFlowFacts: ConsolidationVoucherMatchFact[] = [];
   for (const balance of auxiliaryBalances) {
     const entity = entityByCompanyCode.get(balance.companyCode);
     if (!entity) continue;
@@ -304,6 +358,107 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       investmentFacts.push({ ...fact, investmentRole: "equity" });
     }
   }
+  const cashFlowDirectionByLine = new Map(CASH_FLOW_LINES.map((line) => [line.lineCode, line.direction]));
+  const cashFlowLinesByEntity = new Map<number, Set<string>>();
+  for (const source of batch.sources) {
+    if (source.reportType !== "cashFlow") continue;
+    const payload = source.reportPayload && typeof source.reportPayload === "object" && !Array.isArray(source.reportPayload)
+      ? source.reportPayload as Record<string, unknown>
+      : null;
+    const envelope = payload?.payload && typeof payload.payload === "object" && !Array.isArray(payload.payload)
+      ? payload.payload as Record<string, unknown>
+      : payload;
+    const lines = Array.isArray(envelope?.lines) ? envelope.lines : [];
+    cashFlowLinesByEntity.set(source.entitySnapshotId, new Set(lines.flatMap((line) => (
+      line && typeof line === "object" && !Array.isArray(line) && typeof (line as Record<string, unknown>).lineCode === "string"
+        ? [(line as Record<string, unknown>).lineCode as string]
+        : []
+    ))));
+  }
+  for (const allocation of cashFlowAllocations) {
+    const entity = entityByCompanyCode.get(allocation.companyCode);
+    if (!entity) continue;
+    const internalCurrentAccountItems = allocation.voucher.items.filter((item) => (
+      intercompanyRule
+      && intercompanyRoles.has(roleByLocalAccount.get(`${allocation.companyCode}:${item.account.code}`) ?? "none")
+    ));
+    if (internalCurrentAccountItems.length === 0) continue;
+    const counterparties = [...new Set(internalCurrentAccountItems.flatMap((item) => item.auxiliaryLinks)
+      .map((link) => link.member.linkedCompanyId)
+      .filter((id): id is number => id !== null && id !== entity.companyId))];
+    const counterpartyCompanyId = counterparties.length === 1 ? counterparties[0]! : null;
+    const sourceLine = cashFlowSourceLineCode(allocation.cashFlowItem.sourceName);
+    if (sourceLine === null) continue;
+    const sourceDirection = sourceLine ? cashFlowDirectionByLine.get(sourceLine) : undefined;
+    const normalizedAmount = sourceLine && sourceDirection
+      ? normalizeCashFlowAllocationAmount({
+          amount: Number(allocation.amount),
+          lineDirection: sourceDirection,
+          ownerVoucherItem: allocation.ownerVoucherItem ? {
+            ...allocation.ownerVoucherItem,
+            debit: Number(allocation.ownerVoucherItem.debit),
+            credit: Number(allocation.ownerVoucherItem.credit),
+          } : null,
+          counterpartItem: allocation.counterpartItem ? {
+            ...allocation.counterpartItem,
+            debit: Number(allocation.counterpartItem.debit),
+            credit: Number(allocation.counterpartItem.credit),
+          } : null,
+        })
+      : Number(allocation.amount);
+    const presentation = sourceLine
+      ? applyCashFlowPresentationAdjustment({
+          sourceLineCode: sourceLine,
+          normalizedAmount,
+          adjustment: allocation.statementAdjustment ? {
+            ...allocation.statementAdjustment,
+            amount: Number(allocation.statementAdjustment.amount),
+          } : null,
+        })
+      : null;
+    const presentedLines = presentation
+      ? [
+          { lineCode: sourceLine, amount: presentation.sourceAmount },
+          ...(presentation.targetLineCode ? [{ lineCode: presentation.targetLineCode, amount: presentation.targetAmount }] : []),
+        ]
+      : [{ lineCode: null, amount: normalizedAmount }];
+    for (const presented of presentedLines) {
+      if (Math.round(presented.amount * 100) === 0) continue;
+      const direction = presented.lineCode ? cashFlowDirectionByLine.get(presented.lineCode) : undefined;
+      const lineCode = presented.lineCode && cashFlowLinesByEntity.get(entity.id)?.has(presented.lineCode)
+        ? presented.lineCode
+        : null;
+      const signedAmount = direction === "out" ? -presented.amount : presented.amount;
+      cashFlowFacts.push({
+        sourceKind: "cashFlowAllocation",
+        itemId: allocation.id,
+        voucherId: allocation.voucher.id,
+        voucherNo: allocation.voucher.voucherNo,
+        voucherDate: allocation.voucher.date,
+        companyId: entity.companyId,
+        counterpartyCompanyId,
+        accountCode: allocation.cashFlowItem.sourceCode,
+        accountName: allocation.cashFlowItem.sourceName,
+        description: `现金流分配 ${allocation.direction}`,
+        lineCode,
+        signedAmount: Math.round(signedAmount * 100) / 100,
+        currencyCode: entity.functionalCurrency || "CNY",
+        sourceFingerprint: fingerprint({
+          allocationId: allocation.id,
+          sourceSystem: allocation.sourceSystem,
+          sourceDatabase: allocation.sourceDatabase,
+          sourceKey: allocation.sourceKey,
+          period: [allocation.period.year, allocation.period.month],
+          amount: allocation.amount,
+          direction: allocation.direction,
+          sourceLine,
+          presentationLine: presented.lineCode,
+          presentationAmount: presented.amount,
+          counterparties,
+        }),
+      });
+    }
+  }
   const investmentRelationships = entities.flatMap((entity) => (
     entity.directParentCompanyId
       ? [{
@@ -324,6 +479,7 @@ export async function loadConsolidationVoucherMatchGroups(batch: ConsolidationBa
       matchingRule: `${investmentRule.name}（${investmentRule.ruleCode}）：${group.matchingRule}`,
       matchingVersion: `policy-${policyVersion!.versionNo}:rule-${investmentRule.id}:${investmentRule.updatedAt.toISOString()}`,
     })) : []),
+    ...buildCashFlowVoucherMatchGroups(cashFlowFacts),
   ];
   return configured;
 }

@@ -13,7 +13,15 @@ import {
 import { createEmptyWorkDraft, createWorkDraft } from "./model";
 import type { WorkItem, WorkItemDraft, WorkTarget } from "./types";
 
-export function useWorks(target: WorkTarget | null, planId: number | null) {
+export function useWorkTaskWorkspace({
+  target,
+  planId,
+  onChanged,
+}: {
+  target: WorkTarget | null;
+  planId: number | null;
+  onChanged: () => Promise<void>;
+}) {
   const [works, setWorks] = useState<WorkItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -22,7 +30,7 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
   const [detailId, setDetailId] = useState<number | null>(null);
   const [createDraft, setCreateDraft] = useState<WorkItemDraft>(() => createEmptyWorkDraft());
   const [editDraft, setEditDraft] = useState<WorkItemDraft | null>(null);
-  const { notify: showToast } = useFeedback();
+  const { notify: showToast, confirmDelete } = useFeedback();
   const targetType = target?.targetType ?? null;
   const targetId = target?.targetId ?? null;
   const requestTarget = useMemo<WorkTarget | null>(
@@ -30,7 +38,7 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
     [targetId, targetType],
   );
 
-  const loadWorks = useCallback(async (options?: { silent?: boolean }) => {
+  const reconcile = useCallback(async (options?: { silent?: boolean }) => {
     if (!requestTarget || !planId) {
       setWorks([]);
       if (!options?.silent) setLoading(false);
@@ -39,8 +47,8 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
     if (!options?.silent) setLoading(true);
     try {
       setWorks(await listWorkItems(requestTarget, planId));
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "加载工作计划失败", "error");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "加载工作计划失败", "error");
     } finally {
       if (!options?.silent) setLoading(false);
     }
@@ -58,8 +66,8 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
       try {
         const nextWorks = await listWorkItems(requestTarget, planId);
         if (!cancelled) setWorks(nextWorks);
-      } catch (err) {
-        if (!cancelled) showToast(err instanceof Error ? err.message : "加载工作计划失败", "error");
+      } catch (error) {
+        if (!cancelled) showToast(error instanceof Error ? error.message : "加载工作计划失败", "error");
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -80,18 +88,32 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
   }, [planId, targetId, targetType]);
 
   const activeWork = useMemo(
-    () => works.find((work) => work.id === detailId) || works.find((work) => work.id === editingId) || null,
+    () => works.find((work) => work.id === detailId) ?? works.find((work) => work.id === editingId) ?? null,
     [detailId, editingId, works],
   );
 
-  function startEdit(work: WorkItem) {
+  const startCreate = useCallback((draft: WorkItemDraft) => {
+    setEditingId(null);
+    setDetailId(null);
+    setEditDraft(null);
+    setCreateDraft(draft);
+    setCreating(true);
+  }, []);
+
+  const startEdit = useCallback((work: WorkItem) => {
     setEditingId(work.id);
     setDetailId(work.id);
     setCreating(false);
     setEditDraft(createWorkDraft(work));
-  }
+  }, []);
 
-  async function handleCreate(options?: { feedback?: boolean; rethrow?: boolean }) {
+  const cancelEdit = useCallback(() => {
+    setEditingId(null);
+    setDetailId(null);
+    setEditDraft(null);
+  }, []);
+
+  async function create(options?: { feedback?: boolean; rethrow?: boolean }) {
     if (!requestTarget || !planId || saving) return;
     if (!createDraft.content.trim()) {
       showToast("节点内容不能为空", "error");
@@ -99,11 +121,16 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
     }
     setSaving(true);
     try {
-      const result = await createWorkItem(requestTarget, { ...createDraft, planId, sortOrder: createDraft.sortOrder || nextSortOrder(works) });
+      const result = await createWorkItem(requestTarget, {
+        ...createDraft,
+        planId,
+        sortOrder: createDraft.sortOrder || nextSortOrder(works),
+      });
       setCreating(false);
       if (result.executionMode === "direct" || result.request.status === "approved") {
-        await loadWorks({ silent: true });
+        await reconcile({ silent: true });
       }
+      await onChanged();
       if (options?.feedback !== false) {
         showToast(
           result.executionMode === "direct"
@@ -114,15 +141,15 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
           "success",
         );
       }
-    } catch (err) {
-      if (options?.feedback !== false) showToast(err instanceof Error ? err.message : "新建节点失败", "error");
-      if (options?.rethrow) throw err;
+    } catch (error) {
+      if (options?.feedback !== false) showToast(error instanceof Error ? error.message : "新建节点失败", "error");
+      if (options?.rethrow) throw error;
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleUpdate() {
+  async function save() {
     if (!editingId || !editDraft || saving) return;
     if (!editDraft.content.trim()) {
       showToast("节点内容不能为空", "error");
@@ -134,8 +161,9 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
       setEditingId(null);
       setEditDraft(null);
       if (result.executionMode === "direct" || result.request.status === "approved") {
-        await loadWorks({ silent: true });
+        await reconcile({ silent: true });
       }
+      await onChanged();
       showToast(
         result.executionMode === "direct"
           ? "节点已保存"
@@ -144,95 +172,95 @@ export function useWorks(target: WorkTarget | null, planId: number | null) {
             : "修改已提交审核",
         "success",
       );
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "保存节点失败", "error");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "保存节点失败", "error");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleDelete(work: WorkItem) {
-    if (saving) return;
+  async function remove(work: WorkItem) {
+    if (saving || !await confirmDelete({
+      title: "删除节点",
+      message: `确定删除「${work.content}」吗？`,
+      confirmLabel: "删除节点",
+    })) return;
     setSaving(true);
     try {
       await deleteWorkItem(work.id);
-      if (detailId === work.id) setDetailId(null);
-      if (editingId === work.id) setEditingId(null);
-      await loadWorks({ silent: true });
+      closeWork(work.id);
+      await Promise.all([reconcile({ silent: true }), onChanged()]);
       showToast("节点已删除", "success");
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "删除节点失败", "error");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "删除节点失败", "error");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleArchive(work: WorkItem) {
-    if (saving || work.isArchived) return;
+  async function archive(work: WorkItem) {
+    if (saving || work.isArchived || !await confirmDelete({
+      title: "归档任务",
+      message: `确定归档「${work.content}」吗？归档后可通过“已归档”筛选查看。`,
+      confirmLabel: "归档任务",
+    })) return;
     setSaving(true);
     try {
       await archiveWorkItem(work.id);
-      if (detailId === work.id) setDetailId(null);
-      if (editingId === work.id) setEditingId(null);
-      await loadWorks({ silent: true });
+      closeWork(work.id);
+      await Promise.all([reconcile({ silent: true }), onChanged()]);
       showToast("任务已归档", "success");
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "归档任务失败", "error");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "归档任务失败", "error");
     } finally {
       setSaving(false);
     }
   }
 
-  async function handleRestore(work: WorkItem) {
-    if (saving || !work.isArchived) return;
+  async function restore(work: WorkItem) {
+    if (saving || !work.isArchived || !await confirmDelete({
+      title: "恢复任务",
+      message: `确定恢复「${work.content}」吗？恢复后回到归档前的任务状态。`,
+      confirmLabel: "恢复任务",
+    })) return;
     setSaving(true);
     try {
       await restoreWorkItem(work.id);
-      if (detailId === work.id) setDetailId(null);
-      if (editingId === work.id) setEditingId(null);
-      await loadWorks({ silent: true });
+      closeWork(work.id);
+      await Promise.all([reconcile({ silent: true }), onChanged()]);
       showToast("任务已恢复", "success");
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : "恢复任务失败", "error");
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : "恢复任务失败", "error");
     } finally {
       setSaving(false);
     }
   }
 
+  function closeWork(workId: number) {
+    if (detailId === workId) setDetailId(null);
+    if (editingId === workId) setEditingId(null);
+  }
+
   return {
-    works,
-    loading,
-    saving,
-    creating,
-    setCreating,
-    editingId,
-    detailId,
-    setDetailId,
-    createDraft,
-    setCreateDraft,
-    startCreate: (draft: WorkItemDraft) => {
-      setEditingId(null);
-      setDetailId(null);
-      setEditDraft(null);
-      setCreateDraft(draft);
-      setCreating(true);
+    data: { works },
+    selection: { activeWork, detailId, editingId },
+    editor: { creating, createDraft, editDraft },
+    status: { loading, saving },
+    commands: {
+      setCreating,
+      setDetailId,
+      setCreateDraft,
+      setEditDraft,
+      startCreate,
+      startEdit,
+      cancelEdit,
+      create,
+      save,
+      remove,
+      archive,
+      restore,
+      reconcile,
     },
-    editDraft,
-    setEditDraft,
-    activeWork,
-    showToast,
-    loadWorks,
-    startEdit,
-    cancelEdit: () => {
-      setEditingId(null);
-      setDetailId(null);
-      setEditDraft(null);
-    },
-    handleCreate,
-    handleUpdate,
-    handleArchive,
-    handleRestore,
-    handleDelete,
   };
 }
 

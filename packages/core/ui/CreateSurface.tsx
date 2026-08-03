@@ -1,12 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import FormSurface from "./FormSurface";
 import type { FormSurfaceLooseItem } from "./FormSurface.types";
-import InlineCreatePanel from "./internal/create/InlineCreatePanel";
-import CreatePresentationPanel from "./internal/create/CreatePresentationPanel";
+import { AntdCreatePanel } from "./internal/create/antd-create";
+import {
+  executeCreateSubmissionOnce,
+  isCreateSubmissionDisabled,
+  resolveCreateSubmissionMessage,
+} from "./internal/create/antd-create-submit";
 import { useFeedback } from "./services/FeedbackProvider";
-import type { CreateSurfaceRuntimeProps } from "./CreateSurface.types";
+import type { CreateSurfaceRuntimeProps, CreateSurfaceSubmissionResult } from "./CreateSurface.types";
 
 export type * from "./CreateSurface.types";
 
@@ -14,12 +18,13 @@ export default function CreateSurface<T = FormSurfaceLooseItem>(
   props: CreateSurfaceRuntimeProps<T>,
 ) {
   const feedback = useFeedback();
+  const submissionLock = useRef(false);
   const [submitting, setSubmitting] = useState(false);
   const flow = props.content.kind === "form" ? props.content.flow : undefined;
   const formSpec = props.content.kind === "form" ? props.content.form : null;
   const firstStage = flow?.kind === "two-stage" && flow.stage === "first";
   const activeItems = formSpec ? (firstStage ? flow.first.items : formSpec.items) : [];
-  const form = formSpec ? (
+  const content = formSpec ? (
     <FormSurface<T>
       kind="fields"
       content={{
@@ -43,66 +48,63 @@ export default function CreateSurface<T = FormSurfaceLooseItem>(
       )) : null}
     </div>
   );
-  const submitDisabled = props.submission.disabled ?? props.disabled;
+  // Both outer surface disablement and submission-specific validation must hold.
+  const submitDisabled = isCreateSubmissionDisabled({
+    canCreate: props.canCreate,
+    submissionDisabled: props.submission.disabled,
+    surfaceDisabled: props.disabled,
+  });
   const cancel = () => {
+    if (submissionLock.current || submitting) return;
     props.onOpenChange(false);
     props.onCancel?.();
   };
-  const create = async () => {
-    if (submitting || submitDisabled) return;
-    setSubmitting(true);
-    try {
-      const result = await props.submission.execute();
-      const outcome = result?.outcome
-        ?? (props.submission.action === "submit" ? "submitted" : "saved");
-      const message = result?.message
-        ?? (outcome === "submitted"
-          ? props.feedback?.submitted ?? `${props.title}流程已提交`
-          : props.feedback?.saved ?? `${props.title}已保存`);
-      feedback.success(message);
-      props.onOpenChange(false);
-    } catch (error) {
-      const message = props.feedback?.error
-        ?? (error instanceof Error ? error.message : `${props.title}创建失败`);
-      feedback.error(message);
-    } finally {
-      setSubmitting(false);
-    }
+  const handleSuccess = (result: void | CreateSurfaceSubmissionResult) => {
+    const message = resolveCreateSubmissionMessage({
+      action: props.submission.action,
+      feedback: props.feedback,
+      result,
+      title: props.title,
+    });
+    feedback.success(message);
+    props.onOpenChange(false);
   };
+  const handleError = (error: unknown) => {
+    const message = props.feedback?.error
+      ?? (error instanceof Error ? error.message : `${props.title}创建失败`);
+    feedback.error(message);
+  };
+  const create = () => executeCreateSubmissionOnce({
+    lock: submissionLock,
+    disabled: submitDisabled,
+    execute: props.submission.execute,
+    onPendingChange: setSubmitting,
+    onSuccess: handleSuccess,
+    onError: handleError,
+  });
 
-  if (props.presentation === "inline") {
-    if (!props.open) return null;
-    return (
-      <InlineCreatePanel
-        title={props.title}
-        onSubmit={() => void create()}
-        onCancel={cancel}
-        submitDisabled={submitDisabled}
-        submitting={submitting}
-        submitAction={props.submission.action}
-        submitVisible={!firstStage}
-      >
-        {form}
-      </InlineCreatePanel>
-    );
-  }
+  if (props.presentation === "inline" && !props.open) return null;
 
   return (
-    <CreatePresentationPanel
-      anchor={props.anchor}
-      trigger={props.trigger}
-      title={props.title}
-      content={form}
-      open={props.open}
+    <AntdCreatePanel
+      action={props.submission.action}
+      anchor={props.presentation === "block" ? props.anchor : undefined}
       canCreate={props.canCreate}
       disabled={props.disabled}
-      submitting={submitting}
+      open={props.open}
+      presentation={props.presentation}
       submitDisabled={submitDisabled}
-      submitAction={props.submission.action}
+      submitting={submitting}
       submitVisible={!firstStage}
-      onOpen={() => props.onOpenChange(true)}
-      onSubmit={() => void create()}
+      title={props.title}
+      trigger={props.trigger}
       onCancel={cancel}
-    />
+      onOpen={() => {
+        if (!props.disabled && props.canCreate !== false && !submissionLock.current) props.onOpenChange(true);
+      }}
+      onSubmit={() => void create()}
+    >
+      {content}
+    </AntdCreatePanel>
   );
 }

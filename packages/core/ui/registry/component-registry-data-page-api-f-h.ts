@@ -115,7 +115,7 @@ export const page_api_registry_entries = [
       { name: "commands", description: "筛选表单内部短命令；不承载保存、提交、取消、归档和审批动作。" },
       { name: "submit", description: "表单提交事件；Enter 与主 save/submit action 共用 disabled 状态，不形成按钮之外的旁路。" },
     ],
-    composes: ["ActionGlyph", "FieldGrid", "FormField", "InputSurface", "ReadOnlyField", "TagListInput", "TextField", "TextareaField", "CalendarDateInput", "ChoiceGroup", "SearchableOptionInput", "FileField", "HiddenDataField", "CommandButton"],
+    composes: ["ActionGlyph", "InputSurface"],
   },
   {
     name: "FormShell",

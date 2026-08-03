@@ -1,6 +1,6 @@
 "use client";
 
-import { renderCommands, renderData } from "./internal/data/DataSurface.renderers";
+import { AntdDataSurface } from "./internal/data/antd-data";
 import type { DataSurfaceLooseRow, DataSurfaceProps } from "./DataSurface.types";
 
 export type {
@@ -50,14 +50,5 @@ export type {
 } from "./DataSurface.types";
 
 export default function DataSurface<T = DataSurfaceLooseRow>(props: DataSurfaceProps<T>) {
-  if (props.wrap === false) return renderData(props);
-
-  const content = (
-    <div className="space-y-4">
-      {renderCommands(props.actions)}
-      {renderData(props)}
-    </div>
-  );
-
-  return content;
+  return <AntdDataSurface data={props} />;
 }

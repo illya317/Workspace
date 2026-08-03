@@ -1,5 +1,5 @@
 import { createMetricsSection } from "@workspace/core/ui";
-import type { BodySurfaceSectionSpec, FormSurfaceActionSpec, FormSurfaceProps } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { listWorkPlans } from "./api";
 import { createEmptyWorkDraft } from "./model";
 import type { RoutineTaskType, WorkItem, WorkItemType, WorkPlan, WorkTarget, WorkTaskSpace } from "./types";
@@ -28,16 +28,6 @@ export function normalizeInitialTarget(target?: WorkTarget) {
 export function prependActiveTargetId(ids: number[], activeTarget: WorkTarget | null, targetType: WorkTarget["targetType"]) {
   if (!activeTarget || activeTarget.targetType !== targetType) return ids;
   return [activeTarget.targetId, ...ids.filter((id) => id !== activeTarget.targetId)];
-}
-
-export function approvalIdFromCurrentUrl() {
-  if (typeof window === "undefined") return null;
-  const id = Number(new URLSearchParams(window.location.search).get("approvalId"));
-  return Number.isInteger(id) && id > 0 ? id : null;
-}
-
-export function withFormActions(surface: FormSurfaceProps, actions: FormSurfaceActionSpec[]): FormSurfaceProps {
-  return { ...surface, actions };
 }
 
 export function canMaintainWorkByType(

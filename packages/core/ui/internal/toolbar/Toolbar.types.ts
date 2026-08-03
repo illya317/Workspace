@@ -4,7 +4,12 @@ import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import type { ColumnDef } from "../data/DataTable";
 import type { FieldValueFilterField } from "../input/FieldValueFilter";
 import type { InputOption } from "../input/InputSurfaceTypes";
-import type { ToolbarOption } from "./ToolbarOptionGroup";
+
+export interface ToolbarOption {
+  value: string;
+  label: ReactNode;
+  disabled?: boolean;
+}
 
 export type ToolbarSection = "primary" | "search" | "filter" | "edit" | "action" | "meta" | "view";
 

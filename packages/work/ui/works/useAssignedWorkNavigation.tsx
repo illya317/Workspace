@@ -44,7 +44,6 @@ export function useAssignedWorkNavigation({
     works: activeWorks,
     target,
     persistenceMode: "active",
-    workflowRole: "none",
     editability: "readonly",
     onPlanDraftChange: () => {},
     table: {
@@ -53,7 +52,6 @@ export function useAssignedWorkNavigation({
       detailId,
       editingId: null,
       editDraft: null,
-      workflowRequests: [],
       statusFilter: "active",
       itemTypeFilter: "all",
       groupByObjective: activePlanKind !== "routine",

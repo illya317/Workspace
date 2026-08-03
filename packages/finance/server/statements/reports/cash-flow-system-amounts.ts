@@ -15,7 +15,7 @@ function roundMoney(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function sourceLineCode(name: string): string | null | undefined {
+export function cashFlowSourceLineCode(name: string): string | null | undefined {
   const normalized = name.replace(/\s+/g, "");
   if (
     normalized.includes("存取资金") || normalized.includes("不影响现金流量")
@@ -162,7 +162,7 @@ export async function computeCashFlowSystemAmounts(
   const unmapped = new Set<string>();
   const adjustmentDiagnostics: string[] = [];
   for (const allocation of allocations) {
-    const lineCode = sourceLineCode(allocation.cashFlowItem.sourceName);
+    const lineCode = cashFlowSourceLineCode(allocation.cashFlowItem.sourceName);
     if (lineCode === null) continue;
     if (lineCode === undefined) {
       unmapped.add(allocation.cashFlowItem.sourceName);

@@ -2,10 +2,10 @@
 
 import type { ReactNode } from "react";
 import type { BodySurfaceListItemSpec, BodySurfaceListSpec, BodySurfaceSectionSpec } from "../../BodySurface.types";
-import { renderBodyEmpty, renderSectionBadges } from "./BodySurfaceBlocks";
+import { renderAntdCommands } from "../common/antd-command";
 import { joinClassNames } from "../common/card-utils";
-import { renderCommands } from "../page/PageSurface.commands";
 import { useSurfaceFrameDepth } from "../common/SurfaceFrameContextParts";
+import { renderBodyEmpty, renderSectionBadges } from "./BodySurfaceBlocks";
 
 function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurfaceListSpec["presentation"] = "list", nestedInFrame = false) {
   const toneClass =
@@ -70,7 +70,7 @@ export function BodySurfaceList({
               {item.trailing ? <div className="shrink-0">{item.trailing}</div> : null}
               {item.actions?.length ? (
                 <div className="shrink-0" onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
-                  {renderCommands(item.actions)}
+                  {renderAntdCommands(item.actions)}
                 </div>
               ) : null}
             </div>
@@ -79,7 +79,7 @@ export function BodySurfaceList({
       </div>
       {list.footerAction ? (
         <div className="border-t border-slate-100 px-4 py-3 text-center">
-          {renderCommands([{ ...list.footerAction, size: list.footerAction.size ?? "sm" }])}
+          {renderAntdCommands([{ ...list.footerAction, size: list.footerAction.size ?? "sm" }])}
         </div>
       ) : null}
     </div>

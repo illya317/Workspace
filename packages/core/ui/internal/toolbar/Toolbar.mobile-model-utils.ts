@@ -3,7 +3,7 @@ import {
   getOrderedActions,
   getToolbarItemActions,
   type ToolbarRenderableAction,
-} from "./Toolbar.parts";
+} from "./toolbar-action-model";
 import type { ToolbarItem } from "./Toolbar.types";
 
 export type MobileToolbarCommand =
