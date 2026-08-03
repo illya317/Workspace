@@ -20,6 +20,7 @@ const domainDetectorContracts = {
 };
 
 const uiDetectorFiles = {
+  "antd-surface-parity": "scripts/arch/antd-surface-parity.ts",
   "modal-governance": "scripts/arch/modal-governance.ts",
   "table-row-interaction": "scripts/arch/table-row-interaction.ts",
   "create-surface-entry": "scripts/arch/create-surface-entry.ts",

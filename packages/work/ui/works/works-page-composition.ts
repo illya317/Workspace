@@ -1,4 +1,4 @@
-import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, type CreateSurfaceFormSpec, type FormSurfaceProps, type PageSurfaceCreateSpec } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, type BodySurfaceSectionProps, type CreateSurfaceFormSpec, type FormSurfaceProps, type PageSurfaceCreateSpec, type PageSurfaceTabBarSpec } from "@workspace/core/ui";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import type { useDepartmentCollaborationController } from "./DepartmentCollaborationPanel";
 import type { useInitialGoalPreview } from "./InitialGoalPreview";
@@ -120,7 +120,7 @@ export function createWorksPlanViewModel({
   nodeCreateSubmission, planCreateRuntime, planSaveRuntime, createChoiceOpen, setCreateChoiceOpen,
   pendingRoutineTaskCreatePlanId, setPendingRoutineTaskCreatePlanId, canDelete, canArchive,
   plansLoading, currentSpacePlanCount,
-}: PlanViewInput) {
+}: PlanViewInput): { globalCreate: PageSurfaceCreateSpec; workPlanSection: PageBody["sections"][number] } {
   const { activePlan } = planWorkspace.selection;
   const { draft, creating: planCreating, editing: planEditing, dirty, saving: planSaving } = planWorkspace.editor;
   const planCommands = planWorkspace.commands;
@@ -200,7 +200,7 @@ export function createWorksPageView({
   currentSpace, activePlan, spacesLoading, scopedWorkTasksChildView, setWorkTasksChildView,
   settingsBody, kpiBody, kpiNavigationBody, spaceNavigationBody, spaceMetricsSection,
   workPlanSection, ganttBody, initialGoalPreview, workReportingState, assignedNavigation, collaborationState,
-}: PageViewInput) {
+}: PageViewInput): { pageNavigation: PageSurfaceTabBarSpec | undefined; body: BodySurfaceSectionProps } {
   const reportsBody = goalReportStage === "kr"
     ? createSpaceWorkbenchBody({ left: initialGoalPreview.leftNavigationBody, right: initialGoalPreview.rightBody, label: "职责与目标", ratio: [0.24, 0.76] })
     : createPageBody([]);
