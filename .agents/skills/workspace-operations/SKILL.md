@@ -10,7 +10,7 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 ## 角色确认
 
 - 开工前确认根 `AGENTS.md` 的环境与 Role Gate，并确认读取 router 后的第一条角色声明更新已写明 `主角色: Operations`。
-- 在 Mac 正式仓库、远端开发和生产之间先选定环境；不得把一个环境的命令套到另一个环境。
+- 在远端权威 `worktrees/main`、只读 Mac 镜像和生产之间先选定环境；不得把一个环境的命令套到另一个环境。
 - 业务功能、schema、架构契约和历史清债分别交给对应角色。
 
 ## 先读
@@ -25,16 +25,18 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 ## 唯一发布链
 
 ```text
-Mac push CNB -> required CI -> one Next standalone build
-             -> one linux/amd64 image -> CNB Registry digest
-             -> rehearsal -> lock/backup/migration/cutover/health/receipt
+remote main push CNB -> required CI -> one Next standalone build
+                     -> one linux/amd64 image -> CNB Registry digest
+                     -> rehearsal -> lock/backup/migration/cutover/health/receipt
 ```
 
 - CNB 是唯一源码平台、CI、应用构建、Registry 和 CD 平台。
 - PR 只运行 required CI；受保护 `main` 在同一 checkout 中复用该构建，发布一个 `linux/amd64` OCI 镜像与 `release.json`。
 - `ops/cnb-ci.sh` 负责依赖、检查、唯一 Next build、PostgreSQL 和 exact-build E2E；`ops/cnb-release.sh` 只包装该 standalone、发布一次镜像并把同一 digest 交给演练和生产。
 - 生产只按 CNB Registry digest 拉取；禁止可变 tag、源码 checkout、现场安装和现场构建。
-- Mac 只提交源码，不中转制品、不部署生产；远端开发 checkout 不保存 provider push 凭据。
+- 远端权威 `worktrees/main` 只提交源码，不中转制品、不部署生产；Mac 镜像只读。
+- 开发阶段不得新建或移动 Git worktree，不得切换、改名、reset 或 rebase `main`；所有开发提交都留在现有 `worktrees/main`。
+- 只有部署阶段且 exact `main` SHA 已通过 required CI 后，才可在已有 `release` checkout 执行一次 `git merge --ff-only main`。该指针不替代 CNB 的不可变镜像与发布回执。
 
 ## 职责
 
@@ -46,7 +48,7 @@ Mac push CNB -> required CI -> one Next standalone build
 
 ## Agent 闭环
 
-- 开工查询 Mac、CNB 和远端健康基线。
+- 开工查询远端权威 `main`、只读 Mac 镜像、CNB 和远端健康基线。
 - push 前运行受影响快速检查。
 - push 后跟踪 exact SHA 的 CNB required CI、Build ID、Registry digest、演练、部署阶段、健康和线上 digest。
 - 交付前重新刷新 provider 和线上状态；不能让用户代查。
@@ -58,6 +60,7 @@ Mac push CNB -> required CI -> one Next standalone build
 - 不把真实租户配置、生产数据或生产凭据放进普通 CI。
 - 不恢复 `ops/publish.sh`、Ready/controller、blocker ledger、retry fence、Profile/Fleet 或重复的本地 CI/CD 控制面。
 - 不在服务器运行源码构建，也不在 `current` 上手改源码、生成物或数据库结构。
+- 不为开发创建 worktree，不在 `release` 上编辑或制造 merge commit；fast-forward 不成立时停止并报告。
 
 ## 验证
 

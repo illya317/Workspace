@@ -3,21 +3,28 @@
 ## 唯一链路
 
 ```text
-Mac/remote debug -> Mac commit -> CNB source repository
-                                  -> required CI + one Next build
-                                  -> one linux/amd64 OCI image
-                                  -> CNB Registry immutable digest
-                                  -> rehearsal
-                                  -> backup/migration/cutover/health/receipt
+remote authoritative main -> CNB source repository
+                          -> required CI + one Next build
+                          -> one linux/amd64 OCI image
+                          -> CNB Registry immutable digest
+                          -> rehearsal
+                          -> backup/migration/cutover/health/receipt
 ```
 
 - CNB 是唯一源码、CI、应用构建、Registry、CD、回滚和审计平台。
-- Mac 只复核、提交并推送源码，不中转制品、不连接生产部署。
-- `workspace-dev` 只做调试，不保存 provider push 凭据。
+- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区，只复核、提交并推送源码，不中转制品、不连接生产部署。
+- Mac checkout 是只读镜像，不编辑、stage、commit 或 push。
 - 生产服务器不 checkout 源码、不运行 `npm ci`、不测试、不编译、不构建镜像。
 - 第二源码/构建 provider、外部 Registry mirror、provider adapter 和本地发布控制面均不存在。
 - 本地工作区是否有未提交改动与部署无关；CNB 只 checkout 已推送 commit，Pipeline 首步验证工作区干净且 HEAD 等于本次 push SHA（PR 则等于 CNB 预合并 SHA）。
 - CI/CD 逻辑必须是版本化、可重复的长期合同；禁止按日期、Build ID 或某次事故临时分支执行，也禁止重新引入一次性 receipt/DAG 控制面。
+
+## 工作树与发布指针纪律
+
+- 开发只使用现有 `/home/ubuntu/workspace-dev/worktrees/main`。禁止 `git worktree add/move`、新增并行 checkout、切换或改名 `main`，也禁止用 reset/rebase 把 `main` 对齐另一条分支。
+- `/home/ubuntu/workspace-dev/release` 是唯一保留的发布 checkout，不接受开发改动。只有明确进入部署流程、exact `main` SHA 已通过 required CI 后，部署执行者才可在该已有 checkout 运行 `git merge --ff-only main`。
+- `release` fast-forward 失败时必须停止；禁止在那里建立 merge commit、rebase、cherry-pick、reset 或解决代码冲突。发布指针只证明已验证源码前进方向，不替代 CNB 的 SHA、tree、content digest、image digest 和 `release.json`。
+- 临时排查、并行 agent 或修复任务不得创建额外 worktree。历史 checkout 在成果进入 `main` 且确认无未提交内容后删除，只长期保留 `main` 与部署用 `release`。
 
 ## CNB required CI
 
@@ -71,6 +78,7 @@ cnb-release.sh verify
 `production` 必须同时满足：
 
 - `CNB_EVENT=push`、`CNB_BRANCH=main`、`CNB_COMMIT=SOURCE_SHA`；
+- 已有 `release` checkout 若参与发布指针更新，只能在 required CI 通过后 fast-forward 到同一 `SOURCE_SHA`；该动作不得修改源码、构建输入或 release evidence；
 - 受保护的 main push Pipeline 在演练通过后固定注入 `PRODUCTION_IMAGE_DEPLOY_ENABLED=1`；
 - 受保护 Pipeline 版本化保存非敏感的生产根目录与回环健康地址，私有 env 只保存服务器、SSH 和生产凭据；
 - CNB Runner 按 digest 拉取并校验私有镜像后，将带有内容校验和预期 image ID 的压缩镜像归档通过现有 SSH 通道传输到生产；生产不直连 CNB Registry，不保存 Registry token，归档无论成败都删除；

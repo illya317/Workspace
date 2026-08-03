@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import InputSurface, { type InputSurfaceProps } from "../../InputSurface";
+import { InputSurfaceRenderer, type InputSurfaceProps } from "../../InputSurface";
 import DetailModal from "../common/DetailModal";
 import FieldGrid from "../input/FieldGrid";
 import ReadOnlyField, { type ReadOnlyFieldProps } from "../input/ReadOnlyField";
@@ -40,13 +40,18 @@ export function resolveFormSurfaceFieldSpan<T>(
   return isMultilineInputField(field) ? "full" : field.span;
 }
 
-export function renderControl(field: FormSurfaceFieldSpec, density: InputSurfaceProps["density"]) {
+export function renderControl(
+  field: FormSurfaceFieldSpec,
+  density: InputSurfaceProps["density"],
+  onDismiss?: () => void,
+) {
   return (
-    <InputSurface
+    <InputSurfaceRenderer
       spec={resolveFormSurfaceInputSpec(field)}
       value={field.value}
       displayValue={field.displayValue}
       onChange={field.onChange}
+      onDismiss={onDismiss}
       placeholder={field.placeholder}
       size={field.size}
       density={field.density ?? density}
@@ -105,6 +110,9 @@ function renderReadOnly(field: FormSurfaceReadOnlyFieldSpec, density: ReadOnlyFi
 
 function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
   if (!append?.field && !append?.action && !append?.referenceInput && !append?.textInput) return undefined;
+  const fieldInput = append.field
+    ? <TagAppendField key={append.field.key} field={append.field} />
+    : null;
   const referenceInput = append.referenceInput
     ? (() => {
         const { key, ...props } = append.referenceInput;
@@ -117,16 +125,53 @@ function renderTagAppend(append?: FormSurfaceTagListAppendSpec) {
         return <TagAppendTextInput key={key} {...props} />;
       })()
     : null;
-  const appendClassName = append.field
-    ? "flex min-w-48 flex-1 basis-48 items-center gap-2"
-    : "flex min-w-0 items-center gap-2";
   return (
-    <div className={appendClassName}>
-      {append.field ? renderControl(append.field, "compact") : null}
+    <div className="flex min-w-0 items-center gap-2">
+      {fieldInput}
       {append.action ? renderCommands([append.action]) : null}
       {referenceInput}
       {textInput}
     </div>
+  );
+}
+
+export function createTagAppendFieldChangeHandler(
+  field: FormSurfaceFieldSpec,
+  collapse: () => void,
+) {
+  return (value: unknown, option?: unknown) => {
+    field.onChange?.(value, option);
+    collapse();
+  };
+}
+
+function TagAppendField({
+  field,
+}: {
+  field: FormSurfaceFieldSpec;
+}) {
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return <TagAppendTrigger addLabel="+" placeholder={field.placeholder} onClick={() => setEditing(true)} />;
+  }
+
+  return (
+    <span
+      className="block w-full min-w-0 max-w-full basis-full"
+      onKeyDownCapture={(event) => {
+        if (event.key === "Escape") {
+          event.preventDefault();
+          setEditing(false);
+        }
+      }}
+    >
+      {renderControl({
+        ...field,
+        autoFocus: true,
+        onChange: createTagAppendFieldChangeHandler(field, () => setEditing(false)),
+      }, "compact", () => setEditing(false))}
+    </span>
   );
 }
 

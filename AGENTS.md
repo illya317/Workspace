@@ -12,10 +12,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Environment Authority
 
-- `/Users/koito/Project/workspace/workspace` 是正式代码仓库；正式 diff、检查、commit 与 CNB push 只在这里执行。
-- `workspace-dev:/home/ubuntu/workspace-dev/source` 只用于远端开发调试。调试完成后只按任务文件白名单同步回 Mac；禁止复制 `.env`、密钥、数据库、`.next`、`node_modules`、缓存、运行时数据和私有租户配置。
+- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区；正式 diff、检查、commit 与 CNB push 只在这里执行。
+- `/Users/koito/Project/workspace/workspace` 是只读镜像，不在 Mac checkout 编辑、stage、commit 或 push。`workspace-dev:/home/ubuntu/workspace-dev/release` 是部署阶段已有的发布指针，不是开发工作区。
+- 开发任务禁止运行 `git worktree add/move`、新建并行 checkout、切换或改名 `main`、用 reset/rebase 让 `main` 对齐另一分支，也禁止在 `source` 或 `release` 上开发。所有任务在现有 `worktrees/main` 顺序提交；需要隔离检查时使用仓库受治理的检查入口，不建立长期工作树。
+- 只有明确进入部署流程且 exact `main` SHA 已通过 required CI 后，才允许在已有 `release` checkout 执行 `git merge --ff-only main`。`release` 禁止 merge commit、rebase、cherry-pick、reset 或直接编辑；它只是已验证源码指针，不替代 CNB 的 SHA/tree/image digest/release receipt。
 - CNB 是唯一源码平台、CI、应用构建、Registry、CD、回滚和审计平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
-- Mac 只提交源码到 CNB，不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
+- 远端权威 `main` 只提交源码到 CNB，不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
 - Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 CNB Build ID、required CI、镜像 digest、演练、部署阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
 
 ## Start Here
@@ -71,5 +73,6 @@ This version has breaking changes — APIs, conventions, and file structure may 
 17. **UI 文案默认克制**：字段标签和选项已经能表达语义时，不再补解释、实现路径或技术细节；仅在防误操作、不可逆后果、合规要求或非显然约束下保留必要提示。
 18. **生产制品只有一个 OCI digest**：CNB required CI 通过后，把同一次 Next standalone 构建包装成唯一 `linux/amd64` 应用镜像、直接推送 CNB Registry 并生成 `release.json`；同一流水线再执行 migration、锁、备份、切换、健康、回执与回滚演练。禁止第二次应用 build、生产现场安装或构建、可变 tag 部署和 Mac 制品中转。
 19. **正式 CI 一次报全**：CNB required CI 在同一轮汇总独立源码失败；真实依赖项只在前置失败后停止。集中修复完整清单后再推送，不恢复本地 Ready/controller、blocker ledger、retry fence 或跨渠道回执控制面。
+20. **开发只用一个工作树**：开发只在现有远端 `worktrees/main` 进行，禁止新增、移动或切换工作树，禁止改名/重置 `main` 来同步分支。只有部署阶段可把已通过 required CI 的 exact `main` 以 `git merge --ff-only main` 快进到已有 `release`；任何非 fast-forward 都必须停止，不得改写历史。
 
 检查命令按 `docs/engineering/checks.md` 选择并串行执行。多 agent 任务由 Coordinator/Integrator 按顺序做一次最终统一验证，各 agent 不重复跑重检查。

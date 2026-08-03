@@ -13,7 +13,7 @@ import { resolveGroupedChoiceGroupSelection } from "./grouped-choice-selection";
 
 test("FormSurface forwards top-level disabled to the shared InputSurface seam", () => {
   const controls = readFileSync(new URL("../form/FormSurface.controls.tsx", import.meta.url), "utf8");
-  assert.match(controls, /<InputSurface[\s\S]*?disabled=\{field\.disabled\}/);
+  assert.match(controls, /<InputSurfaceRenderer[\s\S]*?disabled=\{field\.disabled\}/);
 
   assert.deepEqual(resolveInputSurfaceInteractionState(undefined, { disabled: true }), {
     hidden: false,

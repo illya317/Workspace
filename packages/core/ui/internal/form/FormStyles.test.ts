@@ -8,7 +8,10 @@ import {
   getFieldGridLabelClassName,
   getFieldGridMainRowClassName,
 } from "./FormStyles";
-import { resolveFormSurfaceFieldSpan } from "./FormSurface.controls";
+import {
+  createTagAppendFieldChangeHandler,
+  resolveFormSurfaceFieldSpan,
+} from "./FormSurface.controls";
 import { FieldGridCell } from "../input/FieldGrid";
 import TextareaField from "../input/TextareaField";
 
@@ -71,6 +74,19 @@ test("FormSurface multiline fields always span the complete field grid", () => {
     span: 2,
     spec: { valueType: "string", control: "text" },
   }), 2);
+});
+
+test("tag append fields commit once and collapse immediately after selection", () => {
+  const events: string[] = [];
+  const onChange = createTagAppendFieldChangeHandler({
+    key: "department",
+    label: "部门",
+    spec: { valueType: "string", control: "text" },
+    onChange: (value, option) => events.push(`change:${String(value)}:${String(option)}`),
+  }, () => events.push("collapse"));
+
+  onChange("finance", "财务部");
+  assert.deepEqual(events, ["change:finance:财务部", "collapse"]);
 });
 
 test("TextareaField defaults to one row and preserves an explicit row count", () => {
