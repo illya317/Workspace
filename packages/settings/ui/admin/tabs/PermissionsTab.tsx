@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createMessageSection, setSelectorTreeNodeExpanded, BodySurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createMessageSection, BodySurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createAdminSelectorSplitBody } from "../components/AdminSelectorSplit";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
@@ -23,6 +23,13 @@ function flattenResources(items: PermissionTreeNode[]): PermissionTreeNode[] {
     if (item.children?.length) output.push(...flattenResources(item.children));
   }
   return output;
+}
+
+function setExpandedResourceId(current: ReadonlySet<string>, id: string, expanded: boolean) {
+  const next = new Set(current);
+  if (expanded) next.add(id);
+  else next.delete(id);
+  return next;
 }
 
 export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Props): BodySurfaceProps {
@@ -76,7 +83,7 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
   return createAdminSelectorSplitBody({
     expandedIds: expandedResourceIds,
     onToggle: (id, expanded) => {
-      setExpandedResourceIds((current) => setSelectorTreeNodeExpanded(current, String(id), expanded));
+      setExpandedResourceIds((current) => setExpandedResourceId(current, String(id), expanded));
     },
     title: "资源模块",
     items: resourceTree,
@@ -84,7 +91,7 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
     sections: bodyBlocks,
     onSelect: (resource) => {
       if (resource.children?.length && !resource.selectableWithChildren) {
-        setExpandedResourceIds((current) => setSelectorTreeNodeExpanded(
+        setExpandedResourceIds((current) => setExpandedResourceId(
           current,
           resource.key,
           !current.has(resource.key),
