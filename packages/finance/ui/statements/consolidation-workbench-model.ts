@@ -11,6 +11,16 @@ export interface StatementLineOption {
 }
 
 type LifecycleAction = "submit" | "review" | "lock" | "publish";
+export type ConsolidationPreparationAction = "create" | "complete" | "createVersion";
+
+export function consolidationPreparationAction(
+  status: ConsolidationBatchSnapshot["status"] | null,
+): ConsolidationPreparationAction | null {
+  if (status === null) return "create";
+  if (status === "draft") return "complete";
+  if (status === "locked" || status === "published") return "createVersion";
+  return null;
+}
 
 export function nextConsolidationLifecycleAction(
   status: ConsolidationBatchSnapshot["status"],
