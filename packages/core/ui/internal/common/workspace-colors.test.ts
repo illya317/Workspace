@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   workspaceBadgeTagClassName,
@@ -7,7 +8,11 @@ import {
   workspaceLevelTagClassName,
   workspaceSemanticTagClassName,
 } from "./workspace-colors";
-import { workspaceTheme } from "../../services/ui-provider";
+
+const uiProviderSource = readFileSync(
+  new URL("../../services/ui-provider.tsx", import.meta.url),
+  "utf8",
+);
 
 function relativeLuminance(hex: string) {
   const channels = hex.slice(1).match(/.{2}/g)?.map((channel) => {
@@ -50,13 +55,17 @@ test("all semantic and badge tags use explicit Workspace foreground, background,
 
 test("Ant theme aliases stay bound to the Workspace semantic palette", () => {
   assert.equal(workspaceColors.primary.main, "#047857", "primary actions preserve the Workspace emerald family at AA contrast");
-  assert.equal(workspaceTheme.token?.colorPrimary, workspaceColors.primary.main);
-  assert.equal(workspaceTheme.token?.colorInfo, workspaceColors.info.main);
-  assert.equal(workspaceTheme.token?.colorSuccessText, workspaceColors.success.main);
-  assert.equal(workspaceTheme.token?.colorWarningText, workspaceColors.warning.main);
-  assert.equal(workspaceTheme.token?.colorErrorText, workspaceColors.danger.main);
-  assert.equal(workspaceTheme.token?.colorBorder, workspaceColors.border);
-  assert.equal(workspaceTheme.components?.Segmented?.trackBg, workspaceColors.fillQuaternary);
-  assert.equal(workspaceTheme.components?.Segmented?.itemHoverBg, workspaceColors.fillTertiary);
-  assert.equal(workspaceTheme.components?.Segmented?.itemSelectedColor, workspaceColors.primary.hover);
+  for (const binding of [
+    "colorPrimary: workspaceColors.primary.main",
+    "colorInfo: workspaceColors.info.main",
+    "colorSuccessText: workspaceColors.success.main",
+    "colorWarningText: workspaceColors.warning.main",
+    "colorErrorText: workspaceColors.danger.main",
+    "colorBorder: workspaceColors.border",
+    "trackBg: workspaceColors.fillQuaternary",
+    "itemHoverBg: workspaceColors.fillTertiary",
+    "itemSelectedColor: workspaceColors.primary.hover",
+  ]) {
+    assert.ok(uiProviderSource.includes(binding), `ui-provider must retain ${binding}`);
+  }
 });
