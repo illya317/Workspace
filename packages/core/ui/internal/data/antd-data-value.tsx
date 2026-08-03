@@ -6,11 +6,7 @@ import type { DataSurfaceCellSpec, DataSurfaceDisplaySpec } from "../../DataSurf
 import { joinClassNames } from "../common/card-utils";
 import { textOverflowTitle } from "../common/text-overflow";
 import { resolveTableToneClass } from "./table-presentation";
-
-const tagColors: Record<string, string> = {
-  blue: "blue", emerald: "green", gray: "default", green: "green", orange: "orange",
-  red: "red", sky: "cyan", slate: "default", yellow: "gold", amber: "gold",
-};
+import { workspaceBadgeTagClassName } from "../common/workspace-colors";
 
 const DISPLAY_KINDS = new Set(["text", "empty", "stack", "disclosure", "link", "badge", "number", "amount", "meter"]);
 
@@ -23,7 +19,7 @@ export function renderAntdDataValue(value: ReactNode | DataSurfaceCellSpec): Rea
   if (value.kind === "empty") return <span className="text-slate-400">{value.content ?? "—"}</span>;
   if (value.kind === "badge") {
     const label = value.label ?? (value.level === undefined ? "—" : `L${value.level}`);
-    return <Tag color={value.tone ? tagColors[value.tone] : "default"}>{label}</Tag>;
+    return <Tag className={workspaceBadgeTagClassName(value.tone ?? "gray")}>{label}</Tag>;
   }
   if (value.kind === "number") {
     const { kind: _kind, ...props } = value;

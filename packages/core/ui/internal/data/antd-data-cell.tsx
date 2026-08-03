@@ -11,6 +11,7 @@ import { CreateSurfaceAnchorTarget } from "../create/CreateSurfaceAnchorContext"
 import SelectionGrid from "../selection/SelectionGrid";
 import { joinClassNames } from "../common/card-utils";
 import { renderAntdDataValue } from "./antd-data-value";
+import { workspaceButtonToneClassName } from "../common/workspace-colors";
 
 const CELL_KINDS = new Set([
   "text", "empty", "stack", "disclosure", "link", "badge", "number", "amount", "meter",
@@ -28,10 +29,6 @@ function labelText(label: ReactNode) {
 
 function AntdCellAction({ action }: { action: DataSurfaceCellActionSpec }) {
   const label = labelText(action.label) || action.key;
-  const toneColor = action.tone ? ({
-    gray: "default", green: "green", blue: "blue", red: "red", yellow: "gold",
-    orange: "orange", emerald: "green", sky: "cyan", slate: "default", amber: "gold",
-  } as const)[action.tone] : undefined;
   return (
     <span
       className="inline-flex"
@@ -41,7 +38,7 @@ function AntdCellAction({ action }: { action: DataSurfaceCellActionSpec }) {
     >
       <Button
         aria-label={action.presentation === "glyph" ? label : undefined}
-        color={toneColor}
+        className={action.tone && action.variant !== "primary" ? workspaceButtonToneClassName(action.tone) : undefined}
         danger={action.variant === "danger" || action.tone === "red"}
         disabled={action.disabled}
         htmlType={action.type === "submit" && !action.onClick ? "submit" : "button"}
@@ -50,7 +47,6 @@ function AntdCellAction({ action }: { action: DataSurfaceCellActionSpec }) {
         size={action.size === "lg" ? "large" : action.size === "sm" ? "small" : "middle"}
         title={action.title ?? label}
         type={action.variant === "primary" ? "primary" : action.presentation === "glyph" ? "text" : "default"}
-        variant={toneColor ? action.presentation === "glyph" ? "text" : "outlined" : undefined}
       >
         {action.presentation === "glyph" ? null : <span className={action.truncate ? "block max-w-40 truncate" : undefined}>{action.label}</span>}
       </Button>

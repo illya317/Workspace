@@ -8,6 +8,7 @@ import type {
   SelectorSurfaceTreeSpec,
 } from "../../SelectorSurface.types";
 import { textOverflowTitle } from "../common/text-overflow";
+import { workspaceSemanticTagClassName } from "../common/workspace-colors";
 import { resolveSelectorCardPresentation } from "./selector-split-presentation";
 import {
   AntdSelectorEmpty,
@@ -28,14 +29,6 @@ interface AntdSelectorTreeNode<T> extends TreeDataNode {
 
 const FLAT_TREE_STYLE = { "--ant-tree-indent-size": "0px" } as CSSProperties;
 const TREE_BRANCH_LINE_COLORS = ["#10b981", "#fbbf24", "#fda4af"] as const;
-const TREE_CODE_TAG_COLORS: Record<NonNullable<SelectorSurfaceCardSpec["codeTone"]>, string> = {
-  success: "green",
-  warning: "gold",
-  danger: "red",
-  muted: "default",
-  default: "default",
-};
-
 function treeNodeStyle(branchLineLevel?: number): CSSProperties {
   const color = branchLineLevel
     ? TREE_BRANCH_LINE_COLORS[Math.min(branchLineLevel - 1, TREE_BRANCH_LINE_COLORS.length - 1)]
@@ -74,7 +67,7 @@ function nodeTitle<T>(
         {card.inlineEdit ? <AntdSelectorInlineEdit edit={card.inlineEdit} /> : <span className="block truncate text-sm font-semibold text-slate-900" title={textOverflowTitle(card.title)}>{card.title}</span>}
         {!card.inlineEdit && meta ? <AntdSelectorMeta meta={meta} /> : null}
       </span>
-      {card.code ? <Tag className="!mr-0 shrink-0" color={TREE_CODE_TAG_COLORS[card.codeTone ?? "default"]}>{card.code}</Tag> : null}
+      {card.code ? <Tag className={`!mr-0 shrink-0 ${workspaceSemanticTagClassName(card.codeTone ?? "default")}`}>{card.code}</Tag> : null}
       {card.inlineEdit ? null : <AntdSelectorTreeTrailing card={card} />}
     </span>
   );

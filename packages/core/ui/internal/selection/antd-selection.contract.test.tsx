@@ -141,7 +141,7 @@ test("tree: renders antd tree with defaultExpandedLevel semantics and selected k
           {
             key: "child",
             value: "child",
-            card: { title: "选中子节点", code: "B1" },
+            card: { title: "选中子节点", code: "B1", codeTone: "danger" },
             children: [{ key: "grand", value: "grand", card: { title: "孙节点" } }],
           },
         ],
@@ -160,6 +160,8 @@ test("tree: renders antd tree with defaultExpandedLevel semantics and selected k
   // selectedId 单选契约
   assert.match(markup, /data-tree-node-key="child"[^>]*data-selected="true"/);
   assert.ok(!/data-tree-node-key="root"[^>]*data-selected="true"/.test(markup));
+  assert.match(markup, /!border-red-200 !bg-red-50 !text-red-700/);
+  assert.doesNotMatch(markup, /data-color="red"/);
 });
 
 test("tree: controlled expandedIds lock expansion", () => {

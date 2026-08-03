@@ -70,7 +70,7 @@ export function AntdPageTabBar({ tabbar }: { tabbar: PageSurfaceTabBarSpec }) {
                   {item.label}
                 </Button>
                 {selected && childItems.length > 0 ? (
-                  <div className="rounded-lg border border-teal-100 bg-teal-50/70 p-1">
+                  <div className="rounded-lg border border-emerald-100 bg-emerald-50/60 p-1">
                     <Segmented
                       aria-label={`${item.label}子栏目`}
                       onChange={(key) => tabbar.onChildChange?.(String(key))}

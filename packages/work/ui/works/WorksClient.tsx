@@ -39,7 +39,8 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
 }) {
   const { notify, confirmDelete } = useFeedback();
   const showToast = useCallback((message: string, type: "success" | "error") => notify(message, type), [notify]);
-  const spaceSession = useWorkSpaceSession({ initialTarget, onError: (message) => showToast(message, "error") });
+  const showSpaceError = useCallback((message: string) => showToast(message, "error"), [showToast]);
+  const spaceSession = useWorkSpaceSession({ initialTarget, onError: showSpaceError });
   const { spaces, filteredSpaces, planLoadSpaces, preferredDepartmentIds: navigationPreferredDepartmentIds, preferredProjectIds: navigationPreferredProjectIds } = spaceSession.data;
   const { activeTarget, currentSpace, expandedSpaceKeys } = spaceSession.selection;
   const { openTarget, synchronizeTarget, toggleSpace, refreshSummary } = spaceSession.commands;
@@ -346,9 +347,9 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
       onEdit: worksState.startEdit,
       onSave: runUpdateNodeMutation,
       onCancelEdit: worksState.cancelEdit,
-      onArchive: archiveWork,
-      onRestore: restoreWork,
-      onDelete: deleteWork,
+      onArchive: worksState.archive,
+      onRestore: worksState.restore,
+      onDelete: worksState.remove,
     },
   });
   useEffect(() => {
@@ -392,9 +393,6 @@ export default function WorksClient({ user, initialTarget, shellTitle }: {
       setWorkCreating(false);
     }
   }
-  const deleteWork = worksState.remove;
-  const archiveWork = worksState.archive;
-  const restoreWork = worksState.restore;
   const spaceSelector = createStandardBusinessSpaceNavigationSelector({
     spaces,
     preferredDepartmentIds: navigationPreferredDepartmentIds,

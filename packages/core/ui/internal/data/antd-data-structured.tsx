@@ -108,12 +108,12 @@ function structuredCellClassName(cell?: DataSurfaceStructuredCellSpec) {
   );
 }
 
-/** 首列 sticky 固定（可横向滚动的矩阵），对齐 legacy structuredPinnedColumnClass。 */
+/** 首列 sticky 固定；使用清晰分隔线，避免逐行投影在不同 row height 下形成波浪。 */
 function structuredPinnedColumnClass(columnIndex: number, header: boolean, scrollable: boolean) {
   if (!scrollable || columnIndex !== 0) return "";
   return header
-    ? "sticky left-0 z-30 bg-slate-50 shadow-[8px_0_14px_-12px_rgba(15,23,42,0.55)]"
-    : "sticky left-0 z-10 bg-white shadow-[8px_0_14px_-12px_rgba(15,23,42,0.45)]";
+    ? "sticky left-0 z-30 border-r border-slate-200 bg-slate-50"
+    : "sticky left-0 z-10 border-r border-slate-200 bg-white";
 }
 
 /** format 行列尺寸默认值，对齐 previous renderer 的 matrix 解析。 */

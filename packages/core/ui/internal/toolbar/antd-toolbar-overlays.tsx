@@ -7,6 +7,7 @@ import { ActionGlyph } from "../action/ActionGlyphs";
 import type { ControlSize } from "../common/interactionTokens";
 import RemovableTag from "../input/RemovableTag";
 import { antdControlSize } from "./antd-toolbar-shared";
+import { workspaceColors } from "../common/workspace-colors";
 import { ToolbarFilterPanelFields } from "./ToolbarFilterPanel";
 import { getActiveToolbarFilterPanelFields } from "./ToolbarFilterPanel.model";
 import type { ToolbarFilterPanelItem, ToolbarMenuActionItem, ToolbarMenuItem } from "./Toolbar.types";
@@ -121,7 +122,7 @@ export function AntdToolbarFilterPanel({
         placement="bottomLeft"
         trigger="click"
       >
-        <Badge count={activeFields.length} color="#059669" size="small">
+        <Badge count={activeFields.length} color={workspaceColors.success.hover} size="small">
           <Button
             aria-expanded={open}
             aria-haspopup="dialog"

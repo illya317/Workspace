@@ -16,7 +16,7 @@ import {
   AntdSelectorListTrailing,
   AntdSelectorLoading,
   AntdSelectorMeta,
-  selectorStatusTagColor,
+  selectorStatusTagClassName,
 } from "./antd-selection-shared";
 
 /** 与 legacy handleSelectableKeyDown 一致：仅在自身聚焦时响应 Enter/Space。 */
@@ -66,7 +66,7 @@ function AntdListItem<T>({ item, presentation, selector, size }: {
         <div className="min-w-0 flex-1">
           <div className="flex min-w-0 items-center gap-2">
             {card.inlineEdit ? <AntdSelectorInlineEdit edit={card.inlineEdit} /> : <span className="min-w-0 truncate text-sm font-semibold text-slate-900" title={textOverflowTitle(card.title)}>{card.title}</span>}
-            {card.code ? <Tag className="!mr-0 shrink-0" color={selectorStatusTagColor(card.codeTone)}>{card.code}</Tag> : null}
+            {card.code ? <Tag className={`!mr-0 shrink-0 ${selectorStatusTagClassName(card.codeTone)}`}>{card.code}</Tag> : null}
           </div>
           {card.subtitle ? <div className="mt-1 truncate text-xs text-slate-400" title={textOverflowTitle(card.subtitle)}>{card.subtitle}</div> : null}
           {card.metaLine ? <div className="mt-0.5 truncate text-xs text-slate-500" title={textOverflowTitle(card.metaLine)}>{card.metaLine}</div> : null}

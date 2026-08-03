@@ -9,3 +9,5 @@ Authorized scope:
 - Phase 6d/6e may complete `FormSurface` and `CreateSurface` within the same task; Phase 7 may remove legacy general-purpose renderers only after the zero-delegation gate passes.
 - Contract-facing `*.types.ts` remain frozen unless a separately reviewed capability gap requires a contract change; silent property loss is forbidden.
 - Public registry update: `UiProvider`; generated contracts are refreshed from the formal Mac baseline during integration.
+
+Authorized follow-up (2026-08-03): restore the Workspace-wide semantic palette after the Ant migration. The scope includes `UiProvider` theme aliases and private Ant renderers for tags, badges, status actions, controls, tabs, tables, alerts, and neutral states. Business contracts remain color-free; Ant preset colors must not bypass the Core palette.

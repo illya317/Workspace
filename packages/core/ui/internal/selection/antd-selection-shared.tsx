@@ -9,45 +9,18 @@ import type {
   SelectorSurfaceStatusSpec,
   SelectorSurfaceStructuredTreeItemSpec,
 } from "../../SelectorSurface.types";
-import type { BadgeTone } from "../common/Badge";
 import { joinClassNames } from "../common/card-utils";
 import { textOverflowTitle } from "../common/text-overflow";
 import InputSurface from "../../InputSurface";
 import { AntdCommandList } from "../common/antd-command";
+import {
+  workspaceBadgeTagClassName,
+  workspaceLevelTagClassName,
+  workspaceSemanticTagClassName,
+} from "../common/workspace-colors";
 
-/** status/code tone → antd Tag 颜色，对齐 legacy statusClassName。 */
-const STATUS_TAG_COLOR: Record<NonNullable<SelectorSurfaceStatusSpec["tone"]>, string> = {
-  success: "green",
-  warning: "gold",
-  danger: "red",
-  muted: "default",
-  default: "default",
-};
-
-export function selectorStatusTagColor(tone: SelectorSurfaceStatusSpec["tone"]) {
-  return STATUS_TAG_COLOR[tone ?? "default"];
-}
-
-/** BadgeTone → antd Tag 颜色（层级徽标 levelTone 覆盖场景），对齐 legacy badgeToneClassName。 */
-const BADGE_TONE_TAG_COLOR: Record<BadgeTone, string> = {
-  gray: "default",
-  green: "green",
-  blue: "blue",
-  red: "red",
-  yellow: "gold",
-  orange: "orange",
-  emerald: "green",
-  sky: "blue",
-  slate: "default",
-  amber: "gold",
-};
-
-/** 与 legacy Badge classFromLevel 对齐的层级默认色。 */
-function levelTagColor(level: number) {
-  if (level === 1) return "blue";
-  if (level === 2) return "green";
-  if (level === 3) return "gold";
-  return "default";
+export function selectorStatusTagClassName(tone: SelectorSurfaceStatusSpec["tone"]) {
+  return workspaceSemanticTagClassName(tone ?? "default");
 }
 
 /** 树节点层级徽标，对齐 legacy Badge 的 label/level 语义。 */
@@ -57,14 +30,14 @@ export function AntdSelectorLevelBadge({ card, fallbackLevel }: {
 }) {
   if (card.showLevelBadge === false) return null;
   const level = card.level ?? fallbackLevel;
-  const color = card.levelTone ? BADGE_TONE_TAG_COLOR[card.levelTone] : levelTagColor(level);
-  return <Tag className="!mr-0 shrink-0 font-semibold" color={color}>{card.levelLabel ?? `L${level}`}</Tag>;
+  const toneClass = card.levelTone ? workspaceBadgeTagClassName(card.levelTone) : workspaceLevelTagClassName(level);
+  return <Tag className={`!mr-0 shrink-0 font-semibold ${toneClass}`}>{card.levelLabel ?? `L${level}`}</Tag>;
 }
 
 /** 状态徽标；onClick 语义与 legacy renderStatus 一致（独立 button，点击不触发选中）。 */
 export function AntdSelectorStatus({ status }: { status?: SelectorSurfaceStatusSpec }) {
   if (!status) return null;
-  const tag = <Tag className="!mr-0" color={selectorStatusTagColor(status.tone)}>{status.label}</Tag>;
+  const tag = <Tag className={`!mr-0 ${selectorStatusTagClassName(status.tone)}`}>{status.label}</Tag>;
   if (!status.onClick) return tag;
   return (
     <button

@@ -204,6 +204,8 @@ test("renders structured spans, sticky first column, and explicit sizing", () =>
   const markup = renderClientSurface(<AntdStructuredTable data={data} />);
 
   assert.match(markup, /sticky left-0/);
+  assert.match(markup, /border-r border-slate-200/);
+  assert.doesNotMatch(markup, /shadow-\[8px_0/);
   assert.match(markup, /height:64px/);
   assert.match(markup, /width:112/);
 });

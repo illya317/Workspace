@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState, useTransition, type ComponentType } from "react";
 import { useRouter } from "next/navigation";
-import { workspacePath } from "@workspace/core/routing";
 import {
   createMetricsSection,
   createPageBody,
@@ -60,10 +59,10 @@ export function WorkPersonalHomePageView({
   const [navigationLoading, setNavigationLoading] = useState(!navigation);
   const [navigationPending, startNavigation] = useTransition();
   const navigate = useCallback((href: string) => {
-    startNavigation(() => router.push(workspacePath(href)));
+    startNavigation(() => router.push(href));
   }, [router]);
   useEffect(() => {
-    router.prefetch(workspacePath("/work/me/space"));
+    router.prefetch("/work/me/space");
   }, [router]);
   useEffect(() => {
     if (navigation) return;

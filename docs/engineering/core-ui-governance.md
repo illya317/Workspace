@@ -2,6 +2,10 @@
 
 Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页和 agent 不能按局部需求随手复制基础控件；所有通用 UI 都必须通过 Core UI registry 收口。
 
+### 全局语义配色
+
+Core 的视觉实现统一从 `internal/common/workspace-colors.ts` 取得 Workspace 色板。主操作色使用满足普通文字 AA 对比度的 emerald-700；信息、成功、警告、危险分别使用 sky、emerald、amber、red；中性文字、边框、填充使用 slate。`UiProvider` 将这套颜色映射到 Ant 的全局与组件 token，Tag、Badge 和带 tone 的动作 renderer 同样消费该私有映射。业务仍只声明 `info / success / warning / danger / muted` 等语义，不得传色值、Ant preset color 或视觉 class。普通字号的语义文字与其浅色背景必须保持 WCAG AA 对比度。
+
 ## 1. Registry 模型
 
 | 字段 | 用途 | 业务/agent 可直接使用 |

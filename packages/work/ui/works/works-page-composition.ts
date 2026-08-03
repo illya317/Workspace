@@ -115,6 +115,7 @@ export function createWorksNavigationBodies({
     }),
   };
 }
+/** @ui-structural-declaration Complete Work plan/create surface composition. */
 export function createWorksPlanViewModel({
   planWorkspace, taskWorkspace, stageControls, createChoiceSurface, createTaskSurface, okrPlanSurface,
   nodeCreateSubmission, planCreateRuntime, planSaveRuntime, createChoiceOpen, setCreateChoiceOpen,
@@ -195,6 +196,7 @@ export function createWorksPlanViewModel({
   });
   return { globalCreate, workPlanSection };
 }
+/** @ui-structural-declaration Complete Work page navigation and body composition. */
 export function createWorksPageView({
   activeTab, setActiveTab, goalReportStage, setGoalReportStage, compactNavigation, navigationItems,
   currentSpace, activePlan, spacesLoading, scopedWorkTasksChildView, setWorkTasksChildView,

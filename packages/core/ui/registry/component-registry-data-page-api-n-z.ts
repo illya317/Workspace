@@ -113,7 +113,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "UiProvider",
-    description: "Core UI 根 Provider；统一第三方渲染器的 SSR 样式、中文区域和 Workspace 主题。",
+    description: "Core UI 根 Provider；统一第三方渲染器的 SSR 样式、中文区域和 Workspace 全局语义配色。",
   },
   {
     name: "Pagination",
