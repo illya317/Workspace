@@ -2,10 +2,17 @@ import type { ConsolidationRateReferenceSnapshot } from "@workspace/finance/type
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 
 export function hasMonthlyAverageRateEvidence(
-  rates: readonly ConsolidationRateReferenceSnapshot[],
+  rates: readonly {
+    rateKind: string;
+    applications: unknown;
+  }[],
 ) {
   return rates.some((rate) => rate.rateKind === "monthlyAverage"
-    && rate.applications.some((application) => application.applicationType === "flowAverage"));
+    && Array.isArray(rate.applications)
+    && rate.applications.some((application) => (
+      application && typeof application === "object" && "applicationType" in application
+      && application.applicationType === "flowAverage"
+    )));
 }
 
 export function cnyPerForeignUnit(
@@ -41,17 +48,23 @@ export function historicalEquityRate(
   let originalAmountTotal = 0;
   let translatedAmountTotal = 0;
   for (const binding of bindings) {
-    if (binding.rate.rateKind !== "historicalInvestment" && binding.rate.rateKind !== "centralParity") {
+    if (binding.rate.rateKind !== "historicalInvestment"
+      && binding.rate.rateKind !== "centralParity"
+      && binding.rate.rateKind !== "historicalCapitalAmount") {
       return failCommand(`CAD 实体 ${entitySnapshotId} 的投资日应用引用了非历史汇率`, 409, "rateApplications");
     }
     const originalAmount = binding.application.voucher?.originalAmount ?? binding.application.capitalOriginalAmount;
     if (originalAmount === null || originalAmount === undefined || !Number.isFinite(originalAmount) || originalAmount <= 0) {
       return failCommand(`CAD 实体 ${entitySnapshotId} 的权益资本历史汇率缺少有效原币金额`, 409, "rateApplications");
     }
-    const normalizedRate = cnyPerForeignUnit(binding.rate);
-    if (!normalizedRate.ok) return normalizedRate;
     originalAmountTotal += originalAmount;
-    translatedAmountTotal += originalAmount * normalizedRate.data;
+    if (binding.application.capitalHistoricalAmountCny) {
+      translatedAmountTotal += binding.application.capitalHistoricalAmountCny;
+    } else {
+      const normalizedRate = cnyPerForeignUnit(binding.rate);
+      if (!normalizedRate.ok) return normalizedRate;
+      translatedAmountTotal += originalAmount * normalizedRate.data;
+    }
   }
   return okCommand(translatedAmountTotal / originalAmountTotal);
 }

@@ -42,6 +42,7 @@ import {
 } from "./consolidation-snapshots";
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
 import {
+  ensureCapitalHistoricalAmountRate,
   ensureChinaMoneyCentralParityRate,
   ensureChinaMoneyMonthlyAverageRate,
   ensureVoucherHistoricalInvestmentRate,
@@ -167,28 +168,35 @@ async function loadAutomaticRateFacts(
     }
     return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
   });
-  const historicalCapitalFacts = rawHistoricalCapitalFacts.filter((fact) => {
-    if (fact.basis !== "opening") return true;
-    const matchedOriginalAmount = mappedInvestments
-      .filter(({ investment, entity }) => entity.companyCode === fact.companyCode
-        && investment.voucherDate <= fact.targetDate
-        && investment.matchingLineCode === fact.lineCode)
-      .reduce((sum, { investment }) => sum + (investment.originalAmount ?? 0), 0);
-    return Math.abs(matchedOriginalAmount - fact.originalAmount) >= 0.005;
-  });
+  const historicalCapitalFacts = rawHistoricalCapitalFacts;
+  const companiesWithCapitalFacts = new Set(historicalCapitalFacts.map((fact) => fact.companyCode));
+  const uncoveredInvestments = mappedInvestments.filter(({ entity }) => !companiesWithCapitalFacts.has(entity.companyCode));
   const targetDates = [
     selectedPeriodEnd,
     ...(requiredComparativeEntityIds.length > 0 ? [comparativePeriodEnd] : []),
     ...cashPointDates(batch.year, batch.month),
     ...(requiredComparativeEntityIds.length > 0 ? cashPointDates(batch.year - 1, batch.month) : []),
-    ...historicalCapitalFacts.map((fact) => fact.targetDate),
-    ...mappedInvestments.filter(({ investment }) => !investment.historicalRate)
-      .map(({ investment }) => investment.voucherDate),
+    ...historicalCapitalFacts.flatMap((fact) => fact.capitalContributionDate ? [fact.capitalContributionDate] : []),
   ];
   const rateIdByTargetDate = new Map<string, number>();
   for (const targetDate of [...new Set(targetDates)].sort()) {
     const rate = await ensureChinaMoneyCentralParityRate({ currencyCode: "CAD", targetDate, userId });
     rateIdByTargetDate.set(targetDate, rate.id);
+  }
+  const rateIdByHistoricalSource = new Map<string, number>();
+  for (const fact of historicalCapitalFacts) {
+    if (!fact.historicalAmountCny) continue;
+    const rate = await ensureCapitalHistoricalAmountRate({
+      sourceKind: fact.basis === "opening" ? "accountBalance" : "voucherItem",
+      sourceRecordId: fact.sourceRecordId,
+      evidenceDate: fact.capitalEvidenceDate,
+      originalCurrency: "CAD",
+      originalAmount: fact.originalAmount,
+      historicalAmountCny: fact.historicalAmountCny,
+      evidence: fact.evidence,
+      userId,
+    });
+    rateIdByHistoricalSource.set(`${fact.basis}:${fact.sourceRecordId}`, rate.id);
   }
   const monthlyRateIdByTargetDate = new Map<string, number>();
   for (const targetDate of [
@@ -200,13 +208,14 @@ async function loadAutomaticRateFacts(
     monthlyRateIdByTargetDate.set(targetDate, rate.id);
   }
   const explicitRateIdByVoucherItemId = new Map<number, number>();
-  for (const { investment } of mappedInvestments) {
-    if (!investment.historicalRate || !investment.matchingLabel) continue;
+  for (const { investment } of uncoveredInvestments) {
+    const originalAmount = investment.originalAmount!;
+    const actualWeightedRate = Math.round((investment.bookedAmountCny / originalAmount) * 100_000_000) / 100_000_000;
     const rate = await ensureVoucherHistoricalInvestmentRate({
       voucherItemId: investment.id,
-      voucherDate: investment.voucherDate,
-      rate: investment.historicalRate,
-      matchingLabel: investment.matchingLabel,
+      contributionDate: investment.capitalContributionDate ?? investment.voucherDate,
+      rate: actualWeightedRate,
+      matchingLabel: investment.matchingLabel ?? `${investment.voucherNo} 实际人民币投资金额`,
       userId,
     });
     explicitRateIdByVoucherItemId.set(investment.id, rate.id);
@@ -279,26 +288,30 @@ async function loadAutomaticRateFacts(
   rateApplications.push(...buildHistoricalCapitalRateApplications({
     facts: historicalCapitalFacts,
     rateIdByTargetDate,
+    rateIdByHistoricalSource,
     comparativePeriodEnd,
     comparativeCompanyIds,
     companyIdByCode,
     snapshotIdByCompany: entitySnapshotIdByCompanyId,
   }));
-  for (const { investment, entity } of mappedInvestments) {
-    const exchangeRateId = explicitRateIdByVoucherItemId.get(investment.id)
-      ?? rateIdByTargetDate.get(investment.voucherDate)!;
-    const rateEvidence = investment.historicalRate && investment.matchingLabel
-      ? `投资凭证 ${investment.voucherNo} 按凭证匹配“${investment.matchingLabel}”的历史折算率 ${investment.historicalRate} 折算`
-      : `投资凭证 ${investment.voucherNo} 按 ${investment.voucherDate} 中国货币网人民币汇率中间价自动折算`;
+  for (const { investment, entity } of uncoveredInvestments) {
+    const exchangeRateId = explicitRateIdByVoucherItemId.get(investment.id)!;
+    const contributionDate = investment.capitalContributionDate ?? investment.voucherDate;
+    const actualWeightedRate = Math.round((investment.bookedAmountCny / investment.originalAmount!) * 100_000_000) / 100_000_000;
+    const rateEvidence = `投资凭证 ${investment.voucherNo}：${investment.originalAmount} CAD 对应实际人民币投资金额 ${investment.bookedAmountCny} CNY；${contributionDate} 为实际出资日，加权汇率 ${actualWeightedRate} 由金额反算`;
     const shared = {
       exchangeRateId,
       applicationType: "historicalInvestment" as const,
       entitySnapshotId: entity.id,
       voucherItemId: investment.id,
+      capitalHistoricalAmountCny: investment.bookedAmountCny,
+      capitalEvidenceKind: "voucher" as const,
+      capitalEvidenceDate: investment.voucherDate,
+      capitalContributionDate: contributionDate,
       evidence: rateEvidence,
     };
     rateApplications.push({ ...shared, periodBasis: "current" });
-    if (investment.voucherDate <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
+    if ((investment.capitalContributionDate ?? investment.voucherDate) <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
       rateApplications.push({ ...shared, periodBasis: "comparative" });
     }
   }
@@ -307,7 +320,7 @@ async function loadAutomaticRateFacts(
   const { rates } = await applyConsolidationRatePolicies({
     periodEnd: selectedPeriodEnd,
     requiredComparativeEntityIds,
-    requiredInvestmentVoucherIds: mappedInvestments.map(({ investment }) => investment.id),
+    requiredInvestmentVoucherIds: uncoveredInvestments.map(({ investment }) => investment.id),
     companyCodes: batch.entities.map((entity) => entity.companyCode),
     entities: batch.entities,
     currencyPolicies,

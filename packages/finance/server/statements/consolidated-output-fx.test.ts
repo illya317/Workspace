@@ -439,7 +439,7 @@ test("CAD retained earnings use the approved opening and monthly translated prof
   const balance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 1_064);
 });
-test("CAD flow statements use monthly averages and retained earnings roll from the approved CNY opening", () => {
+test("CAD flow statements reject missing monthly facts instead of falling back to the closing rate", () => {
   const replay = replayPackage();
   replay.batch.month = 2;
   replay.exchangeRates = [
@@ -487,13 +487,8 @@ test("CAD flow statements use monthly averages and retained earnings roll from t
     },
   };
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
-  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
-  if (!result.ok) return;
-  const outputIncome = result.data.statements.find((statement) => statement.reportType === "incomeStatement")!;
-  const outputBalance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
-  assert.equal(outputIncome.lines.find((item) => item.lineCode === "revenue")?.amount, 900);
-  assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.amount, 400);
-  assert.equal(outputBalance.lines.find((item) => item.lineCode === "undistributedProfit")?.previousAmount, -500);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "monthlyFlows");
 });
 
 function roundingCashFlowReplay() {

@@ -32,6 +32,7 @@ export type FinanceAccountBalanceAvgAggregateOutputType = {
   periodId: number | null
   openingDebit: number | null
   openingCredit: number | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
   currentDebit: number | null
   currentCredit: number | null
   closingDebit: number | null
@@ -45,6 +46,7 @@ export type FinanceAccountBalanceSumAggregateOutputType = {
   periodId: number | null
   openingDebit: number | null
   openingCredit: number | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
   currentDebit: number | null
   currentCredit: number | null
   closingDebit: number | null
@@ -58,6 +60,9 @@ export type FinanceAccountBalanceMinAggregateOutputType = {
   periodId: number | null
   openingDebit: number | null
   openingCredit: number | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   currentDebit: number | null
   currentCredit: number | null
   closingDebit: number | null
@@ -74,6 +79,9 @@ export type FinanceAccountBalanceMaxAggregateOutputType = {
   periodId: number | null
   openingDebit: number | null
   openingCredit: number | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   currentDebit: number | null
   currentCredit: number | null
   closingDebit: number | null
@@ -90,6 +98,9 @@ export type FinanceAccountBalanceCountAggregateOutputType = {
   periodId: number
   openingDebit: number
   openingCredit: number
+  capitalHistoricalAmountCny: number
+  capitalEvidenceKind: number
+  capitalEvidence: number
   currentDebit: number
   currentCredit: number
   closingDebit: number
@@ -108,6 +119,7 @@ export type FinanceAccountBalanceAvgAggregateInputType = {
   periodId?: true
   openingDebit?: true
   openingCredit?: true
+  capitalHistoricalAmountCny?: true
   currentDebit?: true
   currentCredit?: true
   closingDebit?: true
@@ -121,6 +133,7 @@ export type FinanceAccountBalanceSumAggregateInputType = {
   periodId?: true
   openingDebit?: true
   openingCredit?: true
+  capitalHistoricalAmountCny?: true
   currentDebit?: true
   currentCredit?: true
   closingDebit?: true
@@ -134,6 +147,9 @@ export type FinanceAccountBalanceMinAggregateInputType = {
   periodId?: true
   openingDebit?: true
   openingCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   currentDebit?: true
   currentCredit?: true
   closingDebit?: true
@@ -150,6 +166,9 @@ export type FinanceAccountBalanceMaxAggregateInputType = {
   periodId?: true
   openingDebit?: true
   openingCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   currentDebit?: true
   currentCredit?: true
   closingDebit?: true
@@ -166,6 +185,9 @@ export type FinanceAccountBalanceCountAggregateInputType = {
   periodId?: true
   openingDebit?: true
   openingCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   currentDebit?: true
   currentCredit?: true
   closingDebit?: true
@@ -269,6 +291,9 @@ export type FinanceAccountBalanceGroupByOutputType = {
   periodId: number
   openingDebit: number
   openingCredit: number
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   currentDebit: number
   currentCredit: number
   closingDebit: number
@@ -308,6 +333,9 @@ export type FinanceAccountBalanceWhereInput = {
   periodId?: Prisma.IntFilter<"FinanceAccountBalance"> | number
   openingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   openingCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceAccountBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
   currentDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   currentCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   closingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
@@ -330,6 +358,9 @@ export type FinanceAccountBalanceOrderByWithRelationInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -356,6 +387,9 @@ export type FinanceAccountBalanceWhereUniqueInput = Prisma.AtLeast<{
   periodId?: Prisma.IntFilter<"FinanceAccountBalance"> | number
   openingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   openingCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceAccountBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
   currentDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   currentCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   closingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
@@ -378,6 +412,9 @@ export type FinanceAccountBalanceOrderByWithAggregationInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -402,6 +439,9 @@ export type FinanceAccountBalanceScalarWhereWithAggregatesInput = {
   periodId?: Prisma.IntWithAggregatesFilter<"FinanceAccountBalance"> | number
   openingDebit?: Prisma.FloatWithAggregatesFilter<"FinanceAccountBalance"> | number
   openingCredit?: Prisma.FloatWithAggregatesFilter<"FinanceAccountBalance"> | number
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceAccountBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccountBalance"> | string | null
+  capitalEvidence?: Prisma.StringNullableWithAggregatesFilter<"FinanceAccountBalance"> | string | null
   currentDebit?: Prisma.FloatWithAggregatesFilter<"FinanceAccountBalance"> | number
   currentCredit?: Prisma.FloatWithAggregatesFilter<"FinanceAccountBalance"> | number
   closingDebit?: Prisma.FloatWithAggregatesFilter<"FinanceAccountBalance"> | number
@@ -415,6 +455,9 @@ export type FinanceAccountBalanceScalarWhereWithAggregatesInput = {
 export type FinanceAccountBalanceCreateInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -436,6 +479,9 @@ export type FinanceAccountBalanceUncheckedCreateInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -452,6 +498,9 @@ export type FinanceAccountBalanceUncheckedCreateInput = {
 export type FinanceAccountBalanceUpdateInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -473,6 +522,9 @@ export type FinanceAccountBalanceUncheckedUpdateInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -492,6 +544,9 @@ export type FinanceAccountBalanceCreateManyInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -505,6 +560,9 @@ export type FinanceAccountBalanceCreateManyInput = {
 export type FinanceAccountBalanceUpdateManyMutationInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -520,6 +578,9 @@ export type FinanceAccountBalanceUncheckedUpdateManyInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -556,6 +617,9 @@ export type FinanceAccountBalanceCountOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -572,6 +636,7 @@ export type FinanceAccountBalanceAvgOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -585,6 +650,9 @@ export type FinanceAccountBalanceMaxOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -601,6 +669,9 @@ export type FinanceAccountBalanceMinOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -617,6 +688,7 @@ export type FinanceAccountBalanceSumOrderByAggregateInput = {
   periodId?: Prisma.SortOrder
   openingDebit?: Prisma.SortOrder
   openingCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
   currentDebit?: Prisma.SortOrder
   currentCredit?: Prisma.SortOrder
   closingDebit?: Prisma.SortOrder
@@ -801,6 +873,9 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyNestedInput = 
 export type FinanceAccountBalanceCreateWithoutAssetCutoverCardsInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -821,6 +896,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutAssetCutoverCardsInput = 
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -841,6 +919,9 @@ export type FinanceAccountBalanceCreateOrConnectWithoutAssetCutoverCardsInput = 
 export type FinanceAccountBalanceCreateWithoutAccumulatedAssetCutoverCardsInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -861,6 +942,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutAccumulatedAssetCutoverCa
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -881,6 +965,9 @@ export type FinanceAccountBalanceCreateOrConnectWithoutAccumulatedAssetCutoverCa
 export type FinanceAccountBalanceCreateWithoutImpairmentAssetCutoverCardsInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -901,6 +988,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutImpairmentAssetCutoverCar
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -932,6 +1022,9 @@ export type FinanceAccountBalanceUpdateToOneWithWhereWithoutAssetCutoverCardsInp
 export type FinanceAccountBalanceUpdateWithoutAssetCutoverCardsInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -952,6 +1045,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutAssetCutoverCardsInput = 
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -978,6 +1074,9 @@ export type FinanceAccountBalanceUpdateToOneWithWhereWithoutAccumulatedAssetCuto
 export type FinanceAccountBalanceUpdateWithoutAccumulatedAssetCutoverCardsInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -998,6 +1097,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutAccumulatedAssetCutoverCa
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1024,6 +1126,9 @@ export type FinanceAccountBalanceUpdateToOneWithWhereWithoutImpairmentAssetCutov
 export type FinanceAccountBalanceUpdateWithoutImpairmentAssetCutoverCardsInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1044,6 +1149,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCar
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1059,6 +1167,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutImpairmentAssetCutoverCar
 export type FinanceAccountBalanceCreateWithoutAccountInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1078,6 +1189,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutAccountInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1126,6 +1240,9 @@ export type FinanceAccountBalanceScalarWhereInput = {
   periodId?: Prisma.IntFilter<"FinanceAccountBalance"> | number
   openingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   openingCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceAccountBalance"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceAccountBalance"> | string | null
   currentDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   currentCredit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
   closingDebit?: Prisma.FloatFilter<"FinanceAccountBalance"> | number
@@ -1139,6 +1256,9 @@ export type FinanceAccountBalanceScalarWhereInput = {
 export type FinanceAccountBalanceCreateWithoutPeriodInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1158,6 +1278,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutPeriodInput = {
   accountId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1200,6 +1323,9 @@ export type FinanceAccountBalanceUpdateManyWithWhereWithoutPeriodInput = {
 export type FinanceAccountBalanceCreateWithoutCompanyInput = {
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1220,6 +1346,9 @@ export type FinanceAccountBalanceUncheckedCreateWithoutCompanyInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1263,6 +1392,9 @@ export type FinanceAccountBalanceCreateManyAccountInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1276,6 +1408,9 @@ export type FinanceAccountBalanceCreateManyAccountInput = {
 export type FinanceAccountBalanceUpdateWithoutAccountInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1295,6 +1430,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutAccountInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1313,6 +1451,9 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutAccountInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1328,6 +1469,9 @@ export type FinanceAccountBalanceCreateManyPeriodInput = {
   accountId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1341,6 +1485,9 @@ export type FinanceAccountBalanceCreateManyPeriodInput = {
 export type FinanceAccountBalanceUpdateWithoutPeriodInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1360,6 +1507,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutPeriodInput = {
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1378,6 +1528,9 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodInput = {
   accountId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1394,6 +1547,9 @@ export type FinanceAccountBalanceCreateManyCompanyInput = {
   periodId: number
   openingDebit?: number
   openingCredit?: number
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   currentDebit?: number
   currentCredit?: number
   closingDebit?: number
@@ -1406,6 +1562,9 @@ export type FinanceAccountBalanceCreateManyCompanyInput = {
 export type FinanceAccountBalanceUpdateWithoutCompanyInput = {
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1426,6 +1585,9 @@ export type FinanceAccountBalanceUncheckedUpdateWithoutCompanyInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1444,6 +1606,9 @@ export type FinanceAccountBalanceUncheckedUpdateManyWithoutCompanyInput = {
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
   openingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   openingCredit?: Prisma.FloatFieldUpdateOperationsInput | number
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentDebit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentCredit?: Prisma.FloatFieldUpdateOperationsInput | number
   closingDebit?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1508,6 +1673,9 @@ export type FinanceAccountBalanceSelect<ExtArgs extends runtime.Types.Extensions
   periodId?: boolean
   openingDebit?: boolean
   openingCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   currentDebit?: boolean
   currentCredit?: boolean
   closingDebit?: boolean
@@ -1531,6 +1699,9 @@ export type FinanceAccountBalanceSelectCreateManyAndReturn<ExtArgs extends runti
   periodId?: boolean
   openingDebit?: boolean
   openingCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   currentDebit?: boolean
   currentCredit?: boolean
   closingDebit?: boolean
@@ -1550,6 +1721,9 @@ export type FinanceAccountBalanceSelectUpdateManyAndReturn<ExtArgs extends runti
   periodId?: boolean
   openingDebit?: boolean
   openingCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   currentDebit?: boolean
   currentCredit?: boolean
   closingDebit?: boolean
@@ -1569,6 +1743,9 @@ export type FinanceAccountBalanceSelectScalar = {
   periodId?: boolean
   openingDebit?: boolean
   openingCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   currentDebit?: boolean
   currentCredit?: boolean
   closingDebit?: boolean
@@ -1579,7 +1756,7 @@ export type FinanceAccountBalanceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceAccountBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "periodId" | "openingDebit" | "openingCredit" | "currentDebit" | "currentCredit" | "closingDebit" | "closingCredit" | "companyCode" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccountBalance"]>
+export type FinanceAccountBalanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "accountId" | "periodId" | "openingDebit" | "openingCredit" | "capitalHistoricalAmountCny" | "capitalEvidenceKind" | "capitalEvidence" | "currentDebit" | "currentCredit" | "closingDebit" | "closingCredit" | "companyCode" | "companyId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAccountBalance"]>
 export type FinanceAccountBalanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
@@ -1616,6 +1793,15 @@ export type $FinanceAccountBalancePayload<ExtArgs extends runtime.Types.Extensio
     periodId: number
     openingDebit: number
     openingCredit: number
+    /**
+     * 资本期初余额经受控证据确认的历史人民币金额；汇率由 service 反算，不作为输入事实
+     */
+    capitalHistoricalAmountCny: runtime.Decimal | null
+    /**
+     * openingBalance；保留来源语义，禁止把账期起始日当成资本发生日
+     */
+    capitalEvidenceKind: string | null
+    capitalEvidence: string | null
     currentDebit: number
     currentCredit: number
     closingDebit: number
@@ -2058,6 +2244,9 @@ export interface FinanceAccountBalanceFieldRefs {
   readonly periodId: Prisma.FieldRef<"FinanceAccountBalance", 'Int'>
   readonly openingDebit: Prisma.FieldRef<"FinanceAccountBalance", 'Float'>
   readonly openingCredit: Prisma.FieldRef<"FinanceAccountBalance", 'Float'>
+  readonly capitalHistoricalAmountCny: Prisma.FieldRef<"FinanceAccountBalance", 'Decimal'>
+  readonly capitalEvidenceKind: Prisma.FieldRef<"FinanceAccountBalance", 'String'>
+  readonly capitalEvidence: Prisma.FieldRef<"FinanceAccountBalance", 'String'>
   readonly currentDebit: Prisma.FieldRef<"FinanceAccountBalance", 'Float'>
   readonly currentCredit: Prisma.FieldRef<"FinanceAccountBalance", 'Float'>
   readonly closingDebit: Prisma.FieldRef<"FinanceAccountBalance", 'Float'>

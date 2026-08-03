@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildHistoricalCapitalRateApplications,
   aggregateHistoricalCapitalFacts,
   cadAmountFromDescription,
   parseVoucherMatchingEvidence,
@@ -32,6 +33,7 @@ test("reads an explicit consolidation match from voucher evidence", () => {
   assert.deepEqual(parseVoucherMatchingEvidence({
     kind: "finance-consolidation-voucher",
     evidence: {
+      actualContributionDate: "2018-02-13",
       matching: {
         label: "加拿大公司实收资本",
         companyCode: "05",
@@ -48,6 +50,7 @@ test("reads an explicit consolidation match from voucher evidence", () => {
     currencyCode: "CAD",
     originalAmount: 100_000,
     historicalRate: 5.05056,
+    actualContributionDate: "2018-02-13",
   });
   assert.equal(parseVoucherMatchingEvidence({ evidence: { matching: { label: "加拿大" } } }), null);
 });
@@ -56,12 +59,16 @@ test("aggregates opening capital and posted capital movements by company and occ
   const facts = aggregateHistoricalCapitalFacts({
     opening: [
       {
+        id: 7,
         companyCode: "ZX05",
         targetDate: "2020-01-01",
         accountCode: "3001",
         accountName: "实收资本",
         openingDebit: 0,
         openingCredit: 100_000,
+        capitalHistoricalAmountCny: 505_056,
+        capitalEvidenceKind: "openingBalance",
+        capitalEvidence: "历史汇款人民币金额合计",
       },
       {
         companyCode: "ZX05",
@@ -100,13 +107,44 @@ test("aggregates opening capital and posted capital movements by company and occ
     companyCode: fact.companyCode,
     targetDate: fact.targetDate,
     originalAmount: fact.originalAmount,
+    capitalEvidenceKind: fact.capitalEvidenceKind,
+    capitalContributionDate: fact.capitalContributionDate,
   })), [
-    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 100_000 },
-    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 321_462.29 },
-    { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6 },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 100_000, capitalEvidenceKind: "openingBalance", capitalContributionDate: null },
+    { companyCode: "ZX05", targetDate: "2020-01-01", originalAmount: 321_462.29, capitalEvidenceKind: "openingBalance", capitalContributionDate: null },
+    { companyCode: "ZX05", targetDate: "2024-04-01", originalAmount: 51_336.6, capitalEvidenceKind: "voucher", capitalContributionDate: "2024-04-01" },
   ]);
   assert.match(facts[0]!.evidence, /最早可用账期期初余额/);
+  assert.equal(facts[0]!.historicalAmountCny, 505_056);
+  assert.equal(facts[0]!.sourceRecordId, 7);
   assert.match(facts[2]!.evidence, /2024-04-记-0004/);
+});
+
+test("never treats an opening-balance date as the capital contribution date", () => {
+  const facts = aggregateHistoricalCapitalFacts({
+    opening: [{
+      id: 8,
+      companyCode: "ZX05",
+      targetDate: "2020-01-01",
+      accountCode: "3001",
+      accountName: "实收资本",
+      openingDebit: 0,
+      openingCredit: 100_000,
+    }],
+    movements: [],
+  });
+
+  assert.throws(() => buildHistoricalCapitalRateApplications({
+    facts,
+    rateIdByTargetDate: new Map([["2020-01-01", 99]]),
+    rateIdByHistoricalSource: new Map(),
+    comparativePeriodEnd: "2025-06-30",
+    comparativeCompanyIds: new Set([12]),
+    companyIdByCode: new Map([["ZX05", 12]]),
+    snapshotIdByCompany: new Map([[12, 178]]),
+  }), /缺少实际出资日和历史折算人民币金额/);
+  assert.equal(facts[0]!.capitalContributionDate, null);
+  assert.equal(facts[0]!.historicalAmountCny, null);
 });
 
 test("ignores debit-side reductions and zero capital facts in the current additive policy", () => {

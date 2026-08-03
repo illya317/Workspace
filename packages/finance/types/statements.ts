@@ -27,7 +27,12 @@ export type ConsolidationControlKey =
   | "tax"
   | `elimination:${ConsolidationEntryType}`;
 export type StatementSourceKind = "workpaper" | "system" | "missing";
-export type StatementExchangeRateKind = "centralParity" | "monthlyAverage" | "closing" | "historicalInvestment";
+export type StatementExchangeRateKind =
+  | "centralParity"
+  | "monthlyAverage"
+  | "closing"
+  | "historicalInvestment"
+  | "historicalCapitalAmount";
 
 export interface ConsolidationPeriodOption {
   year: number;
@@ -139,7 +144,7 @@ export interface ConsolidationInvestmentEvidence {
   currencyCode: string | null;
   originalAmount: number | null;
   transactionRate: number | null;
-  rateStatus: "recorded" | "missingOriginalCurrency" | "missingRate";
+  rateStatus: "recorded" | "derivedFromActualCny" | "missingOriginalCurrency" | "missingRate";
 }
 
 export interface ConsolidationReportOutput {
@@ -204,7 +209,11 @@ export interface ConsolidationRateApplicationSnapshot {
   voucherItemId: number | null;
   targetDate: string;
   evidence: string;
+  capitalEvidenceKind?: "openingBalance" | "openingVoucher" | "cumulativeVoucher" | "voucher" | null;
+  capitalEvidenceDate?: string | null;
+  capitalContributionDate?: string | null;
   capitalOriginalAmount?: number | null;
+  capitalHistoricalAmountCny?: number | null;
   capitalLineCode?: "paidInCapital" | "capitalReserve" | null;
   voucher: {
     companyCode: string;

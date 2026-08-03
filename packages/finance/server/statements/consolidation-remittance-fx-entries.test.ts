@@ -103,9 +103,9 @@ test("historical capital rates generate a partial-ownership Canada elimination v
       exchangeRateVersion: 1,
       baseCurrency: "CAD",
       quoteCurrency: "CNY",
-      rateKind: "centralParity",
+      rateKind: "historicalCapitalAmount",
       rateDate: "2025-03-14",
-      rate: 5,
+      rate: 5.0506,
       sourceUrl: "https://example.test/rate-1",
       applications: [{
         applicationType: "historicalCapital",
@@ -115,6 +115,11 @@ test("historical capital rates generate a partial-ownership Canada elimination v
         targetDate: "2025-03-14",
         evidence: "实收资本",
         capitalOriginalAmount: 100,
+        capitalHistoricalAmountCny: 505.06,
+        capitalEvidenceKind: "openingBalance",
+        capitalEvidenceDate: "2025-03-14",
+        capitalContributionDate: null,
+        capitalLineCode: "paidInCapital",
         voucher: null,
       }],
     }, {
@@ -178,10 +183,11 @@ test("historical capital rates generate a partial-ownership Canada elimination v
   assert.equal(entry?.documentType, "elimination");
   assert.equal(entry?.postingLevel, "20");
   assert.match(entry?.description ?? "", /持股比例不阻断/);
+  assert.match(entry?.lines[0]?.note ?? "", /历史折算人民币金额；加权汇率 5.0506/);
   assert.deepEqual(entry?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
-    ["paidInCapital", 500, 0],
+    ["paidInCapital", 505.06, 0],
     ["capitalReserve", 260, 0],
     ["longTermInvest", 0, 700],
-    ["otherComprehensiveIncome", 0, 60],
+    ["otherComprehensiveIncome", 0, 65.06],
   ]);
 });
