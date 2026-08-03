@@ -120,6 +120,7 @@ export interface AnalyticsData {
   edps: EDP[];
   employments: Employment[];
   contracts: Contract[];
+  contractsError: string | null;
   loading: boolean;
   error: string | null;
 }
@@ -132,20 +133,30 @@ export function useAnalyticsData() {
     edps: [],
     employments: [],
     contracts: [],
+    contractsError: null,
     loading: true,
     error: null,
   });
 
   useEffect(() => {
+    async function loadJson<T>(path: string): Promise<T> {
+      const response = await fetch(workspacePath(path));
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
+      return response.json() as Promise<T>;
+    }
+
     async function load() {
       try {
-        const [empRes, deptRes, posRes, edpRes, emtRes, conRes] = await Promise.all([
-          fetch(workspacePath("/api/modules/hr/roster/employees?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/departments?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/positions?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/edps?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/employments?pageSize=500")).then((r) => r.json()),
-          fetch(workspacePath("/api/modules/hr/roster/contracts?pageSize=500&isActive=true")).then((r) => r.json()),
+        const contractRequest = loadJson<{ contracts?: Contract[] }>("/api/modules/hr/roster/contracts?pageSize=500&isActive=true")
+          .then((payload) => ({ payload, error: null }))
+          .catch(() => ({ payload: { contracts: [] as Contract[] }, error: "合同数据暂不可用" }));
+        const [empRes, deptRes, posRes, edpRes, emtRes, contractResult] = await Promise.all([
+          loadJson<{ employees?: Employee[] }>("/api/modules/hr/roster/employees?pageSize=500"),
+          loadJson<{ departments?: Department[] }>("/api/modules/hr/roster/departments?pageSize=500"),
+          loadJson<{ positions?: Position[] }>("/api/modules/hr/roster/positions?pageSize=500"),
+          loadJson<{ positions?: EDP[] }>("/api/modules/hr/roster/edps?pageSize=500"),
+          loadJson<{ items?: Employment[] }>("/api/modules/hr/roster/employments?pageSize=500"),
+          contractRequest,
         ]);
 
         setData({
@@ -154,7 +165,8 @@ export function useAnalyticsData() {
           positions: posRes.positions || [],
           edps: edpRes.positions || [],
           employments: emtRes.items || [],
-          contracts: conRes.contracts || [],
+          contracts: contractResult.payload.contracts || [],
+          contractsError: contractResult.error,
           loading: false,
           error: null,
         });

@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
-
 import { buildConsolidatedReportOutput } from "./consolidated-output";
 import {
   buildConsolidatedPreviewFromBatchSnapshot,
@@ -386,7 +384,24 @@ test("approved eliminations update detail lines and derived totals", () => {
   assert.equal(cashFlow.lines.find((item) => item.lineCode === "purchasePayment")?.amount, 40);
   assert.equal(cashFlow.totals.netIncrease, 50);
 });
-
+test("prior-month internal cash flow adjusts year-to-date without changing the selected month", () => {
+  const replay = replayPackage();
+  replay.approvedEntries = replay.approvedEntries.map((entry) => ({
+    ...entry,
+    entryType: "cashFlow",
+    postingDate: "2026-11-30",
+    lines: entry.lines.filter((entryLine) => entryLine.statementType === "cashFlow"),
+  }));
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CNY"]]));
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  const cashFlow = result.data.statements.find((statement) => statement.reportType === "cashFlow")!;
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "salesReceipt")?.amount, 90);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "salesReceipt")?.currentMonthAmount, 20);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "purchasePayment")?.amount, 40);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "purchasePayment")?.currentMonthAmount, 8);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "operatingNet")?.currentMonthAmount, 12);
+});
 test("legacy snapshots without canonical lineCode are rejected", () => {
   const replay = replayPackage();
   const payload = replay.sources[0]!.reportPayload as { payload: { assets: Record<string, unknown>[] } };
@@ -396,7 +411,6 @@ test("legacy snapshots without canonical lineCode are rejected", () => {
   if (result.ok) return;
   assert.match(result.issue.message, /规范行标识/);
 });
-
 test("unbalanced consolidated balance sheets are rejected with the equation details", () => {
   const replay = replayPackage();
   replay.approvedEntries = [];
@@ -404,14 +418,12 @@ test("unbalanced consolidated balance sheets are rejected with the equation deta
     payload: { equity: Array<{ lineCode: string; amount: number }> };
   };
   payload.payload.equity.find((item) => item.lineCode === "paidInCapital")!.amount = 60;
-
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CNY"]]));
   assert.equal(result.ok, false);
   if (result.ok) return;
   assert.equal(result.issue.field, "balanceEquation");
   assert.match(result.issue.message, /资产 150\.00，负债及权益 140\.00，差额 10\.00/);
 });
-
 test("official output only accepts locked or published batches", () => {
   const reviewed = buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("reviewed"));
   assert.equal(reviewed.ok, false);
@@ -420,12 +432,10 @@ test("official output only accepts locked or published batches", () => {
   assert.equal(buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("locked")).ok, true);
   assert.equal(buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("published")).ok, true);
 });
-
 test("period preview includes generated draft entries in the workpaper", () => {
   const draft = batchSnapshot("draft");
   draft.entries = draft.entries.map((entry) => ({ ...entry, status: "draft" }));
   draft.controlDecisions = [];
-
   const preview = buildConsolidatedPreviewFromBatchSnapshot(draft);
   assert.equal(preview.ok, true);
   if (!preview.ok) return;
@@ -433,7 +443,6 @@ test("period preview includes generated draft entries in the workpaper", () => {
   assert.equal(preview.data.approvedEntryCount, 1);
   assert.equal(preview.data.statements.length, 3);
 });
-
 test("period preview blocks when ERP functional currency facts are missing", () => {
   const draft = batchSnapshot("draft");
   draft.entities[0]!.functionalCurrency = null;
@@ -441,24 +450,20 @@ test("period preview blocks when ERP functional currency facts are missing", () 
   assert.equal(preview.ok, false);
   if (!preview.ok) assert.equal(preview.issue.field, "functionalCurrency");
 });
-
 test("lock precheck builds from the reviewed batch entity functional currency", () => {
   const reviewed = batchSnapshot("reviewed");
   const valid = buildConsolidatedOutputFromBatchSnapshot(reviewed, "lockCandidate");
   assert.equal(valid.ok, true);
-
   reviewed.entities[0]!.functionalCurrency = null;
   const missingCurrency = buildConsolidatedOutputFromBatchSnapshot(reviewed, "lockCandidate");
   assert.equal(missingCurrency.ok, false);
   if (missingCurrency.ok) return;
   assert.match(missingCurrency.issue.message, /缺少批次冻结的本位币/);
 });
-
 test("lock preparation freezes the post-lock metadata and deterministic report payload", () => {
   const generatedAt = new Date("2027-01-04T08:09:10.123Z");
   const batch = batchSnapshot("reviewed");
   const prepared = prepareLockedConsolidatedOutputSnapshot(batch, 19, generatedAt);
-
   assert.equal(prepared.ok, true);
   if (!prepared.ok) return;
   assert.equal(prepared.data.report.batch.status, "locked");
@@ -469,7 +474,6 @@ test("lock preparation freezes the post-lock metadata and deterministic report p
   assert.equal(prepared.data.data.version, CONSOLIDATED_OUTPUT_SNAPSHOT_VERSION);
   assert.equal(prepared.data.data.inputFingerprint.length, 64);
   assert.equal(prepared.data.data.outputFingerprint.length, 64);
-
   const frozen = readConsolidatedOutputSnapshot(
     prepared.data.data,
     batch.id,
@@ -479,13 +483,11 @@ test("lock preparation freezes the post-lock metadata and deterministic report p
   if (!frozen.ok) return;
   assert.deepEqual(frozen.data, prepared.data.report);
 });
-
 test("frozen output rejects changed report payloads instead of silently recomputing", () => {
   const generatedAt = new Date("2027-01-04T08:09:10.123Z");
   const prepared = prepareLockedConsolidatedOutputSnapshot(batchSnapshot("reviewed"), 19, generatedAt);
   assert.equal(prepared.ok, true);
   if (!prepared.ok) return;
-
   const tampered = structuredClone(prepared.data.data.reportPayload) as {
     statements: Array<{ lines: Array<{ amount: number }> }>;
   };
@@ -494,7 +496,6 @@ test("frozen output rejects changed report payloads instead of silently recomput
     ...prepared.data.data,
     reportPayload: tampered,
   }, prepared.data.data.batchId, prepared.data.inputBatch);
-
   assert.equal(frozen.ok, false);
   if (frozen.ok) return;
   assert.match(frozen.issue.message, /指纹不一致/);
@@ -504,7 +505,6 @@ test("frozen output requires its lock-time input fingerprint", () => {
   const prepared = prepareLockedConsolidatedOutputSnapshot(batchSnapshot("reviewed"), 19, generatedAt);
   assert.equal(prepared.ok, true);
   if (!prepared.ok) return;
-
   const frozen = readConsolidatedOutputSnapshot({
     ...prepared.data.data,
     inputFingerprint: "",

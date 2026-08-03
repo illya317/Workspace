@@ -262,7 +262,7 @@ export function buildExperienceRequirementField(
 
       }],
       items: [
-        { key: "years", label: "年限（年以上）", spec: { valueType: "number", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },
+        { key: "years", label: "年限要求", spec: { valueType: "number", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.years, inputMode: "numeric" as const, placeholder: "1", onChange: next => updateItem(index, { years: positiveIntegerText(String(next ?? "")) }) },
         { key: "requirement", label: "要求内容", spec: { valueType: "string", control: "text", state: disabled ? "disabled" as const : "normal" as const }, value: item.requirement, placeholder: "经验要求", onChange: next => updateItem(index, { requirement: String(next ?? "") }) },
       ],
     })),

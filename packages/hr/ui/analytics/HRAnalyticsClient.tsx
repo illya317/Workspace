@@ -46,7 +46,9 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
     department: departmentSections,
     position: positionSections,
     turnover: turnoverSections,
-    contract: contractSections,
+    contract: data.contractsError
+      ? [createMessageSection("contracts-error", { tone: "warning", content: data.contractsError })]
+      : contractSections,
     headcount: headcountSections,
   };
   let sections: BodySurfaceSectionSpec[];
@@ -60,12 +62,12 @@ export default function HRAnalyticsClient({ user: _user }: { user: SessionUser; 
 
   return (
     <PageSurface kind="standard"
-	      tabbar={createPageTabBar({
-	        items: tabs,
-	        active: activeTab,
-	        onChange: (k: string) => setActiveTab(k as AnalyticsTab),
-	      })}
-	      body={createPageBody(sections)}
-	    />
+      tabbar={createPageTabBar({
+        items: tabs,
+        active: activeTab,
+        onChange: (k: string) => setActiveTab(k as AnalyticsTab),
+      })}
+      body={createPageBody(sections)}
+    />
   );
 }

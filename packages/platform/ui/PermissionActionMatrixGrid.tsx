@@ -97,13 +97,27 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
         { content: renderSubject(subject), emphasis: "medium" },
         ...columns.map((column) => {
           const states = summarizePermissionActionColumn(record, column.key, column.actions, column.mode);
-          return { content: { kind: "selectionGrid" as const, options: states.map((state) => ({
-            value: state.actionKey,
-            label: getPermissionActionLabel(state.actionKey),
-            icon: getPermissionActionGlyph(state.actionKey) as ActionGlyphKind,
-            tone: state.has ? permissionSourceTone(state.source) : "gray",
-            title: chipTitle(state, false),
-          })), mode: "readOnly" as const, presentation: "chip" as const, emptyText: "-", ariaLabel: column.columnLabel }, align: "center" as const };
+          const summary = {
+            kind: "selectionGrid" as const,
+            options: states.map((state) => ({
+              value: state.actionKey,
+              label: getPermissionActionLabel(state.actionKey),
+              icon: getPermissionActionGlyph(state.actionKey) as ActionGlyphKind,
+              tone: state.has ? permissionSourceTone(state.source) : "gray",
+              title: chipTitle(state, false),
+            })),
+            mode: "readOnly" as const,
+            presentation: "chip" as const,
+            emptyText: "-",
+            ariaLabel: column.columnLabel,
+            stopPropagation: false,
+          };
+          return { content: {
+            kind: "interactive" as const,
+            content: summary,
+            ariaLabel: `展开${subjectColumnLabel}${column.columnLabel}`,
+            onClick: () => onToggleExpand(subject),
+          }, align: "center" as const };
         }),
       ]);
       rowInteractions.push({ onClick: () => onToggleExpand(subject), ariaLabel: `展开${subjectColumnLabel}` });
