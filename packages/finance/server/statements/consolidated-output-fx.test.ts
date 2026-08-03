@@ -176,6 +176,7 @@ function rateApplication(
       bookedAmountCny: 350,
       currencyCode: "CAD",
       originalAmount: 70,
+      matchingLineCode: "paidInCapital",
     } : null,
   };
 }

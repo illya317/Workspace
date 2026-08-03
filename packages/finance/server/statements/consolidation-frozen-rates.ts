@@ -18,12 +18,16 @@ export function historicalEquityRate(
   rates: readonly ConsolidationRateReferenceSnapshot[],
   entitySnapshotId: number,
   periodBasis: "current" | "comparative",
+  lineCode: "paidInCapital" | "capitalReserve",
 ): DomainValidationResult<number | null> {
   const bindings = rates.flatMap((rate) => rate.applications
     .filter((application) => (
       (application.applicationType === "historicalInvestment" || application.applicationType === "historicalCapital")
       && application.periodBasis === periodBasis
       && application.entitySnapshotId === entitySnapshotId
+      && (application.applicationType === "historicalCapital"
+        ? application.capitalLineCode === lineCode
+        : (application.voucher?.matchingLineCode ?? "capitalReserve") === lineCode)
     ))
     .map((application) => ({ rate, application })));
   if (bindings.length === 0) return okCommand(null);

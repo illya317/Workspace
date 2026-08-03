@@ -22,7 +22,10 @@ const REPORT_LABELS: Record<StatementReportType, string> = {
 };
 
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
-const HISTORICAL_CAPITAL_LINE_CODES = new Set([
+type HistoricalCapitalApplicationLineCode = "paidInCapital" | "capitalReserve";
+type HistoricalEquityLineCode = HistoricalCapitalApplicationLineCode | "otherEquityInstruments" | "treasuryStock";
+
+const HISTORICAL_CAPITAL_LINE_CODES = new Set<HistoricalEquityLineCode>([
   "paidInCapital",
   "otherEquityInstruments",
   "capitalReserve",
@@ -38,8 +41,7 @@ type EntityTranslationPolicy = {
   entityLabel: string;
   closingRate: number;
   comparativeClosingRate: number | null;
-  historicalCapitalRate: number | null;
-  comparativeHistoricalCapitalRate: number | null;
+  historicalCapitalRates: Record<"current" | "comparative", Record<HistoricalEquityLineCode, number | null>>;
   flowRates: Record<"current" | "comparative", Map<string, number>>;
   cashPointRates: Record<"current" | "comparative", Map<string, number>>;
 };
@@ -163,6 +165,33 @@ function entityAppliedRates(
   return okCommand(result);
 }
 
+function entityHistoricalCapitalRates(
+  replay: ConsolidationReplayPackage,
+  entitySnapshotId: number,
+  periodBasis: "current" | "comparative",
+): DomainValidationResult<Record<HistoricalEquityLineCode, number | null>> {
+  const paidInCapital = historicalEquityRate(
+    replay.exchangeRates,
+    entitySnapshotId,
+    periodBasis,
+    "paidInCapital",
+  );
+  if (!paidInCapital.ok) return paidInCapital;
+  const capitalReserve = historicalEquityRate(
+    replay.exchangeRates,
+    entitySnapshotId,
+    periodBasis,
+    "capitalReserve",
+  );
+  if (!capitalReserve.ok) return capitalReserve;
+  return okCommand({
+    paidInCapital: paidInCapital.data,
+    capitalReserve: capitalReserve.data,
+    otherEquityInstruments: null,
+    treasuryStock: null,
+  });
+}
+
 function buildEntityTranslationPolicy(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
@@ -179,9 +208,9 @@ function buildEntityTranslationPolicy(
   }
   const comparativeClosing = entityAppliedRate(replay, entitySnapshotId, "comparative");
   if (!comparativeClosing.ok) return comparativeClosing;
-  const historicalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "current");
+  const historicalCapital = entityHistoricalCapitalRates(replay, entitySnapshotId, "current");
   if (!historicalCapital.ok) return historicalCapital;
-  const comparativeHistoricalCapital = historicalEquityRate(replay.exchangeRates, entitySnapshotId, "comparative");
+  const comparativeHistoricalCapital = entityHistoricalCapitalRates(replay, entitySnapshotId, "comparative");
   if (!comparativeHistoricalCapital.ok) return comparativeHistoricalCapital;
   const currentFlowRates = entityAppliedRates(replay, entitySnapshotId, "flowAverage", "current");
   if (!currentFlowRates.ok) return currentFlowRates;
@@ -198,8 +227,10 @@ function buildEntityTranslationPolicy(
     entityLabel: entity ? `${entity.companyCode} ${entity.companyName}` : String(entitySnapshotId),
     closingRate: closing.data,
     comparativeClosingRate: comparativeClosing.data,
-    historicalCapitalRate: historicalCapital.data,
-    comparativeHistoricalCapitalRate: comparativeHistoricalCapital.data,
+    historicalCapitalRates: {
+      current: historicalCapital.data,
+      comparative: comparativeHistoricalCapital.data,
+    },
     flowRates: { current: currentFlowRates.data, comparative: comparativeFlowRates.data },
     cashPointRates: { current: currentCashPointRates.data, comparative: comparativeCashPointRates.data },
   });
@@ -224,8 +255,8 @@ function rateForSourceLine(
   }
   if (reportType !== "balanceSheet") return okCommand(closingRate);
   if (line.isHeader || line.isTotal || line.isGrandTotal || line.section !== "equity") return okCommand(closingRate);
-  if (HISTORICAL_CAPITAL_LINE_CODES.has(line.lineCode)) {
-    const historicalRate = periodBasis === "current" ? policy.historicalCapitalRate : policy.comparativeHistoricalCapitalRate;
+  if (HISTORICAL_CAPITAL_LINE_CODES.has(line.lineCode as HistoricalEquityLineCode)) {
+    const historicalRate = policy.historicalCapitalRates[periodBasis][line.lineCode as HistoricalEquityLineCode];
     if (historicalRate === null) {
       return failCommand(
         `${policy.entityLabel} 存在非零${periodBasis === "current" ? "本期" : "比较期"}权益资本，但缺少该期间适用的投资日历史汇率及原币金额`,
