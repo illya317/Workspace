@@ -37,6 +37,7 @@ export type FinanceVoucherItemAvgAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
   importId: number | null
 }
 
@@ -51,6 +52,7 @@ export type FinanceVoucherItemSumAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
   importId: number | null
 }
 
@@ -74,6 +76,9 @@ export type FinanceVoucherItemMinAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   settlementStyle: string | null
   settlementNo: string | null
   settlementDate: string | null
@@ -100,6 +105,9 @@ export type FinanceVoucherItemMaxAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   settlementStyle: string | null
   settlementNo: string | null
   settlementDate: string | null
@@ -126,6 +134,9 @@ export type FinanceVoucherItemCountAggregateOutputType = {
   exchangeRate: number
   originalDebit: number
   originalCredit: number
+  capitalHistoricalAmountCny: number
+  capitalEvidenceKind: number
+  capitalEvidence: number
   settlementStyle: number
   settlementNo: number
   settlementDate: number
@@ -146,6 +157,7 @@ export type FinanceVoucherItemAvgAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  capitalHistoricalAmountCny?: true
   importId?: true
 }
 
@@ -160,6 +172,7 @@ export type FinanceVoucherItemSumAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  capitalHistoricalAmountCny?: true
   importId?: true
 }
 
@@ -183,6 +196,9 @@ export type FinanceVoucherItemMinAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   settlementStyle?: true
   settlementNo?: true
   settlementDate?: true
@@ -209,6 +225,9 @@ export type FinanceVoucherItemMaxAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   settlementStyle?: true
   settlementNo?: true
   settlementDate?: true
@@ -235,6 +254,9 @@ export type FinanceVoucherItemCountAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  capitalHistoricalAmountCny?: true
+  capitalEvidenceKind?: true
+  capitalEvidence?: true
   settlementStyle?: true
   settlementNo?: true
   settlementDate?: true
@@ -349,6 +371,9 @@ export type FinanceVoucherItemGroupByOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  capitalHistoricalAmountCny: runtime.Decimal | null
+  capitalEvidenceKind: string | null
+  capitalEvidence: string | null
   settlementStyle: string | null
   settlementNo: string | null
   settlementDate: string | null
@@ -399,6 +424,9 @@ export type FinanceVoucherItemWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
@@ -447,6 +475,9 @@ export type FinanceVoucherItemOrderByWithRelationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalDebit?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCredit?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementNo?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementDate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -500,6 +531,9 @@ export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
@@ -548,6 +582,9 @@ export type FinanceVoucherItemOrderByWithAggregationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalDebit?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCredit?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrderInput | Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementStyle?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementNo?: Prisma.SortOrderInput | Prisma.SortOrder
   settlementDate?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -583,6 +620,9 @@ export type FinanceVoucherItemScalarWhereWithAggregatesInput = {
   exchangeRate?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
+  capitalEvidence?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
   settlementStyle?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
   settlementNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
   settlementDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
@@ -607,6 +647,9 @@ export type FinanceVoucherItemCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -654,6 +697,9 @@ export type FinanceVoucherItemUncheckedCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -696,6 +742,9 @@ export type FinanceVoucherItemUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -743,6 +792,9 @@ export type FinanceVoucherItemUncheckedUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -788,6 +840,9 @@ export type FinanceVoucherItemCreateManyInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -812,6 +867,9 @@ export type FinanceVoucherItemUpdateManyMutationInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -838,6 +896,9 @@ export type FinanceVoucherItemUncheckedUpdateManyInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -897,6 +958,9 @@ export type FinanceVoucherItemCountOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   settlementStyle?: Prisma.SortOrder
   settlementNo?: Prisma.SortOrder
   settlementDate?: Prisma.SortOrder
@@ -915,6 +979,7 @@ export type FinanceVoucherItemAvgOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
   importId?: Prisma.SortOrder
 }
 
@@ -938,6 +1003,9 @@ export type FinanceVoucherItemMaxOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   settlementStyle?: Prisma.SortOrder
   settlementNo?: Prisma.SortOrder
   settlementDate?: Prisma.SortOrder
@@ -964,6 +1032,9 @@ export type FinanceVoucherItemMinOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
+  capitalEvidenceKind?: Prisma.SortOrder
+  capitalEvidence?: Prisma.SortOrder
   settlementStyle?: Prisma.SortOrder
   settlementNo?: Prisma.SortOrder
   settlementDate?: Prisma.SortOrder
@@ -981,6 +1052,7 @@ export type FinanceVoucherItemSumOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  capitalHistoricalAmountCny?: Prisma.SortOrder
   importId?: Prisma.SortOrder
 }
 
@@ -1411,6 +1483,9 @@ export type FinanceVoucherItemCreateWithoutAssetAcquisitionEvidenceInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1457,6 +1532,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetAcquisitionEvidenceInpu
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1514,6 +1592,9 @@ export type FinanceVoucherItemUpdateWithoutAssetAcquisitionEvidenceInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1560,6 +1641,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetAcquisitionEvidenceInpu
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1601,6 +1685,9 @@ export type FinanceVoucherItemCreateWithoutAssetDisposalAsAssetItemInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1647,6 +1734,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetDisposalAsAssetItemInpu
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1693,6 +1783,9 @@ export type FinanceVoucherItemCreateWithoutAssetDisposalAsAccumulatedItemInput =
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1739,6 +1832,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetDisposalAsAccumulatedIt
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1785,6 +1881,9 @@ export type FinanceVoucherItemCreateWithoutAssetDisposalAsAllowanceItemInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1831,6 +1930,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetDisposalAsAllowanceItem
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1877,6 +1979,9 @@ export type FinanceVoucherItemCreateWithoutAssetDisposalAsProceedsItemInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1923,6 +2028,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetDisposalAsProceedsItemI
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -1969,6 +2077,9 @@ export type FinanceVoucherItemCreateWithoutAssetDisposalAsGainLossItemInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2015,6 +2126,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAssetDisposalAsGainLossItemI
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2072,6 +2186,9 @@ export type FinanceVoucherItemUpdateWithoutAssetDisposalAsAssetItemInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2118,6 +2235,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetDisposalAsAssetItemInpu
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2170,6 +2290,9 @@ export type FinanceVoucherItemUpdateWithoutAssetDisposalAsAccumulatedItemInput =
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2216,6 +2339,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetDisposalAsAccumulatedIt
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2268,6 +2394,9 @@ export type FinanceVoucherItemUpdateWithoutAssetDisposalAsAllowanceItemInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2314,6 +2443,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetDisposalAsAllowanceItem
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2366,6 +2498,9 @@ export type FinanceVoucherItemUpdateWithoutAssetDisposalAsProceedsItemInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2412,6 +2547,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetDisposalAsProceedsItemI
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2464,6 +2602,9 @@ export type FinanceVoucherItemUpdateWithoutAssetDisposalAsGainLossItemInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2510,6 +2651,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAssetDisposalAsGainLossItemI
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2551,6 +2695,9 @@ export type FinanceVoucherItemCreateWithoutCashFlowOwnerAllocationsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2597,6 +2744,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutCashFlowOwnerAllocationsInpu
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2643,6 +2793,9 @@ export type FinanceVoucherItemCreateWithoutCashFlowCounterpartAllocationsInput =
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2689,6 +2842,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutCashFlowCounterpartAllocatio
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2746,6 +2902,9 @@ export type FinanceVoucherItemUpdateWithoutCashFlowOwnerAllocationsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2792,6 +2951,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowOwnerAllocationsInpu
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2844,6 +3006,9 @@ export type FinanceVoucherItemUpdateWithoutCashFlowCounterpartAllocationsInput =
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2890,6 +3055,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowCounterpartAllocatio
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2931,6 +3099,9 @@ export type FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -2977,6 +3148,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3034,6 +3208,9 @@ export type FinanceVoucherItemUpdateWithoutConsolidationEntryLinesInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3080,6 +3257,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutConsolidationEntryLinesInput
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3121,6 +3301,9 @@ export type FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3167,6 +3350,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInp
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3224,6 +3410,9 @@ export type FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3270,6 +3459,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInp
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3311,6 +3503,9 @@ export type FinanceVoucherItemCreateWithoutAuxiliaryLinksInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3357,6 +3552,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAuxiliaryLinksInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3414,6 +3612,9 @@ export type FinanceVoucherItemUpdateWithoutAuxiliaryLinksInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3460,6 +3661,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAuxiliaryLinksInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3501,6 +3705,9 @@ export type FinanceVoucherItemCreateWithoutOpenItemsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3547,6 +3754,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutOpenItemsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3604,6 +3814,9 @@ export type FinanceVoucherItemUpdateWithoutOpenItemsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3650,6 +3863,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutOpenItemsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3691,6 +3907,9 @@ export type FinanceVoucherItemCreateWithoutImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3737,6 +3956,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3810,6 +4032,9 @@ export type FinanceVoucherItemScalarWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  capitalEvidence?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
   settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
@@ -3834,6 +4059,9 @@ export type FinanceVoucherItemCreateWithoutAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3879,6 +4107,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3947,6 +4178,9 @@ export type FinanceVoucherItemCreateWithoutVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -3992,6 +4226,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4060,6 +4297,9 @@ export type FinanceVoucherItemCreateWithoutReclassResultsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4106,6 +4346,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutReclassResultsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4163,6 +4406,9 @@ export type FinanceVoucherItemUpdateWithoutReclassResultsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4209,6 +4455,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutReclassResultsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4250,6 +4499,9 @@ export type FinanceVoucherItemCreateWithoutTaxPaymentAllocationsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4296,6 +4548,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutTaxPaymentAllocationsInput =
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4353,6 +4608,9 @@ export type FinanceVoucherItemUpdateWithoutTaxPaymentAllocationsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4399,6 +4657,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutTaxPaymentAllocationsInput =
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4440,6 +4701,9 @@ export type FinanceVoucherItemCreateWithoutTaxAccrualLinesInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4486,6 +4750,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutTaxAccrualLinesInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4543,6 +4810,9 @@ export type FinanceVoucherItemUpdateWithoutTaxAccrualLinesInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4589,6 +4859,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutTaxAccrualLinesInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4630,6 +4903,9 @@ export type FinanceVoucherItemCreateWithoutBankReconciliationItemsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4676,6 +4952,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutBankReconciliationItemsInput
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4733,6 +5012,9 @@ export type FinanceVoucherItemUpdateWithoutBankReconciliationItemsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4779,6 +5061,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutBankReconciliationItemsInput
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4820,6 +5105,9 @@ export type FinanceVoucherItemCreateWithoutInterestVoucherLinksInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4866,6 +5154,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutInterestVoucherLinksInput = 
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -4923,6 +5214,9 @@ export type FinanceVoucherItemUpdateWithoutInterestVoucherLinksInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4969,6 +5263,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutInterestVoucherLinksInput = 
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5010,6 +5307,9 @@ export type FinanceVoucherItemCreateWithoutLoanPrincipalEventsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -5056,6 +5356,9 @@ export type FinanceVoucherItemUncheckedCreateWithoutLoanPrincipalEventsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -5113,6 +5416,9 @@ export type FinanceVoucherItemUpdateWithoutLoanPrincipalEventsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5159,6 +5465,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutLoanPrincipalEventsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5203,6 +5512,9 @@ export type FinanceVoucherItemCreateManyImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -5226,6 +5538,9 @@ export type FinanceVoucherItemUpdateWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5272,6 +5587,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5316,6 +5634,9 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5341,6 +5662,9 @@ export type FinanceVoucherItemCreateManyAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -5365,6 +5689,9 @@ export type FinanceVoucherItemUpdateWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5410,6 +5737,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5454,6 +5784,9 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5480,6 +5813,9 @@ export type FinanceVoucherItemCreateManyVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: string | null
+  capitalEvidence?: string | null
   settlementStyle?: string | null
   settlementNo?: string | null
   settlementDate?: string | null
@@ -5504,6 +5840,9 @@ export type FinanceVoucherItemUpdateWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5549,6 +5888,9 @@ export type FinanceVoucherItemUncheckedUpdateWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5593,6 +5935,9 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalHistoricalAmountCny?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  capitalEvidenceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  capitalEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5750,6 +6095,9 @@ export type FinanceVoucherItemSelect<ExtArgs extends runtime.Types.Extensions.In
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   settlementStyle?: boolean
   settlementNo?: boolean
   settlementDate?: boolean
@@ -5799,6 +6147,9 @@ export type FinanceVoucherItemSelectCreateManyAndReturn<ExtArgs extends runtime.
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   settlementStyle?: boolean
   settlementNo?: boolean
   settlementDate?: boolean
@@ -5829,6 +6180,9 @@ export type FinanceVoucherItemSelectUpdateManyAndReturn<ExtArgs extends runtime.
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   settlementStyle?: boolean
   settlementNo?: boolean
   settlementDate?: boolean
@@ -5859,6 +6213,9 @@ export type FinanceVoucherItemSelectScalar = {
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  capitalHistoricalAmountCny?: boolean
+  capitalEvidenceKind?: boolean
+  capitalEvidence?: boolean
   settlementStyle?: boolean
   settlementNo?: boolean
   settlementDate?: boolean
@@ -5866,7 +6223,7 @@ export type FinanceVoucherItemSelectScalar = {
   importId?: boolean
 }
 
-export type FinanceVoucherItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "accountId" | "debit" | "credit" | "description" | "relatedEntity" | "sortOrder" | "importFingerprint" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "currencyCode" | "exchangeRate" | "originalDebit" | "originalCredit" | "settlementStyle" | "settlementNo" | "settlementDate" | "sourceMetadata" | "importId", ExtArgs["result"]["financeVoucherItem"]>
+export type FinanceVoucherItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "accountId" | "debit" | "credit" | "description" | "relatedEntity" | "sortOrder" | "importFingerprint" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "currencyCode" | "exchangeRate" | "originalDebit" | "originalCredit" | "capitalHistoricalAmountCny" | "capitalEvidenceKind" | "capitalEvidence" | "settlementStyle" | "settlementNo" | "settlementDate" | "sourceMetadata" | "importId", ExtArgs["result"]["financeVoucherItem"]>
 export type FinanceVoucherItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
@@ -5959,6 +6316,15 @@ export type $FinanceVoucherItemPayload<ExtArgs extends runtime.Types.Extensions.
     exchangeRate: runtime.Decimal | null
     originalDebit: runtime.Decimal | null
     originalCredit: runtime.Decimal | null
+    /**
+     * 期初/累计类资本凭证经受控证据确认的历史人民币金额；汇率由 service 反算，不作为输入事实
+     */
+    capitalHistoricalAmountCny: runtime.Decimal | null
+    /**
+     * openingVoucher | cumulativeVoucher；普通业务凭证留空并使用真实业务日期
+     */
+    capitalEvidenceKind: string | null
+    capitalEvidence: string | null
     settlementStyle: string | null
     settlementNo: string | null
     settlementDate: string | null
@@ -6430,6 +6796,9 @@ export interface FinanceVoucherItemFieldRefs {
   readonly exchangeRate: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
   readonly originalDebit: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
   readonly originalCredit: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
+  readonly capitalHistoricalAmountCny: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
+  readonly capitalEvidenceKind: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
+  readonly capitalEvidence: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
   readonly settlementStyle: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
   readonly settlementNo: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
   readonly settlementDate: Prisma.FieldRef<"FinanceVoucherItem", 'String'>

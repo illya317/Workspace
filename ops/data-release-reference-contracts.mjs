@@ -129,6 +129,20 @@ export const DATA_RELEASE_REFERENCE_CONTRACTS = Object.freeze({
   "finance-consolidation-voucher-v1": {
     noReferenceFieldsReason: "Maintenance payload resolves companies, accounts, and auxiliary members against existing database rows before inserting the reviewed voucher.",
   },
+  "finance-capital-opening-amount-v1": {
+    references: [
+      { sourceField: "companyCode", lookup: "Company.code", destination: "FinanceAccountBalance.companyId", disposition: "raw_with_fk" },
+      { sourceField: "accountCode", lookup: "FinanceAccount.code in company and period scope", destination: "FinanceAccountBalance.accountId", disposition: "raw_with_fk" },
+    ],
+  },
+  "finance-capital-historical-amount-v1": {
+    references: [
+      { sourceField: "companyCode", lookup: "Company.code for openingBalance targets", destination: "FinanceAccountBalance.companyId", disposition: "raw_with_fk" },
+      { sourceField: "companyCode", lookup: "Company.code for voucherItem targets", destination: "FinanceVoucher.companyId", disposition: "raw_with_fk" },
+      { sourceField: "accountCode", lookup: "FinanceAccount.code in opening balance period scope", destination: "FinanceAccountBalance.accountId", disposition: "raw_with_fk" },
+      { sourceField: "accountCode", lookup: "FinanceAccount.code in voucher period scope", destination: "FinanceVoucherItem.accountId", disposition: "raw_with_fk" },
+    ],
+  },
   "finance-consolidation-entry-migration-v1": {
     noReferenceFieldsReason: "Maintenance payload addresses existing consolidation batches and snapshots; company and account identities are re-read from database FKs.",
   },

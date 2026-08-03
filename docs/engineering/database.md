@@ -2037,7 +2037,7 @@
 | id | Int | @id @default(autoincrement()) |  |
 | batchId | Int | - |  |
 | entryId | Int? | @unique |  |
-| category | String | - | investmentEquity | intercompanyBalance |
+| category | String | - | investmentEquity | intercompanyBalance | cashFlow |
 | status | String | - | matched | difference | unresolved | accepted | rejected |
 | leftEntitySnapshotId | Int | - |  |
 | rightEntitySnapshotId | Int? | - |  |
@@ -2064,7 +2064,7 @@
 | matchGroupId | Int | - |  |
 | entitySnapshotId | Int | - |  |
 | counterpartyEntitySnapshotId | Int? | - |  |
-| sourceKind | String | @default("voucher") | voucher | auxiliaryBalance |
+| sourceKind | String | @default("voucher") | voucher | auxiliaryBalance | cashFlowAllocation |
 | voucherItemId | Int? | - |  |
 | auxiliaryBalanceId | Int? | - |  |
 | matchSide | String | - | left | right |
@@ -3321,6 +3321,9 @@
 | exchangeRate | Decimal? | @db.Decimal(20, 8) |  |
 | originalDebit | Decimal? | @db.Decimal(20, 2) |  |
 | originalCredit | Decimal? | @db.Decimal(20, 2) |  |
+| capitalHistoricalAmountCny | Decimal? | @db.Decimal(20, 2) |  |
+| capitalEvidenceKind | String? | - |  |
+| capitalEvidence | String? | - |  |
 | settlementStyle | String? | - |  |
 | settlementNo | String? | - |  |
 | settlementDate | String? | - |  |
@@ -3357,6 +3360,9 @@
 | periodId | Int | - |  |
 | openingDebit | Float | @default(0) |  |
 | openingCredit | Float | @default(0) |  |
+| capitalHistoricalAmountCny | Decimal? | @db.Decimal(20, 2) |  |
+| capitalEvidenceKind | String? | - |  |
+| capitalEvidence | String? | - |  |
 | currentDebit | Float | @default(0) |  |
 | currentCredit | Float | @default(0) |  |
 | closingDebit | Float | @default(0) |  |

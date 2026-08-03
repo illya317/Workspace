@@ -168,7 +168,13 @@ export function validateConsolidationFxFacts(
       if (historicalCapitalKeys.has(key)) {
         return failCommand("同一境外实体、期间口径和资本发生日只能绑定一条权益资本历史汇率", 409, "rateApplications");
       }
-      if ((rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity")
+      const usesHistoricalAmount = Boolean(application.capitalHistoricalAmountCny && application.capitalHistoricalAmountCny > 0);
+      if ((usesHistoricalAmount
+          ? rate.rateKind !== "historicalCapitalAmount"
+            || application.capitalContributionDate !== null
+            || application.targetDate !== application.capitalEvidenceDate
+          : rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity"
+            || !validRateDate(application.targetDate, rate.rateDate))
         || application.voucherItemId !== null
         || application.voucher !== null
         || !application.capitalOriginalAmount
@@ -177,21 +183,21 @@ export function validateConsolidationFxFacts(
           && application.capitalLineCode !== null
           && application.capitalLineCode !== "paidInCapital"
           && application.capitalLineCode !== "capitalReserve"
-        || !validRateDate(application.targetDate, rate.rateDate)
         || application.periodBasis === "comparative" && application.targetDate > facts.comparativePeriodEnd) {
-        return failCommand("境外权益资本必须绑定出资日或此前7日内的历史牌价及正数原币金额", 409, "rateApplications");
+        return failCommand("境外权益资本必须绑定实际出资日牌价，或可复核的历史折算人民币金额及正数原币金额", 409, "rateApplications");
       }
       historicalCapitalKeys.add(key);
       continue;
     }
     const voucher = application.voucher;
+    const investmentDate = application.capitalContributionDate ?? voucher?.voucherDate;
     if ((rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity")
       || !application.voucherItemId
       || !voucher
-      || application.targetDate !== voucher.voucherDate
+      || application.targetDate !== investmentDate
       || voucher.currencyCode?.toUpperCase() !== "CAD"
       || voucher.originalAmount === null
-      || !validRateDate(application.targetDate, rate.rateDate)) {
+      || !investmentDate || !validRateDate(investmentDate, rate.rateDate)) {
       return failCommand("投资款必须绑定凭证匹配的历史折算率，或投资日及此前7日内的人民币汇率中间价，并保留原币凭证", 409, "rateApplications");
     }
     if (!requiredInvestmentIds.has(application.voucherItemId)) {
@@ -205,7 +211,7 @@ export function validateConsolidationFxFacts(
     }
     if (application.periodBasis === "comparative"
       && (!comparativeEntityIds.has(application.entitySnapshotId)
-        || voucher.voucherDate > facts.comparativePeriodEnd)) {
+        || investmentDate > facts.comparativePeriodEnd)) {
       return failCommand("比较期投资历史汇率只能覆盖比较期末前已发生且主体存在上期数的投资", 409, "rateApplications");
     }
     applications.set(application.voucherItemId, application);
@@ -217,7 +223,7 @@ export function validateConsolidationFxFacts(
   const expectedComparativeInvestmentIds = new Set([...currentInvestmentById]
     .filter(([, application]) => (
       comparativeEntityIds.has(application.entitySnapshotId)
-      && application.voucher!.voucherDate <= facts.comparativePeriodEnd
+      && (application.capitalContributionDate ?? application.voucher!.voucherDate) <= facts.comparativePeriodEnd
     ))
     .map(([id]) => id));
   if ([...expectedComparativeInvestmentIds].some((id) => {

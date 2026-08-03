@@ -118,7 +118,7 @@ function historicalCapitalEntries(
         : money(originalAmount - paidInOriginal);
       paidInCapitalRemaining = money(paidInCapitalRemaining - paidInOriginal);
       const sourceFingerprint = fingerprint({
-        version: "historical-capital-investment-elimination-v1",
+        version: "historical-capital-investment-elimination-v2",
         rate: [rate.id, rate.exchangeRateId, rate.exchangeRateVersion, rate.rateDate, rate.rate],
         application,
       });
@@ -128,7 +128,11 @@ function historicalCapitalEntries(
         sourceAmount: number,
       ) => {
         if (sourceAmount <= 0) return;
-        const translatedAmount = money(sourceAmount * rate.rate);
+        const historicalAmount = application.capitalHistoricalAmountCny
+          ? money(application.capitalHistoricalAmountCny * sourceAmount / originalAmount)
+          : null;
+        const translatedAmount = historicalAmount ?? money(sourceAmount * rate.rate);
+        const derivedWeightedRate = money(translatedAmount / sourceAmount * 1_000_000) / 1_000_000;
         capitalLines.push({
           lineNo: lineNo++,
           entitySnapshotId: investee.id,
@@ -141,7 +145,9 @@ function historicalCapitalEntries(
           credit: 0,
           currencyCode: "CNY",
           periodBasis: "current",
-          note: `${sourceAmount} CAD × ${rate.rate}（${application.targetDate} 中间价）`,
+          note: historicalAmount
+            ? `${sourceAmount} CAD → ¥${translatedAmount.toFixed(2)}（历史折算人民币金额；加权汇率 ${derivedWeightedRate}）`
+            : `${sourceAmount} CAD × ${rate.rate}（${application.targetDate} 中间价）`,
           matchSide: "right",
           sourceKind: "workpaper",
           sourceId: `rate-application:${rate.id}:historical-capital:${investee.id}:${applicationIndex}:${lineCode}`,
@@ -154,7 +160,9 @@ function historicalCapitalEntries(
       };
       appendCapitalLine("paidInCapital", "3001", paidInOriginal);
       appendCapitalLine("capitalReserve", "3002", capitalReserveOriginal);
-      capitalEvidence.push(`${application.targetDate} ${originalAmount} CAD × ${rate.rate}`);
+      capitalEvidence.push(application.capitalHistoricalAmountCny
+        ? `${originalAmount} CAD → ¥${application.capitalHistoricalAmountCny.toFixed(2)}（${application.capitalEvidenceKind ?? "历史证据"}；加权汇率 ${rate.rate}；${application.evidence}）`
+        : `${application.targetDate} ${originalAmount} CAD × ${rate.rate}`);
     }
     const translatedCapital = money(capitalLines.reduce((sum, line) => sum + line.debit, 0));
     const investmentLines: RemittanceFxEntryLine[] = investmentFacts.map((fact) => {
@@ -213,7 +221,7 @@ function historicalCapitalEntries(
       postingLevel: "20",
       entryType: "investmentEquity",
       title: `${investor.companyName} → ${investee.companyName} 投资与权益抵销`,
-      description: "按冻结的加拿大资本历史汇率折算实收资本和资本公积，逐笔抵销中国投资方长期股权投资；持股比例不阻断本凭证生成。",
+      description: "实收资本和资本公积优先按受控实际人民币出资额折算，缺少实际人民币金额时才使用真实发生日汇率；逐笔抵销中国投资方长期股权投资，持股比例不阻断本凭证生成。",
       evidence: `加拿大资本历史汇率：${capitalEvidence.join("；")}；投资方凭证分录：${investmentFacts.map((fact) => fact.itemId).join("、")}`,
       matchDifference: Math.abs(difference),
       differenceResolution: Math.abs(difference) < 0.005
@@ -250,7 +258,7 @@ export function buildRemittanceFxEntries(
       const originalAmount = application.voucher.originalAmount;
       if (!foreignEntity || !investorEntity || !originalAmount || originalAmount <= 0) continue;
       generatedCompanyPairs.add(`${investorEntity.companyId}:${foreignEntity.companyId}`);
-      const translatedAmount = money(originalAmount * rate.rate);
+      const translatedAmount = money(application.capitalHistoricalAmountCny ?? originalAmount * rate.rate);
       const bookedAmount = money(application.voucher.bookedAmountCny);
       const difference = money(translatedAmount - bookedAmount);
       const generationKey = `policy:remittance-fx:${application.voucherItemId}`;
@@ -280,7 +288,7 @@ export function buildRemittanceFxEntries(
         credit: 0,
         currencyCode: "CNY",
         periodBasis: "current",
-        note: `${originalAmount} CAD × ${rate.rate}（${application.targetDate} 历史折算率）`,
+        note: `${originalAmount} CAD → ¥${translatedAmount.toFixed(2)}（实际人民币投资金额；加权汇率 ${rate.rate}）`,
         matchSide: "right",
         sourceKind: "workpaper",
         sourceId: `rate-application:${rate.id}:${application.voucherItemId}`,
@@ -338,8 +346,8 @@ export function buildRemittanceFxEntries(
         postingLevel: "20",
         entryType: "investmentEquity",
         title: `${investorEntity.companyName}汇加拿大投资款抵销`,
-        description: "按发出 CAD 流水乘汇出日人民币汇率中间价抵销投资与权益，差额计入其他综合收益。",
-        evidence: `${application.voucher.voucherNo}：${originalAmount} CAD × ${rate.rate} = ${translatedAmount} CNY；境内长期股权投资 ${bookedAmount} CNY；汇率来源 ${rate.sourceUrl}`,
+        description: "按投资凭证实际人民币金额抵销投资与权益；实际出资日作为证据，加权汇率仅由原币与人民币金额反算。",
+        evidence: `${application.voucher.voucherNo}：${originalAmount} CAD 对应实际人民币投资金额 ${translatedAmount} CNY；实际出资日 ${application.capitalContributionDate ?? application.targetDate}；加权汇率 ${rate.rate}`,
         matchDifference: Math.abs(difference),
         differenceResolution: difference < 0
           ? `其他综合收益损失 ${Math.abs(difference).toFixed(2)} 元（借方）`

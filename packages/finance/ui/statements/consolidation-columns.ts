@@ -116,8 +116,14 @@ export const investmentEvidenceColumns: DataSurfaceColumnSpec<ConsolidationInves
   { key: "rate", label: "投资日汇率", width: "md", cell: (row) => row.transactionRate === null ? "未保留" : `${row.currencyCode || "外币"}/CNY = ${row.transactionRate}` },
   { key: "status", label: "证据状态", required: true, width: "md", cell: (row) => ({
     kind: "badge",
-    label: row.rateStatus === "recorded" ? "凭证已记录" : row.rateStatus === "missingRate" ? "缺投资日汇率" : "缺原币金额",
-    tone: row.rateStatus === "recorded" ? "green" : "red",
+    label: row.rateStatus === "recorded"
+      ? "历史汇率已冻结"
+      : row.rateStatus === "derivedFromActualCny"
+        ? "实际人民币反算"
+        : row.rateStatus === "missingRate"
+          ? "缺投资日汇率"
+          : "缺原币金额",
+    tone: row.rateStatus === "recorded" || row.rateStatus === "derivedFromActualCny" ? "green" : "red",
   }) },
 ];
 

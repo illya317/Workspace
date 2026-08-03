@@ -3,6 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
+  buildCapitalHistoricalAmountRateCommand,
   buildMonthlyAverageExchangeRateCommand,
   buildRefreshStatementExchangeRateCommand,
   buildVoucherHistoricalInvestmentRateCommand,
@@ -50,6 +51,50 @@ export function statementExchangeRateSnapshot(row: {
     note: row.note,
     updatedBy: row.updatedBy,
   };
+}
+
+export async function ensureCapitalHistoricalAmountRate(input: {
+  sourceKind: "accountBalance" | "voucherItem";
+  sourceRecordId: number;
+  evidenceDate: string;
+  originalCurrency: string;
+  originalAmount: number;
+  historicalAmountCny: number;
+  evidence: string;
+  userId: number;
+}) {
+  const validated = buildCapitalHistoricalAmountRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const command = validated.data;
+  const version = command.sourceRecordId * 2 + (command.sourceKind === "voucherItem" ? 1 : 0);
+  const unique = {
+    baseCurrency: command.currencyCode,
+    quoteCurrency: "CNY",
+    rateKind: "historicalCapitalAmount",
+    rateDate: command.evidenceDate,
+    version,
+  };
+  return prisma.financeStatementExchangeRate.upsert({
+    where: { baseCurrency_quoteCurrency_rateKind_rateDate_version: unique },
+    create: {
+      ...unique,
+      rate: command.weightedRate,
+      sourceName: "受控历史资本证据",
+      sourceField: "历史折算人民币金额",
+      sourceUrl: `workspace://finance/${command.sourceKind}/${command.sourceRecordId}/capital-historical-amount`,
+      note: `${command.evidence}；${command.originalAmount} ${command.currencyCode} 对应 ${command.historicalAmountCny} CNY；加权汇率由金额反算`,
+      updatedBy: command.userId,
+    },
+    update: {
+      rate: command.weightedRate,
+      sourceName: "受控历史资本证据",
+      sourceField: "历史折算人民币金额",
+      sourceUrl: `workspace://finance/${command.sourceKind}/${command.sourceRecordId}/capital-historical-amount`,
+      note: `${command.evidence}；${command.originalAmount} ${command.currencyCode} 对应 ${command.historicalAmountCny} CNY；加权汇率由金额反算`,
+      capturedAt: new Date(),
+      updatedBy: command.userId,
+    },
+  });
 }
 
 export async function ensureChinaMoneyCentralParityRate(input: {
@@ -176,7 +221,7 @@ export async function ensureChinaMoneyMonthlyAverageRate(input: {
 
 export async function ensureVoucherHistoricalInvestmentRate(input: {
   voucherItemId: number;
-  voucherDate: string;
+  contributionDate: string;
   rate: number;
   matchingLabel: string;
   userId: number;
@@ -189,7 +234,7 @@ export async function ensureVoucherHistoricalInvestmentRate(input: {
       baseCurrency: "CAD",
       quoteCurrency: "CNY",
       rateKind: "historicalInvestment",
-      rateDate: command.voucherDate,
+      rateDate: command.contributionDate,
     },
     orderBy: [{ version: "desc" }, { id: "desc" }],
   });
@@ -200,7 +245,7 @@ export async function ensureVoucherHistoricalInvestmentRate(input: {
       baseCurrency: "CAD",
       quoteCurrency: "CNY",
       rateKind: "historicalInvestment",
-      rateDate: command.voucherDate,
+      rateDate: command.contributionDate,
       rate: command.rate,
       sourceName: "Workspace 合并凭证",
       sourceField: "凭证匹配历史折算率",

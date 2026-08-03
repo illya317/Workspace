@@ -31,7 +31,7 @@ import {
   sourceHasNonzeroPreviousAmount,
 } from "./consolidation-comparative";
 import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
-import { ensureChinaMoneyCentralParityRate } from "./exchange-rates";
+import { ensureCapitalHistoricalAmountRate, ensureChinaMoneyCentralParityRate } from "./exchange-rates";
 import {
   buildHistoricalCapitalRateApplications,
   loadHistoricalCapitalFacts,
@@ -244,6 +244,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
     const cadCompanyCodes = scope.filter((entity) => entity.functionalCurrency === "CAD").map((entity) => entity.companyCode);
     const historicalCapitalFacts = await loadHistoricalCapitalFacts(cadCompanyCodes, selectedPeriodEnd);
     let rateIdByTargetDate = new Map<string, number>();
+    let rateIdByHistoricalSource = new Map<string, number>();
     let rates: ConsolidationRateFact[] = [];
     try {
       rateIdByTargetDate = cadCompanyCodes.length > 0
@@ -251,18 +252,35 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
           targetDates: [
             selectedPeriodEnd,
             comparativePeriodEnd,
-            ...historicalCapitalFacts.map((fact) => fact.targetDate),
+            ...historicalCapitalFacts.flatMap((fact) => fact.capitalContributionDate ? [fact.capitalContributionDate] : []),
           ],
           userId: command.userId,
         })
         : new Map<string, number>();
+      for (const fact of historicalCapitalFacts) {
+        if (!fact.historicalAmountCny) continue;
+        const rate = await ensureCapitalHistoricalAmountRate({
+          sourceKind: fact.basis === "opening" ? "accountBalance" : "voucherItem",
+          sourceRecordId: fact.sourceRecordId,
+          evidenceDate: fact.capitalEvidenceDate,
+          originalCurrency: "CAD",
+          originalAmount: fact.originalAmount,
+          historicalAmountCny: fact.historicalAmountCny,
+          evidence: fact.evidence,
+          userId: command.userId,
+        });
+        rateIdByHistoricalSource.set(`${fact.basis}:${fact.sourceRecordId}`, rate.id);
+      }
       rates = cadCompanyCodes.length > 0
-        ? await loadAvailableRateFacts(selectedPeriodEnd, [...new Set(rateIdByTargetDate.values())])
+        ? await loadAvailableRateFacts(selectedPeriodEnd, [
+            ...new Set([...rateIdByTargetDate.values(), ...rateIdByHistoricalSource.values()]),
+          ])
         : [];
     } catch (cause) {
       if (!(cause instanceof ChinaMoneyRateError) && !(cause instanceof ConsolidationSnapshotError)) throw cause;
       console.warn("Automatic consolidation rate preparation is not ready during batch creation", cause.message);
       rateIdByTargetDate = new Map();
+      rateIdByHistoricalSource = new Map();
       rates = [];
     }
     const version = (latest?.version ?? 0) + 1;
@@ -396,6 +414,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
       const historicalApplications = buildHistoricalCapitalRateApplications({
         facts: historicalCapitalFacts,
         rateIdByTargetDate,
+        rateIdByHistoricalSource,
         comparativePeriodEnd,
         comparativeCompanyIds,
         companyIdByCode,
@@ -435,9 +454,16 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
               periodBasis: application.periodBasis,
               entitySnapshotId: application.entitySnapshotId,
               voucherItemId: application.voucherItemId,
-              targetDate: application.capitalContributionDate,
-              evidence: `中国外汇交易中心 ${rate.rateDate} 人民币汇率中间价；${application.evidence}`,
+              targetDate: application.targetDate,
+              evidence: rate.rateKind === "historicalCapitalAmount"
+                ? application.evidence
+                : `中国外汇交易中心 ${rate.rateDate} 人民币汇率中间价；${application.evidence}`,
+              capitalEvidenceKind: application.capitalEvidenceKind,
+              capitalEvidenceDate: application.capitalEvidenceDate,
+              capitalContributionDate: application.capitalContributionDate,
               capitalOriginalAmount: application.capitalOriginalAmount,
+              capitalHistoricalAmountCny: application.capitalHistoricalAmountCny,
+              capitalLineCode: application.capitalLineCode,
               voucher: null,
             })),
         ];
@@ -455,7 +481,9 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
         where: { id: batch.id },
         data: { rateFingerprint: consolidationRateFingerprint(appliedRates) },
       });
-      for (const entry of base?.entries.filter((item) => item.status === "approved") ?? []) {
+      for (const entry of base?.entries.filter((item) => (
+        item.status === "approved" && item.origin === "manual"
+      )) ?? []) {
         await tx.financeConsolidationEntry.create({
           data: {
             batchId: batch.id,

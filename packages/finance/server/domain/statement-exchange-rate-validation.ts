@@ -8,7 +8,7 @@ export interface RefreshStatementExchangeRateCommand {
 
 export interface VoucherHistoricalInvestmentRateCommand {
   voucherItemId: number;
-  voucherDate: string;
+  contributionDate: string;
   rate: number;
   matchingLabel: string;
   userId: number;
@@ -18,6 +18,18 @@ export interface MonthlyAverageExchangeRateCommand {
   currencyCode: string;
   year: number;
   month: number;
+  userId: number;
+}
+
+export interface CapitalHistoricalAmountRateCommand {
+  sourceKind: "accountBalance" | "voucherItem";
+  sourceRecordId: number;
+  evidenceDate: string;
+  currencyCode: string;
+  originalAmount: number;
+  historicalAmountCny: number;
+  weightedRate: number;
+  evidence: string;
   userId: number;
 }
 
@@ -74,15 +86,58 @@ export function buildVoucherHistoricalInvestmentRateCommand(
   if (!Number.isInteger(raw.voucherItemId) || raw.voucherItemId <= 0) {
     return failCommand("投资凭证明细无效", 400, "voucherItemId");
   }
-  if (!validDate(raw.voucherDate)) return failCommand("投资凭证日期无效", 400, "voucherDate");
+  if (!validDate(raw.contributionDate)) return failCommand("实际出资日期无效", 400, "contributionDate");
   if (!Number.isFinite(raw.rate) || raw.rate <= 0) return failCommand("历史折算率必须为正数", 400, "rate");
   const matchingLabel = raw.matchingLabel.trim();
   if (!matchingLabel) return failCommand("凭证匹配说明不能为空", 400, "matchingLabel");
   return okCommand<VoucherHistoricalInvestmentRateCommand>({
     voucherItemId: raw.voucherItemId,
-    voucherDate: raw.voucherDate,
+    contributionDate: raw.contributionDate,
     rate: raw.rate,
     matchingLabel,
+    userId,
+  });
+}
+
+export function buildCapitalHistoricalAmountRateCommand(
+  raw: Omit<CapitalHistoricalAmountRateCommand, "currencyCode" | "weightedRate" | "userId"> & {
+    originalCurrency: string;
+  },
+  userId: number,
+) {
+  if (!Number.isInteger(userId) || userId <= 0) return failCommand("当前用户无效", 401);
+  if (raw.sourceKind !== "accountBalance" && raw.sourceKind !== "voucherItem") {
+    return failCommand("历史资本证据来源无效", 400, "sourceKind");
+  }
+  if (!Number.isInteger(raw.sourceRecordId) || raw.sourceRecordId <= 0) {
+    return failCommand("历史资本来源记录无效", 400, "sourceRecordId");
+  }
+  if (!validDate(raw.evidenceDate)) return failCommand("历史资本证据日期无效", 400, "evidenceDate");
+  const currencyCode = raw.originalCurrency.trim().toUpperCase();
+  if (!/^[A-Z]{3}$/.test(currencyCode) || currencyCode === "CNY") {
+    return failCommand("历史资本原币无效", 400, "originalCurrency");
+  }
+  if (!Number.isFinite(raw.originalAmount) || raw.originalAmount <= 0) {
+    return failCommand("历史资本原币金额无效", 400, "originalAmount");
+  }
+  if (!Number.isFinite(raw.historicalAmountCny) || raw.historicalAmountCny <= 0) {
+    return failCommand("历史资本人民币金额无效", 400, "historicalAmountCny");
+  }
+  const evidence = raw.evidence.trim();
+  if (!evidence) return failCommand("历史资本证据不能为空", 400, "evidence");
+  const weightedRate = Math.round((raw.historicalAmountCny / raw.originalAmount) * 100_000_000) / 100_000_000;
+  if (!Number.isFinite(weightedRate) || weightedRate <= 0) {
+    return failCommand("历史资本加权汇率无效", 400, "weightedRate");
+  }
+  return okCommand<CapitalHistoricalAmountRateCommand>({
+    sourceKind: raw.sourceKind,
+    sourceRecordId: raw.sourceRecordId,
+    evidenceDate: raw.evidenceDate,
+    currencyCode,
+    originalAmount: raw.originalAmount,
+    historicalAmountCny: raw.historicalAmountCny,
+    weightedRate,
+    evidence,
     userId,
   });
 }

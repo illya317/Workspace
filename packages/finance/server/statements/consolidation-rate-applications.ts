@@ -6,77 +6,53 @@ import { validateConsolidationFxFacts } from "../domain/consolidation-fx-validat
 import type { ConsolidationRateFact } from "./consolidation-snapshots";
 import { ConsolidationSnapshotError } from "./consolidation-snapshots";
 import { comparativePeriodEndDate } from "./consolidation-comparative";
-
-export interface CadInvestmentVoucherFact {
-  id: number;
-  companyCode: string;
-  voucherNo: string;
-  voucherDate: string;
-  description: string;
-  accountCode: string;
-  bookedAmountCny: number;
-  currencyCode: string | null;
-  originalAmount: number | null;
-  historicalRate: number | null;
-  matchingCompanyCode: string | null;
-  matchingLineCode: "paidInCapital" | "capitalReserve" | null;
-  matchingLabel: string | null;
-}
-
-export interface HistoricalCapitalFact {
-  companyCode: string;
-  targetDate: string;
-  originalAmount: number;
-  evidence: string;
-  basis: "opening" | "movement";
-  lineCode: "paidInCapital" | "capitalReserve";
-}
-
-export interface ConsolidationCurrencyPolicyFact {
-  entitySnapshotId: number;
-  functionalCurrency: string;
-  evidence: string;
-}
-
-export interface ConsolidationRateApplicationFact {
-  exchangeRateId: number;
-  applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment" | "historicalCapital";
-  periodBasis: "current" | "comparative";
-  entitySnapshotId: number;
-  targetDate?: string;
-  voucherItemId?: number | null;
-  capitalContributionDate?: string | null;
-  capitalOriginalAmount?: number | null;
-  capitalLineCode?: "paidInCapital" | "capitalReserve" | null;
-  evidence: string;
-}
+import type { CadInvestmentVoucherFact, ConsolidationCurrencyPolicyFact, ConsolidationRateApplicationFact, HistoricalCapitalFact } from "./consolidation-rate-application-types";
+export type { ConsolidationCurrencyPolicyFact, ConsolidationRateApplicationFact } from "./consolidation-rate-application-types";
 
 export function buildHistoricalCapitalRateApplications(input: {
   facts: HistoricalCapitalFact[];
   rateIdByTargetDate: ReadonlyMap<string, number>;
+  rateIdByHistoricalSource: ReadonlyMap<string, number>;
   comparativePeriodEnd: string;
   comparativeCompanyIds: ReadonlySet<number>;
   companyIdByCode: ReadonlyMap<string, number>;
   snapshotIdByCompany: ReadonlyMap<number, number>;
 }) {
   return input.facts.flatMap((fact) => {
-    const exchangeRateId = input.rateIdByTargetDate.get(fact.targetDate);
+    if (!fact.capitalContributionDate && !fact.historicalAmountCny) {
+      throw new ConsolidationSnapshotError(
+        `${fact.companyCode} ${fact.lineCode === "paidInCapital" ? "实收资本" : "资本公积"} ${fact.originalAmount.toFixed(2)} 缺少实际出资日和历史折算人民币金额`,
+        409,
+      );
+    }
+    const exchangeRateId = fact.historicalAmountCny
+      ? input.rateIdByHistoricalSource.get(`${fact.basis}:${fact.sourceRecordId}`)
+      : input.rateIdByTargetDate.get(fact.capitalContributionDate!);
     const companyId = input.companyIdByCode.get(fact.companyCode);
     const entitySnapshotId = companyId ? input.snapshotIdByCompany.get(companyId) : null;
-    if (!exchangeRateId || !companyId || !entitySnapshotId) return [];
+    if (!exchangeRateId || !companyId || !entitySnapshotId) {
+      throw new ConsolidationSnapshotError(
+        `${fact.companyCode} 权益资本历史证据未能绑定合并实体或冻结汇率`,
+        409,
+      );
+    }
     const shared = {
       exchangeRateId,
       applicationType: "historicalCapital" as const,
       entitySnapshotId,
       voucherItemId: null,
-      capitalContributionDate: fact.targetDate,
+      targetDate: fact.capitalContributionDate ?? fact.capitalEvidenceDate,
+      capitalContributionDate: fact.capitalContributionDate,
+      capitalEvidenceKind: fact.capitalEvidenceKind,
+      capitalEvidenceDate: fact.capitalEvidenceDate,
       capitalOriginalAmount: fact.originalAmount,
+      capitalHistoricalAmountCny: fact.historicalAmountCny,
       capitalLineCode: fact.lineCode,
-      evidence: `ERP 资本明细自动识别；${fact.evidence}`,
+      evidence: `${fact.historicalAmountCny ? "受控历史人民币金额" : "ERP 资本明细自动识别"}；${fact.evidence}`,
     };
     return [
       { ...shared, periodBasis: "current" as const },
-      ...(fact.targetDate <= input.comparativePeriodEnd && input.comparativeCompanyIds.has(companyId)
+      ...((fact.capitalContributionDate ?? fact.capitalEvidenceDate) <= input.comparativePeriodEnd && input.comparativeCompanyIds.has(companyId)
         ? [{ ...shared, periodBasis: "comparative" as const }]
         : []),
     ];
@@ -93,14 +69,19 @@ function isPostedVoucher(voucher: { status: string; sourcePosted: boolean | null
 
 export function aggregateHistoricalCapitalFacts(input: {
   opening: {
+    id?: number;
     companyCode: string;
     targetDate: string;
     accountCode: string;
     accountName: string;
     openingDebit: number;
     openingCredit: number;
+    capitalHistoricalAmountCny?: number | null;
+    capitalEvidenceKind?: string | null;
+    capitalEvidence?: string | null;
   }[];
   movements: {
+    id?: number;
     companyCode: string;
     targetDate: string;
     voucherNo: string;
@@ -109,23 +90,36 @@ export function aggregateHistoricalCapitalFacts(input: {
     description: string;
     debit: number;
     credit: number;
+    capitalHistoricalAmountCny?: number | null;
+    capitalEvidenceKind?: string | null;
+    capitalEvidence?: string | null;
   }[];
 }): HistoricalCapitalFact[] {
   const grouped = new Map<string, {
+    sourceRecordId: number;
     companyCode: string;
     targetDate: string;
+    capitalEvidenceKind: "openingBalance" | "openingVoucher" | "cumulativeVoucher" | "voucher";
+    capitalEvidenceDate: string;
+    capitalContributionDate: string | null;
     originalAmount: number;
+    historicalAmountCny: number | null;
     evidence: string[];
     basis: "opening" | "movement";
     lineCode: "paidInCapital" | "capitalReserve";
   }>();
   const append = (fact: HistoricalCapitalFact) => {
     if (fact.originalAmount <= 0.004) return;
-    const key = `${fact.companyCode}:${fact.targetDate}:${fact.basis}:${fact.lineCode}`;
+    const key = `${fact.companyCode}:${fact.targetDate}:${fact.basis}:${fact.lineCode}:${fact.sourceRecordId}`;
     const current = grouped.get(key) ?? {
+      sourceRecordId: fact.sourceRecordId,
       companyCode: fact.companyCode,
       targetDate: fact.targetDate,
+      capitalEvidenceKind: fact.capitalEvidenceKind,
+      capitalEvidenceDate: fact.capitalEvidenceDate,
+      capitalContributionDate: fact.capitalContributionDate,
       originalAmount: 0,
+      historicalAmountCny: fact.historicalAmountCny,
       evidence: [],
       basis: fact.basis,
       lineCode: fact.lineCode,
@@ -136,10 +130,15 @@ export function aggregateHistoricalCapitalFacts(input: {
   };
   for (const row of input.opening) {
     append({
+      sourceRecordId: row.id ?? 0,
       companyCode: row.companyCode,
       targetDate: row.targetDate,
+      capitalEvidenceKind: "openingBalance",
+      capitalEvidenceDate: row.targetDate,
+      capitalContributionDate: null,
       originalAmount: money(row.openingCredit - row.openingDebit),
-      evidence: `${row.accountCode} ${row.accountName}：最早可用账期期初余额，原出资日缺失，以该账期起始日作为可复核历史折算日`,
+      historicalAmountCny: row.capitalHistoricalAmountCny ?? null,
+      evidence: `${row.accountCode} ${row.accountName}：最早可用账期期初余额，仅证明余额，不作为出资日期${row.capitalEvidence ? `；${row.capitalEvidence}` : ""}`,
       basis: "opening",
       lineCode: row.accountName.includes("实收资本") || row.accountName.includes("股本")
         ? "paidInCapital"
@@ -147,11 +146,20 @@ export function aggregateHistoricalCapitalFacts(input: {
     });
   }
   for (const row of input.movements) {
+    const historicalAmountCny = row.capitalHistoricalAmountCny ?? null;
+    const historicalEvidenceKind = row.capitalEvidenceKind === "openingVoucher" || row.capitalEvidenceKind === "cumulativeVoucher"
+      ? row.capitalEvidenceKind
+      : null;
     append({
+      sourceRecordId: row.id ?? 0,
       companyCode: row.companyCode,
       targetDate: row.targetDate,
+      capitalEvidenceKind: historicalEvidenceKind ?? "voucher",
+      capitalEvidenceDate: row.targetDate,
+      capitalContributionDate: historicalEvidenceKind || historicalAmountCny ? null : row.targetDate,
       originalAmount: money(row.credit - row.debit),
-      evidence: `${row.voucherNo} · ${row.accountCode} ${row.accountName}${row.description ? ` · ${row.description}` : ""}`,
+      historicalAmountCny,
+      evidence: `${row.voucherNo} · ${row.accountCode} ${row.accountName}${row.description ? ` · ${row.description}` : ""}${row.capitalEvidence ? `；${row.capitalEvidence}` : ""}`,
       basis: "movement",
       lineCode: row.accountName.includes("实收资本") || row.accountName.includes("股本")
         ? "paidInCapital"
@@ -197,9 +205,13 @@ export async function loadHistoricalCapitalFacts(
         account: capitalAccountWhere,
       },
       select: {
+        id: true,
         companyCode: true,
         openingDebit: true,
         openingCredit: true,
+        capitalHistoricalAmountCny: true,
+        capitalEvidenceKind: true,
+        capitalEvidence: true,
         period: { select: { startDate: true } },
         account: { select: { code: true, name: true } },
       },
@@ -211,9 +223,13 @@ export async function loadHistoricalCapitalFacts(
         account: capitalAccountWhere,
       },
       select: {
+        id: true,
         debit: true,
         credit: true,
         description: true,
+        capitalHistoricalAmountCny: true,
+        capitalEvidenceKind: true,
+        capitalEvidence: true,
         voucher: {
           select: {
             companyCode: true,
@@ -231,14 +247,19 @@ export async function loadHistoricalCapitalFacts(
   ]);
   return aggregateHistoricalCapitalFacts({
     opening: openingRows.map((row) => ({
+      id: row.id,
       companyCode: row.companyCode,
       targetDate: row.period.startDate,
       accountCode: row.account.code,
       accountName: row.account.name,
       openingDebit: row.openingDebit,
       openingCredit: row.openingCredit,
+      capitalHistoricalAmountCny: row.capitalHistoricalAmountCny === null ? null : Number(row.capitalHistoricalAmountCny),
+      capitalEvidenceKind: row.capitalEvidenceKind,
+      capitalEvidence: row.capitalEvidence,
     })),
     movements: movementRows.filter((row) => isPostedVoucher(row.voucher)).map((row) => ({
+      id: row.id,
       companyCode: row.voucher.companyCode,
       targetDate: row.voucher.date,
       voucherNo: row.voucher.voucherNo,
@@ -247,6 +268,9 @@ export async function loadHistoricalCapitalFacts(
       description: row.description || row.voucher.description,
       debit: row.debit,
       credit: row.credit,
+      capitalHistoricalAmountCny: row.capitalHistoricalAmountCny === null ? null : Number(row.capitalHistoricalAmountCny),
+      capitalEvidenceKind: row.capitalEvidenceKind,
+      capitalEvidence: row.capitalEvidence,
     })),
   });
 }
@@ -290,6 +314,7 @@ interface VoucherMatchingEvidence {
   currencyCode: "CAD";
   originalAmount: number;
   historicalRate: number;
+  actualContributionDate: string;
 }
 
 function jsonRecord(value: unknown): Record<string, unknown> | null {
@@ -311,6 +336,10 @@ export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMa
     || typeof matching.historicalRate !== "number" || !Number.isFinite(matching.historicalRate) || matching.historicalRate <= 0) {
     return null;
   }
+  const actualContributionDate = typeof evidence?.actualContributionDate === "string"
+    ? evidence.actualContributionDate
+    : null;
+  if (!actualContributionDate || !/^\d{4}-\d{2}-\d{2}$/.test(actualContributionDate)) return null;
   return {
     label: matching.label.trim(),
     companyCode: matching.companyCode.trim(),
@@ -318,6 +347,7 @@ export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMa
     currencyCode: matching.currencyCode,
     originalAmount: money(matching.originalAmount),
     historicalRate: matching.historicalRate,
+    actualContributionDate,
   };
 }
 
@@ -377,6 +407,7 @@ export async function loadCadInvestmentVoucherFacts(
       matchingCompanyCode: matching?.companyCode ?? null,
       matchingLineCode: matching?.lineCode ?? null,
       matchingLabel: matching?.label ?? null,
+      capitalContributionDate: matching?.actualContributionDate ?? null,
     }];
   });
 }
@@ -416,20 +447,26 @@ export async function applyConsolidationRatePolicies(input: {
     if (application.applicationType === "historicalInvestment" && !voucher) {
       throw new ConsolidationSnapshotError("投资日汇率必须绑定当前批次范围内的 CAD 长期股权投资凭证", 409);
     }
-    if (application.applicationType === "historicalCapital" && (!application.capitalContributionDate || !application.capitalOriginalAmount)) {
-      throw new ConsolidationSnapshotError("境外权益资本历史汇率必须填写出资日期和原币金额", 409);
+    if (application.applicationType === "historicalCapital"
+      && (!application.capitalOriginalAmount
+        || !application.capitalContributionDate && !application.capitalHistoricalAmountCny)) {
+      throw new ConsolidationSnapshotError("境外权益资本必须填写正数原币金额，并提供实际出资日或历史折算人民币金额", 409);
     }
     const snapshot: ConsolidationRateApplicationSnapshot = {
       applicationType: application.applicationType,
       periodBasis: application.periodBasis,
       entitySnapshotId: application.entitySnapshotId,
       voucherItemId: voucher?.id ?? null,
-      targetDate: voucher?.voucherDate
+      targetDate: application.capitalContributionDate
+        ?? voucher?.voucherDate
         ?? application.targetDate
-        ?? application.capitalContributionDate
         ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
       evidence: application.evidence,
+      capitalEvidenceKind: application.capitalEvidenceKind ?? null,
+      capitalEvidenceDate: application.capitalEvidenceDate ?? null,
+      capitalContributionDate: application.capitalContributionDate ?? null,
       capitalOriginalAmount: application.capitalOriginalAmount ?? null,
+      capitalHistoricalAmountCny: application.capitalHistoricalAmountCny ?? null,
       capitalLineCode: application.capitalLineCode ?? null,
       voucher: voucher ? {
         companyCode: voucher.companyCode,

@@ -141,7 +141,7 @@ export const FINANCE_LEDGER_ACCOUNT_MAPPINGS_SOURCE = defineWorkspaceAnalysisRea
 });
 
 export const FINANCE_LEDGER_VOUCHER_ITEMS_SOURCE = defineWorkspaceAnalysisReadModel<VoucherItemRow>()({
-  sourceKey: "finance.ledger.voucher-items", version: 1, label: "凭证明细", description: "从完整有界凭证父集规范化的借贷分录事实。",
+  sourceKey: "finance.ledger.voucher-items", version: 2, label: "凭证明细", description: "从完整有界凭证父集规范化的借贷分录事实。",
   apiPath: "/api/modules/finance/ledger/vouchers", rowsPath: "data.items", totalPath: "total", scopes: SCOPES, parameters: voucherParameters,
   fields: {
     id: f("分录 ID", "凭证明细稳定标识。", "integer"), voucherId: f("凭证 ID", "所属凭证稳定标识。", "integer"), accountId: f("科目 ID", "关联公司科目。", "integer"),
@@ -151,7 +151,9 @@ export const FINANCE_LEDGER_VOUCHER_ITEMS_SOURCE = defineWorkspaceAnalysisReadMo
     sourceSheet: f("来源工作表", "导入来源工作表。", "text"), sourceRow: f("来源行", "导入来源行号。", "integer"), sourceSystem: f("来源系统", "分录来源系统。", "text"),
     sourceDatabase: f("来源数据库", "分录来源数据库。", "text", "confidential"), sourceKey: f("来源键", "来源分录稳定键。", "text", "confidential"),
     currencyCode: f("原币币种", "分录原币币种。", "text"), exchangeRate: f("汇率", "分录原币汇率。", "number"), originalDebit: f("原币借方", "原币借方金额。", "currency"),
-    originalCredit: f("原币贷方", "原币贷方金额。", "currency"), settlementStyle: f("结算方式", "来源结算方式。", "text"), settlementNo: f("结算号", "来源结算号。", "text", "confidential"),
+    originalCredit: f("原币贷方", "原币贷方金额。", "currency"), capitalHistoricalAmountCny: f("资本历史人民币金额", "期初或累计资本凭证经受控证据确认的历史折算人民币金额。", "currency", "confidential"),
+    capitalEvidenceKind: f("资本证据类型", "区分期初凭证和累计凭证。", "text"), capitalEvidence: f("资本历史证据", "历史人民币金额的复核依据。", "text", "confidential"),
+    settlementStyle: f("结算方式", "来源结算方式。", "text"), settlementNo: f("结算号", "来源结算号。", "text", "confidential"),
     settlementDate: f("结算日期", "来源结算日期。", "date"), sourceMetadata: { classification: "childSource", sourceKey: "finance.ledger.voucher-metadata", description: "分录动态 JSON 以 JSON Pointer 叶子事实展开。" },
     importId: f("导入批次 ID", "来源导入批次。", "integer"), account: derived("科目对象可由 accountId 与公司科目源重建。"),
   }, pagination: PAGINATION, limits: LIMITS,

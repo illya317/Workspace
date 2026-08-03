@@ -148,10 +148,9 @@ export const FINANCE_LEDGER_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadModel<F
   pagination: PAGED,
   limits: LIMITS,
 });
-
 export const FINANCE_LEDGER_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<FinanceBalanceRow>()({
   sourceKey: "finance.ledger.balances",
-  version: 1,
+  version: 2,
   label: "科目余额",
   description: "会计期间内逐科目的期初、本期和期末借贷余额。",
   apiPath: "/api/modules/finance/ledger/balances",
@@ -165,6 +164,9 @@ export const FINANCE_LEDGER_BALANCES_SOURCE = defineWorkspaceAnalysisReadModel<F
     periodId: field("期间 ID", "关联会计期间。", "integer"),
     openingDebit: field("期初借方", "期初借方余额。", "currency"),
     openingCredit: field("期初贷方", "期初贷方余额。", "currency"),
+    capitalHistoricalAmountCny: field("资本历史人民币金额", "期初资本经受控证据确认的历史折算人民币金额。", "currency", { sensitivity: "confidential" }),
+    capitalEvidenceKind: field("资本证据类型", "区分期初余额、期初凭证和累计凭证。", "text"),
+    capitalEvidence: field("资本历史证据", "历史人民币金额的复核依据。", "text", { sensitivity: "confidential" }),
     currentDebit: field("本期借方", "本期借方发生额。", "currency"),
     currentCredit: field("本期贷方", "本期贷方发生额。", "currency"),
     closingDebit: field("期末借方", "期末借方余额。", "currency"),

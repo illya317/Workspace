@@ -68,6 +68,40 @@ function financeConsolidationVoucherCommand(execution, context) {
   };
 }
 
+function financeCapitalOpeningAmountCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-capital-opening-amount-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-capital-opening-amount-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-capital-opening-amount.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
+function financeCapitalHistoricalAmountCommand(execution, context) {
+  const parameters = execution.parameters;
+  if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
+    || Object.keys(parameters).sort().join(",") !== "inputFile") {
+    fail("finance-capital-historical-amount-v1 parameters must contain only inputFile");
+  }
+  const inputFile = relativeSourcePath(parameters.inputFile, "finance-capital-historical-amount-v1 inputFile");
+  return {
+    executable: process.execPath,
+    args: [
+      path.join(context.repositoryRoot, "scripts/repair/repair-finance-capital-historical-amount.mjs"),
+      "--execute",
+      `--input-file=${path.join(context.sourceRoot, inputFile)}`,
+    ],
+  };
+}
+
 function financeConsolidationEntryMigrationCommand(execution, context) {
   const parameters = execution.parameters;
   if (!parameters || typeof parameters !== "object" || Array.isArray(parameters)
@@ -249,6 +283,8 @@ const HANDLERS = new Map([
   ["finance-auxiliary-identity-links-v1", financeAuxiliaryIdentityLinksCommand],
   ["finance-budget-v1", financeBudgetCommand],
   ["finance-june-close-cutover-v1", financeJuneCloseCutoverCommand],
+  ["finance-capital-opening-amount-v1", financeCapitalOpeningAmountCommand],
+  ["finance-capital-historical-amount-v1", financeCapitalHistoricalAmountCommand],
   ["finance-reviewed-origin-mappings-v1", financeReviewedOriginMappingsCommand],
   ["finance-consolidation-voucher-v1", financeConsolidationVoucherCommand],
   ["finance-consolidation-entry-migration-v1", financeConsolidationEntryMigrationCommand],

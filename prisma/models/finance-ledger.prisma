@@ -1,61 +1,61 @@
 /// 财务科目（含层级）
 model FinanceAccount {
-  id                          Int                                  @id @default(autoincrement())
-  code                        String
-  name                        String
-  category                    String
-  parentId                    Int?
-  balanceDirection            String                               @default("debit")
-  isActive                    Boolean                              @default(true)
-  companyCode                 String
-  companyId                   Int?
-  mnemonicCode                String?
-  currency                    String?
-  sourceSystem                String?
-  sourceLedger                String?
-  sourceDatabase              String?
-  sourceKey                   String?
-  groupSubjectCode            String?
-  subjectLevel                Int?
-  year                        Int?
-  sortOrder                   Int                                  @default(0)
-  editedBy                    Int?
-  editedAt                    DateTime?
-  version                     Int                                  @default(1)
-  createdAt                   DateTime                             @default(now())
-  updatedAt                   DateTime                             @default(now()) @updatedAt
-  editor                      User?                                @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
-  company                     Company?                             @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  parent                      FinanceAccount?                      @relation("AccountHierarchy", fields: [parentId], references: [id])
-  children                    FinanceAccount[]                     @relation("AccountHierarchy")
-  balances                    FinanceAccountBalance[]
-  voucherItems                FinanceVoucherItem[]
-  snapshotRows                FinanceBalanceSnapshotRow[]
-  sourceBalances              FinanceSourceAccountBalance[]
-  auxiliaryBalances           FinanceAuxiliaryBalance[]
-  openItems                   FinanceOpenItem[]
-  bankAccounts                FinanceBankAccount[]
-  deptBudgets                 FinanceBudgetDept[]
-  rdBudgets                   FinanceBudgetRd[]
-  auxiliaryRequirements       FinanceAccountAuxiliaryRequirement[]
-  counterpartyClassifications FinanceCounterpartyClassification[]
-  currentLineages             FinanceAccountLineage[]              @relation("FinanceAccountLineageCurrent")
-  previousLineages            FinanceAccountLineage[]              @relation("FinanceAccountLineagePrevious")
-  assetCategoryPolicies       FinanceAssetCategoryPolicy[]          @relation("FinanceAssetPolicyAssetAccount")
-  accumulatedAssetPolicies   FinanceAssetCategoryPolicy[]          @relation("FinanceAssetPolicyAccumulatedAccount")
-  assetExpensePolicies        FinanceAssetCategoryPolicy[]          @relation("FinanceAssetPolicyExpenseAccount")
-  assetImpairmentLossPolicies FinanceAssetCategoryPolicy[]          @relation("FinanceAssetPolicyImpairmentLossAccount")
-  assetImpairmentAllowancePolicies FinanceAssetCategoryPolicy[]      @relation("FinanceAssetPolicyImpairmentAllowanceAccount")
-  assetDisposalGainLossPolicies FinanceAssetCategoryPolicy[]         @relation("FinanceAssetPolicyDisposalGainLossAccount")
-  assetCards                    FinanceAssetCard[]                    @relation("FinanceAssetCardAssetAccount")
-  accumulatedAssetCards         FinanceAssetCard[]                    @relation("FinanceAssetCardAccumulatedAccount")
-  assetExpenseAllocations       FinanceAssetExpenseAllocation[]
-  assetAdjustments              FinanceAssetAdjustment[]
-  groupAccountMappings          FinanceGroupAccountMapping[]
-  reclassItemRuleSources        FinanceReclassItemRule[]              @relation("FinanceReclassItemRuleSourceAccount")
-  reclassItemRuleTargets        FinanceReclassItemRule[]              @relation("FinanceReclassItemRuleTargetAccount")
-  reclassHistorySources         FinanceBalanceReclassAdjustmentHistory[] @relation("FinanceBalanceReclassHistorySourceAccount")
-  reclassHistoryTargets         FinanceBalanceReclassAdjustmentHistory[] @relation("FinanceBalanceReclassHistoryTargetAccount")
+  id                               Int                                      @id @default(autoincrement())
+  code                             String
+  name                             String
+  category                         String
+  parentId                         Int?
+  balanceDirection                 String                                   @default("debit")
+  isActive                         Boolean                                  @default(true)
+  companyCode                      String
+  companyId                        Int?
+  mnemonicCode                     String?
+  currency                         String?
+  sourceSystem                     String?
+  sourceLedger                     String?
+  sourceDatabase                   String?
+  sourceKey                        String?
+  groupSubjectCode                 String?
+  subjectLevel                     Int?
+  year                             Int?
+  sortOrder                        Int                                      @default(0)
+  editedBy                         Int?
+  editedAt                         DateTime?
+  version                          Int                                      @default(1)
+  createdAt                        DateTime                                 @default(now())
+  updatedAt                        DateTime                                 @default(now()) @updatedAt
+  editor                           User?                                    @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
+  company                          Company?                                 @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  parent                           FinanceAccount?                          @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children                         FinanceAccount[]                         @relation("AccountHierarchy")
+  balances                         FinanceAccountBalance[]
+  voucherItems                     FinanceVoucherItem[]
+  snapshotRows                     FinanceBalanceSnapshotRow[]
+  sourceBalances                   FinanceSourceAccountBalance[]
+  auxiliaryBalances                FinanceAuxiliaryBalance[]
+  openItems                        FinanceOpenItem[]
+  bankAccounts                     FinanceBankAccount[]
+  deptBudgets                      FinanceBudgetDept[]
+  rdBudgets                        FinanceBudgetRd[]
+  auxiliaryRequirements            FinanceAccountAuxiliaryRequirement[]
+  counterpartyClassifications      FinanceCounterpartyClassification[]
+  currentLineages                  FinanceAccountLineage[]                  @relation("FinanceAccountLineageCurrent")
+  previousLineages                 FinanceAccountLineage[]                  @relation("FinanceAccountLineagePrevious")
+  assetCategoryPolicies            FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyAssetAccount")
+  accumulatedAssetPolicies         FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyAccumulatedAccount")
+  assetExpensePolicies             FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyExpenseAccount")
+  assetImpairmentLossPolicies      FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyImpairmentLossAccount")
+  assetImpairmentAllowancePolicies FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyImpairmentAllowanceAccount")
+  assetDisposalGainLossPolicies    FinanceAssetCategoryPolicy[]             @relation("FinanceAssetPolicyDisposalGainLossAccount")
+  assetCards                       FinanceAssetCard[]                       @relation("FinanceAssetCardAssetAccount")
+  accumulatedAssetCards            FinanceAssetCard[]                       @relation("FinanceAssetCardAccumulatedAccount")
+  assetExpenseAllocations          FinanceAssetExpenseAllocation[]
+  assetAdjustments                 FinanceAssetAdjustment[]
+  groupAccountMappings             FinanceGroupAccountMapping[]
+  reclassItemRuleSources           FinanceReclassItemRule[]                 @relation("FinanceReclassItemRuleSourceAccount")
+  reclassItemRuleTargets           FinanceReclassItemRule[]                 @relation("FinanceReclassItemRuleTargetAccount")
+  reclassHistorySources            FinanceBalanceReclassAdjustmentHistory[] @relation("FinanceBalanceReclassHistorySourceAccount")
+  reclassHistoryTargets            FinanceBalanceReclassAdjustmentHistory[] @relation("FinanceBalanceReclassHistoryTargetAccount")
 
   @@unique([code, companyCode, year])
   @@unique([sourceSystem, sourceDatabase, sourceKey])
@@ -64,43 +64,43 @@ model FinanceAccount {
 
 /// 会计期间
 model FinancePeriod {
-  id                  Int                           @id @default(autoincrement())
-  year                Int
-  month               Int
-  startDate           String
-  endDate             String
-  isClosed            Boolean                       @default(false)
-  sourceSystem        String?
-  sourceDatabase      String?
-  sourceKey           String?
-  sourceClosed        Boolean?
-  companyCode         String
-  companyId Int?
-  createdAt           DateTime                      @default(now())
-  updatedAt           DateTime                      @default(now()) @updatedAt
-  balances            FinanceAccountBalance[]
-  vouchers            FinanceVoucher[]
-  reclassResults      ReclassResult[]
-  sourceBalances      FinanceSourceAccountBalance[]
-  auxiliaryBalances   FinanceAuxiliaryBalance[]
-  cashFlowAllocations FinanceCashFlowAllocation[]
-  openItems           FinanceOpenItem[]
-  assetPeriodEntries  FinanceAssetPeriodEntry[]
-  assetAdjustments    FinanceAssetAdjustment[]
+  id                         Int                                @id @default(autoincrement())
+  year                       Int
+  month                      Int
+  startDate                  String
+  endDate                    String
+  isClosed                   Boolean                            @default(false)
+  sourceSystem               String?
+  sourceDatabase             String?
+  sourceKey                  String?
+  sourceClosed               Boolean?
+  companyCode                String
+  companyId                  Int?
+  createdAt                  DateTime                           @default(now())
+  updatedAt                  DateTime                           @default(now()) @updatedAt
+  balances                   FinanceAccountBalance[]
+  vouchers                   FinanceVoucher[]
+  reclassResults             ReclassResult[]
+  sourceBalances             FinanceSourceAccountBalance[]
+  auxiliaryBalances          FinanceAuxiliaryBalance[]
+  cashFlowAllocations        FinanceCashFlowAllocation[]
+  openItems                  FinanceOpenItem[]
+  assetPeriodEntries         FinanceAssetPeriodEntry[]
+  assetAdjustments           FinanceAssetAdjustment[]
   assetImpairmentAssessments FinanceAssetImpairmentAssessment[]
-  assetDisposals      FinanceAssetDisposal[]
-  assetAcquisitionEvidence FinanceAssetAcquisitionEvidence[]
-  assetCutoverCards  FinanceAssetCard[]                @relation("FinanceAssetCardCutoverPeriod")
-  assetCutoverImportBatches FinanceAssetImportBatch[]  @relation("FinanceAssetImportBatchCutoverPeriod")
-  sourceStatuses      FinanceSourcePeriodStatus[]
-  bankReconciliations FinanceBankReconciliation[]
-  interestWorkpapers  FinanceInterestWorkpaper[]
-  taxWorkpapers       FinanceTaxWorkpaper[]
-  taxFilings          FinanceTaxFiling[]
-  taxSnapshots        FinanceTaxReconciliationSnapshot[]
-  closeRuns           FinanceCloseRun[]
-  closeWorkpapers     FinanceCloseWorkpaper[]
-  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assetDisposals             FinanceAssetDisposal[]
+  assetAcquisitionEvidence   FinanceAssetAcquisitionEvidence[]
+  assetCutoverCards          FinanceAssetCard[]                 @relation("FinanceAssetCardCutoverPeriod")
+  assetCutoverImportBatches  FinanceAssetImportBatch[]          @relation("FinanceAssetImportBatchCutoverPeriod")
+  sourceStatuses             FinanceSourcePeriodStatus[]
+  bankReconciliations        FinanceBankReconciliation[]
+  interestWorkpapers         FinanceInterestWorkpaper[]
+  taxWorkpapers              FinanceTaxWorkpaper[]
+  taxFilings                 FinanceTaxFiling[]
+  taxSnapshots               FinanceTaxReconciliationSnapshot[]
+  closeRuns                  FinanceCloseRun[]
+  closeWorkpapers            FinanceCloseWorkpaper[]
+  company                    Company?                           @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([companyCode, year, month])
   @@index([companyId])
@@ -108,53 +108,53 @@ model FinancePeriod {
 
 /// 记账凭证
 model FinanceVoucher {
-  id                       Int                                @id @default(autoincrement())
-  voucherNo                String
-  date                     String
-  periodId                 Int
-  description              String
-  totalDebit               Float                              @default(0)
-  totalCredit              Float                              @default(0)
-  status                   String                             @default("draft")
-  companyCode              String
-  companyId Int?
-  importId                 Int?
-  sourceSystem             String?
-  sourceDatabase           String?
-  sourceKey                String?
-  voucherTypeCode          String?
-  voucherTypeName          String?
-  isAdjustment             Boolean                            @default(false)
-  preparerName             String?
-  reviewerName             String?
-  posterName               String?
-  cashierName              String?
-  attachmentCount          Int                                @default(0)
-  sourcePosted             Boolean?
-  sourceAudited            Boolean?
-  sourceInvalid            Boolean?
-  externalSourceSystem     String?
-  externalSourceDocumentNo String?
-  externalSourceDocumentId String?
-  externalSourceAccountSet String?
-  externalSourceDate       String?
-  sourceMetadata           Json?
-  editedBy                 Int?
-  editedAt                 DateTime?
-  version                  Int                                @default(1)
-  createdAt                DateTime                           @default(now())
-  updatedAt                DateTime                           @default(now()) @updatedAt
-  editor                   User?                              @relation("FinanceVoucherEditor", fields: [editedBy], references: [id])
-  period                   FinancePeriod                      @relation(fields: [periodId], references: [id])
-  import                   FinanceLedgerImport?               @relation(fields: [importId], references: [id])
-  items                    FinanceVoucherItem[]
-  cashFlowAllocations      FinanceCashFlowAllocation[]
-  statementExclusions      FinanceStatementVoucherExclusion[]
-  assetPeriodEntries       FinanceAssetPeriodEntry[]
-  assetAdjustments         FinanceAssetAdjustment[]
+  id                         Int                                @id @default(autoincrement())
+  voucherNo                  String
+  date                       String
+  periodId                   Int
+  description                String
+  totalDebit                 Float                              @default(0)
+  totalCredit                Float                              @default(0)
+  status                     String                             @default("draft")
+  companyCode                String
+  companyId                  Int?
+  importId                   Int?
+  sourceSystem               String?
+  sourceDatabase             String?
+  sourceKey                  String?
+  voucherTypeCode            String?
+  voucherTypeName            String?
+  isAdjustment               Boolean                            @default(false)
+  preparerName               String?
+  reviewerName               String?
+  posterName                 String?
+  cashierName                String?
+  attachmentCount            Int                                @default(0)
+  sourcePosted               Boolean?
+  sourceAudited              Boolean?
+  sourceInvalid              Boolean?
+  externalSourceSystem       String?
+  externalSourceDocumentNo   String?
+  externalSourceDocumentId   String?
+  externalSourceAccountSet   String?
+  externalSourceDate         String?
+  sourceMetadata             Json?
+  editedBy                   Int?
+  editedAt                   DateTime?
+  version                    Int                                @default(1)
+  createdAt                  DateTime                           @default(now())
+  updatedAt                  DateTime                           @default(now()) @updatedAt
+  editor                     User?                              @relation("FinanceVoucherEditor", fields: [editedBy], references: [id])
+  period                     FinancePeriod                      @relation(fields: [periodId], references: [id])
+  import                     FinanceLedgerImport?               @relation(fields: [importId], references: [id])
+  items                      FinanceVoucherItem[]
+  cashFlowAllocations        FinanceCashFlowAllocation[]
+  statementExclusions        FinanceStatementVoucherExclusion[]
+  assetPeriodEntries         FinanceAssetPeriodEntry[]
+  assetAdjustments           FinanceAssetAdjustment[]
   assetImpairmentAssessments FinanceAssetImpairmentAssessment[]
-  assetDisposals            FinanceAssetDisposal[]
-  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assetDisposals             FinanceAssetDisposal[]
+  company                    Company?                           @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   @@unique([voucherNo, companyCode, periodId])
   @@unique([sourceSystem, sourceDatabase, sourceKey])
@@ -189,6 +189,11 @@ model FinanceVoucherItem {
   exchangeRate                   Decimal?                          @db.Decimal(20, 8)
   originalDebit                  Decimal?                          @db.Decimal(20, 2)
   originalCredit                 Decimal?                          @db.Decimal(20, 2)
+  /// 资本凭证经受控证据确认的实际/历史人民币金额；汇率由 service 反算，不作为输入事实
+  capitalHistoricalAmountCny     Decimal?                          @db.Decimal(20, 2)
+  /// voucher | openingVoucher | cumulativeVoucher；日期不确定的汇总凭证以人民币金额为主事实
+  capitalEvidenceKind            String?
+  capitalEvidence                String?
   settlementStyle                String?
   settlementNo                   String?
   settlementDate                 String?
@@ -208,14 +213,14 @@ model FinanceVoucherItem {
   bankReconciliationItems        FinanceBankReconciliationItem[]
   loanPrincipalEvents            FinanceLoanPrincipalEvent[]
   interestVoucherLinks           FinanceInterestVoucherLink[]
-  taxAccrualLines                 FinanceTaxAccrualLine[]
+  taxAccrualLines                FinanceTaxAccrualLine[]
   taxPaymentAllocations          FinanceTaxPaymentAllocation[]
-  assetAcquisitionEvidence       FinanceAssetAcquisitionEvidence?     @relation("FinanceAssetAcquisitionVoucherItem")
-  assetDisposalAsAssetItem       FinanceAssetDisposal?                @relation("FinanceAssetDisposalAssetItem")
-  assetDisposalAsAccumulatedItem FinanceAssetDisposal?                @relation("FinanceAssetDisposalAccumulatedItem")
-  assetDisposalAsAllowanceItem   FinanceAssetDisposal?                @relation("FinanceAssetDisposalAllowanceItem")
-  assetDisposalAsProceedsItem    FinanceAssetDisposal?                @relation("FinanceAssetDisposalProceedsItem")
-  assetDisposalAsGainLossItem    FinanceAssetDisposal?                @relation("FinanceAssetDisposalGainLossItem")
+  assetAcquisitionEvidence       FinanceAssetAcquisitionEvidence?  @relation("FinanceAssetAcquisitionVoucherItem")
+  assetDisposalAsAssetItem       FinanceAssetDisposal?             @relation("FinanceAssetDisposalAssetItem")
+  assetDisposalAsAccumulatedItem FinanceAssetDisposal?             @relation("FinanceAssetDisposalAccumulatedItem")
+  assetDisposalAsAllowanceItem   FinanceAssetDisposal?             @relation("FinanceAssetDisposalAllowanceItem")
+  assetDisposalAsProceedsItem    FinanceAssetDisposal?             @relation("FinanceAssetDisposalProceedsItem")
+  assetDisposalAsGainLossItem    FinanceAssetDisposal?             @relation("FinanceAssetDisposalGainLossItem")
 
   @@unique([voucherId, accountId, sortOrder])
   @@unique([sourceSystem, sourceDatabase, sourceKey])
@@ -225,25 +230,30 @@ model FinanceVoucherItem {
 
 /// 科目余额（事实：期初/本期/期末借贷）
 model FinanceAccountBalance {
-  id            Int            @id @default(autoincrement())
-  accountId     Int
-  periodId      Int
-  openingDebit  Float          @default(0)
-  openingCredit Float          @default(0)
-  currentDebit  Float          @default(0)
-  currentCredit Float          @default(0)
-  closingDebit  Float          @default(0)
-  closingCredit Float          @default(0)
-  companyCode   String
-  companyId Int?
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @default(now()) @updatedAt
-  period        FinancePeriod  @relation(fields: [periodId], references: [id])
-  account       FinanceAccount @relation(fields: [accountId], references: [id])
-  company Company? @relation(fields: [companyId], references: [id], onDelete: Restrict)
-  assetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverAssetBalance")
+  id                           Int                @id @default(autoincrement())
+  accountId                    Int
+  periodId                     Int
+  openingDebit                 Float              @default(0)
+  openingCredit                Float              @default(0)
+  /// 资本期初余额经受控证据确认的历史人民币金额；汇率由 service 反算，不作为输入事实
+  capitalHistoricalAmountCny   Decimal?           @db.Decimal(20, 2)
+  /// openingBalance；保留来源语义，禁止把账期起始日当成资本发生日
+  capitalEvidenceKind          String?
+  capitalEvidence              String?
+  currentDebit                 Float              @default(0)
+  currentCredit                Float              @default(0)
+  closingDebit                 Float              @default(0)
+  closingCredit                Float              @default(0)
+  companyCode                  String
+  companyId                    Int?
+  createdAt                    DateTime           @default(now())
+  updatedAt                    DateTime           @default(now()) @updatedAt
+  period                       FinancePeriod      @relation(fields: [periodId], references: [id])
+  account                      FinanceAccount     @relation(fields: [accountId], references: [id])
+  company                      Company?           @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  assetCutoverCards            FinanceAssetCard[] @relation("FinanceAssetCardCutoverAssetBalance")
   accumulatedAssetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverAccumulatedBalance")
-  impairmentAssetCutoverCards FinanceAssetCard[] @relation("FinanceAssetCardCutoverImpairmentBalance")
+  impairmentAssetCutoverCards  FinanceAssetCard[] @relation("FinanceAssetCardCutoverImpairmentBalance")
 
   @@unique([accountId, periodId])
   @@index([companyId])

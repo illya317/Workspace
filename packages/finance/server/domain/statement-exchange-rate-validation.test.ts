@@ -2,10 +2,38 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildCapitalHistoricalAmountRateCommand,
   buildMonthlyAverageExchangeRateCommand,
   buildRefreshStatementExchangeRateCommand,
   buildVoucherHistoricalInvestmentRateCommand,
 } from "./statement-exchange-rate-validation";
+
+test("capital historical amount validates the evidence source and derives the weighted rate", () => {
+  const accepted = buildCapitalHistoricalAmountRateCommand({
+    sourceKind: "accountBalance",
+    sourceRecordId: 1322235,
+    evidenceDate: "2020-01-01",
+    originalCurrency: " cad ",
+    originalAmount: 100_000,
+    historicalAmountCny: 505_056,
+    evidence: " 历史凭证确认 ",
+  }, 9);
+  assert.equal(accepted.ok, true);
+  if (accepted.ok) {
+    assert.equal(accepted.data.currencyCode, "CAD");
+    assert.equal(accepted.data.weightedRate, 5.05056);
+    assert.equal(accepted.data.evidence, "历史凭证确认");
+  }
+  assert.equal(buildCapitalHistoricalAmountRateCommand({
+    sourceKind: "voucherItem",
+    sourceRecordId: 0,
+    evidenceDate: "2020-01-01",
+    originalCurrency: "CAD",
+    originalAmount: 100_000,
+    historicalAmountCny: 505_056,
+    evidence: "历史凭证确认",
+  }, 9).ok, false);
+});
 
 test("monthly average rate input normalizes the currency and validates the period", () => {
   const result = buildMonthlyAverageExchangeRateCommand({ currencyCode: "cad", year: 2026, month: 2 }, 9);
@@ -25,7 +53,7 @@ test("exchange-rate refresh accepts an official source lookup target", () => {
 test("voucher historical rates require a dated item, positive rate, and matching evidence", () => {
   const accepted = buildVoucherHistoricalInvestmentRateCommand({
     voucherItemId: 101,
-    voucherDate: "2019-05-31",
+    contributionDate: "2018-02-13",
     rate: 5.05056,
     matchingLabel: " 加拿大公司实收资本 ",
   }, 9);
@@ -33,7 +61,7 @@ test("voucher historical rates require a dated item, positive rate, and matching
   if (accepted.ok) assert.equal(accepted.data.matchingLabel, "加拿大公司实收资本");
   assert.equal(buildVoucherHistoricalInvestmentRateCommand({
     voucherItemId: 0,
-    voucherDate: "2019-05-31",
+    contributionDate: "2018-02-13",
     rate: 0,
     matchingLabel: "",
   }, 9).ok, false);
