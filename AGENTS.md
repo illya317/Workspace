@@ -12,10 +12,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Environment Authority
 
-- `/Users/koito/Project/workspace/workspace` 是正式代码仓库；正式 diff、检查、commit 与 CNB push 只在这里执行。
-- `workspace-dev:/home/ubuntu/workspace-dev/source` 只用于远端开发调试。调试完成后只按任务文件白名单同步回 Mac；禁止复制 `.env`、密钥、数据库、`.next`、`node_modules`、缓存、运行时数据和私有租户配置。
+- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可修改的正式代码工作树；正式 diff、检查、commit 与 CNB push 只在这里执行。该目录同时 bind mount 为开发容器内的 `/workspace`，服务 `/test`。
+- `/Users/koito/Project/workspace/workspace` 是 Mac 只读镜像：只允许状态核对和差异参照，禁止编辑、stage、commit 或 push。
+- `workspace-dev:/home/ubuntu/workspace-dev/source` 是 `codex/server-dev` 辅助 worktree，不是日常同步目标；只有任务明确针对该分支时才允许修改。
+- 跨环境同步必须使用任务文件白名单；禁止复制 `.env`、密钥、数据库、`.next`、`node_modules`、缓存、运行时数据和私有租户配置。
 - CNB 是唯一源码平台、CI、应用构建、Registry、CD、回滚和审计平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
-- Mac 只提交源码到 CNB，不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
+- 远端正式工作树只提交源码到 CNB，不中转构建制品或手工部署生产；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
 - Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 CNB Build ID、required CI、镜像 digest、演练、部署阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
 
 ## Start Here

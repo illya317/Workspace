@@ -11,9 +11,9 @@
 
 ## 2. 部署与运行态同步
 
-Mac `/Users/koito/Project/workspace/workspace` 是正式提交工作区。远端 `workspace-dev` 只做 Linux/运行态调试，不配置 provider push；远端改动按任务文件白名单同步回 Mac 后复核、检查、提交并推送 CNB。
+远端 `/home/ubuntu/workspace-dev/worktrees/main` 是唯一可修改的正式提交工作区，也是 `/test` 实际服务的源码目录。Mac `/Users/koito/Project/workspace/workspace` 只是只读镜像，禁止编辑、stage、commit 或 push；`/home/ubuntu/workspace-dev/source` 是辅助分支 worktree，不是日常同步目标。
 
-- 普通候选从 Mac 推送 CNB 任务分支并通过 PR 进入 `main`；仓库不提供自建 push/promotion 包装器。
+- 普通候选从远端正式工作树推送 CNB 任务分支并通过 PR 进入 `main`；仓库不提供自建 push/promotion 包装器。
 - CNB PR 运行 required CI；受保护 `main` 在同一 checkout 中安装一次依赖、执行一次 Next build、启动 exact standalone E2E，再把该产物包装为唯一 `linux/amd64` 应用镜像。
 - 镜像直接推送 CNB Registry；`release.json` 绑定 CNB Build ID、SHA、tree、content、artifact、migration 和 image digest。
 - 同一条 `main push` 流水线先完成 disposable PostgreSQL/应用启动/回滚演练，再按同一 digest 执行生产锁、备份、migration、候选健康、切换、线上 digest 回执。生产服务器不 checkout 源码，也不现场安装应用依赖或构建。

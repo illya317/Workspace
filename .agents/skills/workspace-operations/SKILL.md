@@ -10,7 +10,7 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 ## 角色确认
 
 - 开工前确认根 `AGENTS.md` 的环境与 Role Gate，并确认读取 router 后的第一条角色声明更新已写明 `主角色: Operations`。
-- 在 Mac 正式仓库、远端开发和生产之间先选定环境；不得把一个环境的命令套到另一个环境。
+- 在远端正式工作树、Mac 只读镜像和生产之间先选定环境；不得把一个环境的命令套到另一个环境。
 - 业务功能、schema、架构契约和历史清债分别交给对应角色。
 
 ## 先读
@@ -25,7 +25,7 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 ## 唯一发布链
 
 ```text
-Mac push CNB -> required CI -> one Next standalone build
+Remote main push CNB -> required CI -> one Next standalone build
              -> one linux/amd64 image -> CNB Registry digest
              -> rehearsal -> lock/backup/migration/cutover/health/receipt
 ```
@@ -34,7 +34,7 @@ Mac push CNB -> required CI -> one Next standalone build
 - PR 只运行 required CI；受保护 `main` 在同一 checkout 中复用该构建，发布一个 `linux/amd64` OCI 镜像与 `release.json`。
 - `ops/cnb-ci.sh` 负责依赖、检查、唯一 Next build、PostgreSQL 和 exact-build E2E；`ops/cnb-release.sh` 只包装该 standalone、发布一次镜像并把同一 digest 交给演练和生产。
 - 生产只按 CNB Registry digest 拉取；禁止可变 tag、源码 checkout、现场安装和现场构建。
-- Mac 只提交源码，不中转制品、不部署生产；远端开发 checkout 不保存 provider push 凭据。
+- 只有远端 `/home/ubuntu/workspace-dev/worktrees/main` 可以修改源码、commit 和 push CNB；Mac checkout 只读，不中转制品、不部署生产。
 
 ## 职责
 
@@ -46,7 +46,7 @@ Mac push CNB -> required CI -> one Next standalone build
 
 ## Agent 闭环
 
-- 开工查询 Mac、CNB 和远端健康基线。
+- 开工查询远端正式工作树、Mac 只读镜像、CNB 和远端健康基线。
 - push 前运行受影响快速检查。
 - push 后跟踪 exact SHA 的 CNB required CI、Build ID、Registry digest、演练、部署阶段、健康和线上 digest。
 - 交付前重新刷新 provider 和线上状态；不能让用户代查。
