@@ -5,7 +5,7 @@ import { Button, Divider, Space } from "antd";
 import { ACTION_GLYPH_ORDER_BY_KIND, ActionGlyph } from "../action/ActionGlyphs";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import type { ControlSize } from "../common/interactionTokens";
-import { TEXT_STYLES } from "../common/interactionTokens";
+import { CONTROL_SIZES, ICON_BUTTON_SIZE_CLASSES, TEXT_STYLES } from "../common/interactionTokens";
 import { joinClassNames } from "../common/card-utils";
 import {
   AntdToolbarAutocomplete,
@@ -71,11 +71,11 @@ export function AntdToolbarActionButton({
     <Button
       aria-expanded={ariaExpanded}
       aria-label={label}
-      className={joinClassNames("max-sm:!h-11 max-sm:!w-11", className)}
+      className={joinClassNames(ICON_BUTTON_SIZE_CLASSES[size], "max-sm:!h-11 max-sm:!w-11", className)}
       danger={variant === "danger"}
       disabled={disabled}
       htmlType={type === "submit" && !onClick ? "submit" : "button"}
-      icon={<ActionGlyph kind={kind} className="size-4" />}
+      icon={<ActionGlyph kind={kind} className={CONTROL_SIZES[size].iconSize} />}
       onClick={onClick}
       size={antdControlSize(size)}
       title={label}

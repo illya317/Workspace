@@ -4,6 +4,7 @@ import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { AntdCommandList } from "./antd-command";
+import { DEFAULT_CONFIRM_DANGER, resolveConfirmModalOkButtonProps } from "./ConfirmModal";
 
 function renderClientSurface(node: React.ReactNode) {
   const previousReact = Reflect.get(globalThis, "React");
@@ -34,4 +35,18 @@ test("semantic danger inference is reflected by the Ant button", () => {
     key: "delete", label: "删除记录",
   }]} />);
   assert.match(markup, /ant-btn-dangerous/);
+});
+
+test("ordinary feedback is neutral while explicit destructive confirmation stays dangerous", () => {
+  assert.equal(DEFAULT_CONFIRM_DANGER, false);
+  assert.deepEqual(resolveConfirmModalOkButtonProps(DEFAULT_CONFIRM_DANGER, false), {
+    danger: false,
+    disabled: false,
+    type: "default",
+  });
+  assert.deepEqual(resolveConfirmModalOkButtonProps(true, false), {
+    danger: true,
+    disabled: false,
+    type: "primary",
+  });
 });

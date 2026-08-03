@@ -37,6 +37,7 @@ test("icon-button maps variant, disabled, aria-label and submit type", () => {
 
   const callbackSubmit = renderItem({ kind: "icon-button", key: "submit-callback", icon: "check", label: "回调提交", type: "submit", onClick: () => undefined });
   assert.match(callbackSubmit, /type="button"/);
+  assert.match(callbackSubmit, /!h-9 !w-9/);
   assert.match(callbackSubmit, /max-sm:!h-11 max-sm:!w-11/);
 });
 

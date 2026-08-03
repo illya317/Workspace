@@ -56,6 +56,11 @@ test("Ant theme aliases stay bound to the Workspace semantic palette", () => {
   assert.equal(workspaceTheme.token?.colorWarningText, workspaceColors.warning.main);
   assert.equal(workspaceTheme.token?.colorErrorText, workspaceColors.danger.main);
   assert.equal(workspaceTheme.token?.colorBorder, workspaceColors.border);
+  assert.equal(workspaceTheme.components?.Button?.controlHeightSM, 32);
+  assert.equal(workspaceTheme.components?.Button?.controlHeight, 36);
+  assert.equal(workspaceTheme.components?.Button?.controlHeightLG, 40);
+  assert.equal(workspaceTheme.components?.Button?.dangerColor, workspaceColors.surface);
+  assert.ok(contrastRatio(workspaceTheme.components?.Button?.dangerColor ?? "#000000", workspaceColors.danger.main) >= 4.5);
   assert.equal(workspaceTheme.components?.Segmented?.trackBg, workspaceColors.fillQuaternary);
   assert.equal(workspaceTheme.components?.Segmented?.itemHoverBg, workspaceColors.fillTertiary);
   assert.equal(workspaceTheme.components?.Segmented?.itemSelectedColor, workspaceColors.primary.hover);
