@@ -18,6 +18,7 @@ import {
   consolidationWorkpaperAdjustmentAmounts,
   consolidationWorkpaperEntities,
   consolidationWorkpaperEntryEffects,
+  consolidationWorkpaperEvidenceItems,
   consolidationWorkpaperEntityAmount,
   consolidationWorkpaperLines,
   type ConsolidationWorkpaperEntryEffect,
@@ -46,6 +47,10 @@ const OPEN_ITEM_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperOpenItem>[]
   { key: "status", label: "状态", required: true, width: "md", cell: (row) => row.statusLabel },
   { key: "action", label: "下一步", width: "lg", cell: (row) => row.actionLabel },
 ];
+
+const EVIDENCE_ITEM_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperOpenItem>[] = OPEN_ITEM_COLUMNS.map((column) => (
+  column.key === "title" ? { ...column, label: "证据事项" } : column
+));
 
 function expandedWorkpaperRow(
   effects: readonly ConsolidationWorkpaperEntryEffect[],
@@ -90,6 +95,10 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
     consolidationWorkpaperEntryEffects(entries, reportType, line),
   ])), [entries, reportType, workpaperLines]);
   const openItems = useMemo(() => consolidationWorkpaperOpenItems(
+    data?.adjustmentComparisons ?? [],
+    entries,
+  ), [data?.adjustmentComparisons, entries]);
+  const evidenceItems = useMemo(() => consolidationWorkpaperEvidenceItems(
     data?.adjustmentComparisons ?? [],
     entries,
   ), [data?.adjustmentComparisons, entries]);
@@ -175,6 +184,7 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
   };
 
   let sections: BodySurfaceSectionSpec[];
+  const lifecycleSections = batch ? workspace.lifecycleSections(props.onWorkpaperConfirmed) : [];
   if (!data) {
     sections = [createStatusSection("consolidation-workpaper-overview-status", {
       kind: overviewLoading ? "loading" : "error",
@@ -186,15 +196,15 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
       content: "请先在“合并准备”创建并维护期间批次。",
     })];
   } else if (output.loading) {
-    sections = [createStatusSection("consolidation-workpaper-loading", { kind: "loading", content: "正在重放合并工作底稿" })];
+    sections = [...lifecycleSections, createStatusSection("consolidation-workpaper-loading", { kind: "loading", content: "正在重放合并工作底稿" })];
   } else if (!output.report || !statement) {
-    sections = [createStatusSection("consolidation-workpaper-error", {
+    sections = [...lifecycleSections, createStatusSection("consolidation-workpaper-error", {
       kind: output.error ? "error" : "empty",
       content: output.error || "当前批次尚未形成可预览的合并工作底稿",
     })];
   } else {
     sections = [
-      ...workspace.lifecycleSections(props.onWorkpaperConfirmed),
+      ...lifecycleSections,
       {
         ...createPageTableSection("consolidation-workpaper-table", {
           rows: workpaperLines,
@@ -232,6 +242,19 @@ export function ConsolidationWorksheetTab(props: ConsolidationTabProps) {
         }),
         header: { title: `未合并事项（${openItems.length}）` },
       },
+      ...(evidenceItems.length > 0 ? [{
+        ...createPageTableSection("consolidation-workpaper-evidence-items", {
+          rows: evidenceItems,
+          columns: EVIDENCE_ITEM_COLUMNS,
+          visibleColumns: EVIDENCE_ITEM_COLUMNS.map((column) => column.key),
+          rowKey: (row) => row.key,
+          rowState: () => "info" as const,
+          presentation: { density: "compact" as const, cellWrap: "nowrap" as const },
+          scroll: { x: true },
+          emptyText: "本期没有待补证据",
+        }),
+        header: { title: `证据待补（${evidenceItems.length}）` },
+      }] : []),
     ];
   }
 

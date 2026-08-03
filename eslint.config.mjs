@@ -93,6 +93,26 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  {
+    files: [
+      "packages/core/ui/services/ui-provider.tsx",
+      "packages/core/ui/internal/**/antd-*.{ts,tsx}",
+      "packages/core/ui/internal/common/{CommandButton,ConfirmModal,Pagination,Toast}.tsx",
+    ],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "ImportDeclaration[source.value=/^(@mui\\/|react-bootstrap)(\\/.*)?$/]",
+          message: "Core Ant Design implementations may import antd only; other UI libraries still require their own reviewed Core implementation.",
+        },
+        {
+          selector: "ExportNamedDeclaration[source.value=/^(@mui\\/|react-bootstrap)(\\/.*)?$/]",
+          message: "Core Ant Design implementations must not re-export another third-party UI library.",
+        },
+      ],
+    },
+  },
   // File size governance. Keep this in ESLint so hard caps are part of lint, not a parallel check.
   // Canonical hard caps:
   // - API route shell: 120

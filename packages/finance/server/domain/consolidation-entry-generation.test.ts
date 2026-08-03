@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  buildCashFlowVoucherMatchGroups,
   buildIntercompanyVoucherMatchGroups,
   buildInvestmentVoucherMatchGroups,
   intercompanyPresentationAccountCode,
@@ -175,6 +176,55 @@ test("requires CNY translation even when both source ledgers use the same foreig
   assert.equal(group?.status, "unresolved");
   assert.equal(group?.comparisonCurrencyCode, null);
   assert.deepEqual(group?.requiredActions, ["translateToCny"]);
+});
+
+test("groups internal cash flow by source month and company pair with N:N evidence", () => {
+  const groups = buildCashFlowVoucherMatchGroups([
+    fact(1, 8, 9, 100, { sourceKind: "cashFlowAllocation", voucherDate: "2026-05-08", lineCode: "otherOpIn" }),
+    fact(2, 9, 8, -50, { sourceKind: "cashFlowAllocation", voucherDate: "2026-05-09", lineCode: "otherOpOut" }),
+    fact(3, 9, 8, -50, { sourceKind: "cashFlowAllocation", voucherDate: "2026-05-10", lineCode: "otherOpOut" }),
+    fact(4, 8, 9, 20, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-01", lineCode: "otherOpIn" }),
+    fact(5, 9, 8, -20, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-02", lineCode: "otherOpOut" }),
+  ]);
+  assert.equal(groups.length, 2);
+  assert.equal(groups[0]?.generationKey, "cashFlow:2026-05:8:9");
+  assert.equal(groups[0]?.status, "matched");
+  assert.equal(groups[0]?.matchedAmount, 100);
+  assert.equal(groups[0]?.postingDate, "2026-05-10");
+  assert.equal(groups[1]?.generationKey, "cashFlow:2026-06:8:9");
+});
+
+test("keeps unequal internal cash flow as an exception instead of generating a partial entry", () => {
+  const [group] = buildCashFlowVoucherMatchGroups([
+    fact(1, 8, 9, 100, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-01", lineCode: "otherOpIn" }),
+    fact(2, 9, 8, -99, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-02", lineCode: "otherOpOut" }),
+  ]);
+  assert.equal(group?.status, "difference");
+  assert.equal(group?.matchedAmount, 0);
+  assert.equal(group?.differenceAmount, 1);
+});
+
+test("requires internal inflows and outflows to agree separately even when net cash flow agrees", () => {
+  const [group] = buildCashFlowVoucherMatchGroups([
+    fact(1, 8, 9, 100, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-01", lineCode: "otherOpIn" }),
+    fact(2, 8, 9, -40, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-02", lineCode: "otherOpOut" }),
+    fact(3, 9, 8, -90, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-03", lineCode: "otherOpOut" }),
+    fact(4, 9, 8, 30, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-04", lineCode: "otherOpIn" }),
+  ]);
+  assert.equal(group?.leftNetAmount, 60);
+  assert.equal(group?.rightNetAmount, -60);
+  assert.equal(group?.status, "difference");
+  assert.equal(group?.differenceAmount, 20);
+});
+
+test("retains allocations without a unique internal counterparty as source exceptions", () => {
+  const [group] = buildCashFlowVoucherMatchGroups([
+    fact(1, 8, null, 100, { sourceKind: "cashFlowAllocation", voucherDate: "2026-06-01", lineCode: "otherOpIn" }),
+  ]);
+  assert.equal(group?.generationKey, "cashFlow:2026-06:8:unknown");
+  assert.equal(group?.rightCompanyId, null);
+  assert.equal(group?.status, "unresolved");
+  assert.deepEqual(group?.requiredActions, ["identifyCounterpart"]);
 });
 
 test("does not infer an investee when multiple direct relationships have evidence", () => {

@@ -1,0 +1,13 @@
+environments:
+  - name: production
+    description: 回滚到生产回执中的上一已知正常镜像 digest
+    permissions:
+      roles:
+        - owner
+        - master
+    require:
+      - approver:
+          roles:
+            - owner
+            - master
+        title: 审批生产镜像回滚

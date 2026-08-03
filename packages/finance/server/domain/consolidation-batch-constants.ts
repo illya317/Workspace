@@ -20,6 +20,7 @@ export const ACTIVE_CONSOLIDATION_ENTRY_TYPES: readonly ConsolidationEntryType[]
   "investmentEquity",
   "nonControllingInterest",
   "intercompanyBalance",
+  "cashFlow",
 ];
 
 /** Entry types that belong to statutory elimination controls; manual group adjustments are not elimination packages. */

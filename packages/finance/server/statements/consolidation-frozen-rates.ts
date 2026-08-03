@@ -1,6 +1,13 @@
 import type { ConsolidationRateReferenceSnapshot } from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 
+export function hasMonthlyAverageRateEvidence(
+  rates: readonly ConsolidationRateReferenceSnapshot[],
+) {
+  return rates.some((rate) => rate.rateKind === "monthlyAverage"
+    && rate.applications.some((application) => application.applicationType === "flowAverage"));
+}
+
 export function cnyPerForeignUnit(
   rate: ConsolidationRateReferenceSnapshot,
 ): DomainValidationResult<number> {

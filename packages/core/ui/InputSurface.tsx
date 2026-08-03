@@ -92,7 +92,9 @@ function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
   return "text";
 }
 
-type InputSurfaceRendererProps = InputSurfaceProps & Pick<TextFieldProps, "className" | "style">;
+type InputSurfaceRendererProps = InputSurfaceProps
+  & Pick<TextFieldProps, "className" | "style">
+  & { onDismiss?: () => void };
 
 export default function InputSurface(props: InputSurfaceProps) {
   return <InputSurfaceRenderer {...props} />;
@@ -103,6 +105,7 @@ export function InputSurfaceRenderer({
   value,
   displayValue,
   onChange,
+  onDismiss,
   placeholder,
   className,
   style,
@@ -366,8 +369,10 @@ export function InputSurfaceRenderer({
         stringValue={stringValue}
         disabled={interactionDisabled}
         placeholder={fieldPlaceholder}
+        autoFocus={autoFocus}
         autocompletePresentation={autocompletePresentation}
         onChange={onChange}
+        onDismiss={onDismiss}
         onQueryChange={onQueryChange}
         loading={loading}
         emptyText={emptyText}

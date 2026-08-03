@@ -224,7 +224,7 @@ export default function EmployeeProfileClient({
     setError(null);
     try {
       const nextEmployeeId = await task();
-      if (nextEmployeeId) router.replace(workspacePath(`/hr/roster/employees/${encodeURIComponent(nextEmployeeId)}`));
+      if (nextEmployeeId) router.replace(`/hr/roster/employees/${encodeURIComponent(nextEmployeeId)}`);
       else await load();
       await showSavePrompt("保存成功", successMessage, false);
     } catch (err) {

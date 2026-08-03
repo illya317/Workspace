@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { workspaceBasePath } from "@workspace/core/routing";
-import BodySurface from "./BodySurface";
 import CreateSurface from "./CreateSurface";
 import {
   bodySurfaceHasDirectoryContent,
@@ -17,10 +16,13 @@ import {
 import { DatabasePageFrame } from "./internal/page/PageFrames";
 import { BodySurfaceSplitProvider } from "./internal/body/BodySurfaceSplitContext";
 import { BodySurfacePageCreateProvider } from "./internal/body/BodySurfacePageCreateContext";
-import NavigationSurface from "./NavigationSurface";
 import Pagination from "./internal/common/Pagination";
 import { Toolbar } from "./Toolbar";
 import { PAGE_SURFACE_STACK_CLASS } from "./internal/page/PageSurface.spacing";
+import {
+  AntdPageBody,
+  AntdPageTabBar,
+} from "./internal/page/antd-page";
 import { usePageAssistant, type PageAssistantOpenInput } from "./services/PageAssistantProvider";
 import type {
   PageSurfaceDirectoryProps,
@@ -50,7 +52,7 @@ export type {
 
 function renderTabBar(tabbar?: PageSurfaceTabBarSpec) {
   if (!tabbar) return null;
-  return <NavigationSurface {...tabbar} />;
+  return <AntdPageTabBar tabbar={tabbar} />;
 }
 
 function renderFooter(footer?: PageSurfaceProps["footer"]) {
@@ -258,7 +260,7 @@ export default function PageSurface(props: PageSurfaceProps) {
     return renderDirectorySurface(props);
   }
 
-  return (
+  const page = (
     <BodySurfacePageCreateProvider create={hasSplit ? props.create : undefined}>
       <BodySurfaceSplitProvider runtime={splitRuntime}>
         <DatabasePageFrame
@@ -267,9 +269,10 @@ export default function PageSurface(props: PageSurfaceProps) {
           afterToolbar={pageCreatePlacement === "page" ? renderPageCreate(props.create) : null}
           footer={renderFooter(props.footer)}
         >
-          {props.body ? <BodySurface {...props.body} /> : null}
+          {props.body ? <AntdPageBody body={props.body} /> : null}
         </DatabasePageFrame>
       </BodySurfaceSplitProvider>
     </BodySurfacePageCreateProvider>
   );
+  return page;
 }

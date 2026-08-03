@@ -387,6 +387,25 @@ test("approved eliminations update detail lines and derived totals", () => {
   assert.equal(cashFlow.totals.netIncrease, 50);
 });
 
+test("prior-month internal cash flow adjusts year-to-date without changing the selected month", () => {
+  const replay = replayPackage();
+  replay.approvedEntries = replay.approvedEntries.map((entry) => ({
+    ...entry,
+    entryType: "cashFlow",
+    postingDate: "2026-11-30",
+    lines: entry.lines.filter((entryLine) => entryLine.statementType === "cashFlow"),
+  }));
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CNY"]]));
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  const cashFlow = result.data.statements.find((statement) => statement.reportType === "cashFlow")!;
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "salesReceipt")?.amount, 90);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "salesReceipt")?.currentMonthAmount, 20);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "purchasePayment")?.amount, 40);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "purchasePayment")?.currentMonthAmount, 8);
+  assert.equal(cashFlow.lines.find((item) => item.lineCode === "operatingNet")?.currentMonthAmount, 12);
+});
+
 test("legacy snapshots without canonical lineCode are rejected", () => {
   const replay = replayPackage();
   const payload = replay.sources[0]!.reportPayload as { payload: { assets: Record<string, unknown>[] } };

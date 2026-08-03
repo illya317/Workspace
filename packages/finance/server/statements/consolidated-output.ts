@@ -228,7 +228,10 @@ export function buildConsolidatedReportOutput(
         } else {
           line.amount = money(line.amount + delta);
           line.adjustmentAmount = money(line.adjustmentAmount + delta);
-          if (reportType !== "balanceSheet") applyCurrentMonthAdjustment(line, delta);
+          if (reportType !== "balanceSheet" && (entry.entryType !== "cashFlow"
+            || entry.postingDate.startsWith(`${replay.batch.year}-${String(replay.batch.month).padStart(2, "0")}`))) {
+            applyCurrentMonthAdjustment(line, delta);
+          }
         }
       }
     }

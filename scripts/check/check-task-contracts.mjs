@@ -157,7 +157,7 @@ const contracts = {
     detectors: ["scripts/check/check-typecheck-project-references.js"],
     patterns: ["^packages/[^/]+/tsconfig\\.json$", "^apps/[^/]+/tsconfig\\.json$"],
     inventoryPatterns: ["^(?!scripts/migrate/sqlite-legacy/).*\\.(?:[mc]?ts|tsx)$"],
-    files: ["tsconfig.json", "tsconfig.base.json", "tsconfig.app.json", "tsconfig.tooling.json", "tsconfig.prisma-client.json", ".github/workflows/ci.yml", "next.config.ts", "dependency-cruiser.config.cjs", "ops/cnb-release.yml"],
+    files: ["tsconfig.json", "tsconfig.base.json", "tsconfig.app.json", "tsconfig.tooling.json", "tsconfig.prisma-client.json", ".github/workflows/ci.yml", ".cnb.yml", ".cnb/tag_deploy.yml", "next.config.ts", "dependency-cruiser.config.cjs", "ops/image.Dockerfile", "ops/deploy-image.sh", "ops/rollback-image.sh"],
   },
   "work-plan-governance": {
     detectors: ["scripts/check/check-work-plan-governance.ts"],

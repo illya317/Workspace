@@ -38,7 +38,9 @@ function entryTitle(
   const left = entityByCompanyId.get(group.leftCompanyId);
   const right = group.rightCompanyId ? entityByCompanyId.get(group.rightCompanyId) : null;
   const pair = `${left?.companyName ?? "待确认公司"} → ${right?.companyName ?? "待确认公司"}`;
-  return group.category === "investmentEquity" ? `${pair} 投资与权益抵销` : `${pair} 往来款抵销`;
+  if (group.category === "investmentEquity") return `${pair} 投资与权益抵销`;
+  if (group.category === "cashFlow") return `${pair} 内部现金流抵销`;
+  return `${pair} 往来款抵销`;
 }
 
 function groupFingerprint(group: ConsolidationVoucherMatchGroup) {
@@ -72,7 +74,7 @@ function groupSources(
       entitySnapshotId: entity.id,
       counterpartyEntitySnapshotId: counterparty?.id ?? null,
       sourceKind: fact.sourceKind ?? "voucher",
-      voucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+      voucherItemId: !fact.sourceKind || fact.sourceKind === "voucher" ? fact.itemId : null,
       auxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
       matchSide: side,
       sourceAmount: fact.signedAmount,
@@ -103,7 +105,7 @@ function entryLines(
         entitySnapshotId: entity.id,
         companyId: entity.companyId,
         companyCode: entity.companyCode,
-        statementType: "balanceSheet",
+        statementType: group.category === "cashFlow" ? "cashFlow" : "balanceSheet",
         lineCode: fact.lineCode,
         accountCode: fact.accountCode,
         debit: matchedSignedAmount < 0 ? amount : 0,
@@ -121,7 +123,8 @@ function entryLines(
         sourceCurrency: fact.currencyCode,
         counterpartyEntitySnapshotId: counterparty.id,
         counterpartyCompanyId: counterparty.companyId,
-        sourceVoucherItemId: fact.sourceKind === "auxiliaryBalance" ? null : fact.itemId,
+        sourceCashFlowAllocationId: fact.sourceKind === "cashFlowAllocation" ? fact.itemId : null,
+        sourceVoucherItemId: !fact.sourceKind || fact.sourceKind === "voucher" ? fact.itemId : null,
         sourceAuxiliaryBalanceId: fact.sourceKind === "auxiliaryBalance" ? fact.itemId : null,
       };
     });
@@ -143,7 +146,9 @@ function entryData(
     title: entryTitle(group, entityByCompanyId),
     description: group.category === "intercompanyBalance"
       ? `按 ${sourceCount} 条期末辅助余额形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`
-      : `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`,
+      : group.category === "cashFlow"
+        ? `按 ${sourceCount} 条现金流分配形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`
+        : `按 ${sourceCount} 条凭证明细形成 ${group.leftFacts.length}:${group.rightFacts.length} 匹配。`,
     evidence: `${group.matchingRule}；来源记录：${[...group.leftFacts, ...group.rightFacts]
       .map((fact) => `${fact.sourceKind ?? "voucher"}:${fact.itemId}`).join("、")}`,
     matchDifference: group.differenceAmount,
@@ -279,7 +284,7 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
     ]);
     const automaticDecisionConclusion = "当前来源未形成可入账的合并凭证";
     const automaticDecisionEvidence = "系统根据合并凭证生成结果自动记录；单边、差额或缺少外币流水的事项保留来源例外，不进入合并数";
-    const automaticEntryTypes = ["investmentEquity", "nonControllingInterest", "intercompanyBalance"] as const;
+    const automaticEntryTypes = ["investmentEquity", "nonControllingInterest", "intercompanyBalance", "cashFlow"] as const;
     const automaticDecisionsChanged = automaticEntryTypes.some((entryType) => {
       const controlKey = `elimination:${entryType}` as const;
       const current = batch.controlDecisions.find((decision) => decision.controlKey === controlKey);
@@ -388,7 +393,7 @@ export async function generateConsolidationEntries(rawCommand: GenerateConsolida
         }
         if (!groupGeneratesEntry(group)) continue;
         const data = entryData(group, sourceFingerprint, command.userId, entityByCompanyId);
-        const postingDate = batchPostingDate(batch.year, batch.month);
+        const postingDate = group.postingDate ?? batchPostingDate(batch.year, batch.month);
         const lines = entryLines(group, entityByCompanyId);
         const currentEntry = existing?.entry;
         let entryId: number;

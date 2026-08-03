@@ -7,7 +7,6 @@ import type { WorkStatusFilter } from "./work-status-filter";
 import type { WorkItem, WorkPlanDraft, WorkTarget } from "./types";
 
 export type WorkOkrPlanPersistenceMode = "active" | "workflowDraft" | "businessDraft";
-export type WorkOkrPlanWorkflowRole = "none" | "submitter" | "processor" | "observer";
 export type WorkOkrPlanEditability = "editable" | "readonly";
 
 type WorkOkrPlanTableInput = Omit<
@@ -46,7 +45,6 @@ export function useWorkOkrPlanSurface({
   works: WorkItem[];
   target: WorkTarget | null;
   persistenceMode: WorkOkrPlanPersistenceMode;
-  workflowRole: WorkOkrPlanWorkflowRole;
   editability: WorkOkrPlanEditability;
   formDisabled?: boolean;
   autoFocusPlanTitle?: boolean;

@@ -30,8 +30,10 @@ export interface InputSurfaceChoiceRendererProps {
   stringValue: string;
   disabled: boolean;
   placeholder?: string;
+  autoFocus?: boolean;
   autocompletePresentation?: SearchableOptionInputProps["presentation"];
   onChange?: InputSurfaceProps["onChange"];
+  onDismiss?: () => void;
   onQueryChange?: InputSurfaceProps["onQueryChange"];
   loading?: InputSurfaceProps["loading"];
   emptyText?: InputSurfaceProps["emptyText"];
@@ -52,8 +54,10 @@ export default function InputSurfaceChoiceRenderer({
   stringValue,
   disabled,
   placeholder,
+  autoFocus,
   autocompletePresentation,
   onChange,
+  onDismiss,
   onQueryChange,
   loading,
   emptyText,
@@ -73,6 +77,8 @@ export default function InputSurfaceChoiceRenderer({
         optionLabel={spec.options.optionLabel ?? "选项"}
         emptyText={emptyText ?? "无匹配选项"}
         visibleCount={spec.options.visibleCount}
+        autoFocus={autoFocus}
+        onDismiss={onDismiss}
         onChange={(next) => onChange?.(next)}
         className={className}
       />
@@ -94,6 +100,8 @@ export default function InputSurfaceChoiceRenderer({
         queryParams={options.queryParams}
         visibleCount={options.visibleCount ?? 5}
         dropdownPresentation={autocompletePresentation}
+        autoFocus={autoFocus}
+        onCancel={onDismiss}
         onChange={(label: string, option?: FkFieldOption) => {
           const next = option
             ? options.returnField === "id"
@@ -124,6 +132,8 @@ export default function InputSurfaceChoiceRenderer({
           placeholder={placeholder}
           visibleCount={spec.options?.source === "static" ? spec.options.visibleCount : 5}
           presentation={autocompletePresentation}
+          autoFocus={autoFocus}
+          onOpenChange={(open) => notifyInputSurfaceDismissed(open, onDismiss)}
           onChange={(next) => onChange?.(next)}
           onQueryChange={onQueryChange}
           loading={loading}
@@ -140,6 +150,8 @@ export default function InputSurfaceChoiceRenderer({
         placeholder={placeholder}
         visibleCount={spec.options?.source === "static" ? spec.options.visibleCount : 5}
         presentation={autocompletePresentation}
+        autoFocus={autoFocus}
+        onOpenChange={(open) => notifyInputSurfaceDismissed(open, onDismiss)}
         onChange={(next, option) => onChange?.(next, option)}
         onQueryChange={onQueryChange}
         loading={loading}
@@ -150,6 +162,10 @@ export default function InputSurfaceChoiceRenderer({
   }
 
   return <>{fallback()}</>;
+}
+
+export function notifyInputSurfaceDismissed(open: boolean, onDismiss?: () => void) {
+  if (!open) onDismiss?.();
 }
 
 export function StagedGroupedAutocompleteChoice({
@@ -165,6 +181,8 @@ export function StagedGroupedAutocompleteChoice({
   value,
   visibleCount,
   inputClassName,
+  autoFocus,
+  onDismiss,
 }: {
   className?: string;
   disabled: boolean;
@@ -178,6 +196,8 @@ export function StagedGroupedAutocompleteChoice({
   value: string;
   visibleCount?: number;
   inputClassName?: string;
+  autoFocus?: boolean;
+  onDismiss?: () => void;
 }) {
   const currentMatch = findCurrentGroupedOption(groups, value);
   const [stage, setStage] = useState<"group" | "option">("group");
@@ -200,10 +220,12 @@ export function StagedGroupedAutocompleteChoice({
         placeholder={placeholder ?? groupLabel}
         emptyText={emptyText}
         clearOnFocus
+        autoFocus={autoFocus}
         closeOnSelect={false}
         maxResults={Math.max(2, groupOptions.length)}
         className={className}
         inputClassName={inputClassName}
+        onOpenChange={(open) => notifyInputSurfaceDismissed(open, onDismiss)}
         onChange={(next) => {
           const selection = resolveGroupedChoiceGroupSelection(next);
           if (selection.kind === "clear") {
@@ -231,7 +253,10 @@ export function StagedGroupedAutocompleteChoice({
       className={className}
       inputClassName={inputClassName}
       onOpenChange={(open) => {
-        if (!open) setStage("group");
+        if (!open) {
+          setStage("group");
+          notifyInputSurfaceDismissed(false, onDismiss);
+        }
       }}
       onChange={(next) => {
         onChange(next);

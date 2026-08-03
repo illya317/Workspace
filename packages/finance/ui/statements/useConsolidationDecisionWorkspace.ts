@@ -20,6 +20,7 @@ import {
   type TaxEffectRow,
 } from "./consolidation-decision-presenters";
 import {
+  consolidationPreparationAction,
   nextConsolidationLifecycleAction,
 } from "./consolidation-workbench-model";
 import { useConsolidationCommands } from "./useConsolidationCommands";
@@ -56,35 +57,42 @@ export function useConsolidationDecisionWorkspace(input: {
 
   const preparationSections = (onWorkpaperBuilt: () => void): BodySurfaceSectionSpec[] => {
     const batch = data?.batch;
-    if (!batch && !data?.batchCreation.allowed) {
+    const preparationAction = consolidationPreparationAction(batch?.status ?? null);
+    if (!preparationAction) return [];
+    if (preparationAction !== "complete" && !data?.batchCreation.allowed) {
       return [createStatusSection("consolidation-preparation-unavailable", {
         kind: "empty",
         content: `当前合并范围尚未就绪：${data?.batchCreation.unavailableReasons.join("；") || "请先维护并表公司关系"}`,
       })];
     }
-    if (batch && batch.status !== "draft") return [];
     const sourcesReady = Boolean(data?.metrics.totalSources
       && data.metrics.coveredSources === data.metrics.totalSources);
     const canSubmit = sourcesReady
-      && (batch ? capabilities.canUpdate : capabilities.canCreate && capabilities.canUpdate);
+      && (preparationAction === "complete"
+        ? capabilities.canUpdate
+        : capabilities.canCreate && capabilities.canUpdate);
     return [createFormSection("consolidation-preparation-submit", {
       kind: "filters",
       header: {
-        title: "提交合并准备",
+        title: preparationAction === "createVersion" ? "发起新版本合并准备" : "提交合并准备",
         description: sourcesReady
-          ? "全部单体报表已就绪。提交后系统会保存来源与汇率证据、生成合并凭证，并直接进入合并工作底稿。"
+          ? preparationAction === "createVersion"
+            ? `当前 V${batch?.version} 已完成。发起后系统会基于该版本创建新草稿，重新保存来源与汇率证据并生成工作底稿。`
+            : "全部单体报表已就绪。提交后系统会保存来源与汇率证据、生成合并凭证，并直接进入合并工作底稿。"
           : `全部单体报表就绪后才能生成工作底稿；当前已就绪 ${data?.metrics.coveredSources ?? 0}/${data?.metrics.totalSources ?? 0} 份。`,
       },
       content: { items: [], layout: { flow: "grid", columns: 3, density: "compact", commandPlacement: "below" } },
       actions: [{
         key: "complete-preparation",
         action: "submit",
-        label: commands.busy ? "正在生成…" : "生成合并工作底稿",
+        label: commands.busy ? "正在生成…" : preparationAction === "createVersion" ? "生成新版本工作底稿" : "生成合并工作底稿",
         disabled: commands.busy || !canSubmit,
-        onClick: () => void (batch ? commands.completePreparation() : commands.ensureBatch()).then((saved) => {
+        onClick: () => void (preparationAction === "complete"
+          ? commands.completePreparation()
+          : commands.ensureBatch()).then((saved) => {
           if (saved) onWorkpaperBuilt();
         }),
-      }, ...(batch ? [{
+      }, ...(preparationAction === "complete" ? [{
         key: "delete-batch",
         action: "delete" as const,
         label: "删除草稿",

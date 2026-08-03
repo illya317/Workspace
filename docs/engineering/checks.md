@@ -160,9 +160,9 @@ CI、发布 validate 和用于发布收敛的复合 suite 必须启用聚合失�
 - PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
 - 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
 
-GitHub Actions 不再做风险分类，只运行 changed-files 轻量检查。具体 Node/type/E2E 由 Agent 根据本次改动和依赖选择；没有任何 C 级别能自动把普通反馈升级成全库工作。
+GitHub Actions 是唯一 CI：changed-files、Node、完整 type、PostgreSQL 与一次 production build 作为独立 job 运行，E2E 下载并启动同一个 packaged standalone，不重建。稳定的 `CI / required` 聚合全部六条质量线。
 
-生产发布不等待 GitHub 作为质量回执。`ops/publish.sh ci` 在一轮内聚合目标 source graph 的全部独立失败、独立构建目标 artifact，并启动 exact archive 做 health/version 演练；全部通过才签发绑定 source/config/target/task graph/receipts/artifact 的 Ready Artifact。source result 与 schema-v3 `source-validation-<target>-<CI_RUN_ID>.json` receipt 都在内容中绑定 run id 并拒绝跨 target/run 复用；rehearsal 文件同样按 target/mode/run/config 隔离。同一 target 的后续 CI 不覆盖旧 Ready 引用的 proof 文件。修复后再次运行 CI 时只重跑 input/command/runtime digest 失效的任务。`deploy` 只消费 Ready，保留 migration、锁、备份、健康、切换和回滚等生产现场检查，禁止源码检查或现场构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
+`main` 的 required CI 成功后，GitHub 只把该 job 已生成的 standalone 包装为一个 `linux/amd64` OCI 应用镜像；镜像 job 不运行 Next build。`release.json` 绑定 commit、tree、content digest、GHCR digest、migration set 与 GitHub Run ID。CNB 只消费同一 digest，禁止源码检查或构建。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
 Stage-2 Artifact 预检位于 candidate/config/target 冻结之后、CI database sandbox/完整 Source CI/Next build 之前：它用 Next 自己的 `transpileConfig` 加载 exact target config，验证 target identity、生成 App、Node/npm/Next/lock/symlink/PATH 工具链，并调用 cache policy 的 `assert-build-space`。失败立即停止所有重任务。
 

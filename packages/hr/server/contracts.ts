@@ -162,7 +162,15 @@ async function getDefaultContractPage(options: {
   return { contracts, total: totals[0]?.total ?? 0 };
 }
 
-export async function getContracts(options: {
+async function databaseSupportsInputValidation() {
+  const rows = await prisma.$queryRaw<Array<{ supported: boolean }>>(Prisma.sql`
+    SELECT current_setting('server_version_num')::int >= 160000 AS "supported"
+  `);
+  return rows[0]?.supported ?? false;
+}
+
+async function getInMemoryContractPage(options: {
+  businessDate: string;
   company?: string;
   department?: string;
   isActive?: string | null;
@@ -171,17 +179,6 @@ export async function getContracts(options: {
   page: number;
   pageSize: number;
 }): Promise<PaginatedContracts> {
-  const businessDate = workspaceBusinessDate(new Date());
-  const hasComplexFilter = Boolean(options.keyword || options.company || options.department || options.position);
-  if (!hasComplexFilter) {
-    return getDefaultContractPage({
-      businessDate,
-      isActive: options.isActive === "true" ? true : options.isActive === "false" ? false : undefined,
-      page: options.page,
-      pageSize: options.pageSize,
-    });
-  }
-
   const employments = await prisma.employment.findMany({
     where: {},
     include: {
@@ -198,20 +195,20 @@ export async function getContracts(options: {
   });
   const scoped = employments.filter((employment) => {
     if (options.isActive !== "true" && options.isActive !== "false") return true;
-    return (employmentTemporalPosition(employment, businessDate) === "current") === (options.isActive === "true");
+    return (employmentTemporalPosition(employment, options.businessDate) === "current") === (options.isActive === "true");
   });
   const positionByEmploymentId = new Map(scoped.map((employment) => [employment.id, employment.employee?.positions ?? []]));
-  const normalizedRows = await listAllNormalizedEmploymentAgreementRows(businessDate);
+  const normalizedRows = await listAllNormalizedEmploymentAgreementRows(options.businessDate);
   const baselineEmploymentIds = new Set(normalizedRows
     .filter((row) => row.migrationState === "baseline" || row.migrationState === "baseline-incomplete")
     .map((row) => row.employmentId));
   let rows = [
     ...normalizedRows,
     ...buildLegacyAgreementRows(scoped.filter((employment) => !baselineEmploymentIds.has(employment.id)).map((employment) => ({
-    id: employment.id,
-    contracts: employment.contracts,
-    employee: employment.employee,
-    })), businessDate),
+      id: employment.id,
+      contracts: employment.contracts,
+      employee: employment.employee,
+    })), options.businessDate),
   ];
   const scopedEmploymentIds = new Set(scoped.map((employment) => employment.id));
   rows = rows.filter((row) => scopedEmploymentIds.has(row.employmentId));
@@ -224,4 +221,26 @@ export async function getContracts(options: {
     }));
   }
   return paginateContracts(rows, options.page, options.pageSize);
+}
+
+export async function getContracts(options: {
+  company?: string;
+  department?: string;
+  isActive?: string | null;
+  keyword?: string;
+  position?: string;
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedContracts> {
+  const businessDate = workspaceBusinessDate(new Date());
+  const hasComplexFilter = Boolean(options.keyword || options.company || options.department || options.position);
+  if (!hasComplexFilter && await databaseSupportsInputValidation()) {
+    return getDefaultContractPage({
+      businessDate,
+      isActive: options.isActive === "true" ? true : options.isActive === "false" ? false : undefined,
+      page: options.page,
+      pageSize: options.pageSize,
+    });
+  }
+  return getInMemoryContractPage({ ...options, businessDate });
 }

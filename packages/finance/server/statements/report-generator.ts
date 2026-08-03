@@ -31,8 +31,9 @@ export interface GenerateFinanceReportInput {
   reportType: "balance" | "income" | "cashflow";
 }
 
-function reportErrorResponse(error: string, status: number) {
-  return Response.json({ error }, { status });
+function jsonErrorResponse(error: string, status: number) {
+  const payload = { error };
+  return Response.json(payload, { status });
 }
 
 export async function generateFinanceReport(input: GenerateFinanceReportInput) {
@@ -42,17 +43,17 @@ export async function generateFinanceReport(input: GenerateFinanceReportInput) {
     const period = await prisma.financePeriod.findFirst({
       where: { companyCode: input.companyCode, year: input.year, month: input.month },
     });
-    if (!period) return reportErrorResponse("期间不存在", 404);
+    if (!period) return jsonErrorResponse("期间不存在", 404);
     targetPeriodId = period.id;
   }
   if (!targetPeriodId) {
-    return reportErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
+    return jsonErrorResponse("periodId 或 companyCode+year+month 为必填", 400);
   }
 
   const period = await prisma.financePeriod.findUnique({ where: { id: targetPeriodId } });
-  if (!period) return reportErrorResponse("期间不存在", 404);
+  if (!period) return jsonErrorResponse("期间不存在", 404);
   if (!isStatementPeriodEnd(period, periodKind)) {
-    return reportErrorResponse(periodKind === "year" ? "年度报表必须选择12月作为期末" : "季度报表必须选择季度末月份", 400);
+    return jsonErrorResponse(periodKind === "year" ? "年度报表必须选择12月作为期末" : "季度报表必须选择季度末月份", 400);
   }
   const prefixSet = getTenantProfile().finance.countryReportProfiles.find((profile) => profile.companyCodes.includes(period.companyCode))?.prefixSet ?? "chn";
 

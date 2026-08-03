@@ -3,7 +3,7 @@ model FinanceConsolidationMatchGroup {
   id                    Int                                 @id @default(autoincrement())
   batchId               Int
   entryId               Int?                                @unique
-  category              String // investmentEquity | intercompanyBalance
+  category              String // investmentEquity | intercompanyBalance | cashFlow
   status                String // matched | difference | unresolved | accepted | rejected
   leftEntitySnapshotId  Int
   rightEntitySnapshotId Int?
@@ -33,7 +33,7 @@ model FinanceConsolidationMatchSource {
   matchGroupId                 Int
   entitySnapshotId             Int
   counterpartyEntitySnapshotId Int?
-  sourceKind                   String                              @default("voucher") // voucher | auxiliaryBalance
+  sourceKind                   String                              @default("voucher") // voucher | auxiliaryBalance | cashFlowAllocation
   voucherItemId                Int?
   auxiliaryBalanceId           Int?
   matchSide                    String // left | right

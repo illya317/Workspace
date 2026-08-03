@@ -244,7 +244,6 @@ function usePreviewTableSection({
     detailId,
     editingId: null,
     editDraft: null,
-    workflowRequests: [],
     statusFilter: "active",
     itemTypeFilter: "all",
     groupByObjective,

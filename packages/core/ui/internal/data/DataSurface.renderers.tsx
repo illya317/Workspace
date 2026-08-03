@@ -271,6 +271,8 @@ function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   return renderDisplay(value);
 }
 
+export { renderCell as renderDataSurfaceCell };
+
 function normalizeStructuredRows(rows: DataSurfaceStructuredCellSpec[][]): StructuredTableCell[][] {
   return rows.map((row) => row.map((cell) => ({ ...cell, content: renderCell(cell.content) })));
 }

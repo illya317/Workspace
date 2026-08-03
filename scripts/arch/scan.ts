@@ -45,6 +45,14 @@ const FORBIDDEN_IMPORTS = [
   "react-bootstrap",
 ];
 const FORBIDDEN_ROOT_DIRS = ["lib", "server"];
+const THIRD_PARTY_UI_IMPLEMENTATION_PATHS = [
+  "packages/core/ui/services/ui-provider.tsx",
+  "packages/core/ui/internal/page/antd-",
+  "packages/core/ui/internal/common/CommandButton.tsx",
+  "packages/core/ui/internal/common/ConfirmModal.tsx",
+  "packages/core/ui/internal/common/Pagination.tsx",
+  "packages/core/ui/internal/common/Toast.tsx",
+];
 const FORBIDDEN_UI_IN_APP = ["app/**/*.tsx"];
 const APP_IMPLEMENTATION_DIR_NAMES = new Set(["components", "hooks", "lib"]);
 const FORBIDDEN_APP_SHARED_IMPLEMENTATION_DIRS = new Set([
@@ -319,7 +327,9 @@ function scanImport(filePath: string, rel: string, specifier: string) {
   const blockedImport = FORBIDDEN_IMPORTS.find((forbidden) => importMatchesForbidden(specifier, forbidden));
   if (blockedImport) {
     const isRbacKernelImport = blockedImport === "@/server/rbac" && isLegacyPermissionKernel(rel);
-    if (!isRbacKernelImport) {
+    const isThirdPartyUiAdapterImport = THIRD_PARTY_UI_IMPLEMENTATION_PATHS.some((allowedPath) => rel.startsWith(allowedPath))
+      && blockedImport === "antd";
+    if (!isRbacKernelImport && !isThirdPartyUiAdapterImport) {
       fail(rel, "forbidden-import", `import "${specifier}" is forbidden by the architecture gate`);
     }
   }

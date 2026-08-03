@@ -2,6 +2,10 @@
 
 Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页和 agent 不能按局部需求随手复制基础控件；所有通用 UI 都必须通过 Core UI registry 收口。
 
+### 全局语义配色
+
+Core 的视觉实现统一从 `internal/common/workspace-colors.ts` 取得 Workspace 色板。主操作色沿用迁移前的 emerald-600；信息、成功、警告、危险分别使用 sky、emerald、amber、red；中性文字、边框、填充使用 slate。`UiProvider` 将这套颜色映射到 Ant 的全局与组件 token，Tag、Badge 和带 tone 的动作 renderer 同样消费该私有映射。业务仍只声明 `info / success / warning / danger / muted` 等语义，不得传色值、Ant preset color 或视觉 class。普通字号的语义文字与其浅色背景必须保持 WCAG AA 对比度。
+
 ## 1. Registry 模型
 
 | 字段 | 用途 | 业务/agent 可直接使用 |
@@ -194,8 +198,8 @@ DataSurface 的展开范围由 Core 统一表达。纵向展开沿用 `expandedR
 
 当前批准的新 Surface section helper：
 
-- `PageSurface.create`：页面级标准新建流的唯一 slot，payload 为不含 trigger 的 `PageSurfaceCreateSpec`。Agent 选择 `presentation: inline | block | modal` 与 `content: form | sections`；PageSurface 固定派生唯一 Toolbar `+`，类型层无法在同一页面声明两个页面级 create。body 含 split 时，inline/block 在新建期间替换右侧详情，modal 从详情上下文打开；主栏始终保留，禁止把新建内容渲染成横跨左右两栏的全页 block。
-- `BodySurface kind="create"`：所属 Surface 内的局部新建流，payload 为 `CreateSurface trigger="surface"`，只选择 `presentation: block | modal`、普通 block 可选的跨区 `anchor` 与 `content: form | sections`。`BodySurfaceSectionHeaderSpec.create` 的局部 block 在类型层禁止 anchor，由 Core 自动紧贴 section header并置于 body 前，因此表格新增固定出现在列头上方。
+- `PageSurface.create`：页面级标准新建流的唯一 slot，payload 为不含 trigger 的 `PageSurfaceCreateSpec`。Agent 选择 `presentation: inline | block` 与 `content: form | sections`；PageSurface 固定派生唯一 Toolbar `+`，类型层无法在同一页面声明两个页面级 create。body 含 split 时，inline/block 在新建期间替换右侧详情；主栏始终保留，禁止把新建内容渲染成横跨左右两栏的全页 block。
+- `BodySurface kind="create"`：所属 Surface 内的局部新建流，payload 为 `CreateSurface trigger="surface"`，选择 `presentation: inline | block` 与 `content: form | sections`；普通 block 可声明跨区 `anchor`。`BodySurfaceSectionHeaderSpec.create` 只接受 block 且在类型层禁止 anchor，由 Core 自动紧贴 section header 并置于 body 前，因此表格新增固定出现在列头上方。
 - 需要先选择创建类型时，只能增加 `flow.kind="two-stage"`：第一段只声明选择字段并自动进入第二段，不声明自己的 layout；Core 强制两段复用第二段 `form.layout` 和同一个 shell，第一段不显示保存/提交。
 - `createFormSection(key, surface)`：生成 `BodySurface kind="form"` section。低层 form wrapper。
 - `createFieldsSection(key, fields, options)`：生成 `BodySurface kind="form"` + `FormSurface kind="fields/detail"` section。迁移普通表单正文；表单标题写 `options.header`，保存、提交、取消、归档/取消归档、批准、拒绝等根动作写 `options.actions`。
@@ -231,7 +235,7 @@ L2/L3 组件可以在 UI component library 中用于关系图、阅读和迁移�
 - Chrome/动作：`Toolbar`、`TabBar`、`Pagination`、`CommandButton`
 - 数据：`DataTable`、`StructuredTable`、`TableScrollFrame`；分析图表通过 `VisualizationSurface kind="chart"` 的纯数据 spec 表达
 - 表单：`FormField`、`TextField`、`SearchableOptionInput`、`CalendarDateInput`、`TimeField`、`FieldGrid`
-- 新建：业务/agent 只声明 `CreateSurface`；`InlineCreatePanel`、`CreatePresentationPanel`、`CreateStartButton` 和 `CreateConfirmActions` 都是 Core Internal
+- 新建：业务/agent 只声明 `CreateSurface`；Ant Design 新建 renderer 属于 Core Private Impl。历史 `InlineCreatePanel` / `CreatePresentationPanel` 已移除，并由架构 gate 禁止恢复
 - 选择：普通选项使用 autocomplete，分组选项使用二段式 autocomplete；业务/agent 通过 cards-only `SelectorSurface` 声明接口表达选择区
 - 输入/展示：`TagListInput`、`Badge`、`CodeBlock`、`EmptyStateCard`
 - 反馈：`ConfirmModal`、`Toast`
@@ -259,7 +263,7 @@ Surface 使用红线：
 1. 组件已经在父级 `PageSurface` 内：把子组件改为返回 `BodySurfaceSectionSpec` 或 section 数组，父级用 `createPageBody(sections)` 接入。`DataSurface` 用 `createPageTableSection` / `createPageDataSection`；`FormSurface` 用 `createFieldsSection` / `createInlineFieldsSection` / `createFormSection`；图表/甘特用 `createVisualizationSection`；普通容器用 `createPanelSection` / `createSectionSection` 等 section helper。
 2. 子组件目前直接返回表格或表单 JSX：先改成 thin section builder，例如 `buildXxxTableSection()` / `buildXxxFormSection()`；调用方负责放进 `PageSurface.body`。不要新增 domain `*Surface` 或 `*Shell`。
 3. 历史标准新建表单若由 Page toolbar 托管，迁到父级唯一 `PageSurface.create`；由父 Section、Data cell 或旁路局部 action 托管的，迁到 `CreateSurface trigger="surface"`。编辑等非创建表单仍把标题与生命周期动作迁进根 `FormSurface.header/actions`。
-4. 历史 `FormSurface kind="modal"` 已从类型层删除；页面级标准新建 modal 使用 `PageSurface.create presentation="modal"`，局部标准新建 modal 使用 `CreateSurface trigger="surface" presentation="modal"`，其他弹窗使用 `createPageModalSection`。
+4. 历史 `FormSurface kind="modal"` 已从类型层删除；标准新建不再提供 modal presentation，页面级和局部新建分别选择 inline 或 block；其他弹窗使用 `createPageModalSection`。
 5. 历史 `FormSurface kind="inline"` 只承载按钮：迁移到 `createActionsSection`，按钮使用 `createPageCommand` 或直接写 `BodySurfaceCommandSpec`。
 6. `InputSurface` 是通用声明入口；选择区使用 `SelectorSurface`，标准创建区使用 `CreateSurface`，其他表单通过 `BodySurface` / `FormSurface` 的结构化 section 表达。
 
@@ -316,13 +320,10 @@ Core Internal 是公开 API 的内部组合。它可以注册到关系图，但�
 - `ActionButton`
 - `DropdownSurface`
 - `SelectionOptionButton`
-- `ToolbarOptionGroup`
 - `TreeNodeCard`
 - `TreeNodeBranch`
 - `RemovableTag`
 - `TagPill`
-- `InlineCreatePanel`
-- `CreatePresentationPanel`
 
 改造规则：
 
@@ -364,7 +365,7 @@ Private Impl 是公开 UI 自己拆出来的内部文件。它不注册为独立
 例子：
 
 - `SelectionOptionTypes.ts`
-- `internal/toolbar/Toolbar.parts.tsx`
+- `internal/toolbar/toolbar-action-model.ts`
 - `internal/toolbar/Toolbar.types.ts`
 - `internal/data/DataTable.types.ts`
 
@@ -425,8 +426,10 @@ kimi --continue -p "读取 /path/to/private/codex-review-phaseX-name.md，只修
 
 Core Internal 业务直引：
 
+下列审计词包含已经删除的历史组件名，保留它们只为阻止业务侧重新引入，并不代表这些组件仍是可用入口。
+
 ```bash
-rg "ActionButton|RefreshActionButton|CreateStartButton|CreateConfirmActions|DataTableActionsCell|createDataTableEditActions|getDefaultVisibleColumns|SelectionOptionButton|ToolbarOptionGroup|SelectorCard|TreeNodeCard|TreeNodeBranch|TagPill|TagPillButton|TagRemoveButton|RemovableTag|InlineCreatePanel|CreatePresentationPanel|SplitWorkspace|ModuleCardBody" packages --glob '!packages/core/**' -n
+rg "ActionButton|RefreshActionButton|CreateStartButton|CreateConfirmActions|DataTableActionsCell|createDataTableEditActions|getDefaultVisibleColumns|SelectionOptionButton|ToolbarOptionGroup|SelectorCard|TreeNodeCard|TreeNodeBranch|TagPill|TagPillButton|TagRemoveButton|RemovableTag|SplitWorkspace|ModuleCardBody" packages --glob '!packages/core/**' -n
 ```
 
 Foundation 业务直引：
