@@ -19,6 +19,7 @@ const contracts = {
   "db-migration-check": { kind: "prisma", roots: ["prisma", "scripts/check", "scripts/ci"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },
   "db-path": { kind: "prisma", roots: ["prisma", "scripts/check", "ops"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },
   "db-validate": { kind: "prisma", roots: ["prisma", "scripts/check"], environment: ["DATABASE_URL", "DIRECT_URL", "SHADOW_DATABASE_URL"], environmentValueMode: "database-category" },
+  "domain-changed": { kind: "domain", roots: ["scripts/arch", "scripts/check", "packages", "app/api", "prisma", "generated/prisma"] },
   "docs-action-contracts": { roots: ["docs", "scripts", "packages", "app/api"] },
   "docs-api-agent-guide": { roots: ["docs", "scripts", "packages", "app/api"] },
   "docs-architecture": { roots: ["docs", "scripts/check", "app", "packages"] },

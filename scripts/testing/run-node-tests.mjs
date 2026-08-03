@@ -68,6 +68,7 @@ export function nodeTestShardKey(relativePath) {
   if (packageMatch) return `package.${packageMatch[1]}`;
   const scriptMatch = relativePath.match(/^scripts\/([^/]+)\//);
   if (scriptMatch) return `scripts.${scriptMatch[1]}`;
+  if (relativePath.startsWith("scripts/")) return "scripts.root";
   if (relativePath.startsWith("app/")) return "app";
   if (relativePath.startsWith("ops/")) return "ops";
   throw new Error(`Node test is outside the governed shard roots: ${relativePath}`);

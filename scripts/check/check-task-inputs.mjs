@@ -167,8 +167,11 @@ function nodeTestShardInputs(cwd, contract, allFiles) {
   } else if (first.startsWith("ops/")) {
     for (const file of allFiles) if (file.startsWith("ops/")) files.add(file);
   } else if (first.startsWith("scripts/")) {
-    const area = first.split("/")[1];
-    for (const file of allFiles) if (file.startsWith(`scripts/${area}/`)) files.add(file);
+    const relative = first.slice("scripts/".length);
+    const area = relative.includes("/") ? relative.split("/")[0] : null;
+    for (const file of allFiles) {
+      if (area ? file.startsWith(`scripts/${area}/`) : /^scripts\/[^/]+$/.test(file)) files.add(file);
+    }
   }
   return new Set([...files, ...sourceImportClosure(cwd, contract.testFiles)]);
 }
