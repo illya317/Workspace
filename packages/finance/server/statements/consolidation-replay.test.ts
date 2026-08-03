@@ -140,6 +140,7 @@ test("replay only requires elimination conclusions that are active in the curren
     decision.controlKey === "elimination:investmentEquity"
     || decision.controlKey === "elimination:nonControllingInterest"
     || decision.controlKey === "elimination:intercompanyBalance"
+    || decision.controlKey === "elimination:cashFlow"
     || decision.controlKey === "tax"
   ));
   const result = buildConsolidationReplayPackage(currentScope);

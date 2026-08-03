@@ -55,7 +55,7 @@ test("notApplicable remains scoped to an active elimination control", () => {
   }]);
 });
 
-test("notApplicable rejects deferred elimination controls", () => {
+test("notApplicable accepts the active cash-flow elimination control", () => {
   const result = buildSaveConsolidationControlDecisionCommand(7, {
     expectedRevision: 3,
     mode: "notApplicable",
@@ -64,7 +64,12 @@ test("notApplicable rejects deferred elimination controls", () => {
     evidence: "测试依据",
   }, 11);
 
-  assert.equal(result.ok, false);
-  if (result.ok) return;
-  assert.equal(result.issue.field, "controlKey");
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.deepEqual(result.data.decisions, [{
+    controlKey: "elimination:cashFlow",
+    decision: "notApplicable",
+    conclusion: "无事项",
+    evidence: "测试依据",
+  }]);
 });
