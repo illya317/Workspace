@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { getActionContractMetadata } from "./action-contract-registry";
 import { getBusinessActionRegistration } from "./business-action-registry";
+import { FINANCE_ASSET_CANONICAL_ACTION_DEFINITIONS } from "./business-action-finance-assets-interface";
 import { resolvePermissionApiActionPolicy } from "./permission-api-action-policy";
 
 function resolve(apiPath: string) {
@@ -196,6 +197,12 @@ test("Finance asset accounting uses its own write and export permissions", () =>
     assert.equal(policy.resourceKey, "finance.assets");
     assert.deepEqual(policy.requiredActions, [requiredAction]);
     assert.equal(policy.runtimeEnforcement, runtimeEnforcement);
+  }
+
+  assert.equal(new Set(FINANCE_ASSET_CANONICAL_ACTION_DEFINITIONS.map(({ registration }) => registration.key)).size, FINANCE_ASSET_CANONICAL_ACTION_DEFINITIONS.length);
+  for (const definition of FINANCE_ASSET_CANONICAL_ACTION_DEFINITIONS) {
+    assert.deepEqual(getBusinessActionRegistration(definition.registration.key), definition.registration);
+    assert.deepEqual(getActionContractMetadata(definition.registration.key), definition.contract);
   }
 
   const deleteAction = getBusinessActionRegistration("finance.assets.categoryPolicy.delete");

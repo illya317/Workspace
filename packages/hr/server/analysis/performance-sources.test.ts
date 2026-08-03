@@ -169,6 +169,9 @@ test("normalizes reporting and exposes all stable scalar review and work-plan fi
   ]);
   assert.equal(catalog.get("hr.performance-review-details", 1)?.fields.find((field) => (
     field.key === "managerComment"
+  ))?.sensitivity, "restricted");
+  assert.equal(catalog.get("hr.performance-review-details", 1)?.fields.find((field) => (
+    field.key === "managerComment"
   ))?.exportPolicy, "forbidden");
   catalog.validateReferences();
 });

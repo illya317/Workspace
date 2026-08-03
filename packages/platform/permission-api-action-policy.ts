@@ -8,6 +8,7 @@ import {
   type SpaceResourceKind,
 } from "./space-resource-model";
 import { WORK_OKR_CONTROL_CAPABILITY_KEY } from "./work-reporting-policy";
+import { FINANCE_ASSET_PERMISSION_API_ACTION_POLICIES } from "./business-action-finance-assets-interface";
 
 type ApiMethod = ApiGuardRegistration["method"];
 
@@ -109,20 +110,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "PUT", pathPrefix: "/api/modules/finance/ledger/closing/workpapers", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/workpapers$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/closing/workpapers/review", requiredActions: ["approve"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/workpapers\/review$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/assets/periods/replay-preview", requiredActions: ["read"], pathPattern: /^\/api\/modules\/finance\/assets\/periods\/replay-preview$/, notes: "This POST is a deterministic non-mutating asset replay preview; source period and closing controls are comparison-only and the service performs no persistence." },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets", requiredActions: ["create"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/finance\/assets$/, notes: "Asset create resolves the saved category policy first: direct categories require create while review-required categories require submit and are committed only by the approval adapter." },
-  { method: "GET", pathPrefix: "/api/modules/finance/assets/submissions", requiredActions: ["read"], runtimeEnforcement: "serviceDelegated", notes: "Asset-card approval visibility and object access are enforced by the Finance asset approval adapter." },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/submissions", requiredActions: ["approve"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/finance\/assets\/submissions\/[^/]+\/approve$/, notes: "Asset-card approval is restricted to the request's independent Finance asset approvers." },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/submissions", requiredActions: ["reject"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/finance\/assets\/submissions\/[^/]+\/reject$/, notes: "Asset-card rejection is restricted to the request's independent Finance asset approvers." },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/submissions", requiredActions: ["reverse"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/finance\/assets\/submissions\/[^/]+\/(?:withdraw|cancel)$/, notes: "Asset-card workflow withdrawal and cancellation are restricted to the submitter by the Finance asset approval adapter." },
-  { method: "PUT", pathPrefix: "/api/modules/finance/assets", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/assets$/ },
-  { method: "PUT", pathPrefix: "/api/modules/finance/assets/policies", requiredActions: ["update"] },
-  { method: "DELETE", pathPrefix: "/api/modules/finance/assets/policies", requiredActions: ["update"] },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/periods/recalculate", requiredActions: ["revise"] },
-  { method: "PUT", pathPrefix: "/api/modules/finance/assets/periods/voucher-link", requiredActions: ["revise"] },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/acquisition-evidence", requiredActions: ["revise"] },
-  { method: "PUT", pathPrefix: "/api/modules/finance/assets/impairment-assessment", requiredActions: ["revise"] },
-  { method: "POST", pathPrefix: "/api/modules/finance/assets/disposals", requiredActions: ["revise"] },
-  { method: "GET", pathPrefix: "/api/modules/finance/assets/export", requiredActions: ["export"], pathPattern: /^\/api\/modules\/finance\/assets\/export$/ },
+  ...FINANCE_ASSET_PERMISSION_API_ACTION_POLICIES,
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["update"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/post$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["reverse"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/reverse$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/closing/link-voucher", requiredActions: ["lock"] },

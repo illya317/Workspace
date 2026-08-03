@@ -159,6 +159,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "server/business-codes/", "server/business-temporal-", "server/data-quality-",
       "server/direct-command-", "server/mutation-impact/", "server/mutation-impact-",
     ],
+    interfaceFiles: ["business-action-finance-assets-interface.ts"],
   }),
   capability("platform", "notifications", "通知与待办投递", {
     files: ["notification-open-api-registry.test.ts", "ui/NotificationBell.tsx"],

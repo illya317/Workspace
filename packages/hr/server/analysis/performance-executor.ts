@@ -6,7 +6,9 @@ import { WorkspaceAnalysisRuntimeError } from "@workspace/platform/server/worksp
 
 import { executeListHrPerformanceDashboardRouteCommand } from "../performance";
 import {
+  getHrPerformanceWorkspaceAnalysisSource,
   isHrPerformanceWorkspaceAnalysisSourceKey,
+  type HrPerformanceAnalysisLoaderDescriptor,
   type HrPerformanceDashboardData,
   type HrPerformanceReviewDetailAnalysisRow,
   type HrPerformanceReviewEvidenceValueAnalysisRow,
@@ -28,10 +30,11 @@ export async function loadHrPerformanceWorkspaceAnalysisRows(input: {
   readonly targetId: number;
   readonly parameters: Readonly<Record<string, string | number | boolean>>;
 }): Promise<readonly unknown[]> {
-  if (!isHrPerformanceWorkspaceAnalysisSourceKey(input.sourceKey)) {
+  const source = getHrPerformanceWorkspaceAnalysisSource(input.sourceKey);
+  if (!source) {
     throw new WorkspaceAnalysisRuntimeError("source_unavailable", "HR 绩效经营分析数据源不存在", input.sourceKey);
   }
-  const bindsTargetAudience = input.targetType !== "personal" && input.sourceKey !== "hr.performance-cycles";
+  const bindsTargetAudience = input.targetType !== "personal" && source.bindsTargetAudience;
   const result = await executeListHrPerformanceDashboardRouteCommand({
     userId: input.requesterId,
     view: input.targetType === "personal" ? "self" : "summary",
@@ -49,14 +52,29 @@ export async function loadHrPerformanceWorkspaceAnalysisRows(input: {
       input.sourceKey,
     );
   }
-  if (input.sourceKey === "hr.performance-review-details") {
-    return loadVisibleReviewDetails(result.data, input.sourceKey);
-  }
-  if (input.sourceKey === "hr.performance-review-evidence-values") {
-    return loadVisibleReviewEvidenceValues(result.data, input.sourceKey);
-  }
-  return selectPerformanceRows(result.data, input.sourceKey, input.targetType);
+  return loadRegisteredPerformanceRows(source.loader, result.data, input.sourceKey, input.targetType);
 }
+
+function loadRegisteredPerformanceRows(
+  loader: HrPerformanceAnalysisLoaderDescriptor,
+  dashboard: HrPerformanceDashboardData,
+  sourceKey: string,
+  targetType: PerformanceTargetType,
+) {
+  switch (loader.kind) {
+    case "dashboardRows": return dashboard[loader.field];
+    case "dashboardWorkPlans":
+      return targetType === "personal"
+        ? dashboard.workRows
+        : dashboard.workRows.filter((row) => row.employeeId !== null);
+    case "reviewDetails": return loadVisibleReviewDetails(dashboard, sourceKey);
+    case "reviewEvidence": return loadVisibleReviewEvidenceValues(dashboard, sourceKey);
+    case "reporting": return reportingRows(dashboard, targetType);
+    default: return assertNever(loader, sourceKey);
+  }
+}
+
+function assertNever(loader: never, sourceKey: string): never { throw new WorkspaceAnalysisRuntimeError("source_unavailable", `HR 绩效经营分析 loader 无效：${String(loader)}`, sourceKey); }
 
 async function loadVisibleReviewDetails(
   dashboard: HrPerformanceDashboardData,
@@ -166,31 +184,6 @@ function boundedVisibleReviewIds(dashboard: HrPerformanceDashboardData, sourceKe
     throw limitExceeded(sourceKey, "HR 可见绩效记录超过有界批量读取上限");
   }
   return reviewIds;
-}
-
-function selectPerformanceRows(
-  dashboard: HrPerformanceDashboardData,
-  sourceKey: string,
-  targetType: PerformanceTargetType,
-): readonly unknown[] {
-  switch (sourceKey) {
-    case "hr.performance-attendance":
-      return dashboard.attendanceRows;
-    case "hr.performance-work-plans":
-      return targetType === "personal"
-        ? dashboard.workRows
-        : dashboard.workRows.filter((row) => row.employeeId !== null);
-    case "hr.performance-contributions":
-      return dashboard.contributionRows;
-    case "hr.performance-reviews":
-      return dashboard.reviewRows;
-    case "hr.performance-cycles":
-      return dashboard.cycleOptions;
-    case "hr.performance-reporting":
-      return reportingRows(dashboard, targetType);
-    default:
-      throw new WorkspaceAnalysisRuntimeError("source_unavailable", "HR 绩效经营分析数据源不存在", sourceKey);
-  }
 }
 
 function reportingRows(
