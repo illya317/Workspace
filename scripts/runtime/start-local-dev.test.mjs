@@ -6,6 +6,7 @@ import {
   assertRuntimeDatabaseEnvironment,
   assertFixedDevArguments,
   LOCAL_DEV_PORT,
+  lockOwnerIsCurrentProcess,
   occupiedPortMessage,
 } from "./start-local-dev.mjs";
 
@@ -23,6 +24,12 @@ test("local dev rejects forwarded npm arguments", () => {
 test("occupied port guidance forbids switching ports", () => {
   assert.match(occupiedPortMessage(), /复用现有 Workspace dev server/);
   assert.match(occupiedPortMessage(), /禁止改用其他端口/);
+});
+
+test("a lock reusing the current container PID is stale", () => {
+  assert.equal(lockOwnerIsCurrentProcess(32, 32), true);
+  assert.equal(lockOwnerIsCurrentProcess(31, 32), false);
+  assert.equal(lockOwnerIsCurrentProcess(Number.NaN, 32), false);
 });
 
 test("long-running local dev accepts only the runtime database URL", () => {

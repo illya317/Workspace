@@ -298,6 +298,10 @@ test("watchdog recovery is secure-only, fail-closed, and app-only", () => {
   const readme = read("ops/postgresql/dev/README.md");
 
   assert.match(watchdog, /SECURE_RUNTIME_ROOT=.*postgresql-security[\s\S]*workspace-dev-secure[\s\S]*SECURE_RUNTIME_ROOT.*compose\.yaml/);
+  assert.match(watchdog, /SOURCE_ROOT="\$\{STACK_ROOT\}\/worktrees\/main"/);
+  assert.doesNotMatch(watchdog, /SOURCE_ROOT=.*workspace-dev\/source/);
+  assert.match(watchdog, /127\.0\.0\.1:3100\/test\/login/);
+  assert.match(watchdog, /automatic_restart "dev-http-unavailable"/);
   assert.match(watchdog, /compose_app stop app/);
   assert.match(watchdog, /compose_app up -d --no-deps app/);
   assert.doesNotMatch(watchdog, /compose_app up -d (?!\-\-no-deps)/);
