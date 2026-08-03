@@ -82,6 +82,41 @@ test("workpaper summarizes draft and approved entry effects once per group vouch
   }]);
 });
 
+test("cash flow workpaper exposes automatically generated internal cash flow vouchers", () => {
+  const cashFlowLine = {
+    ...line,
+    lineCode: "otherOpIn",
+    label: "收到其他与经营活动有关的现金",
+    direction: "in" as const,
+  };
+  const entries = [{
+    id: 16,
+    entryNo: "2026-06-合-0016",
+    entryType: "cashFlow",
+    title: "母公司 → 子公司 内部现金流抵销",
+    status: "draft",
+    lines: [{
+      id: 161,
+      statementType: "cashFlow",
+      lineCode: "otherOpIn",
+      periodBasis: "current",
+      companyCode: "ZX01",
+      debit: 0,
+      credit: 100,
+      note: "2026-06-18 记-18 · 内部资金往来",
+    }],
+  }] as ConsolidationEntrySnapshot[];
+  assert.deepEqual(consolidationWorkpaperEntryEffects(entries, "cashFlow", cashFlowLine), [{
+    key: "16-otherOpIn",
+    entryNo: "2026-06-合-0016",
+    title: "母公司 → 子公司 内部现金流抵销",
+    typeLabel: "内部现金流",
+    companies: "ZX01",
+    amount: -100,
+    note: "2026-06-18 记-18 · 内部资金往来",
+  }]);
+});
+
 test("workpaper open items exclude comparisons already represented by an active group voucher", () => {
   const entries = [{ id: 9, status: "draft" }] as ConsolidationEntrySnapshot[];
   const base = {

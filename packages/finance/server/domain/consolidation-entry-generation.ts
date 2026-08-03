@@ -1,7 +1,7 @@
-export type ConsolidationVoucherMatchCategory = "investmentEquity" | "intercompanyBalance";
+export type ConsolidationVoucherMatchCategory = "investmentEquity" | "intercompanyBalance" | "cashFlow";
 
 export interface ConsolidationVoucherMatchFact {
-  sourceKind?: "voucher" | "auxiliaryBalance";
+  sourceKind?: "voucher" | "auxiliaryBalance" | "cashFlowAllocation";
   itemId: number;
   voucherId: number;
   voucherNo: string;
@@ -37,6 +37,7 @@ export interface ConsolidationVoucherMatchGroup {
   comparisonCurrencyCode: string | null;
   requiredActions: ConsolidationMatchRequiredAction[];
   ownershipShareRatio: number | null;
+  postingDate?: string;
 }
 
 export type ConsolidationMatchRequiredAction =
@@ -234,6 +235,89 @@ export function buildIntercompanyVoucherMatchGroups(
     };
   }).filter((group) => cents(group.leftNetAmount) !== 0 || cents(group.rightNetAmount) !== 0)
     .sort((left, right) => left.generationKey.localeCompare(right.generationKey));
+}
+
+/** Builds one internal-cash-flow evidence group per source month and company pair. */
+export function buildCashFlowVoucherMatchGroups(
+  facts: readonly ConsolidationVoucherMatchFact[],
+): ConsolidationVoucherMatchGroup[] {
+  const grouped = new Map<string, ConsolidationVoucherMatchFact[]>();
+  for (const fact of facts) {
+    const counterparty = fact.counterpartyCompanyId;
+    if (counterparty === fact.companyId || cents(fact.signedAmount) === 0) continue;
+    const sourceMonth = fact.voucherDate.slice(0, 7);
+    const pair = counterparty
+      ? [fact.companyId, counterparty].sort((left, right) => left - right)
+      : [fact.companyId, "unknown"];
+    const key = `${sourceMonth}:${pair[0]}:${pair[1]}`;
+    const rows = grouped.get(key);
+    if (rows) rows.push(fact);
+    else grouped.set(key, [fact]);
+  }
+
+  return [...grouped.entries()].map(([groupKey, rows]): ConsolidationVoucherMatchGroup => {
+    const [sourceMonth, leftId, rightId] = groupKey.split(":") as [string, string, string];
+    const leftCompanyId = Number(leftId);
+    const rightCompanyId = rightId === "unknown" ? null : Number(rightId);
+    const leftFacts = rows.filter((fact) => fact.companyId === leftCompanyId).sort(bySourceOrder);
+    const rightFacts = rightCompanyId === null
+      ? []
+      : rows.filter((fact) => fact.companyId === rightCompanyId).sort(bySourceOrder);
+    const leftNetAmount = total(leftFacts);
+    const rightNetAmount = total(rightFacts);
+    const hasBothSides = leftFacts.length > 0 && rightFacts.length > 0;
+    const mapped = !hasUnmappedLine(leftFacts, rightFacts);
+    const comparableCurrency = isCnyComparable(leftFacts, rightFacts);
+    const leftIn = leftFacts.filter((fact) => fact.signedAmount > 0).reduce((sum, fact) => sum + cents(fact.signedAmount), 0);
+    const leftOut = leftFacts.filter((fact) => fact.signedAmount < 0).reduce((sum, fact) => sum + Math.abs(cents(fact.signedAmount)), 0);
+    const rightIn = rightFacts.filter((fact) => fact.signedAmount > 0).reduce((sum, fact) => sum + cents(fact.signedAmount), 0);
+    const rightOut = rightFacts.filter((fact) => fact.signedAmount < 0).reduce((sum, fact) => sum + Math.abs(cents(fact.signedAmount)), 0);
+    const offsets = leftIn === rightOut && leftOut === rightIn && leftIn + leftOut > 0;
+    const status = !hasBothSides || !mapped || !comparableCurrency
+      ? "unresolved" as const
+      : offsets
+        ? "matched" as const
+        : "difference" as const;
+    const differenceAmount = status === "matched"
+      ? 0
+      : money((Math.abs(leftIn - rightOut) + Math.abs(leftOut - rightIn)) / 100);
+    return {
+      category: "cashFlow",
+      generationKey: `cashFlow:${groupKey}`,
+      status,
+      leftCompanyId,
+      rightCompanyId,
+      leftFacts,
+      rightFacts,
+      leftNetAmount,
+      rightNetAmount,
+      matchedAmount: status === "matched" ? money((leftIn + leftOut) / 100) : 0,
+      differenceAmount,
+      matchingRule: "按现金流分配、同凭证集团往来辅助核算、发生月份及公司组合归集双方内部收付款",
+      matchingVersion: "cash-flow-allocation-company-pair-v1",
+      differenceResolution: !hasBothSides
+        ? "缺少对方公司的现金流分配"
+        : !mapped
+          ? "存在未映射到现金流量表项目的现金流分配"
+          : !comparableCurrency
+            ? "双方现金流尚未在人民币列报口径下可比"
+            : status === "difference"
+              ? "双方同月内部现金流金额不一致，需核对现金流分配、未达或关联公司辅助核算"
+              : null,
+      comparisonCurrencyCode: comparableCurrency ? "CNY" : null,
+      requiredActions: !hasBothSides
+        ? ["identifyCounterpart"]
+        : !mapped
+          ? ["mapStatementLine"]
+          : !comparableCurrency
+            ? ["translateToCny"]
+            : status === "difference"
+              ? ["reconcileDifference"]
+              : [],
+      ownershipShareRatio: null,
+      postingDate: [...rows].sort(bySourceOrder).at(-1)?.voucherDate ?? `${sourceMonth}-01`,
+    };
+  }).sort((left, right) => left.generationKey.localeCompare(right.generationKey));
 }
 
 function relationshipKey(relationship: ConsolidationInvestmentRelationship) {

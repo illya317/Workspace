@@ -26,6 +26,10 @@ const REPORT_LABELS: Record<StatementReportType, string> = {
 
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
 
+export function consolidationEntryAffectsCurrentMonth(entryType: string, postingDate: string, year: number, month: number) {
+  return entryType !== "cashFlow" || postingDate.startsWith(`${year}-${String(month).padStart(2, "0")}`);
+}
+
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
     ? value as Record<string, unknown>
@@ -228,7 +232,11 @@ export function buildConsolidatedReportOutput(
         } else {
           line.amount = money(line.amount + delta);
           line.adjustmentAmount = money(line.adjustmentAmount + delta);
-          if (reportType !== "balanceSheet") applyCurrentMonthAdjustment(line, delta);
+          if (reportType !== "balanceSheet" && consolidationEntryAffectsCurrentMonth(
+            entry.entryType, entry.postingDate, replay.batch.year, replay.batch.month,
+          )) {
+            applyCurrentMonthAdjustment(line, delta);
+          }
         }
       }
     }

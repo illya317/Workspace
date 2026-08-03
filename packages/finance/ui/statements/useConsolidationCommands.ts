@@ -45,6 +45,14 @@ export function useConsolidationCommands(
   const [busy, setBusy] = useState(false);
 
   type DraftBatch = NonNullable<ConsolidationOverview["batch"]>;
+  type GenerationResult = {
+    created: number;
+    updated: number;
+    unchanged: number;
+    exceptions: number;
+    sourceItems: number;
+    batchRevision: number;
+  };
 
   async function run(action: () => Promise<unknown>, success: string) {
     setBusy(true);
@@ -70,20 +78,21 @@ export function useConsolidationCommands(
       "合并准备提交失败",
     ) as { batch?: DraftBatch };
     if (!prepared.batch) throw new Error("合并准备已提交，但服务器未返回最新批次");
-    await request(
+    const generated = await request(
       `/api/modules/finance/statements/consolidation/batches/${prepared.batch.id}/entries/generate`,
       "POST",
       { expectedRevision: prepared.batch.revision },
       "抵销分录自动生成失败",
-    );
-    return prepared.batch;
+    ) as GenerationResult;
+    return { batch: { ...prepared.batch, revision: generated.batchRevision }, generated };
   }
 
   async function buildWorkpaper(resolveBatch: () => Promise<DraftBatch>) {
     setBusy(true);
     try {
-      const preparedBatch = await prepareAndGenerate(await resolveBatch());
-      feedback.success("合并准备已完成，合并工作底稿已生成");
+      const { batch: preparedBatch, generated } = await prepareAndGenerate(await resolveBatch());
+      const voucherCount = generated.created + generated.updated + generated.unchanged;
+      feedback.success(`已自动生成合并工作底稿和 ${voucherCount} 笔合并凭证${generated.exceptions > 0 ? `，${generated.exceptions} 项待核对` : ""}`);
       onRefresh(preparedBatch);
       return true;
     } catch (cause) {
