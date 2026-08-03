@@ -16,6 +16,10 @@ import type {
   DataSurfaceTone,
   DataSurfaceWidth,
 } from "../../DataSurface.types";
+import {
+  activateDataSurfaceRowFromClick,
+  activateDataSurfaceRowFromKeyboard,
+} from "./row-interaction";
 
 export interface StructuredTableCell {
   content: ReactNode;
@@ -186,22 +190,14 @@ function activateRowFromClick(
   event: MouseEvent<HTMLElement>,
   interaction: DataSurfaceStructuredRowInteractionSpec,
 ) {
-  if (isNestedInteractiveTarget(event.target, event.currentTarget)) return;
-  interaction.onClick();
+  activateDataSurfaceRowFromClick(event, interaction, (current) => current.onClick());
 }
 
 function activateRowFromKeyboard(
   event: KeyboardEvent<HTMLElement>,
   interaction: DataSurfaceStructuredRowInteractionSpec,
 ) {
-  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-  event.preventDefault();
-  interaction.onClick();
-}
-
-function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
-  if (!(target instanceof Element) || target === row) return false;
-  return Boolean(target.closest("a,button,input,select,textarea,summary,details,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
+  activateDataSurfaceRowFromKeyboard(event, interaction, (current) => current.onClick());
 }
 
 function MobileHorizontalScrollHint() {

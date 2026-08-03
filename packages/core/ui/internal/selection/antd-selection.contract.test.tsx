@@ -176,6 +176,15 @@ test("tree: controlled expandedIds lock expansion", () => {
   assert.match(expanded, /子节点/);
 });
 
+test("tree: controlled expansion updates locally before deferring parent synchronization", () => {
+  const source = readFileSync(new URL("./antd-selection-tree.tsx", import.meta.url), "utf8");
+  const localUpdate = source.indexOf("setRenderedExpandedKeys(keys)");
+  const deferredParentUpdate = source.indexOf("startTransition(() => selector.onToggle?.(");
+
+  assert.ok(localUpdate >= 0);
+  assert.ok(deferredParentUpdate > localUpdate);
+});
+
 test("tree: collapsible=false stays Ant and expands every level without a switcher", () => {
   const markup = renderClientSurface(<SelectorSurface {...treeProps({ collapsible: false })} />);
   assert.match(markup, /ant-tree/);

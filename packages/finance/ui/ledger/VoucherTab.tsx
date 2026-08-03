@@ -305,6 +305,7 @@ function voucherItemsPreview(
       visibleColumns: columns.map((column) => column.key),
       rowKey: (row: VoucherItemRow) => row.id,
       presentation: { density: "compact" },
+      scroll: { x: true, y: "auto", maxHeight: "lg" },
       ...(voucher.voucherKind === "group" ? {
         onRowClick: onSourceLineClick,
         expandedRowKey: expandedSourceLineId,

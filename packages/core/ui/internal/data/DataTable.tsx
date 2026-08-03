@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, type KeyboardEvent, type MouseEvent } from "react";
+import { Fragment } from "react";
 import { ActionButton } from "../action/ActionControls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
@@ -25,6 +25,10 @@ import {
   resolveTablePresentation,
   resolveTableRowStateClass,
 } from "./table-presentation";
+import {
+  activateDataSurfaceRowFromClick,
+  activateDataSurfaceRowFromKeyboard,
+} from "./row-interaction";
 
 export type {
   ColumnDef,
@@ -322,8 +326,8 @@ export default function DataTable<T>({
               data-disclosure-expanded={isExpanded || undefined}
               className={`relative px-4 py-4 ${stateClassName} ${isExpanded ? resolveTableDisclosureClass({ axis: "row", role: "trigger", expanded: true }) : ""} ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
               tabIndex={onRowClick ? 0 : undefined}
-              onClick={onRowClick ? (event) => activateDataRowFromClick(event, row, onRowClick) : undefined}
-              onKeyDown={onRowClick ? (event) => activateDataRowFromKeyboard(event, row, onRowClick) : undefined}
+              onClick={onRowClick ? (event) => activateDataSurfaceRowFromClick(event, row, onRowClick) : undefined}
+              onKeyDown={onRowClick ? (event) => activateDataSurfaceRowFromKeyboard(event, row, onRowClick) : undefined}
             >
               <div className="flex min-w-0 items-start gap-3">
                 <div className="min-w-0 flex-1">
@@ -387,30 +391,6 @@ export default function DataTable<T>({
       <div className={resolvedMobilePresentation === "landscape" ? "hidden sm:block landscape:max-sm:block" : "hidden sm:block"} data-desktop-table="true">{desktopTable}</div>
     </>
   );
-}
-
-function activateDataRowFromClick<T>(
-  event: MouseEvent<HTMLElement>,
-  row: T,
-  onRowClick: (row: T) => void,
-) {
-  if (isNestedInteractiveTarget(event.target, event.currentTarget)) return;
-  onRowClick(row);
-}
-
-function activateDataRowFromKeyboard<T>(
-  event: KeyboardEvent<HTMLElement>,
-  row: T,
-  onRowClick: (row: T) => void,
-) {
-  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-  event.preventDefault();
-  onRowClick(row);
-}
-
-function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
-  if (!(target instanceof Element) || target === row) return false;
-  return Boolean(target.closest("a,button,input,select,textarea,summary,details,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
 }
 
 function matrixPinnedColumnClass(columnIndex: number, header: boolean, matrix: boolean) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type Key, type ReactNode } from "react";
+import { startTransition, useEffect, useState, type CSSProperties, type Key, type ReactNode } from "react";
 import { Tag, Tree, type TreeDataNode, type TreeProps } from "antd";
 import type {
   SelectorSurfaceCardSpec,
@@ -113,19 +113,23 @@ export function AntdSelectorTree<T>({ selector, actions, presentation }: {
   actions: ReactNode;
   presentation: "default" | "compact";
 }) {
-  const [internalExpandedKeys, setInternalExpandedKeys] = useState<Key[]>(() => initialExpandedKeys(selector));
-  // expandedIds 受控优先；onToggle 存在时内部状态不更新（与 legacy toggle 一致，由父级驱动）。
+  const [renderedExpandedKeys, setRenderedExpandedKeys] = useState<Key[]>(() => (
+    selector.expandedIds ? [...selector.expandedIds] : initialExpandedKeys(selector)
+  ));
+  useEffect(() => {
+    if (selector.expandedIds) setRenderedExpandedKeys([...selector.expandedIds]);
+  }, [selector.expandedIds]);
   const expandedKeys = selector.collapsible === false
     ? [...collectTreeExpandedIds(selector.items, Number.MAX_SAFE_INTEGER)]
-    : selector.expandedIds ? [...selector.expandedIds] : internalExpandedKeys;
+    : renderedExpandedKeys;
 
   const handleExpand: NonNullable<TreeProps["onExpand"]> = (keys, info) => {
     if (selector.collapsible === false) return;
+    setRenderedExpandedKeys(keys);
     if (selector.onToggle) {
-      selector.onToggle(info.node.key as string | number, info.expanded);
+      startTransition(() => selector.onToggle?.(info.node.key as string | number, info.expanded));
       return;
     }
-    setInternalExpandedKeys(keys);
   };
 
   // legacy 行点击总是调用 onSelect(value)；antd 重复点击已选节点会触发反选，

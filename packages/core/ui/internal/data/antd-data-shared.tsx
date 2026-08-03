@@ -1,6 +1,6 @@
 "use client";
 
-import type { KeyboardEvent, MouseEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import type {
   DataSurfaceFrame,
   DataSurfaceMobilePresentation,
@@ -10,6 +10,11 @@ import type {
 } from "../../DataSurface.types";
 import MobileExperienceBoundary from "../../MobileExperienceBoundary";
 import { joinClassNames } from "../common/card-utils";
+
+export {
+  activateDataSurfaceRowFromClick as activateAntdDataRowFromClick,
+  activateDataSurfaceRowFromKeyboard as activateAntdDataRowFromKeyboard,
+} from "./row-interaction";
 
 export const MATRIX_ROW_HEADER_WIDTH = "20rem";
 export const SCROLL_MAX_HEIGHT_PX = { sm: 320, md: 480, lg: 640 } as const;
@@ -75,28 +80,4 @@ export function withMobileDataExperience(content: ReactNode, presentation: DataS
       {content}
     </MobileExperienceBoundary>
   );
-}
-
-function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
-  if (!(target instanceof Element) || target === row) return false;
-  return Boolean(target.closest("a,button,input,select,textarea,summary,details,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
-}
-
-export function activateAntdDataRowFromClick<T>(
-  event: MouseEvent<HTMLElement>,
-  row: T,
-  onRowClick: (row: T) => void,
-) {
-  if (isNestedInteractiveTarget(event.target, event.currentTarget)) return;
-  onRowClick(row);
-}
-
-export function activateAntdDataRowFromKeyboard<T>(
-  event: KeyboardEvent<HTMLElement>,
-  row: T,
-  onRowClick: (row: T) => void,
-) {
-  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
-  event.preventDefault();
-  onRowClick(row);
 }
