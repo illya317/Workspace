@@ -43,6 +43,10 @@ type PlanViewInput = {
   pendingRoutineTaskCreatePlanId: number | null; setPendingRoutineTaskCreatePlanId: (value: number | null) => void;
   canDelete: boolean; canArchive: boolean; plansLoading: boolean; currentSpacePlanCount: number;
 };
+type PlanViewModel = {
+  globalCreate: PageSurfaceCreateSpec;
+  workPlanSection: PageBody["sections"][number];
+};
 type PageViewInput = {
   activeTab: string; setActiveTab: (value: string) => void; goalReportStage: WorkReportStage;
   setGoalReportStage: (value: WorkReportStage) => void; compactNavigation: boolean; navigationItems: NavigationItem[];
@@ -121,7 +125,7 @@ export function createWorksPlanViewModel({
   nodeCreateSubmission, planCreateRuntime, planSaveRuntime, createChoiceOpen, setCreateChoiceOpen,
   pendingRoutineTaskCreatePlanId, setPendingRoutineTaskCreatePlanId, canDelete, canArchive,
   plansLoading, currentSpacePlanCount,
-}: PlanViewInput) {
+}: PlanViewInput): PlanViewModel {
   const { activePlan } = planWorkspace.selection;
   const { draft, creating: planCreating, editing: planEditing, dirty, saving: planSaving } = planWorkspace.editor;
   const planCommands = planWorkspace.commands;

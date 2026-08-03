@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFormSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type BodySurfaceProps, type BodySurfaceSectionSpec, type DataSurfaceCellSpec, type DataSurfaceStructuredCellSpec, type FormSurfaceFieldSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
+import { createFormSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type BodySurfaceSectionSpec, type DataSurfaceCellSpec, type DataSurfaceStructuredCellSpec, type FormSurfaceFieldSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
 import { putJson, requestJson } from "@workspace/platform/ui/api-client";
 import {
   OKR_CONTROL_SCOPE_OPTIONS,
@@ -51,7 +51,7 @@ export interface WorkOkrSettingsController {
   reportingSettings: WorkReportingSettings | null;
 }
 
-export function workOkrSettingsBody(sections: BodySurfaceSectionSpec[]): BodySurfaceProps {
+export function workOkrSettingsBody(sections: BodySurfaceSectionSpec[]): ReturnType<typeof createPageBody> {
   return createPageBody([
     createSectionSection("okr-settings", {
       title: "周期与流程",

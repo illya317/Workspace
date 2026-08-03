@@ -104,7 +104,7 @@ function projectSpaceResourceKey(rootResourceKey: string, scopeId: string | null
   return kind ? getSpaceChildResourceKeyForTargetType(scopeType, kind) ?? rootResourceKey : rootResourceKey;
 }
 
-export const PERMISSION_API_ACTION_POLICIES = [
+export const PERMISSION_API_ACTION_POLICIES: readonly PermissionApiActionPolicy[] = [
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/closing/complete", requiredActions: ["approve"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/complete$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/closing/refresh", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/refresh$/ },
   { method: "PUT", pathPrefix: "/api/modules/finance/ledger/closing/workpapers", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/closing\/workpapers$/ },
