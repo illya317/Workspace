@@ -11,11 +11,11 @@
 
 ## 2. 部署与运行态同步
 
-远端 `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发与正式提交工作区。Mac `/Users/koito/Project/workspace/workspace` 只是只读镜像，不再承担编辑、stage、commit 或 push；源码从远端权威 `main` 复核、检查、提交并推送 CNB。
+远端 `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发与正式提交工作区。Mac `/Users/koito/Project/workspace/workspace` 是只读传输镜像：不编辑、stage、commit 或切换 checkout，只拉取远端权威 `main` 的 exact commit，核对 SHA/tree 后用本机凭据把同一 remote-tracking ref 上传 CNB。
 
 开发任务不得新增或移动 Git worktree，不得切换、改名、reset 或 rebase `main` 来追另一条分支，也不得在 `source` 或 `release` 上开发。所有开发在现有 `worktrees/main` 顺序完成。已有 `/home/ubuntu/workspace-dev/release` 仅在明确部署且 exact `main` SHA 已通过 required CI 后允许执行 `git merge --ff-only main`；fast-forward 不成立就停止，禁止在 `release` merge、rebase、cherry-pick、reset 或直接编辑。
 
-- 普通候选从远端权威 `main` 推送 CNB；仓库不提供自建 push/promotion 包装器，也不通过开发工作树或分支改名做 promotion。
+- 普通候选在远端权威 `main` 完成 commit，再由 Mac 只读镜像拉回 exact SHA 并上传 CNB；仓库不提供自建 push/promotion 包装器，也不通过开发工作树、分支改名或本地 checkout 做 promotion。
 - CNB PR 运行 required CI；受保护 `main` 在同一 checkout 中安装一次依赖、执行一次 Next build、启动 exact standalone E2E，再把该产物包装为唯一 `linux/amd64` 应用镜像。
 - 镜像直接推送 CNB Registry；`release.json` 绑定 CNB Build ID、SHA、tree、content、artifact、migration 和 image digest。
 - 同一条 `main push` 流水线先完成 disposable PostgreSQL/应用启动/回滚演练，再按同一 digest 执行生产锁、备份、migration、候选健康、切换、线上 digest 回执。生产服务器不 checkout 源码，也不现场安装应用依赖或构建。
@@ -29,16 +29,22 @@
 候选提交流程：
 
 ```bash
+# 唯一可写工作区：编辑、检查、commit
 cd /home/ubuntu/workspace-dev/worktrees/main
 git status --short
 git add <files>
 git commit -m "<message>"
-git push cnb main
+
+# Mac 只读传输镜像：不 checkout、不编辑，只拉取并上传 exact ref
+cd /Users/koito/Project/workspace/workspace
+git fetch workspace-dev:/home/ubuntu/workspace-dev/worktrees/main \
+  refs/heads/main:refs/remotes/workspace-dev/main
+git push cnb refs/remotes/workspace-dev/main:refs/heads/main
 ```
 
 生产发布流程：
 
-1. 由已授权维护者从唯一权威工作区推送 exact `main` commit；不得通过改名、reset 或另建工作树替换 `main`。
+1. 由已授权维护者在唯一权威工作区完成 exact `main` commit；Mac 只读镜像拉取并核对同一 SHA/tree 后，以 remote-tracking ref 上传 CNB，不切换本地 checkout。
 2. CNB required CI 汇总源码检查并完成唯一 Next build、PostgreSQL 与 exact-build E2E。
 3. required CI 通过后，部署流程可把已有 `release` checkout 以 `git merge --ff-only main` 快进到同一 exact SHA；该指针不参与构建，也不替代 release evidence。
 4. CNB 把该 standalone 包装为唯一应用镜像并直接推送 CNB Registry；同一流水线先演练，再运行备份、migration、候选健康、容器切换和线上 digest 校验。

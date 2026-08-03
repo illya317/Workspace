@@ -12,12 +12,12 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Environment Authority
 
-- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区；正式 diff、检查、commit 与 CNB push 只在这里执行。
-- `/Users/koito/Project/workspace/workspace` 是只读镜像，不在 Mac checkout 编辑、stage、commit 或 push。`workspace-dev:/home/ubuntu/workspace-dev/release` 是部署阶段已有的发布指针，不是开发工作区。
+- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区；正式 diff、检查与 commit 只在这里执行。
+- `/Users/koito/Project/workspace/workspace` 是只读传输镜像：不得编辑、stage、commit 或切换 checkout；发布时只把远端权威 `main` 的 exact SHA 拉取到只读 remote-tracking ref，核对 SHA/tree 后用本机 CNB 凭据上传同一 ref。`workspace-dev:/home/ubuntu/workspace-dev/release` 是部署阶段已有的发布指针，不是开发工作区。
 - 开发任务禁止运行 `git worktree add/move`、新建并行 checkout、切换或改名 `main`、用 reset/rebase 让 `main` 对齐另一分支，也禁止在 `source` 或 `release` 上开发。所有任务在现有 `worktrees/main` 顺序提交；需要隔离检查时使用仓库受治理的检查入口，不建立长期工作树。
 - 只有明确进入部署流程且 exact `main` SHA 已通过 required CI 后，才允许在已有 `release` checkout 执行 `git merge --ff-only main`。`release` 禁止 merge commit、rebase、cherry-pick、reset 或直接编辑；它只是已验证源码指针，不替代 CNB 的 SHA/tree/image digest/release receipt。
 - CNB 是唯一源码平台、CI、应用构建、Registry、CD、回滚和审计平台；required CI 通过后只构建一次 `linux/amd64` OCI 镜像并绑定 SHA/tree/digest。
-- 远端权威 `main` 只提交源码到 CNB，不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
+- Mac 只读传输镜像只上传远端权威 `main` 的 exact commit 到 CNB，不产生源码改动、不切换工作区，也不中转构建制品或生产部署；生产服务器不 checkout 源码，只按 CNB Registry digest 部署。
 - Agent 开工时查询基线，推送前运行受影响快速检查，推送后主动跟踪 exact SHA 的 CNB Build ID、required CI、镜像 digest、演练、部署阶段及最终健康与线上 digest；交付前必须刷新远端状态，不得要求用户代查。
 
 ## Start Here

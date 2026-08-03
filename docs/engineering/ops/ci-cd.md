@@ -3,7 +3,8 @@
 ## 唯一链路
 
 ```text
-remote authoritative main -> CNB source repository
+remote authoritative main -> Mac read-only exact-ref transport
+                          -> CNB source repository
                           -> required CI + one Next build
                           -> one linux/amd64 OCI image
                           -> CNB Registry immutable digest
@@ -12,8 +13,8 @@ remote authoritative main -> CNB source repository
 ```
 
 - CNB 是唯一源码、CI、应用构建、Registry、CD、回滚和审计平台。
-- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区，只复核、提交并推送源码，不中转制品、不连接生产部署。
-- Mac checkout 是只读镜像，不编辑、stage、commit 或 push。
+- `workspace-dev:/home/ubuntu/workspace-dev/worktrees/main` 是唯一可写开发工作区，只复核、检查和 commit，不保存 CNB 推送凭据。
+- Mac checkout 是只读传输镜像：不编辑、stage、commit 或切换 checkout；只把远端 exact `main` 拉取到 remote-tracking ref，核对 SHA/tree 后上传 CNB。
 - 生产服务器不 checkout 源码、不运行 `npm ci`、不测试、不编译、不构建镜像。
 - 第二源码/构建 provider、外部 Registry mirror、provider adapter 和本地发布控制面均不存在。
 - 本地工作区是否有未提交改动与部署无关；CNB 只 checkout 已推送 commit，Pipeline 首步验证工作区干净且 HEAD 等于本次 push SHA（PR 则等于 CNB 预合并 SHA）。

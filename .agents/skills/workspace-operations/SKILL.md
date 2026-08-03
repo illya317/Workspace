@@ -25,16 +25,17 @@ Operations 负责 CI、构建、镜像交付、环境和运行态。
 ## 唯一发布链
 
 ```text
-remote main push CNB -> required CI -> one Next standalone build
-                     -> one linux/amd64 image -> CNB Registry digest
-                     -> rehearsal -> lock/backup/migration/cutover/health/receipt
+remote main commit -> Mac read-only fetch/exact-ref push -> CNB required CI
+                   -> one Next standalone build -> one linux/amd64 image
+                   -> CNB Registry digest -> rehearsal
+                   -> lock/backup/migration/cutover/health/receipt
 ```
 
 - CNB 是唯一源码平台、CI、应用构建、Registry 和 CD 平台。
 - PR 只运行 required CI；受保护 `main` 在同一 checkout 中复用该构建，发布一个 `linux/amd64` OCI 镜像与 `release.json`。
 - `ops/cnb-ci.sh` 负责依赖、检查、唯一 Next build、PostgreSQL 和 exact-build E2E；`ops/cnb-release.sh` 只包装该 standalone、发布一次镜像并把同一 digest 交给演练和生产。
 - 生产只按 CNB Registry digest 拉取；禁止可变 tag、源码 checkout、现场安装和现场构建。
-- 远端权威 `worktrees/main` 只提交源码，不中转制品、不部署生产；Mac 镜像只读。
+- 远端权威 `worktrees/main` 只编辑、检查和 commit，不保存 CNB 推送凭据；Mac 镜像只读拉取 exact SHA/tree，并以 remote-tracking ref 上传 CNB，不编辑、stage、commit 或 checkout。
 - 开发阶段不得新建或移动 Git worktree，不得切换、改名、reset 或 rebase `main`；所有开发提交都留在现有 `worktrees/main`。
 - 只有部署阶段且 exact `main` SHA 已通过 required CI 后，才可在已有 `release` checkout 执行一次 `git merge --ff-only main`。该指针不替代 CNB 的不可变镜像与发布回执。
 
