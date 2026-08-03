@@ -41,6 +41,7 @@ const repositoryContractTests = new Set([
 ]);
 
 const clientReactTests = new Set([
+  "packages/core/ui/internal/common/workspace-colors.test.ts",
   "packages/core/ui/internal/common/SplitWorkspace.contract.test.ts",
   "packages/core/ui/internal/common/antd-command.contract.test.tsx",
   "packages/core/ui/internal/create/CreateSurface.contract.test.tsx",
@@ -70,6 +71,8 @@ const clientReactTests = new Set([
   "packages/finance/ui/assets/asset-location.test.ts",
   "packages/finance/ui/tax/tax-ui-sections.test.ts",
   "packages/platform/ui/category-item-detail-workspace.test.ts",
+  "packages/platform/ui/PermissionActionMatrixGrid.test.ts",
+  "packages/settings/ui/admin/components/AdminSelectorSplit.test.ts",
   "packages/settings/ui/admin/tabs/DatabaseRelationsTabPolicyModel.test.ts",
   "packages/settings/ui/admin/tabs/SourceCodeAnalysisSection.test.ts",
   "packages/settings/ui/settings/NotificationPublishingWorkbench.test.ts",

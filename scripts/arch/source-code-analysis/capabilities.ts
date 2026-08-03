@@ -94,7 +94,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   }),
   capability("platform", "identity-access", "身份、权限与空间访问", {
     files: [
-      "permissions.ts", "resources.ts", "ui/LoginClient.tsx", "ui/PermissionActionMatrixGrid.tsx",
+      "permissions.ts", "resources.ts", "ui/LoginClient.tsx", "ui/PermissionActionMatrixGrid.test.ts", "ui/PermissionActionMatrixGrid.tsx",
       "ui/SpacePermissionsPanel.tsx", "ui/UserMenu.tsx", "server/account.ts",
       "server/account-api-key.test.ts", "server/account-avatar-library.ts", "server/admin-projects.ts",
       "server/api-access.ts", "server/auth-token.ts", "server/auth.ts", "server/protected-page.tsx",
