@@ -231,7 +231,7 @@ test("baseline parser rejects misspelled modules, extra top-level structure, and
 test("recursive Module Interfaces use an exact reviewed file catalog", () => {
   const entries = Object.entries(SOURCE_CAPABILITY_INTERFACE_FILES);
   assert.equal(entries.length, 59);
-  assert.equal(entries.flatMap(([, files]) => files).length, 476);
+  assert.equal(entries.flatMap(([, files]) => files).length, 478);
 
   const declarations = new Map(SOURCE_CAPABILITY_DECLARATIONS.map((declaration) => [
     `${declaration.moduleKey}/${declaration.key}`,
