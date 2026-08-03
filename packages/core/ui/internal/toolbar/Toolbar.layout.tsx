@@ -5,9 +5,8 @@ import type { ControlSize } from "../common/interactionTokens";
 import {
   getToolbarItemActionBoundary,
   getToolbarItemActionOrder,
-  ToolbarDivider,
-  ToolbarItemRenderer,
-} from "./Toolbar.parts";
+} from "./toolbar-action-model";
+import { AntdToolbarItemRenderer, type ToolbarItemRendererComponent } from "./antd-toolbar";
 import { inferZone, resolveSection } from "./Toolbar.sections";
 import { filterToolbarItemsByViewport } from "./toolbar-item-visibility";
 import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarVisibility, ToolbarZoneKey } from "./Toolbar.types";
@@ -16,6 +15,10 @@ export const SECTION_ORDER: ToolbarSection[] = ["primary", "search", "filter", "
 
 type SectionWithItems = { key: ToolbarSection; items: ToolbarItem[] };
 export type ToolbarGroupedItems = Record<ToolbarZoneKey, ToolbarItem[]>;
+
+function ToolbarDivider() {
+  return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
+}
 
 export function groupToolbarItems(
   items: ToolbarItem[],
@@ -62,6 +65,7 @@ function renderSectionGroup(
   sections: SectionWithItems[],
   size: ControlSize,
   gapClass: string,
+  RenderItem: ToolbarItemRendererComponent,
 ) {
   return sections.map((section) => (
     <div
@@ -76,7 +80,7 @@ function renderSectionGroup(
         return (
           <span key={item.key} className="contents">
             {needsDivider && <ToolbarDivider />}
-            <ToolbarItemRenderer item={item} size={size} />
+            <RenderItem item={item} size={size} />
           </span>
         );
       })}
@@ -92,12 +96,14 @@ function ZoneGroup({
   sections,
   size,
   gapClass,
+  renderItem,
   className = "",
   overflow = "visible",
 }: {
   sections: SectionWithItems[];
   size: ControlSize;
   gapClass: string;
+  renderItem: ToolbarItemRendererComponent;
   className?: string;
   overflow?: "visible" | "hidden";
 }) {
@@ -108,7 +114,7 @@ function ZoneGroup({
       overflow === "hidden" ? "overflow-hidden" : "overflow-visible",
       className,
     )}>
-      {renderSectionGroup(sections, size, gapClass)}
+      {renderSectionGroup(sections, size, gapClass, renderItem)}
     </div>
   );
 }
@@ -117,10 +123,12 @@ export function CompactToolbarContent({
   grouped,
   size,
   gapClass,
+  renderItem,
 }: {
   grouped: ToolbarGroupedItems;
   size: ControlSize;
   gapClass: string;
+  renderItem: ToolbarItemRendererComponent;
 }) {
   const leadSections = buildSections(grouped.lead);
   const searchSections = buildSections(grouped.search);
@@ -138,18 +146,18 @@ export function CompactToolbarContent({
   return (
     <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
       <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-        <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} className="shrink-0" />
+        <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
         {hasLead && hasSearchOrFilter && <ToolbarDivider />}
-        <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink-0" />
-        <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} className="shrink" />
+        <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
+        <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink" />
         {hasSearchOrFilter && hasActions && <ToolbarDivider />}
-        <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
+        <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
       </div>
       {hasTrailing && (
         <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible max-sm:ml-0 max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-          <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} className="shrink-0" />
+          <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
           {hasSections(metaSections) && hasSections(otherTrailingSections) && <ToolbarDivider />}
-          <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} className="shrink-0" />
+          <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
         </div>
       )}
     </div>
@@ -160,10 +168,12 @@ function SplitToolbarContent({
   grouped,
   size,
   gapClass,
+  renderItem,
 }: {
   grouped: ToolbarGroupedItems;
   size: ControlSize;
   gapClass: string;
+  renderItem: ToolbarItemRendererComponent;
 }) {
   const leadSections = buildSections(grouped.lead);
   const searchSections = buildSections(grouped.search);
@@ -183,22 +193,22 @@ function SplitToolbarContent({
     <div className="flex w-full min-w-0 flex-col gap-2 overflow-visible">
       <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-wrap max-sm:gap-2">
         <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-          <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} className="shrink-0" />
+          <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
           {hasLead && hasFilter && <ToolbarDivider />}
-          <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} className="shrink" />
+          <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink" />
         </div>
       </div>
       <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-wrap max-sm:gap-2">
         <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-          <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink-0" />
+          <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
           {hasSearch && hasActions && <ToolbarDivider />}
-          <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
+          <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
         </div>
         {hasTrailing && (
           <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible max-sm:ml-0 max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-            <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} className="shrink-0" />
+            <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
             {hasSections(metaSections) && hasSections(otherTrailingSections) && <ToolbarDivider />}
-            <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} className="shrink-0" />
+            <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} renderItem={renderItem} className="shrink-0" />
           </div>
         )}
       </div>
@@ -211,16 +221,18 @@ export function ToolbarLayoutBody({
   mode,
   size,
   gapClass,
+  renderItem,
 }: {
   grouped: ToolbarGroupedItems,
   mode: Exclude<ToolbarLayoutMode, "auto">,
   size: ControlSize,
   gapClass: string;
+  renderItem: ToolbarItemRendererComponent,
 }) {
   if (mode === "split") {
-    return <SplitToolbarContent grouped={grouped} size={size} gapClass={gapClass} />;
+    return <SplitToolbarContent grouped={grouped} size={size} gapClass={gapClass} renderItem={renderItem} />;
   }
-  return <CompactToolbarContent grouped={grouped} size={size} gapClass={gapClass} />;
+  return <CompactToolbarContent grouped={grouped} size={size} gapClass={gapClass} renderItem={renderItem} />;
 }
 
 export function renderToolbarContent(
@@ -228,18 +240,20 @@ export function renderToolbarContent(
   mode: Exclude<ToolbarLayoutMode, "auto">,
   size: ControlSize,
   gapClass: string,
+  renderItem: ToolbarItemRendererComponent = AntdToolbarItemRenderer,
 ) {
-  return <ToolbarLayoutBody grouped={grouped} mode={mode} size={size} gapClass={gapClass} />;
+  return <ToolbarLayoutBody grouped={grouped} mode={mode} size={size} gapClass={gapClass} renderItem={renderItem} />;
 }
 
 export function renderCompactToolbarMeasurement(
   grouped: ToolbarGroupedItems,
   size: ControlSize,
   gapClass: string,
+  renderItem: ToolbarItemRendererComponent = AntdToolbarItemRenderer,
 ) {
   return (
     <div className="w-max">
-      <CompactToolbarContent grouped={grouped} size={size} gapClass={gapClass} />
+      <CompactToolbarContent grouped={grouped} size={size} gapClass={gapClass} renderItem={renderItem} />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import AppVersionGuard from "@workspace/platform/ui/AppVersionGuard";
 import WorkspacePageAssistantProvider from "@workspace/platform/ui/PageAssistantProvider";
-import { FeedbackProvider } from "@workspace/core/ui";
+import { FeedbackProvider, UiProvider } from "@workspace/core/ui";
 import { getAppVersion } from "@workspace/platform/server/app-version";
 import { getCurrentUser } from "@workspace/platform/server/auth";
 import { getTenantPublicConfig } from "@workspace/platform/server/tenant-config";
@@ -32,12 +32,14 @@ export default async function RootLayout({
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col">
         <TenantConfigProvider config={tenantConfig}>
-          <FeedbackProvider>
-            <WorkspacePageAssistantProvider enabled={canUseAgentAssistant}>
-              <AppVersionGuard version={appVersion} />
-              {children}
-            </WorkspacePageAssistantProvider>
-          </FeedbackProvider>
+          <UiProvider>
+            <FeedbackProvider>
+              <WorkspacePageAssistantProvider enabled={canUseAgentAssistant}>
+                <AppVersionGuard version={appVersion} />
+                {children}
+              </WorkspacePageAssistantProvider>
+            </FeedbackProvider>
+          </UiProvider>
         </TenantConfigProvider>
       </body>
     </html>

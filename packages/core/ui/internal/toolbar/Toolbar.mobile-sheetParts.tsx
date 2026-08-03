@@ -1,17 +1,17 @@
 "use client";
 
-import { useEffect, useId, useRef, type ReactNode } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, type ReactNode } from "react";
+import { Button, Drawer, Segmented } from "antd";
 import { ActionGlyph } from "../action/ActionGlyphs";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import { joinClassNames } from "../common/card-utils";
 import type { ControlSize } from "../common/interactionTokens";
+import type { ToolbarItemRendererComponent } from "./antd-toolbar";
 import {
   resolveToolbarActionIcon,
   resolveToolbarActionVariant,
-  ToolbarItemRenderer,
   type ToolbarRenderableAction,
-} from "./Toolbar.parts";
+} from "./toolbar-action-model";
 import type { ToolbarItem, ToolbarMenuActionItem, ToolbarMenuItem } from "./Toolbar.types";
 import { ToolbarFilterPanelFields } from "./ToolbarFilterPanel";
 
@@ -26,96 +26,37 @@ export function MobileToolbarSheet({
   onClose: () => void;
   children: ReactNode;
 }) {
-  const titleId = useId();
-  const sheetRef = useRef<HTMLElement | null>(null);
-  const closeRef = useRef<HTMLButtonElement | null>(null);
-
   useEffect(() => {
     if (!open) return;
-    const previousOverflow = document.body.style.overflow;
-    const previouslyFocused = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     const desktopQuery = window.matchMedia("(min-width: 640px)");
 
     function closeOnDesktop(event: MediaQueryListEvent) {
       if (event.matches) onClose();
     }
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab" || !sheetRef.current) return;
-      const focusable = getFocusableElements(sheetRef.current);
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    }
-
-    document.body.style.overflow = "hidden";
-    document.addEventListener("keydown", handleKeyDown);
     desktopQuery.addEventListener("change", closeOnDesktop);
-    const animationFrame = window.requestAnimationFrame(() => closeRef.current?.focus({ preventScroll: true }));
-
     return () => {
-      window.cancelAnimationFrame(animationFrame);
-      document.body.style.overflow = previousOverflow;
-      document.removeEventListener("keydown", handleKeyDown);
       desktopQuery.removeEventListener("change", closeOnDesktop);
-      window.requestAnimationFrame(() => previouslyFocused?.focus({ preventScroll: true }));
     };
   }, [onClose, open]);
 
-  if (!open || typeof document === "undefined") return null;
-
-  return createPortal(
-    <div className="fixed inset-0 z-[100] h-[100dvh] sm:hidden" data-mobile-toolbar-sheet="true">
-      <button
-        type="button"
-        aria-label="关闭面板"
-        tabIndex={-1}
-        onClick={onClose}
-        className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px]"
-      />
-      <section
-        ref={sheetRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby={titleId}
-        className="absolute inset-x-0 bottom-0 flex max-h-[86dvh] min-h-0 flex-col overflow-hidden rounded-t-3xl border-t border-slate-200 bg-white shadow-2xl"
-      >
-        <div className="shrink-0 px-4 pb-2 pt-2">
-          <div className="mx-auto mb-2 h-1.5 w-10 rounded-full bg-slate-200" aria-hidden="true" />
-          <div className="flex min-h-11 items-center justify-between gap-3">
-            <h2 id={titleId} className="min-w-0 text-lg font-bold text-slate-900">{title}</h2>
-            <button
-              ref={closeRef}
-              type="button"
-              aria-label={`关闭${title}`}
-              onClick={onClose}
-              className="grid size-11 shrink-0 place-items-center rounded-full bg-slate-100 text-slate-500 transition active:bg-slate-200"
-            >
-              <ActionGlyph kind="x" className="size-5" />
-            </button>
-          </div>
-        </div>
-        <div
-          className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto overscroll-contain border-t border-slate-100 px-4 pb-[calc(1rem+env(safe-area-inset-bottom))] pt-2"
-          data-mobile-toolbar-sheet-scroll="true"
-        >
-          {children}
-        </div>
-      </section>
-    </div>,
-    document.body,
+  return (
+    <Drawer
+      className="sm:hidden"
+      closeIcon={<ActionGlyph kind="x" className="size-5" />}
+      data-mobile-toolbar-sheet="true"
+      destroyOnHidden
+      footer={null}
+      mask={{ closable: true }}
+      onClose={onClose}
+      open={open}
+      placement="bottom"
+      size="auto"
+      styles={{ body: { maxHeight: "76dvh", overflowY: "auto", paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" } }}
+      title={title}
+    >
+      <div data-mobile-toolbar-sheet-scroll="true">{children}</div>
+    </Drawer>
   );
 }
 
@@ -145,8 +86,7 @@ export function MobileToolbarActionList({
             disabled={action.disabled}
             variant={resolveToolbarActionVariant(action)}
             onSelect={() => {
-              action.onClick?.();
-              if (action.type === "submit") onSubmit?.();
+              executeMobileToolbarAction(action, onSubmit);
               onClose();
             }}
           />
@@ -156,17 +96,24 @@ export function MobileToolbarActionList({
   );
 }
 
+export function executeMobileToolbarAction(action: ToolbarRenderableAction, onSubmit?: () => void) {
+  if (action.onClick) action.onClick();
+  else if (action.type === "submit") onSubmit?.();
+}
+
 export function MobileToolbarControlList({
   title,
   items,
   size,
   onClose,
+  renderItem: RenderItem,
   compact = false,
 }: {
   title?: string;
   items: ToolbarItem[];
   size: ControlSize;
   onClose: () => void;
+  renderItem: ToolbarItemRendererComponent;
   compact?: boolean;
 }) {
   if (items.length === 0) return null;
@@ -174,7 +121,7 @@ export function MobileToolbarControlList({
     <MobileSheetSection title={title}>
       <div className={joinClassNames("grid min-w-0", compact ? "gap-2" : "gap-3")}>
         {items.map((item) => (
-          <MobileToolbarControl key={item.key} item={item} size={size} onClose={onClose} compact={compact} />
+          <MobileToolbarControl key={item.key} item={item} size={size} onClose={onClose} renderItem={RenderItem} compact={compact} />
         ))}
       </div>
     </MobileSheetSection>
@@ -185,11 +132,13 @@ function MobileToolbarControl({
   item,
   size,
   onClose,
+  renderItem: RenderItem,
   compact,
 }: {
   item: ToolbarItem;
   size: ControlSize;
   onClose: () => void;
+  renderItem: ToolbarItemRendererComponent;
   compact: boolean;
 }) {
   if (item.kind === "label") {
@@ -225,7 +174,7 @@ function MobileToolbarControl({
     >
       {label ? <div className="mb-2 text-xs font-semibold text-slate-500">{label}</div> : null}
       <div className="min-w-0 [&>*]:w-full">
-        <ToolbarItemRenderer item={item} size={size} />
+        <RenderItem item={item} size={size} />
       </div>
     </div>
   );
@@ -236,27 +185,14 @@ function MobilePageSizeControl({ item }: { item: Extract<ToolbarItem, { kind: "p
   return (
     <fieldset className="min-w-0" data-mobile-toolbar-control="page-size">
       <legend className="mb-2 px-1 text-xs font-semibold text-slate-500">{label}</legend>
-      <div className="grid grid-flow-col auto-cols-fr gap-1 rounded-2xl bg-slate-100 p-1" role="radiogroup" aria-label={label}>
-        {item.options.map((option) => {
-          const selected = option.value === item.value;
-          return (
-            <button
-              key={option.value}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              disabled={option.disabled}
-              onClick={() => item.onChange(option.value)}
-              className={joinClassNames(
-                "min-h-11 min-w-0 rounded-xl px-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
-                selected ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 active:bg-white/70",
-              )}
-            >
-              <span className="block truncate" title={option.label ?? option.value}>{option.label ?? option.value}</span>
-            </button>
-          );
-        })}
-      </div>
+      <Segmented
+        aria-label={label}
+        block
+        onChange={(value) => item.onChange(String(value))}
+        options={item.options.map((option) => ({ value: option.value, label: option.label, disabled: option.disabled }))}
+        size="large"
+        value={item.value}
+      />
     </fieldset>
   );
 }
@@ -345,28 +281,19 @@ function MobileActionRow({
   onSelect: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      block
       disabled={disabled}
+      danger={variant === "danger"}
+      icon={<ActionGlyph kind={icon} className="size-5" />}
       onClick={onSelect}
       data-mobile-toolbar-action-row="true"
-      className={joinClassNames(
-        "flex min-h-14 w-full items-center gap-3 border-t border-slate-100 px-3 py-2.5 text-left first:border-t-0 disabled:cursor-not-allowed disabled:opacity-45",
-        variant === "danger" ? "text-red-700 active:bg-red-50" : "text-slate-800 active:bg-slate-50",
-      )}
+      className="!flex !h-14 !justify-start !rounded-none !border-x-0 !border-b-0 first:!border-t-0"
+      size="large"
+      type={variant === "primary" ? "primary" : "text"}
     >
-      <span className={joinClassNames(
-        "grid size-10 shrink-0 place-items-center rounded-xl",
-        variant === "danger"
-          ? "bg-red-50 text-red-600"
-          : variant === "primary"
-            ? "bg-emerald-50 text-emerald-700"
-            : "bg-slate-100 text-slate-600",
-      )}>
-        <ActionGlyph kind={icon} className="size-5" />
-      </span>
       <span className="min-w-0 flex-1 text-[15px] font-semibold leading-5">{label}</span>
-    </button>
+    </Button>
   );
 }
 
@@ -383,10 +310,4 @@ function getControlLabel(item: ToolbarItem) {
   if (item.kind === "column-toggle") return "显示列";
   if (item.kind === "page-size") return item.label ?? "每页条数";
   return undefined;
-}
-
-function getFocusableElements(root: HTMLElement) {
-  return Array.from(root.querySelectorAll<HTMLElement>(
-    'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-  )).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
 }

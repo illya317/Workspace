@@ -11,6 +11,7 @@ export const DOMAIN_GATE_CHECK_NAMES = [
 ];
 
 export const UI_GATE_CHECK_NAMES = [
+  "antd-surface-parity",
   "modal-governance",
   "table-row-interaction",
   "create-surface-entry",

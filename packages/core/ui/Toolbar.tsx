@@ -12,6 +12,9 @@ import {
 } from "./internal/toolbar/Toolbar.layout";
 import MobileToolbarContent from "./internal/toolbar/Toolbar.mobile";
 import { useAutoToolbarLayout } from "./internal/toolbar/Toolbar.visibility";
+// AntdToolbarItemRenderer total-dispatches every Toolbar kind. Specialized field-filter
+// and navigation leaves retain their domain protocols without reopening a generic renderer.
+import { AntdToolbarItemRenderer } from "./internal/toolbar/antd-toolbar";
 
 export type {
   ToolbarSection,
@@ -91,10 +94,10 @@ export function Toolbar({
   const content = (
     <div ref={containerRef} className="relative w-full min-w-0 overflow-visible">
       <div className="sm:hidden">
-        <MobileToolbarContent grouped={mobileGrouped} size={size} onSubmit={onSubmit} />
+        <MobileToolbarContent grouped={mobileGrouped} size={size} onSubmit={onSubmit} renderItem={AntdToolbarItemRenderer} />
       </div>
       <div className="hidden sm:block">
-        {renderToolbarContent(desktopGrouped, resolvedLayoutMode, size, gapClass)}
+        {renderToolbarContent(desktopGrouped, resolvedLayoutMode, size, gapClass, AntdToolbarItemRenderer)}
       </div>
       {layoutMode === "auto" && (
         <div
@@ -102,7 +105,7 @@ export function Toolbar({
           aria-hidden="true"
           className="invisible pointer-events-none absolute left-0 top-0 max-w-full overflow-hidden"
         >
-          {renderCompactToolbarMeasurement(desktopGrouped, size, gapClass)}
+          {renderCompactToolbarMeasurement(desktopGrouped, size, gapClass, AntdToolbarItemRenderer)}
         </div>
       )}
     </div>

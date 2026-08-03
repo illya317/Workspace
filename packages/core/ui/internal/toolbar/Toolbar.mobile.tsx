@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { ActionButton } from "../action/ActionControls";
 import type { ControlSize } from "../common/interactionTokens";
 import type { ToolbarGroupedItems } from "./Toolbar.layout";
 import { resolveMobileToolbarModel, type MobileToolbarCommand } from "./Toolbar.mobile-model-utils";
@@ -11,11 +10,15 @@ import {
   MobileToolbarSheet,
 } from "./Toolbar.mobile-sheetParts";
 import {
+  AntdToolbarActionButton,
+  AntdToolbarItemRenderer,
+  type ToolbarItemRendererComponent,
+} from "./antd-toolbar";
+import {
   resolveToolbarActionIcon,
   resolveToolbarActionVariant,
-  ToolbarItemRenderer,
   type ToolbarRenderableAction,
-} from "./Toolbar.parts";
+} from "./toolbar-action-model";
 import type { ToolbarItem } from "./Toolbar.types";
 
 type MobileToolbarSheet = "filters" | "more" | null;
@@ -24,10 +27,12 @@ export default function MobileToolbarContent({
   grouped,
   size,
   onSubmit,
+  renderItem: RenderItem = AntdToolbarItemRenderer,
 }: {
   grouped: ToolbarGroupedItems;
   size: ControlSize;
   onSubmit?: () => void;
+  renderItem?: ToolbarItemRendererComponent;
 }) {
   const [sheet, setSheet] = useState<MobileToolbarSheet>(null);
   const model = resolveMobileToolbarModel(grouped);
@@ -38,7 +43,7 @@ export default function MobileToolbarContent({
     <div className="space-y-2.5">
       {grouped.search.length > 0 ? (
         <div className="grid gap-2">
-          {grouped.search.map((item) => <ToolbarItemRenderer key={item.key} item={item} size={size} />)}
+          {grouped.search.map((item) => <RenderItem key={item.key} item={item} size={size} />)}
         </div>
       ) : null}
 
@@ -70,7 +75,7 @@ export default function MobileToolbarContent({
         onClose={closeSheet}
       >
         {sheet === "filters" ? (
-          <MobileToolbarControlList items={grouped.filter} size={size} onClose={closeSheet} compact />
+          <MobileToolbarControlList items={grouped.filter} size={size} onClose={closeSheet} renderItem={RenderItem} compact />
         ) : null}
         {sheet === "more" ? (
           <>
@@ -85,6 +90,7 @@ export default function MobileToolbarContent({
               items={grouped.trailing}
               size={size}
               onClose={closeSheet}
+              renderItem={RenderItem}
             />
           </>
         ) : null}
@@ -105,9 +111,10 @@ function MobileToolbarCommandButton({
 }
 
 function MobileLeadItem({ item, size }: { item: ToolbarItem; size: ControlSize }) {
-  if (item.kind !== "create") return <ToolbarItemRenderer item={item} size={size} />;
+  if (item.kind !== "create") return <AntdToolbarItemRenderer item={item} size={size} />;
+  // 移动端 create 默认文案为「新增」(桌面端为「新建」),保留该差异。
   return (
-    <ActionButton
+    <AntdToolbarActionButton
       kind="add"
       label={item.label ?? "新增"}
       disabled={item.disabled || item.active}
@@ -121,7 +128,7 @@ function MobileLeadItem({ item, size }: { item: ToolbarItem; size: ControlSize }
 function MobileActionButton({ action }: { action: ToolbarRenderableAction }) {
   const variant = resolveToolbarActionVariant(action) ?? "secondary";
   return (
-    <ActionButton
+    <AntdToolbarActionButton
       type={action.type ?? "button"}
       kind={resolveToolbarActionIcon(action)}
       label={action.label}
@@ -144,10 +151,10 @@ function MobileCommandButton({
   onClick: () => void;
 }) {
   return (
-    <ActionButton
+    <AntdToolbarActionButton
       kind={icon}
       label={label}
-      aria-expanded={active}
+      ariaExpanded={active}
       onClick={onClick}
       variant="secondary"
       className={active ? "!border-emerald-200 !bg-emerald-50 !text-emerald-700" : undefined}

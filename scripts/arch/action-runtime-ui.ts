@@ -184,7 +184,7 @@ export function checkActionRuntimeUi() {
     const create = { submission: { action: canSubmit ? "submit" : "save", execute } };
     const forced = { submission: { action: "submit", execute } };
     const actions = [{ action: "save" }, { action: "submit" }];
-    const panel = <InlineCreatePanel submitAction="submit" />;
+    const panel = <LegacyCreatePanel submitAction="submit" />;
   `);
   if (safe.length || unsafe.length !== 5) {
     console.error("✗ Project action runtime UI gate regression.");

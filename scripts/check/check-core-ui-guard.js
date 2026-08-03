@@ -18,10 +18,10 @@ const AUTOCOMPLETE_RENDERERS = [
   "packages/core/ui/internal/input/SearchableOptionInput.tsx",
 ];
 const BODY_SURFACE_TYPES = "packages/core/ui/BodySurface.types.ts";
-const BODY_SURFACE_RENDERER = "packages/core/ui/BodySurface.tsx";
+const BODY_SURFACE_RENDERER = "packages/core/ui/internal/body/antd-body.tsx";
 const CREATE_ANCHOR_CONTEXT = "packages/core/ui/internal/create/CreateSurfaceAnchorContext.tsx";
 const AMOUNT_CELL = "packages/core/ui/internal/data/AmountCell.tsx";
-const DATA_SURFACE_RENDERERS = "packages/core/ui/internal/data/DataSurface.renderers.tsx";
+const DATA_SURFACE_RENDERERS = "packages/core/ui/internal/data/antd-data-value.tsx";
 
 const mode = process.argv.includes("--staged") ? "staged" : "working-tree";
 
@@ -231,12 +231,12 @@ function findSectionCreatePlacementContractViolations() {
   if (!types.includes('{ anchor?: never }')) {
     violations.push(`${BODY_SURFACE_TYPES}: section header block create must reject caller-provided anchors`);
   }
-  if (!renderer.includes('`body-section-create:${declaredCreate.id}`')) {
+  if (!renderer.includes('`body-section-create:${create.id}`')) {
     violations.push(`${BODY_SURFACE_RENDERER}: section block create must receive a Core-owned anchor`);
   }
-  const anchorIndex = renderer.indexOf("<CreateSurfaceAnchorTarget anchor={createAnchor} />");
-  const bodyIndex = renderer.indexOf("<BodySurface {...section.body} />");
-  if (anchorIndex < 0 || bodyIndex < 0 || anchorIndex > bodyIndex) {
+  const anchorIndex = renderer.indexOf("<CreateSurfaceAnchorTarget anchor={blockCreate.anchor} />");
+  const bodyIndex = renderer.indexOf("{content}", anchorIndex);
+  if (anchorIndex < 0 || bodyIndex < 0) {
     violations.push(`${BODY_SURFACE_RENDERER}: section create anchor must render before the section body`);
   }
   if (!anchorContext.includes('className="contents"')) {

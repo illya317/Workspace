@@ -78,7 +78,7 @@ export const page_api_registry_entries = [
       { name: "feedback", description: "保存、提交流程和失败反馈由 Core Toast 统一呈现。" },
       { name: "state", description: "受控 open、canCreate、disabled、onOpenChange 与 onCancel；submitting 由 Core 内部管理。" },
     ],
-    composes: ["InlineCreatePanel", "CreatePresentationPanel", "FormSurface", "useFeedback"],
+    composes: ["FormSurface", "useFeedback"],
   },
   {
     name: "createActionsSection",

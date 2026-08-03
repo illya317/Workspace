@@ -1,6 +1,6 @@
 "use client";
 
-import { joinClassNames } from "./card-utils";
+import { Pagination as AntdPagination } from "antd";
 
 export interface PaginationProps {
   page: number;
@@ -21,31 +21,20 @@ export default function Pagination({
 }: PaginationProps) {
   if (totalPages <= 1) return null;
 
-  const buttonClass = "h-11 items-center justify-center rounded-md px-3 text-xs font-semibold text-slate-600 transition hover:bg-slate-100 disabled:cursor-not-allowed disabled:text-slate-300 disabled:hover:bg-transparent sm:h-8";
-
   return (
-    <div className={joinClassNames("flex min-h-12 w-full flex-nowrap items-center justify-between gap-2 bg-white px-3 py-2 sm:gap-3 sm:px-4", className)}>
-      <span className="shrink-0 whitespace-nowrap text-xs font-medium text-slate-500">
-        第 {page} / {totalPages} 页{typeof total === "number" ? `，共 ${total} 条` : ""}
-      </span>
-      <div className="flex shrink-0 items-center gap-1">
-        {!compact && (
-          <button type="button" onClick={() => onPageChange(1)} disabled={page <= 1} className={`${buttonClass} hidden sm:inline-flex`}>
-            首页
-          </button>
-        )}
-        <button type="button" onClick={() => onPageChange(Math.max(1, page - 1))} disabled={page <= 1} className={`${buttonClass} inline-flex`}>
-          上一页
-        </button>
-        <button type="button" onClick={() => onPageChange(Math.min(totalPages, page + 1))} disabled={page >= totalPages} className={`${buttonClass} inline-flex`}>
-          下一页
-        </button>
-        {!compact && (
-          <button type="button" onClick={() => onPageChange(totalPages)} disabled={page >= totalPages} className={`${buttonClass} hidden sm:inline-flex`}>
-            末页
-          </button>
-        )}
-      </div>
+    <div className={`flex min-h-12 w-full items-center justify-end bg-white px-3 py-2 sm:px-4 ${className ?? ""}`}>
+      <AntdPagination
+        current={page}
+        onChange={onPageChange}
+        pageSize={1}
+        responsive
+        showLessItems={compact}
+        showQuickJumper={!compact}
+        showSizeChanger={false}
+        showTotal={() => `第 ${page} / ${totalPages} 页${typeof total === "number" ? `，共 ${total} 条` : ""}`}
+        size={compact ? "small" : undefined}
+        total={totalPages}
+      />
     </div>
   );
 }

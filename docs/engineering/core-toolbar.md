@@ -10,7 +10,7 @@ Toolbar 是 Core Page API，不是业务页自由拼装区。
 业务页面
   -> PageSurface.toolbar.items: ToolbarItem[]
     -> Core Toolbar
-      -> SearchInput / FieldValueFilter / SearchableOptionInput / ToolbarOptionGroup / ActionButton / DropdownSurface
+      -> Ant Input / Select / Segmented / Dropdown / DatePicker / Button renderer
 ```
 
 业务只能传语义化 `ToolbarItem`，不能传 JSX slot，也不能新增业务包 Toolbar。
@@ -116,7 +116,7 @@ Micro accordion 交互规则：
 - `segmented` 通过容器 padding 让子按钮避开边框；`accordion` 即使使用满高母按钮也不得覆盖父容器边框，四边边线必须连续。
 - micro accordion 选中态使用白底绿字，避免数字/弱文本在绿底上看不清。
 
-普通 `ToolbarOptionGroup` 独立使用时默认仍是 `segmented`；Toolbar 内部通过 `ToolbarItem kind="option-group"` 自动在短筛选平铺和 micro accordion 之间选择。
+`option-group` 只通过 Toolbar 声明，由内部 Ant renderer 自动在短筛选 `segmented` 和 micro accordion 之间选择；不再提供可独立使用的 `ToolbarOptionGroup` 组件。
 
 ## 6. TabBar 与 Toolbar 的边界
 
@@ -136,7 +136,7 @@ Toolbar 承载工具、筛选、动作和元信息；TabBar 承载页面内平�
 已收口入口：
 
 - `PageSurface.toolbar.items?: ToolbarItem[]`
-- 页面级搜索、筛选、刷新和导出必须上移到 `PageSurface.toolbar`；全宽分页放在 `PageSurface.footer.pagination`，split 主列表分页放在 `createMasterDetailBody().master.footer.pagination`。标准页面级新建只能声明单值 `PageSurface.create`，由 PageSurface 派生唯一 Toolbar `+`；普通正文的 `presentation="inline"` 固定在 Page Toolbar 正下方，block/modal 也由 PageSurface 统一承载。body 含 split 时，inline/block 固定进入右侧详情区且新建期间锁定主栏可见，禁止横跨左右两栏。局部 section `+` 通过 `BodySurfaceSectionHeaderSpec.create` 或 `BodySurface kind="create" trigger="surface"` 声明。业务侧 `trigger="toolbar"`、显式 toolbar `kind: "create"` 和手工 section `+` 已禁止，由 `arch:create-surface-entry` 阻断。
+- 页面级搜索、筛选、刷新和导出必须上移到 `PageSurface.toolbar`；全宽分页放在 `PageSurface.footer.pagination`，split 主列表分页放在 `createMasterDetailBody().master.footer.pagination`。标准页面级新建只能声明单值 `PageSurface.create`，由 PageSurface 派生唯一 Toolbar `+`；页面级 `presentation="inline"` 固定在 Page Toolbar 正下方，block 由 PageSurface 统一承载；标准新建不提供 modal presentation。body 含 split 时，inline/block 固定进入右侧详情区且新建期间锁定主栏可见，禁止横跨左右两栏。局部 section `+` 通过 `BodySurfaceSectionHeaderSpec.create` 或 `BodySurface kind="create" trigger="surface"` 声明。业务侧 `trigger="toolbar"`、显式 toolbar `kind: "create"` 和手工 section `+` 已禁止，由 `arch:create-surface-entry` 阻断。
 - 一个 PageSurface 只能渲染一条 page toolbar。BodySurface split 的侧栏开关只提供状态与回调，由 PageSurface integration 合并进该 toolbar；Body/Data/Form/Create 等正文 Surface 禁止 import 或渲染 `<Toolbar>`。`surfaceOwnsPageChrome` gate 同时检查类型 contract 与 Surface runtime JSX。
 - 根表单的保存、提交、取消、归档/取消归档、批准、拒绝等生命周期动作必须声明在 `FormSurface.actions`，由 FormSurface 固定渲染在表单顶部动作栏；包含表单的父 Section、Page toolbar 和 DataSurface 不得代管这些动作。
 - `FormSurfaceActionSpec` 只允许业务声明 `key / action / label / disabled / onClick`。业务不得声明 `icon / variant / size / presentation / section / order / commandPlacement`；Core 按 `ACTION_GLYPH_ACTIONS` 选择图标和样式，并按 `ACTION_GLYPH_ORDER` 排序。

@@ -43,4 +43,3 @@ export { default as TextareaField } from "../ui/internal/input/TextareaField";
 export { default as TimeField } from "../ui/internal/input/TimeField";
 export { default as Toast } from "../ui/internal/common/Toast";
 export { Toolbar } from "../ui/Toolbar";
-export { default as ToolbarOptionGroup } from "../ui/internal/toolbar/ToolbarOptionGroup";
