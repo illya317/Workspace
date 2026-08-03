@@ -101,6 +101,10 @@ async function processIsRunning(pid) {
   }
 }
 
+export function lockOwnerIsCurrentProcess(owner, currentPid = process.pid) {
+  return Number.isInteger(owner) && owner > 0 && owner === currentPid;
+}
+
 async function removeLockIfOwned() {
   try {
     const owner = Number.parseInt(await fs.readFile(lockPath, "utf8"), 10);
@@ -131,7 +135,11 @@ async function acquireDevServerLock() {
         }
       }
 
-      if (await processIsRunning(owner)) throw new Error(occupiedPortMessage());
+      // A process cannot own this lock before acquiring it. Containers reuse
+      // small PIDs, so an equal PID proves that the file survived a prior run.
+      if (!lockOwnerIsCurrentProcess(owner) && await processIsRunning(owner)) {
+        throw new Error(occupiedPortMessage());
+      }
 
       try {
         await fs.unlink(lockPath);

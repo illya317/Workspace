@@ -2,7 +2,7 @@
 set -euo pipefail
 
 readonly STACK_ROOT="/home/ubuntu/workspace-dev"
-readonly SOURCE_ROOT="${STACK_ROOT}/source"
+readonly SOURCE_ROOT="${STACK_ROOT}/worktrees/main"
 readonly SECURE_RUNTIME_ROOT="${STACK_ROOT}/postgresql-security"
 readonly CONTAINER_NAME="workspace-dev"
 readonly NEXT_CACHE="${SOURCE_ROOT}/.next"
@@ -11,6 +11,8 @@ readonly STATE_DIR="${STACK_ROOT}/runtime/watchdog"
 readonly HIGH_COUNT_FILE="${STATE_DIR}/next-rss-high-count"
 readonly LAST_RESTART_FILE="${STATE_DIR}/last-restart-epoch"
 readonly RESTART_HISTORY_FILE="${STATE_DIR}/restart-history"
+readonly DEV_HEALTH_URL="${WORKSPACE_DEV_HEALTH_URL:-http://127.0.0.1:3100/test/login}"
+readonly DEV_HEALTH_TIMEOUT_SECONDS="${WORKSPACE_DEV_HEALTH_TIMEOUT_SECONDS:-5}"
 
 readonly NEXT_RSS_LIMIT_MIB="${WORKSPACE_DEV_NEXT_RSS_LIMIT_MIB:-6144}"
 readonly REQUIRED_HIGH_SAMPLES="${WORKSPACE_DEV_REQUIRED_HIGH_SAMPLES:-2}"
@@ -43,6 +45,16 @@ validate_runtime_environment() {
     log "secure app.env contains forbidden database or migration variables"
     return 1
   fi
+}
+
+probe_dev_http() {
+  curl \
+    --fail \
+    --silent \
+    --show-error \
+    --max-time "${DEV_HEALTH_TIMEOUT_SECONDS}" \
+    --output /dev/null \
+    "${DEV_HEALTH_URL}"
 }
 
 read_nonnegative_integer() {
@@ -156,14 +168,19 @@ if [[ "${runtime_status}" != "running" ]]; then
   exit 0
 fi
 
-if [[ "${health_status}" == "starting" ]]; then
+started_epoch="$(date -d "${started_at}" +%s 2>/dev/null || printf '0')"
+now="$(date +%s)"
+if (( now - started_epoch < STARTUP_GRACE_SECONDS )); then
   reset_high_count
   exit 0
 fi
 
-started_epoch="$(date -d "${started_at}" +%s 2>/dev/null || printf '0')"
-now="$(date +%s)"
-if (( now - started_epoch < STARTUP_GRACE_SECONDS )); then
+if ! probe_dev_http; then
+  automatic_restart "dev-http-unavailable"
+  exit 0
+fi
+
+if [[ "${health_status}" == "starting" ]]; then
   reset_high_count
   exit 0
 fi
