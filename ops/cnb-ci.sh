@@ -6,17 +6,29 @@ LANE="${2:-}"
 RESULT_DIR="${CNB_CI_RESULT_DIR:-.release/ci-results}"
 fail() { echo "[错误] $*" >&2; exit 1; }
 
-verify_checkout() {
+verify_event_checkout_sha() {
+  actual_sha="$1"
   [[ "${CNB_COMMIT:-}" =~ ^[0-9a-f]{40}$ ]] || fail "CNB_COMMIT 必须是完整小写 SHA"
-  expected_sha="$CNB_COMMIT"
   if [ "${CNB_PULL_REQUEST_LIKE:-false}" = true ]; then
+    [[ "${CNB_PULL_REQUEST_SHA:-}" =~ ^[0-9a-f]{40}$ ]] \
+      || fail "PR 工作区缺少 CNB_PULL_REQUEST_SHA"
     [[ "${CNB_PULL_REQUEST_MERGE_SHA:-}" =~ ^[0-9a-f]{40}$ ]] \
       || fail "PR 预合并工作区缺少 CNB_PULL_REQUEST_MERGE_SHA"
-    expected_sha="$CNB_PULL_REQUEST_MERGE_SHA"
+    [ "$CNB_COMMIT" = "$CNB_PULL_REQUEST_SHA" ] \
+      || fail "CNB_COMMIT 与 PR 源分支 SHA 不匹配"
+    if [ "$actual_sha" != "$CNB_PULL_REQUEST_SHA" ] \
+      && [ "$actual_sha" != "$CNB_PULL_REQUEST_MERGE_SHA" ]; then
+      fail "CNB PR checkout SHA 不匹配：source=$CNB_PULL_REQUEST_SHA merge=$CNB_PULL_REQUEST_MERGE_SHA actual=$actual_sha"
+    fi
+    return
   fi
+  [ "$actual_sha" = "$CNB_COMMIT" ] \
+    || fail "CNB checkout SHA 不匹配：expected=$CNB_COMMIT actual=$actual_sha"
+}
+
+verify_checkout() {
   actual_sha="$(git rev-parse HEAD)"
-  [ "$actual_sha" = "$expected_sha" ] \
-    || fail "CNB checkout SHA 不匹配：expected=$expected_sha actual=$actual_sha"
+  verify_event_checkout_sha "$actual_sha"
   [ -z "$(git status --porcelain=v1 --untracked-files=all)" ] \
     || fail "CNB 必须从干净 checkout 开始；拒绝复用带脏文件的工作区"
 }
@@ -103,9 +115,7 @@ run_typecheck() {
 
 run_build_and_package() {
   source_identity
-  if [ -n "${CNB_COMMIT:-}" ] && [ "$CNB_COMMIT" != "$SOURCE_SHA" ]; then
-    fail "CNB checkout 与 CNB_COMMIT 不一致"
-  fi
+  verify_event_checkout_sha "$SOURCE_SHA"
   WORKSPACE_NEXT_TYPECHECK_AUTHORITY=external npm run build:next:inner || return
   STANDALONE_SKIP_NEXT_BUILD=1 bash ./ops/build-standalone-artifact.sh
 }
