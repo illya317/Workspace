@@ -6,6 +6,7 @@ import {
   BALANCE_SHEET_CURRENT_AMOUNT_LABEL,
   FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL,
   FLOW_STATEMENT_CURRENT_AMOUNT_LABEL,
+  FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL,
   balanceSheetOpeningPoint,
   balanceSheetOpeningReclassPoint,
   formatStatementPeriodEndLabel,
@@ -15,8 +16,9 @@ import {
 test("uses the statutory general-enterprise amount headers", () => {
   assert.equal(BALANCE_SHEET_CURRENT_AMOUNT_LABEL, "期末余额");
   assert.equal(BALANCE_SHEET_COMPARATIVE_AMOUNT_LABEL, "上年年末余额");
-  assert.equal(FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, "本期金额");
-  assert.equal(FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, "上期金额");
+  assert.equal(FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, "当月金额");
+  assert.equal(FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, "本年累计金额");
+  assert.equal(FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, "上年同期累计金额");
 });
 
 test("uses the persisted accounting period end date", () => {

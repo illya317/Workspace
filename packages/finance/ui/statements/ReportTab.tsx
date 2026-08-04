@@ -6,6 +6,7 @@ import {
   BALANCE_SHEET_CURRENT_AMOUNT_LABEL,
   FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL,
   FLOW_STATEMENT_CURRENT_AMOUNT_LABEL,
+  FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL,
   formatStatementPeriodEndLabel,
 } from "@workspace/finance/types/statement-period";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -297,7 +298,7 @@ export default function ReportTab({
               })(),
               {
                 key: "income-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, detailKeyPrefix: "income", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailKeyPrefix: "income", ...lineProps }) },
               },
             ],
           })] : []),
@@ -314,7 +315,7 @@ export default function ReportTab({
               })(),
               {
                 key: "cashflow-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, detailKeyPrefix: "cashflow", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailKeyPrefix: "cashflow", ...lineProps }) },
               },
             ],
           })] : []),

@@ -98,16 +98,16 @@ test("statement workbook exports exactly the three statutory statements in order
   const income = workbook.Sheets["利润表"]!;
   assert.equal(income.A1?.v, "利润表");
   assert.equal(income.B2?.v, "2025年12月");
-  assert.equal(income.B3?.v, "本期金额");
-  assert.equal(income.C3?.v, "上期金额");
+  assert.equal(income.B3?.v, "本年累计金额");
+  assert.equal(income.C3?.v, "上年同期累计金额");
   assert.equal(income.B4?.v, 50);
   assert.equal(income.C4?.v, 40);
 
   const cashFlow = workbook.Sheets["现金流量表"]!;
   assert.equal(cashFlow.A1?.v, "现金流量表");
   assert.equal(cashFlow.B2?.v, "2025年12月");
-  assert.equal(cashFlow.B3?.v, "本期金额");
-  assert.equal(cashFlow.C3?.v, "上期金额");
+  assert.equal(cashFlow.B3?.v, "本年累计金额");
+  assert.equal(cashFlow.C3?.v, "上年同期累计金额");
   assert.equal(cashFlow.B4?.v, 120);
   assert.equal(cashFlow.B4?.f, undefined);
   assert.equal(cashFlow.C4?.v, 100);

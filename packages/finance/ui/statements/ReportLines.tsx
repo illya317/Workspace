@@ -54,6 +54,7 @@ interface Props {
   labelHeader: string;
   amountHeader: string;
   previousAmountHeader: string;
+  currentMonthAmountHeader?: string;
   expandedCodes: Set<string>;
   details: Record<string, AccountDetail[]>;
   loadingDetail: string | null;
@@ -101,7 +102,7 @@ function createDetailRowsSpec(rows: AccountDetail[]): DataSurfaceCellSpec {
   ] };
 }
 
-export function createReportLinesSurface({ items, labelHeader, amountHeader, previousAmountHeader, expandedCodes, details, loadingDetail, detailKeyPrefix, onToggle }: Props): DataSurfaceTableProps<ReportLine> {
+export function createReportLinesSurface({ items, labelHeader, amountHeader, previousAmountHeader, currentMonthAmountHeader, expandedCodes, details, loadingDetail, detailKeyPrefix, onToggle }: Props): DataSurfaceTableProps<ReportLine> {
   const columns: DataSurfaceColumnSpec<ReportLine>[] = [
     {
       key: "label",
@@ -114,6 +115,13 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, pre
         return { kind: "disclosure", label: item.label, expanded: isExpanded, level: item.isHeader || item.isTotal || item.isGrandTotal ? 0 : 1 };
       },
     },
+    ...(currentMonthAmountHeader ? [{
+      key: "currentMonthAmount",
+      label: hoverHeader(currentMonthAmountHeader),
+      required: true,
+      align: "right" as const,
+      cell: (item: ReportLine) => amountDisplay(item.currentMonthAmount ?? 0),
+    }] : []),
     {
       key: "amount",
       label: hoverHeader(amountHeader),
@@ -137,6 +145,7 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, pre
     columns,
     visibleColumns: [
       "label",
+      ...(currentMonthAmountHeader ? ["currentMonthAmount"] : []),
       "amount",
       "previousAmount",
     ],

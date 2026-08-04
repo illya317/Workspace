@@ -15,8 +15,9 @@ export interface StatementPeriodPoint {
 
 export const BALANCE_SHEET_COMPARATIVE_AMOUNT_LABEL = "上年年末余额";
 export const BALANCE_SHEET_CURRENT_AMOUNT_LABEL = "期末余额";
-export const FLOW_STATEMENT_CURRENT_AMOUNT_LABEL = "本期金额";
-export const FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL = "上期金额";
+export const FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL = "当月金额";
+export const FLOW_STATEMENT_CURRENT_AMOUNT_LABEL = "本年累计金额";
+export const FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL = "上年同期累计金额";
 
 export function balanceSheetOpeningPoint(
   period: StatementPeriodPoint,

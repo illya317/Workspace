@@ -15,6 +15,7 @@ import {
   BALANCE_SHEET_CURRENT_AMOUNT_LABEL,
   FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL,
   FLOW_STATEMENT_CURRENT_AMOUNT_LABEL,
+  FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL,
 } from "@workspace/finance/types/statement-period";
 
 import { createReportLinesSurface, type ReportLine } from "./ReportLines";
@@ -44,6 +45,7 @@ function staticLinesSurface(input: {
   labelHeader: string;
   previousAmountHeader: string;
   amountHeader: string;
+  currentMonthAmountHeader?: string;
 }) {
   return createReportLinesSurface({
     ...input,
@@ -121,6 +123,7 @@ export function createConsolidatedReportSection(
         labelHeader: "项目",
         amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL,
         previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL,
+        currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL,
       })),
     ],
   });
