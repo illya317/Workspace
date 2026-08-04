@@ -1,6 +1,7 @@
 import type {
   ConsolidatedReportOutputPackage,
   ConsolidationBatchSnapshot,
+  ConsolidationRateReferenceSnapshot,
 } from "@workspace/finance/types";
 import { serviceError, serviceOk } from "@workspace/platform/service-result";
 import {
@@ -52,6 +53,18 @@ export function buildConsolidatedOutputFromBatchSnapshot(
   return buildConsolidatedReportOutput(replay.data, functionalCurrencyByEntitySnapshotId, generatedAt);
 }
 
+const SUPPORTED_PREVIEW_RATE_KINDS = new Set([
+  "centralParity",
+  "monthlyAverage",
+  "historicalInvestment",
+  "historicalCapitalAmount",
+]);
+
+export function hasSupportedConsolidationPreviewRates(rates: readonly Pick<ConsolidationRateReferenceSnapshot, "rateKind">[]) {
+  return rates.every((rate) => SUPPORTED_PREVIEW_RATE_KINDS.has(rate.rateKind))
+    && rates.some((rate) => rate.rateKind === "monthlyAverage");
+}
+
 export function buildConsolidatedPreviewFromBatchSnapshot(
   batch: ConsolidationBatchSnapshot,
   generatedAt = new Date(),
@@ -65,8 +78,7 @@ export function buildConsolidatedPreviewFromBatchSnapshot(
     functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
   }
   if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
-    && (batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage", "historicalInvestment", "historicalCapitalAmount"].includes(rate.rateKind))
-      || !batch.exchangeRates.some((rate) => rate.rateKind === "monthlyAverage"))) {
+    && !hasSupportedConsolidationPreviewRates(batch.exchangeRates)) {
     return failCommand("当前草稿缺少逐月平均汇率证据，请重新生成合并工作底稿", 409, "exchangeRates");
   }
   return buildConsolidatedReportOutput(
