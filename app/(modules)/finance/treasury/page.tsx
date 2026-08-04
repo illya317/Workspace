@@ -5,9 +5,10 @@ import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 
 export default async function FinanceTreasuryPage() {
   const user = await requireRouteAccess("/finance/treasury");
-  const [canCreate, canUpdate, defaultScope] = await Promise.all([
+  const [canCreate, canUpdate, canExport, defaultScope] = await Promise.all([
     evaluatePermissionAction(user.id, "finance.treasury", "create"),
     evaluatePermissionAction(user.id, "finance.treasury", "update"),
+    evaluatePermissionAction(user.id, "finance.treasury", "export"),
     getDefaultFinanceLedgerScope(),
   ]);
 
@@ -19,6 +20,7 @@ export default async function FinanceTreasuryPage() {
       <TreasuryClient
         canCreate={canCreate}
         canUpdate={canUpdate}
+        canExport={canExport}
         defaultScope={defaultScope}
         user={user}
       />

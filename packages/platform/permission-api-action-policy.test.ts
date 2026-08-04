@@ -238,6 +238,26 @@ test("Finance treasury and tax workspace routes use their own read and write per
   }
 });
 
+test("Finance treasury interest workbook downloads require export rather than ordinary read", () => {
+  const policy = resolveGet("/api/modules/finance/treasury/export", "finance.treasury");
+  assert.equal(policy.resourceKey, "finance.treasury");
+  assert.deepEqual(policy.requiredActions, ["export"]);
+  assert.equal(policy.runtimeEnforcement, "gateway");
+
+  const action = getBusinessActionRegistration("finance.treasury.interest.export");
+  const contract = getActionContractMetadata("finance.treasury.interest.export");
+  assert.equal(action?.writeKind, "export");
+  assert.equal(action?.directPermissionAction, "export");
+  assert.deepEqual(action?.apiRoutes, [{ method: "GET", path: "/api/modules/finance/treasury/export" }]);
+  assert.equal(contract?.kind, "exchange");
+  assert.equal(contract?.exchange?.direction, "export");
+  assert.equal(contract?.resource.directPermissionAction, "export");
+  assert.deepEqual(contract?.domain && "bindings" in contract.domain ? contract.domain.bindings : undefined, [{
+    validatorKey: "packages/finance/server/treasury/export-route-commands.buildTreasuryInterestExportCommand",
+    executeKey: "packages/finance/server/treasury/export-route-commands.executeTreasuryInterestExportCommand",
+  }]);
+});
+
 test("Finance close workspace separates read, open, refresh, and complete permissions", () => {
   for (const [method, apiPath, requiredAction] of [
     ["GET", "/api/modules/finance/ledger/closing", "read"],

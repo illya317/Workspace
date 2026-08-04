@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { runAssetDepreciationAutoRecalculation } from "./depreciation-auto-recalculation";
+import type { FinanceAssetWorkspaceDto } from "../../types/assets";
 
 type FakePeriod = { companyCode: string; year: number; month: number };
 
@@ -30,6 +31,7 @@ test("recalculates every open period up to the current month and isolates failur
     recalculate: async (scope: FakePeriod) => {
       calls.push(scope);
       if (scope.companyCode === "01" && scope.month === 6) throw new Error("已过账，不能覆盖重算");
+      return undefined as unknown as FinanceAssetWorkspaceDto;
     },
     log: () => undefined,
   });

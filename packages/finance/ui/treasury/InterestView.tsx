@@ -121,7 +121,7 @@ export function useInterestView({ workspace, canCreate, canUpdate, mutate, targe
         tone: hasDifference(selected) ? "warning" : "success",
         content: `计算利息 ${formatAmount(selected.calculation.calculatedAmount)}；凭证金额 ${formatAmount(selected.calculation.voucherAmount)}；凭证差额 ${formatAmount(selected.calculation.voucherDifference)}${selected.calculation.sourceDifference == null ? "" : `；来源差额 ${formatAmount(selected.calculation.sourceDifference)}`}`,
       }),
-      createFieldsSection("interest-detail", asFormItems(interestSections(draft, updateDraft, workspace.loans, !canUpdate, voucherItemNames(selected))), {
+      createFieldsSection("interest-detail", asFormItems(interestSections(draft, updateDraft, workspace.loans, !canUpdate, voucherItemNames(selected), lineCalculatedAmounts(selected))), {
         kind: canUpdate ? "fields" : "detail",
         header: { title: loanName(selected.loanId), description: "利息工作底稿" },
         actions: canUpdate ? [
@@ -135,6 +135,10 @@ export function useInterestView({ workspace, canCreate, canUpdate, mutate, targe
 
   function voucherItemNames(row: TreasuryInterestWorkpaperDto) {
     return Object.fromEntries(row.voucherLinks.flatMap((link) => link.voucherItemName ? [[link.voucherItemId, link.voucherItemName]] : []));
+  }
+
+  function lineCalculatedAmounts(row: TreasuryInterestWorkpaperDto) {
+    return Object.fromEntries(row.lines.map((line) => [line.id, line.calculatedAmount]));
   }
 
   function emptyText() {

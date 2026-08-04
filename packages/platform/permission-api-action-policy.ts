@@ -188,6 +188,7 @@ export const PERMISSION_API_ACTION_POLICIES: readonly PermissionApiActionPolicy[
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/init", requiredActions: ["create"] },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/balances", requiredActions: ["revise"] },
   { method: "GET", pathPrefix: "/api/modules/finance/ledger/export", requiredActions: ["export"], pathPattern: /^\/api\/modules\/finance\/ledger\/export$/ },
+  { method: "GET", pathPrefix: "/api/modules/finance/treasury/export", requiredActions: ["export"], pathPattern: /^\/api\/modules\/finance\/treasury\/export$/ },
   { method: "PUT", pathPrefix: "/api/modules/finance/ledger/reclass-rules", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-rules$/ },
   { method: "PUT", pathPrefix: "/api/modules/finance/ledger/reclass-adjustments", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-adjustments$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/reclass-results", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-results$/ },

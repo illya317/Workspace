@@ -61,6 +61,28 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   ...FINANCE_ASSET_ACTION_CONTRACT_METADATA,
   registeredWrite({ key: "finance.treasury.workspace.create", activeEntity: "FinanceTreasuryRecord", domain: d("packages/finance/server/treasury/route-commands.buildTreasuryCreateRouteCommand", "packages/finance/server/treasury/route-commands.executeTreasuryCreateRouteCommand"), shape: "full_record", target: "new_record", commitMode: "activate" }),
   registeredWrite({ key: "finance.treasury.workspace.update", activeEntity: "FinanceTreasuryRecord", domain: d("packages/finance/server/treasury/route-commands.buildTreasuryUpdateRouteCommand", "packages/finance/server/treasury/route-commands.executeTreasuryUpdateRouteCommand") }),
+  {
+    ...registeredActionFacts("finance.treasury.interest.export"),
+    kind: "exchange",
+    payload: {
+      cardinality: "batch",
+      shape: "full_record",
+      target: "mixed",
+      notes: "按资金管理当前公司和期间导出全部利息底稿明细行与合计行，派生金额保留可核对的 Excel 公式。",
+    },
+    exchange: {
+      direction: "export",
+      transport: "file",
+      result: "file",
+      contentTypes: ["application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"],
+    },
+    domain: {
+      bindings: [{
+        validatorKey: "packages/finance/server/treasury/export-route-commands.buildTreasuryInterestExportCommand",
+        executeKey: "packages/finance/server/treasury/export-route-commands.executeTreasuryInterestExportCommand",
+      }],
+    },
+  },
   registeredWrite({ key: "finance.tax.workspace.create", activeEntity: "FinanceTaxRecord", domain: d("packages/finance/server/tax/route-commands.buildCreateTaxRouteCommand", "packages/finance/server/tax/route-commands.executeCreateTaxRouteCommand"), shape: "full_record", target: "new_record", commitMode: "activate" }),
   registeredWrite({ key: "finance.tax.workspace.update", activeEntity: "FinanceTaxRecord", domain: d("packages/finance/server/tax/route-commands.buildUpdateTaxRouteCommand", "packages/finance/server/tax/route-commands.executeUpdateTaxRouteCommand") }),
   {

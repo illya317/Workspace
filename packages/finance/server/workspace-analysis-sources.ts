@@ -467,12 +467,12 @@ export const FINANCE_ASSETS_PERIOD_ROWS_SOURCE = defineWorkspaceAnalysisReadMode
     assetId: field("资产 ID", "关联资产卡片。", "integer"), assetCode: field("资产编号", "资产编号。", "text"), name: field("资产名称", "资产名称。", "text"),
     assetKind: field("资产类型", "资产类型。", "text"), accountCode: field("累计科目", "累计折旧或摊销科目。", "text"),
     depreciationStartDate: field("折旧开始日期", "折旧或摊销开始日期。", "date"), originalCost: field("原值", "资产原值。", "currency"),
+    residualRate: field("残值率", "残值率（小数）。", "percent"), usefulLifeMonths: field("期限（月）", "折旧摊销期限月数。", "integer"), initializationMode: field("初始化模式", "standard 或 legacy_cutover。", "text"),
+    impairmentBefore: field("减值（期初）", "期初累计减值。", "currency"), accumulatedBefore: field("期初累计", "期初累计折旧摊销。", "currency"), monthlyAmount: field("月折旧额", "直线法月折旧摊销额。", "currency"),
     normalAmount: field("正常金额", "系统计算的本期金额。", "currency"), adjustmentAmount: field("调整金额", "本期人工调整金额。", "currency"),
-    periodAmount: field("期间金额", "正常金额加调整金额。", "currency"), status: field("状态", "期间折旧状态。", "text"),
-    voucherNo: field("凭证号", "关联凭证号。", "text"),
+    periodAmount: field("期间金额", "正常金额加调整金额。", "currency"), status: field("状态", "期间折旧状态。", "text"), voucherNo: field("凭证号", "关联凭证号。", "text"),
   }, pagination: IN_MEMORY, limits: LIMITS,
 });
-
 export const FINANCE_ASSETS_ADJUSTMENTS_SOURCE = defineWorkspaceAnalysisReadModel<FinanceAssetAdjustmentDto>()({
   sourceKey: "finance.assets.adjustments", version: 1, label: "历史资产调整", description: "历史资产折旧摊销调整审计记录；新更正统一通过总账凭证处理。",
   apiPath: "/api/modules/finance/assets", rowsPath: "adjustments", totalPath: "adjustments.length", scopes: WORKSPACE_SCOPES,

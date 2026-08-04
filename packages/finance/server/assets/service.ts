@@ -17,6 +17,7 @@ import {
   type FinanceAssetCodePreviewCommand,
 } from "./validation";
 import { assetPeriodVoucherLinkFingerprint } from "./period-scope";
+import { assetPeriodParameters, loadAssetPeriodParameterPriors } from "./period-parameters";
 import { resolveFinanceCompanyAccountsFromGroupPolicyAt } from "../ledger/group-accounts/company-account-resolver";
 import { resolveFinanceGroupPolicyCompany } from "../group-policy-scope";
 import { financeAssetPolicySemanticsMatch, type FinanceAssetPolicySemanticSnapshot } from "./asset-policy-inheritance";
@@ -430,6 +431,7 @@ export async function listFinanceAssetWorkspace(scope: { companyCode: string; ye
   for (const item of confirmedAdjustments) {
     if (item.assetId) adjustmentByAsset.set(item.assetId, money((adjustmentByAsset.get(item.assetId) ?? 0) + money(item.amount)));
   }
+  const priorParameters = await loadAssetPeriodParameterPriors(cards.map((card) => card.id), scope.companyCode, scope);
   const periodRows = entries.map((entry) => {
     const normalAmount = money(entry.normalAmount);
     const adjustmentAmount = adjustmentByAsset.get(entry.assetId) ?? 0;
@@ -441,6 +443,10 @@ export async function listFinanceAssetWorkspace(scope: { companyCode: string; ye
       accountCode: entry.asset.accumulatedAccountCode || entry.asset.assetAccountCode,
       depreciationStartDate: entry.asset.depreciationStartDate,
       originalCost: money(entry.asset.originalCost),
+      residualRate: Number(entry.asset.residualRate),
+      usefulLifeMonths: entry.asset.usefulLifeMonths,
+      initializationMode: entry.asset.initializationMode as FinanceAssetCardDto["initializationMode"],
+      ...assetPeriodParameters(entry.asset, priorParameters),
       normalAmount,
       adjustmentAmount,
       periodAmount: money(normalAmount + adjustmentAmount),

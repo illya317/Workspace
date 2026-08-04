@@ -385,6 +385,7 @@ export function interestSections(
   loans: TreasuryLoanDto[],
   readOnly = false,
   voucherItemNames: Readonly<Record<number, string>> = {},
+  lineCalculatedAmounts: Readonly<Record<number, number>> = {},
 ): CreateSurfaceSectionSpec[] {
   const update = <K extends keyof InterestWorkpaperDraft>(key: K, value: InterestWorkpaperDraft[K]) => {
     setDraft((current) => ({ ...current, [key]: value }));
@@ -441,6 +442,9 @@ export function interestSections(
             numberField({ key: `line-rate-${index}`, label: "年利率（小数）", value: line.annualRate, min: 0, max: 1, step: 0.000001, required: true, readOnly, onChange: (value) => updateLine(index, { annualRate: value ?? 0 }) }),
             numberField({ key: `line-days-${index}`, label: "计息天数", value: line.dayCount, min: 1, max: 366, step: 1, required: true, readOnly, onChange: (value) => updateLine(index, { dayCount: value ?? 0 }) }),
             numberField({ key: `line-source-${index}`, label: "来源利息金额", value: line.sourceReportedInterestAmount, step: 0.01, readOnly, onChange: (value) => updateLine(index, { sourceReportedInterestAmount: value }) }),
+            ...(line.id != null && lineCalculatedAmounts[line.id] != null ? [
+              numberField({ key: `line-calculated-${index}`, label: "计算利息", value: lineCalculatedAmounts[line.id], readOnly: true, onChange: () => undefined }),
+            ] : []),
             textField({ key: `line-note-${index}`, label: "备注", value: line.note, readOnly, onChange: (value) => updateLine(index, { note: value }) }),
           ],
         })),

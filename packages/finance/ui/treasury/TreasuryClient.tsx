@@ -25,15 +25,18 @@ import { useLoansView } from "./LoansView";
 import { isTreasuryView, type TreasuryView } from "./treasury-model";
 import { createTreasuryRequestGate } from "./treasury-request-scope";
 import type { TreasuryMutation } from "./treasury-view-types";
+import { useTreasuryExportAction } from "./useTreasuryExportAction";
 
 export default function TreasuryClient({
   canCreate,
   canUpdate,
+  canExport,
   defaultScope,
   user,
 }: {
   canCreate: boolean;
   canUpdate: boolean;
+  canExport: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
   user: SessionUser;
 }) {
@@ -157,12 +160,21 @@ export default function TreasuryClient({
     return data as T;
   }, [load]);
 
+  const exportItem = useTreasuryExportAction({
+    canExport,
+    companyCode,
+    year,
+    month,
+    disabled: loading || !companyCode || !year || !month,
+    fallbackFilename: "利息底稿.xlsx",
+  });
   const extraItems: SurfaceToolbarItems = [
     {
       kind: "action-group",
       key: "treasury-actions",
       actions: [{ key: "refresh", kind: "refresh", label: "刷新", disabled: loading || !companyCode || !year || !month, onClick: () => void load() }],
     },
+    ...(activeView === "interest" && workspace && exportItem ? [exportItem] : []),
     ...(workspace ? [{
       kind: "text" as const,
       key: "treasury-period-state",

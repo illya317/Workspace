@@ -95,6 +95,12 @@ export type FinanceAssetPeriodRowDto = {
   accountCode: string;
   depreciationStartDate: string | null;
   originalCost: number;
+  residualRate: number;
+  usefulLifeMonths: number | null;
+  initializationMode: FinanceAssetInitializationMode;
+  impairmentBefore: number;
+  accumulatedBefore: number;
+  monthlyAmount: number | null;
   normalAmount: number;
   adjustmentAmount: number;
   periodAmount: number;

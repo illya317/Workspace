@@ -293,6 +293,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/finance/assets/reference-options": "lookupFragment",
   "/api/modules/finance/assets/submissions": "workflowControl",
   "/api/modules/finance/tax/reference-options": "lookupFragment",
+  "/api/modules/finance/treasury/export": "binary",
   "/api/modules/finance/treasury/reference-options": "lookupFragment",
   "/api/modules/finance/ledger/export": "binary",
   "/api/modules/finance/ledger/group-account-options": "lookupFragment",

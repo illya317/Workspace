@@ -10,6 +10,7 @@ export const FINANCE_OPERATIONS_BUSINESS_ACTION_REGISTRATIONS = [
   ...FINANCE_ASSET_BUSINESS_ACTION_REGISTRATIONS,
   { ...FINANCE_TREASURY, ...PERMISSION_ONLY, key: "finance.treasury.workspace.create", label: "创建资金管理记录", writeKind: "create", targetKind: "FinanceTreasuryRecord", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/treasury")] },
   { ...FINANCE_TREASURY, ...PERMISSION_ONLY, key: "finance.treasury.workspace.update", label: "更新资金管理记录", writeKind: "update", targetKind: "FinanceTreasuryRecord", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/treasury")] },
+  { ...FINANCE_TREASURY, ...PERMISSION_ONLY, key: "finance.treasury.interest.export", label: "下载利息底稿 Excel", writeKind: "export", targetKind: "FinanceTreasuryWorkbook", directPermissionAction: "export", apiRoutes: [route("GET", "/api/modules/finance/treasury/export")] },
   { ...FINANCE_TAX, ...PERMISSION_ONLY, key: "finance.tax.workspace.create", label: "创建税务管理记录", writeKind: "create", targetKind: "FinanceTaxRecord", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/tax")] },
   { ...FINANCE_TAX, ...PERMISSION_ONLY, key: "finance.tax.workspace.update", label: "更新税务管理记录", writeKind: "update", targetKind: "FinanceTaxRecord", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/tax")] },
 ] as const;
