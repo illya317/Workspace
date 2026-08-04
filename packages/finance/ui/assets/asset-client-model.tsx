@@ -56,7 +56,7 @@ export function createAssetCardSelector(input: {
     items: input.cards.slice((input.page - 1) * input.pageSize, input.page * input.pageSize).map((card) => ({
       key: card.id, value: card, group: KIND_LABELS[card.assetKind],
       card: {
-        title: card.name, code: card.assetCode, subtitle: card.categoryName,
+        title: card.name, subtitle: card.categoryName,
         metaLine: `原值 ${formatFinanceAmount(card.originalCost)}`,
         status: { label: card.status === "active" ? "使用中" : card.status, tone: card.status === "active" ? "success" : "muted" },
         tone: "emerald",
