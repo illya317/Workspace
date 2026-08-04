@@ -273,6 +273,7 @@ const REVIEWED_AUTOMATIC_EXCLUSIONS: Readonly<Record<string, ExcludedCoverage["r
   "/api/modules/administration/contracts/export": "binary",
   "/api/modules/administration/contracts/reference-options": "lookupFragment",
   "/api/modules/administration/erp-diligence/attachments/[attachmentUid]": "binary",
+  "/api/modules/capitalSecurities/governance/currency-options": "lookupFragment",
   "/api/modules/capitalSecurities/investors/export": "binary",
   "/api/modules/docs/company/documents/[key]/office-viewer": "binary",
   "/api/modules/docs/company/permission-actions": "controlPlane",
@@ -548,7 +549,7 @@ function automaticExclusion(route: string): ExcludedCoverage | null {
     return { disposition: "excluded", reason: "binary", description: "文件、预览和导出响应不是稳定行数据集。" };
   }
   if (/\/(?:reference-options|autocomplete|search|group-account-options|entry-source-options|lookup-period)(?:\/|$)/.test(route)
-      || /\/(?:department-codes|position-codes)(?:\/|$)/.test(route)) {
+      || /\/(?:department-codes|position-codes|currency-options)(?:\/|$)/.test(route)) {
     return { disposition: "excluded", reason: "lookupFragment", description: "联想、搜索、编码候选和下拉选项不是完整数据集。" };
   }
   if (route.startsWith("/api/modules/finance/cost/operational-analytics/spaces/")) {
