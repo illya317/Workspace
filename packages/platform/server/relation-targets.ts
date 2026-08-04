@@ -92,6 +92,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     search: async () => [],
     resolve: async () => null,
   },
+  financeCurrencyCatalog: {
+    target: { entity: "FinanceCurrencyCatalog", label: "币种" },
+    search: async () => [],
+    resolve: async () => null,
+  },
   investmentEnterpriseProfile: {
     target: { entity: "InvestmentEnterpriseProfile", label: "投资企业档案" },
     search: async () => [],

@@ -3,7 +3,7 @@ import type { PermissionRegistryActionKey } from "./action-registry";
 export type RelationTargetKind =
   | "company" | "department" | "employee" | "employeePosition" | "employeeProject"
   | "financeAccount" | "financeAssetCategory" | "financeGroupAccount" | "financeVoucherItem"
-  | "financeConsolidationEntrySource" | "investmentEnterpriseProfile" | "meeting" | "meetingActionCandidate" | "meetingDecision"
+  | "financeConsolidationEntrySource" | "financeCurrencyCatalog" | "investmentEnterpriseProfile" | "meeting" | "meetingActionCandidate" | "meetingDecision"
   | "notificationPublication" | "party" | "position" | "positionDescription" | "positionDescriptionRevision"
   | "positionResponsibilityNode" | "project" | "projectMembershipChange" | "projectNotificationRule"
   | "projectNotificationRuleRevision" | "projectNotificationSignal" | "projectPlanPhase"

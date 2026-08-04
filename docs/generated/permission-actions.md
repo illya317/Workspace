@@ -14,7 +14,7 @@
 | 派生空间和流程配置权限 | 派生空间与流程配置资源 |
 | 精确查询单个权限或 API 绑定 | `GET /api/modules/docs/company/permission-actions` |
 
-当前共 20 个 permission action、109 个资源策略、229 个已注册 BusinessAction。
+当前共 20 个 permission action、109 个资源策略、230 个已注册 BusinessAction。
 
 事实来源：`action-registry.ts`、`permission-resource-policy.ts`、`module-registry.ts` 与 `business-action-registry.ts`。业务写入的状态、校验和持久化细节继续以 `action-contracts.md` 为准。
 
@@ -801,7 +801,7 @@ Action 只定义授权类别，不承诺跨资源具有同一个业务结果。�
 | `finance.treasury.read`<br>查看 | 查看该资源允许暴露的列表、详情和只读数据；对象范围仍由 service 与 scope 限制。 | 页面/API guard（无独立 BusinessAction）。 | 可在当前资源配置，也可能从父资源继承。 | `entry` |
 | `finance.treasury.create`<br>新建 | 创建该资源中的新记录或业务草稿。 | 直接执行：创建资金管理记录（`finance.treasury.workspace.create`；POST /api/modules/finance/treasury） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
 | `finance.treasury.update`<br>编辑 | 修改该资源中已经存在且当前状态允许编辑的记录。 | 直接执行：更新资金管理记录（`finance.treasury.workspace.update`；PUT /api/modules/finance/treasury） | 可在当前资源配置，也可能从父资源继承。 | `entry`、`read` |
-| `finance.treasury.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
+| `finance.treasury.export`<br>导出 | 导出、下载、打印或对外发送该资源数据。 | 直接执行：下载利息底稿 Excel（`finance.treasury.interest.export`；GET /api/modules/finance/treasury/export） | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | `entry`、`read` |
 | `finance.treasury.grant`<br>授权 | 管理其他用户、岗位或部门在该资源上的授权；不是业务数据管理员权限。 | ⚠ 未登记具体 BusinessAction；授权前必须继续核对页面/API guard 和 service。 | 当前资源显式配置；不从父资源继承。可授予用户、岗位或部门。 | 无 |
 
 ### 资料库（`library`）

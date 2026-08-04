@@ -217,6 +217,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "server/domain/ledger-", "server/domain/group-", "server/domain/counterparty-",
       "server/schedules/", "types/auxiliary-reclass", "types/group-account", "types/reclass",
     ],
+    interfaceFiles: ["server/ledger/ledger-workbook.ts"],
   }),
   capability("finance", "statements", "报表与合并", {
     prefixes: [
@@ -250,6 +251,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "ui/formatters.test.ts", "ui/formatters.ts", "ui/workbook-download.test.ts", "ui/workbook-download.ts",
     ],
     prefixes: ["ui/components/", "ui/navigation/"],
+    interfaceFiles: ["ui/workbook-download.ts"],
   }),
   capability("finance", "shared-contracts", "财务公共契约", {
     files: [

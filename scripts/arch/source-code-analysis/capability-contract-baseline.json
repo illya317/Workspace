@@ -100,13 +100,6 @@
       "occurrences": 1
     },
     {
-      "sourcePath": "packages/finance/server/assets/export-route-commands.ts",
-      "targetPath": "packages/finance/server/ledger/ledger-workbook.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
       "sourcePath": "packages/finance/server/assets/service.ts",
       "targetPath": "packages/finance/server/group-policy-scope.ts",
       "kind": "valueImport",
@@ -590,13 +583,6 @@
       "occurrences": 1
     },
     {
-      "sourcePath": "packages/finance/ui/assets/useAssetExportAction.ts",
-      "targetPath": "packages/finance/ui/workbook-download.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
       "sourcePath": "packages/finance/ui/budget/BudgetTab.tsx",
       "targetPath": "packages/finance/ui/components/finance-page-spec.ts",
       "kind": "valueImport",
@@ -919,29 +905,8 @@
       "occurrences": 1
     },
     {
-      "sourcePath": "packages/finance/ui/ledger/useLedgerExportAction.ts",
-      "targetPath": "packages/finance/ui/workbook-download.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
       "sourcePath": "packages/finance/ui/ledger/voucherCashFlow.ts",
       "targetPath": "packages/finance/ui/formatters.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
-      "sourcePath": "packages/finance/ui/statements/ConsolidatedReportTab.tsx",
-      "targetPath": "packages/finance/ui/workbook-download.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
-      "sourcePath": "packages/finance/ui/statements/ConsolidationWorksheetTab.tsx",
-      "targetPath": "packages/finance/ui/workbook-download.ts",
       "kind": "valueImport",
       "reason": "crossBranchImplementationDependency",
       "occurrences": 1
@@ -956,13 +921,6 @@
     {
       "sourcePath": "packages/finance/ui/statements/ReportTab.tsx",
       "targetPath": "packages/finance/ui/formatters.ts",
-      "kind": "valueImport",
-      "reason": "crossBranchImplementationDependency",
-      "occurrences": 1
-    },
-    {
-      "sourcePath": "packages/finance/ui/statements/ReportTab.tsx",
-      "targetPath": "packages/finance/ui/workbook-download.ts",
       "kind": "valueImport",
       "reason": "crossBranchImplementationDependency",
       "occurrences": 1
