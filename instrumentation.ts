@@ -13,7 +13,9 @@ export async function register() {
   const { startProjectNotificationScheduler } = await import(
     "@workspace/work/server/project-notification-scheduler"
   );
+  const { startAssetDepreciationScheduler } = await import("@workspace/finance/server/assets/depreciation-scheduler");
   startPermissionReviewScheduler();
   startDataQualityScheduler();
   startProjectNotificationScheduler();
+  startAssetDepreciationScheduler();
 }
