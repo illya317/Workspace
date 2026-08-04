@@ -65,7 +65,7 @@ export function buildConsolidatedPreviewFromBatchSnapshot(
     functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
   }
   if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
-    && (batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage", "historicalInvestment"].includes(rate.rateKind))
+    && (batch.exchangeRates.some((rate) => !["centralParity", "monthlyAverage", "historicalInvestment", "historicalCapitalAmount"].includes(rate.rateKind))
       || !batch.exchangeRates.some((rate) => rate.rateKind === "monthlyAverage"))) {
     return failCommand("当前草稿缺少逐月平均汇率证据，请重新生成合并工作底稿", 409, "exchangeRates");
   }
