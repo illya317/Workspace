@@ -23,6 +23,13 @@ export interface ConsolidationFxValidationFacts {
   }[];
   requiredInvestmentVoucherIds: number[];
   requiredComparativeEntityIds: number[];
+  /** 已由上期已锁定/已发布批次输出覆盖的期间;仅重放链路传入,缺省时全部保持严格校验。 */
+  priorReferenceCoverage?: {
+    entitySnapshotId: number;
+    yearOpening: boolean;
+    comparativePeriod: boolean;
+    monthOpening: boolean;
+  }[];
 }
 
 function daysBefore(targetDate: string, rateDate: string) {
@@ -49,10 +56,14 @@ function cashPointDates(targetDate: string) {
   if (!match) return [];
   const year = Number(match[1]);
   const month = Number(match[2]);
-  return [...new Set([
-    `${year - 1}-12-31`,
-    new Date(Date.UTC(year, month - 1, 0)).toISOString().slice(0, 10),
-  ])];
+  const yearOpening = `${year - 1}-12-31`;
+  const monthOpening = new Date(Date.UTC(year, month - 1, 0)).toISOString().slice(0, 10);
+  return yearOpening === monthOpening
+    ? [{ date: yearOpening, kind: "yearOpening" as const }]
+    : [
+      { date: yearOpening, kind: "yearOpening" as const },
+      { date: monthOpening, kind: "monthOpening" as const },
+    ];
 }
 
 export function validateConsolidationFxFacts(
@@ -77,13 +88,21 @@ export function validateConsolidationFxFacts(
     rate,
     application,
   })));
+  const priorCoverageByEntity = new Map(
+    (facts.priorReferenceCoverage ?? []).map((coverage) => [coverage.entitySnapshotId, coverage]),
+  );
+  const hasComparativePriorReference = (entitySnapshotId: number) =>
+    priorCoverageByEntity.get(entitySnapshotId)?.comparativePeriod === true;
   const cadEntities = facts.entities.filter((entity) => entity.functionalCurrency === "CAD");
   const comparativeEntityIds = new Set(facts.requiredComparativeEntityIds);
   if ([...comparativeEntityIds].some((id) => entityById.get(id)?.functionalCurrency !== "CAD")) {
     return failCommand("比较期汇率要求引用了范围外或非 CAD 实体", 409, "rateApplications");
   }
   for (const entity of cadEntities) {
+    const priorCoverage = priorCoverageByEntity.get(entity.id);
     for (const periodBasis of ["current", "comparative"] as const) {
+      // 比较期已被上期批次输出覆盖的实体不再要求比较期汇率证据。
+      if (periodBasis === "comparative" && priorCoverage?.comparativePeriod) continue;
       const expected = periodBasis === "current" || comparativeEntityIds.has(entity.id);
       const targetDate = periodBasis === "current" ? facts.periodEnd : facts.comparativePeriodEnd;
       const closing = rateApplications.filter(({ application }) =>
@@ -128,7 +147,13 @@ export function validateConsolidationFxFacts(
           return failCommand("CAD 利润表和现金流量表必须逐月绑定唯一的月平均汇率", 409, "rateApplications");
         }
       }
-      for (const cashDate of cashPointDates(targetDate)) {
+      for (const cashPointDateEntry of cashPointDates(targetDate)) {
+        // 期初/月初现金已被上期批次输出覆盖时,对应时点汇率不再要求。
+        if (periodBasis === "current" && priorCoverage) {
+          if (cashPointDateEntry.kind === "yearOpening" && priorCoverage.yearOpening) continue;
+          if (cashPointDateEntry.kind === "monthOpening" && priorCoverage.monthOpening) continue;
+        }
+        const cashDate = cashPointDateEntry.date;
         const cashPoint = rateApplications.filter(({ application }) => (
           application.applicationType === "cashPoint"
           && application.periodBasis === periodBasis
@@ -209,6 +234,10 @@ export function validateConsolidationFxFacts(
     if (applications.has(application.voucherItemId)) {
       return failCommand("同一投资凭证明细在同一期间口径不能重复绑定历史汇率", 409, "rateApplications");
     }
+    if (application.periodBasis === "comparative" && hasComparativePriorReference(application.entitySnapshotId)) {
+      // 比较期已被上期批次输出覆盖的实体不再要求比较期投资历史汇率。
+      continue;
+    }
     if (application.periodBasis === "comparative"
       && (!comparativeEntityIds.has(application.entitySnapshotId)
         || investmentDate > facts.comparativePeriodEnd)) {
@@ -223,6 +252,7 @@ export function validateConsolidationFxFacts(
   const expectedComparativeInvestmentIds = new Set([...currentInvestmentById]
     .filter(([, application]) => (
       comparativeEntityIds.has(application.entitySnapshotId)
+      && !hasComparativePriorReference(application.entitySnapshotId)
       && (application.capitalContributionDate ?? application.voucher!.voucherDate) <= facts.comparativePeriodEnd
     ))
     .map(([id]) => id));

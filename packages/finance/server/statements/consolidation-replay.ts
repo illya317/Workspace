@@ -5,6 +5,7 @@ import type {
   ConsolidationControlDecisionSnapshot,
   ConsolidationEntitySnapshot,
   ConsolidationEntrySnapshot,
+  ConsolidationPriorReferences,
   ConsolidationRateReferenceSnapshot,
   ConsolidationSourceSnapshot,
 } from "@workspace/finance/types";
@@ -16,6 +17,7 @@ import {
   comparativeEntitySnapshotIds,
   comparativePeriodEndDate,
 } from "./consolidation-comparative";
+import { consolidationPriorReferenceCoverage } from "./consolidation-prior-reference";
 import {
   consolidationRateFingerprint,
   consolidationScopeFingerprint,
@@ -56,6 +58,7 @@ export interface ConsolidationReplayPackage {
   approvedEntries: ConsolidationEntrySnapshot[];
   controlDecisions: ConsolidationControlDecisionSnapshot[];
   events: ConsolidationBatchEventSnapshot[];
+  priorReferences?: ConsolidationPriorReferences;
   fingerprintVerification: {
     scope: { stored: string; recomputed: string };
     sources: { stored: string; recomputed: string };
@@ -112,6 +115,7 @@ export function buildConsolidationPreviewPackage(
     approvedEntries: batch.entries.filter((entry) => entry.status === "approved" || entry.status === "draft"),
     controlDecisions: batch.controlDecisions,
     events: batch.events,
+    priorReferences: batch.priorReferences,
     fingerprintVerification: {
       scope: { stored: batch.scopeFingerprint, recomputed: scopeFingerprint },
       sources: { stored: batch.sourceFingerprint, recomputed: sourceFingerprint },
@@ -222,6 +226,7 @@ export function buildConsolidationReplayPackage(
     requiredInvestmentVoucherIds: historicalVoucherIds,
     requiredComparativeEntityIds: comparativeEntitySnapshotIds(batch.sources)
       .filter((entityId) => cadEntityIds.has(entityId)),
+    priorReferenceCoverage: consolidationPriorReferenceCoverage(batch.entities, batch.priorReferences),
   });
   if (!fxValidation.ok) return fxValidation;
   const recomputedScopeFingerprint = consolidationScopeFingerprint(batch.entities);
@@ -244,6 +249,7 @@ export function buildConsolidationReplayPackage(
     approvedEntries,
     controlDecisions: batch.controlDecisions,
     events: orderedEvents,
+    priorReferences: batch.priorReferences,
     fingerprintVerification: {
       scope: { stored: batch.scopeFingerprint, recomputed: recomputedScopeFingerprint },
       sources: { stored: batch.sourceFingerprint, recomputed: recomputedSourceFingerprint },

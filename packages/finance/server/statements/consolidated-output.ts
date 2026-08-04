@@ -185,7 +185,7 @@ export function buildConsolidatedReportOutput(
       if (!entity) return failCommand("个别报表来源引用了范围外主体", 409, "sources");
       const rows = payloadLines(reportType, source.reportPayload);
       if (!rows) return failCommand(`${REPORT_LABELS[reportType]}来源快照不可重放`, 409, "reportPayload");
-      const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, source.reportPayload, rows);
+      const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, source.reportPayload, rows, replay.priorReferences);
       if (!translated.ok) return translated;
       for (const translatedLine of translated.data) {
         const { translationTrace, ...outputLine } = translatedLine;

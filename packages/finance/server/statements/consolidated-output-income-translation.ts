@@ -2,6 +2,92 @@ import type { ConsolidatedOutputLine } from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import type { CashFlowMonthlySource } from "./consolidated-output-cash-flow";
 import { consolidatedMoney as money } from "./consolidated-line-amounts";
+import type { FrozenReportLine } from "./consolidated-output-translation-prior";
+import type { TranslationTracePolicy } from "./consolidated-output-translation-traces";
+import type { ConsolidationReplayPackage } from "./consolidation-replay";
+
+function record(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : null;
+}
+
+function finiteNumber(value: unknown) {
+  if ((typeof value !== "number" && typeof value !== "string") || (typeof value === "string" && !value.trim())) {
+    return null;
+  }
+  const number = Number(value);
+  return Number.isFinite(number) ? number : null;
+}
+
+function payloadMonthlyFlows(reportPayload: unknown): CashFlowMonthlySource[] | null {
+  const envelope = record(reportPayload);
+  const facts = record(envelope?.translationFacts);
+  const monthlyFlows = record(facts?.monthlyFlows);
+  const rows = monthlyFlows?.current;
+  if (!Array.isArray(rows)) return null;
+  return rows.flatMap((value) => {
+    const row = record(value);
+    if (typeof row?.periodEnd !== "string" || !Array.isArray(row.lines)) return [];
+    const lines = row.lines.flatMap((item) => {
+      const line = record(item);
+      const amount = finiteNumber(line?.amount);
+      return typeof line?.lineCode === "string" && amount !== null
+        ? [{ lineCode: line.lineCode, amount }]
+        : [];
+    });
+    return [{ periodEnd: row.periodEnd, lines }];
+  });
+}
+
+function payloadFlowLines(reportPayload: unknown) {
+  const envelope = record(reportPayload);
+  const payload = record(envelope?.payload) ?? envelope;
+  return Array.isArray(payload?.lines) ? payload.lines : null;
+}
+
+function parseFrozenLine(value: unknown): FrozenReportLine | null {
+  const row = record(value);
+  if (!row) return null;
+  const amount = finiteNumber(row.amount);
+  const previousAmount = finiteNumber(row.previousAmount);
+  const lineCode = typeof row.lineCode === "string" ? row.lineCode.trim() : "";
+  const label = typeof row.label === "string" ? row.label.trim() : "";
+  const section = typeof row.section === "string" ? row.section.trim() : "";
+  const side = row.side === "debit" || row.side === "credit" ? row.side : null;
+  if (!lineCode || !label || !section || !side || amount === null || previousAmount === null) return null;
+  return {
+    lineCode,
+    label,
+    code: typeof row.code === "string" && row.code.trim() ? row.code : null,
+    amount,
+    previousAmount,
+    section,
+    side,
+    direction: row.direction === "in" || row.direction === "out" || row.direction === "net" ? row.direction : null,
+    subtract: row.subtract === true,
+    isHeader: row.isHeader === true,
+    isTotal: row.isTotal === true,
+    isGrandTotal: row.isGrandTotal === true,
+  };
+}
+
+/** 未分配利润滚算所需的逐月折算净利润(本期)。 */
+export function translatedEntityNetProfit(
+  sources: ConsolidationReplayPackage["sources"],
+  policy: Extract<TranslationTracePolicy, { currency: "CAD" }>,
+) {
+  const source = sources.find((item) => item.entitySnapshotId === policy.entitySnapshotId && item.reportType === "incomeStatement");
+  const flows = source ? payloadMonthlyFlows(source.reportPayload) : null;
+  if (!flows) return failCommand(`${policy.entityLabel} 缺少未分配利润滚算所需的逐月利润表`, 409, "monthlyFlows");
+  const sourceRows = payloadFlowLines(source?.reportPayload);
+  if (!sourceRows) return failCommand(`${policy.entityLabel} 的利润表来源快照不可重放`, 409, "reportPayload");
+  const definitions = sourceRows.map(parseFrozenLine);
+  if (definitions.some((line) => line === null)) {
+    return failCommand("CAD 利润表来源缺少规范行标识或借贷方向", 409, "reportPayload");
+  }
+  return monthlyTranslatedIncomeAmount(flows, policy.flowRates.current, definitions as FrozenReportLine[], "netProfit");
+}
 
 export interface IncomeTranslationDefinition {
   lineCode: string;

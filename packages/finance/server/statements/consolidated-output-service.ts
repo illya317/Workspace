@@ -23,6 +23,7 @@ import {
   buildConsolidationPreviewPackage,
   buildConsolidationReplayPackage,
 } from "./consolidation-replay";
+import { loadConsolidationPriorReferences } from "./consolidation-prior-reference";
 
 export type ConsolidatedOutputBuildMode = "official" | "lockCandidate";
 
@@ -112,6 +113,7 @@ export async function loadConsolidatedReportOutput(batchId: number) {
   if (!row) return serviceError("合并批次不存在", 404);
   const batch = consolidationBatchSnapshot(row);
   if (row.status !== "locked" && row.status !== "published") {
+    batch.priorReferences = await loadConsolidationPriorReferences(batch);
     const preview = buildConsolidatedPreviewFromBatchSnapshot(batch);
     return preview.ok
       ? serviceOk({ report: preview.data, lifecycle: { status: row.status } })

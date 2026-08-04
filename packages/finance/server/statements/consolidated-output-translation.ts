@@ -1,7 +1,12 @@
-import type { ConsolidatedOutputLine, StatementReportType } from "@workspace/finance/types";
+import type {
+  ConsolidatedOutputLine,
+  ConsolidationPriorReferences,
+  StatementReportType,
+} from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { recomputeBalance } from "./consolidated-output-balance-lines";
 import {
+  monthlyTranslatedAmount,
   reconcileCadCashFlowTranslation,
   type CashFlowMonthlySource,
 } from "./consolidated-output-cash-flow";
@@ -13,15 +18,22 @@ import {
 import { cnyPerForeignUnit, historicalEquityRate } from "./consolidation-frozen-rates";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
 import {
-  monthlyTranslatedIncomeAmount,
   recomputeTranslatedIncome,
+  translatedEntityNetProfit,
 } from "./consolidated-output-income-translation";
 import {
   attachTranslationTraces,
   type TranslationTracePolicy,
 } from "./consolidated-output-translation-traces";
+import {
+  buildPriorReferenceContext,
+  resolvePriorLineReference,
+  translateCashPointLine,
+  type FrozenReportLine,
+} from "./consolidated-output-translation-prior";
 
-type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
+export { monthlyTranslatedAmount } from "./consolidated-output-cash-flow";
+export type { FrozenReportLine } from "./consolidated-output-translation-prior";
 
 const REPORT_LABELS: Record<StatementReportType, string> = {
   balanceSheet: "合并资产负债表",
@@ -88,12 +100,6 @@ function retainedEarningsOpening(reportPayload: unknown) {
     && amount !== null
     ? { openingDate: opening.openingDate, currencyCode: opening.presentationCurrencyCode, amount, evidence: opening.evidence }
     : null;
-}
-
-function payloadFlowLines(reportPayload: unknown) {
-  const envelope = record(reportPayload);
-  const payload = record(envelope?.payload) ?? envelope;
-  return Array.isArray(payload?.lines) ? payload.lines : null;
 }
 
 function parseFrozenLine(value: unknown): FrozenReportLine | null {
@@ -310,59 +316,6 @@ function applyCadTranslationDifference(
   return okCommand(lines);
 }
 
-export function monthlyTranslatedAmount(
-  flows: CashFlowMonthlySource[],
-  rates: ReadonlyMap<string, number>,
-  lineCode: string,
-): DomainValidationResult<{ sourceAmount: number; translatedAmount: number; currentMonthSourceAmount: number; currentMonthAmount: number }> {
-  if (flows.length === 0) return failCommand("CAD 期间发生额缺少逐月来源快照", 409, "monthlyFlows");
-  let sourceAmount = 0;
-  let translatedAmount = 0;
-  for (const month of flows) {
-    const rate = rates.get(month.periodEnd);
-    if (!rate) return failCommand(`CAD 期间发生额缺少 ${month.periodEnd.slice(0, 7)} 月平均汇率`, 409, "rateApplications");
-    const amount = month.lines.find((line) => line.lineCode === lineCode)?.amount;
-    if (amount === undefined) return failCommand(`CAD 月度来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
-    sourceAmount += amount;
-    translatedAmount += money(amount * rate);
-  }
-  const currentMonth = flows.at(-1)!;
-  const currentMonthSourceAmount = currentMonth.lines.find((line) => line.lineCode === lineCode)?.amount;
-  if (currentMonthSourceAmount === undefined) return failCommand(`CAD 当月来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
-  return okCommand({
-    sourceAmount: money(sourceAmount),
-    translatedAmount: money(translatedAmount),
-    currentMonthSourceAmount: money(currentMonthSourceAmount),
-    currentMonthAmount: money(currentMonthSourceAmount * rates.get(currentMonth.periodEnd)!),
-  });
-}
-
-function cashPointDate(year: number, month: number, kind: "yearOpening" | "monthOpening") {
-  if (kind === "yearOpening") return `${year - 1}-12-31`;
-  return new Date(Date.UTC(year, month - 1, 0)).toISOString().slice(0, 10);
-}
-
-function translatedNetProfit(
-  replay: ConsolidationReplayPackage,
-  policy: Extract<EntityTranslationPolicy, { currency: "CAD" }>,
-) {
-  const source = replay.sources.find((item) => item.entitySnapshotId === policy.entitySnapshotId && item.reportType === "incomeStatement");
-  const flows = source ? payloadMonthlyFlows(source.reportPayload, "current") : null;
-  if (!flows) return failCommand(`${policy.entityLabel} 缺少未分配利润滚算所需的逐月利润表`, 409, "monthlyFlows");
-  const sourceRows = payloadFlowLines(source?.reportPayload);
-  if (!sourceRows) return failCommand(`${policy.entityLabel} 的利润表来源快照不可重放`, 409, "reportPayload");
-  const definitions = sourceRows.map(parseFrozenLine);
-  if (definitions.some((line) => line === null)) {
-    return failCommand("CAD 利润表来源缺少规范行标识或借贷方向", 409, "reportPayload");
-  }
-  return monthlyTranslatedIncomeAmount(flows, policy.flowRates.current, definitions as FrozenReportLine[], "netProfit");
-}
-
-function monthEndDate(year: number, month: number) {
-  const day = new Date(Date.UTC(year, month, 0)).getUTCDate();
-  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
-
 export function translateSourceLines(
   replay: ConsolidationReplayPackage,
   entitySnapshotId: number,
@@ -370,9 +323,11 @@ export function translateSourceLines(
   reportType: StatementReportType,
   reportPayload: unknown,
   sourceRows: unknown[],
+  priorReferences?: ConsolidationPriorReferences,
 ): DomainValidationResult<ConsolidatedOutputLine[]> {
   const policy = buildEntityTranslationPolicy(replay, entitySnapshotId, functionalCurrency);
   if (!policy.ok) return policy;
+  const prior = buildPriorReferenceContext({ replay, entitySnapshotId, reportType, priorReferences });
   const translated: ConsolidatedOutputLine[] = [];
   const currentFlows = reportType === "balanceSheet" ? null : payloadMonthlyFlows(reportPayload, "current");
   const comparativeFlows = reportType === "balanceSheet" ? null : payloadMonthlyFlows(reportPayload, "comparative");
@@ -391,7 +346,7 @@ export function translateSourceLines(
     const parsed = parseFrozenLine(rawLine);
     return parsed !== null && parsed.previousAmount !== 0;
   });
-  if (cadFlowPolicy && hasComparativeFlowAmount
+  if (cadFlowPolicy && hasComparativeFlowAmount && !prior.comparativeLines
     && (comparativeFlows === null || cadFlowPolicy.flowRates.comparative.size === 0)) {
     return failCommand(
       `${cadFlowPolicy.entityLabel} 的${REPORT_LABELS[reportType]}含非零上期数，但缺少比较期逐月原币发生额或月平均汇率`,
@@ -413,66 +368,82 @@ export function translateSourceLines(
       if (opening.openingDate !== expectedOpeningDate) {
         return failCommand(`${policy.data.entityLabel} 未分配利润期初基准日期必须为 ${expectedOpeningDate}`, 409, "retainedEarningsOpening");
       }
-      const netProfit = translatedNetProfit(replay, policy.data);
+      const netProfit = translatedEntityNetProfit(replay.sources, policy.data);
       if (!netProfit.ok) return netProfit;
       const unexplainedMovement = money(parsed.amount - parsed.previousAmount - netProfit.data.sourceAmount);
       if (Math.abs(unexplainedMovement) >= 0.01) {
         return failCommand(`${policy.data.entityLabel} 未分配利润存在 ${unexplainedMovement} CAD 的分红或其他变动，但缺少逐笔折算证据`, 409, "retainedEarningsMovements");
       }
+      const priorComparative = resolvePriorLineReference(
+        prior.comparativeLines,
+        parsed.lineCode,
+        parsed.label,
+        parsed.previousAmount,
+        policy.data.entityLabel,
+        "比较期",
+      );
+      if (priorComparative && !priorComparative.ok) return priorComparative;
+      const priorComparativeAmount = priorComparative?.ok
+        ? priorComparative.data.cnyAmount
+        : null;
+      if (priorComparative?.ok && priorComparative.data.referenced) {
+        prior.mark(parsed.lineCode, "comparative");
+      }
       const amount = money(opening.amount + netProfit.data.translatedAmount);
       translated.push({
         ...parsed,
         amount,
-        previousAmount: money(opening.amount),
+        previousAmount: priorComparativeAmount ?? money(opening.amount),
         sourceAmount: amount,
         adjustmentAmount: 0,
-        previousSourceAmount: money(opening.amount),
+        previousSourceAmount: priorComparativeAmount ?? money(opening.amount),
         previousAdjustmentAmount: 0,
       });
       continue;
     }
     if (usesCadFlowTranslation && currentFlows && policy.data.currency === "CAD") {
       if (reportType === "cashFlow" && (parsed.lineCode === "openingCash" || parsed.lineCode === "endingCash")) {
-        const currentYear = replay.batch.year;
-        const comparativeYear = currentYear - 1;
-        const currentDate = parsed.lineCode === "openingCash"
-          ? cashPointDate(currentYear, replay.batch.month, "yearOpening")
-          : monthEndDate(currentYear, replay.batch.month);
-        const comparativeDate = parsed.lineCode === "openingCash"
-          ? cashPointDate(comparativeYear, replay.batch.month, "yearOpening")
-          : monthEndDate(comparativeYear, replay.batch.month);
-        const currentRate = parsed.amount === 0 ? 1
-          : parsed.lineCode === "endingCash" ? policy.data.closingRate : policy.data.cashPointRates.current.get(currentDate);
-        const comparativeRate = parsed.previousAmount === 0 ? 1
-          : parsed.lineCode === "endingCash" ? policy.data.comparativeClosingRate : policy.data.cashPointRates.comparative.get(comparativeDate);
-        const currentMonthDate = cashPointDate(currentYear, replay.batch.month, "monthOpening");
-        const currentMonthRate = (parsed.currentMonthAmount ?? 0) === 0 ? 1
-          : parsed.lineCode === "endingCash" ? policy.data.closingRate : policy.data.cashPointRates.current.get(currentMonthDate);
-        if (!currentRate || !comparativeRate || !currentMonthRate) {
-          return failCommand(`${policy.data.entityLabel} 现金余额缺少对应时点汇率`, 409, "rateApplications");
-        }
-        translated.push({
-          ...parsed,
-          amount: money(parsed.amount * currentRate),
-          ...translatedCurrentMonthAmounts(parsed.currentMonthAmount, currentMonthRate),
-          previousAmount: money(parsed.previousAmount * comparativeRate),
-          sourceAmount: money(parsed.amount * currentRate),
-          adjustmentAmount: 0,
-          previousSourceAmount: money(parsed.previousAmount * comparativeRate),
-          previousAdjustmentAmount: 0,
+        const cashPointLine = translateCashPointLine({
+          parsed,
+          policy: policy.data,
+          year: replay.batch.year,
+          month: replay.batch.month,
+          ctx: prior,
         });
+        if (!cashPointLine.ok) return cashPointLine;
+        translated.push(cashPointLine.data);
         continue;
       }
       const current = monthlyTranslatedAmount(currentFlows, policy.data.flowRates.current, parsed.lineCode);
       if (!current.ok) return current;
-      const comparative = parsed.previousAmount === 0 && !hasComparativeFlowAmount
-        ? okCommand({ sourceAmount: 0, translatedAmount: 0, currentMonthSourceAmount: 0, currentMonthAmount: 0 })
-        : comparativeFlows
-          ? monthlyTranslatedAmount(comparativeFlows, policy.data.flowRates.comparative, parsed.lineCode)
-          : failCommand("CAD 比较期发生额缺少逐月来源快照", 409, "monthlyFlows");
+      const priorComparative = parsed.lineCode === "fxEffect"
+        ? null
+        : resolvePriorLineReference(
+          prior.comparativeLines,
+          parsed.lineCode,
+          parsed.label,
+          parsed.previousAmount,
+          policy.data.entityLabel,
+          "比较期",
+        );
+      if (priorComparative && !priorComparative.ok) return priorComparative;
+      const comparative = priorComparative?.ok
+        ? okCommand({ sourceAmount: parsed.previousAmount, translatedAmount: priorComparative.data.cnyAmount, currentMonthSourceAmount: 0, currentMonthAmount: 0 })
+        : parsed.lineCode === "fxEffect" && prior.comparativeLines
+          ? okCommand({ sourceAmount: 0, translatedAmount: 0, currentMonthSourceAmount: 0, currentMonthAmount: 0 })
+          : parsed.previousAmount === 0 && !hasComparativeFlowAmount
+            ? okCommand({ sourceAmount: 0, translatedAmount: 0, currentMonthSourceAmount: 0, currentMonthAmount: 0 })
+            : comparativeFlows
+              ? monthlyTranslatedAmount(comparativeFlows, policy.data.flowRates.comparative, parsed.lineCode)
+              : failCommand("CAD 比较期发生额缺少逐月来源快照", 409, "monthlyFlows");
       if (!comparative.ok) return comparative;
+      if (priorComparative?.ok && priorComparative.data.referenced) {
+        prior.mark(parsed.lineCode, "comparative");
+      }
       const currentSourceDifference = money(current.data.sourceAmount - parsed.amount);
-      const comparativeSourceDifference = money(comparative.data.sourceAmount - parsed.previousAmount);
+      const comparativeSourceDifference = priorComparative?.ok || (parsed.lineCode === "fxEffect" && prior.comparativeLines)
+        ? 0
+        : money(comparative.data.sourceAmount - parsed.previousAmount);
       if (currentSourceDifference !== 0 || comparativeSourceDifference !== 0) {
         return failCommand(
           `${policy.data.entityLabel} 的${parsed.label}原币逐月发生额与累计报表不一致：本期 ${currentSourceDifference.toFixed(2)}，比较期 ${comparativeSourceDifference.toFixed(2)}；原币差异不得作为折算舍入处理`,
@@ -496,10 +467,25 @@ export function translateSourceLines(
     }
     const rate = rateForSourceLine(policy.data, reportType, parsed, "current");
     if (!rate.ok) return rate;
-    const comparativeRate = rateForSourceLine(policy.data, reportType, parsed, "comparative");
-    if (!comparativeRate.ok) return comparativeRate;
+    const priorComparative = resolvePriorLineReference(
+      prior.comparativeLines,
+      parsed.lineCode,
+      parsed.label,
+      parsed.previousAmount,
+      policy.data.currency === "CAD" ? policy.data.entityLabel : String(entitySnapshotId),
+      "比较期",
+    );
+    if (priorComparative && !priorComparative.ok) return priorComparative;
+    let previousAmount: number;
+    if (priorComparative?.ok) {
+      previousAmount = priorComparative.data.cnyAmount;
+      if (priorComparative.data.referenced) prior.mark(parsed.lineCode, "comparative");
+    } else {
+      const comparativeRate = rateForSourceLine(policy.data, reportType, parsed, "comparative");
+      if (!comparativeRate.ok) return comparativeRate;
+      previousAmount = money(parsed.previousAmount * comparativeRate.data);
+    }
     const amount = money(parsed.amount * rate.data);
-    const previousAmount = money(parsed.previousAmount * comparativeRate.data);
     translated.push({
       ...parsed,
       amount,
@@ -542,5 +528,6 @@ export function translateSourceLines(
     sourceByCode,
     lines: translatedResult,
     hasRetainedEarningsOpening: retainedEarningsOpening(reportPayload) !== null,
+    priorReferencedPeriods: prior.referencedPeriods,
   }));
 }

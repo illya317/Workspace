@@ -13,7 +13,8 @@ export type ConsolidatedOutputRateBasis =
   | "cashPoint"
   | "rolling"
   | "balancing"
-  | "aggregate";
+  | "aggregate"
+  | "priorReference";
 
 export interface ConsolidatedOutputTranslationPeriodTrace {
   sourceAmount: number;

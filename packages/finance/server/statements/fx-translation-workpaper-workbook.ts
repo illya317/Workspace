@@ -31,6 +31,7 @@ const BASIS_LABELS = {
   rolling: "期初人民币加逐月利润滚算",
   balancing: "折算平衡差额",
   aggregate: "汇总派生",
+  priorReference: "上期已折算数",
 } as const;
 
 function foreignEntities(statement: ConsolidatedStatementOutput) {

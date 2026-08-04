@@ -139,6 +139,33 @@ function recomputeTranslatedLines(entityLabel: string, lines: ConsolidatedOutput
   return okCommand(lines);
 }
 
+export function monthlyTranslatedAmount(
+  flows: CashFlowMonthlySource[],
+  rates: ReadonlyMap<string, number>,
+  lineCode: string,
+): DomainValidationResult<{ sourceAmount: number; translatedAmount: number; currentMonthSourceAmount: number; currentMonthAmount: number }> {
+  if (flows.length === 0) return failCommand("CAD 期间发生额缺少逐月来源快照", 409, "monthlyFlows");
+  let sourceAmount = 0;
+  let translatedAmount = 0;
+  for (const month of flows) {
+    const rate = rates.get(month.periodEnd);
+    if (!rate) return failCommand(`CAD 期间发生额缺少 ${month.periodEnd.slice(0, 7)} 月平均汇率`, 409, "rateApplications");
+    const amount = month.lines.find((line) => line.lineCode === lineCode)?.amount;
+    if (amount === undefined) return failCommand(`CAD 月度来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
+    sourceAmount += amount;
+    translatedAmount += money(amount * rate);
+  }
+  const currentMonth = flows.at(-1)!;
+  const currentMonthSourceAmount = currentMonth.lines.find((line) => line.lineCode === lineCode)?.amount;
+  if (currentMonthSourceAmount === undefined) return failCommand(`CAD 当月来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
+  return okCommand({
+    sourceAmount: money(sourceAmount),
+    translatedAmount: money(translatedAmount),
+    currentMonthSourceAmount: money(currentMonthSourceAmount),
+    currentMonthAmount: money(currentMonthSourceAmount * rates.get(currentMonth.periodEnd)!),
+  });
+}
+
 export function reconcileCadCashFlowTranslation(input: {
   entityLabel: string;
   currentFlows: readonly CashFlowMonthlySource[];

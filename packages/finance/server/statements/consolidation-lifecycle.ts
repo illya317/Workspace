@@ -13,6 +13,7 @@ import {
   loadConsolidationBatchRow,
 } from "./consolidation-dto";
 import { prepareLockedConsolidatedOutputSnapshot } from "./consolidated-output-service";
+import { loadConsolidationPriorReferences } from "./consolidation-prior-reference";
 import {
   persistConsolidatedOutputSnapshot,
   readConsolidatedOutputSnapshot,
@@ -183,6 +184,7 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
   let preparedOutputSnapshot: PreparedConsolidatedOutputSnapshot | null = null;
   if (command.action === "lock") {
     const batchSnapshot = consolidationBatchSnapshot(batch);
+    batchSnapshot.priorReferences = await loadConsolidationPriorReferences(batchSnapshot);
     const confirmedSnapshot = batch.status === "draft" ? {
       ...batchSnapshot,
       entries: batchSnapshot.entries.map((entry) => entry.status === "draft" ? {

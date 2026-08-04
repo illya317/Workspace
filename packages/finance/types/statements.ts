@@ -4,10 +4,12 @@ import type {
   StatementReportType,
 } from "./statement-shared";
 import type { ConsolidationAdjustmentComparison } from "./consolidation-adjustment";
+import type { ConsolidationPriorReferences } from "./consolidation-prior-reference";
 import type { StatementPeriodKind } from "./statement-period";
 
 export type { ConsolidationEntryType, StatementReportType } from "./statement-shared";
 export type * from "./consolidated-output";
+export type * from "./consolidation-prior-reference";
 
 export type ConsolidationReadinessStatus = "ready" | "attention" | "blocked";
 export type ConsolidationBatchStatus = "draft" | "submitted" | "reviewed" | "locked" | "published";
@@ -395,6 +397,8 @@ export interface ConsolidationBatchSnapshot {
   entries: ConsolidationEntrySnapshot[];
   controlDecisions: ConsolidationControlDecisionSnapshot[];
   events: ConsolidationBatchEventSnapshot[];
+  /** 上期已锁定/已发布批次输出引用;undefined 时比较期与期初全部走汇率折算,行为不变。 */
+  priorReferences?: ConsolidationPriorReferences;
 }
 
 export interface ConsolidationBatchVersionSummary {

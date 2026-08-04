@@ -50,6 +50,9 @@ function orderById<T extends { id: number }>(rows: T[]) {
 function reportInputFactsV2(batch: ConsolidationBatchSnapshot) {
   const {
     events: _events,
+    // priorReferences 由上期已锁定批次派生,不属于本批次冻结输入,且读取冻结快照时不会重新加载,
+    // 必须排除在输入指纹之外,否则冻结输出会因指纹不一致而不可读。
+    priorReferences: _priorReferences,
     entities,
     sources,
     exchangeRates,
