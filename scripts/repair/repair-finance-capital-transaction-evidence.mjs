@@ -48,10 +48,11 @@ function jsonObject(value, label) {
   return value;
 }
 
-function validateFact(value) {
+function validateFact(value, schemaVersion) {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("capital transaction evidence fact is invalid");
   exactKeys(value, [
     "accountCode",
+    ...(schemaVersion === 2 ? ["actualExchangeRateDate"] : []),
     "bookedAmountCny",
     "companyCode",
     "contributionDate",
@@ -70,6 +71,9 @@ function validateFact(value) {
   if (!validDate(value.voucherDate) || !validDate(value.contributionDate)) {
     fail("capital transaction evidence dates are invalid");
   }
+  if (schemaVersion === 2 && value.actualExchangeRateDate !== null && !validDate(value.actualExchangeRateDate)) {
+    fail("capital transaction evidence actualExchangeRateDate is invalid");
+  }
   if (value.originalCurrency !== "CAD") fail("capital transaction evidence originalCurrency must be CAD");
   if (value.targetLineCode !== "paidInCapital" && value.targetLineCode !== "capitalReserve") {
     fail("capital transaction evidence targetLineCode is invalid");
@@ -83,11 +87,11 @@ function validateFact(value) {
 export function validateFinanceCapitalTransactionEvidenceInput(value) {
   if (!value || typeof value !== "object" || Array.isArray(value)) fail("capital transaction evidence input is invalid");
   exactKeys(value, ["facts", "kind", "schemaVersion"], "capital transaction evidence input");
-  if (value.kind !== INPUT_KIND || value.schemaVersion !== 1
+  if (value.kind !== INPUT_KIND || (value.schemaVersion !== 1 && value.schemaVersion !== 2)
     || !Array.isArray(value.facts) || value.facts.length < 1 || value.facts.length > 500) {
     fail("capital transaction evidence input is invalid");
   }
-  const facts = value.facts.map(validateFact);
+  const facts = value.facts.map((fact) => validateFact(fact, value.schemaVersion));
   const keys = facts.map((fact) => [
     fact.companyCode,
     fact.voucherDate,
@@ -113,6 +117,11 @@ export function mergeCapitalTransactionEvidence(sourceMetadata, fact) {
     && evidence.actualContributionDate !== fact.contributionDate) {
     fail("voucher item already contains a different actual contribution date");
   }
+  if (fact.actualExchangeRateDate
+    && evidence.actualExchangeRateDate !== undefined
+    && evidence.actualExchangeRateDate !== fact.actualExchangeRateDate) {
+    fail("voucher item already contains a different actual exchange-rate date");
+  }
   if (evidence.matching !== undefined && canonicalJson(evidence.matching) !== canonicalJson(matching)) {
     fail("voucher item already contains different capital matching evidence");
   }
@@ -125,6 +134,7 @@ export function mergeCapitalTransactionEvidence(sourceMetadata, fact) {
     evidence: {
       ...evidence,
       actualContributionDate: fact.contributionDate,
+      ...(fact.actualExchangeRateDate ? { actualExchangeRateDate: fact.actualExchangeRateDate } : {}),
       matching,
       capitalTransactionEvidence: fact.evidence,
     },

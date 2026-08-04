@@ -7,7 +7,9 @@ import type { ConsolidationRateFact } from "./consolidation-snapshots";
 import { ConsolidationSnapshotError } from "./consolidation-snapshots";
 import { comparativePeriodEndDate } from "./consolidation-comparative";
 import type { CadInvestmentVoucherFact, ConsolidationCurrencyPolicyFact, ConsolidationRateApplicationFact, HistoricalCapitalFact } from "./consolidation-rate-application-types";
+import { parseVoucherMatchingEvidence, preferredVoucherExchangeRateDate } from "./consolidation-voucher-matching-evidence";
 export type { ConsolidationCurrencyPolicyFact, ConsolidationRateApplicationFact } from "./consolidation-rate-application-types";
+export { parseVoucherMatchingEvidence, preferredVoucherExchangeRateDate } from "./consolidation-voucher-matching-evidence";
 
 export function buildHistoricalCapitalRateApplications(input: {
   facts: HistoricalCapitalFact[];
@@ -343,51 +345,6 @@ export function resolveCadInvestmentOriginalAmount(input: {
   return bankFlow ? originalAmount(bankFlow) : cadAmountFromDescription(input.investment.description, input.voucherDescription);
 }
 
-interface VoucherMatchingEvidence {
-  label: string;
-  companyCode: string;
-  lineCode: "paidInCapital" | "capitalReserve";
-  currencyCode: "CAD";
-  originalAmount: number;
-  historicalRate: number | null;
-  actualContributionDate: string;
-}
-
-function jsonRecord(value: unknown): Record<string, unknown> | null {
-  return value && typeof value === "object" && !Array.isArray(value)
-    ? value as Record<string, unknown>
-    : null;
-}
-
-export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMatchingEvidence | null {
-  const metadata = jsonRecord(sourceMetadata);
-  const evidence = jsonRecord(metadata?.evidence);
-  const matching = jsonRecord(evidence?.matching);
-  if (!matching
-    || typeof matching.label !== "string" || !matching.label.trim()
-    || typeof matching.companyCode !== "string" || !matching.companyCode.trim()
-    || (matching.lineCode !== "paidInCapital" && matching.lineCode !== "capitalReserve")
-    || matching.currencyCode !== "CAD"
-    || typeof matching.originalAmount !== "number" || !Number.isFinite(matching.originalAmount) || matching.originalAmount <= 0
-    || (matching.historicalRate !== undefined
-      && (typeof matching.historicalRate !== "number" || !Number.isFinite(matching.historicalRate) || matching.historicalRate <= 0))) {
-    return null;
-  }
-  const actualContributionDate = typeof evidence?.actualContributionDate === "string"
-    ? evidence.actualContributionDate
-    : null;
-  if (!actualContributionDate || !/^\d{4}-\d{2}-\d{2}$/.test(actualContributionDate)) return null;
-  return {
-    label: matching.label.trim(),
-    companyCode: matching.companyCode.trim(),
-    lineCode: matching.lineCode,
-    currencyCode: matching.currencyCode,
-    originalAmount: money(matching.originalAmount),
-    historicalRate: typeof matching.historicalRate === "number" ? matching.historicalRate : null,
-    actualContributionDate,
-  };
-}
-
 export async function loadCadInvestmentVoucherFacts(
   companyCodes: string[],
   periodEnd: string,
@@ -444,7 +401,7 @@ export async function loadCadInvestmentVoucherFacts(
       matchingCompanyCode: matching?.companyCode ?? null,
       matchingLineCode: matching?.lineCode ?? null,
       matchingLabel: matching?.label ?? null,
-      capitalContributionDate: matching?.actualContributionDate ?? null,
+      capitalContributionDate: preferredVoucherExchangeRateDate(matching),
     }];
   });
 }

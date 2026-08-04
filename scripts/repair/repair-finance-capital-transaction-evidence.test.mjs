@@ -15,6 +15,7 @@ const fact = {
   originalCurrency: "CAD",
   originalAmount: 100,
   contributionDate: "2025-03-14",
+  actualExchangeRateDate: "2025-03-12",
   targetCompanyCode: "ZX05",
   targetLineCode: "capitalReserve",
   label: "境外公司资本公积",
@@ -24,10 +25,20 @@ const fact = {
 test("capital transaction evidence input accepts a strict voucher target", () => {
   const input = validateFinanceCapitalTransactionEvidenceInput({
     kind: "finance-capital-transaction-evidence",
-    schemaVersion: 1,
+    schemaVersion: 2,
     facts: [fact],
   });
   assert.equal(input.facts[0]?.originalAmount, 100);
+});
+
+test("capital transaction evidence input preserves schema v1 compatibility", () => {
+  const { actualExchangeRateDate: _actualExchangeRateDate, ...legacyFact } = fact;
+  const input = validateFinanceCapitalTransactionEvidenceInput({
+    kind: "finance-capital-transaction-evidence",
+    schemaVersion: 1,
+    facts: [legacyFact],
+  });
+  assert.equal(input.facts[0]?.contributionDate, "2025-03-14");
 });
 
 test("capital transaction evidence merges matching facts without removing imported metadata", () => {
@@ -35,6 +46,7 @@ test("capital transaction evidence merges matching facts without removing import
     ccode_equal: "1511",
     evidence: {
       actualContributionDate: "2025-03-14",
+      actualExchangeRateDate: "2025-03-12",
       matching: {
         label: "境外公司资本公积",
         companyCode: "ZX05",
@@ -59,13 +71,19 @@ test("capital transaction evidence refuses to overwrite different matching evide
         originalAmount: 100,
       },
     },
-  }, fact), /different capital matching evidence/);
+}, fact), /different capital matching evidence/);
+});
+
+test("capital transaction evidence refuses to overwrite a different actual exchange-rate date", () => {
+  assert.throws(() => mergeCapitalTransactionEvidence({
+    evidence: { actualContributionDate: "2025-03-14", actualExchangeRateDate: "2025-03-11" },
+  }, fact), /different actual exchange-rate date/);
 });
 
 test("capital transaction evidence rejects duplicate voucher targets", () => {
   assert.throws(() => validateFinanceCapitalTransactionEvidenceInput({
     kind: "finance-capital-transaction-evidence",
-    schemaVersion: 1,
+    schemaVersion: 2,
     facts: [fact, { ...fact }],
   }), /duplicate targets/);
 });

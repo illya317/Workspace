@@ -6,6 +6,7 @@ import {
   aggregateHistoricalCapitalFacts,
   cadAmountFromDescription,
   parseVoucherMatchingEvidence,
+  preferredVoucherExchangeRateDate,
   resolveCadInvestmentOriginalAmount,
   selectCapitalRateEvidence,
 } from "./consolidation-rate-applications";
@@ -52,6 +53,7 @@ test("reads an explicit consolidation match from voucher evidence", () => {
     originalAmount: 100_000,
     historicalRate: 5.05056,
     actualContributionDate: "2018-02-13",
+    actualExchangeRateDate: null,
   });
   assert.equal(parseVoucherMatchingEvidence({ evidence: { matching: { label: "加拿大" } } }), null);
   assert.equal(parseVoucherMatchingEvidence({
@@ -66,6 +68,20 @@ test("reads an explicit consolidation match from voucher evidence", () => {
       },
     },
   })?.historicalRate, null);
+  const explicitRateDate = parseVoucherMatchingEvidence({
+    evidence: {
+      actualContributionDate: "2026-02-24",
+      actualExchangeRateDate: "2026-02-14",
+      matching: {
+        label: "加拿大资本公积",
+        companyCode: "05",
+        lineCode: "capitalReserve",
+        currencyCode: "CAD",
+        originalAmount: 19_865.61,
+      },
+    },
+  });
+  assert.equal(preferredVoucherExchangeRateDate(explicitRateDate), "2026-02-14");
 });
 
 test("complete voucher-level CAD evidence replaces aggregate capital reserve but preserves paid-in fallback", () => {
