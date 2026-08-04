@@ -18,7 +18,7 @@ import {
 } from "./consolidation-workpaper-model";
 import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
-import { downloadStatementWorkbook } from "./ConsolidationWorksheetTab";
+import { downloadFinanceWorkbook } from "../workbook-download";
 
 const COLUMNS: DataSurfaceColumnSpec<ConsolidationFxTranslationRow>[] = [
   { key: "company", label: "外币公司", required: true, width: "lg", cell: (row) => row.companyLabel },
@@ -44,7 +44,7 @@ export function FxTranslationWorksheetTab(props: ConsolidationTabProps) {
     if (!canExport || !batch || !data) return;
     setDownloading(true);
     try {
-      await downloadStatementWorkbook(
+      await downloadFinanceWorkbook(
         workspacePath(`/api/modules/finance/statements/consolidation/batches/${batch.id}/report/export?artifact=fxWorkpaper`),
         `${parentName}-${data.scope.year}.${String(data.scope.month).padStart(2, "0")}-外币报表折算底稿.xlsx`,
       );

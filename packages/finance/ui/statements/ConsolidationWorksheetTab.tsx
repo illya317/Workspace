@@ -28,10 +28,6 @@ import {
 import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { downloadFinanceWorkbook } from "../workbook-download";
-
-export function downloadStatementWorkbook(...args: Parameters<typeof downloadFinanceWorkbook>) {
-  return downloadFinanceWorkbook(...args);
-}
 import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
 
 const ENTRY_EFFECT_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperEntryEffect>[] = [
