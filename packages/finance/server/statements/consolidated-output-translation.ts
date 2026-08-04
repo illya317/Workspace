@@ -307,7 +307,7 @@ function applyCadTranslationDifference(
   return okCommand(lines);
 }
 
-function monthlyTranslatedAmount(
+export function monthlyTranslatedAmount(
   flows: CashFlowMonthlySource[],
   rates: ReadonlyMap<string, number>,
   lineCode: string,
@@ -321,7 +321,7 @@ function monthlyTranslatedAmount(
     const amount = month.lines.find((line) => line.lineCode === lineCode)?.amount;
     if (amount === undefined) return failCommand(`CAD 月度来源缺少报表行 ${lineCode}`, 409, "monthlyFlows");
     sourceAmount += amount;
-    translatedAmount += amount * rate;
+    translatedAmount += money(amount * rate);
   }
   const currentMonth = flows.at(-1)!;
   const currentMonthSourceAmount = currentMonth.lines.find((line) => line.lineCode === lineCode)?.amount;
