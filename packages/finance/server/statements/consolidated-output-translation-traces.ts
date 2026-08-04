@@ -50,6 +50,7 @@ export function attachTranslationTraces(input: {
   sourceByCode: ReadonlyMap<string, TranslationSourceLine>;
   lines: ConsolidatedOutputLine[];
   hasRetainedEarningsOpening: boolean;
+  priorReferencedPeriods?: ReadonlyMap<string, ReadonlySet<"current" | "currentMonth" | "comparative">>;
 }) {
   const currentMonthEnd = monthEndDate(input.year, input.month);
   return input.lines.map((line) => {
@@ -70,7 +71,9 @@ export function attachTranslationTraces(input: {
       };
     }
 
-    const aggregate = line.isHeader || line.isTotal || line.isGrandTotal;
+    const cashPointLine = input.reportType === "cashFlow"
+      && (line.lineCode === "openingCash" || line.lineCode === "endingCash");
+    const aggregate = !cashPointLine && (line.isHeader || line.isTotal || line.isGrandTotal);
     let currentBasis: ConsolidatedOutputRateBasis = "closing";
     let currentRate: number | null = input.policy.closingRate;
     let comparativeBasis: ConsolidatedOutputRateBasis = "closing";
@@ -108,6 +111,20 @@ export function attachTranslationTraces(input: {
       currentRate = comparativeRate = null;
       currentMonthBasis = "monthlyAverage";
       currentMonthRate = input.policy.flowRates.current.get(currentMonthEnd) ?? null;
+    }
+
+    const priorReferenced = input.priorReferencedPeriods?.get(line.lineCode);
+    if (priorReferenced?.has("current")) {
+      currentBasis = "priorReference";
+      currentRate = null;
+    }
+    if (priorReferenced?.has("currentMonth")) {
+      currentMonthBasis = "priorReference";
+      currentMonthRate = null;
+    }
+    if (priorReferenced?.has("comparative")) {
+      comparativeBasis = "priorReference";
+      comparativeRate = null;
     }
 
     return {
