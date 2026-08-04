@@ -143,6 +143,11 @@ export const DATA_RELEASE_REFERENCE_CONTRACTS = Object.freeze({
       { sourceField: "accountCode", lookup: "FinanceAccount.code in voucher period scope", destination: "FinanceVoucherItem.accountId", disposition: "raw_with_fk" },
     ],
   },
+  "finance-capital-transaction-evidence-v1": {
+    references: [
+      { sourceField: "companyCode", lookup: "Company.code", destination: "FinanceVoucher.companyId", disposition: "raw_with_fk" },
+    ],
+  },
   "finance-consolidation-entry-migration-v1": {
     noReferenceFieldsReason: "Maintenance payload addresses existing consolidation batches and snapshots; company and account identities are re-read from database FKs.",
   },

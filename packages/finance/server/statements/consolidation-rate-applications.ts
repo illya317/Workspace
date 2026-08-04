@@ -63,6 +63,42 @@ function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
+export function selectCapitalRateEvidence<T extends { companyCode: string }>(input: {
+  historicalCapitalFacts: HistoricalCapitalFact[];
+  mappedInvestments: Array<{ investment: CadInvestmentVoucherFact; entity: T }>;
+}) {
+  const companiesWithCapitalFacts = new Set(input.historicalCapitalFacts.map((fact) => fact.companyCode));
+  const reserveFactTotalByCompany = new Map<string, number>();
+  const reserveInvestmentTotalByCompany = new Map<string, number>();
+  for (const fact of input.historicalCapitalFacts) {
+    if (fact.lineCode !== "capitalReserve") continue;
+    const total = (reserveFactTotalByCompany.get(fact.companyCode) ?? 0) + fact.originalAmount;
+    reserveFactTotalByCompany.set(fact.companyCode, money(total));
+  }
+  for (const { investment, entity } of input.mappedInvestments) {
+    if (investment.matchingLineCode !== "capitalReserve" || !investment.originalAmount) continue;
+    const total = (reserveInvestmentTotalByCompany.get(entity.companyCode) ?? 0) + investment.originalAmount;
+    reserveInvestmentTotalByCompany.set(entity.companyCode, money(total));
+  }
+  const transactionCoveredCompanies = new Set([...reserveInvestmentTotalByCompany].flatMap(([companyCode, total]) => {
+    const historicalTotal = reserveFactTotalByCompany.get(companyCode);
+    return total > 0 && (historicalTotal === undefined || money(historicalTotal) === money(total))
+      ? [companyCode]
+      : [];
+  }));
+  return {
+    historicalCapitalFacts: input.historicalCapitalFacts.filter((fact) => (
+      fact.lineCode !== "capitalReserve" || !transactionCoveredCompanies.has(fact.companyCode)
+    )),
+    voucherInvestments: input.mappedInvestments.filter(({ investment, entity }) => (
+      transactionCoveredCompanies.has(entity.companyCode)
+        ? investment.matchingLineCode === "capitalReserve"
+        : !companiesWithCapitalFacts.has(entity.companyCode)
+    )),
+    transactionCoveredCompanies,
+  };
+}
+
 function isPostedVoucher(voucher: { status: string; sourcePosted: boolean | null }) {
   return voucher.sourcePosted === true || voucher.status === "posted";
 }
@@ -313,7 +349,7 @@ interface VoucherMatchingEvidence {
   lineCode: "paidInCapital" | "capitalReserve";
   currencyCode: "CAD";
   originalAmount: number;
-  historicalRate: number;
+  historicalRate: number | null;
   actualContributionDate: string;
 }
 
@@ -333,7 +369,8 @@ export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMa
     || (matching.lineCode !== "paidInCapital" && matching.lineCode !== "capitalReserve")
     || matching.currencyCode !== "CAD"
     || typeof matching.originalAmount !== "number" || !Number.isFinite(matching.originalAmount) || matching.originalAmount <= 0
-    || typeof matching.historicalRate !== "number" || !Number.isFinite(matching.historicalRate) || matching.historicalRate <= 0) {
+    || (matching.historicalRate !== undefined
+      && (typeof matching.historicalRate !== "number" || !Number.isFinite(matching.historicalRate) || matching.historicalRate <= 0))) {
     return null;
   }
   const actualContributionDate = typeof evidence?.actualContributionDate === "string"
@@ -346,7 +383,7 @@ export function parseVoucherMatchingEvidence(sourceMetadata: unknown): VoucherMa
     lineCode: matching.lineCode,
     currencyCode: matching.currencyCode,
     originalAmount: money(matching.originalAmount),
-    historicalRate: matching.historicalRate,
+    historicalRate: typeof matching.historicalRate === "number" ? matching.historicalRate : null,
     actualContributionDate,
   };
 }

@@ -78,6 +78,65 @@ test("positive remittance difference is OCI on the credit side", () => {
   assert.equal(entry?.lines[2]?.credit, 20);
 });
 
+test("voucher-level capital reserve can coexist with historical paid-in capital without duplicate investment elimination", () => {
+  const input = batch(5, 520);
+  input.entities[1]!.functionalCurrency = "CAD";
+  input.entities[1]!.directParentCompanyId = 11;
+  input.sources = [{
+    entitySnapshotId: 2,
+    reportType: "balanceSheet",
+    reportPayload: { payload: { equity: [{ lineCode: "paidInCapital", amount: 100 }] } },
+  }] as never;
+  input.exchangeRates.push({
+    id: 8,
+    exchangeRateId: 80,
+    exchangeRateVersion: 1,
+    baseCurrency: "CAD",
+    quoteCurrency: "CNY",
+    rateKind: "historicalCapitalAmount",
+    rateDate: "2020-01-01",
+    rate: 5.05,
+    sourceUrl: "https://example.test/paid-in",
+    publishedAt: null,
+    recordedBy: 9,
+    recordedAt: "2025-03-14T08:00:00.000Z",
+    applications: [{
+      applicationType: "historicalCapital",
+      periodBasis: "current",
+      entitySnapshotId: 2,
+      voucherItemId: null,
+      targetDate: "2020-01-01",
+      evidence: "paid in opening",
+      capitalOriginalAmount: 100,
+      capitalHistoricalAmountCny: 505,
+      capitalEvidenceKind: "openingBalance",
+      capitalEvidenceDate: "2020-01-01",
+      capitalContributionDate: null,
+      capitalLineCode: "paidInCapital",
+      voucher: null,
+    }],
+  });
+  const fact = (itemId: number, signedAmount: number) => ({
+    itemId, voucherId: itemId + 100, voucherNo: `记-${itemId}`, voucherDate: "2025-03-14",
+    companyId: 11, counterpartyCompanyId: 22, accountCode: "1511", accountName: "长期股权投资",
+    description: "加拿大投资", lineCode: "longTermInvest", signedAmount, currencyCode: "CNY",
+    sourceFingerprint: `voucher-${itemId}`, investmentRole: "investment" as const,
+  });
+  const group = {
+    category: "investmentEquity", generationKey: "investmentEquity:relationship:11:22", status: "unresolved",
+    leftCompanyId: 11, rightCompanyId: 22, leftFacts: [fact(101, 520), fact(102, 505)], rightFacts: [],
+    leftNetAmount: 1025, rightNetAmount: 0, matchedAmount: 0, differenceAmount: 0,
+    matchingRule: "fixture", matchingVersion: "fixture-v1", differenceResolution: null,
+    comparisonCurrencyCode: null, requiredActions: ["translateToCny"], ownershipShareRatio: 1,
+  } satisfies ConsolidationVoucherMatchGroup;
+
+  const entries = buildRemittanceFxEntries(input, [group]);
+  assert.equal(entries.length, 2);
+  assert.deepEqual(entries.map((entry) => entry.lines.filter((line) => line.lineCode === "longTermInvest").map((line) => line.sourceVoucherItemId)), [[101], [102]]);
+  assert.deepEqual(entries.flatMap((entry) => entry.lines.filter((line) => line.lineCode === "capitalReserve").map((line) => line.debit)), [500]);
+  assert.deepEqual(entries.flatMap((entry) => entry.lines.filter((line) => line.lineCode === "paidInCapital").map((line) => line.debit)), [505]);
+});
+
 test("historical capital rates generate a partial-ownership Canada elimination voucher", () => {
   const input = {
     entities: [

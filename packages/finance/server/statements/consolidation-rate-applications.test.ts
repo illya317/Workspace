@@ -7,6 +7,7 @@ import {
   cadAmountFromDescription,
   parseVoucherMatchingEvidence,
   resolveCadInvestmentOriginalAmount,
+  selectCapitalRateEvidence,
 } from "./consolidation-rate-applications";
 
 test("reads CAD remittance amounts only from explicit original-currency evidence", () => {
@@ -53,6 +54,52 @@ test("reads an explicit consolidation match from voucher evidence", () => {
     actualContributionDate: "2018-02-13",
   });
   assert.equal(parseVoucherMatchingEvidence({ evidence: { matching: { label: "加拿大" } } }), null);
+  assert.equal(parseVoucherMatchingEvidence({
+    evidence: {
+      actualContributionDate: "2025-03-14",
+      matching: {
+        label: "加拿大资本公积",
+        companyCode: "05",
+        lineCode: "capitalReserve",
+        currencyCode: "CAD",
+        originalAmount: 100,
+      },
+    },
+  })?.historicalRate, null);
+});
+
+test("complete voucher-level CAD evidence replaces aggregate capital reserve but preserves paid-in fallback", () => {
+  const historicalCapitalFacts = [
+    {
+      sourceRecordId: 1, companyCode: "C05", targetDate: "2020-01-01", capitalEvidenceKind: "openingBalance" as const,
+      capitalEvidenceDate: "2020-01-01", capitalContributionDate: null, originalAmount: 100, historicalAmountCny: 505,
+      evidence: "paid in", basis: "opening" as const, lineCode: "paidInCapital" as const,
+    },
+    {
+      sourceRecordId: 2, companyCode: "C05", targetDate: "2020-01-01", capitalEvidenceKind: "openingBalance" as const,
+      capitalEvidenceDate: "2020-01-01", capitalContributionDate: null, originalAmount: 150, historicalAmountCny: 750,
+      evidence: "reserve", basis: "opening" as const, lineCode: "capitalReserve" as const,
+    },
+  ];
+  const investment = (id: number, originalAmount: number) => ({
+    id, companyCode: "P01", voucherNo: `记-${id}`, voucherDate: "2025-03-14", description: "投资",
+    accountCode: "1511", bookedAmountCny: originalAmount * 5, currencyCode: "CAD", originalAmount,
+    historicalRate: null, matchingCompanyCode: "C05", matchingLineCode: "capitalReserve" as const,
+    matchingLabel: "加拿大资本公积", capitalContributionDate: "2025-03-14",
+  });
+  const complete = selectCapitalRateEvidence({
+    historicalCapitalFacts,
+    mappedInvestments: [60, 90].map((amount, index) => ({ investment: investment(index + 10, amount), entity: { companyCode: "C05" } })),
+  });
+  assert.deepEqual(complete.historicalCapitalFacts.map((fact) => fact.lineCode), ["paidInCapital"]);
+  assert.deepEqual(complete.voucherInvestments.map(({ investment: row }) => row.originalAmount), [60, 90]);
+
+  const partial = selectCapitalRateEvidence({
+    historicalCapitalFacts,
+    mappedInvestments: [{ investment: investment(20, 60), entity: { companyCode: "C05" } }],
+  });
+  assert.deepEqual(partial.historicalCapitalFacts.map((fact) => fact.lineCode), ["paidInCapital", "capitalReserve"]);
+  assert.equal(partial.voucherInvestments.length, 0);
 });
 
 test("aggregates opening capital and posted capital movements by company and occurrence date", () => {

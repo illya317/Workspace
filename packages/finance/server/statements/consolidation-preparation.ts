@@ -28,6 +28,7 @@ import {
   loadCadInvestmentVoucherFacts,
   loadHistoricalCapitalFacts,
   parseConsolidationRateApplications,
+  selectCapitalRateEvidence,
   type ConsolidationCurrencyPolicyFact,
   type ConsolidationRateApplicationFact,
 } from "./consolidation-rate-applications";
@@ -45,7 +46,6 @@ import {
   ensureCapitalHistoricalAmountRate,
   ensureChinaMoneyCentralParityRate,
   ensureChinaMoneyMonthlyAverageRate,
-  ensureVoucherHistoricalInvestmentRate,
 } from "./exchange-rates";
 import { consolidationSourcesReady } from "./consolidation-source-coverage";
 
@@ -168,15 +168,17 @@ async function loadAutomaticRateFacts(
     }
     return directCandidates.length === 1 ? [{ investment, entity: directCandidates[0]! }] : [];
   });
-  const historicalCapitalFacts = rawHistoricalCapitalFacts;
-  const companiesWithCapitalFacts = new Set(historicalCapitalFacts.map((fact) => fact.companyCode));
-  const uncoveredInvestments = mappedInvestments.filter(({ entity }) => !companiesWithCapitalFacts.has(entity.companyCode));
+  const { historicalCapitalFacts, voucherInvestments } = selectCapitalRateEvidence({
+    historicalCapitalFacts: rawHistoricalCapitalFacts,
+    mappedInvestments,
+  });
   const targetDates = [
     selectedPeriodEnd,
     ...(requiredComparativeEntityIds.length > 0 ? [comparativePeriodEnd] : []),
     ...cashPointDates(batch.year, batch.month),
     ...(requiredComparativeEntityIds.length > 0 ? cashPointDates(batch.year - 1, batch.month) : []),
     ...historicalCapitalFacts.flatMap((fact) => fact.capitalContributionDate ? [fact.capitalContributionDate] : []),
+    ...voucherInvestments.map(({ investment }) => investment.capitalContributionDate ?? investment.voucherDate),
   ];
   const rateIdByTargetDate = new Map<string, number>();
   for (const targetDate of [...new Set(targetDates)].sort()) {
@@ -206,19 +208,6 @@ async function loadAutomaticRateFacts(
     const [year, month] = targetDate.split("-").map(Number);
     const rate = await ensureChinaMoneyMonthlyAverageRate({ currencyCode: "CAD", year, month, userId });
     monthlyRateIdByTargetDate.set(targetDate, rate.id);
-  }
-  const explicitRateIdByVoucherItemId = new Map<number, number>();
-  for (const { investment } of uncoveredInvestments) {
-    const originalAmount = investment.originalAmount!;
-    const actualWeightedRate = Math.round((investment.bookedAmountCny / originalAmount) * 100_000_000) / 100_000_000;
-    const rate = await ensureVoucherHistoricalInvestmentRate({
-      voucherItemId: investment.id,
-      contributionDate: investment.capitalContributionDate ?? investment.voucherDate,
-      rate: actualWeightedRate,
-      matchingLabel: investment.matchingLabel ?? `${investment.voucherNo} 实际人民币投资金额`,
-      userId,
-    });
-    explicitRateIdByVoucherItemId.set(investment.id, rate.id);
   }
   const currentRateId = rateIdByTargetDate.get(selectedPeriodEnd)!;
   const comparativeRateId = rateIdByTargetDate.get(comparativePeriodEnd);
@@ -294,24 +283,23 @@ async function loadAutomaticRateFacts(
     companyIdByCode,
     snapshotIdByCompany: entitySnapshotIdByCompanyId,
   }));
-  for (const { investment, entity } of uncoveredInvestments) {
-    const exchangeRateId = explicitRateIdByVoucherItemId.get(investment.id)!;
+  for (const { investment, entity } of voucherInvestments) {
     const contributionDate = investment.capitalContributionDate ?? investment.voucherDate;
-    const actualWeightedRate = Math.round((investment.bookedAmountCny / investment.originalAmount!) * 100_000_000) / 100_000_000;
-    const rateEvidence = `投资凭证 ${investment.voucherNo}：${investment.originalAmount} CAD 对应实际人民币投资金额 ${investment.bookedAmountCny} CNY；${contributionDate} 为实际出资日，加权汇率 ${actualWeightedRate} 由金额反算`;
+    const exchangeRateId = rateIdByTargetDate.get(contributionDate);
+    if (!exchangeRateId) throw new ConsolidationSnapshotError(`投资凭证 ${investment.voucherNo} 缺少 ${contributionDate} 官方汇率`, 409);
+    const rateEvidence = `投资凭证 ${investment.voucherNo}：${investment.originalAmount} CAD 按 ${contributionDate} 中国货币网人民币汇率中间价折算；境内长期股权投资账面金额 ${investment.bookedAmountCny} CNY 仅用于抵销和计算其他综合收益差额`;
     const shared = {
       exchangeRateId,
       applicationType: "historicalInvestment" as const,
       entitySnapshotId: entity.id,
       voucherItemId: investment.id,
-      capitalHistoricalAmountCny: investment.bookedAmountCny,
       capitalEvidenceKind: "voucher" as const,
       capitalEvidenceDate: investment.voucherDate,
       capitalContributionDate: contributionDate,
       evidence: rateEvidence,
     };
     rateApplications.push({ ...shared, periodBasis: "current" });
-    if ((investment.capitalContributionDate ?? investment.voucherDate) <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
+    if (contributionDate <= comparativePeriodEnd && requiredComparativeEntityIds.includes(entity.id)) {
       rateApplications.push({ ...shared, periodBasis: "comparative" });
     }
   }
@@ -320,7 +308,7 @@ async function loadAutomaticRateFacts(
   const { rates } = await applyConsolidationRatePolicies({
     periodEnd: selectedPeriodEnd,
     requiredComparativeEntityIds,
-    requiredInvestmentVoucherIds: uncoveredInvestments.map(({ investment }) => investment.id),
+    requiredInvestmentVoucherIds: voucherInvestments.map(({ investment }) => investment.id),
     companyCodes: batch.entities.map((entity) => entity.companyCode),
     entities: batch.entities,
     currencyPolicies,

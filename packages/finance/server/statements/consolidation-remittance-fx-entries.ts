@@ -74,7 +74,7 @@ function reportLineAmount(
 function historicalCapitalEntries(
   batch: ConsolidationBatchSnapshot,
   groups: readonly ConsolidationVoucherMatchGroup[],
-  excludedCompanyPairs: ReadonlySet<string>,
+  excludedVoucherItemIds: ReadonlySet<number>,
 ): RemittanceFxEntryCandidate[] {
   const entityByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, entity]));
   const bindings = batch.exchangeRates.flatMap((rate) => rate.applications
@@ -91,14 +91,14 @@ function historicalCapitalEntries(
     const investor = entityByCompanyId.get(group.leftCompanyId);
     const investee = entityByCompanyId.get(group.rightCompanyId);
     if (!investor || !investee || investee.functionalCurrency?.toUpperCase() !== "CAD") return [];
-    const pairKey = `${investor.companyId}:${investee.companyId}`;
-    if (excludedCompanyPairs.has(pairKey)) return [];
     const capitalBindings = bindings
       .filter(({ application }) => application.entitySnapshotId === investee.id)
       .sort((left, right) => left.application.targetDate.localeCompare(right.application.targetDate)
         || left.rate.id - right.rate.id
         || left.applicationIndex - right.applicationIndex);
-    const investmentFacts = group.leftFacts.filter((fact) => fact.currencyCode.toUpperCase() === "CNY");
+    const investmentFacts = group.leftFacts.filter((fact) => (
+      fact.currencyCode.toUpperCase() === "CNY" && !excludedVoucherItemIds.has(fact.itemId)
+    ));
     const investmentAmount = money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0));
     if (capitalBindings.length === 0 || investmentFacts.length === 0 || investmentAmount <= 0) return [];
 
@@ -221,7 +221,7 @@ function historicalCapitalEntries(
       postingLevel: "20",
       entryType: "investmentEquity",
       title: `${investor.companyName} → ${investee.companyName} 投资与权益抵销`,
-      description: "实收资本和资本公积优先按受控实际人民币出资额折算，缺少实际人民币金额时才使用真实发生日汇率；逐笔抵销中国投资方长期股权投资，持股比例不阻断本凭证生成。",
+      description: "实收资本和资本公积优先按结构化交易证据和真实发生日汇率折算；仅缺少逐笔交易事实的历史期初余额使用受控历史人民币金额，持股比例不阻断本凭证生成。",
       evidence: `加拿大资本历史汇率：${capitalEvidence.join("；")}；投资方凭证分录：${investmentFacts.map((fact) => fact.itemId).join("、")}`,
       matchDifference: Math.abs(difference),
       differenceResolution: Math.abs(difference) < 0.005
@@ -243,7 +243,6 @@ export function buildRemittanceFxEntries(
   const entityById = new Map(batch.entities.map((entity) => [entity.id, entity]));
   const entityByCode = new Map(batch.entities.map((entity) => [entity.companyCode, entity]));
   const seenVoucherItems = new Set<number>();
-  const generatedCompanyPairs = new Set<string>();
   const candidates: RemittanceFxEntryCandidate[] = [];
   for (const rate of batch.exchangeRates) {
     for (const application of rate.applications) {
@@ -257,13 +256,12 @@ export function buildRemittanceFxEntries(
       const investorEntity = entityByCode.get(application.voucher.companyCode);
       const originalAmount = application.voucher.originalAmount;
       if (!foreignEntity || !investorEntity || !originalAmount || originalAmount <= 0) continue;
-      generatedCompanyPairs.add(`${investorEntity.companyId}:${foreignEntity.companyId}`);
       const translatedAmount = money(application.capitalHistoricalAmountCny ?? originalAmount * rate.rate);
       const bookedAmount = money(application.voucher.bookedAmountCny);
       const difference = money(translatedAmount - bookedAmount);
       const generationKey = `policy:remittance-fx:${application.voucherItemId}`;
       const sourceFingerprint = fingerprint({
-        version: "remittance-central-parity-v1",
+        version: "remittance-central-parity-v2",
         rate: {
           id: rate.id,
           exchangeRateId: rate.exchangeRateId,
@@ -288,7 +286,7 @@ export function buildRemittanceFxEntries(
         credit: 0,
         currencyCode: "CNY",
         periodBasis: "current",
-        note: `${originalAmount} CAD → ¥${translatedAmount.toFixed(2)}（实际人民币投资金额；加权汇率 ${rate.rate}）`,
+        note: `${originalAmount} CAD × ${rate.rate}（${rate.rateDate} 中间价）= ¥${translatedAmount.toFixed(2)}`,
         matchSide: "right",
         sourceKind: "workpaper",
         sourceId: `rate-application:${rate.id}:${application.voucherItemId}`,
@@ -346,8 +344,8 @@ export function buildRemittanceFxEntries(
         postingLevel: "20",
         entryType: "investmentEquity",
         title: `${investorEntity.companyName}汇加拿大投资款抵销`,
-        description: "按投资凭证实际人民币金额抵销投资与权益；实际出资日作为证据，加权汇率仅由原币与人民币金额反算。",
-        evidence: `${application.voucher.voucherNo}：${originalAmount} CAD 对应实际人民币投资金额 ${translatedAmount} CNY；实际出资日 ${application.capitalContributionDate ?? application.targetDate}；加权汇率 ${rate.rate}`,
+        description: "加拿大权益按投资凭证结构化CAD金额和交易日中间价折算；境内长期股权投资按人民币账面金额抵销，差额自动计入其他综合收益。",
+        evidence: `${application.voucher.voucherNo}：${originalAmount} CAD × ${rate.rate}（${application.capitalContributionDate ?? application.targetDate}）= ${translatedAmount} CNY；境内长期股权投资 ${bookedAmount} CNY`,
         matchDifference: Math.abs(difference),
         differenceResolution: difference < 0
           ? `其他综合收益损失 ${Math.abs(difference).toFixed(2)} 元（借方）`
@@ -360,6 +358,6 @@ export function buildRemittanceFxEntries(
   }
   return [
     ...candidates,
-    ...historicalCapitalEntries(batch, groups, generatedCompanyPairs),
+    ...historicalCapitalEntries(batch, groups, seenVoucherItems),
   ];
 }
