@@ -51,6 +51,7 @@ export async function listCompanies(input: { keyword: string; activeOnly: boolea
     where: input.activeOnly ? { isActive: true } : undefined,
     include: {
       party: { include: { legalFactRevisions: { select: { revision: true } } } },
+      financeCurrencyPolicy: { include: { currency: true } },
       registryChanges: {
         include: {
           ownershipParticipants: {
@@ -80,6 +81,10 @@ export async function listCompanies(input: { keyword: string; activeOnly: boolea
     legalPerson: company.party.legalRepresentative,
     managementGroup: company.managementGroup,
     codePoolCode: company.codePoolCode,
+    currencyId: company.financeCurrencyPolicy?.currencyId ?? 0,
+    functionalCurrency: company.financeCurrencyPolicy?.currency.code ?? "",
+    functionalCurrencyName: company.financeCurrencyPolicy?.currency.name ?? "",
+    isConsolidationParent: company.isConsolidationParent,
     isActive: company.isActive,
     sortOrder: company.sortOrder,
     version: company.version,
@@ -123,8 +128,35 @@ export async function createCompany(command: WriteCommand) {
       }
       const party = existingParty ?? await createParty({ ...validated.data.identityData, editedBy: command.userId }, tx);
       if (!existingParty) await snapshotHistory("Party", party.id, command.userId, tx);
+      if (validated.data.financeData.isConsolidationParent) {
+        const previousParents = await tx.company.findMany({
+          where: { isConsolidationParent: true },
+          select: { id: true },
+        });
+        for (const previousParent of previousParents) {
+          await ensureEditHistoryBaseline("Company", previousParent.id, command.userId, tx);
+          await tx.company.update({
+            where: { id: previousParent.id },
+            data: { isConsolidationParent: false, editedBy: command.userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+          await snapshotHistory("Company", previousParent.id, command.userId, tx);
+        }
+      }
       const company = await tx.company.create({
-        data: { ...validated.data.companyData, partyId: party.id, editedBy: command.userId },
+        data: {
+          ...validated.data.companyData,
+          isConsolidationParent: validated.data.financeData.isConsolidationParent,
+          partyId: party.id,
+          editedBy: command.userId,
+        },
+      });
+      await tx.financeCompanyCurrencyPolicy.create({
+        data: {
+          companyId: company.id,
+          currencyId: validated.data.financeData.currencyId,
+          source: "companyGovernance",
+          evidence: "公司信息维护",
+        },
       });
       const snapshot = companyLegalFactSnapshot(validated.data.identityData, validated.data.companyData);
       const latest = await tx.partyLegalFactRevision.findFirst({
@@ -176,6 +208,7 @@ export async function updateCompany(command: WriteCommand) {
         where: { id: validated.data.id },
         include: {
           party: { include: { legalFactRevisions: { select: { revision: true } } } },
+          financeCurrencyPolicy: { include: { currency: true } },
         },
       });
       if (!current) throw new StaleCompanyError();
@@ -185,6 +218,10 @@ export async function updateCompany(command: WriteCommand) {
         || latestLegalFactRevision !== validated.data.legalFactRevision
       ) throw new StaleCompanyError();
       const { registeredCapital: _registeredCapital, registeredAddress: _registeredAddress, registeredDate: _registeredDate, ...operationalCompanyData } = validated.data.companyData;
+      const nextCompanyData = {
+        ...operationalCompanyData,
+        isConsolidationParent: validated.data.financeData.isConsolidationParent,
+      };
       const currentSnapshot = partyLegalFactSnapshotFromCurrent({
         ...current.party,
         company: {
@@ -195,16 +232,32 @@ export async function updateCompany(command: WriteCommand) {
       });
       const nextSnapshot = companyLegalFactSnapshot(validated.data.identityData, validated.data.companyData);
       const changesLegalFacts = JSON.stringify(currentSnapshot) !== JSON.stringify(nextSnapshot);
-      const changesCompany = Object.entries(operationalCompanyData)
+      const changesCompany = Object.entries(nextCompanyData)
         .some(([field, value]) => current[field as keyof typeof current] !== value);
-      if (!changesCompany && !changesLegalFacts) return;
+      const changesCurrency = current.financeCurrencyPolicy?.currencyId !== validated.data.financeData.currencyId;
+      if (!changesCompany && !changesCurrency && !changesLegalFacts) return;
 
-      if (changesCompany) {
+      if (validated.data.financeData.isConsolidationParent) {
+        const previousParents = await tx.company.findMany({
+          where: { id: { not: validated.data.id }, isConsolidationParent: true },
+          select: { id: true },
+        });
+        for (const previousParent of previousParents) {
+          await ensureEditHistoryBaseline("Company", previousParent.id, command.userId, tx);
+          await tx.company.update({
+            where: { id: previousParent.id },
+            data: { isConsolidationParent: false, editedBy: command.userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+          await snapshotHistory("Company", previousParent.id, command.userId, tx);
+        }
+      }
+
+      if (changesCompany || changesCurrency) {
         await ensureEditHistoryBaseline("Company", validated.data.id, command.userId, tx);
         const companyResult = await tx.company.updateMany({
           where: { id: validated.data.id, version: validated.data.version },
           data: {
-            ...operationalCompanyData,
+            ...nextCompanyData,
             editedBy: command.userId,
             editedAt: new Date(),
             version: { increment: 1 },
@@ -213,6 +266,22 @@ export async function updateCompany(command: WriteCommand) {
         if (companyResult.count !== 1) throw new StaleCompanyError();
       } else if (current.version !== validated.data.version) {
         throw new StaleCompanyError();
+      }
+      if (changesCurrency) {
+        await tx.financeCompanyCurrencyPolicy.upsert({
+          where: { companyId: validated.data.id },
+          create: {
+            companyId: validated.data.id,
+            currencyId: validated.data.financeData.currencyId,
+            source: "companyGovernance",
+            evidence: "公司信息维护",
+          },
+          update: {
+            currencyId: validated.data.financeData.currencyId,
+            source: "companyGovernance",
+            evidence: "公司信息维护",
+          },
+        });
       }
       if (changesLegalFacts) {
         await ensureEditHistoryBaseline("Party", current.partyId, command.userId, tx);
@@ -232,13 +301,35 @@ export async function updateCompany(command: WriteCommand) {
         }, tx);
         await snapshotHistory("Party", current.partyId, command.userId, tx);
       }
-      if (changesCompany) await snapshotHistory("Company", validated.data.id, command.userId, tx);
+      if (changesCompany || changesCurrency) await snapshotHistory("Company", validated.data.id, command.userId, tx);
     });
     invalidateCompanyCache();
     return serviceOk({ success: true });
   } catch (error) {
     return mapCompanyWriteError(error);
   }
+}
+
+export async function listCompanyCurrencyOptions(input: { keyword: string }) {
+  const currencies = await prisma.financeCurrencyCatalog.findMany({
+    where: {
+      isActive: true,
+      ...(input.keyword ? {
+        OR: [
+          { code: { contains: input.keyword, mode: "insensitive" as const } },
+          { name: { contains: input.keyword, mode: "insensitive" as const } },
+        ],
+      } : {}),
+    },
+    orderBy: [{ code: "asc" }],
+    take: 50,
+  });
+  return {
+    items: currencies.map((currency) => ({
+      id: currency.id,
+      name: `${currency.code} · ${currency.name}`,
+    })),
+  };
 }
 
 export async function listOwnershipInterests(input: { keyword: string; page: number; pageSize: number }) {

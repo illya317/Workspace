@@ -283,7 +283,7 @@ async function loadConsolidationRelationshipFacts(
         OR: [{ effectiveFrom: null }, { effectiveFrom: { lte: asOf } }],
       },
       select: {
-        companyId: true, functionalCurrency: true, source: true,
+        companyId: true, currency: { select: { code: true } }, source: true,
         evidence: true, updatedAt: true,
       },
     }),
@@ -296,7 +296,7 @@ async function loadConsolidationRelationshipFacts(
   for (const fact of facts) {
     const policy = currencyPolicyByCompanyId.get(fact.companyId);
     if (policy) {
-      fact.functionalCurrency = policy.functionalCurrency.trim().toUpperCase();
+      fact.functionalCurrency = policy.currency.code.trim().toUpperCase();
       fact.currencyEvidence = `公司财务本位币政策：${policy.source}；${policy.evidence}；更新于 ${policy.updatedAt.toISOString()}`;
       continue;
     }

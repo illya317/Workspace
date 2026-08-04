@@ -166,6 +166,13 @@ export function buildConsolidatedReportOutput(
 ): DomainValidationResult<ConsolidatedReportOutputPackage> {
   const statements: ConsolidatedStatementOutput[] = [];
   const entityBySnapshotId = new Map(replay.entities.map((entity) => [entity.id, entity]));
+  const parentEntity = replay.entities.find((entity) => entity.role === "parent");
+  if (!parentEntity) return failCommand("合并范围缺少母公司", 409, "parentCompanyId");
+  const presentationCurrency = functionalCurrencyByEntitySnapshotId.get(parentEntity.id)?.trim().toUpperCase();
+  if (!presentationCurrency) return failCommand("合并母公司缺少本位币", 409, "functionalCurrency");
+  if (!CNY_CODES.has(presentationCurrency)) {
+    return failCommand(`当前合并折算仅支持以 CNY 为集团列报币种，母公司本位币为 ${presentationCurrency}`, 409, "presentationCurrency");
+  }
   for (const reportType of ["balanceSheet", "incomeStatement", "cashFlow"] as const) {
     const sourceRows = replay.sources.filter((source) => source.reportType === reportType);
     if (sourceRows.length === 0) return failCommand(`${REPORT_LABELS[reportType]}没有冻结来源`, 409, "sources");
@@ -181,6 +188,7 @@ export function buildConsolidatedReportOutput(
       const translated = translateSourceLines(replay, source.entitySnapshotId, currency, reportType, source.reportPayload, rows);
       if (!translated.ok) return translated;
       for (const translatedLine of translated.data) {
+        const { translationTrace, ...outputLine } = translatedLine;
         const entityAmount = {
           entitySnapshotId: entity.id,
           companyCode: entity.companyCode,
@@ -191,11 +199,13 @@ export function buildConsolidatedReportOutput(
             currentMonthAmount: translatedLine.currentMonthSourceAmount,
           }),
           previousAmount: translatedLine.previousSourceAmount ?? translatedLine.previousAmount,
+          functionalCurrency: currency.trim().toUpperCase(),
+          ...(translationTrace ? { translationTrace } : {}),
         };
         const existing = outputByCode.get(translatedLine.lineCode);
         if (!existing) {
           orderedCodes.push(translatedLine.lineCode);
-          outputByCode.set(translatedLine.lineCode, { ...translatedLine, entityAmounts: [entityAmount] });
+          outputByCode.set(translatedLine.lineCode, { ...outputLine, entityAmounts: [entityAmount] });
         } else {
           if (!sameLineDefinition(existing, translatedLine)) {
             return failCommand(`${REPORT_LABELS[reportType]}行 ${translatedLine.lineCode} 在不同实体间定义不一致`, 409, "reportPayload");
@@ -261,7 +271,7 @@ export function buildConsolidatedReportOutput(
     statements.push({ reportType, label: REPORT_LABELS[reportType], lines, totals: outputTotals(reportType, lines) });
   }
   return okCommand({
-    batch: replay.batch,
+    batch: { ...replay.batch, presentationCurrency },
     statements,
     sourceCount: replay.sources.length,
     approvedEntryCount: replay.approvedEntries.length,

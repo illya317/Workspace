@@ -66,12 +66,12 @@ export async function loadFinanceStatementCompositeWorkspaceAnalysisSourcePage(i
   const result = await loadConsolidatedReportOutput(requiredInteger(parameters.batchId, "batchId", sourceKey));
   if (!result.ok) throw unavailable(sourceKey, result.error);
   if (sourceKey === "finance.statements.consolidated-lines") {
-    const rows: FinanceConsolidatedLineRow[] = result.data.report.statements.flatMap((statement) => statement.lines.map(({ entityAmounts: _entityAmounts, ...line }) => ({
+    const rows: FinanceConsolidatedLineRow[] = result.data.report.statements.flatMap((statement) => statement.lines.map(({ entityAmounts: _entityAmounts, translationTrace: _translationTrace, ...line }) => ({
       reportType: statement.reportType, reportLabel: statement.label, ...line,
     })));
     return boundedPage(sourceKey, rows, page, pageSize);
   }
-  const rows: FinanceConsolidatedEntityAmountRow[] = result.data.report.statements.flatMap((statement) => statement.lines.flatMap((line) => (line.entityAmounts ?? []).map((amount) => ({
+  const rows: FinanceConsolidatedEntityAmountRow[] = result.data.report.statements.flatMap((statement) => statement.lines.flatMap((line) => (line.entityAmounts ?? []).map(({ translationTrace: _translationTrace, ...amount }) => ({
     reportType: statement.reportType, lineCode: line.lineCode, ...amount,
   }))));
   return boundedPage(sourceKey, rows, page, pageSize);

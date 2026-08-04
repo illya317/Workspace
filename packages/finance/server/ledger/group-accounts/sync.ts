@@ -47,6 +47,19 @@ export async function syncFinanceGroupChartInTransaction(
   `);
   const referenceCompanyCode = getTenantProfile().finance.referenceCompanyCode;
   const policyVersion = await ensureCurrentFinanceAccountingPolicyVersion(tx);
+  const currencies = await tx.financeCurrencyCatalog.findMany({ where: { isActive: true } });
+  const currencyByKey = new Map(currencies.flatMap((currency) => [
+    [currency.code.toUpperCase(), currency.id] as const,
+    [currency.name, currency.id] as const,
+  ]));
+  const defaultCurrencyId = currencyByKey.get("CNY");
+  if (!defaultCurrencyId) throw new Error("统一币种目录缺少 CNY");
+  const currencyIdFor = (value: string | null) => {
+    if (!value) return defaultCurrencyId;
+    const currencyId = currencyByKey.get(value.trim()) ?? currencyByKey.get(value.trim().toUpperCase());
+    if (!currencyId) throw new Error(`统一币种目录未登记 ${value}`);
+    return currencyId;
+  };
   const masterGroups = await tx.financeGroupAccount.findMany({ orderBy: { id: "asc" } });
   await ensurePolicyVersionRevisions(tx, policyVersion.id, masterGroups);
   const revisions = await tx.financeGroupAccountRevision.findMany({
@@ -99,7 +112,7 @@ export async function syncFinanceGroupChartInTransaction(
     if (parentGroupAccountId !== null && !parent) throw new Error(`建议集团科目的父级 ${parentGroupAccountId} 不存在`);
     const group = await tx.financeGroupAccount.create({ data: {
       code, name: account.name, category: account.category, balanceDirection: account.balanceDirection,
-      mnemonicCode: account.mnemonicCode, currency: account.currency,
+      mnemonicCode: account.mnemonicCode, currencyId: currencyIdFor(account.currency),
       subjectLevel: parent ? (parent.subjectLevel ?? 0) + 1 : 1,
       parentId: parentGroupAccountId,
       sourceKind, reviewStatus: sourceKind === "reference_seed" ? "confirmed" : "pending_review",
@@ -114,7 +127,7 @@ export async function syncFinanceGroupChartInTransaction(
       category: account.category,
       balanceDirection: account.balanceDirection,
       mnemonicCode: account.mnemonicCode,
-      currency: account.currency,
+      currencyId: currencyIdFor(account.currency),
       subjectLevel: parent ? (parent.subjectLevel ?? 0) + 1 : 1,
       parentGroupAccountId,
       isActive: true,
@@ -264,7 +277,7 @@ async function ensurePolicyVersionRevisions(
     category: string;
     balanceDirection: string;
     mnemonicCode: string | null;
-    currency: string | null;
+    currencyId: number;
     subjectLevel: number | null;
     parentId: number | null;
     isActive: boolean;
@@ -286,7 +299,7 @@ async function ensurePolicyVersionRevisions(
     category: group.category,
     balanceDirection: group.balanceDirection,
     mnemonicCode: group.mnemonicCode,
-    currency: group.currency,
+    currencyId: group.currencyId,
     subjectLevel: group.subjectLevel,
     parentGroupAccountId: group.parentId,
     isActive: group.isActive,

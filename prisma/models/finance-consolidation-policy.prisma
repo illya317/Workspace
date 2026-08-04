@@ -2,13 +2,14 @@
 model FinanceCompanyCurrencyPolicy {
   id                 Int       @id @default(autoincrement())
   companyId          Int       @unique
-  functionalCurrency String
+  currencyId         Int
   source             String
   evidence           String
   effectiveFrom      DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @default(now()) @updatedAt
   company            Company   @relation(fields: [companyId], references: [id], onDelete: Restrict)
+  currency           FinanceCurrencyCatalog @relation(fields: [currencyId], references: [id], onDelete: Restrict)
 
-  @@index([functionalCurrency])
+  @@index([currencyId])
 }

@@ -83,7 +83,7 @@ export async function advanceFinanceAccountingPolicyVersionInTransaction(
       category: revision.category,
       balanceDirection: revision.balanceDirection,
       mnemonicCode: revision.mnemonicCode,
-      currency: revision.currency,
+      currencyId: revision.currencyId,
       subjectLevel: revision.subjectLevel,
       parentGroupAccountId: revision.parentGroupAccountId,
       isActive: revision.isActive,

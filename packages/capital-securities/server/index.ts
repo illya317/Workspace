@@ -3,6 +3,7 @@ export type * from "../types";
 export {
   createCompany,
   listCompanies,
+  listCompanyCurrencyOptions,
   listOwnershipInterests,
   listOwnershipPartyCandidates,
   updateCompany,

@@ -45,7 +45,7 @@ export function groupAccountDraftDirtyParts(
       || left.category !== right.category
       || left.balanceDirection !== right.balanceDirection
       || left.mnemonicCode !== right.mnemonicCode
-      || left.currency !== right.currency
+      || left.currencyId !== right.currencyId
       || left.parentGroupAccountId !== right.parentGroupAccountId,
     consolidation: left.consolidationRole !== right.consolidationRole
       || left.counterpartyRequirement !== right.counterpartyRequirement

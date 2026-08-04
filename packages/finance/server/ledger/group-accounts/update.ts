@@ -28,7 +28,7 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
     select: { id: true },
   });
   if (!currentVersion) return serviceError("缺少当前生效的集团科目版本", 409);
-  const [revision, allRevisions, duplicateCode, stableCodeAccount] = await Promise.all([
+  const [revision, allRevisions, duplicateCode, stableCodeAccount, currency] = await Promise.all([
     prisma.financeGroupAccountRevision.findUnique({
       where: { policyVersionId_groupAccountId: {
         policyVersionId: currentVersion.id,
@@ -52,7 +52,9 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
       where: { code: data.code, id: { not: data.groupAccountId } },
       select: { id: true },
     }),
+    prisma.financeCurrencyCatalog.findFirst({ where: { id: data.currencyId, isActive: true }, select: { id: true } }),
   ]);
+  if (!currency) return serviceError("币种不存在或未启用", 400);
   if (!revision) return serviceError("集团科目不存在或不属于当前版本", 404);
   if (duplicateCode || stableCodeAccount) return serviceError("集团科目编码已存在", 409);
   if (data.parentGroupAccountId === data.groupAccountId) return serviceError("集团科目不能以自身作为上级", 400);
@@ -106,7 +108,7 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
           category: data.category,
           balanceDirection: data.balanceDirection,
           mnemonicCode: data.mnemonicCode,
-          currency: data.currency,
+          currencyId: data.currencyId,
           subjectLevel,
           parentGroupAccountId: data.parentGroupAccountId,
           consolidationRole: data.consolidationRole,
@@ -122,7 +124,7 @@ export async function updateFinanceGroupAccount(input: UpdateFinanceGroupAccount
         category: data.category,
         balanceDirection: data.balanceDirection,
         mnemonicCode: data.mnemonicCode,
-        currency: data.currency,
+        currencyId: data.currencyId,
         subjectLevel,
         parentId: data.parentGroupAccountId,
       } });

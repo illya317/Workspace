@@ -41,6 +41,12 @@ export type FinanceConsolidationMovementType = "closingBalance" | "periodMovemen
 export type FinanceTranslationRateType = "closing" | "average" | "historical" | "transactionDate";
 export type FinanceGroupAccountUsage = "consolidation" | "reclassification";
 
+export interface FinanceCurrencyCatalogOption {
+  id: number;
+  code: string;
+  name: string;
+}
+
 export interface FinanceAccountingPolicyVersionRow {
   id: number;
   versionNo: number;
@@ -58,7 +64,7 @@ export interface CreateFinanceGroupAccountInput {
   category: "asset" | "liability" | "common" | "equity" | "cost" | "revenue" | "expense";
   balanceDirection: "debit" | "credit";
   mnemonicCode: string | null;
-  currency: string | null;
+  currencyId: number;
   parentGroupAccountId: number | null;
   consolidationRole: FinanceConsolidationRole;
   counterpartyRequirement: FinanceCounterpartyRequirement;
@@ -94,6 +100,7 @@ export interface FinanceGroupAccountCatalogRow {
   subjectLevel: number | null;
   mnemonicCode: string | null;
   currency: string | null;
+  currencyId: number;
   isActive: boolean;
   groupAccount: null;
   sourceKind: FinanceGroupAccountSourceKind;
@@ -133,6 +140,7 @@ export interface FinanceGroupAccountCatalogResponse {
   currentPolicyVersionId: number;
   selectedPolicyVersionId: number;
   policyVersions: FinanceAccountingPolicyVersionRow[];
+  currencies: FinanceCurrencyCatalogOption[];
   rows: FinanceGroupAccountCatalogRow[];
   treeRows: FinanceGroupAccountCatalogRow[];
   pagination: {

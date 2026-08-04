@@ -1,9 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-
 import { buildConsolidatedReportOutput } from "./consolidated-output";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
-
 function line(
   lineCode: string,
   amount: number,
@@ -13,6 +11,7 @@ function line(
     direction: "in" | "out" | "net";
     isTotal: boolean;
     isGrandTotal: boolean;
+    subtract: boolean;
   }> = {},
 ) {
   return {
@@ -26,9 +25,9 @@ function line(
     ...(input.direction ? { direction: input.direction } : {}),
     ...(input.isTotal ? { isTotal: true as const } : {}),
     ...(input.isGrandTotal ? { isGrandTotal: true as const } : {}),
+    ...(input.subtract ? { subtract: true } : {}),
   };
 }
-
 function entity(id: number, companyCode: string) {
   return {
     id,
@@ -50,7 +49,18 @@ function entity(id: number, companyCode: string) {
     currencyDecidedBy: 1,
   };
 }
-
+function parentEntity() {
+  return {
+    ...entity(1, "01"),
+    role: "parent" as const,
+    directParentCompanyId: null,
+    directParentCode: null,
+    relationId: null,
+    relationVersion: null,
+    functionalCurrency: "CNY",
+    currencyEvidence: "母公司本位币",
+  };
+}
 function monthlyFlowFacts(year: number, amounts: Record<string, number>) {
   return Array.from({ length: 12 }, (_, index) => ({
     periodEnd: new Date(Date.UTC(year, index + 1, 0)).toISOString().slice(0, 10),
@@ -60,7 +70,6 @@ function monthlyFlowFacts(year: number, amounts: Record<string, number>) {
     })),
   }));
 }
-
 function sourcePayloads(entitySnapshotId: number, idOffset: number) {
   const common = {
     entitySnapshotId,
@@ -151,7 +160,14 @@ function sourcePayloads(entitySnapshotId: number, idOffset: number) {
     },
   ];
 }
-
+function zeroAmounts(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(zeroAmounts);
+  if (!value || typeof value !== "object") return value;
+  return Object.fromEntries(Object.entries(value).map(([key, item]) => [
+    key,
+    ["amount", "currentMonthAmount", "previousAmount"].includes(key) ? 0 : zeroAmounts(item),
+  ]));
+}
 function rateApplication(
   applicationType: "closing" | "flowAverage" | "cashPoint" | "historicalInvestment",
   entitySnapshotId: number,
@@ -180,7 +196,6 @@ function rateApplication(
     } : null,
   };
 }
-
 function appliedRate(
   exchangeRateId: number,
   rateKind: "centralParity" | "monthlyAverage",
@@ -206,7 +221,6 @@ function appliedRate(
     applications: [rateApplication(applicationType, entitySnapshotId, undefined, periodBasis, targetDate)],
   };
 }
-
 function translationRates(entitySnapshotId: number, rate: number) {
   let exchangeRateId = entitySnapshotId * 100;
   const rates = [
@@ -229,7 +243,6 @@ function translationRates(entitySnapshotId: number, rate: number) {
   }
   return rates;
 }
-
 function frozenRate(
   exchangeRateId: number,
   rateKind: "closing" | "historicalInvestment",
@@ -256,7 +269,6 @@ function frozenRate(
     )],
   };
 }
-
 function flowRate(
   exchangeRateId: number,
   rateDate: string,
@@ -288,9 +300,10 @@ function flowRate(
     }],
   };
 }
-
 function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
-  const entities = entityIds.map((id, index) => entity(id, String(index + 2).padStart(2, "0")));
+  const cadEntities = entityIds.map((id, index) => entity(id, String(index + 2).padStart(2, "0")));
+  const parent = parentEntity();
+  const entities = [parent, ...cadEntities];
   return {
     batch: {
       id: 1,
@@ -319,7 +332,10 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
       publishedAt: null,
     },
     entities,
-    sources: entities.flatMap((item, index) => sourcePayloads(item.id, index * 10)),
+    sources: [
+      ...cadEntities.flatMap((item, index) => sourcePayloads(item.id, index * 10)),
+      ...(zeroAmounts(sourcePayloads(parent.id, 1_000)) as ReturnType<typeof sourcePayloads>),
+    ],
     exchangeRates: [],
     approvedEntries: [],
     controlDecisions: [],
@@ -331,14 +347,13 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
     },
   };
 }
-
 test("CAD uses entity closing rates, historical capital, and derives CTA in OCI", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
     ...translationRates(101, 5.32),
     frozenRate(7, "historicalInvestment", 4.8, 101),
   ];
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
@@ -348,7 +363,6 @@ test("CAD uses entity closing rates, historical capital, and derives CTA in OCI"
   assert.equal(balance.lines.find((item) => item.lineCode === "otherComprehensiveIncome")?.amount, 36.4);
   assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 1_064);
 });
-
 test("CAD derives liabilities from section totals when source omits totalLiabilities", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -359,13 +373,12 @@ test("CAD derives liabilities from section totals when source omits totalLiabili
     payload: { liabilities: Array<{ lineCode: string }> };
   };
   payload.payload.liabilities = payload.payload.liabilities.filter((item) => item.lineCode !== "totalLiabilities");
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
   assert.equal(balance.lines.find((item) => item.lineCode === "totalLiabilities")?.amount, 425.6);
 });
-
 test("two CAD entities use their own closing and historical applications", () => {
   const replay = replayPackage([101, 102]);
   replay.exchangeRates = [
@@ -374,7 +387,7 @@ test("two CAD entities use their own closing and historical applications", () =>
     ...translationRates(102, 4.8),
     frozenRate(23, "historicalInvestment", 4.5, 102),
   ];
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"], [102, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"], [102, "CAD"]]));
   assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
@@ -382,15 +395,13 @@ test("two CAD entities use their own closing and historical applications", () =>
   assert.equal(balance.lines.find((item) => item.lineCode === "cash")?.amount, 1_518);
   assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 2_024);
 });
-
 test("CAD output blocks without an entity closing application", () => {
   const replay = replayPackage();
   replay.exchangeRates = [frozenRate(7, "historicalInvestment", 4.8, 101)];
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "rateApplications");
 });
-
 test("CAD comparative numbers block until prior-period evidence is frozen", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -403,11 +414,10 @@ test("CAD comparative numbers block until prior-period evidence is frozen", () =
     payload: { assets: Array<{ lineCode: string; previousAmount: number }> };
   };
   payload.payload.assets.find((item) => item.lineCode === "cash")!.previousAmount = 10;
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "comparativeExchangeRates");
 });
-
 test("CAD retained earnings use the approved opening and monthly translated profit", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -429,7 +439,7 @@ test("CAD retained earnings use the approved opening and monthly translated prof
     openingAmount: 0,
     evidence: "批准底稿",
   } };
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
   if (!result.ok) return;
   const balance = result.data.statements.find((statement) => statement.reportType === "balanceSheet")!;
@@ -482,11 +492,10 @@ test("CAD flow statements reject missing monthly facts instead of falling back t
       },
     },
   };
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "monthlyFlows");
 });
-
 function roundingCashFlowReplay() {
   const replay = replayPackage();
   replay.exchangeRates = [
@@ -527,7 +536,6 @@ function roundingCashFlowReplay() {
   };
   return replay;
 }
-
 test("CAD cash flow rejects a cent missing between monthly source facts and the cumulative source report", () => {
   const replay = roundingCashFlowReplay();
   const cashFlow = replay.sources.find((source) => source.reportType === "cashFlow")!;
@@ -535,7 +543,7 @@ test("CAD cash flow rejects a cent missing between monthly source facts and the 
     payload: { lines: Array<{ lineCode: string; amount: number }> };
   };
   payload.payload.lines.find((item) => item.lineCode === "purchasePayment")!.amount = 3.32;
-  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  const result = buildConsolidatedReportOutput(replay, new Map([[1, "CNY"], [101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "cashFlowSourceReconciliation");
 });

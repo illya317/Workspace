@@ -25,7 +25,7 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
     where: { status: "published", effectiveTo: null },
   });
   if (!policyVersion) return serviceError("缺少当前生效的集团科目版本", 409);
-  const [parentRevision, codeRevision, stableCodeAccount] = await Promise.all([
+  const [parentRevision, codeRevision, stableCodeAccount, currency] = await Promise.all([
     data.parentGroupAccountId === null ? null : prisma.financeGroupAccountRevision.findUnique({
       where: { policyVersionId_groupAccountId: {
         policyVersionId: policyVersion.id,
@@ -36,7 +36,9 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
       where: { policyVersionId_code: { policyVersionId: policyVersion.id, code: data.code } },
     }),
     prisma.financeGroupAccount.findUnique({ where: { code: data.code } }),
+    prisma.financeCurrencyCatalog.findFirst({ where: { id: data.currencyId, isActive: true }, select: { id: true } }),
   ]);
+  if (!currency) return serviceError("币种不存在或未启用", 400);
   if (data.parentGroupAccountId !== null) {
     if (!parentRevision?.isActive || parentRevision.reviewStatus === "pending_delete") {
       return serviceError("上级集团科目不存在、未启用或待删除", 400);
@@ -55,7 +57,7 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
         category: data.category,
         balanceDirection: data.balanceDirection,
         mnemonicCode: data.mnemonicCode,
-        currency: data.currency,
+        currencyId: data.currencyId,
         subjectLevel,
         parentId: data.parentGroupAccountId,
         sourceKind: "manual",
@@ -72,7 +74,7 @@ export async function createFinanceGroupAccount(input: CreateFinanceGroupAccount
         category: data.category,
         balanceDirection: data.balanceDirection,
         mnemonicCode: data.mnemonicCode,
-        currency: data.currency,
+        currencyId: data.currencyId,
         subjectLevel,
         parentGroupAccountId: data.parentGroupAccountId,
         isActive: true,

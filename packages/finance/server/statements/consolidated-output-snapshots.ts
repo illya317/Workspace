@@ -192,9 +192,10 @@ export function readConsolidatedOutputSnapshot(
     return failCommand("合并输出快照输入指纹不一致", 409, "inputFingerprint");
   }
   if (snapshotVersion === 2) {
+    const { presentationCurrency: _presentationCurrency, ...reportBatch } = snapshot.reportPayload.batch;
     const frozenInputBatch: ConsolidationBatchSnapshot = {
       ...currentBatch,
-      ...snapshot.reportPayload.batch,
+      ...reportBatch,
     };
     const recomputedInput = reportInputFingerprint(frozenInputBatch, snapshotVersion);
     if (recomputedInput !== snapshot.inputFingerprint) {

@@ -18,6 +18,8 @@ const companyBodySchema = z.object({
   legalFactRevision: z.coerce.number().int().nonnegative().optional(),
   code: z.string().min(1),
   name: z.string().min(1),
+  currencyId: z.coerce.number().int().positive(),
+  isConsolidationParent: z.boolean(),
   description: z.string().max(500).nullable().optional(),
 }).passthrough();
 

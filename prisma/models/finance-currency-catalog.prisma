@@ -1,0 +1,14 @@
+/// 集团统一币种目录（公共参考事实；供集团科目与公司本位币共同引用）
+model FinanceCurrencyCatalog {
+  id                 Int                            @id @default(autoincrement())
+  code               String                         @unique @db.VarChar(3)
+  name               String
+  symbol             String?
+  decimalDigits      Int                            @default(2)
+  isActive           Boolean                        @default(true)
+  createdAt          DateTime                       @default(now())
+  updatedAt          DateTime                       @default(now()) @updatedAt
+  companyPolicies    FinanceCompanyCurrencyPolicy[]
+  groupAccounts      FinanceGroupAccount[]
+  groupAccountRevisions FinanceGroupAccountRevision[]
+}

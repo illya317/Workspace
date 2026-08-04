@@ -403,7 +403,7 @@ export const FINANCE_LEDGER_GROUP_ACCOUNTS_SOURCE = defineWorkspaceAnalysisReadM
     companyCode: field("公司编码", "集团科目无单一公司，本字段固定为空。", "text"),
     subjectLevel: field("科目层级", "集团科目层级。", "integer"),
     mnemonicCode: field("助记码", "集团科目助记码。", "text"),
-    currency: field("币种", "集团科目币种。", "text"),
+    currency: field("币种", "集团科目币种。", "text"), currencyId: field("币种 ID", "集团科目引用的统一币种目录标识。", "integer"),
     isActive: field("是否启用", "集团科目是否启用。", "boolean"),
     groupAccount: omit("兼容展示字段固定为空，不是独立事实。", "derivedDuplicate"),
     sourceKind: field("来源类型", "集团科目的建立来源。", "text"),

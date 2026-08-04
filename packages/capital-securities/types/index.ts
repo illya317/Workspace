@@ -63,6 +63,10 @@ export type CompanyRecord = {
   legalPerson: string | null;
   managementGroup: string;
   codePoolCode: string | null;
+  currencyId: number;
+  functionalCurrency: string;
+  functionalCurrencyName: string;
+  isConsolidationParent: boolean;
   isActive: boolean;
   sortOrder: number;
   version: number;

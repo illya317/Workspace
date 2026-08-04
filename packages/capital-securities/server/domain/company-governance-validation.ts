@@ -43,13 +43,24 @@ function companyRoleData(body: Record<string, unknown>) {
   };
 }
 
+function financeGovernanceData(body: Record<string, unknown>) {
+  return {
+    currencyId: Number(body.currencyId),
+    isConsolidationParent: body.isConsolidationParent === true,
+  };
+}
+
 async function validateCompanyData(body: Record<string, unknown>, id?: number) {
   const identityData = companyIdentityData(body);
   const companyData = companyRoleData(body);
+  const financeData = financeGovernanceData(body);
   if (!companyData.code || !identityData.name) return failCommand("请填写公司编码和简称");
+  if (!Number.isInteger(financeData.currencyId) || financeData.currencyId <= 0) {
+    return failCommand("请选择有效的本位币", 400, "currencyId");
+  }
   const duplicate = await findCompanyIdByCode(companyData.code, id);
   if (duplicate) return failCommand("公司编码已存在", 409, "code");
-  return okCommand({ identityData, companyData });
+  return okCommand({ identityData, companyData, financeData });
 }
 
 export async function buildCompanyCreateCommand(body: Record<string, unknown>) {

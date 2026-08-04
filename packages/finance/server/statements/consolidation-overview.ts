@@ -128,6 +128,14 @@ export async function loadConsolidationOverview(
   }
   let parentCompanyId = requestedBatch?.parentCompanyId ?? input.parentCompanyId ?? null;
   if (!parentCompanyId) {
+    const designatedParent = await prisma.company.findFirst({
+      where: { isConsolidationParent: true, isActive: true },
+      select: { id: true },
+      orderBy: { id: "asc" },
+    });
+    parentCompanyId = designatedParent?.id ?? null;
+  }
+  if (!parentCompanyId) {
     const ownershipInterests = await prisma.ownershipInterest.findMany({
       where: { owner: { company: { isNot: null } } },
       select: {

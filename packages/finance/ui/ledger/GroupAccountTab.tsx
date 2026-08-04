@@ -343,7 +343,7 @@ export default function GroupAccountTab({
             createFieldsSection(
               "group-account-detail",
               groupAccountMasterFields(selectedVersionIsCurrent && canRevise
-                ? groupAccountEditFields(editDraft, setEditDraft)
+                ? groupAccountEditFields(editDraft, setEditDraft, response?.currencies ?? [])
                 : groupAccountDetailFields(selected, businessTimeZone)),
               {
               kind: selectedVersionIsCurrent && canRevise ? "fields" : "detail",
@@ -358,7 +358,7 @@ export default function GroupAccountTab({
                   action: "save" as const,
                   label: saving ? "保存中..." : "保存",
                   disabled: saving || !editDirty || !editDraft.code.trim()
-                    || !editDraft.name.trim() || !editDraft.currency
+                    || !editDraft.name.trim() || !editDraft.currencyId
                     || (reclassRuleDirty && (reclassRuleDraft?.decision === null
                       || (reclassRuleDraft?.decision === "reclassify" && reclassRuleDraft.targetGroupAccountId === null))),
                   onClick: () => { void updateGroupAccount(); },
@@ -406,7 +406,7 @@ export default function GroupAccountTab({
             }),
             ...groupAccountConsolidationRuleSections({
               fields: selectedVersionIsCurrent && canRevise
-                ? groupAccountEditFields(editDraft, setEditDraft)
+                ? groupAccountEditFields(editDraft, setEditDraft, response?.currencies ?? [])
                 : groupAccountDetailFields(selected, businessTimeZone),
               editable: Boolean(selectedVersionIsCurrent && canRevise),
               dirty: groupAccountDirtyParts.consolidation,
@@ -437,11 +437,12 @@ export default function GroupAccountTab({
           sections: groupAccountCatalogCreateSections(
             createDraft ?? emptyGroupAccountCatalogCreateDraft(),
             (change) => setCreateDraft((current) => current ? { ...current, ...change } : null),
+            response?.currencies ?? [],
           ),
         },
         submission: {
           action: "save" as const,
-          disabled: saving || !createDraft?.code.trim() || !createDraft?.name.trim() || !createDraft.currency,
+          disabled: saving || !createDraft?.code.trim() || !createDraft?.name.trim() || !createDraft.currencyId,
           execute: createGroupAccount,
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyGroupAccountCatalogCreateDraft() : null),
@@ -469,9 +470,11 @@ export default function GroupAccountTab({
 }
 function groupAccountEditFields(
   draft: GroupAccountCatalogEditDraft, setDraft: Dispatch<SetStateAction<GroupAccountCatalogEditDraft | null>>,
+  currencies: FinanceGroupAccountCatalogResponse["currencies"],
 ) {
   return groupAccountCatalogEditSections(
     draft,
     (change) => setDraft((current) => current ? { ...current, ...change } : null),
+    currencies,
   ).flatMap((section) => section.items);
 }

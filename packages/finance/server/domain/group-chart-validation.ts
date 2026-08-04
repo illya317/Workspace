@@ -16,7 +16,7 @@ export interface CreateFinanceGroupAccountCommandInput {
   category: "asset" | "liability" | "common" | "equity" | "cost" | "revenue" | "expense";
   balanceDirection: "debit" | "credit";
   mnemonicCode: string | null;
-  currency: string | null;
+  currencyId: number;
   parentGroupAccountId: number | null;
   consolidationRole: "none" | "intercompanyReceivable" | "intercompanyPayable" | "intercompanyRevenue" | "intercompanyExpense" | "investmentInSubsidiary" | "shareCapital" | "capitalReserve" | "dividendReceivable" | "dividendPayable" | "inventory" | "fixedAsset" | "cashFlow" | "difference";
   counterpartyRequirement: "none" | "optional" | "required";
@@ -88,9 +88,8 @@ export function buildCreateFinanceGroupAccountCommand(input: CreateFinanceGroupA
     return failCommand("集团科目余额方向无效", 400, "balanceDirection");
   }
   const mnemonicCode = input.mnemonicCode?.trim() || null;
-  const currency = input.currency?.trim() || null;
   if (mnemonicCode && mnemonicCode.length > 64) return failCommand("助记码不能超过 64 个字符", 400, "mnemonicCode");
-  if (currency && currency.length > 32) return failCommand("币种不能超过 32 个字符", 400, "currency");
+  if (!Number.isInteger(input.currencyId) || input.currencyId <= 0) return failCommand("请选择有效币种", 400, "currencyId");
   const conventionIssue = financeGroupAccountCodeConventionIssue({ code, category: input.category });
   if (conventionIssue) return failCommand(conventionIssue, 400, "code");
   if (input.parentGroupAccountId !== null
@@ -115,7 +114,7 @@ export function buildCreateFinanceGroupAccountCommand(input: CreateFinanceGroupA
   if (requiresCounterparty && input.counterpartyRequirement !== "required") {
     return failCommand("该合并角色必须要求交易对手辅助维度", 400, "counterpartyRequirement");
   }
-  return okCommand({ input: { ...input, code, name, mnemonicCode, currency } });
+  return okCommand({ input: { ...input, code, name, mnemonicCode } });
 }
 
 export function buildDeleteFinanceGroupAccountCommand(input: DeleteFinanceGroupAccountCommandInput) {

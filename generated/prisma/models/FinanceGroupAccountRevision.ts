@@ -30,6 +30,7 @@ export type FinanceGroupAccountRevisionAvgAggregateOutputType = {
   id: number | null
   policyVersionId: number | null
   groupAccountId: number | null
+  currencyId: number | null
   subjectLevel: number | null
   parentGroupAccountId: number | null
   reviewedBy: number | null
@@ -39,6 +40,7 @@ export type FinanceGroupAccountRevisionSumAggregateOutputType = {
   id: number | null
   policyVersionId: number | null
   groupAccountId: number | null
+  currencyId: number | null
   subjectLevel: number | null
   parentGroupAccountId: number | null
   reviewedBy: number | null
@@ -53,7 +55,7 @@ export type FinanceGroupAccountRevisionMinAggregateOutputType = {
   category: string | null
   balanceDirection: string | null
   mnemonicCode: string | null
-  currency: string | null
+  currencyId: number | null
   subjectLevel: number | null
   parentGroupAccountId: number | null
   isActive: boolean | null
@@ -77,7 +79,7 @@ export type FinanceGroupAccountRevisionMaxAggregateOutputType = {
   category: string | null
   balanceDirection: string | null
   mnemonicCode: string | null
-  currency: string | null
+  currencyId: number | null
   subjectLevel: number | null
   parentGroupAccountId: number | null
   isActive: boolean | null
@@ -101,7 +103,7 @@ export type FinanceGroupAccountRevisionCountAggregateOutputType = {
   category: number
   balanceDirection: number
   mnemonicCode: number
-  currency: number
+  currencyId: number
   subjectLevel: number
   parentGroupAccountId: number
   isActive: number
@@ -122,6 +124,7 @@ export type FinanceGroupAccountRevisionAvgAggregateInputType = {
   id?: true
   policyVersionId?: true
   groupAccountId?: true
+  currencyId?: true
   subjectLevel?: true
   parentGroupAccountId?: true
   reviewedBy?: true
@@ -131,6 +134,7 @@ export type FinanceGroupAccountRevisionSumAggregateInputType = {
   id?: true
   policyVersionId?: true
   groupAccountId?: true
+  currencyId?: true
   subjectLevel?: true
   parentGroupAccountId?: true
   reviewedBy?: true
@@ -145,7 +149,7 @@ export type FinanceGroupAccountRevisionMinAggregateInputType = {
   category?: true
   balanceDirection?: true
   mnemonicCode?: true
-  currency?: true
+  currencyId?: true
   subjectLevel?: true
   parentGroupAccountId?: true
   isActive?: true
@@ -169,7 +173,7 @@ export type FinanceGroupAccountRevisionMaxAggregateInputType = {
   category?: true
   balanceDirection?: true
   mnemonicCode?: true
-  currency?: true
+  currencyId?: true
   subjectLevel?: true
   parentGroupAccountId?: true
   isActive?: true
@@ -193,7 +197,7 @@ export type FinanceGroupAccountRevisionCountAggregateInputType = {
   category?: true
   balanceDirection?: true
   mnemonicCode?: true
-  currency?: true
+  currencyId?: true
   subjectLevel?: true
   parentGroupAccountId?: true
   isActive?: true
@@ -304,7 +308,7 @@ export type FinanceGroupAccountRevisionGroupByOutputType = {
   category: string
   balanceDirection: string
   mnemonicCode: string | null
-  currency: string | null
+  currencyId: number
   subjectLevel: number | null
   parentGroupAccountId: number | null
   isActive: boolean
@@ -351,7 +355,7 @@ export type FinanceGroupAccountRevisionWhereInput = {
   category?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   balanceDirection?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   mnemonicCode?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
-  currency?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
+  currencyId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
   subjectLevel?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   parentGroupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   isActive?: Prisma.BoolFilter<"FinanceGroupAccountRevision"> | boolean
@@ -367,6 +371,7 @@ export type FinanceGroupAccountRevisionWhereInput = {
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
   groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput>
   parentGroupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
+  currency?: Prisma.XOR<Prisma.FinanceCurrencyCatalogScalarRelationFilter, Prisma.FinanceCurrencyCatalogWhereInput>
 }
 
 export type FinanceGroupAccountRevisionOrderByWithRelationInput = {
@@ -378,7 +383,7 @@ export type FinanceGroupAccountRevisionOrderByWithRelationInput = {
   category?: Prisma.SortOrder
   balanceDirection?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  currency?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -394,6 +399,7 @@ export type FinanceGroupAccountRevisionOrderByWithRelationInput = {
   policyVersion?: Prisma.FinanceAccountingPolicyVersionOrderByWithRelationInput
   groupAccount?: Prisma.FinanceGroupAccountOrderByWithRelationInput
   parentGroupAccount?: Prisma.FinanceGroupAccountOrderByWithRelationInput
+  currency?: Prisma.FinanceCurrencyCatalogOrderByWithRelationInput
 }
 
 export type FinanceGroupAccountRevisionWhereUniqueInput = Prisma.AtLeast<{
@@ -410,7 +416,7 @@ export type FinanceGroupAccountRevisionWhereUniqueInput = Prisma.AtLeast<{
   category?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   balanceDirection?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
   mnemonicCode?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
-  currency?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
+  currencyId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
   subjectLevel?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   parentGroupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
   isActive?: Prisma.BoolFilter<"FinanceGroupAccountRevision"> | boolean
@@ -426,6 +432,7 @@ export type FinanceGroupAccountRevisionWhereUniqueInput = Prisma.AtLeast<{
   policyVersion?: Prisma.XOR<Prisma.FinanceAccountingPolicyVersionScalarRelationFilter, Prisma.FinanceAccountingPolicyVersionWhereInput>
   groupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput>
   parentGroupAccount?: Prisma.XOR<Prisma.FinanceGroupAccountNullableScalarRelationFilter, Prisma.FinanceGroupAccountWhereInput> | null
+  currency?: Prisma.XOR<Prisma.FinanceCurrencyCatalogScalarRelationFilter, Prisma.FinanceCurrencyCatalogWhereInput>
 }, "id" | "policyVersionId_groupAccountId" | "policyVersionId_code">
 
 export type FinanceGroupAccountRevisionOrderByWithAggregationInput = {
@@ -437,7 +444,7 @@ export type FinanceGroupAccountRevisionOrderByWithAggregationInput = {
   category?: Prisma.SortOrder
   balanceDirection?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrderInput | Prisma.SortOrder
-  currency?: Prisma.SortOrderInput | Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrderInput | Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -469,7 +476,7 @@ export type FinanceGroupAccountRevisionScalarWhereWithAggregatesInput = {
   category?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
   balanceDirection?: Prisma.StringWithAggregatesFilter<"FinanceGroupAccountRevision"> | string
   mnemonicCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | string | null
-  currency?: Prisma.StringNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | string | null
+  currencyId?: Prisma.IntWithAggregatesFilter<"FinanceGroupAccountRevision"> | number
   subjectLevel?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | number | null
   parentGroupAccountId?: Prisma.IntNullableWithAggregatesFilter<"FinanceGroupAccountRevision"> | number | null
   isActive?: Prisma.BoolWithAggregatesFilter<"FinanceGroupAccountRevision"> | boolean
@@ -490,7 +497,6 @@ export type FinanceGroupAccountRevisionCreateInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -505,6 +511,7 @@ export type FinanceGroupAccountRevisionCreateInput = {
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
   groupAccount: Prisma.FinanceGroupAccountCreateNestedOneWithoutRevisionsInput
   parentGroupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutParentOfRevisionsInput
+  currency: Prisma.FinanceCurrencyCatalogCreateNestedOneWithoutGroupAccountRevisionsInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedCreateInput = {
@@ -516,7 +523,7 @@ export type FinanceGroupAccountRevisionUncheckedCreateInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -537,7 +544,6 @@ export type FinanceGroupAccountRevisionUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -552,6 +558,7 @@ export type FinanceGroupAccountRevisionUpdateInput = {
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneRequiredWithoutRevisionsNestedInput
   parentGroupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutParentOfRevisionsNestedInput
+  currency?: Prisma.FinanceCurrencyCatalogUpdateOneRequiredWithoutGroupAccountRevisionsNestedInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedUpdateInput = {
@@ -563,7 +570,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -587,7 +594,7 @@ export type FinanceGroupAccountRevisionCreateManyInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -608,7 +615,6 @@ export type FinanceGroupAccountRevisionUpdateManyMutationInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -631,7 +637,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -675,7 +681,7 @@ export type FinanceGroupAccountRevisionCountOrderByAggregateInput = {
   category?: Prisma.SortOrder
   balanceDirection?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -694,6 +700,7 @@ export type FinanceGroupAccountRevisionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
@@ -708,7 +715,7 @@ export type FinanceGroupAccountRevisionMaxOrderByAggregateInput = {
   category?: Prisma.SortOrder
   balanceDirection?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -732,7 +739,7 @@ export type FinanceGroupAccountRevisionMinOrderByAggregateInput = {
   category?: Prisma.SortOrder
   balanceDirection?: Prisma.SortOrder
   mnemonicCode?: Prisma.SortOrder
-  currency?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -751,9 +758,52 @@ export type FinanceGroupAccountRevisionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   policyVersionId?: Prisma.SortOrder
   groupAccountId?: Prisma.SortOrder
+  currencyId?: Prisma.SortOrder
   subjectLevel?: Prisma.SortOrder
   parentGroupAccountId?: Prisma.SortOrder
   reviewedBy?: Prisma.SortOrder
+}
+
+export type FinanceGroupAccountRevisionCreateNestedManyWithoutCurrencyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput> | Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput[] | Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput[]
+  createMany?: Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountRevisionUncheckedCreateNestedManyWithoutCurrencyInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput> | Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput[] | Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput[]
+  createMany?: Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInputEnvelope
+  connect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+}
+
+export type FinanceGroupAccountRevisionUpdateManyWithoutCurrencyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput> | Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput[] | Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput[]
+  upsert?: Prisma.FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutCurrencyInput[]
+  createMany?: Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInputEnvelope
+  set?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountRevisionUpdateWithWhereUniqueWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpdateWithWhereUniqueWithoutCurrencyInput[]
+  updateMany?: Prisma.FinanceGroupAccountRevisionUpdateManyWithWhereWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpdateManyWithWhereWithoutCurrencyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
+}
+
+export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutCurrencyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput> | Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput[] | Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput[]
+  connectOrCreate?: Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput[]
+  upsert?: Prisma.FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutCurrencyInput[]
+  createMany?: Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInputEnvelope
+  set?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  disconnect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  delete?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  connect?: Prisma.FinanceGroupAccountRevisionWhereUniqueInput | Prisma.FinanceGroupAccountRevisionWhereUniqueInput[]
+  update?: Prisma.FinanceGroupAccountRevisionUpdateWithWhereUniqueWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpdateWithWhereUniqueWithoutCurrencyInput[]
+  updateMany?: Prisma.FinanceGroupAccountRevisionUpdateManyWithWhereWithoutCurrencyInput | Prisma.FinanceGroupAccountRevisionUpdateManyWithWhereWithoutCurrencyInput[]
+  deleteMany?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
 }
 
 export type FinanceGroupAccountRevisionCreateNestedManyWithoutGroupAccountInput = {
@@ -882,13 +932,110 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionNe
   deleteMany?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
 }
 
+export type FinanceGroupAccountRevisionCreateWithoutCurrencyInput = {
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  subjectLevel?: number | null
+  isActive?: boolean
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
+  groupAccount: Prisma.FinanceGroupAccountCreateNestedOneWithoutRevisionsInput
+  parentGroupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutParentOfRevisionsInput
+}
+
+export type FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  subjectLevel?: number | null
+  parentGroupAccountId?: number | null
+  isActive?: boolean
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountRevisionCreateOrConnectWithoutCurrencyInput = {
+  where: Prisma.FinanceGroupAccountRevisionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput>
+}
+
+export type FinanceGroupAccountRevisionCreateManyCurrencyInputEnvelope = {
+  data: Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInput | Prisma.FinanceGroupAccountRevisionCreateManyCurrencyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutCurrencyInput = {
+  where: Prisma.FinanceGroupAccountRevisionWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateWithoutCurrencyInput>
+  create: Prisma.XOR<Prisma.FinanceGroupAccountRevisionCreateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedCreateWithoutCurrencyInput>
+}
+
+export type FinanceGroupAccountRevisionUpdateWithWhereUniqueWithoutCurrencyInput = {
+  where: Prisma.FinanceGroupAccountRevisionWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateWithoutCurrencyInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateWithoutCurrencyInput>
+}
+
+export type FinanceGroupAccountRevisionUpdateManyWithWhereWithoutCurrencyInput = {
+  where: Prisma.FinanceGroupAccountRevisionScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateManyMutationInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutCurrencyInput>
+}
+
+export type FinanceGroupAccountRevisionScalarWhereInput = {
+  AND?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
+  OR?: Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
+  NOT?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
+  id?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
+  policyVersionId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
+  groupAccountId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
+  code?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  name?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  category?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  balanceDirection?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  mnemonicCode?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
+  currencyId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
+  subjectLevel?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
+  parentGroupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
+  isActive?: Prisma.BoolFilter<"FinanceGroupAccountRevision"> | boolean
+  reviewStatus?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccountRevision"> | Date | string | null
+  consolidationRole?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  counterpartyRequirement?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  movementType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  translationRateType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
+  createdAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
+}
+
 export type FinanceGroupAccountRevisionCreateWithoutGroupAccountInput = {
   code: string
   name: string
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -902,6 +1049,7 @@ export type FinanceGroupAccountRevisionCreateWithoutGroupAccountInput = {
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
   parentGroupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutParentOfRevisionsInput
+  currency: Prisma.FinanceCurrencyCatalogCreateNestedOneWithoutGroupAccountRevisionsInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedCreateWithoutGroupAccountInput = {
@@ -912,7 +1060,7 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutGroupAccountInput =
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -943,7 +1091,6 @@ export type FinanceGroupAccountRevisionCreateWithoutParentGroupAccountInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -957,6 +1104,7 @@ export type FinanceGroupAccountRevisionCreateWithoutParentGroupAccountInput = {
   updatedAt?: Date | string
   policyVersion: Prisma.FinanceAccountingPolicyVersionCreateNestedOneWithoutRevisionsInput
   groupAccount: Prisma.FinanceGroupAccountCreateNestedOneWithoutRevisionsInput
+  currency: Prisma.FinanceCurrencyCatalogCreateNestedOneWithoutGroupAccountRevisionsInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedCreateWithoutParentGroupAccountInput = {
@@ -968,7 +1116,7 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutParentGroupAccountI
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -1008,33 +1156,6 @@ export type FinanceGroupAccountRevisionUpdateManyWithWhereWithoutGroupAccountInp
   data: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateManyMutationInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountInput>
 }
 
-export type FinanceGroupAccountRevisionScalarWhereInput = {
-  AND?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
-  OR?: Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
-  NOT?: Prisma.FinanceGroupAccountRevisionScalarWhereInput | Prisma.FinanceGroupAccountRevisionScalarWhereInput[]
-  id?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
-  policyVersionId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
-  groupAccountId?: Prisma.IntFilter<"FinanceGroupAccountRevision"> | number
-  code?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  name?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  category?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  balanceDirection?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  mnemonicCode?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
-  currency?: Prisma.StringNullableFilter<"FinanceGroupAccountRevision"> | string | null
-  subjectLevel?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
-  parentGroupAccountId?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
-  isActive?: Prisma.BoolFilter<"FinanceGroupAccountRevision"> | boolean
-  reviewStatus?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  reviewedBy?: Prisma.IntNullableFilter<"FinanceGroupAccountRevision"> | number | null
-  reviewedAt?: Prisma.DateTimeNullableFilter<"FinanceGroupAccountRevision"> | Date | string | null
-  consolidationRole?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  counterpartyRequirement?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  movementType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  translationRateType?: Prisma.StringFilter<"FinanceGroupAccountRevision"> | string
-  createdAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"FinanceGroupAccountRevision"> | Date | string
-}
-
 export type FinanceGroupAccountRevisionUpsertWithWhereUniqueWithoutParentGroupAccountInput = {
   where: Prisma.FinanceGroupAccountRevisionWhereUniqueInput
   update: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateWithoutParentGroupAccountInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateWithoutParentGroupAccountInput>
@@ -1057,7 +1178,6 @@ export type FinanceGroupAccountRevisionCreateWithoutPolicyVersionInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -1071,6 +1191,7 @@ export type FinanceGroupAccountRevisionCreateWithoutPolicyVersionInput = {
   updatedAt?: Date | string
   groupAccount: Prisma.FinanceGroupAccountCreateNestedOneWithoutRevisionsInput
   parentGroupAccount?: Prisma.FinanceGroupAccountCreateNestedOneWithoutParentOfRevisionsInput
+  currency: Prisma.FinanceCurrencyCatalogCreateNestedOneWithoutGroupAccountRevisionsInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedCreateWithoutPolicyVersionInput = {
@@ -1081,7 +1202,7 @@ export type FinanceGroupAccountRevisionUncheckedCreateWithoutPolicyVersionInput 
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -1122,6 +1243,97 @@ export type FinanceGroupAccountRevisionUpdateManyWithWhereWithoutPolicyVersionIn
   data: Prisma.XOR<Prisma.FinanceGroupAccountRevisionUpdateManyMutationInput, Prisma.FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionInput>
 }
 
+export type FinanceGroupAccountRevisionCreateManyCurrencyInput = {
+  id?: number
+  policyVersionId: number
+  groupAccountId: number
+  code: string
+  name: string
+  category: string
+  balanceDirection: string
+  mnemonicCode?: string | null
+  subjectLevel?: number | null
+  parentGroupAccountId?: number | null
+  isActive?: boolean
+  reviewStatus?: string
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  consolidationRole?: string
+  counterpartyRequirement?: string
+  movementType?: string
+  translationRateType?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceGroupAccountRevisionUpdateWithoutCurrencyInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
+  groupAccount?: Prisma.FinanceGroupAccountUpdateOneRequiredWithoutRevisionsNestedInput
+  parentGroupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutParentOfRevisionsNestedInput
+}
+
+export type FinanceGroupAccountRevisionUncheckedUpdateWithoutCurrencyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutCurrencyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  policyVersionId?: Prisma.IntFieldUpdateOperationsInput | number
+  groupAccountId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
+  mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidationRole?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyRequirement?: Prisma.StringFieldUpdateOperationsInput | string
+  movementType?: Prisma.StringFieldUpdateOperationsInput | string
+  translationRateType?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type FinanceGroupAccountRevisionCreateManyGroupAccountInput = {
   id?: number
   policyVersionId: number
@@ -1130,7 +1342,7 @@ export type FinanceGroupAccountRevisionCreateManyGroupAccountInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -1154,7 +1366,7 @@ export type FinanceGroupAccountRevisionCreateManyParentGroupAccountInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   isActive?: boolean
   reviewStatus?: string
@@ -1174,7 +1386,6 @@ export type FinanceGroupAccountRevisionUpdateWithoutGroupAccountInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1188,6 +1399,7 @@ export type FinanceGroupAccountRevisionUpdateWithoutGroupAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
   parentGroupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutParentOfRevisionsNestedInput
+  currency?: Prisma.FinanceCurrencyCatalogUpdateOneRequiredWithoutGroupAccountRevisionsNestedInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedUpdateWithoutGroupAccountInput = {
@@ -1198,7 +1410,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutGroupAccountInput =
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1221,7 +1433,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutGroupAccountInp
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1242,7 +1454,6 @@ export type FinanceGroupAccountRevisionUpdateWithoutParentGroupAccountInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1256,6 +1467,7 @@ export type FinanceGroupAccountRevisionUpdateWithoutParentGroupAccountInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   policyVersion?: Prisma.FinanceAccountingPolicyVersionUpdateOneRequiredWithoutRevisionsNestedInput
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneRequiredWithoutRevisionsNestedInput
+  currency?: Prisma.FinanceCurrencyCatalogUpdateOneRequiredWithoutGroupAccountRevisionsNestedInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedUpdateWithoutParentGroupAccountInput = {
@@ -1267,7 +1479,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutParentGroupAccountI
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1290,7 +1502,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutParentGroupAcco
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1312,7 +1524,7 @@ export type FinanceGroupAccountRevisionCreateManyPolicyVersionInput = {
   category: string
   balanceDirection: string
   mnemonicCode?: string | null
-  currency?: string | null
+  currencyId: number
   subjectLevel?: number | null
   parentGroupAccountId?: number | null
   isActive?: boolean
@@ -1333,7 +1545,6 @@ export type FinanceGroupAccountRevisionUpdateWithoutPolicyVersionInput = {
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1347,6 +1558,7 @@ export type FinanceGroupAccountRevisionUpdateWithoutPolicyVersionInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   groupAccount?: Prisma.FinanceGroupAccountUpdateOneRequiredWithoutRevisionsNestedInput
   parentGroupAccount?: Prisma.FinanceGroupAccountUpdateOneWithoutParentOfRevisionsNestedInput
+  currency?: Prisma.FinanceCurrencyCatalogUpdateOneRequiredWithoutGroupAccountRevisionsNestedInput
 }
 
 export type FinanceGroupAccountRevisionUncheckedUpdateWithoutPolicyVersionInput = {
@@ -1357,7 +1569,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateWithoutPolicyVersionInput 
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1380,7 +1592,7 @@ export type FinanceGroupAccountRevisionUncheckedUpdateManyWithoutPolicyVersionIn
   category?: Prisma.StringFieldUpdateOperationsInput | string
   balanceDirection?: Prisma.StringFieldUpdateOperationsInput | string
   mnemonicCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  currency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyId?: Prisma.IntFieldUpdateOperationsInput | number
   subjectLevel?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   parentGroupAccountId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -1406,7 +1618,7 @@ export type FinanceGroupAccountRevisionSelect<ExtArgs extends runtime.Types.Exte
   category?: boolean
   balanceDirection?: boolean
   mnemonicCode?: boolean
-  currency?: boolean
+  currencyId?: boolean
   subjectLevel?: boolean
   parentGroupAccountId?: boolean
   isActive?: boolean
@@ -1422,6 +1634,7 @@ export type FinanceGroupAccountRevisionSelect<ExtArgs extends runtime.Types.Exte
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountRevision"]>
 
 export type FinanceGroupAccountRevisionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1433,7 +1646,7 @@ export type FinanceGroupAccountRevisionSelectCreateManyAndReturn<ExtArgs extends
   category?: boolean
   balanceDirection?: boolean
   mnemonicCode?: boolean
-  currency?: boolean
+  currencyId?: boolean
   subjectLevel?: boolean
   parentGroupAccountId?: boolean
   isActive?: boolean
@@ -1449,6 +1662,7 @@ export type FinanceGroupAccountRevisionSelectCreateManyAndReturn<ExtArgs extends
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountRevision"]>
 
 export type FinanceGroupAccountRevisionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1460,7 +1674,7 @@ export type FinanceGroupAccountRevisionSelectUpdateManyAndReturn<ExtArgs extends
   category?: boolean
   balanceDirection?: boolean
   mnemonicCode?: boolean
-  currency?: boolean
+  currencyId?: boolean
   subjectLevel?: boolean
   parentGroupAccountId?: boolean
   isActive?: boolean
@@ -1476,6 +1690,7 @@ export type FinanceGroupAccountRevisionSelectUpdateManyAndReturn<ExtArgs extends
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeGroupAccountRevision"]>
 
 export type FinanceGroupAccountRevisionSelectScalar = {
@@ -1487,7 +1702,7 @@ export type FinanceGroupAccountRevisionSelectScalar = {
   category?: boolean
   balanceDirection?: boolean
   mnemonicCode?: boolean
-  currency?: boolean
+  currencyId?: boolean
   subjectLevel?: boolean
   parentGroupAccountId?: boolean
   isActive?: boolean
@@ -1502,21 +1717,24 @@ export type FinanceGroupAccountRevisionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceGroupAccountRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currency" | "subjectLevel" | "parentGroupAccountId" | "isActive" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "consolidationRole" | "counterpartyRequirement" | "movementType" | "translationRateType" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountRevision"]>
+export type FinanceGroupAccountRevisionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "policyVersionId" | "groupAccountId" | "code" | "name" | "category" | "balanceDirection" | "mnemonicCode" | "currencyId" | "subjectLevel" | "parentGroupAccountId" | "isActive" | "reviewStatus" | "reviewedBy" | "reviewedAt" | "consolidationRole" | "counterpartyRequirement" | "movementType" | "translationRateType" | "createdAt" | "updatedAt", ExtArgs["result"]["financeGroupAccountRevision"]>
 export type FinanceGroupAccountRevisionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }
 export type FinanceGroupAccountRevisionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }
 export type FinanceGroupAccountRevisionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   policyVersion?: boolean | Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>
   groupAccount?: boolean | Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>
   parentGroupAccount?: boolean | Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>
+  currency?: boolean | Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>
 }
 
 export type $FinanceGroupAccountRevisionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1525,6 +1743,7 @@ export type $FinanceGroupAccountRevisionPayload<ExtArgs extends runtime.Types.Ex
     policyVersion: Prisma.$FinanceAccountingPolicyVersionPayload<ExtArgs>
     groupAccount: Prisma.$FinanceGroupAccountPayload<ExtArgs>
     parentGroupAccount: Prisma.$FinanceGroupAccountPayload<ExtArgs> | null
+    currency: Prisma.$FinanceCurrencyCatalogPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1535,7 +1754,7 @@ export type $FinanceGroupAccountRevisionPayload<ExtArgs extends runtime.Types.Ex
     category: string
     balanceDirection: string
     mnemonicCode: string | null
-    currency: string | null
+    currencyId: number
     subjectLevel: number | null
     parentGroupAccountId: number | null
     isActive: boolean
@@ -1945,6 +2164,7 @@ export interface Prisma__FinanceGroupAccountRevisionClient<T, Null = never, ExtA
   policyVersion<T extends Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountingPolicyVersionDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountingPolicyVersionClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountingPolicyVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   groupAccount<T extends Prisma.FinanceGroupAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceGroupAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   parentGroupAccount<T extends Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceGroupAccountRevision$parentGroupAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceGroupAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceGroupAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  currency<T extends Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCurrencyCatalogDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceCurrencyCatalogClient<runtime.Types.Result.GetResult<Prisma.$FinanceCurrencyCatalogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1982,7 +2202,7 @@ export interface FinanceGroupAccountRevisionFieldRefs {
   readonly category: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
   readonly balanceDirection: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
   readonly mnemonicCode: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
-  readonly currency: Prisma.FieldRef<"FinanceGroupAccountRevision", 'String'>
+  readonly currencyId: Prisma.FieldRef<"FinanceGroupAccountRevision", 'Int'>
   readonly subjectLevel: Prisma.FieldRef<"FinanceGroupAccountRevision", 'Int'>
   readonly parentGroupAccountId: Prisma.FieldRef<"FinanceGroupAccountRevision", 'Int'>
   readonly isActive: Prisma.FieldRef<"FinanceGroupAccountRevision", 'Boolean'>

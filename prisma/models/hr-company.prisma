@@ -10,6 +10,7 @@ model Company {
   registeredDate                    String?
   managementGroup                   String
   codePoolCode                      String?
+  isConsolidationParent             Boolean                            @default(false)
   isActive                          Boolean                            @default(true)
   sortOrder                         Int                                @default(0)
   editedBy                          Int?

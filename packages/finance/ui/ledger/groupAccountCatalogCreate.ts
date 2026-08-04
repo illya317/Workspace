@@ -3,20 +3,10 @@ import type {
   CreateFinanceGroupAccountInput,
   FinanceGroupAccountCatalogRow,
   UpdateFinanceGroupAccountInput,
+  FinanceCurrencyCatalogOption,
 } from "@workspace/finance/types";
 
 import { balanceDirectionLabel } from "./groupAccountMappingPresentation";
-
-const CURRENCY_OPTIONS = [
-  { value: "人民币", label: "人民币（CNY）" },
-  { value: "美元", label: "美元（USD）" },
-  { value: "加元", label: "加元（CAD）" },
-  { value: "港币", label: "港币（HKD）" },
-  { value: "欧元", label: "欧元（EUR）" },
-  { value: "日元", label: "日元（JPY）" },
-  { value: "澳元", label: "澳元（AUD）" },
-  { value: "瑞士法郎", label: "瑞士法郎（CHF）" },
-] as const;
 
 export type GroupAccountCatalogCreateDraft = CreateFinanceGroupAccountInput;
 export type GroupAccountCatalogEditDraft = UpdateFinanceGroupAccountInput & { id: number };
@@ -28,7 +18,7 @@ export function emptyGroupAccountCatalogCreateDraft(): GroupAccountCatalogCreate
     category: "asset",
     balanceDirection: "debit",
     mnemonicCode: null,
-    currency: "人民币",
+    currencyId: 0,
     parentGroupAccountId: null,
     consolidationRole: "none",
     counterpartyRequirement: "none",
@@ -48,7 +38,7 @@ export function groupAccountCatalogEditDraft(row: FinanceGroupAccountCatalogRow)
     category: row.category as GroupAccountCatalogEditDraft["category"],
     balanceDirection: row.balanceDirection as GroupAccountCatalogEditDraft["balanceDirection"],
     mnemonicCode: row.mnemonicCode,
-    currency: row.currency ?? "人民币",
+    currencyId: row.currencyId,
     parentGroupAccountId: row.parent?.id ?? recommendedParent?.id ?? null,
     consolidationRole: row.consolidationRole,
     counterpartyRequirement: row.counterpartyRequirement,
@@ -61,6 +51,7 @@ export function groupAccountCatalogEditDraft(row: FinanceGroupAccountCatalogRow)
 export function groupAccountCatalogCreateSections(
   draft: GroupAccountCatalogCreateDraft,
   onChange: (change: Partial<GroupAccountCatalogCreateDraft>) => void,
+  currencies: readonly FinanceCurrencyCatalogOption[],
   options: { lockAttributes?: boolean } = {},
 ): CreateSurfaceSectionSpec<FormSurfaceFieldSpec>[] {
   return [{
@@ -127,17 +118,17 @@ export function groupAccountCatalogCreateSections(
         onChange: (value) => onChange({ balanceDirection: value as "debit" | "credit" }),
       },
       {
-        key: "currency",
+        key: "currencyId",
         label: "币种",
         required: true,
         spec: {
           valueType: "string",
           control: "choice",
           validation: { required: true },
-          options: { source: "static", items: [...CURRENCY_OPTIONS] },
+          options: { source: "static", items: currencies.map((currency) => ({ value: String(currency.id), label: `${currency.code} · ${currency.name}` })) },
         },
-        value: draft.currency ?? "人民币",
-        onChange: (value) => onChange({ currency: String(value ?? "人民币") }),
+        value: draft.currencyId > 0 ? String(draft.currencyId) : null,
+        onChange: (value) => onChange({ currencyId: Number(value) }),
       },
       {
         key: "parentGroupAccountId",
@@ -252,8 +243,9 @@ function canInferConsolidationRole(
 export function groupAccountCatalogEditSections(
   draft: GroupAccountCatalogEditDraft,
   onChange: (change: Partial<GroupAccountCatalogEditDraft>) => void,
+  currencies: readonly FinanceCurrencyCatalogOption[],
 ) {
-  return groupAccountCatalogCreateSections(draft, onChange);
+  return groupAccountCatalogCreateSections(draft, onChange, currencies);
 }
 
 function defaultDirection(category: GroupAccountCatalogCreateDraft["category"]) {

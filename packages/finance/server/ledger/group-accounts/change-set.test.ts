@@ -24,7 +24,7 @@ test("group-account creation enforces Chinese category code prefixes", () => {
     category: "cost",
     balanceDirection: "debit",
     mnemonicCode: null,
-    currency: null,
+    currencyId: 1,
     parentGroupAccountId: null,
   });
   assert.equal(valid.ok, true);
@@ -37,7 +37,7 @@ test("group-account creation enforces Chinese category code prefixes", () => {
     category: "cost",
     balanceDirection: "debit",
     mnemonicCode: null,
-    currency: null,
+    currencyId: 1,
     parentGroupAccountId: null,
   });
   assert.equal(invalid.ok, false);
@@ -93,7 +93,7 @@ test("group-account update no longer accepts review status changes", () => {
     category: "expense",
     balanceDirection: "debit",
     mnemonicCode: "GZ",
-    currency: null,
+    currencyId: 1,
     parentGroupAccountId: null,
     expectedUpdatedAt: "2026-07-24T00:00:00.000Z",
   });

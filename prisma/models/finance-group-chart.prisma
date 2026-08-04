@@ -6,7 +6,7 @@ model FinanceGroupAccount {
   category                 String
   balanceDirection         String
   mnemonicCode             String?
-  currency                 String?
+  currencyId               Int
   subjectLevel             Int?
   parentId                 Int?
   sourceKind               String // reference_seed | suggested | manual
@@ -32,10 +32,12 @@ model FinanceGroupAccount {
   consolidationRuleSelectors FinanceConsolidationRuleSelector[]
   consolidationEntryLines    FinanceConsolidationEntryLine[]
   originCompany Company? @relation(fields: [originCompanyId], references: [id], onDelete: Restrict)
+  currency      FinanceCurrencyCatalog @relation(fields: [currencyId], references: [id], onDelete: Restrict)
 
   @@index([name])
   @@index([parentId])
   @@index([originCompanyId])
+  @@index([currencyId])
 }
 
 /// 集团科目表版本（配置事实：半开生效区间 [effectiveFrom, effectiveTo)，V1 的起点为空并覆盖全部历史）
@@ -69,7 +71,7 @@ model FinanceGroupAccountRevision {
   category             String
   balanceDirection     String
   mnemonicCode         String?
-  currency             String?
+  currencyId           Int
   subjectLevel         Int?
   parentGroupAccountId Int?
   isActive             Boolean                        @default(true)
@@ -85,10 +87,12 @@ model FinanceGroupAccountRevision {
   policyVersion        FinanceAccountingPolicyVersion @relation(fields: [policyVersionId], references: [id], onDelete: Restrict)
   groupAccount         FinanceGroupAccount            @relation("FinanceGroupAccountRevisionAccount", fields: [groupAccountId], references: [id], onDelete: Restrict)
   parentGroupAccount   FinanceGroupAccount?           @relation("FinanceGroupAccountRevisionParent", fields: [parentGroupAccountId], references: [id], onDelete: Restrict)
+  currency             FinanceCurrencyCatalog         @relation(fields: [currencyId], references: [id], onDelete: Restrict)
 
   @@unique([policyVersionId, groupAccountId], map: "FinanceGroupAccountRevision_version_account_key")
   @@unique([policyVersionId, code], map: "FinanceGroupAccountRevision_version_code_key")
   @@index([parentGroupAccountId], map: "FinanceGroupAccountRevision_parent_idx")
+  @@index([currencyId], map: "FinanceGroupAccountRevision_currency_idx")
 }
 
 /// 版本化合并规则主数据。规则是长期会计政策，批次运行后生成可见集团凭证或待处理异常；规则本身不在工作底稿复核。

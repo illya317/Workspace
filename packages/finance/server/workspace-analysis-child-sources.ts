@@ -74,11 +74,11 @@ export type FinanceGroupAccountParentRecommendationRow = {
   suggestedParentName: string | null;
 };
 
-export type FinanceConsolidatedLineRow = Omit<ConsolidatedOutputLine, "entityAmounts"> & {
+export type FinanceConsolidatedLineRow = Omit<ConsolidatedOutputLine, "entityAmounts" | "translationTrace"> & {
   reportType: StatementReportType;
   reportLabel: string;
 };
-export type FinanceConsolidatedEntityAmountRow = ConsolidatedOutputEntityAmount & {
+export type FinanceConsolidatedEntityAmountRow = Omit<ConsolidatedOutputEntityAmount, "translationTrace"> & {
   reportType: StatementReportType;
   lineCode: string;
 };
@@ -290,6 +290,7 @@ export const FINANCE_CONSOLIDATED_ENTITY_AMOUNTS_SOURCE = defineWorkspaceAnalysi
   fields: {
     reportType: f("报表类型", "所属合并报表类型。", "text"), lineCode: f("报表行编码", "所属报表行稳定编码。", "text"), entitySnapshotId: f("实体快照 ID", "批次冻结实体标识。", "integer"),
     companyCode: f("公司编码", "合并范围公司编码。", "text"), companyName: f("公司名称", "合并范围公司名称。", "text"), role: f("合并角色", "parent 或 subsidiary。", "text"),
+    functionalCurrency: f("公司本位币", "批次冻结的公司财务本位币。", "text"),
     amount: f("本期贡献金额", "本期折算贡献金额。", "currency"), currentMonthAmount: f("本月贡献金额", "本月折算贡献金额。", "currency"), previousAmount: f("上期贡献金额", "比较期间折算贡献金额。", "currency"),
   }, pagination: PAGINATION, limits: LIMITS,
 });

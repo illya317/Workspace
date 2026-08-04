@@ -1,6 +1,7 @@
 import type {
   ConsolidatedOutputEntityAmount,
   ConsolidatedOutputLine,
+  ConsolidatedOutputRateBasis,
   ConsolidatedReportOutputPackage,
   ConsolidatedStatementOutput,
   ConsolidationAdjustmentComparison,
@@ -38,6 +39,54 @@ export interface ConsolidationWorkpaperAdjustmentAmounts {
   credit: number;
 }
 
+export interface ConsolidationFxTranslationRow {
+  key: string;
+  lineCode: string;
+  lineLabel: string;
+  companyLabel: string;
+  sourceCurrency: string;
+  presentationCurrency: string;
+  sourceAmount: number;
+  rateBasisLabel: string;
+  rateDisplay: string;
+  translatedAmount: number;
+  isTotal: boolean;
+}
+
+const RATE_BASIS_LABELS: Record<ConsolidatedOutputRateBasis, string> = {
+  identity: "本位币无需折算",
+  closing: "期末汇率",
+  historical: "历史汇率",
+  monthlyAverage: "月平均汇率",
+  monthlyAverageMultiple: "逐月平均汇率",
+  cashPoint: "时点汇率",
+  rolling: "期初人民币加逐月利润滚算",
+  balancing: "折算平衡差额",
+  aggregate: "汇总派生",
+};
+
+export function consolidationFxTranslationRows(
+  statement: ConsolidatedStatementOutput,
+): ConsolidationFxTranslationRow[] {
+  return statement.lines.flatMap((line) => (line.entityAmounts ?? []).flatMap((entity) => {
+    const trace = entity.translationTrace;
+    if (!trace || trace.sourceCurrency === trace.presentationCurrency) return [];
+    return [{
+      key: `${entity.entitySnapshotId}:${line.lineCode}`,
+      lineCode: line.lineCode,
+      lineLabel: line.label,
+      companyLabel: `${entity.companyCode} · ${entity.companyName}`,
+      sourceCurrency: trace.sourceCurrency,
+      presentationCurrency: trace.presentationCurrency,
+      sourceAmount: trace.current.sourceAmount,
+      rateBasisLabel: RATE_BASIS_LABELS[trace.current.basis],
+      rateDisplay: trace.current.rate === null ? (trace.current.basis === "monthlyAverageMultiple" ? "多期" : "—") : trace.current.rate.toFixed(8),
+      translatedAmount: trace.current.translatedAmount,
+      isTotal: line.isHeader || line.isTotal || line.isGrandTotal,
+    }];
+  }));
+}
+
 function money(value: number) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
@@ -50,6 +99,23 @@ function combinedEntityAmounts(lines: readonly ConsolidatedOutputLine[]) {
       ...current,
       amount: money(current.amount + entity.amount),
       previousAmount: money(current.previousAmount + entity.previousAmount),
+      ...(current.translationTrace && entity.translationTrace ? {
+        translationTrace: {
+          ...current.translationTrace,
+          current: {
+            sourceAmount: money(current.translationTrace.current.sourceAmount + entity.translationTrace.current.sourceAmount),
+            translatedAmount: money(current.translationTrace.current.translatedAmount + entity.translationTrace.current.translatedAmount),
+            basis: "aggregate" as const,
+            rate: null,
+          },
+          comparative: {
+            sourceAmount: money(current.translationTrace.comparative.sourceAmount + entity.translationTrace.comparative.sourceAmount),
+            translatedAmount: money(current.translationTrace.comparative.translatedAmount + entity.translationTrace.comparative.translatedAmount),
+            basis: "aggregate" as const,
+            rate: null,
+          },
+        },
+      } : {}),
     } : { ...entity });
   }
   return [...byEntity.values()];

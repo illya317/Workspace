@@ -4,6 +4,32 @@ import type { StatementPeriodKind } from "./statement-period";
 export type ConsolidatedOutputLineSide = "debit" | "credit";
 export type ConsolidatedOutputCashDirection = "in" | "out" | "net";
 
+export type ConsolidatedOutputRateBasis =
+  | "identity"
+  | "closing"
+  | "historical"
+  | "monthlyAverage"
+  | "monthlyAverageMultiple"
+  | "cashPoint"
+  | "rolling"
+  | "balancing"
+  | "aggregate";
+
+export interface ConsolidatedOutputTranslationPeriodTrace {
+  sourceAmount: number;
+  translatedAmount: number;
+  basis: ConsolidatedOutputRateBasis;
+  rate: number | null;
+}
+
+export interface ConsolidatedOutputTranslationTrace {
+  sourceCurrency: string;
+  presentationCurrency: string;
+  current: ConsolidatedOutputTranslationPeriodTrace;
+  currentMonth?: ConsolidatedOutputTranslationPeriodTrace;
+  comparative: ConsolidatedOutputTranslationPeriodTrace;
+}
+
 export interface ConsolidatedOutputEntityAmount {
   entitySnapshotId: number;
   companyCode: string;
@@ -12,6 +38,8 @@ export interface ConsolidatedOutputEntityAmount {
   amount: number;
   currentMonthAmount?: number;
   previousAmount: number;
+  functionalCurrency?: string;
+  translationTrace?: ConsolidatedOutputTranslationTrace;
 }
 
 export interface ConsolidatedOutputLine {
@@ -36,6 +64,8 @@ export interface ConsolidatedOutputLine {
   previousAdjustmentAmount?: number;
   /** New snapshots retain the translated contribution from every entity. Optional for historical locked snapshots. */
   entityAmounts?: ConsolidatedOutputEntityAmount[];
+  /** Internal per-entity translation evidence; moved into entityAmounts while statements are combined. */
+  translationTrace?: ConsolidatedOutputTranslationTrace;
 }
 
 export interface ConsolidatedStatementOutput {
@@ -71,6 +101,7 @@ export interface ConsolidatedReportOutputPackage {
     lockedAt: string | null;
     publishedBy: number | null;
     publishedAt: string | null;
+    presentationCurrency?: string;
   };
   statements: ConsolidatedStatementOutput[];
   sourceCount: number;

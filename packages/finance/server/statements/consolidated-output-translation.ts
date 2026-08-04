@@ -12,6 +12,14 @@ import {
 } from "./consolidated-line-amounts";
 import { cnyPerForeignUnit, historicalEquityRate } from "./consolidation-frozen-rates";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
+import {
+  monthlyTranslatedIncomeAmount,
+  recomputeTranslatedIncome,
+} from "./consolidated-output-income-translation";
+import {
+  attachTranslationTraces,
+  type TranslationTracePolicy,
+} from "./consolidated-output-translation-traces";
 
 type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
 
@@ -33,18 +41,7 @@ const HISTORICAL_CAPITAL_LINE_CODES = new Set<HistoricalEquityLineCode>([
 ]);
 const TRANSLATION_DIFFERENCE_LINE_CODE = "otherComprehensiveIncome";
 
-type EntityTranslationPolicy = {
-  currency: "CNY";
-} | {
-  currency: "CAD";
-  entitySnapshotId: number;
-  entityLabel: string;
-  closingRate: number;
-  comparativeClosingRate: number | null;
-  historicalCapitalRates: Record<"current" | "comparative", Record<HistoricalEquityLineCode, number | null>>;
-  flowRates: Record<"current" | "comparative", Map<string, number>>;
-  cashPointRates: Record<"current" | "comparative", Map<string, number>>;
-};
+type EntityTranslationPolicy = TranslationTracePolicy;
 
 function record(value: unknown): Record<string, unknown> | null {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -91,6 +88,12 @@ function retainedEarningsOpening(reportPayload: unknown) {
     && amount !== null
     ? { openingDate: opening.openingDate, currencyCode: opening.presentationCurrencyCode, amount, evidence: opening.evidence }
     : null;
+}
+
+function payloadFlowLines(reportPayload: unknown) {
+  const envelope = record(reportPayload);
+  const payload = record(envelope?.payload) ?? envelope;
+  return Array.isArray(payload?.lines) ? payload.lines : null;
 }
 
 function parseFrozenLine(value: unknown): FrozenReportLine | null {
@@ -346,7 +349,13 @@ function translatedNetProfit(
   const source = replay.sources.find((item) => item.entitySnapshotId === policy.entitySnapshotId && item.reportType === "incomeStatement");
   const flows = source ? payloadMonthlyFlows(source.reportPayload, "current") : null;
   if (!flows) return failCommand(`${policy.entityLabel} 缺少未分配利润滚算所需的逐月利润表`, 409, "monthlyFlows");
-  return monthlyTranslatedAmount(flows, policy.flowRates.current, "netProfit");
+  const sourceRows = payloadFlowLines(source?.reportPayload);
+  if (!sourceRows) return failCommand(`${policy.entityLabel} 的利润表来源快照不可重放`, 409, "reportPayload");
+  const definitions = sourceRows.map(parseFrozenLine);
+  if (definitions.some((line) => line === null)) {
+    return failCommand("CAD 利润表来源缺少规范行标识或借贷方向", 409, "reportPayload");
+  }
+  return monthlyTranslatedIncomeAmount(flows, policy.flowRates.current, definitions as FrozenReportLine[], "netProfit");
 }
 
 function monthEndDate(year: number, month: number) {
@@ -502,16 +511,36 @@ export function translateSourceLines(
       previousAdjustmentAmount: 0,
     });
   }
+  let translatedResult = translated;
+  if (reportType === "incomeStatement" && policy.data.currency === "CAD") {
+    translatedResult = recomputeTranslatedIncome(translatedResult);
+  }
   if (reportType === "balanceSheet" && policy.data.currency === "CAD") {
-    return applyCadTranslationDifference(policy.data, translated);
+    const balanced = applyCadTranslationDifference(policy.data, translatedResult);
+    if (!balanced.ok) return balanced;
+    translatedResult = balanced.data;
   }
   if (reportType === "cashFlow" && policy.data.currency === "CAD" && usesCadFlowTranslation) {
-    return reconcileCadCashFlowTranslation({
+    const reconciled = reconcileCadCashFlowTranslation({
       entityLabel: policy.data.entityLabel,
       currentFlows: currentFlows!,
       comparativeFlows: comparativeFlows ?? [],
-      translatedLines: translated,
+      translatedLines: translatedResult,
     });
+    if (!reconciled.ok) return reconciled;
+    translatedResult = reconciled.data;
   }
-  return okCommand(translated);
+  const sourceByCode = new Map(sourceRows.flatMap((row) => {
+    const parsed = parseFrozenLine(row);
+    return parsed ? [[parsed.lineCode, parsed] as const] : [];
+  }));
+  return okCommand(attachTranslationTraces({
+    year: replay.batch.year,
+    month: replay.batch.month,
+    policy: policy.data,
+    reportType,
+    sourceByCode,
+    lines: translatedResult,
+    hasRetainedEarningsOpening: retainedEarningsOpening(reportPayload) !== null,
+  }));
 }

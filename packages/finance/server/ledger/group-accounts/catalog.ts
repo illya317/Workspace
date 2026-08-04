@@ -50,13 +50,13 @@ export async function listFinanceGroupAccounts(
   const currentVersion = versions.find((version) => version.status === "published" && version.effectiveTo === null);
   if (!currentVersion) throw new Error("缺少当前生效的集团会计政策版本");
   const selectedVersion = versions.find((version) => version.id === input.policyVersionId) ?? currentVersion;
-  const [revisions, mappingCounts, mappingYears, parentRecommendations, reclassRules] = await Promise.all([
+  const [revisions, mappingCounts, mappingYears, parentRecommendations, reclassRules, currencies] = await Promise.all([
     prisma.financeGroupAccountRevision.findMany({
       where: {
         policyVersionId: selectedVersion.id,
         isActive: true,
       },
-      include: { groupAccount: true },
+      include: { groupAccount: true, currency: true },
     }),
     prisma.financeGroupAccountMapping.findMany({
       where: { policyVersionId: selectedVersion.id, groupAccountId: { not: null } },
@@ -106,6 +106,11 @@ export async function listFinanceGroupAccounts(
         confirmedAt: { not: null },
       },
     }),
+    prisma.financeCurrencyCatalog.findMany({
+      where: { isActive: true },
+      select: { id: true, code: true, name: true },
+      orderBy: { code: "asc" },
+    }),
   ]);
   const usageByGroupAccountId = buildGroupAccountUsageById(revisions, reclassRules);
   const conventionIssues = revisions.flatMap((revision) => {
@@ -139,7 +144,8 @@ export async function listFinanceGroupAccounts(
       companyCode: null,
       subjectLevel: revision.subjectLevel,
       mnemonicCode: revision.mnemonicCode,
-      currency: revision.currency,
+      currency: `${revision.currency.code} · ${revision.currency.name}`,
+      currencyId: revision.currencyId,
       isActive: revision.isActive,
       groupAccount: null,
       sourceKind: revision.groupAccount.sourceKind as FinanceGroupAccountCatalogResponse["rows"][number]["sourceKind"],
@@ -218,6 +224,7 @@ export async function listFinanceGroupAccounts(
     currentPolicyVersionId: currentVersion.id,
     selectedPolicyVersionId: selectedVersion.id,
     policyVersions: versions.map(versionRow),
+    currencies,
     rows: filtered,
     treeRows,
     pagination: { page: 1, pageSize: Math.max(total, 1), total, totalPages: 1 },

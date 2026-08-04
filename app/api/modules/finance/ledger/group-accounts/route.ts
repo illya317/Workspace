@@ -15,7 +15,7 @@ const createGroupAccountSchema = z.object({
   category: z.enum(["asset", "liability", "common", "equity", "cost", "revenue", "expense"]),
   balanceDirection: z.enum(["debit", "credit"]),
   mnemonicCode: z.string().max(64).nullable(),
-  currency: z.string().max(32).nullable(),
+  currencyId: z.coerce.number().int().positive(),
   parentGroupAccountId: z.number().int().positive().nullable(),
   consolidationRole: z.enum(["none", "intercompanyReceivable", "intercompanyPayable", "intercompanyRevenue", "intercompanyExpense", "investmentInSubsidiary", "shareCapital", "capitalReserve", "dividendReceivable", "dividendPayable", "inventory", "fixedAsset", "cashFlow", "difference"]),
   counterpartyRequirement: z.enum(["none", "optional", "required"]),
