@@ -201,6 +201,8 @@ API 一级目录只表达系统能力类型：
 
 新业务代码必须使用模块入口：
 
+浏览器认证 Cookie 统一由 `packages/platform/auth-cookies.ts` 定义。Cookie 名和 Path 必须按 `NEXT_PUBLIC_BASE_PATH` 隔离，使同域的 `/test` 与 `/workspace` 会话、企业微信 OAuth state 和登录后跳转目标互不覆盖；登录/退出响应同时清理旧的根路径 Cookie，读取侧只在迁移期兼容旧名称。API route 不得再手写平行的认证 Cookie 名称或 `Path=/`。
+
 - HR：`/api/modules/hr/roster/*`
 - 财务：`/api/modules/finance/*`
 - Work：`/api/modules/work/*`

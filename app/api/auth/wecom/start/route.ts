@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { createWecomLoginStart } from "@workspace/platform/server/account";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { setWecomLoginCookies } from "@workspace/platform/server/auth";
 
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
-const POST_LOGIN_NEXT_COOKIE = "post_login_next";
 const WECOM_LOGIN_DISPLAY_PANEL = "panel";
 
 function getRequestOrigin(request: Request) {
@@ -39,22 +39,7 @@ export async function GET(request: Request) {
         { headers: { "Cache-Control": "no-store" } },
       )
       : NextResponse.redirect(login.authorizeUrl);
-    response.cookies.set("wecom_oauth_state", login.state, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 5,
-      path: "/",
-    });
-    if (nextPath) {
-      response.cookies.set(POST_LOGIN_NEXT_COOKIE, nextPath, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 60 * 5,
-        path: "/",
-      });
-    }
+    setWecomLoginCookies(response, login.state, nextPath);
     return response;
   } catch (error) {
     const message = error instanceof Error ? error.message : "配置错误";

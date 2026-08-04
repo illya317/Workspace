@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from "jose";
+import { readSessionCookie } from "../auth-cookies";
 
 export const SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 30;
 const SESSION_EXPIRATION = "30d";
@@ -43,10 +44,7 @@ export async function verifyToken(token: string) {
 }
 
 export function getTokenFromCookie(request: Request) {
-  const cookie = request.headers.get("cookie");
-  if (!cookie) return null;
-  const match = cookie.match(/token=([^;]+)/);
-  return match ? decodeURIComponent(match[1]) : null;
+  return readSessionCookie(request);
 }
 
 export type AuthPayload = {

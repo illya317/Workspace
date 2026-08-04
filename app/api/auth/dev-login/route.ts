@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { SESSION_MAX_AGE_SECONDS } from "@workspace/platform/server/auth";
+import {
+  SESSION_MAX_AGE_SECONDS,
+  clearSessionCookies,
+  setSessionCookie,
+} from "@workspace/platform/server/auth";
 import { jsonErrorResponse, parseJson } from "@workspace/platform/server/api";
 import { loginWithApiKey } from "@workspace/platform/server/account";
 
@@ -30,24 +34,12 @@ export async function POST(request: Request) {
   const response = NextResponse.json({
     success: true,
   });
-  response.cookies.set("token", result.token, {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    maxAge: SESSION_MAX_AGE_SECONDS,
-    path: "/",
-  });
+  setSessionCookie(response, result.token, SESSION_MAX_AGE_SECONDS);
   return response;
 }
 
 export async function DELETE() {
   const response = NextResponse.json({ success: true });
-  response.cookies.set("token", "", {
-    httpOnly: true,
-    secure: false,
-    sameSite: "lax",
-    expires: new Date(0),
-    path: "/",
-  });
+  clearSessionCookies(response);
   return response;
 }

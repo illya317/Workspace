@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getCurrentSessionStatus } from "@workspace/platform/server/account";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { setKickedCookie } from "@workspace/platform/server/auth";
 
 export async function GET(request: Request) {
   const session = await getCurrentSessionStatus(request);
@@ -8,12 +9,7 @@ export async function GET(request: Request) {
 
   if (session.status === "kicked") {
     const res = jsonErrorResponse("已在其他设备登录", 401);
-    res.cookies.set("kicked", "1", {
-      httpOnly: false,
-      secure: false,
-      path: "/",
-      maxAge: 60,
-    });
+    setKickedCookie(res);
     return res;
   }
 

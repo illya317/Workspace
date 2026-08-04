@@ -6,6 +6,10 @@ import { PageSurface, type FormSurfaceItemSpec } from "@workspace/core/ui";
 import { createWecomLoginPanelItem } from "./auth/WecomLoginPanel";
 import { resolveWecomLoginEntry } from "./auth/wecom-login-entry";
 import { useTenantConfig } from "./tenant-config";
+import {
+  AUTH_COOKIE_CONTRACT,
+  LEGACY_KICKED_COOKIE_NAME,
+} from "../auth-cookies";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const LOGIN_TIMEOUT_MS = 20000;
 type LoginMethod = "account" | "wecom-desktop" | "wecom-mobile-help";
@@ -35,14 +39,18 @@ export default function LoginClient() {
   const [error, setError] = useState("");
   const [kickedAlert, setKickedAlert] = useState(false);
   useEffect(() => {
-    const kickedCookie = document.cookie.split("; ").find(row => row.startsWith("kicked="));
+    const kickedCookie = document.cookie.split("; ").find((row) => (
+      row.startsWith(`${AUTH_COOKIE_CONTRACT.kickedName}=`)
+      || row.startsWith(`${LEGACY_KICKED_COOKIE_NAME}=`)
+    ));
     const searchParams = new URLSearchParams(window.location.search);
     const kickedParam = searchParams.get("kicked");
     const wecomError = searchParams.get("wecom_error");
     if (wecomError) setError(wecomError);
     if (kickedCookie || kickedParam) {
       setKickedAlert(true);
-      document.cookie = "kicked=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = `${AUTH_COOKIE_CONTRACT.kickedName}=; max-age=0; path=${AUTH_COOKIE_CONTRACT.path}; samesite=lax`;
+      document.cookie = `${LEGACY_KICKED_COOKIE_NAME}=; max-age=0; path=/; samesite=lax`;
     }
     if (
       kickedParam

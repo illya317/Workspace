@@ -13,6 +13,7 @@ import { disabledApiResponseForRequest } from "./module-runtime";
 import { jsonErrorResponse } from "./api";
 import { agentPolicyAllowsActions } from "../agent-permission-policy";
 import { getSystemConfig } from "./system-config";
+import { setKickedCookie } from "../auth-cookies";
 
 async function identityCanUseContract(userId: number, contract: ApiContract) {
   const authorization = contract.authorization;
@@ -68,12 +69,7 @@ function jsonError(error: string, status: number): NextResponse {
 async function unauthenticatedResponse(request: Request) {
   if (await isKicked(request)) {
     const response = jsonError("已在其他设备登录", 401);
-    response.cookies.set("kicked", "1", {
-      httpOnly: false,
-      secure: false,
-      path: "/",
-      maxAge: 60,
-    });
+    setKickedCookie(response);
     return response;
   }
   return jsonError("未登录", 401);

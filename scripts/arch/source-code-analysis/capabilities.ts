@@ -180,7 +180,8 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   }),
   capability("platform", "platform-foundation", "平台基础契约与运行支撑", {
     files: [
-      "README.md", "api-contract-types.ts", "completion-date-policy.ts", "index.ts", "package.json",
+      "README.md", "api-contract-types.ts", "auth-cookies.test.ts", "auth-cookies.ts",
+      "completion-date-policy.ts", "index.ts", "package.json",
       "production-batch-number.ts", "route-runtime-labels.test.ts", "route-runtime-labels.ts",
       "search.ts", "service-result.ts", "source-code-analysis-contract.ts", "tenant-config.ts",
       "tsconfig.json", "server/api-route.ts", "server/api.test.ts", "server/api.ts",

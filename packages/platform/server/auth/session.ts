@@ -9,6 +9,10 @@ import { currentEmploymentDateWhere } from "@workspace/platform/server/relation-
 import { isRootAdminUser, ROOT_ADMIN_ACTOR_NAME } from "./root";
 import type { SessionUser } from "../../types";
 import type { AuthPayload } from "../auth-token";
+import {
+  AUTH_COOKIE_CONTRACT,
+  LEGACY_SESSION_COOKIE_NAME,
+} from "../../auth-cookies";
 
 async function buildSessionUser(
   userId: number,
@@ -110,7 +114,8 @@ async function buildSessionUser(
 
 async function _getCurrentUser(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get("token")?.value;
+  const token = cookieStore.get(AUTH_COOKIE_CONTRACT.sessionName)?.value
+    ?? cookieStore.get(LEGACY_SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
   const payload = await verifyToken(token);
