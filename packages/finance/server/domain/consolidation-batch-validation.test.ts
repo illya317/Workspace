@@ -136,6 +136,99 @@ test("submission requires immutable three-statement snapshots and explicit no-it
   assert.equal(result.ok, true);
 });
 
+test("submission blocks an automatic elimination decision that still has an unclassified difference", () => {
+  const sources = [1, 2].flatMap((entitySnapshotId) => ["balanceSheet", "incomeStatement", "cashFlow"].map((reportType) => ({
+    entitySnapshotId,
+    reportType: reportType as "balanceSheet" | "incomeStatement" | "cashFlow",
+    sourceKind: "system",
+    sourceStatus: "available",
+    workpaperId: null,
+    workpaperVersion: null,
+    evidence: "已冻结",
+    reportPayload: reportType === "balanceSheet"
+      ? { httpStatus: 200, payload: { type: "balance", assets: [{ code: "cash" }], liabilities: [], equity: [] } }
+      : { httpStatus: 200, payload: { type: reportType === "incomeStatement" ? "income" : "cashflow", lines: [{ code: "x", amount: 1 }] } },
+  })));
+  const result = validateConsolidationSubmission({
+    entities: [
+      { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
+      { id: 2, companyId: 102, role: "subsidiary", shareRatio: 0.75, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
+    ],
+    sources,
+    exchangeRates: [],
+    controlDecisions: [
+      { controlKey: "elimination:investmentEquity", decision: "requiresReview", evidence: "待分类差额 1835138.48 元" },
+      ...["nonControllingInterest", "intercompanyBalance", "internalTrading", "internalLongTermAsset", "incomeDividend", "cashFlow"].map((entryType) => ({ controlKey: `elimination:${entryType}`, decision: "notApplicable", evidence: "本期无该类抵销事项" })),
+      { controlKey: "tax", decision: "notApplicable", evidence: "无税务影响" },
+    ],
+    entries: [],
+    taxEffectCount: 0,
+    requiredInvestmentVoucherIds: [],
+    periodEnd: "2026-06-30",
+  });
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "elimination:investmentEquity");
+});
+
+test("submission accepts a complete opening investment-equity voucher with typed allocation lines", () => {
+  const sources = [1, 2].flatMap((entitySnapshotId) => ["balanceSheet", "incomeStatement", "cashFlow"].map((reportType) => ({
+    entitySnapshotId,
+    reportType: reportType as "balanceSheet" | "incomeStatement" | "cashFlow",
+    sourceKind: "system",
+    sourceStatus: "available",
+    workpaperId: null,
+    workpaperVersion: null,
+    evidence: "已冻结",
+    reportPayload: reportType === "balanceSheet"
+      ? { httpStatus: 200, payload: { type: "balance", assets: [{ code: "cash" }], liabilities: [], equity: [] } }
+      : { httpStatus: 200, payload: { type: reportType === "incomeStatement" ? "income" : "cashflow", lines: [{ code: "x", amount: 1 }] } },
+  })));
+  const matched = (input: {
+    companyId: number;
+    lineCode: string;
+    debit: number;
+    credit: number;
+    matchSide: "left" | "right";
+    counterpartyCompanyId: number;
+    sourceId: string;
+  }) => ({
+    ...input,
+    sourceKind: "workpaper",
+    sourceFingerprint: `fingerprint:${input.sourceId}`,
+    sourceAmount: input.debit + input.credit,
+    sourceCurrency: "CNY",
+  });
+  const result = validateConsolidationSubmission({
+    entities: [
+      { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
+      { id: 2, companyId: 102, role: "subsidiary", shareRatio: 0.75, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
+    ],
+    sources,
+    exchangeRates: [],
+    controlDecisions: [
+      ...["nonControllingInterest", "intercompanyBalance", "internalTrading", "internalLongTermAsset", "incomeDividend", "cashFlow"].map((entryType) => ({ controlKey: `elimination:${entryType}`, decision: "notApplicable", evidence: "本期无该类抵销事项" })),
+      { controlKey: "tax", decision: "notApplicable", evidence: "无税务影响" },
+    ],
+    entries: [{
+      entryType: "investmentEquity",
+      matchDifference: 0,
+      differenceResolution: "期初投资与权益已经分类",
+      lines: [
+        matched({ companyId: 102, lineCode: "paidInCapital", debit: 100, credit: 0, matchSide: "right", counterpartyCompanyId: 101, sourceId: "opening:capital" }),
+        matched({ companyId: 101, lineCode: "longTermInvest", debit: 0, credit: 75, matchSide: "left", counterpartyCompanyId: 102, sourceId: "opening:investment" }),
+        { companyId: 102, lineCode: "nonControllingInterests", debit: 0, credit: 25, matchSide: null, sourceId: "opening:nci:capital" },
+        matched({ companyId: 102, lineCode: "undistributedProfit", debit: 0, credit: 20, matchSide: "right", counterpartyCompanyId: 101, sourceId: "opening:retained:eliminate" }),
+        { companyId: 102, lineCode: "undistributedProfit", debit: 15, credit: 0, matchSide: null, sourceId: "opening:component:opening:parent:undistributedProfit" },
+        { companyId: 102, lineCode: "nonControllingInterests", debit: 5, credit: 0, matchSide: null, sourceId: "opening:nci:retained" },
+      ],
+    }],
+    taxEffectCount: 0,
+    requiredInvestmentVoucherIds: [],
+    periodEnd: "2026-06-30",
+  });
+  assert.equal(result.ok, true, result.ok ? undefined : JSON.stringify(result.issue));
+});
+
 test("requires an NCI allocation or explicit conclusion for a partially owned subsidiary", () => {
   const base = {
     entities: [

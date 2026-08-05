@@ -79,3 +79,24 @@ test("comparison-period NCI allocation derives the prior parent attribution", ()
   assert.equal(parent.previousAmount, 30);
   assert.equal(nci.previousAmount, 10);
 });
+
+test("current-month NCI attribution is preserved from dated consolidation entries", () => {
+  const revenue = line("revenue", 100);
+  revenue.currentMonthAmount = 20;
+  revenue.currentMonthSourceAmount = 20;
+  const net = line("netProfit", 100, { side: "debit", isGrandTotal: true });
+  net.currentMonthAmount = 20;
+  net.currentMonthSourceAmount = 20;
+  const parent = line("netProfitAttributableToParent", -25, { adjustmentAmount: -25 });
+  parent.currentMonthAmount = -5;
+  parent.currentMonthAdjustmentAmount = -5;
+  const nci = line("netProfitAttributableToNci", 25, { adjustmentAmount: 25 });
+  nci.currentMonthAmount = 5;
+  nci.currentMonthAdjustmentAmount = 5;
+
+  const result = recomputeConsolidatedIncome([revenue, net, parent, nci]);
+  assert.equal(result.ok, true);
+  assert.equal(net.currentMonthAmount, 20);
+  assert.equal(parent.currentMonthAmount, 15);
+  assert.equal(nci.currentMonthAmount, 5);
+});

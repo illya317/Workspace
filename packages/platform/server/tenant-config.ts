@@ -117,6 +117,20 @@ const profileSchema = z.object({
       openingAmount: z.number().finite(),
       evidence: nonEmptyString,
     })),
+    cutoverBaselines: z.array(z.object({
+      key: nonEmptyString,
+      foreignCompanyCode: nonEmptyString,
+      baselineDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+      parentCompanyCode: nonEmptyString,
+      parentLongTermInvestmentAmount: z.number().finite(),
+      presentationCurrencyCode: nonEmptyString,
+      equityComponents: z.array(z.object({
+        lineCode: z.enum(["paidInCapital", "otherEquityInstruments", "capitalReserve", "treasuryStock", "otherComprehensiveIncome", "surplusReserve", "undistributedProfit"]),
+        amount: z.number().finite(),
+      })).min(1),
+      historicalDifferenceLineCode: z.enum(["capitalReserve", "undistributedProfit"]),
+      evidence: nonEmptyString,
+    })).default([]),
   }).optional(),
   work: z.object({
     companyProjectCodePrefix: nonEmptyString,

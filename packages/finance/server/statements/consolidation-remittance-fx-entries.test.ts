@@ -4,7 +4,11 @@ import test from "node:test";
 import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
 import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-entry-generation";
 
-import { buildRemittanceFxEntries } from "./consolidation-remittance-fx-entries";
+import {
+  buildRemittanceFxEntries,
+  buildRemittanceFxEntryPackage,
+} from "./consolidation-remittance-fx-entries";
+import { consolidationMatchGroupCoveredByPolicy } from "./consolidation-automatic-control-decisions";
 
 function batch(
   rate: number,
@@ -52,15 +56,17 @@ function batch(
   } as ConsolidationBatchSnapshot;
 }
 
-test("negative remittance difference is an OCI loss on the debit side", () => {
+test("negative remittance difference stays unclassified and blocks voucher generation", () => {
   const [entry] = buildRemittanceFxEntries(batch(5, 520));
   assert.equal(entry?.matchDifference, 20);
-  assert.match(entry?.differenceResolution ?? "", /损失/);
+  assert.match(entry?.differenceResolution ?? "", /待分类/);
   assert.deepEqual(entry?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
     ["capitalReserve", 500, 0],
     ["longTermInvest", 0, 520],
-    ["otherComprehensiveIncome", 20, 0],
   ]);
+  const generated = buildRemittanceFxEntryPackage(batch(5, 520));
+  assert.equal(generated.entries.length, 0);
+  assert.equal(generated.issues[0]?.differenceAmount, 20);
 });
 
 test("voucher matching can bind an investment directly to paid-in capital", () => {
@@ -71,17 +77,102 @@ test("voucher matching can bind an investment directly to paid-in capital", () =
   ]);
 });
 
-test("positive remittance difference is OCI on the credit side", () => {
+test("positive remittance difference stays unclassified and blocks voucher generation", () => {
   const [entry] = buildRemittanceFxEntries(batch(5.2, 500));
   assert.equal(entry?.matchDifference, 20);
-  assert.match(entry?.differenceResolution ?? "", /收益/);
-  assert.equal(entry?.lines[2]?.credit, 20);
+  assert.match(entry?.differenceResolution ?? "", /待分类/);
+  assert.equal(entry?.lines.some((line) => line.lineCode === "otherComprehensiveIncome"), false);
+  const generated = buildRemittanceFxEntryPackage(batch(5.2, 500));
+  assert.equal(generated.entries.length, 0);
+  assert.equal(generated.issues[0]?.differenceAmount, 20);
+});
+
+test("CNY partial ownership produces one complete investment, capital, and NCI voucher", () => {
+  const input = {
+    entities: [
+      { id: 1, companyId: 11, companyCode: "P01", companyName: "投资方", functionalCurrency: "CNY" },
+      { id: 2, companyId: 22, companyCode: "S01", companyName: "子公司", functionalCurrency: "CNY", shareRatio: 0.75 },
+    ],
+    sources: [], exchangeRates: [], entries: [], controlDecisions: [], events: [],
+  } as unknown as ConsolidationBatchSnapshot;
+  const fact = (itemId: number, companyId: number, signedAmount: number, investmentRole: "investment" | "equity") => ({
+    itemId, voucherId: itemId, voucherNo: `记-${itemId}`, voucherDate: "2026-01-01", companyId,
+    counterpartyCompanyId: companyId === 11 ? 22 : 11,
+    accountCode: investmentRole === "investment" ? "1511" : "3001",
+    accountName: investmentRole === "investment" ? "长期股权投资" : "实收资本",
+    description: null, lineCode: investmentRole === "investment" ? "longTermInvest" : "paidInCapital",
+    signedAmount, currencyCode: "CNY", sourceFingerprint: `source-${itemId}`, investmentRole,
+  });
+  const group = {
+    category: "investmentEquity", generationKey: "investmentEquity:relationship:11:22", status: "unresolved",
+    leftCompanyId: 11, rightCompanyId: 22, leftFacts: [fact(1, 11, 75, "investment")],
+    rightFacts: [fact(2, 22, -100, "equity")], leftNetAmount: 75, rightNetAmount: -100,
+    matchedAmount: 0, differenceAmount: 0, matchingRule: "直接持股关系", matchingVersion: "fixture-v1",
+    differenceResolution: null, comparisonCurrencyCode: "CNY", requiredActions: ["allocateNonControllingInterest"],
+    ownershipShareRatio: 0.75,
+  } satisfies ConsolidationVoucherMatchGroup;
+  const [entry] = buildRemittanceFxEntries(input, [group]);
+  assert.deepEqual(entry?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
+    ["paidInCapital", 100, 0],
+    ["longTermInvest", 0, 75],
+    ["nonControllingInterests", 0, 25],
+  ]);
+  assert.equal(consolidationMatchGroupCoveredByPolicy(group, entry ? [entry] : []), true);
+});
+
+test("cutover capital movement uses the frozen equity-component delta instead of remittance totals", () => {
+  const input = {
+    year: 2026,
+    month: 6,
+    entities: [
+      { id: 1, companyId: 11, companyCode: "P01", companyName: "投资方", functionalCurrency: "CNY", role: "parent", shareRatio: 1 },
+      { id: 2, companyId: 22, companyCode: "S01", companyName: "子公司", functionalCurrency: "CNY", role: "subsidiary", shareRatio: 0.75 },
+    ],
+    sources: [{
+      entitySnapshotId: 2,
+      reportType: "balanceSheet",
+      reportPayload: {
+        translationFacts: { retainedEarningsOpening: { openingDate: "2025-12-31" } },
+        payload: { assets: [], liabilities: [], equity: [
+          { lineCode: "paidInCapital", label: "实收资本", section: "equity", side: "credit", amount: 505_060, previousAmount: 505_060 },
+          { lineCode: "capitalReserve", label: "资本公积", section: "equity", side: "credit", amount: 5_978_910.03, previousAmount: 5_818_290.84 },
+        ] },
+      },
+    }],
+    exchangeRates: [], entries: [], controlDecisions: [], events: [],
+  } as unknown as ConsolidationBatchSnapshot;
+  const fact = (itemId: number, signedAmount: number) => ({
+    itemId, voucherId: itemId + 100, voucherNo: `记-${itemId}`, voucherDate: itemId === 1 ? "2026-02-14" : "2026-06-25",
+    companyId: 11, counterpartyCompanyId: 22, accountCode: "1511", accountName: "长期股权投资",
+    description: "本期增资", lineCode: "longTermInvest", signedAmount, currencyCode: "CNY",
+    sourceFingerprint: `voucher-${itemId}`, investmentRole: "investment" as const,
+  });
+  const group = {
+    category: "investmentEquity", generationKey: "investmentEquity:relationship:11:22", status: "unresolved",
+    leftCompanyId: 11, rightCompanyId: 22, leftFacts: [fact(1, 103_929), fact(2, 73_629)], rightFacts: [],
+    leftNetAmount: 177_558, rightNetAmount: 0, matchedAmount: 0, differenceAmount: 0,
+    matchingRule: "fixture", matchingVersion: "fixture-v1", differenceResolution: null,
+    comparisonCurrencyCode: "CNY", requiredActions: ["allocateNonControllingInterest"], ownershipShareRatio: 0.75,
+  } satisfies ConsolidationVoucherMatchGroup;
+  const movement = buildRemittanceFxEntries(input, [group])
+    .find((entry) => entry.generationKey.includes(":capital-movement:"));
+  assert.deepEqual(movement?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
+    ["capitalReserve", 160_619.19, 0],
+    ["longTermInvest", 0, 103_929],
+    ["longTermInvest", 0, 73_629],
+    ["nonControllingInterests", 0, 40_154.8],
+  ]);
+  assert.equal(movement?.matchDifference, 57_093.61);
+  const generated = buildRemittanceFxEntryPackage(input, [group]);
+  assert.equal(generated.entries.some((entry) => entry.generationKey.includes(":capital-movement:")), false);
+  assert.equal(generated.issues.find((issue) => issue.generationKey.includes(":capital-movement:"))?.differenceAmount, 57_093.61);
 });
 
 test("voucher-level capital reserve can coexist with historical paid-in capital without duplicate investment elimination", () => {
   const input = batch(5, 520);
   input.entities[1]!.functionalCurrency = "CAD";
   input.entities[1]!.directParentCompanyId = 11;
+  input.entities[1]!.shareRatio = 1;
   input.sources = [{
     entitySnapshotId: 2,
     reportType: "balanceSheet",
@@ -241,12 +332,64 @@ test("historical capital rates generate a partial-ownership Canada elimination v
   const [entry] = buildRemittanceFxEntries(input, [group]);
   assert.equal(entry?.documentType, "elimination");
   assert.equal(entry?.postingLevel, "20");
-  assert.match(entry?.description ?? "", /持股比例不阻断/);
+  assert.match(entry?.description ?? "", /同一张完整抵销凭证/);
   assert.match(entry?.lines[0]?.note ?? "", /历史折算人民币金额；加权汇率 5.0506/);
   assert.deepEqual(entry?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
     ["paidInCapital", 505.06, 0],
     ["capitalReserve", 260, 0],
     ["longTermInvest", 0, 700],
-    ["otherComprehensiveIncome", 0, 65.06],
+    ["nonControllingInterests", 0, 191.27],
   ]);
+  assert.ok(entry?.lines.some((line) => line.sourceId.includes(":nci:contribution:capital")));
+  const generated = buildRemittanceFxEntryPackage(input, [group]);
+  assert.equal(generated.entries.length, 0);
+  assert.equal(generated.issues[0]?.differenceAmount, 126.21);
+  assert.equal(consolidationMatchGroupCoveredByPolicy(group, generated.entries), false);
+
+  input.priorReferences = {
+    yearOpening: {
+      batchId: 9,
+      year: 2024,
+      month: 12,
+      companies: {
+        22: {
+          balanceSheet: [
+            { lineCode: "paidInCapital", cnyAmount: 505.06 },
+            { lineCode: "capitalReserve", cnyAmount: 260 },
+            { lineCode: "otherComprehensiveIncome", cnyAmount: -100 },
+            { lineCode: "undistributedProfit", cnyAmount: -800 },
+          ],
+        },
+      },
+    },
+  };
+  (input.sources[0]!.reportPayload as Record<string, unknown>).translationFacts = {
+    retainedEarningsOpening: { openingDate: "2025-12-31" },
+  };
+  const [continued] = buildRemittanceFxEntries(input, [group]);
+  assert.equal(continued?.postingDate, "2026-01-01");
+  assert.deepEqual(continued?.lines.filter((line) => ["paidInCapital", "capitalReserve"].includes(line.lineCode))
+    .slice(0, 2).map((line) => [line.lineCode, line.debit, line.credit]), [
+      ["paidInCapital", 505.06, 0],
+      ["capitalReserve", 260, 0],
+    ]);
+  assert.ok(continued?.lines.some((line) => line.sourceId.includes(":nci:opening:capital")));
+  assert.ok(!continued?.lines.some((line) => line.sourceId.includes(":nci:contribution:capital")));
+  assert.deepEqual(
+    continued?.lines.filter((line) => line.sourceId.includes(":component:opening:"))
+      .map((line) => [line.lineCode, line.debit, line.credit]),
+    [
+      ["paidInCapital", 505.06, 0],
+      ["capitalReserve", 260, 0],
+      ["otherComprehensiveIncome", 0, 100],
+      ["otherComprehensiveIncome", 75, 0],
+      ["undistributedProfit", 0, 800],
+      ["undistributedProfit", 600, 0],
+    ],
+  );
+  assert.deepEqual(
+    continued?.lines.filter((line) => line.sourceId.includes(":nci:opening:") && line.lineCode === "nonControllingInterests")
+      .map((line) => [line.debit, line.credit]),
+    [[0, 191.27], [25, 0], [200, 0]],
+  );
 });

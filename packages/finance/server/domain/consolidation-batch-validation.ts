@@ -379,6 +379,16 @@ export function validateConsolidationSubmission(
   });
   if (!fxValidation.ok) return fxValidation;
   const decisions = new Map(facts.controlDecisions.map((item) => [item.controlKey, item]));
+  const unresolvedElimination = ACTIVE_CONSOLIDATION_ENTRY_TYPES
+    .map((entryType) => ({ entryType, decision: decisions.get(`elimination:${entryType}`) }))
+    .find((item) => item.decision?.decision === "requiresReview");
+  if (unresolvedElimination) {
+    return failCommand(
+      `抵销事项 ${unresolvedElimination.entryType} 仍有待分类差额：${unresolvedElimination.decision?.evidence ?? "缺少分类依据"}`,
+      409,
+      `elimination:${unresolvedElimination.entryType}`,
+    );
+  }
   const companyIds = new Set(facts.entities.map((entity) => entity.companyId));
   const matchedTypes = new Set(["investmentEquity", "intercompanyBalance"]);
   for (const entry of facts.entries) {
@@ -391,7 +401,15 @@ export function validateConsolidationSubmission(
       return failCommand("抵销分录借贷不平衡，必须人工修订后再提交", 409, "entries");
     }
     if (matchedTypes.has(entry.entryType)) {
-      const matchingLines = entry.lines.filter((line) => line.lineCode !== "otherComprehensiveIncome");
+      const allocationLines = entry.lines.filter((line) => line.matchSide === null);
+      const invalidAllocationLine = allocationLines.find((line) => (
+        line.lineCode !== "nonControllingInterests"
+        && !line.sourceId?.includes(":component:opening:parent:")
+      ));
+      if (invalidAllocationLine) {
+        return failCommand("投资权益抵销中的无匹配侧分录只能是归母期初承接或少数股东权益分配", 409, "matching");
+      }
+      const matchingLines = entry.lines.filter((line) => line.matchSide === "left" || line.matchSide === "right");
       const complete = matchingLines.every((line) => (
         (line.matchSide === "left" || line.matchSide === "right")
         && Boolean(line.sourceKind?.trim())

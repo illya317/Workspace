@@ -61,6 +61,9 @@ export function statementLineFormula(input: StatementFormulaInput): string | nul
   if (input.reportType === "cashFlow" && input.line.lineCode === "endingCash" && !input.consolidated) {
     return null;
   }
+  if (input.reportType === "incomeStatement" && input.line.lineCode === "netProfitAttributableToParent" && !input.consolidated) {
+    return null;
+  }
   return relationshipFormula(
     relationships[input.line.lineCode],
     input.rowByCode,

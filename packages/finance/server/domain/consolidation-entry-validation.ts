@@ -126,7 +126,7 @@ export function validateConsolidationEntryReviewTarget(
   if (action === "approve" && reviewBlockReason) {
     return failCommand(reviewBlockReason, 409, "evidence");
   }
-  if (facts.entryOrigin === "manual" && !facts.generationKey && !facts.matchStatus) {
+  if (facts.entryOrigin === "manual" && !facts.matchStatus) {
     if (action === "approve" && facts.entryStatus !== "draft") return failCommand("该集团凭证已经复核", 409, "status");
     if (action === "return" && facts.entryStatus !== "approved") return failCommand("只有已复核集团凭证可以退回", 409, "status");
     return okCommand(action === "approve"

@@ -239,6 +239,8 @@ export const FINANCE_STATEMENT_ACCOUNT_DETAILS_SOURCE = defineWorkspaceAnalysisR
     code: f("科目编码", "叶子科目编码。", "text"), name: f("科目名称", "叶子科目名称。", "text"), category: f("科目类别", "科目类别。", "text"), balanceDirection: f("余额方向", "科目余额方向。", "text"),
     openingDebit: f("期初借方", "期初借方余额。", "currency"), openingCredit: f("期初贷方", "期初贷方余额。", "currency"), currentDebit: f("本期借方", "本期借方变动。", "currency"),
     currentCredit: f("本期贷方", "本期贷方变动。", "currency"), closing: f("期末净额", "期末净额。", "currency"),
+    amount: f("本年累计金额", "报表口径本年累计金额。", "currency"), currentMonthAmount: f("本月金额", "报表口径本月金额。", "currency"),
+    previousAmount: f("上年同期累计金额", "报表口径上年同期累计金额。", "currency"),
   }, pagination: PAGINATION, limits: LIMITS,
 });
 

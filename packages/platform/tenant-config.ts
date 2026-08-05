@@ -110,6 +110,20 @@ export type TenantProfile = {
       openingAmount: number;
       evidence: string;
     }>;
+    cutoverBaselines: Array<{
+      key: string;
+      foreignCompanyCode: string;
+      baselineDate: string;
+      parentCompanyCode: string;
+      parentLongTermInvestmentAmount: number;
+      presentationCurrencyCode: string;
+      equityComponents: Array<{
+        lineCode: "paidInCapital" | "otherEquityInstruments" | "capitalReserve" | "treasuryStock" | "otherComprehensiveIncome" | "surplusReserve" | "undistributedProfit";
+        amount: number;
+      }>;
+      historicalDifferenceLineCode: "capitalReserve" | "undistributedProfit";
+      evidence: string;
+    }>;
   };
   work: {
     companyProjectCodePrefix: string;

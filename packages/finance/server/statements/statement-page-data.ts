@@ -1,6 +1,7 @@
 import type {
   ConsolidatedOutputLine,
   ConsolidatedReportOutputPackage,
+  ConsolidatedEquityChangesStatement,
   ConsolidatedStatementOutput,
   StatementReportType,
 } from "@workspace/finance/types";
@@ -49,6 +50,7 @@ export interface StatementPageData {
     batchStatus: ConsolidatedReportOutputPackage["batch"]["status"] | null;
   };
   statements: StatementPageStatement[];
+  equityChanges?: ConsolidatedEquityChangesStatement;
 }
 
 interface StandaloneReportLine {
@@ -241,5 +243,6 @@ export async function loadConsolidatedStatementPageData(batchId: number): Promis
       batchStatus: report.batch.status,
     },
     statements: report.statements.map(consolidatedStatement),
+    ...(report.equityChanges ? { equityChanges: report.equityChanges } : {}),
   };
 }

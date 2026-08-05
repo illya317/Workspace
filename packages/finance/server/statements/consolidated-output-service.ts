@@ -27,6 +27,17 @@ import { loadConsolidationPriorReferences } from "./consolidation-prior-referenc
 
 export type ConsolidatedOutputBuildMode = "official" | "lockCandidate";
 
+export function validateNciWorkpaperForLock(report: ConsolidatedReportOutputPackage): DomainValidationResult<true> {
+  const workpaper = report.nciEquityWorkpaper;
+  return workpaper?.status === "difference"
+    ? failCommand(
+        `少数股东权益变动表未勾稽，差额 ${workpaper.rollforwardDifference.toFixed(2)} 元；必须补齐有证据的权益变动凭证后再锁定`,
+        409,
+        "nciEquityWorkpaper",
+      )
+    : { ok: true, data: true };
+}
+
 export function buildConsolidatedOutputFromBatchSnapshot(
   batch: ConsolidationBatchSnapshot,
   mode: ConsolidatedOutputBuildMode = "official",
@@ -102,6 +113,10 @@ export function prepareLockedConsolidatedOutputSnapshot(
     lockedAt: generatedAt.toISOString(),
   };
   const output = buildConsolidatedOutputFromBatchSnapshot(lockedBatch, "official", generatedAt);
+  if (output.ok) {
+    const nciValidation = validateNciWorkpaperForLock(output.data);
+    if (!nciValidation.ok) return nciValidation;
+  }
   return output.ok
     ? { ok: true, data: prepareConsolidatedOutputSnapshot(lockedBatch, output.data, generatedAt) }
     : output;

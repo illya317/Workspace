@@ -11,6 +11,7 @@ import { ConsolidatedReportTab } from "./ConsolidatedReportTab";
 import { ConsolidationPreparationTab } from "./ConsolidationPreparationTab";
 import { ConsolidationWorksheetTab } from "./ConsolidationWorksheetTab";
 import { FxTranslationWorksheetTab } from "./FxTranslationWorksheetTab";
+import { NciEquityWorksheetTab } from "./NciEquityWorksheetTab";
 import ReportTab from "./ReportTab";
 import { CONSOLIDATED_REPORT_TYPE_OPTIONS } from "./consolidated-report-model";
 import { type ConsolidationPeriodKind } from "./consolidation-period";
@@ -30,7 +31,7 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
   const consolidation = useConsolidationOverview(
     periodKind,
     capabilities.canUpdate,
-    view === "consolidation" && (workpaperView === "fxWorkpaper" || workpaperView === "workpaper"),
+    view === "consolidation" && (["fxWorkpaper", "nciWorkpaper", "workpaper"].includes(workpaperView)),
   );
   const { createNextVersion, invalidate, setBatchId } = consolidation;
   const handlePeriodKindChange = useCallback((nextKind: ConsolidationPeriodKind) => {
@@ -126,6 +127,7 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
     <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
       {view === "consolidation" && workpaperView === "preparation" ? <ConsolidationPreparationTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "fxWorkpaper" ? <FxTranslationWorksheetTab {...consolidationProps} /> : null}
+      {view === "consolidation" && workpaperView === "nciWorkpaper" ? <NciEquityWorksheetTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "workpaper" ? <ConsolidationWorksheetTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "report" ? <ConsolidatedReportTab {...consolidationProps} /> : null}
       {view === "statements" ? <ReportTab navigation={navigation} canExport={capabilities.canExport} /> : null}

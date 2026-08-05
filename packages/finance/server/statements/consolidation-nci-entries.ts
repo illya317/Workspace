@@ -8,9 +8,14 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { cnyPerForeignUnit } from "./consolidation-frozen-rates";
 import { resolveFinanceAccountingPolicyVersionAt } from "../ledger/group-accounts/policy-version-service";
-
+import {
+  monthOpeningEquityAmounts,
+  openingEquityAmounts,
+  translatedEquityAmounts,
+} from "./consolidation-nci-equity-components";
+import { translateSourceLines } from "./consolidated-output-translation";
+import { buildConsolidationPreviewPackage } from "./consolidation-replay";
 type PeriodBasis = "current" | "comparative";
 type StatementType = "balanceSheet" | "incomeStatement";
 
@@ -21,7 +26,7 @@ export interface NonControllingInterestEntryLine {
   companyCode: string;
   statementType: StatementType;
   lineCode: string;
-  groupAccountId: number;
+  groupAccountId?: number;
   accountCode: string;
   debit: number;
   credit: number;
@@ -110,6 +115,7 @@ export interface NonControllingInterestEntryCandidate {
   matchDifference: 0;
   differenceResolution: string;
   generationKey: string;
+  postingDate: string;
   generationFingerprint: string;
   lines: NonControllingInterestEntryLine[];
 }
@@ -119,7 +125,7 @@ function fingerprint(value: unknown) {
 }
 
 function money(value: number) {
-  return Math.round((value + Number.EPSILON) * 100) / 100;
+  return Math.sign(value) * Math.round((Math.abs(value) + Number.EPSILON) * 100) / 100;
 }
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -128,53 +134,71 @@ function record(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
-function reportLine(
-  batch: ConsolidationBatchSnapshot,
-  entitySnapshotId: number,
-  reportType: StatementType,
-  lineCode: string,
-) {
-  const source = batch.sources.find((item) => (
-    item.entitySnapshotId === entitySnapshotId && item.reportType === reportType
-  ));
-  const envelope = record(source?.reportPayload);
-  const payload = record(envelope?.payload ?? envelope);
-  const rows = reportType === "balanceSheet"
-    ? [payload?.assets, payload?.liabilities, payload?.equity].flatMap((part) => Array.isArray(part) ? part : [])
-    : Array.isArray(payload?.lines) ? payload.lines : [];
-  const line = rows.map(record).find((item) => item?.lineCode === lineCode);
-  const amount = Number(line?.amount);
-  const previousAmount = Number(line?.previousAmount);
-  return Number.isFinite(amount) && Number.isFinite(previousAmount)
-    ? { amount: money(amount), previousAmount: money(previousAmount) }
-    : null;
-}
-
-function appliedClosingRate(
+function monthlyNetProfits(
   batch: ConsolidationBatchSnapshot,
   entitySnapshotId: number,
   functionalCurrency: string,
   periodBasis: PeriodBasis,
-): DomainValidationResult<number> {
-  if (["CNY", "RMB", "人民币"].includes(functionalCurrency.toUpperCase())) return okCommand(1);
-  if (functionalCurrency.toUpperCase() !== "CAD") {
-    return failCommand(`暂不支持 ${functionalCurrency} 本位币的少数股东分配`, 409, "functionalCurrency");
+) {
+  const source = batch.sources.find((item) => (
+    item.entitySnapshotId === entitySnapshotId && item.reportType === "incomeStatement"
+  ));
+  const envelope = record(source?.reportPayload);
+  const facts = record(envelope?.translationFacts);
+  const monthlyFlows = record(facts?.monthlyFlows);
+  const rows = monthlyFlows?.[periodBasis];
+  if (!Array.isArray(rows) || rows.length === 0) {
+    return failCommand("少数股东损益缺少逐月利润表快照，请刷新合并来源后重新生成", 409, "monthlyFlows");
   }
-  const matches = batch.exchangeRates.flatMap((rate) => rate.applications
+  const currency = functionalCurrency.trim().toUpperCase();
+  const rateByPeriodEnd = new Map(batch.exchangeRates.flatMap((rate) => rate.applications
     .filter((application) => (
-      application.applicationType === "closing"
+      application.applicationType === "flowAverage"
       && application.periodBasis === periodBasis
       && application.entitySnapshotId === entitySnapshotId
     ))
-    .map(() => rate));
-  if (matches.length !== 1) {
-    return failCommand(
-      `CAD 实体 ${entitySnapshotId} 缺少唯一的${periodBasis === "current" ? "本期" : "比较期"}期末汇率，不能分配少数股东权益`,
-      409,
-      "rateApplications",
-    );
+    .map((application) => [application.targetDate, rate.rate] as const)));
+  const result: Array<{ periodEnd: string; sourceAmount: number; translatedAmount: number }> = [];
+  for (const value of rows) {
+    const row = record(value);
+    if (typeof row?.periodEnd !== "string" || !Array.isArray(row.lines)) {
+      return failCommand("少数股东损益逐月利润表快照格式无效", 409, "monthlyFlows");
+    }
+    const netProfit = row.lines.map(record).find((line) => line?.lineCode === "netProfit");
+    const sourceAmount = Number(netProfit?.amount);
+    if (!Number.isFinite(sourceAmount)) {
+      return failCommand(`${row.periodEnd.slice(0, 7)} 月利润表缺少净利润`, 409, "monthlyFlows");
+    }
+    const rate = currency === "CNY" || currency === "RMB" || currency === "人民币"
+      ? 1
+      : rateByPeriodEnd.get(row.periodEnd);
+    if (!rate) return failCommand(`${row.periodEnd.slice(0, 7)} 月缺少利润表平均汇率`, 409, "rateApplications");
+    result.push({ periodEnd: row.periodEnd, sourceAmount, translatedAmount: money(sourceAmount * rate) });
   }
-  return cnyPerForeignUnit(matches[0]!);
+  return okCommand(result.sort((left, right) => left.periodEnd.localeCompare(right.periodEnd)));
+}
+
+function translatedNetProfitTotals(
+  batch: ConsolidationBatchSnapshot,
+  entitySnapshotId: number,
+  functionalCurrency: string,
+) {
+  const source = batch.sources.find((item) => (
+    item.entitySnapshotId === entitySnapshotId && item.reportType === "incomeStatement"
+  ));
+  const envelope = record(source?.reportPayload);
+  const payload = record(envelope?.payload ?? envelope);
+  const rows = Array.isArray(payload?.lines) ? payload.lines : [];
+  if (!source || rows.length === 0) return failCommand("少数股东损益缺少冻结利润表", 409, "sources");
+  const translated = translateSourceLines(
+    buildConsolidationPreviewPackage(batch), entitySnapshotId, functionalCurrency,
+    "incomeStatement", source.reportPayload, rows, batch.priorReferences,
+  );
+  if (!translated.ok) return translated;
+  const netProfit = translated.data.find((line) => line.lineCode === "netProfit");
+  return netProfit
+    ? okCommand({ current: netProfit.amount, comparative: netProfit.previousAmount })
+    : failCommand("少数股东损益缺少净利润报表行", 409, "sources");
 }
 
 function creditSideAmounts(delta: number) {
@@ -199,100 +223,221 @@ export function buildNonControllingInterestEntries(
     if (!parent) return failCommand(`${entity.companyName} 缺少冻结的直接母公司，不能分配少数股东权益`, 409, "entities");
     const functionalCurrency = entity.functionalCurrency?.trim();
     if (!functionalCurrency) return failCommand(`${entity.companyName} 缺少冻结的本位币`, 409, "functionalCurrency");
-    const equity = reportLine(batch, entity.id, "balanceSheet", "totalEquity");
-    const profit = reportLine(batch, entity.id, "incomeStatement", "netProfit");
-    if (!equity || !profit) {
-      return failCommand(`${entity.companyName} 缺少所有者权益合计或净利润来源行，不能分配少数股东权益`, 409, "sources");
-    }
-    const currentRate = appliedClosingRate(batch, entity.id, functionalCurrency, "current");
-    if (!currentRate.ok) return currentRate;
-    const comparativeRate = appliedClosingRate(batch, entity.id, functionalCurrency, "comparative");
-    if (!comparativeRate.ok) return comparativeRate;
+    const currentProfits = monthlyNetProfits(batch, entity.id, functionalCurrency, "current");
+    if (!currentProfits.ok) return currentProfits;
+    const comparativeProfits = monthlyNetProfits(batch, entity.id, functionalCurrency, "comparative");
+    if (!comparativeProfits.ok) return comparativeProfits;
+    const translatedTotals = translatedNetProfitTotals(batch, entity.id, functionalCurrency);
+    if (!translatedTotals.ok) return translatedTotals;
     const minorityRatio = 1 - shareRatio;
-    const amounts = {
-      currentEquity: money(equity.amount * currentRate.data * minorityRatio),
-      comparativeEquity: money(equity.previousAmount * comparativeRate.data * minorityRatio),
-      currentProfit: money(profit.amount * currentRate.data * minorityRatio),
-      comparativeProfit: money(profit.previousAmount * comparativeRate.data * minorityRatio),
-    };
-    if (Object.values(amounts).every((amount) => amount === 0)) continue;
-    const generationKey = `policy:nci:${parent.companyId}:${entity.companyId}`;
+    const monthlyProfits: Array<{
+      periodEnd: string;
+      sourceAmount: number;
+      translatedAmount: number;
+      periodBasis: PeriodBasis;
+      minorityAmount: number;
+      roundingAdjustment: number;
+    }> = [
+      ...currentProfits.data.map((profit) => ({
+        ...profit,
+        periodBasis: "current" as const,
+        minorityAmount: money(profit.translatedAmount * minorityRatio),
+        roundingAdjustment: 0,
+      })),
+      ...comparativeProfits.data.map((profit) => ({
+        ...profit,
+        periodBasis: "comparative" as const,
+        minorityAmount: money(profit.translatedAmount * minorityRatio),
+        roundingAdjustment: 0,
+      })),
+    ];
+    for (const periodBasis of ["current", "comparative"] as const) {
+      const basisProfits = monthlyProfits.filter((profit) => profit.periodBasis === periodBasis);
+      const last = basisProfits.at(-1);
+      if (!last) continue;
+      const target = money(translatedTotals.data[periodBasis] * minorityRatio);
+      const allocated = money(basisProfits.reduce((sum, profit) => sum + profit.minorityAmount, 0));
+      last.roundingAdjustment = money(target - allocated);
+      last.minorityAmount = money(last.minorityAmount + last.roundingAdjustment);
+    }
+    const currentEquity = translatedEquityAmounts(batch, entity.id, functionalCurrency);
+    if (!currentEquity) {
+      return failCommand(`${entity.companyName} 缺少可折算的资产负债表权益组成，不能生成少数股东权益变动`, 409, "sources");
+    }
+    const monthOpening = monthOpeningEquityAmounts(batch, entity.companyId);
+    const ociOpening = monthOpening.size > 0 ? monthOpening : openingEquityAmounts(batch, entity);
+    const currentOci = money(currentEquity.get("otherComprehensiveIncome")?.amount ?? 0);
+    const openingOci = money(ociOpening.get("otherComprehensiveIncome") ?? 0);
+    const minorityOci = money((currentOci - openingOci) * minorityRatio);
+    if (monthlyProfits.every((profit) => profit.minorityAmount === 0) && minorityOci === 0) continue;
+    const generationKeyPrefix = `policy:nci:${parent.companyId}:${entity.companyId}`;
     const sourceFingerprint = fingerprint({
-      version: "proportionate-net-assets-v2",
+      version: "natural-month-profit-and-oci-attribution-v6",
       entitySnapshotId: entity.id,
       parentEntitySnapshotId: parent.id,
       shareRatio,
       minorityRatio,
       functionalCurrency,
-      equity,
-      profit,
-      currentRate: currentRate.data,
-      comparativeRate: comparativeRate.data,
-      amounts,
+      monthlyProfits,
+      oci: { currentOci, openingOci, minorityOci, basis: monthOpening.size > 0 ? "monthOpening" : "cutoverOpening" },
       groupAccounts,
     });
-    let lineNo = 1;
-    const lines: NonControllingInterestEntryLine[] = [];
-    const appendPair = (
-      statementType: StatementType,
+    const commonEvidence = `${parent.companyName} 直接持股 ${(shareRatio * 100).toFixed(2)}%；少数股东比例 ${(minorityRatio * 100).toFixed(2)}%`;
+    const pushEntry = (
+      suffix: string,
+      postingDate: string,
+      title: string,
+      description: string,
+      evidence: string,
+      differenceResolution: string,
+      lines: NonControllingInterestEntryLine[],
+    ) => {
+      if (lines.length === 0) return;
+      const generationKey = `${generationKeyPrefix}:${suffix}`;
+      entries.push({
+        documentType: "allocation",
+        postingLevel: "30",
+        entryType: "nonControllingInterest",
+        title,
+        description,
+        evidence,
+        matchDifference: 0,
+        differenceResolution,
+        generationKey,
+        postingDate,
+        generationFingerprint: fingerprint({ generationKey, postingDate, sourceFingerprint, lines }),
+        lines,
+      });
+    };
+    const profitPair = (
       periodBasis: PeriodBasis,
-      allocatedLineCode: string,
-      counterpartLineCode: string,
       amount: number,
       label: string,
-    ) => {
-      if (amount === 0) return;
-      const groupAccount = groupAccounts[statementType];
+      sourceKey: string,
+    ): NonControllingInterestEntryLine[] => {
+      if (amount === 0) return [];
       const common = {
         entitySnapshotId: entity.id,
         companyId: entity.companyId,
         companyCode: entity.companyCode,
-        statementType,
-        groupAccountId: groupAccount.groupAccountId,
-        accountCode: groupAccount.accountCode,
         currencyCode: "CNY" as const,
         periodBasis,
         matchSide: null,
         sourceKind: "workpaper" as const,
         sourceFingerprint,
         sourceAmount: Math.abs(amount),
-        sourceCurrency: functionalCurrency,
+        sourceCurrency: "CNY" as const,
         counterpartyEntitySnapshotId: parent.id,
         counterpartyCompanyId: parent.companyId,
       };
-      lines.push({
-        lineNo: lineNo++,
+      const incomeAccount = groupAccounts.incomeStatement;
+      const balanceAccount = groupAccounts.balanceSheet;
+      const incomeLines: NonControllingInterestEntryLine[] = [{
+        lineNo: 1,
         ...common,
-        lineCode: allocatedLineCode,
+        statementType: "incomeStatement",
+        groupAccountId: incomeAccount.groupAccountId,
+        accountCode: incomeAccount.accountCode,
+        lineCode: "netProfitAttributableToNci",
         ...creditSideAmounts(amount),
         note: `${label}：${(minorityRatio * 100).toFixed(2)}% 少数股东份额`,
-        sourceId: `${generationKey}:${statementType}:${periodBasis}:allocated`,
+        sourceId: `${generationKeyPrefix}:${sourceKey}:allocated`,
       }, {
-        lineNo: lineNo++,
+        lineNo: 2,
         ...common,
-        lineCode: counterpartLineCode,
+        statementType: "incomeStatement",
+        groupAccountId: incomeAccount.groupAccountId,
+        accountCode: incomeAccount.accountCode,
+        lineCode: "netProfitAttributableToParent",
         ...creditSideAmounts(-amount),
         note: `${label}：转出至少数股东归属`,
-        sourceId: `${generationKey}:${statementType}:${periodBasis}:counterpart`,
-      });
+        sourceId: `${generationKeyPrefix}:${sourceKey}:income-counterpart`,
+      }];
+      if (periodBasis === "comparative") return incomeLines;
+      return [...incomeLines, {
+        lineNo: 3,
+        ...common,
+        statementType: "balanceSheet",
+        groupAccountId: balanceAccount.groupAccountId,
+        accountCode: balanceAccount.accountCode,
+        lineCode: "nonControllingInterests",
+        ...creditSideAmounts(amount),
+        note: `${label}：计入少数股东权益连续变动`,
+        sourceId: `${generationKeyPrefix}:${sourceKey}:equity-movement`,
+      }, {
+        lineNo: 4,
+        ...common,
+        statementType: "balanceSheet",
+        groupAccountId: balanceAccount.groupAccountId,
+        accountCode: balanceAccount.accountCode,
+        lineCode: "undistributedProfit",
+        ...creditSideAmounts(-amount),
+        note: `${label}：从归母未分配利润转出少数股东份额`,
+        sourceId: `${generationKeyPrefix}:${sourceKey}:equity-counterpart`,
+      }];
     };
-    appendPair("balanceSheet", "current", "nonControllingInterests", "undistributedProfit", amounts.currentEquity, "期末净资产分配");
-    appendPair("balanceSheet", "comparative", "nonControllingInterests", "undistributedProfit", amounts.comparativeEquity, "比较期净资产分配");
-    appendPair("incomeStatement", "current", "netProfitAttributableToNci", "netProfitAttributableToParent", amounts.currentProfit, "本期净利润分配");
-    appendPair("incomeStatement", "comparative", "netProfitAttributableToNci", "netProfitAttributableToParent", amounts.comparativeProfit, "比较期净利润分配");
-    entries.push({
-      documentType: "allocation",
-      postingLevel: "30",
-      entryType: "nonControllingInterest",
-      title: `${entity.companyName} 少数股东权益及损益分配`,
-      description: "按批次冻结的直接持股比例，以折算后净资产和净利润为基础分配少数股东权益及损益。",
-      evidence: `${parent.companyName} 直接持股 ${(shareRatio * 100).toFixed(2)}%；少数股东比例 ${(minorityRatio * 100).toFixed(2)}%；期末净资产份额 ${amounts.currentEquity.toFixed(2)} 元；本期净利润份额 ${amounts.currentProfit.toFixed(2)} 元。`,
-      matchDifference: 0,
-      differenceResolution: "比例净资产法分配，合并净资产和净利润总额不变",
-      generationKey,
-      generationFingerprint: fingerprint({ generationKey, sourceFingerprint, lines }),
-      lines,
-    });
+    for (const profit of monthlyProfits) {
+      const monthKey = profit.periodEnd.slice(0, 7);
+      const basisKey = profit.periodBasis === "comparative" ? "comparative:" : "";
+      pushEntry(
+        `profit:${basisKey}${monthKey}`,
+        profit.periodEnd,
+        `${entity.companyName} ${monthKey} 少数股东损益分配`,
+        "按该自然月净利润及适用月平均汇率生成；本年累计由各月已批准凭证汇总。",
+        `${commonEvidence}；该月折算净利润 ${profit.translatedAmount.toFixed(2)} 元；少数股东损益 ${profit.minorityAmount.toFixed(2)} 元${profit.roundingAdjustment === 0 ? "" : `（含累计舍入调整 ${profit.roundingAdjustment.toFixed(2)} 元）`}。`,
+        "该月凭证只归属于其业务月份，不生成以前月份累计凭证",
+        profitPair(profit.periodBasis, profit.minorityAmount, `${monthKey} 净利润分配`, `profit:${basisKey}${monthKey}`),
+      );
+    }
+    if (minorityOci !== 0) {
+      const periodEnd = new Date(Date.UTC(batch.year, batch.month, 0)).toISOString().slice(0, 10);
+      const monthKey = periodEnd.slice(0, 7);
+      const common = {
+        entitySnapshotId: entity.id,
+        companyId: entity.companyId,
+        companyCode: entity.companyCode,
+        statementType: "balanceSheet" as const,
+        currencyCode: "CNY" as const,
+        periodBasis: "current" as const,
+        matchSide: null,
+        sourceKind: "workpaper" as const,
+        sourceFingerprint,
+        sourceAmount: Math.abs(minorityOci),
+        sourceCurrency: "CNY" as const,
+        counterpartyEntitySnapshotId: parent.id,
+        counterpartyCompanyId: parent.companyId,
+      };
+      pushEntry(
+        `oci:${monthKey}`,
+        periodEnd,
+        `${entity.companyName} ${monthKey} 少数股东其他综合收益分配`,
+        monthOpening.size > 0
+          ? "按本期末与上月已锁定折算权益的其他综合收益差额生成。"
+          : "首次并表按切换日期初与本期末折算权益的其他综合收益累计差额生成；后续月份改按上月已锁定数滚动。",
+        `${commonEvidence}；其他综合收益折算金额 ${openingOci.toFixed(2)} → ${currentOci.toFixed(2)}；少数股东应占变动 ${minorityOci.toFixed(2)} 元。`,
+        monthOpening.size > 0
+          ? "本月其他综合收益变动逐项计入少数股东权益"
+          : "首次切换日至本期末累计变动，未用期末净资产反推",
+        [{
+          lineNo: 1,
+          ...common,
+          lineCode: "otherComprehensiveIncome",
+          accountCode: "4003/4005",
+          ...creditSideAmounts(-minorityOci),
+          note: `${monthKey} 其他综合收益：转出少数股东份额`,
+          sourceId: `${generationKeyPrefix}:oci:${monthKey}:component`,
+        }, {
+          lineNo: 2,
+          ...common,
+          groupAccountId: groupAccounts.balanceSheet.groupAccountId,
+          lineCode: "nonControllingInterests",
+          accountCode: groupAccounts.balanceSheet.accountCode,
+          ...creditSideAmounts(minorityOci),
+          note: `${monthKey} 其他综合收益：计入少数股东权益连续变动`,
+          sourceId: `${generationKeyPrefix}:nci:oci:${monthKey}:equity-movement`,
+        }],
+      );
+    }
   }
   return okCommand(entries);
 }

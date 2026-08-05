@@ -20,6 +20,10 @@ import {
   buildFxTranslationWorkpaperWorkbook,
   fxTranslationWorkpaperFilename,
 } from "./fx-translation-workpaper-workbook";
+import {
+  buildNciEquityWorkpaperWorkbook,
+  nciEquityWorkpaperFilename,
+} from "./nci-equity-workpaper-workbook";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 
 const XLSX_CONTENT_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
@@ -33,7 +37,7 @@ export interface StandaloneStatementExportCommand {
 
 export interface ConsolidatedStatementExportCommand {
   batchId: number;
-  artifact: "report" | "workpaper" | "fxWorkpaper";
+  artifact: "report" | "workpaper" | "fxWorkpaper" | "nciWorkpaper";
 }
 
 export function buildStandaloneStatementExportCommand(input: {
@@ -57,7 +61,7 @@ export function buildStandaloneStatementExportCommand(input: {
 
 export function buildConsolidatedStatementExportCommand(
   batchId: unknown,
-  artifact: "report" | "workpaper" | "fxWorkpaper" = "report",
+  artifact: "report" | "workpaper" | "fxWorkpaper" | "nciWorkpaper" = "report",
 ): DomainValidationResult<ConsolidatedStatementExportCommand> {
   const command = buildFinanceIdCommand(batchId, "batchId");
   return command.ok ? { ok: true, data: { batchId: command.data.id, artifact } } : command;
@@ -88,6 +92,16 @@ export function executeStandaloneStatementExportCommand(command: StandaloneState
 }
 
 export function executeConsolidatedStatementExportCommand(command: ConsolidatedStatementExportCommand) {
+  if (command.artifact === "nciWorkpaper") {
+    return loadConsolidatedReportOutput(command.batchId).then((result) => (
+      result.ok
+        ? workbookResponse(
+            buildNciEquityWorkpaperWorkbook(result.data.report),
+            nciEquityWorkpaperFilename(result.data.report),
+          )
+        : serviceError(result.error, result.status)
+    ));
+  }
   if (command.artifact === "fxWorkpaper") {
     return loadConsolidatedReportOutput(command.batchId).then((result) => (
       result.ok

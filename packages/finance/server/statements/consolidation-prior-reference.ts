@@ -76,6 +76,7 @@ function extractPriorReference(input: {
     }
   }
   const companies: ConsolidationPriorReference["companies"] = {};
+  const groupStatements: NonNullable<ConsolidationPriorReference["groupStatements"]> = {};
   for (const statementValue of statements) {
     const statement = record(statementValue);
     if (!statement) continue;
@@ -87,6 +88,15 @@ function extractPriorReference(input: {
       if (!line) continue;
       const lineCode = typeof line.lineCode === "string" ? line.lineCode : "";
       if (!lineCode) continue;
+      const groupAmount = finiteNumber(line.amount);
+      const groupCurrentMonthAmount = finiteNumber(line.currentMonthAmount);
+      if (groupAmount !== null) {
+        groupStatements[reportType] = [...(groupStatements[reportType] ?? []), {
+          lineCode,
+          cnyAmount: groupAmount,
+          ...(groupCurrentMonthAmount === null ? {} : { currentMonthCnyAmount: groupCurrentMonthAmount }),
+        }];
+      }
       const entityAmounts = Array.isArray(line.entityAmounts) ? line.entityAmounts : [];
       for (const entityValue of entityAmounts) {
         const entity = record(entityValue);
@@ -109,7 +119,7 @@ function extractPriorReference(input: {
       }
     }
   }
-  return { batchId: input.batchId, year: input.year, month: input.month, companies };
+  return { batchId: input.batchId, year: input.year, month: input.month, companies, groupStatements };
 }
 
 async function loadPriorReference(

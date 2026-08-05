@@ -7,7 +7,7 @@ import {
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const paramsSchema = z.object({ batchId: z.coerce.number().int().positive() });
-const querySchema = z.object({ artifact: z.enum(["report", "workpaper", "fxWorkpaper"]).default("report") });
+const querySchema = z.object({ artifact: z.enum(["report", "workpaper", "fxWorkpaper", "nciWorkpaper"]).default("report") });
 
 export const GET = createCommandRoute({
   paramsSchema,

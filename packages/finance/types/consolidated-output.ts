@@ -76,6 +76,69 @@ export interface ConsolidatedStatementOutput {
   totals: Record<string, number>;
 }
 
+export type NciEquityMovementType =
+  | "opening"
+  | "contribution"
+  | "profitLoss"
+  | "otherComprehensiveIncome"
+  | "distribution"
+  | "ownershipChange"
+  | "otherAdjustment";
+
+export interface NciEquityMovement {
+  key: string;
+  movementType: NciEquityMovementType;
+  label: string;
+  postingDate: string | null;
+  amount: number;
+  entitySnapshotId: number | null;
+  companyCode: string | null;
+  companyName: string | null;
+  entryId: number | null;
+  entryNo: string | null;
+  evidence: string;
+}
+
+export interface NciEquityWorkpaper {
+  openingBalance: number;
+  contributions: number;
+  profitLoss: number;
+  otherComprehensiveIncome: number;
+  distributions: number;
+  ownershipChanges: number;
+  otherAdjustments: number;
+  calculatedClosingBalance: number;
+  reportedClosingBalance: number;
+  rollforwardDifference: number;
+  netAssetsCrossCheck: number;
+  crossCheckDifference: number;
+  status: "reconciled" | "difference";
+  crossCheckStatus: "reconciled" | "difference";
+  movements: NciEquityMovement[];
+}
+
+export interface ConsolidatedEquityChangesRow {
+  key: "opening" | "profitLoss" | "otherComprehensiveIncome" | "ownerTransactions" | "ownershipChanges" | "otherAdjustments" | "closing";
+  label: string;
+  paidInCapital: number;
+  otherEquityInstruments: number;
+  capitalReserve: number;
+  treasuryStock: number;
+  otherComprehensiveIncome: number;
+  surplusReserve: number;
+  undistributedProfit: number;
+  attributableToParent: number;
+  nonControllingInterests: number;
+  totalEquity: number;
+}
+
+export interface ConsolidatedEquityChangesStatement {
+  label: "合并所有者权益变动表";
+  rows: ConsolidatedEquityChangesRow[];
+  reconciliationDifference: number;
+  status: "reconciled" | "difference";
+}
+
 export interface ConsolidatedReportOutputPackage {
   batch: {
     id: number;
@@ -105,6 +168,8 @@ export interface ConsolidatedReportOutputPackage {
     presentationCurrency?: string;
   };
   statements: ConsolidatedStatementOutput[];
+  nciEquityWorkpaper?: NciEquityWorkpaper;
+  equityChanges?: ConsolidatedEquityChangesStatement;
   sourceCount: number;
   approvedEntryCount: number;
   generatedAt: string;

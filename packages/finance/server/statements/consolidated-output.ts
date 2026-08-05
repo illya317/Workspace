@@ -6,6 +6,10 @@ import type {
 } from "@workspace/finance/types";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { recomputeConsolidatedIncome } from "./consolidation-nci-allocation";
+import {
+  buildConsolidatedEquityChanges,
+  buildNciEquityWorkpaper,
+} from "./consolidation-nci-rollforward";
 import { applyConsolidationTaxAdjustments } from "./consolidation-tax-adjustments";
 import { ensureLiabilityGrandTotal, recomputeBalance } from "./consolidated-output-balance-lines";
 import { translateSourceLines } from "./consolidated-output-translation";
@@ -26,8 +30,8 @@ const REPORT_LABELS: Record<StatementReportType, string> = {
 
 const CNY_CODES = new Set(["CNY", "RMB", "人民币"]);
 
-export function consolidationEntryAffectsCurrentMonth(entryType: string, postingDate: string, year: number, month: number) {
-  return entryType !== "cashFlow" || postingDate.startsWith(`${year}-${String(month).padStart(2, "0")}`);
+export function consolidationEntryAffectsCurrentMonth(postingDate: string, year: number, month: number) {
+  return postingDate.startsWith(`${year}-${String(month).padStart(2, "0")}`);
 }
 
 function record(value: unknown): Record<string, unknown> | null {
@@ -223,6 +227,17 @@ export function buildConsolidatedReportOutput(
     }
     if (reportType === "balanceSheet") ensureLiabilityGrandTotal(orderedCodes, outputByCode);
     const lines = orderedCodes.map((lineCode) => outputByCode.get(lineCode)!);
+    if (reportType === "balanceSheet") {
+      const priorNci = replay.priorReferences?.yearOpening?.groupStatements?.balanceSheet
+        ?.find((line) => line.lineCode === "nonControllingInterests");
+      const nci = outputByCode.get("nonControllingInterests");
+      if (nci && priorNci) {
+        nci.previousAmount = money(priorNci.cnyAmount);
+        nci.previousAdjustmentAmount = money(
+          nci.previousAmount - (nci.previousSourceAmount ?? 0),
+        );
+      }
+    }
     for (const entry of replay.approvedEntries) {
       for (const entryLine of entry.lines.filter((line) => line.statementType === reportType)) {
         if (!CNY_CODES.has(entryLine.currencyCode.toUpperCase())) {
@@ -243,7 +258,7 @@ export function buildConsolidatedReportOutput(
           line.amount = money(line.amount + delta);
           line.adjustmentAmount = money(line.adjustmentAmount + delta);
           if (reportType !== "balanceSheet" && consolidationEntryAffectsCurrentMonth(
-            entry.entryType, entry.postingDate, replay.batch.year, replay.batch.month,
+            entry.postingDate, replay.batch.year, replay.batch.month,
           )) {
             applyCurrentMonthAdjustment(line, delta);
           }
@@ -270,9 +285,13 @@ export function buildConsolidatedReportOutput(
     }
     statements.push({ reportType, label: REPORT_LABELS[reportType], lines, totals: outputTotals(reportType, lines) });
   }
+  const nciEquityWorkpaper = buildNciEquityWorkpaper(replay, statements);
+  const equityChanges = buildConsolidatedEquityChanges(statements, nciEquityWorkpaper);
   return okCommand({
     batch: { ...replay.batch, presentationCurrency },
     statements,
+    nciEquityWorkpaper,
+    equityChanges,
     sourceCount: replay.sources.length,
     approvedEntryCount: replay.approvedEntries.length,
     generatedAt: generatedAt.toISOString(),

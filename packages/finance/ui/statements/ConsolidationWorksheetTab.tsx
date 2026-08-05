@@ -35,7 +35,6 @@ const ENTRY_EFFECT_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperEntryEff
   { key: "type", label: "类别", width: "md", cell: (row) => row.typeLabel },
   { key: "company", label: "涉及主体", width: "md", cell: (row) => row.companies },
   { key: "effect", label: "对本项目影响", required: true, width: "md", cell: (row) => ({ kind: "amount", value: row.amount }) },
-  { key: "note", label: "说明", width: "lg", cell: (row) => row.note || "—" },
 ];
 
 const OPEN_ITEM_COLUMNS: DataSurfaceColumnSpec<ConsolidationWorkpaperOpenItem>[] = [

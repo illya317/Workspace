@@ -100,3 +100,27 @@ test("keeps a derived row frozen when no precedent is visible", () => {
     consolidated: true,
   }), null);
 });
+
+test("keeps standalone parent-attributable profit as a source fact", () => {
+  const lines = [
+    { ...base, lineCode: "netProfit" },
+    { ...base, lineCode: "netProfitAttributableToNci" },
+    { ...base, lineCode: "netProfitAttributableToParent" },
+  ];
+  const rowByCode = new Map(lines.map((line, index) => [line.lineCode, index + 4]));
+  const valueByCode = new Map([
+    ["netProfit", -5616435.95],
+    ["netProfitAttributableToNci", 0],
+    ["netProfitAttributableToParent", 0],
+  ]);
+  assert.equal(statementLineFormula({
+    reportType: "incomeStatement",
+    line: lines[2]!,
+    lines,
+    rowByCode,
+    valueByCode,
+    cachedValue: 0,
+    column: "B",
+    consolidated: false,
+  }), null);
+});

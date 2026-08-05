@@ -95,7 +95,7 @@ export default function ReportTab({
   useEffect(() => {
     void loadReport();
   }, [loadReport]);
-  const toggleDetail = useCallback(async (key: string, code: string) => {
+  const toggleDetail = useCallback(async (key: string, code: string, direction: "debit" | "credit") => {
     if (!key || !code) return;
     const newSet = new Set(expandedCodes);
     if (newSet.has(key)) {
@@ -108,7 +108,8 @@ export default function ReportTab({
     if (!details[key]) {
       setLoadingDetail(key);
       try {
-      const res = await fetch(workspacePath(`/api/modules/finance/statements/reports/detail?companyCode=${companyFilter}&year=${year}&month=${monthFilter}&periodKind=${periodKind}&codes=${encodeURIComponent(code)}`));
+      const detailReportType = reportType === "income" ? "income" : "balance";
+      const res = await fetch(workspacePath(`/api/modules/finance/statements/reports/detail?companyCode=${companyFilter}&year=${year}&month=${monthFilter}&periodKind=${periodKind}&reportType=${detailReportType}&direction=${direction}&codes=${encodeURIComponent(code)}`));
         if (res.ok) {
           const result = await res.json();
           setDetails(prev => ({
@@ -120,7 +121,7 @@ export default function ReportTab({
         setLoadingDetail(null);
       }
     }
-  }, [companyFilter, details, expandedCodes, monthFilter, periodKind, year]);
+  }, [companyFilter, details, expandedCodes, monthFilter, periodKind, reportType, year]);
   const lineProps = {
     expandedCodes,
     details,
@@ -255,6 +256,7 @@ export default function ReportTab({
                         labelHeader: "资产",
                         amountHeader: BALANCE_SHEET_CURRENT_AMOUNT_LABEL,
                         previousAmountHeader: BALANCE_SHEET_COMPARATIVE_AMOUNT_LABEL,
+                        detailMode: "balance",
                         detailKeyPrefix: "assets",
                         ...lineProps,
                       }),
@@ -268,6 +270,7 @@ export default function ReportTab({
                         labelHeader: "负债和所有者权益（或股东权益）",
                         amountHeader: BALANCE_SHEET_CURRENT_AMOUNT_LABEL,
                         previousAmountHeader: BALANCE_SHEET_COMPARATIVE_AMOUNT_LABEL,
+                        detailMode: "balance",
                         detailKeyPrefix: "liability-equity",
                         ...lineProps,
                       }),
@@ -298,7 +301,7 @@ export default function ReportTab({
               })(),
               {
                 key: "income-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailKeyPrefix: "income", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailMode: "income", detailKeyPrefix: "income", ...lineProps }) },
               },
             ],
           })] : []),
@@ -315,7 +318,7 @@ export default function ReportTab({
               })(),
               {
                 key: "cashflow-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailKeyPrefix: "cashflow", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项目", amountHeader: FLOW_STATEMENT_CURRENT_AMOUNT_LABEL, previousAmountHeader: FLOW_STATEMENT_COMPARATIVE_AMOUNT_LABEL, currentMonthAmountHeader: FLOW_STATEMENT_CURRENT_MONTH_AMOUNT_LABEL, detailMode: "none", detailKeyPrefix: "cashflow", ...lineProps }) },
               },
             ],
           })] : []),

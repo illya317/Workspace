@@ -3,13 +3,16 @@
 import {
   PageSurface,
   createPageBody,
+  createPageTableSection,
   createStatusSection,
   useFeedback,
   usePageAssistant,
   type BodySurfaceSectionSpec,
+  type DataSurfaceColumnSpec,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useMemo, useState } from "react";
+import type { ConsolidatedEquityChangesRow } from "@workspace/finance/types";
 
 import {
   createConsolidatedReportSection,
@@ -18,6 +21,17 @@ import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { buildConsolidatedStatementAssistantContext } from "./statement-assistant-context";
 import { downloadFinanceWorkbook } from "../workbook-download";
+
+const EQUITY_CHANGE_COLUMNS: DataSurfaceColumnSpec<ConsolidatedEquityChangesRow>[] = [
+  { key: "item", label: "项目", required: true, width: "xl", cell: (row) => row.label },
+  { key: "paidInCapital", label: "实收资本", width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.paidInCapital }) },
+  { key: "capitalReserve", label: "资本公积", width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.capitalReserve }) },
+  { key: "oci", label: "其他综合收益", width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.otherComprehensiveIncome }) },
+  { key: "surplusReserve", label: "盈余公积", width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.surplusReserve }) },
+  { key: "undistributedProfit", label: "未分配利润", width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.undistributedProfit }) },
+  { key: "nci", label: "少数股东权益", required: true, width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.nonControllingInterests }) },
+  { key: "total", label: "所有者权益合计", required: true, width: "md", align: "right", cell: (row) => ({ kind: "amount", value: row.totalEquity }) },
+];
 
 export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const { data, error: overviewError, loading: overviewLoading, navigation } = props;
@@ -64,7 +78,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
         actions: [
           ...(canExport ? [{
             key: "export",
-            label: downloading ? "下载中" : "下载三表",
+            label: downloading ? "下载中" : "下载合并报表",
             kind: "export" as const,
             disabled: downloading || !output.report,
             onClick: () => void downloadWorkbook(),
@@ -119,6 +133,19 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
         year: data.scope.year,
         month: data.scope.month,
       }),
+      ...(reportType === "balanceSheet" && output.report.equityChanges ? [{
+        ...createPageTableSection("consolidated-equity-changes", {
+          rows: output.report.equityChanges.rows,
+          columns: EQUITY_CHANGE_COLUMNS,
+          visibleColumns: EQUITY_CHANGE_COLUMNS.map((column) => column.key),
+          rowKey: (row) => row.key,
+          rowState: (row) => row.key === "opening" || row.key === "closing" ? "total" as const : "normal" as const,
+          presentation: { density: "compact" as const, cellWrap: "nowrap" as const },
+          scroll: { x: true },
+          emptyText: "当前期间没有所有者权益变动",
+        }),
+        header: { title: output.report.equityChanges.status === "reconciled" ? "合并所有者权益变动表" : "合并所有者权益变动表 · 存在待分类差异" },
+      }] : []),
     ] : [];
   }
 

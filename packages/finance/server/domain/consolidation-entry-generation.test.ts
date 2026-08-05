@@ -229,9 +229,9 @@ test("retains allocations without a unique internal counterparty as source excep
 });
 
 test("applies cash flow eliminations to current month only in their posting month", () => {
-  assert.equal(consolidationEntryAffectsCurrentMonth("cashFlow", "2026-05-31", 2026, 6), false);
-  assert.equal(consolidationEntryAffectsCurrentMonth("cashFlow", "2026-06-01", 2026, 6), true);
-  assert.equal(consolidationEntryAffectsCurrentMonth("intercompanyBalance", "2026-05-31", 2026, 6), true);
+  assert.equal(consolidationEntryAffectsCurrentMonth("2026-05-31", 2026, 6), false);
+  assert.equal(consolidationEntryAffectsCurrentMonth("2026-06-01", 2026, 6), true);
+  assert.equal(consolidationEntryAffectsCurrentMonth("2026-06-30", 2026, 6), true);
 });
 
 test("does not infer an investee when multiple direct relationships have evidence", () => {

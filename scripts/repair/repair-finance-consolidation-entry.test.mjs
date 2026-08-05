@@ -198,9 +198,10 @@ test("fresh migration allocates 2023-01-合-0001 in the target batch and deletes
       if (sql.includes('FROM "FinanceConsolidationEntitySnapshot"')) return { rows: targets.entities };
       if (sql.includes('FROM "FinanceGroupAccount"')) return { rows: targets.accounts };
       if (sql.includes('SELECT voucher.* FROM "FinanceVoucher"')) return { rows: [legacyVoucher()] };
+      if (sql.includes('SELECT line.id, line."sourceKind"')) return { rows: [] };
       if (sql.includes('FROM "FinanceVoucherItem" AS item')) return { rows: [
-        { accountCode: "1604", debit: String(amount), credit: "0", description: "江苏欣晨建设工程有限公司在建工程款" },
-        { accountCode: "2241", debit: "0", credit: String(amount), description: "江苏欣晨建设工程有限公司在建工程款" },
+        { id: 501, accountCode: "1604", debit: String(amount), credit: "0", description: "江苏欣晨建设工程有限公司在建工程款" },
+        { id: 502, accountCode: "2241", debit: "0", credit: String(amount), description: "江苏欣晨建设工程有限公司在建工程款" },
       ] };
       if (sql.includes('SELECT "entryNo" FROM "FinanceConsolidationEntry"')) return { rows: [] };
       if (sql.includes('INSERT INTO "FinanceConsolidationEntry"')) return { rows: [{ id: 129 }] };
@@ -218,6 +219,45 @@ test("fresh migration allocates 2023-01-合-0001 in the target batch and deletes
   assert.equal(statements.at(-1).sql, "COMMIT");
   assert.equal(statements.filter((statement) => statement.sql.includes('INSERT INTO "FinanceConsolidationEntryLine"')).length, 2);
   assert.equal(statements.some((statement) => statement.sql.includes('UPDATE "FinanceConsolidationSourceSnapshot"')), false);
+});
+
+test("fresh migration archives a referenced legacy voucher without mutating published entry lines", async () => {
+  const migration = input();
+  const statements = [];
+  const targets = targetRows();
+  const client = {
+    query: async (sql, parameters = []) => {
+      statements.push({ sql, parameters });
+      if (sql.includes('FROM "FinanceConsolidationEntry" AS entry')) return { rows: [] };
+      if (sql.includes('FROM "FinanceConsolidationBatch" WHERE id')) return { rows: [batchRow(migration.migration.targetBatch)] };
+      if (sql.includes('FROM "User"')) return { rows: [{ id: 474, username: "liuxin", canLogin: true }] };
+      if (sql.includes('FROM "FinanceConsolidationEntitySnapshot"')) return { rows: targets.entities };
+      if (sql.includes('FROM "FinanceGroupAccount"')) return { rows: targets.accounts };
+      if (sql.includes('SELECT voucher.* FROM "FinanceVoucher"')) return { rows: [legacyVoucher()] };
+      if (sql.includes('SELECT line.id, line."sourceKind"')) return { rows: [{
+        id: 700,
+        sourceKind: "voucher",
+        sourceId: "voucher:501",
+        sourceVoucherItemId: 501,
+      }] };
+      if (sql.includes('FROM "FinanceVoucherItem" AS item')) return { rows: [
+        { id: 501, accountCode: "1604", debit: String(amount), credit: "0", description: "江苏欣晨建设工程有限公司在建工程款" },
+        { id: 502, accountCode: "2241", debit: "0", credit: String(amount), description: "江苏欣晨建设工程有限公司在建工程款" },
+      ] };
+      if (sql.includes('SELECT "entryNo" FROM "FinanceConsolidationEntry"')) return { rows: [] };
+      if (sql.includes('INSERT INTO "FinanceConsolidationEntry"')) return { rows: [{ id: 129 }] };
+      if (sql.includes('UPDATE "FinanceConsolidationBatch"')) return { rows: [], rowCount: 1 };
+      return { rows: [], rowCount: 1 };
+    },
+  };
+
+  const result = await applyFinanceConsolidationEntryMigration(client, migration);
+  assert.equal(result.removedVoucherId, null);
+  assert.equal(result.archivedVoucherId, 121777);
+  assert.equal(result.preservedReferenceCount, 1);
+  assert.equal(statements.some((statement) => statement.sql.includes('SET status = \'archived\'')), true);
+  assert.equal(statements.some((statement) => statement.sql.includes('UPDATE "FinanceConsolidationEntryLine"')), false);
+  assert.equal(statements.some((statement) => statement.sql.includes('DELETE FROM "FinanceVoucher"')), false);
 });
 
 test("recovery moves the incorrect 2026 entry and restores the 2026 frozen source", async () => {

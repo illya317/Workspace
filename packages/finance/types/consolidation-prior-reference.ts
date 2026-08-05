@@ -13,6 +13,8 @@ export interface ConsolidationPriorReference {
   year: number;
   month: number;
   companies: Record<number, Partial<Record<StatementReportType, ConsolidationPriorLineReference[]>>>;
+  /** 上期已锁定合并报表的集团列；用于承接无法归属到单一实体的少数股东权益等合并项目。 */
+  groupStatements?: Partial<Record<StatementReportType, ConsolidationPriorLineReference[]>>;
 }
 
 export interface ConsolidationPriorReferences {

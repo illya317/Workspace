@@ -156,6 +156,19 @@ function retainedEarningsOpeningFact(companyCode: string, year: number) {
   )) ?? null;
 }
 
+function consolidationCutoverBaselineFact(companyCode: string, year: number, month: number) {
+  const periodEnd = periodEndDate(year, month);
+  return [...(getTenantProfile().financeConsolidationPolicies?.cutoverBaselines ?? [])]
+    .filter((item) => (
+      item.foreignCompanyCode === companyCode
+      && item.baselineDate.slice(0, 4) === String(year)
+      && item.baselineDate < periodEnd
+      && item.presentationCurrencyCode.toUpperCase() === "CNY"
+    ))
+    .sort((left, right) => right.baselineDate.localeCompare(left.baselineDate))
+    .at(0) ?? null;
+}
+
 interface ConsolidationRelationshipLoadOptions {
   includeAllRelations: boolean;
   strictTopology: boolean;
@@ -352,15 +365,20 @@ async function loadSourceFact(
   const baseReportPayload = reportReadiness.ready
     ? await generateFrozenReportPayload(scope.companyCode, year, month, periodKind, reportType)
     : jsonSnapshot({ capturedAt: new Date().toISOString(), payload: { type: reportType, source: "missing", lines: [] } });
-  const reportPayload = reportReadiness.ready && scope.functionalCurrency?.toUpperCase() === "CAD"
+  const reportPayload = reportReadiness.ready
     ? jsonSnapshot({
         ...(baseReportPayload as Record<string, unknown>),
         translationFacts: {
           ...(reportType === "incomeStatement" || reportType === "cashFlow"
             ? { monthlyFlows: await generateMonthlyFlowTranslation(scope.companyCode, year, month, reportType) }
             : {}),
-          ...(reportType === "balanceSheet"
-            ? { retainedEarningsOpening: retainedEarningsOpeningFact(scope.companyCode, year) }
+          ...(reportType === "balanceSheet" && scope.functionalCurrency?.toUpperCase() === "CAD"
+            ? {
+                retainedEarningsOpening: retainedEarningsOpeningFact(scope.companyCode, year),
+                consolidationCutoverBaseline: consolidationCutoverBaselineFact(
+                  scope.companyCode, year, month,
+                ),
+              }
             : {}),
         },
       })

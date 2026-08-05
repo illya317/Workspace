@@ -116,3 +116,36 @@ test("statement workbook exports exactly the three statutory statements in order
   assert.ok((income["!cols"]?.[1]?.wch ?? 0) >= 18);
   assert.equal(statementWorkbookFilename(data), "示例集团有限公司-2025.12-财务报表.xlsx");
 });
+
+test("consolidated workbook appends the formal statement of changes in equity", () => {
+  const consolidated: StatementPageData = {
+    ...data,
+    mode: "consolidated",
+    scope: { ...data.scope, batchId: 7, batchStatus: "published" },
+    equityChanges: {
+      label: "合并所有者权益变动表",
+      reconciliationDifference: 0,
+      status: "reconciled",
+      rows: [{
+        key: "closing",
+        label: "五、本年年末余额",
+        paidInCapital: 100,
+        otherEquityInstruments: 0,
+        capitalReserve: 20,
+        treasuryStock: 0,
+        otherComprehensiveIncome: 5,
+        surplusReserve: 3,
+        undistributedProfit: 40,
+        attributableToParent: 168,
+        nonControllingInterests: 12,
+        totalEquity: 180,
+      }],
+    },
+  };
+  const workbook = XLSX.read(buildStatementWorkbook(consolidated), { type: "buffer", cellNF: true });
+  assert.deepEqual(workbook.SheetNames, ["资产负债表", "利润表", "现金流量表", "所有者权益变动表"]);
+  const sheet = workbook.Sheets["所有者权益变动表"]!;
+  assert.equal(sheet.A1?.v, "合并所有者权益变动表");
+  assert.equal(sheet.I4?.v, 12);
+  assert.equal(sheet.J4?.v, 180);
+});

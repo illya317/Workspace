@@ -10,6 +10,8 @@ export interface DetailParams {
   year: number;
   month: number;
   periodKind?: StatementPeriodKind;
+  reportType?: "balance" | "income";
+  direction?: "debit" | "credit";
   codes: string[]; // account code prefixes (split from +, -, or ,)
 }
 
@@ -23,6 +25,9 @@ export interface AccountDetail {
   currentDebit: number;
   currentCredit: number;
   closing: number;
+  currentMonthAmount?: number;
+  amount?: number;
+  previousAmount?: number;
 }
 
 export interface ReclassAdjustment {
@@ -50,6 +55,7 @@ export interface BalanceAdjustmentRow {
 }
 
 export async function getReportDetail(params: DetailParams): Promise<DetailResult> {
+  if (params.reportType === "income") return getIncomeReportDetail(params);
   const period = await prisma.financePeriod.findFirst({
     where: { companyCode: params.companyCode, year: params.year, month: params.month },
   });
@@ -141,6 +147,81 @@ export async function getReportDetail(params: DetailParams): Promise<DetailResul
   const total = details.reduce((sum, detail) => sum + detail.closing, 0);
   if (reclassAdjustments.length > 0) return { details, total, reclassAdjustments, reclassImpact };
   return { details, total };
+}
+
+async function getIncomeReportDetail(params: DetailParams): Promise<DetailResult> {
+  const direction = params.direction ?? "debit";
+  const [currentMonth, currentYear, previousYear] = await Promise.all([
+    loadIncomeAccountAmounts(params.companyCode, params.year, params.month, params.codes, direction, "month"),
+    loadIncomeAccountAmounts(params.companyCode, params.year, params.month, params.codes, direction, "yearToDate"),
+    loadIncomeAccountAmounts(params.companyCode, params.year - 1, params.month, params.codes, direction, "yearToDate"),
+  ]);
+  const codes = [...new Set([...currentMonth.keys(), ...currentYear.keys(), ...previousYear.keys()])].sort();
+  const details = codes.map((code): AccountDetail => {
+    const source = currentMonth.get(code) ?? currentYear.get(code) ?? previousYear.get(code)!;
+    return {
+      code,
+      name: source.name,
+      category: source.category,
+      balanceDirection: source.balanceDirection,
+      openingDebit: 0,
+      openingCredit: 0,
+      currentDebit: 0,
+      currentCredit: 0,
+      closing: 0,
+      currentMonthAmount: currentMonth.get(code)?.amount ?? 0,
+      amount: currentYear.get(code)?.amount ?? 0,
+      previousAmount: previousYear.get(code)?.amount ?? 0,
+    };
+  });
+  return { details, total: money(details.reduce((sum, detail) => sum + (detail.amount ?? 0), 0)) };
+}
+
+async function loadIncomeAccountAmounts(
+  companyCode: string,
+  year: number,
+  month: number,
+  codes: string[],
+  direction: "debit" | "credit",
+  periodBasis: "yearToDate" | "month",
+) {
+  const items = await prisma.financeVoucherItem.findMany({
+    where: {
+      voucher: {
+        status: "posted",
+        statementExclusions: { none: { statementType: "income", enabled: true } },
+        period: {
+          companyCode,
+          year,
+          month: periodBasis === "month" ? month : { lte: month },
+        },
+      },
+      account: { OR: codes.map((code) => ({ code: { startsWith: code } })) },
+    },
+    include: { account: true },
+  });
+  const matchedCodes = new Set(items.map((item) => item.account.code));
+  const parentCodes = new Set([...matchedCodes].filter((candidate) => (
+    [...matchedCodes].some((code) => code !== candidate && code.startsWith(candidate))
+  )));
+  const amounts = new Map<string, {
+    name: string;
+    category: string;
+    balanceDirection: string;
+    amount: number;
+  }>();
+  for (const item of items) {
+    if (parentCodes.has(item.account.code)) continue;
+    const current = amounts.get(item.account.code) ?? {
+      name: item.account.name,
+      category: item.account.category,
+      balanceDirection: item.account.balanceDirection,
+      amount: 0,
+    };
+    current.amount = money(current.amount + (direction === "credit" ? item.credit : item.debit));
+    amounts.set(item.account.code, current);
+  }
+  return amounts;
 }
 
 function loadBalances(periodId: number) {

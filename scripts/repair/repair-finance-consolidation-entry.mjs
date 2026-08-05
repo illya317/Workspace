@@ -351,6 +351,63 @@ function assertLegacyVoucherMatches(voucher, migration) {
   }
 }
 
+function archivedVoucherMigrationMarker(voucher) {
+  return voucher.sourceMetadata?.groupEntryMigration ?? null;
+}
+
+function assertArchivedLegacyVoucherMatches(voucher, migration, entryId) {
+  const marker = archivedVoucherMigrationMarker(voucher);
+  if (voucher.status !== "archived" || voucher.sourceInvalid !== true
+    || marker?.sourceKey !== migration.sourceKey
+    || marker?.targetBatchId !== migration.targetBatch.id
+    || marker?.entryId !== entryId) {
+    fail(`finance voucher ${migration.sourceKey} remains without a valid group entry archive marker`);
+  }
+}
+
+async function retireLegacyVoucher(client, voucher, migration, entryId) {
+  const references = await client.query(`
+    SELECT line.id, line."sourceKind", line."sourceId", line."sourceVoucherItemId"
+    FROM "FinanceConsolidationEntryLine" AS line
+    JOIN "FinanceVoucherItem" AS item ON item.id = line."sourceVoucherItemId"
+    WHERE item."voucherId" = $1
+    ORDER BY line.id
+  `, [voucher.id]);
+  if (references.rows.length === 0) {
+    const removed = await client.query(`DELETE FROM "FinanceVoucher" WHERE id = $1`, [voucher.id]);
+    if (removed.rowCount !== 1) fail("finance voucher changed during migration");
+    return { removedVoucherId: voucher.id, archivedVoucherId: null, preservedReferenceCount: 0 };
+  }
+
+  const voucherItemIds = new Set(voucher.lines.map((line) => line.id));
+  for (const reference of references.rows) {
+    if (!voucherItemIds.has(reference.sourceVoucherItemId)
+      || reference.sourceKind !== "voucher"
+      || reference.sourceId !== `voucher:${reference.sourceVoucherItemId}`) {
+      fail(`finance voucher ${migration.sourceKey} has an unexpected consolidation reference`);
+    }
+  }
+  const marker = {
+    sourceKey: migration.sourceKey,
+    targetBatchId: migration.targetBatch.id,
+    entryId,
+    preservedReferenceCount: references.rows.length,
+  };
+  const archived = await client.query(`
+    UPDATE "FinanceVoucher"
+    SET status = 'archived', "sourceInvalid" = true,
+        "sourceMetadata" = COALESCE("sourceMetadata", '{}'::jsonb) || $1::jsonb,
+        "updatedAt" = now()
+    WHERE id = $2 AND status = 'posted'
+  `, [JSON.stringify({ groupEntryMigration: marker }), voucher.id]);
+  if (archived.rowCount !== 1) fail("finance voucher changed during migration");
+  return {
+    removedVoucherId: null,
+    archivedVoucherId: voucher.id,
+    preservedReferenceCount: references.rows.length,
+  };
+}
+
 async function loadBatchForUpdate(client, expected, label) {
   const result = await client.query(`
     SELECT id, "parentCompanyCode", year, month, "periodKind", version, revision, status, "sourceFingerprint"
@@ -552,7 +609,8 @@ export async function applyFinanceConsolidationEntryMigration(client, input) {
     const existing = await loadExistingEntry(client, migration.targetBatch.id, generationKey);
     if (existing) {
       assertCorrectEntryMatches(existing, migration, generationFingerprint);
-      if (await loadLegacyVoucher(client, migration.sourceKey)) fail(`finance voucher ${migration.sourceKey} still exists after migration`);
+      const legacyVoucher = await loadLegacyVoucher(client, migration.sourceKey);
+      if (legacyVoucher) assertArchivedLegacyVoucherMatches(legacyVoucher, migration, existing.id);
       if (await loadExistingEntry(client, migration.incorrectMigration.batch.id, generationKey)) {
         fail(`finance consolidation incorrect entry ${migration.sourceKey} still exists after migration`);
       }
@@ -583,8 +641,7 @@ export async function applyFinanceConsolidationEntryMigration(client, input) {
     const entryId = await insertEntry(
       client, migration, entryNo, generationKey, generationFingerprint, legacyVoucher.createdAt, targets,
     );
-    const removedVoucher = await client.query(`DELETE FROM "FinanceVoucher" WHERE id = $1`, [legacyVoucher.id]);
-    if (removedVoucher.rowCount !== 1) fail("finance voucher changed during migration");
+    const retirement = await retireLegacyVoucher(client, legacyVoucher, migration, entryId);
     const targetRevision = await claimBatchRevision(client, targetBatch);
     await appendMigrationEvent(client, {
       batchId: targetBatch.id,
@@ -594,7 +651,7 @@ export async function applyFinanceConsolidationEntryMigration(client, input) {
       actorName: migration.entry.preparedByName,
       batchRevision: targetRevision,
       entryId,
-      snapshot: { sourceKey: migration.sourceKey, removedVoucherId: legacyVoucher.id, generationFingerprint },
+      snapshot: { sourceKey: migration.sourceKey, ...retirement, generationFingerprint },
     });
     await client.query("COMMIT");
     return {
@@ -603,7 +660,7 @@ export async function applyFinanceConsolidationEntryMigration(client, input) {
       alreadyAppliedCount: 0,
       entryId,
       entryNo,
-      removedVoucherId: legacyVoucher.id,
+      ...retirement,
       targetBatchRevision: targetRevision,
     };
   } catch (error) {

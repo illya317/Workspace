@@ -140,7 +140,7 @@ export function listVouchers(input: ListVouchersInput): Promise<VoucherListResul
 async function listStandardVouchers(input: ListVouchersInput) {
   const where: Prisma.FinanceVoucherWhereInput = {};
   if (input.periodId) where.periodId = input.periodId;
-  if (input.status) where.status = input.status;
+  where.status = input.status || { not: "archived" };
   if (input.companyCode) where.companyCode = input.companyCode;
   if (input.year !== undefined || input.month !== undefined) {
     where.period = voucherPeriodFilter(input);

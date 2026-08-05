@@ -5,7 +5,7 @@ import type {
 } from "@workspace/core/ui";
 import type { ConsolidationOverview, StatementReportType } from "@workspace/finance/types";
 
-export type ConsolidationWorkpaperView = "preparation" | "fxWorkpaper" | "workpaper" | "report";
+export type ConsolidationWorkpaperView = "preparation" | "fxWorkpaper" | "nciWorkpaper" | "workpaper" | "report";
 
 export interface ConsolidationCapabilities {
   canCreate: boolean;

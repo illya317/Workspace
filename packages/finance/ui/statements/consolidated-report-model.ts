@@ -52,6 +52,7 @@ function staticLinesSurface(input: {
     expandedCodes: new Set(),
     details: {},
     loadingDetail: null,
+    detailMode: "none",
     onToggle: () => undefined,
   });
 }

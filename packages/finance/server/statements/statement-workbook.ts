@@ -190,6 +190,34 @@ function buildFlowSheet(
   return worksheet;
 }
 
+function buildEquityChangesSheet(data: StatementPageData) {
+  const statement = data.equityChanges;
+  if (!statement) return null;
+  const rows: FinanceWorkbookCell[][] = [
+    [statement.label, "", "", "", "", "", "", "", "", ""],
+    [`编制单位：${data.scope.companyName}`, "", "", "", "", "", "", `${data.scope.year}年${data.scope.month}月`, "", "单位：元"],
+    ["项目", "实收资本", "其他权益工具", "资本公积", "减：库存股", "其他综合收益", "盈余公积", "未分配利润", "少数股东权益", "所有者权益合计"],
+    ...statement.rows.map((row) => [
+      row.label,
+      row.paidInCapital,
+      row.otherEquityInstruments,
+      row.capitalReserve,
+      row.treasuryStock,
+      row.otherComprehensiveIncome,
+      row.surplusReserve,
+      row.undistributedProfit,
+      row.nonControllingInterests,
+      row.totalEquity,
+    ]),
+  ];
+  const worksheet = formulaAwareSheet(rows);
+  worksheet["!merges"] = [XLSX.utils.decode_range("A1:J1")];
+  worksheet["!cols"] = [{ wch: 42 }, ...Array.from({ length: 9 }, () => ({ wch: 18 }))];
+  applySheetDefaults(worksheet);
+  setAmountFormats(worksheet, [2, 3, 4, 5, 6, 7, 8, 9, 10], 4, rows.length);
+  return worksheet;
+}
+
 export function buildStatementWorkbook(data: StatementPageData): Buffer {
   const workbook = XLSX.utils.book_new();
   const balance = statementByType(data, "balanceSheet");
@@ -198,6 +226,8 @@ export function buildStatementWorkbook(data: StatementPageData): Buffer {
   XLSX.utils.book_append_sheet(workbook, buildBalanceSheet(data, balance), SHEET_NAMES[0]);
   XLSX.utils.book_append_sheet(workbook, buildFlowSheet(data, income, "incomeStatement"), SHEET_NAMES[1]);
   XLSX.utils.book_append_sheet(workbook, buildFlowSheet(data, cashFlow, "cashFlow"), SHEET_NAMES[2]);
+  const equityChanges = buildEquityChangesSheet(data);
+  if (equityChanges) XLSX.utils.book_append_sheet(workbook, equityChanges, "所有者权益变动表");
   return XLSX.write(workbook, { type: "buffer", bookType: "xlsx" }) as Buffer;
 }
 

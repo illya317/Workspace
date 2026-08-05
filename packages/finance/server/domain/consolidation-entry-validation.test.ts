@@ -202,6 +202,13 @@ test("review target accepts generated matches and manual group journals in draft
     generationKey: null,
     matchStatus: null,
   }), { ok: true, data: { entryStatus: "approved", matchStatus: null } });
+  assert.deepEqual(validateConsolidationEntryReviewTarget("approve", {
+    batchStatus: "draft",
+    entryOrigin: "manual",
+    entryStatus: "draft",
+    generationKey: "data-release:historical-group-adjustment",
+    matchStatus: null,
+  }), { ok: true, data: { entryStatus: "approved", matchStatus: null } });
   const pendingEvidence = validateConsolidationEntryReviewTarget("approve", {
     batchStatus: "draft",
     entryOrigin: "manual",
