@@ -1,0 +1,156 @@
+// Finance 报表对比证据持久化（finance-amount-explanation-platform 计划 §6，Package 4）。
+//
+// 本文件四个模型保存的是「对比证据的不可变审计快照」，不是规范会计事实：
+// 上传的 workbook 只是对比证据，永不覆盖系统报表、永不产生凭证/抵销/调整/过账。
+// 任何一行结果都可由 source fingerprints（workbook SHA-256、target/config/input/output
+// fingerprint）加上 parser/orchestrator/formula/solver adapter 版本确定性复现。
+//
+// Legacy 处置（ADR 决策 6，docs/engineering/finance-amount-explanation-platform-adr.md）：
+// legacy `FinanceStatementSourcePackage/Sheet/Line` 与 `FinanceStatementWorkpaper/Line`
+// 在 dev 库非空，保留为 legacy 证据并存，不静默复用、不重解释、不删除；
+// 任何移除须先有一份单独批准的转换/归档计划。
+//
+// 不可变性由数据库 trigger 兜底（migration
+// `*_finance_statement_comparison_immutability`），service 层（Package 5/6）必须先于
+// trigger 给出友好错误；trigger 是最后防线而非业务接口。
+
+/// 报表对比证据包（不可变证据事实，来源于用户上传的 .xlsx 对比 workbook）。
+/// 保存 preflight 通过后的安全原始字节、解析器版本、归一化 workbook 快照和 scan 摘要；
+/// lifecycle 仅推进状态，证据内容列写入后冻结，归档（archived）不删除。
+/// 被已完成 run 引用后只允许 lifecycle -> archived（数据库 trigger 强制）。
+/// failureCode/failureMessage 只保存安全诊断，不回显不安全内容。
+model FinanceStatementComparisonPackage {
+  id               Int                                 @id @default(autoincrement())
+  fileName         String // 原始文件名（展示用，不作身份）
+  mimeType         String
+  fileSize         Int
+  sha256           String // workbook 内容 SHA-256（hex），证据身份指纹
+  payload          Bytes // preflight 后的安全原始字节
+  parserVersion    String // 解析器（SheetJS adapter）版本
+  workbookSnapshot Json // 归一化 workbook 快照（sheet 清单/单元格/公式/缓存值）
+  scanSummary      Json // preflight/scan 摘要（限额、拒绝项、警告）
+  lifecycle        String                              @default("parsed") // parsed | mappingRequired | ready | failed | archived
+  failureCode      String?
+  failureMessage   String?
+  uploadedBy       Int
+  createdAt        DateTime                            @default(now())
+  updatedAt        DateTime                            @default(now()) @updatedAt
+  uploader         User                                @relation("FinanceStatementComparisonPackageUploader", fields: [uploadedBy], references: [id], onDelete: Restrict)
+  mappings         FinanceStatementComparisonMapping[]
+
+  @@index([sha256])
+  @@index([lifecycle, createdAt])
+  @@index([uploadedBy, createdAt])
+}
+
+/// 报表对比映射确认（事实表，来源于用户对自动检测映射的确认）。
+/// 绑定 workbook SHA-256、mapping revision、StatementTargetRef 快照与 target fingerprint；
+/// package 或 target fingerprint 变化时 readiness 失效（status -> invalidated）。
+/// revision 是乐观并发计数器：每次 UPDATE 必须 +1（数据库 trigger 强制），
+/// service 以 (id, revision) 条件更新实现 CAS；并发冲突由其中一方失败重读解决。
+/// 主数据一律 FK + 来源快照并存（公司/母公司/批次/输出快照）。
+model FinanceStatementComparisonMapping {
+  id                      Int                                 @id @default(autoincrement())
+  packageId               Int
+  targetKind              String // entity | consolidated
+  targetCompanyId         Int?
+  targetCompanyCode       String?
+  targetCompanyName       String?
+  targetParentCompanyId   Int?
+  targetParentCompanyCode String?
+  targetParentCompanyName String?
+  targetBatchId           Int?
+  targetOutputSnapshotId  Int?
+  year                    Int?
+  month                   Int?
+  periodKind              String? // monthly | cumulative
+  reportType              String // balance | income | cashflow
+  targetFingerprint       String // 不可变系统目标指纹（entity=报表请求指纹，consolidated=输出指纹）
+  workbookSha256          String // 确认时绑定的 workbook SHA-256，与 package 当前 sha256 不一致即失效
+  structureMapping        Json // sheet/block/header/label/amount-column 映射
+  lineMapping             Json // canonical line -> cell 映射
+  revision                Int                                 @default(1)
+  status                  String                              @default("draft") // draft | confirmed | invalidated | archived
+  inputFingerprint        String // 映射输入（检测+确认）指纹
+  confirmedBy             Int?
+  confirmedAt             DateTime?
+  createdAt               DateTime                            @default(now())
+  updatedAt               DateTime                            @default(now()) @updatedAt
+  package                 FinanceStatementComparisonPackage   @relation(fields: [packageId], references: [id], onDelete: Restrict)
+  targetCompany           Company?                            @relation("FinanceStatementComparisonMappingTargetCompany", fields: [targetCompanyId], references: [id], onDelete: Restrict)
+  targetParentCompany     Company?                            @relation("FinanceStatementComparisonMappingTargetParentCompany", fields: [targetParentCompanyId], references: [id], onDelete: Restrict)
+  targetBatch             FinanceConsolidationBatch?          @relation(fields: [targetBatchId], references: [id], onDelete: Restrict)
+  targetOutputSnapshot    FinanceConsolidationOutputSnapshot? @relation(fields: [targetOutputSnapshotId], references: [id], onDelete: Restrict)
+  confirmer               User?                               @relation("FinanceStatementComparisonMappingConfirmer", fields: [confirmedBy], references: [id], onDelete: Restrict)
+  runs                    FinanceStatementComparisonRun[]
+
+  @@index([packageId, status])
+  @@index([targetKind, targetCompanyId, year, month, reportType])
+  @@index([targetBatchId])
+  @@index([targetFingerprint])
+}
+
+/// 报表对比运行（追加式审计事实，每次对比/重跑新建一条，绝不原地修改）。
+/// 冻结 mapping、target fingerprint、orchestrator/formula/solver adapter 身份与版本、
+/// 应用的 limits/config 指纹和输入指纹；完成后整行冻结（数据库 trigger 强制），
+/// rerun 只能创建新记录。summary 只保存结果摘要快照，规范会计事实仍在各自账本。
+model FinanceStatementComparisonRun {
+  id                    Int                               @id @default(autoincrement())
+  mappingId             Int
+  targetFingerprint     String // 创建时冻结的目标指纹，不随后续数据变化漂移
+  orchestratorId        String
+  orchestratorVersion   String
+  formulaAdapterId      String?
+  formulaAdapterVersion String?
+  solverAdapterId       String?
+  solverAdapterVersion  String?
+  configFingerprint     String // 应用的 limits/config 指纹
+  status                String                            @default("running") // running | completed | failed
+  inputFingerprint      String
+  outputFingerprint     String?
+  summary               Json? // 结果摘要快照（行数/差异数/状态分布/总残差等）
+  failureCode           String?
+  failureMessage        String?
+  createdBy             Int
+  createdAt             DateTime                          @default(now())
+  updatedAt             DateTime                          @default(now()) @updatedAt
+  completedAt           DateTime?
+  mapping               FinanceStatementComparisonMapping @relation(fields: [mappingId], references: [id], onDelete: Restrict)
+  creator               User                              @relation("FinanceStatementComparisonRunCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  lines                 FinanceStatementComparisonLine[]
+
+  @@index([mappingId, createdAt])
+  @@index([status, createdAt])
+  @@index([outputFingerprint])
+}
+
+/// 报表对比运行行（不可变审计快照事实，追加后拒绝 UPDATE/DELETE/TRUNCATE）。
+/// external/system/difference/explained/residual 是本次 run 冻结的快照值而非派生查询结果；
+/// 保留这些列是因为计划 §6 明确要求 deliberately immutable run snapshot 用于审计，
+/// 可由 run 的 source fingerprints + adapter 版本复现，不充当规范会计事实。
+/// 金额一律 Decimal(20,2) 规范化分位，比较基于 canonical cents 而非格式化字符串。
+model FinanceStatementComparisonLine {
+  id                Int                           @id @default(autoincrement())
+  runId             Int
+  lineCode          String // canonical 报表行 code
+  lineLabel         String
+  sortOrder         Int
+  sourceSheet       String? // 来源 sheet；系统有行而 workbook 缺失时为 null
+  sourceCell        String? // 来源单元格地址
+  externalAmount    Decimal?                      @db.Decimal(20, 2)
+  systemAmount      Decimal?                      @db.Decimal(20, 2)
+  differenceAmount  Decimal?                      @db.Decimal(20, 2)
+  explainedAmount   Decimal?                      @db.Decimal(20, 2)
+  residualAmount    Decimal?                      @db.Decimal(20, 2)
+  explanationStatus String // exact | near | ambiguous | notFound | truncated | notEvaluated
+  explanationMethod String? // direct | formula | combination | rollforward
+  evidence          Json? // 证据快照（EvidenceRef 图，不含原始字节）
+  alternatives      Json? // 候选/歧义快照
+  diagnostics       Json? // 诊断快照（预算、截断、stop reason）
+  createdAt         DateTime                      @default(now())
+  run               FinanceStatementComparisonRun @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, lineCode])
+  @@unique([runId, sourceSheet, sourceCell])
+  @@index([runId, sortOrder])
+}

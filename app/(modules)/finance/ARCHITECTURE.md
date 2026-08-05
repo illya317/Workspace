@@ -90,6 +90,8 @@
 
 金额来源解释由 `explainAmountOrigin`（`packages/finance/server/statements/amount-explanation/`，公共类型 `types/statement-explanation.ts`）提供：只读、确定性、不持久化。查询先 fail-closed 归一化十进制金额到签名 minor units，再由有界 provider 取证——凭证明细行（专用 SQL，强制公司/期间/币种/科目提示/非零金额窗口谓词与显式 LIMIT，不复用凭证头关键字列表查询）、合并抵销匹配事实（含 `matchedSignedAmount` 部分分摊语义，只适配不改算法）、重分类血缘（仅 approved/adjusted）、合并输出快照折算血缘；workbook 单元格为 Package 5 预留端口。证据按稳定指纹归一去重并保留来源符号，组合求解只经注入的 Platform `CombinationSolverAdapter`（默认预算：tolerance 0、maxTerms 6、maxSolutions 20、过滤后 ≤40 候选、250,000 visited states、1,000ms deadline），排序按 residual → 更少项 → 上下文接近 → 证据完整度 → 稳定源顺序，平局一律报 `ambiguous`，预算耗尽报 `truncated` 而不得伪装成 `not_found`。结果恒为 `accountingTreatment: "not_evaluated"`：只解释金额来源，不做会计处理判断、不生成调整或过账；LLM 只能叙述已注册结果，不得改变算术、排序、状态或证据。
 
+对比证据持久化由 `prisma/models/finance-statement-comparison.prisma` 四个模型承担：`FinanceStatementComparisonPackage`（preflight 后的安全 workbook 字节、SHA-256、parser 版本、归一化快照、scan 摘要、lifecycle）、`FinanceStatementComparisonMapping`（目标快照 FK + 映射 JSON + 乐观 revision CAS + 确认人）、`FinanceStatementComparisonRun`（冻结的 target/config/input/output 指纹与 orchestrator/formula/solver adapter 版本、完成元数据、摘要）、`FinanceStatementComparisonLine`（行级 external/system/difference/explained/residual 快照与证据/诊断 JSON，`@@unique([runId, lineCode])` 与 `@@unique([runId, sourceSheet, sourceCell])` 防重复插入）。这些行是不可变审计快照而非规范会计事实，可由 source fingerprints 加 parser/orchestrator/adapter 版本复现；不可变性由独立 maintenance 迁移的 guard trigger 在数据库层兜底——package 证据内容写入即冻结、被已完成 run 引用后只允许归档，mapping 每次更新必须 revision +1，run 完成后整行冻结（rerun 新建记录），line 全追加式。legacy `FinanceStatementSourcePackage/Sheet/Line` 与 `FinanceStatementWorkpaper/Line` 保留为 legacy 证据并存，不重解释、不删除；移除须单独批准的转换/归档计划（ADR 决策 6）。
+
 ### 管理会计 (`/finance/analysis`)
 
 `FinanceAnalysisClient` 将法定报表事实加工为内部管理口径。资金来源与用途分析同时读取三层证据：

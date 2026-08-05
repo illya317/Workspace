@@ -520,6 +520,10 @@ export const ModelName = {
   FinanceBalanceReclassAdjustment: 'FinanceBalanceReclassAdjustment',
   FinanceBalanceReclassAdjustmentHistory: 'FinanceBalanceReclassAdjustmentHistory',
   ReclassResult: 'ReclassResult',
+  FinanceStatementComparisonPackage: 'FinanceStatementComparisonPackage',
+  FinanceStatementComparisonMapping: 'FinanceStatementComparisonMapping',
+  FinanceStatementComparisonRun: 'FinanceStatementComparisonRun',
+  FinanceStatementComparisonLine: 'FinanceStatementComparisonLine',
   FinanceStatementVoucherExclusion: 'FinanceStatementVoucherExclusion',
   FinanceStatementSourcePackage: 'FinanceStatementSourcePackage',
   FinanceStatementSourceSheet: 'FinanceStatementSourceSheet',
@@ -711,7 +715,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "investmentEnterpriseProfile" | "investmentEnterpriseMeeting" | "investmentEnterpriseDiligenceItem" | "investmentEnterpriseContract" | "investmentEnterpriseMonitoringRecord" | "investmentEnterpriseDocumentLink" | "investorShareholderProfile" | "investorDueDiligenceRecord" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCategory" | "financeAssetCategoryPolicy" | "financeAssetCard" | "financeAssetAcquisitionEvidence" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeAssetImpairmentAssessment" | "financeAssetImpairmentAllocation" | "financeAssetDisposal" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot" | "financeCloseEvent" | "financeCloseWorkpaper" | "financeCloseWorkpaperEvent" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeCompanyCurrencyPolicy" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeCurrencyCatalog" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementVoucherExclusion" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeTaxFiling" | "financeTaxPayment" | "financeTaxPaymentAllocation" | "financeTaxReconciliationSnapshot" | "financeTaxType" | "financeTaxRegistration" | "financeTaxWorkpaper" | "financeTaxAccrualLine" | "financeBankReconciliation" | "financeBankReconciliationItem" | "financeInterestWorkpaper" | "financeInterestWorkpaperLine" | "financeInterestVoucherLink" | "financeCurrency" | "financeBankAccount" | "financeLoan" | "financeLoanRateTerm" | "financeLoanPrincipalEvent" | "company" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "editHistory" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employment" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "department" | "position" | "eDP" | "positionReportOverride" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryContentEmbedding" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "newsReaction" | "notificationDefinition" | "notificationDefinitionRevision" | "notificationDefinitionLifecycleEvent" | "notificationPublication" | "notificationDelivery" | "notificationChannelEndpoint" | "notificationDeliveryAttempt" | "notificationDeliveryWorkerRequest" | "notificationManagedGroup" | "notificationGroupPolicy" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "employeePartyIdentityLink" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "relationPolicyConfig" | "relationPolicyRevision" | "businessCodeSequence" | "businessCodeRule" | "businessCodeAllocation" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "projectNotificationRule" | "projectNotificationRuleRevision" | "projectNotificationEvaluation" | "projectNotificationRuleLifecycleEvent" | "projectNotificationPublicationIntent" | "projectNotificationSignal" | "projectNotificationSignalRedriveEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
+    modelProps: "erpDueDiligenceSubmission" | "erpDueDiligenceEvidenceAttachment" | "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "investmentEnterpriseProfile" | "investmentEnterpriseMeeting" | "investmentEnterpriseDiligenceItem" | "investmentEnterpriseContract" | "investmentEnterpriseMonitoringRecord" | "investmentEnterpriseDocumentLink" | "investorShareholderProfile" | "investorDueDiligenceRecord" | "ownershipInterest" | "ownershipProjectionRun" | "companyRegistryChange" | "companyRegistryOwnershipParticipant" | "shareCapitalEvent" | "shareCapitalTransaction" | "shareCapitalSnapshotPosition" | "shareholderGroup" | "shareholderGroupMembership" | "contractRevision" | "contractStateEvent" | "contractCategory" | "contract" | "contractAttachment" | "contractRecord" | "dataQualityRun" | "dataQualityCheckState" | "dataQualityFinding" | "dataQualityNotificationDelivery" | "dataQualityEvaluationRequest" | "documentTemplateSpace" | "documentTemplate" | "partyLegalFactRevision" | "party" | "partyNameHistory" | "externalPartyProfile" | "externalPartyRole" | "externalPartyRolePeriod" | "externalPartySourceMapping" | "financeAssetCategory" | "financeAssetCategoryPolicy" | "financeAssetCard" | "financeAssetAcquisitionEvidence" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeAssetImpairmentAssessment" | "financeAssetImpairmentAllocation" | "financeAssetDisposal" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeCashFlowAllocationAdjustment" | "financeCloseRun" | "financeCloseTask" | "financeCloseEvidenceSnapshot" | "financeCloseEvent" | "financeCloseWorkpaper" | "financeCloseWorkpaperEvent" | "financeConsolidationEntryLine" | "financeConsolidationMatchGroup" | "financeConsolidationMatchSource" | "financeVoucherCompanyMappingRule" | "financeConsolidationOutputSnapshot" | "financeCompanyCurrencyPolicy" | "financeConsolidationScopeSelection" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeCurrencyCatalog" | "financeAuxiliaryMember" | "financeCounterpartyClassification" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemSettlement" | "financeOpenItemAuxiliary" | "financeGroupAccount" | "financeAccountingPolicyVersion" | "financeGroupAccountRevision" | "financeConsolidationRule" | "financeConsolidationRuleSelector" | "financeGroupAccountMapping" | "financeReadableSourcePackage" | "financeReadableImportRun" | "financeSourceLedgerMapping" | "financeAccountAuxiliaryRequirement" | "financeSourcePeriodStatus" | "financeSourceSubsystemStatus" | "financeAccountLineage" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "financeBalanceReclassAdjustmentHistory" | "reclassResult" | "financeStatementComparisonPackage" | "financeStatementComparisonMapping" | "financeStatementComparisonRun" | "financeStatementComparisonLine" | "financeStatementVoucherExclusion" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeTaxFiling" | "financeTaxPayment" | "financeTaxPaymentAllocation" | "financeTaxReconciliationSnapshot" | "financeTaxType" | "financeTaxRegistration" | "financeTaxWorkpaper" | "financeTaxAccrualLine" | "financeBankReconciliation" | "financeBankReconciliationItem" | "financeInterestWorkpaper" | "financeInterestWorkpaperLine" | "financeInterestVoucherLink" | "financeCurrency" | "financeBankAccount" | "financeLoan" | "financeLoanRateTerm" | "financeLoanPrincipalEvent" | "company" | "departmentDescription" | "positionDescription" | "positionDescriptionRevision" | "editHistory" | "employmentAgreement" | "employmentAgreementAttachment" | "employmentAgreementTerm" | "employmentAgreementRevision" | "employmentAgreementChange" | "employment" | "employeeLifecycleEvent" | "employeePeriodRevision" | "organizationStructureChange" | "departmentEffectiveVersion" | "positionEffectiveVersion" | "positionReportOverrideEffectiveVersion" | "hrPerformanceReview" | "employeeSocialInsurancePeriod" | "employeeSocialInsurancePeriodRevision" | "employee" | "department" | "position" | "eDP" | "positionReportOverride" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "inventoryReceiptReport" | "inventoryReceiptProductWorkPoint" | "inventoryReceiptReportEvent" | "inventoryReceiptBatch" | "inventoryReceiptOutput" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryContentEmbedding" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "newsReaction" | "notificationDefinition" | "notificationDefinitionRevision" | "notificationDefinitionLifecycleEvent" | "notificationPublication" | "notificationDelivery" | "notificationChannelEndpoint" | "notificationDeliveryAttempt" | "notificationDeliveryWorkerRequest" | "notificationManagedGroup" | "notificationGroupPolicy" | "notificationSubscription" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "employeePartyIdentityLink" | "product" | "productSourceMapping" | "productionQcBatch" | "productionQcFieldValue" | "productionQcSignature" | "productionQcAuditEvent" | "systemConfig" | "relationPolicyConfig" | "relationPolicyRevision" | "businessCodeSequence" | "businessCodeRule" | "businessCodeAllocation" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "workKpiDefinition" | "workKpiAssignment" | "workKpiResultSnapshot" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "projectNotificationRule" | "projectNotificationRuleRevision" | "projectNotificationEvaluation" | "projectNotificationRuleLifecycleEvent" | "projectNotificationPublicationIntent" | "projectNotificationSignal" | "projectNotificationSignalRedriveEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectMembershipChange" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workspaceAnalysisTemplate" | "workspaceAnalysisTemplateRevision"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -10776,6 +10780,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ReclassResultCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ReclassResultCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementComparisonPackage: {
+      payload: Prisma.$FinanceStatementComparisonPackagePayload<ExtArgs>
+      fields: Prisma.FinanceStatementComparisonPackageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementComparisonPackageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementComparisonPackageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementComparisonPackageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementComparisonPackageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementComparisonPackageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementComparisonPackageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementComparisonPackageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonPackageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementComparisonPackageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementComparisonPackageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementComparisonPackageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementComparisonPackageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonPackageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementComparisonPackageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonPackagePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementComparisonPackageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementComparisonPackage>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementComparisonPackageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonPackageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementComparisonPackageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonPackageCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementComparisonMapping: {
+      payload: Prisma.$FinanceStatementComparisonMappingPayload<ExtArgs>
+      fields: Prisma.FinanceStatementComparisonMappingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementComparisonMappingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementComparisonMappingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementComparisonMappingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementComparisonMappingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementComparisonMappingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementComparisonMappingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementComparisonMappingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonMappingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementComparisonMappingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementComparisonMappingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementComparisonMappingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementComparisonMappingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonMappingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementComparisonMappingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonMappingPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementComparisonMappingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementComparisonMapping>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementComparisonMappingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonMappingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementComparisonMappingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonMappingCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementComparisonRun: {
+      payload: Prisma.$FinanceStatementComparisonRunPayload<ExtArgs>
+      fields: Prisma.FinanceStatementComparisonRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementComparisonRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementComparisonRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementComparisonRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementComparisonRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementComparisonRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementComparisonRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementComparisonRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementComparisonRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementComparisonRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementComparisonRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementComparisonRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementComparisonRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonRunPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementComparisonRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementComparisonRun>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementComparisonRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementComparisonRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonRunCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementComparisonLine: {
+      payload: Prisma.$FinanceStatementComparisonLinePayload<ExtArgs>
+      fields: Prisma.FinanceStatementComparisonLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementComparisonLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementComparisonLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementComparisonLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementComparisonLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementComparisonLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementComparisonLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementComparisonLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementComparisonLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementComparisonLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementComparisonLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementComparisonLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementComparisonLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementComparisonLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementComparisonLinePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementComparisonLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementComparisonLine>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementComparisonLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementComparisonLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementComparisonLineCountAggregateOutputType> | number
         }
       }
     }
@@ -26871,6 +27171,109 @@ export const ReclassResultScalarFieldEnum = {
 export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
 
 
+export const FinanceStatementComparisonPackageScalarFieldEnum = {
+  id: 'id',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  sha256: 'sha256',
+  payload: 'payload',
+  parserVersion: 'parserVersion',
+  workbookSnapshot: 'workbookSnapshot',
+  scanSummary: 'scanSummary',
+  lifecycle: 'lifecycle',
+  failureCode: 'failureCode',
+  failureMessage: 'failureMessage',
+  uploadedBy: 'uploadedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceStatementComparisonPackageScalarFieldEnum = (typeof FinanceStatementComparisonPackageScalarFieldEnum)[keyof typeof FinanceStatementComparisonPackageScalarFieldEnum]
+
+
+export const FinanceStatementComparisonMappingScalarFieldEnum = {
+  id: 'id',
+  packageId: 'packageId',
+  targetKind: 'targetKind',
+  targetCompanyId: 'targetCompanyId',
+  targetCompanyCode: 'targetCompanyCode',
+  targetCompanyName: 'targetCompanyName',
+  targetParentCompanyId: 'targetParentCompanyId',
+  targetParentCompanyCode: 'targetParentCompanyCode',
+  targetParentCompanyName: 'targetParentCompanyName',
+  targetBatchId: 'targetBatchId',
+  targetOutputSnapshotId: 'targetOutputSnapshotId',
+  year: 'year',
+  month: 'month',
+  periodKind: 'periodKind',
+  reportType: 'reportType',
+  targetFingerprint: 'targetFingerprint',
+  workbookSha256: 'workbookSha256',
+  structureMapping: 'structureMapping',
+  lineMapping: 'lineMapping',
+  revision: 'revision',
+  status: 'status',
+  inputFingerprint: 'inputFingerprint',
+  confirmedBy: 'confirmedBy',
+  confirmedAt: 'confirmedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceStatementComparisonMappingScalarFieldEnum = (typeof FinanceStatementComparisonMappingScalarFieldEnum)[keyof typeof FinanceStatementComparisonMappingScalarFieldEnum]
+
+
+export const FinanceStatementComparisonRunScalarFieldEnum = {
+  id: 'id',
+  mappingId: 'mappingId',
+  targetFingerprint: 'targetFingerprint',
+  orchestratorId: 'orchestratorId',
+  orchestratorVersion: 'orchestratorVersion',
+  formulaAdapterId: 'formulaAdapterId',
+  formulaAdapterVersion: 'formulaAdapterVersion',
+  solverAdapterId: 'solverAdapterId',
+  solverAdapterVersion: 'solverAdapterVersion',
+  configFingerprint: 'configFingerprint',
+  status: 'status',
+  inputFingerprint: 'inputFingerprint',
+  outputFingerprint: 'outputFingerprint',
+  summary: 'summary',
+  failureCode: 'failureCode',
+  failureMessage: 'failureMessage',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  completedAt: 'completedAt'
+} as const
+
+export type FinanceStatementComparisonRunScalarFieldEnum = (typeof FinanceStatementComparisonRunScalarFieldEnum)[keyof typeof FinanceStatementComparisonRunScalarFieldEnum]
+
+
+export const FinanceStatementComparisonLineScalarFieldEnum = {
+  id: 'id',
+  runId: 'runId',
+  lineCode: 'lineCode',
+  lineLabel: 'lineLabel',
+  sortOrder: 'sortOrder',
+  sourceSheet: 'sourceSheet',
+  sourceCell: 'sourceCell',
+  externalAmount: 'externalAmount',
+  systemAmount: 'systemAmount',
+  differenceAmount: 'differenceAmount',
+  explainedAmount: 'explainedAmount',
+  residualAmount: 'residualAmount',
+  explanationStatus: 'explanationStatus',
+  explanationMethod: 'explanationMethod',
+  evidence: 'evidence',
+  alternatives: 'alternatives',
+  diagnostics: 'diagnostics',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceStatementComparisonLineScalarFieldEnum = (typeof FinanceStatementComparisonLineScalarFieldEnum)[keyof typeof FinanceStatementComparisonLineScalarFieldEnum]
+
+
 export const FinanceStatementVoucherExclusionScalarFieldEnum = {
   id: 'id',
   voucherId: 'voucherId',
@@ -30810,6 +31213,10 @@ export type GlobalOmitConfig = {
   financeBalanceReclassAdjustment?: Prisma.FinanceBalanceReclassAdjustmentOmit
   financeBalanceReclassAdjustmentHistory?: Prisma.FinanceBalanceReclassAdjustmentHistoryOmit
   reclassResult?: Prisma.ReclassResultOmit
+  financeStatementComparisonPackage?: Prisma.FinanceStatementComparisonPackageOmit
+  financeStatementComparisonMapping?: Prisma.FinanceStatementComparisonMappingOmit
+  financeStatementComparisonRun?: Prisma.FinanceStatementComparisonRunOmit
+  financeStatementComparisonLine?: Prisma.FinanceStatementComparisonLineOmit
   financeStatementVoucherExclusion?: Prisma.FinanceStatementVoucherExclusionOmit
   financeStatementSourcePackage?: Prisma.FinanceStatementSourcePackageOmit
   financeStatementSourceSheet?: Prisma.FinanceStatementSourceSheetOmit

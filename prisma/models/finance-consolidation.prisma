@@ -38,6 +38,7 @@ model FinanceConsolidationBatch {
   events           FinanceConsolidationBatchEvent[]
   outputSnapshot   FinanceConsolidationOutputSnapshot?
   matchGroups      FinanceConsolidationMatchGroup[]
+  statementComparisonMappings FinanceStatementComparisonMapping[]
 
   @@unique([parentCompanyId, year, month, periodKind, version], map: "FinanceConsolidationBatch_scope_version_key")
   @@index([parentCompanyId, year, month, periodKind, status], map: "FinanceConsolidationBatch_scope_status_idx")

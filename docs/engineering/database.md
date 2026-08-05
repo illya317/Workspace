@@ -324,6 +324,9 @@
 | financeAssetImpairmentAssessments | FinanceAssetImpairmentAssessment[] | @relation("FinanceAssetImpairmentAssessor") |  |
 | financeAssetDisposalsConfirmed | FinanceAssetDisposal[] | @relation("FinanceAssetDisposalConfirmer") |  |
 | financeAssetAcquisitionsConfirmed | FinanceAssetAcquisitionEvidence[] | @relation("FinanceAssetAcquisitionConfirmer") |  |
+| uploadedFinanceStatementComparisonPackages | FinanceStatementComparisonPackage[] | @relation("FinanceStatementComparisonPackageUploader") |  |
+| confirmedFinanceStatementComparisonMappings | FinanceStatementComparisonMapping[] | @relation("FinanceStatementComparisonMappingConfirmer") |  |
+| createdFinanceStatementComparisonRuns | FinanceStatementComparisonRun[] | @relation("FinanceStatementComparisonRunCreator") |  |
 
 ### Resource
 
@@ -2112,6 +2115,7 @@
 | reportPayload | Json | - |  |
 | generatedAt | DateTime | @default(now()) |  |
 | batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Restrict) |  |
+| statementComparisonMappings | FinanceStatementComparisonMapping[] | - |  |
 
 ### FinanceCompanyCurrencyPolicy
 
@@ -2119,13 +2123,14 @@
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
 | companyId | Int | @unique |  |
-| functionalCurrency | String | - |  |
+| currencyId | Int | - |  |
 | source | String | - |  |
 | evidence | String | - |  |
 | effectiveFrom | DateTime? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | company | Company | @relation(fields: [companyId], references: [id], onDelete: Restrict) |  |
+| currency | FinanceCurrencyCatalog | @relation(fields: [currencyId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceConsolidationScopeSelection
 
@@ -2187,6 +2192,7 @@
 | events | FinanceConsolidationBatchEvent[] | - |  |
 | outputSnapshot | FinanceConsolidationOutputSnapshot? | - |  |
 | matchGroups | FinanceConsolidationMatchGroup[] | - |  |
+| statementComparisonMappings | FinanceStatementComparisonMapping[] | - |  |
 
 ### FinanceConsolidationBatchEvent
 
@@ -2548,6 +2554,22 @@
 | employee | Employee? | @relation(fields: [employeeId], references: [id]) |  |
 | import | FinanceDataImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
 
+### FinanceCurrencyCatalog
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| code | String | @unique @db.VarChar(3) |  |
+| name | String | - |  |
+| symbol | String? | - |  |
+| decimalDigits | Int | @default(2) |  |
+| isActive | Boolean | @default(true) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| companyPolicies | FinanceCompanyCurrencyPolicy[] | - |  |
+| groupAccounts | FinanceGroupAccount[] | - |  |
+| groupAccountRevisions | FinanceGroupAccountRevision[] | - |  |
+
 ### FinanceAuxiliaryMember
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -2736,7 +2758,7 @@
 | category | String | - |  |
 | balanceDirection | String | - |  |
 | mnemonicCode | String? | - |  |
-| currency | String? | - |  |
+| currencyId | Int | - |  |
 | subjectLevel | Int? | - |  |
 | parentId | Int? | - |  |
 | sourceKind | String | - | reference_seed | suggested | manual |
@@ -2762,6 +2784,7 @@
 | consolidationRuleSelectors | FinanceConsolidationRuleSelector[] | - |  |
 | consolidationEntryLines | FinanceConsolidationEntryLine[] | - |  |
 | originCompany | Company? | @relation(fields: [originCompanyId], references: [id], onDelete: Restrict) |  |
+| currency | FinanceCurrencyCatalog | @relation(fields: [currencyId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceAccountingPolicyVersion
 
@@ -2795,7 +2818,7 @@
 | category | String | - |  |
 | balanceDirection | String | - |  |
 | mnemonicCode | String? | - |  |
-| currency | String? | - |  |
+| currencyId | Int | - |  |
 | subjectLevel | Int? | - |  |
 | parentGroupAccountId | Int? | - |  |
 | isActive | Boolean | @default(true) |  |
@@ -2811,6 +2834,7 @@
 | policyVersion | FinanceAccountingPolicyVersion | @relation(fields: [policyVersionId], references: [id], onDelete: Restrict) |  |
 | groupAccount | FinanceGroupAccount | @relation("FinanceGroupAccountRevisionAccount", fields: [groupAccountId], references: [id], onDelete: Restrict) |  |
 | parentGroupAccount | FinanceGroupAccount? | @relation("FinanceGroupAccountRevisionParent", fields: [parentGroupAccountId], references: [id], onDelete: Restrict) |  |
+| currency | FinanceCurrencyCatalog | @relation(fields: [currencyId], references: [id], onDelete: Restrict) |  |
 
 ### FinanceConsolidationRule
 
@@ -3512,6 +3536,118 @@
 | rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id], onDelete: SetNull) |  |
 | reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
 
+### FinanceStatementComparisonPackage
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| fileName | String | - | 原始文件名（展示用，不作身份） |
+| mimeType | String | - |  |
+| fileSize | Int | - |  |
+| sha256 | String | - | workbook 内容 SHA-256（hex），证据身份指纹 |
+| payload | Bytes | - | preflight 后的安全原始字节 |
+| parserVersion | String | - | 解析器（SheetJS adapter）版本 |
+| workbookSnapshot | Json | - | 归一化 workbook 快照（sheet 清单/单元格/公式/缓存值） |
+| scanSummary | Json | - | preflight/scan 摘要（限额、拒绝项、警告） |
+| lifecycle | String | @default("parsed") | parsed | mappingRequired | ready | failed | archived |
+| failureCode | String? | - |  |
+| failureMessage | String? | - |  |
+| uploadedBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| uploader | User | @relation("FinanceStatementComparisonPackageUploader", fields: [uploadedBy], references: [id], onDelete: Restrict) |  |
+| mappings | FinanceStatementComparisonMapping[] | - |  |
+
+### FinanceStatementComparisonMapping
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| packageId | Int | - |  |
+| targetKind | String | - | entity | consolidated |
+| targetCompanyId | Int? | - |  |
+| targetCompanyCode | String? | - |  |
+| targetCompanyName | String? | - |  |
+| targetParentCompanyId | Int? | - |  |
+| targetParentCompanyCode | String? | - |  |
+| targetParentCompanyName | String? | - |  |
+| targetBatchId | Int? | - |  |
+| targetOutputSnapshotId | Int? | - |  |
+| year | Int? | - |  |
+| month | Int? | - |  |
+| periodKind | String? | - | monthly | cumulative |
+| reportType | String | - | balance | income | cashflow |
+| targetFingerprint | String | - | 不可变系统目标指纹（entity=报表请求指纹，consolidated=输出指纹） |
+| workbookSha256 | String | - | 确认时绑定的 workbook SHA-256，与 package 当前 sha256 不一致即失效 |
+| structureMapping | Json | - | sheet/block/header/label/amount-column 映射 |
+| lineMapping | Json | - | canonical line -> cell 映射 |
+| revision | Int | @default(1) |  |
+| status | String | @default("draft") | draft | confirmed | invalidated | archived |
+| inputFingerprint | String | - | 映射输入（检测+确认）指纹 |
+| confirmedBy | Int? | - |  |
+| confirmedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| package | FinanceStatementComparisonPackage | @relation(fields: [packageId], references: [id], onDelete: Restrict) |  |
+| targetCompany | Company? | @relation("FinanceStatementComparisonMappingTargetCompany", fields: [targetCompanyId], references: [id], onDelete: Restrict) |  |
+| targetParentCompany | Company? | @relation("FinanceStatementComparisonMappingTargetParentCompany", fields: [targetParentCompanyId], references: [id], onDelete: Restrict) |  |
+| targetBatch | FinanceConsolidationBatch? | @relation(fields: [targetBatchId], references: [id], onDelete: Restrict) |  |
+| targetOutputSnapshot | FinanceConsolidationOutputSnapshot? | @relation(fields: [targetOutputSnapshotId], references: [id], onDelete: Restrict) |  |
+| confirmer | User? | @relation("FinanceStatementComparisonMappingConfirmer", fields: [confirmedBy], references: [id], onDelete: Restrict) |  |
+| runs | FinanceStatementComparisonRun[] | - |  |
+
+### FinanceStatementComparisonRun
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| mappingId | Int | - |  |
+| targetFingerprint | String | - | 创建时冻结的目标指纹，不随后续数据变化漂移 |
+| orchestratorId | String | - |  |
+| orchestratorVersion | String | - |  |
+| formulaAdapterId | String? | - |  |
+| formulaAdapterVersion | String? | - |  |
+| solverAdapterId | String? | - |  |
+| solverAdapterVersion | String? | - |  |
+| configFingerprint | String | - | 应用的 limits/config 指纹 |
+| status | String | @default("running") | running | completed | failed |
+| inputFingerprint | String | - |  |
+| outputFingerprint | String? | - |  |
+| summary | Json? | - | 结果摘要快照（行数/差异数/状态分布/总残差等） |
+| failureCode | String? | - |  |
+| failureMessage | String? | - |  |
+| createdBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| completedAt | DateTime? | - |  |
+| mapping | FinanceStatementComparisonMapping | @relation(fields: [mappingId], references: [id], onDelete: Restrict) |  |
+| creator | User | @relation("FinanceStatementComparisonRunCreator", fields: [createdBy], references: [id], onDelete: Restrict) |  |
+| lines | FinanceStatementComparisonLine[] | - |  |
+
+### FinanceStatementComparisonLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| runId | Int | - |  |
+| lineCode | String | - | canonical 报表行 code |
+| lineLabel | String | - |  |
+| sortOrder | Int | - |  |
+| sourceSheet | String? | - | 来源 sheet；系统有行而 workbook 缺失时为 null |
+| sourceCell | String? | - | 来源单元格地址 |
+| externalAmount | Decimal? | @db.Decimal(20, 2) |  |
+| systemAmount | Decimal? | @db.Decimal(20, 2) |  |
+| differenceAmount | Decimal? | @db.Decimal(20, 2) |  |
+| explainedAmount | Decimal? | @db.Decimal(20, 2) |  |
+| residualAmount | Decimal? | @db.Decimal(20, 2) |  |
+| explanationStatus | String | - | exact | near | ambiguous | notFound | truncated | notEvaluated |
+| explanationMethod | String? | - | direct | formula | combination | rollforward |
+| evidence | Json? | - | 证据快照（EvidenceRef 图，不含原始字节） |
+| alternatives | Json? | - | 候选/歧义快照 |
+| diagnostics | Json? | - | 诊断快照（预算、截断、stop reason） |
+| createdAt | DateTime | @default(now()) |  |
+| run | FinanceStatementComparisonRun | @relation(fields: [runId], references: [id], onDelete: Cascade) |  |
+
 ### FinanceStatementVoucherExclusion
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -4142,6 +4278,7 @@
 | registeredDate | String? | - |  |
 | managementGroup | String | - |  |
 | codePoolCode | String? | - |  |
+| isConsolidationParent | Boolean | @default(false) |  |
 | isActive | Boolean | @default(true) |  |
 | sortOrder | Int | @default(0) |  |
 | editedBy | Int? | - |  |
@@ -4180,6 +4317,8 @@
 | financeConsolidationCounterparties | FinanceConsolidationEntryLine[] | @relation("FinanceConsolidationEntryLineCounterpartyCompany") |  |
 | financeConsolidationParentScopes | FinanceConsolidationScopeSelection[] | @relation("FinanceConsolidationScopeParentCompany") |  |
 | financeConsolidationCompanyScopes | FinanceConsolidationScopeSelection[] | @relation("FinanceConsolidationScopeCompany") |  |
+| financeStatementComparisonTargets | FinanceStatementComparisonMapping[] | @relation("FinanceStatementComparisonMappingTargetCompany") |  |
+| financeStatementComparisonParentTargets | FinanceStatementComparisonMapping[] | @relation("FinanceStatementComparisonMappingTargetParentCompany") |  |
 | externalPartySourceMappings | ExternalPartySourceMapping[] | - |  |
 | ownedContracts | Contract[] | @relation("ContractOwningCompany") |  |
 | socialInsurancePeriods | EmployeeSocialInsurancePeriod[] | - |  |

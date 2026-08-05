@@ -49,6 +49,8 @@ model Company {
   financeConsolidationCounterparties FinanceConsolidationEntryLine[]      @relation("FinanceConsolidationEntryLineCounterpartyCompany")
   financeConsolidationParentScopes  FinanceConsolidationScopeSelection[]  @relation("FinanceConsolidationScopeParentCompany")
   financeConsolidationCompanyScopes FinanceConsolidationScopeSelection[]  @relation("FinanceConsolidationScopeCompany")
+  financeStatementComparisonTargets FinanceStatementComparisonMapping[]   @relation("FinanceStatementComparisonMappingTargetCompany")
+  financeStatementComparisonParentTargets FinanceStatementComparisonMapping[] @relation("FinanceStatementComparisonMappingTargetParentCompany")
   externalPartySourceMappings       ExternalPartySourceMapping[]
   ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
   socialInsurancePeriods            EmployeeSocialInsurancePeriod[]

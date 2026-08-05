@@ -105,6 +105,9 @@ model User {
   financeAssetImpairmentAssessments   FinanceAssetImpairmentAssessment[] @relation("FinanceAssetImpairmentAssessor")
   financeAssetDisposalsConfirmed      FinanceAssetDisposal[] @relation("FinanceAssetDisposalConfirmer")
   financeAssetAcquisitionsConfirmed   FinanceAssetAcquisitionEvidence[] @relation("FinanceAssetAcquisitionConfirmer")
+  uploadedFinanceStatementComparisonPackages FinanceStatementComparisonPackage[] @relation("FinanceStatementComparisonPackageUploader")
+  confirmedFinanceStatementComparisonMappings FinanceStatementComparisonMapping[] @relation("FinanceStatementComparisonMappingConfirmer")
+  createdFinanceStatementComparisonRuns FinanceStatementComparisonRun[] @relation("FinanceStatementComparisonRunCreator")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

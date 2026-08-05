@@ -237,6 +237,7 @@ export type FinanceConsolidationOutputSnapshotWhereInput = {
   reportPayload?: Prisma.JsonFilter<"FinanceConsolidationOutputSnapshot">
   generatedAt?: Prisma.DateTimeFilter<"FinanceConsolidationOutputSnapshot"> | Date | string
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingListRelationFilter
 }
 
 export type FinanceConsolidationOutputSnapshotOrderByWithRelationInput = {
@@ -248,6 +249,7 @@ export type FinanceConsolidationOutputSnapshotOrderByWithRelationInput = {
   reportPayload?: Prisma.SortOrder
   generatedAt?: Prisma.SortOrder
   batch?: Prisma.FinanceConsolidationBatchOrderByWithRelationInput
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingOrderByRelationAggregateInput
 }
 
 export type FinanceConsolidationOutputSnapshotWhereUniqueInput = Prisma.AtLeast<{
@@ -262,6 +264,7 @@ export type FinanceConsolidationOutputSnapshotWhereUniqueInput = Prisma.AtLeast<
   reportPayload?: Prisma.JsonFilter<"FinanceConsolidationOutputSnapshot">
   generatedAt?: Prisma.DateTimeFilter<"FinanceConsolidationOutputSnapshot"> | Date | string
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingListRelationFilter
 }, "id" | "batchId">
 
 export type FinanceConsolidationOutputSnapshotOrderByWithAggregationInput = {
@@ -299,6 +302,7 @@ export type FinanceConsolidationOutputSnapshotCreateInput = {
   reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Date | string
   batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutOutputSnapshotInput
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingCreateNestedManyWithoutTargetOutputSnapshotInput
 }
 
 export type FinanceConsolidationOutputSnapshotUncheckedCreateInput = {
@@ -309,6 +313,7 @@ export type FinanceConsolidationOutputSnapshotUncheckedCreateInput = {
   outputFingerprint: string
   reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUncheckedCreateNestedManyWithoutTargetOutputSnapshotInput
 }
 
 export type FinanceConsolidationOutputSnapshotUpdateInput = {
@@ -318,6 +323,7 @@ export type FinanceConsolidationOutputSnapshotUpdateInput = {
   reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutOutputSnapshotNestedInput
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUpdateManyWithoutTargetOutputSnapshotNestedInput
 }
 
 export type FinanceConsolidationOutputSnapshotUncheckedUpdateInput = {
@@ -328,6 +334,7 @@ export type FinanceConsolidationOutputSnapshotUncheckedUpdateInput = {
   outputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUncheckedUpdateManyWithoutTargetOutputSnapshotNestedInput
 }
 
 export type FinanceConsolidationOutputSnapshotCreateManyInput = {
@@ -435,12 +442,29 @@ export type FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNest
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotUpdateToOneWithWhereWithoutBatchInput, Prisma.FinanceConsolidationOutputSnapshotUpdateWithoutBatchInput>, Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutBatchInput>
 }
 
+export type FinanceConsolidationOutputSnapshotCreateNestedOneWithoutStatementComparisonMappingsInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotCreateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateWithoutStatementComparisonMappingsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationOutputSnapshotCreateOrConnectWithoutStatementComparisonMappingsInput
+  connect?: Prisma.FinanceConsolidationOutputSnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationOutputSnapshotUpdateOneWithoutStatementComparisonMappingsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotCreateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateWithoutStatementComparisonMappingsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationOutputSnapshotCreateOrConnectWithoutStatementComparisonMappingsInput
+  upsert?: Prisma.FinanceConsolidationOutputSnapshotUpsertWithoutStatementComparisonMappingsInput
+  disconnect?: Prisma.FinanceConsolidationOutputSnapshotWhereInput | boolean
+  delete?: Prisma.FinanceConsolidationOutputSnapshotWhereInput | boolean
+  connect?: Prisma.FinanceConsolidationOutputSnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotUpdateToOneWithWhereWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUpdateWithoutStatementComparisonMappingsInput>, Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutStatementComparisonMappingsInput>
+}
+
 export type FinanceConsolidationOutputSnapshotCreateWithoutBatchInput = {
   version: number
   inputFingerprint: string
   outputFingerprint: string
   reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingCreateNestedManyWithoutTargetOutputSnapshotInput
 }
 
 export type FinanceConsolidationOutputSnapshotUncheckedCreateWithoutBatchInput = {
@@ -450,6 +474,7 @@ export type FinanceConsolidationOutputSnapshotUncheckedCreateWithoutBatchInput =
   outputFingerprint: string
   reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUncheckedCreateNestedManyWithoutTargetOutputSnapshotInput
 }
 
 export type FinanceConsolidationOutputSnapshotCreateOrConnectWithoutBatchInput = {
@@ -474,6 +499,7 @@ export type FinanceConsolidationOutputSnapshotUpdateWithoutBatchInput = {
   outputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUpdateManyWithoutTargetOutputSnapshotNestedInput
 }
 
 export type FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutBatchInput = {
@@ -483,8 +509,92 @@ export type FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutBatchInput =
   outputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
   reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  statementComparisonMappings?: Prisma.FinanceStatementComparisonMappingUncheckedUpdateManyWithoutTargetOutputSnapshotNestedInput
 }
 
+export type FinanceConsolidationOutputSnapshotCreateWithoutStatementComparisonMappingsInput = {
+  version: number
+  inputFingerprint: string
+  outputFingerprint: string
+  reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutOutputSnapshotInput
+}
+
+export type FinanceConsolidationOutputSnapshotUncheckedCreateWithoutStatementComparisonMappingsInput = {
+  id?: number
+  batchId: number
+  version: number
+  inputFingerprint: string
+  outputFingerprint: string
+  reportPayload: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Date | string
+}
+
+export type FinanceConsolidationOutputSnapshotCreateOrConnectWithoutStatementComparisonMappingsInput = {
+  where: Prisma.FinanceConsolidationOutputSnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotCreateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateWithoutStatementComparisonMappingsInput>
+}
+
+export type FinanceConsolidationOutputSnapshotUpsertWithoutStatementComparisonMappingsInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotUpdateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutStatementComparisonMappingsInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotCreateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateWithoutStatementComparisonMappingsInput>
+  where?: Prisma.FinanceConsolidationOutputSnapshotWhereInput
+}
+
+export type FinanceConsolidationOutputSnapshotUpdateToOneWithWhereWithoutStatementComparisonMappingsInput = {
+  where?: Prisma.FinanceConsolidationOutputSnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotUpdateWithoutStatementComparisonMappingsInput, Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutStatementComparisonMappingsInput>
+}
+
+export type FinanceConsolidationOutputSnapshotUpdateWithoutStatementComparisonMappingsInput = {
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  inputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  outputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutOutputSnapshotNestedInput
+}
+
+export type FinanceConsolidationOutputSnapshotUncheckedUpdateWithoutStatementComparisonMappingsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  inputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  outputFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  reportPayload?: Prisma.JsonNullValueInput | runtime.InputJsonValue
+  generatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type FinanceConsolidationOutputSnapshotCountOutputType
+ */
+
+export type FinanceConsolidationOutputSnapshotCountOutputType = {
+  statementComparisonMappings: number
+}
+
+export type FinanceConsolidationOutputSnapshotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  statementComparisonMappings?: boolean | FinanceConsolidationOutputSnapshotCountOutputTypeCountStatementComparisonMappingsArgs
+}
+
+/**
+ * FinanceConsolidationOutputSnapshotCountOutputType without action
+ */
+export type FinanceConsolidationOutputSnapshotCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationOutputSnapshotCountOutputType
+   */
+  select?: Prisma.FinanceConsolidationOutputSnapshotCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceConsolidationOutputSnapshotCountOutputType without action
+ */
+export type FinanceConsolidationOutputSnapshotCountOutputTypeCountStatementComparisonMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceStatementComparisonMappingWhereInput
+}
 
 
 export type FinanceConsolidationOutputSnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -496,6 +606,8 @@ export type FinanceConsolidationOutputSnapshotSelect<ExtArgs extends runtime.Typ
   reportPayload?: boolean
   generatedAt?: boolean
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
+  statementComparisonMappings?: boolean | Prisma.FinanceConsolidationOutputSnapshot$statementComparisonMappingsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceConsolidationOutputSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationOutputSnapshot"]>
 
 export type FinanceConsolidationOutputSnapshotSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -533,6 +645,8 @@ export type FinanceConsolidationOutputSnapshotSelectScalar = {
 export type FinanceConsolidationOutputSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "version" | "inputFingerprint" | "outputFingerprint" | "reportPayload" | "generatedAt", ExtArgs["result"]["financeConsolidationOutputSnapshot"]>
 export type FinanceConsolidationOutputSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
+  statementComparisonMappings?: boolean | Prisma.FinanceConsolidationOutputSnapshot$statementComparisonMappingsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceConsolidationOutputSnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceConsolidationOutputSnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
@@ -545,6 +659,7 @@ export type $FinanceConsolidationOutputSnapshotPayload<ExtArgs extends runtime.T
   name: "FinanceConsolidationOutputSnapshot"
   objects: {
     batch: Prisma.$FinanceConsolidationBatchPayload<ExtArgs>
+    statementComparisonMappings: Prisma.$FinanceStatementComparisonMappingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -949,6 +1064,7 @@ readonly fields: FinanceConsolidationOutputSnapshotFieldRefs;
 export interface Prisma__FinanceConsolidationOutputSnapshotClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   batch<T extends Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationBatchClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  statementComparisonMappings<T extends Prisma.FinanceConsolidationOutputSnapshot$statementComparisonMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationOutputSnapshot$statementComparisonMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementComparisonMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1383,6 +1499,30 @@ export type FinanceConsolidationOutputSnapshotDeleteManyArgs<ExtArgs extends run
    * Limit how many FinanceConsolidationOutputSnapshots to delete.
    */
   limit?: number
+}
+
+/**
+ * FinanceConsolidationOutputSnapshot.statementComparisonMappings
+ */
+export type FinanceConsolidationOutputSnapshot$statementComparisonMappingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceStatementComparisonMapping
+   */
+  select?: Prisma.FinanceStatementComparisonMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceStatementComparisonMapping
+   */
+  omit?: Prisma.FinanceStatementComparisonMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceStatementComparisonMappingInclude<ExtArgs> | null
+  where?: Prisma.FinanceStatementComparisonMappingWhereInput
+  orderBy?: Prisma.FinanceStatementComparisonMappingOrderByWithRelationInput | Prisma.FinanceStatementComparisonMappingOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceStatementComparisonMappingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceStatementComparisonMappingScalarFieldEnum | Prisma.FinanceStatementComparisonMappingScalarFieldEnum[]
 }
 
 /**

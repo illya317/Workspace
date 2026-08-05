@@ -9,6 +9,7 @@ model FinanceConsolidationOutputSnapshot {
   generatedAt       DateTime @default(now())
 
   batch FinanceConsolidationBatch @relation(fields: [batchId], references: [id], onDelete: Restrict)
+  statementComparisonMappings FinanceStatementComparisonMapping[]
 
   @@index([outputFingerprint])
 }
