@@ -40,7 +40,7 @@ export const page_api_registry_entries = [
       { name: "loading", description: "选择区加载态。" },
       { name: "emptyText", description: "选择区空态文案。" },
     ],
-    composes: ["SelectorCard", "PanelCard", "Badge", "EmptyStateCard", "InputSurface"],
+    composes: ["PanelCard", "Badge", "EmptyStateCard", "InputSurface"],
   },
   {
     name: "TagListInput",
@@ -59,31 +59,13 @@ export const page_api_registry_entries = [
     composes: ["RemovableTag", "TagInlineTextField", "FieldShell"],
   },
   {
-    name: "StructuredTable",
-    description: "结构化表格；移动端简单行和简单矩阵转纵向记录卡片，复杂跨行跨列矩阵保留横向浏览",
-  },
-  {
     name: "TabBar",
     description: "Tab 切换栏；桌面 accordion 同栏展开 children，移动端按选项数量切换为分段控件或可完整换行的分组栏目选择面板",
     composes: ["ActionButton"],
   },
   {
-    name: "TableScrollFrame",
-    description: "矩阵、不可压缩列或固定视窗长表使用的显式滚动外壳",
-    composes: ["DataTable"],
-  },
-  {
-    name: "TextareaField",
-    description: "多行文本输入",
-  },
-  {
     name: "TextField",
     description: "通用文本输入",
-    composes: ["FieldShell", "getFieldInputClassName"],
-  },
-  {
-    name: "TimeField",
-    description: "时间输入框",
     composes: ["FieldShell", "getFieldInputClassName"],
   },
   {

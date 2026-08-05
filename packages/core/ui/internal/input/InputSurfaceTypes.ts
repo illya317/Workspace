@@ -1,5 +1,4 @@
 import type { ReactNode, Ref } from "react";
-import type { ChoiceGroupProps } from "./ChoiceGroup";
 import type { FileFieldProps } from "./FileField";
 import type { FieldControlSize } from "../form/FormStyles";
 import type { LifecycleScope } from "./FkFieldInput";
@@ -7,7 +6,6 @@ import type { SelectionOption, SelectionOptionGroup } from "../selection/Selecti
 import type { SearchableOption, SearchableOptionInputProps } from "./SearchableOptionInput";
 import type { TagStringInputProps } from "./TagStringInput";
 import type { FieldTextAlign, FieldVisualState } from "./TextField";
-import type { TextareaFieldProps } from "./TextareaField";
 import type { TextFieldProps } from "./TextField";
 
 export type InputValueType =
@@ -171,9 +169,9 @@ export type InputSurfaceProps = {
   title?: string;
   textAlign?: FieldTextAlign;
   visualState?: FieldVisualState | "info";
-  resize?: TextareaFieldProps["resize"];
-  choiceType?: ChoiceGroupProps["type"];
-  choiceName?: ChoiceGroupProps["name"];
+  resize?: "none" | "vertical" | "both";
+  choiceType?: "radio" | "checkbox";
+  choiceName?: string;
   accept?: FileFieldProps["accept"];
   multiple?: FileFieldProps["multiple"];
   fileVariant?: FileFieldProps["variant"];

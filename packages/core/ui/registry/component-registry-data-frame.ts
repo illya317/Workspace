@@ -17,20 +17,6 @@ export const page_frame_registry_entries = [
     composes: ["ActionGlyph"],
   },
   {
-    name: "TemplateWorkbenchFrame",
-    description: "可配置工作台骨架",
-    composes: [
-      "Toolbar",
-      "SearchInput",
-      "SelectorCard",
-      "PanelCard",
-      "Badge",
-      "ActionButton",
-      "EmptyStateCard",
-      "getToolbarActionClassName",
-    ],
-  },
-  {
     name: "page-style-preview",
     description: "页面样式预览",
   },

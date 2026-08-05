@@ -13,7 +13,7 @@
 - 搜索类选择默认支持中文、拼音全拼和拼音首字母。禁止业务组件各自写一套搜索算法。
 - 服务端列表、候选项和高级筛选里的 `keyword` / 模糊文本匹配必须复用 `@workspace/platform/search` 的 `matchAnyField`、`matchSearchFields` 或 `matchText`，保持中文、拼音全拼和首字母规则一致；不要在业务 service 或 UI 里手写 `toLowerCase().includes()` / `.includes(query)` 作为用户搜索，新增会被 `npm run arch:gate` 的 `handwrittenSearchMatches` ratchet 拦住。
 - generated / snapshot / export 类页面的二段式筛选字段必须由后端 DTO 明确返回，例如 `preview.filterFields`，UI 只能把后端 contract 映射给 Core `FieldValueFilter`。禁止在 `packages/*/ui/generated` 里本地声明 `FieldValueFilter` 字段；新增会被 `npm run arch:gate` 的 `generatedFilterContractDrift` ratchet 拦住。
-- 搜索型原生 input 的历史债为 0：除 `packages/core/ui/SearchInput.tsx` 内部实现外，`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
+- 搜索型原生 input 的历史债为 0：`app/` 和 `packages/` 不得出现 `type="search"` 或 `placeholder/aria-label` 带搜索语义的原生 `<input>`；搜索统一由 Surface 的 Ant renderer 承载。新增会被 `npm run arch:gate` 的 `nativeSearchInputFiles` ratchet 拦住。
 - Core UI 可用入口以公共 runtime 入口、helper 和 Surface spec 为准。业务包、Platform 页面和 app 壳不得 value import 非公共 runtime renderer，也不得引用未注册 Core UI 名字或在 `packages/*/ui` 新增手写页面卡片/筛选/分栏/表格壳；新增同类结构会被 `gate:ui` / structure ratchet 抓住。
 - `PageSurface` 的 `moduleView` 只承认历史债，不作为新增页面接口。存量已迁出，`businessModuleViewUsages` baseline 为 0；需要承载新内容时先补 `BodySurface` 或所属 typed Surface 的正式声明，不能恢复页面正文逃生口。
 - 页面模板采用 `A Core 源头层 -> B 薄壳 ViewModel -> C 渲染`：A 是 Core 中的一组可组合模板部件，可以拆成 A1/A2/A3/A4，分别承载类型、布局、默认动作、弹窗和状态机；B 只把业务事实映射成 Core 的 ViewModel 类型，传入真实回调和状态；C 只负责 `<CoreTemplate {...viewModel} />` 渲染。
@@ -82,7 +82,7 @@ generated 类成果的筛选 contract 要随生成 DTO 一起返回，避免 UI 
 
 | 模板 | 统一入口 | 用途 |
 |---|---|---|
-| 登录后页面壳 | `@workspace/platform/ui` 的 `AppShell` | 所有登录后页面；内部必须复用 Core `PageShell` |
+| 登录后页面壳 | `@workspace/platform/ui` 的 `AppShell` | 所有登录后页面；AppShell 唯一拥有平台 header，正文继续使用 Core `PageSurface` contract |
 | 模块首页 | `@workspace/platform/ui` 的 `ModuleHome` | L1 模块入口页 |
 | Portal | `@workspace/platform/ui` 的 `PortalClient` | Workspace 首页入口卡片 |
 | 标准业务空间导航 | `@workspace/platform/ui` 的 `space-workbench` helpers | `/work/me`、`/work/department/:id`、`/work/project/:id`、`/docs/editor` 等按空间切换的业务工作台；Work 顶部只展示个人、常用部门和项目 |
@@ -92,7 +92,7 @@ Platform 可以聚合模块注册和导航，但不能写 HR、Finance、Product
 
 标准业务空间工作台不得在业务包里复制顶部空间 tab 逻辑，也不得把所有可见部门直接塞进顶部导航。项目、任务、编辑器属于同一类空间工作台：项目只是业务对象和工作来源，不是独立空间权限 scope；业务页只做工作台，权限配置入口集中在 Settings。
 
-Platform 系统壳的少量 Core UI 候选由 Platform 自己治理，不属于业务 Page API：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`。Agent L1 与页面助手都必须复用公开 Core contract；不得为它们增加业务 allowlist 或专用 Core kind。
+Platform 系统壳由 Platform 自己治理，不再通过已退役的 `PageShell` / `DropdownMenu` 兼容 renderer；正文、反馈和选择能力继续复用公开 Core contract。Agent L1 与页面助手不得增加业务 allowlist 或专用 Core kind。
 
 ## 页面模板与薄壳 ViewModel
 
@@ -106,14 +106,14 @@ C 渲染：<CoreTemplate {...viewModel} />
 
 执行规则：
 
-- Core 源头层负责左右布局、toolbar、搜索、折叠、分页和行级动作承载区等可跨业务复用的体验；这些能力可以拆成多个 Core 文件/组件，但仍同属 A。反馈/预览这类强业务弹窗留在业务包，Core 只承载按钮位置。
-- Core 应导出稳定 ViewModel 类型，例如 `TemplateWorkbenchViewModel`；业务 adapter/model 函数必须返回这个类型。
+- Core 源头层负责左右布局、toolbar、搜索、折叠、分页和行级动作承载区等可跨业务复用的体验；这些能力通过 `PageSurface` / `BodySurface` / `createMasterDetailBody` 等稳定 contract 组合。反馈/预览这类强业务弹窗留在业务包，Core 只承载按钮位置。
+- 业务 adapter/model 函数应返回稳定的 Surface spec 或 `BodySurfaceProps`，不再依赖单独的 `TemplateWorkbenchFrame` ViewModel。
 - 业务 B 建议放在 `packages/<domain>/ui/**/<feature>-view-model.ts` 或 `adapter.ts`，只做数据映射、状态标记和真实 callback，不直接渲染 `PanelCard`、`SelectorCard`、`Toolbar`、`SearchInput`、`ActionButton`、`DetailModal` 等 Core primitive。
 - 业务组件只组合 `const viewModel = createXxxViewModel(...)` 与 `<CoreTemplate {...viewModel} />`，再挂必须的业务 modal 或 service 状态。
 - 不要为了页面样式预览再维护一套 B2，也不要在 showcase 里重写 toolbar、折叠、反馈、预览按钮或弹窗。没有共用真实 B 时，宁可不做该模板预览，避免预览和业务长期漂移。
 - 如果用户看着业务页或样式预览说“这里样式/默认交互不对”，agent 首先判断能否改 A 的对应子件。只有字段文案、业务状态、权限、真实回调或数据筛选属于 B；通用视觉和交互改动不应补在 B 里。
 
-当前示例：业务工作台类页面可以用 Core `TemplateWorkbenchFrame` 承载左侧 selector、右侧内容和行级动作；具体业务包只保留 ViewModel adapter 与真实弹窗。
+当前示例：业务工作台类页面使用 `createMasterDetailBody` 承载左侧 selector 与右侧详情；具体业务包只保留 Surface spec builder、真实回调和业务弹窗。
 
 ## Work 体验统一方向
 

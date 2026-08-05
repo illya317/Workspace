@@ -296,11 +296,6 @@ export function findPageDesignDriftFiles(files: SourceInfo[]) {
   return drift.sort((left, right) => left.file.localeCompare(right.file));
 }
 
-function isAllowedNativeSearchInputFile(file: SourceInfo) {
-  return file.relPath === "packages/core/ui/SearchInput.tsx"
-    || file.relPath === "packages/core/ui/internal/input/SearchInput.tsx";
-}
-
 function nativeSearchInputSignals(attributes: ts.JsxAttributes, sourceFile: ts.SourceFile) {
   const signals: string[] = [];
   const typeText = jsxAttributeText(attributes, sourceFile, "type");
@@ -320,7 +315,6 @@ export function findNativeSearchInputFiles(files: SourceInfo[]) {
   for (const file of files) {
     if (!file.relPath.endsWith(".tsx")) continue;
     if (!file.relPath.startsWith("app/") && !file.relPath.startsWith("packages/")) continue;
-    if (isAllowedNativeSearchInputFile(file)) continue;
 
     const signals = new Set<string>();
     const visit = (node: ts.Node) => {

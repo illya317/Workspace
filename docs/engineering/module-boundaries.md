@@ -8,7 +8,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 
 | 包 | 层级 | 责任 | 禁止 |
 |---|---|---|---|
-| `@workspace/core` | 底座 | 通用类型、模块注册契约、通用 UI/表格/筛选/搜索/分页/PageShell/表单组件 | 依赖平台、业务包、Prisma、权限、业务事实 |
+| `@workspace/core` | 底座 | 通用类型、模块注册契约，以及 Page/Body/Data/Form/Input 等声明式 Surface 与内部 renderer | 依赖平台、业务包、Prisma、权限、业务事实 |
 | `@workspace/platform` | 主体 | 登录后平台壳、模块聚合、导航、权限资源注册、审计和用户等平台能力 | 直接依赖某个业务页面或业务 service |
 | `@workspace/agent` | 业务 | Agent L1 页面、会话运行时、工具连接器和外部 Agent bridge | 直接依赖其他业务包或把业务 service 内嵌进 Agent |
 | `@workspace/docs` | 业务 | 公司文档、模板空间、文档编辑器 UI/server/types | 直接依赖其他业务包；共享模板读取走 Platform contract |
@@ -26,7 +26,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。根 `app/*` 与
 ## 当前落地状态
 
 - `packages/core/module-contract.ts` 定义模块注册、资源注册和 API guard 的契约。
-- `packages/core/ui` 已接收第一批纯通用 UI：PageShell、确认弹窗、确认上下文、详情弹窗、筛选栏、搜索输入、Toast、日期选择、通用下拉、字段和值筛选、分页、状态徽标/切换、数字/金额单元格、列显隐、TabBar、DataTable、编辑工具条。二段式筛选统一由 `FieldValueFilter` 承载。
+- `packages/core/ui` 以 `PageSurface`、`BodySurface`、`DataSurface`、`FormSurface`、`InputSurface` 等公共声明入口承载通用 UI；Ant renderer 位于 Private Impl，业务不直接导入旧页面壳、搜索框、字段或表格 renderer。二段式筛选统一由 `FieldValueFilter` 承载。
 - `docs/engineering/reusable-components.md` 是 Core/Platform/App 组件复用清单。下拉、搜索、筛选、日期、确认弹窗、tag、表格和页面模板必须先查这个文档；业务包不能绕开 Core/Platform 重复造通用控件。
 - `packages/core/hooks/useToast.ts` 已接收通用 Toast hook。
 - 全部 domain package 都通过 Platform canonical registry 取得自己的 `WorkspacePackageRegistration`，不得维护第二份模块定义。

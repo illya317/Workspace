@@ -25,7 +25,7 @@ export const page_api_registry_entries = [
       { name: "validation", description: "必填、数值范围、日期上下限和格式校验；日期使用 minDate / maxDate。" },
       { name: "autoGrow", description: "多行文本默认随内容和可用宽度自动增高；显式 false 可关闭。" },
     ],
-    composes: ["CalendarDateInput", "CheckboxField", "ChoiceGroup", "FileField", "FkFieldInput", "PercentField", "RatingControl", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "TagStringInput", "TextField", "TextareaField", "TimeField"],
+    composes: ["CalendarDateInput", "FileField", "FkFieldInput", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "TagStringInput", "TextField"],
   },
   {
     name: "PaperInputSurface",
@@ -37,11 +37,6 @@ export const page_api_registry_entries = [
       { name: "state", description: "值、只读状态和变更事件。" },
     ],
     composes: ["PaperChoiceInput", "PaperDateInput", "PaperLineInput", "PaperSelectInput"],
-  },
-  {
-    name: "PercentField",
-    description: "百分比输入字段",
-    composes: ["FieldShell", "TextField"],
   },
   {
     name: "FieldGrid",

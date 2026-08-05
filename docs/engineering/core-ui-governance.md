@@ -233,11 +233,11 @@ L2/L3 组件可以在 UI component library 中用于关系图、阅读和迁移�
 
 - 页面/布局：Platform `AppShell` 与 Core `PageSurface` 是唯一页面壳；`PageContent`、`PanelCard`、`SectionCard` 仅为 Core 内部实现
 - Chrome/动作：`Toolbar`、`TabBar`、`Pagination`、`CommandButton`
-- 数据：`DataTable`、`StructuredTable`、`TableScrollFrame`；分析图表通过 `VisualizationSurface kind="chart"` 的纯数据 spec 表达
-- 表单：`FormField`、`TextField`、`SearchableOptionInput`、`CalendarDateInput`、`TimeField`、`FieldGrid`
+- 数据：业务通过 `DataSurface` 声明 table / structured / summary / record；具体 Ant renderer 属于 Private Impl
+- 表单：业务通过 `FormSurface` / `InputSurface` 声明字段；具体 Ant renderer 属于 Private Impl
 - 新建：业务/agent 只声明 `CreateSurface`；Ant Design 新建 renderer 属于 Core Private Impl。历史 `InlineCreatePanel` / `CreatePresentationPanel` 已移除，并由架构 gate 禁止恢复
 - 选择：普通选项使用 autocomplete，分组选项使用二段式 autocomplete；业务/agent 通过 cards-only `SelectorSurface` 声明接口表达选择区
-- 输入/展示：`TagListInput`、`Badge`、`CodeBlock`、`EmptyStateCard`
+- 输入/展示：`TagListInput`、`Badge`、`EmptyStateCard`
 - 反馈：`ConfirmModal`、`Toast`
 
 Surface 使用红线：

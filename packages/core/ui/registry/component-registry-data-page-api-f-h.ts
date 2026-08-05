@@ -7,11 +7,6 @@ export const page_api_registry_entries = [
     composes: ["ConfirmModal", "Toast"],
   },
   {
-    name: "DataTable",
-    description: "通用数据表格；普通列按内容和可用空间自适应，矩阵列保持固定布局",
-    composes: ["ActionButton", "dataTableClassNames"],
-  },
-  {
     name: "DetailModal",
     description: "详情弹窗",
   },
@@ -47,26 +42,13 @@ export const page_api_registry_entries = [
     ],
   },
   {
-    name: "DisclosureRecordCard",
-    description: "可展开记录卡片",
-  },
-  {
-    name: "DisclosureSectionHeader",
-    description: "可折叠分组标题",
-  },
-  {
-    name: "DropdownMenu",
-    description: "下拉菜单",
-    composes: ["DropdownSurface"],
-  },
-  {
     name: "EmptyStateCard",
     description: "空状态卡片",
   },
   {
     name: "FkFieldInput",
     description: "外键搜索输入",
-    composes: ["FieldShell", "FloatingPortalSurface", "SearchInput"],
+    composes: ["FieldShell", "FloatingPortalSurface", "SearchableOptionInput"],
   },
   {
     name: "FieldValueFilter",
@@ -76,10 +58,6 @@ export const page_api_registry_entries = [
   {
     name: "FileField",
     description: "文件选择字段",
-  },
-  {
-    name: "FormField",
-    description: "表单字段容器",
   },
   {
     name: "FormSurface",
@@ -118,14 +96,7 @@ export const page_api_registry_entries = [
     composes: ["ActionGlyph", "InputSurface"],
   },
   {
-    name: "FormShell",
-    description: "表单外壳",
-  },
-  {
     name: "Badge",
     description: "通用徽标",
   },
-  {
-    name: "HiddenDataField",
-    description: "隐藏数据字段",
-  }] as const satisfies readonly CoreUiComponentRegistration[];
+] as const satisfies readonly CoreUiComponentRegistration[];

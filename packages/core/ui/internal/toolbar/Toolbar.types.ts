@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import type { SurfaceAutocompleteOptionSpec, SurfaceSelectOptionGroupSpec } from "../../SurfaceContractTypes";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
-import type { ColumnDef } from "../data/DataTable";
+import type { ColumnDef } from "../data/DataTable.types";
 import type { FieldValueFilterField } from "../input/FieldValueFilter";
 import type { InputOption } from "../input/InputSurfaceTypes";
 

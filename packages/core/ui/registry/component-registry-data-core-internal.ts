@@ -76,10 +76,6 @@ export const core_internal_registry_entries = [
     composes: ["TagPill", "TagRemoveButton", "getTagPillClassName"],
   },
   {
-    name: "SelectorCard",
-    description: "选择卡片",
-  },
-  {
     name: "SplitWorkspace",
     description: "左右分栏工作区",
     composes: ["Toolbar", "ActionButton"],

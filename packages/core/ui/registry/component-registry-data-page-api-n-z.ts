@@ -4,7 +4,7 @@ export const page_api_registry_entries = [
   {
     name: "Toolbar",
     description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +",
-    composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
+    composes: ["ActionButton", "ActionGlyph", "SearchableOptionInput", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {
     name: "useFeedback",
@@ -100,10 +100,6 @@ export const page_api_registry_entries = [
     composes: ["DatabasePageFrame", "Toolbar", "BodySurface", "CreateSurface", "NavigationSurface", "Pagination", "ModuleCard", "EmptyStateCard"],
   },
   {
-    name: "PageShell",
-    description: "页面顶部骨架",
-  },
-  {
     name: "PageAssistantProvider",
     description: "页面助手上下文 Provider",
     capabilities: [
@@ -124,17 +120,9 @@ export const page_api_registry_entries = [
     description: "通用面板卡片",
   },
   {
-    name: "RatingControl",
-    description: "星级评分",
-  },
-  {
     name: "SearchableOptionInput",
     description: "可搜索选项输入",
     composes: ["FloatingPortalSurface", "getFieldInputClassName"],
-  },
-  {
-    name: "SearchInput",
-    description: "搜索输入框",
   },
   {
     name: "SectionCard",

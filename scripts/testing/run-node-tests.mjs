@@ -64,7 +64,6 @@ const clientReactTests = new Set([
   "packages/core/showcase/core-ui-declaration-outline.test.tsx",
   "packages/core/ui/internal/body/body-surface-page-create-placement.test.ts",
   "packages/core/ui/internal/data/DataSurface.display.test.tsx",
-  "packages/core/ui/internal/data/DataTable.disclosure.test.tsx",
   "packages/core/ui/internal/page/antd-page.contract.test.tsx",
   "packages/core/ui/internal/form/FormStyles.test.ts",
   "packages/core/ui/internal/input/input-surface-textarea.test.ts",

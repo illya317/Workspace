@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import * as React from "react";
-import { renderToStaticMarkup } from "react-dom/server";
 
 import {
   getFieldGridHelperRowClassName,
@@ -13,7 +12,6 @@ import {
   resolveFormSurfaceFieldSpan,
 } from "./FormSurface.controls";
 import { FieldGridCell } from "../input/FieldGrid";
-import TextareaField from "../input/TextareaField";
 
 test("FieldGrid uses one section-owned adaptive desktop label track", () => {
   const mainRow = getFieldGridMainRowClassName();
@@ -87,18 +85,6 @@ test("tag append fields commit once and collapse immediately after selection", (
 
   onChange("finance", "财务部");
   assert.deepEqual(events, ["change:finance:财务部", "collapse"]);
-});
-
-test("TextareaField defaults to one row and preserves an explicit row count", () => {
-  const previousReact = Reflect.get(globalThis, "React");
-  Reflect.set(globalThis, "React", React);
-  try {
-    assert.match(renderToStaticMarkup(React.createElement(TextareaField)), /rows="1"/);
-    assert.match(renderToStaticMarkup(React.createElement(TextareaField, { rows: 4 })), /rows="4"/);
-  } finally {
-    if (previousReact === undefined) Reflect.deleteProperty(globalThis, "React");
-    else Reflect.set(globalThis, "React", previousReact);
-  }
 });
 
 test("FieldGrid keeps the helper inside the main grid after the value", () => {

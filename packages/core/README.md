@@ -25,7 +25,6 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 - `ui/AmountCell`
 - `ui/PageContent`
 - `ui/TabBar`
-- `ui/DataTable`
 - `ui/SplitWorkspace`
 - `hooks/useCSV`
 - `hooks/useToast`（兼容入口）
@@ -34,17 +33,17 @@ Workspace 底座包。这里放通用契约和不依赖业务事实、权限、P
 
 页面反馈统一使用 `@workspace/core/ui` 的 `useFeedback`：成功/失败提示、确认弹窗、删除确认和未保存离开提示都从这一个 Hook 进入。
 
-Core UI 组件库主展示按 registry `category/subcategory` 分类，目前一级分类为 `page / data / form / document / visualization / common / feedback`。分层由 `role` 表达：`surface` 是声明接口，`helper` 是声明助手，`service` 是非视觉服务，`host` 是白名单宿主入口，`internal` 是 Core 内部实现。业务侧默认只使用 `surface/helper/service`；`host` 当前为空备用；`internal` 不对业务开放。
+Core UI registry 记录 `declares`、`contract`、`capabilities` 和 `composes`：声明字段用于 `/settings/governance` 的 UI 能力视图，组合关系描述真实的 Core 内部依赖。旧 `category/subcategory/role` 模型已经删除；业务只使用公开 Surface、helper 和 service，`internal` 不对业务开放。
 
 文件层级也按这个边界组织：
 
-- `packages/core/ui/`：Surface 声明类型。
+- `packages/core/ui/`：稳定的 Surface/runtime 门面和声明类型。
 - `packages/core/ui/helpers/`：声明构造 helper。
 - `packages/core/ui/services/`：非视觉服务入口。
 - `packages/core/ui/host/`：预留宿主入口，当前为空。
-- `packages/core/ui/internal/`：内部 renderer/primitive 迁移目标。
+- `packages/core/ui/internal/`：内部 renderer/primitive 实现。
 
-根目录同名文件只作为兼容 re-export shim，新增文件应放入对应层目录。
+根目录保留稳定的公开 Surface/runtime 入口；新的私有实现放入 `internal/<object>/`，不再新增同名兼容 shim。
 
 `InputSurface` 的公开 spec 使用语义字段：`valueType` 描述数据形状，`control` 描述输入能力，`options` / `format` / `mask` / `state` / `validation` 描述选项、展示、输入约束和状态。业务不得声明 `spec.editor` 或直接选择内部 renderer；例如分段编码使用 `control: "text"` + `mask.kind: "editableSegment"`，远程 FK 使用 `control: "reference"` + `options.source: "remote"`。
 
@@ -63,4 +62,4 @@ Surface block helper 是非组件 contract helper，用于把业务表单/数据
 
 旧 `createPageFieldsBlock`、`createPageInlineFieldsBlock`、`createPageFormBlock`、`createPageFormModalBlock` 已删除；使用上面的无 `Page` 前缀 helper。
 
-后续可迁入 FK 搜索、tag 输入、表格和更多筛选/字段组件。Core 禁止 import `@/`、Platform 或任何业务包。
+后续通用能力继续通过 Surface 声明和内部 renderer 收口。Core 禁止 import `@/`、Platform 或任何业务包。

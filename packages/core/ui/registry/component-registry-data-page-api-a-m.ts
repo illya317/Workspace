@@ -106,7 +106,7 @@ export const page_api_registry_entries = [
       },
       { name: "actions", description: "数据块局部动作；页面级动作放 PageSurface.toolbar。" },
     ],
-    composes: ["DataTable", "TableScrollFrame", "StructuredTable", "CodeBlock", "Badge", "NumberCell", "AmountCell", "InputSurface", "FormSurface", "SelectionGrid", "CommandButton", "EmptyStateCard", "PanelCard"],
+    composes: ["Badge", "NumberCell", "AmountCell", "InputSurface", "FormSurface", "SelectionGrid", "CommandButton", "EmptyStateCard", "PanelCard"],
   },
   {
     name: "AnalysisBlock",
@@ -114,30 +114,9 @@ export const page_api_registry_entries = [
     composes: ["PanelCard", "Toolbar"],
   },
   {
-    name: "AutoSizeTextField",
-    description: "自适应文本输入",
-  },
-  {
     name: "CalendarDateInput",
     description: "日期输入框",
     composes: ["FieldShell", "FloatingPortalSurface", "getFieldInputClassName"],
-  },
-  {
-    name: "CheckboxChip",
-    description: "复选标签",
-    composes: ["CheckboxField"],
-  },
-  {
-    name: "CheckboxField",
-    description: "复选框",
-  },
-  {
-    name: "ChoiceGroup",
-    description: "纸面选择组",
-  },
-  {
-    name: "CodeBlock",
-    description: "代码块展示",
   },
   {
     name: "CommandButton",
