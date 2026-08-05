@@ -8,3 +8,22 @@ export {
   explainAmountOrigin,
   type ExplainAmountOriginInput,
 } from "./statements/amount-explanation/service";
+export {
+  archiveComparisonPackage,
+  confirmComparisonMapping,
+  detectComparisonMapping,
+  importComparisonWorkbook,
+  isStatementComparisonEnabled,
+  remapComparisonMapping,
+  STATEMENT_COMPARISON_CONFIG_KEY,
+  StatementComparisonConflictError,
+  StatementComparisonDisabledError,
+  StatementComparisonStateError,
+  StatementComparisonValidationError,
+  WorkbookUploadRejectedError,
+} from "./statements/comparison/service";
+export {
+  completeComparisonRun,
+  createComparisonRun,
+  failComparisonRun,
+} from "./statements/comparison/comparison-runs";

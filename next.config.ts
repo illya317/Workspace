@@ -82,7 +82,13 @@ const nextConfig: NextConfig = {
     turbopackFileSystemCacheForDev: false,
     turbopackFileSystemCacheForBuild: true,
   },
-  serverExternalPackages: ["pinyin-pro"],
+  serverExternalPackages: [
+    "pinyin-pro",
+    // 报表对比证据导入：隔离 worker 在运行时装载 vendored SheetJS（计划 §5.2；
+    // worker 本体以 eval 源码内嵌进 server bundle，见
+    // packages/finance/server/statements/comparison/worker-packaging.test.ts）。
+    "xlsx",
+  ],
   basePath,
   // Allow local aliases in development; LAN access can still be added via env.
   allowedDevOrigins: [

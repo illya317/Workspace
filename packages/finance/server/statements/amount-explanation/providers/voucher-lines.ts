@@ -9,7 +9,7 @@ import {
 } from "../decimal";
 import { buildEvidenceId, completenessScore, fingerprintSource } from "../evidence";
 import type { ScopeCompany } from "../scope";
-import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./types";
+import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./provider";
 
 /**
  * 专用凭证明细行 provider（计划 §4.4 v1 清单第 1 条）。

@@ -7,7 +7,7 @@ import {
   numberToMinorUnits,
 } from "../decimal";
 import { buildEvidenceId, completenessScore, fingerprintSource } from "../evidence";
-import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./types";
+import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./provider";
 
 /**
  * 重分类血缘 provider（计划 §4.4 v1 清单第 3 条）。

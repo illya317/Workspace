@@ -15,7 +15,7 @@ import type {
 import { absMinor, formatMinorUnits, LEDGER_MONEY_SCALE, sumMinor } from "./decimal";
 import { dedupeEvidence } from "./evidence";
 import { canonicalFingerprint } from "./fingerprint";
-import { normalizeQuery, type NormalizedQuery } from "./input";
+import { normalizeQuery, type NormalizedQuery } from "./query";
 import { defaultAmountEvidenceProviders, type AmountEvidenceProvider, type EvidenceCandidate } from "./providers/index";
 import { rankExplanations, type ExplanationToRank } from "./ranker";
 import { resolveScope } from "./scope";

@@ -5,6 +5,9 @@ import type {
 } from "@workspace/finance/types/statement-explanation";
 
 import { currencyScale, parseDecimalToMinorUnits } from "./decimal";
+import type { NormalizedQuery } from "./types";
+
+export type { NormalizedQuery, NormalizedReportContext } from "./types";
 
 /** 查询输入校验失败：fail closed，不带部分结果。 */
 export class AmountOriginQueryError extends Error {
@@ -25,26 +28,6 @@ const ACCOUNT_HINT_PATTERN = /^[0-9A-Za-z一-鿿]+$/;
 const MAX_COMPANY_SCOPE = 64;
 const MAX_ACCOUNT_HINTS = 16;
 const HARD_MAX_TERMS = 6;
-
-export interface NormalizedReportContext {
-  target: StatementTargetRef;
-  lineCode: string | null;
-  workbookCell: string | null;
-}
-
-export interface NormalizedQuery {
-  targetMinor: bigint;
-  toleranceMinor: bigint;
-  scale: number;
-  currencyCode: string;
-  companyIds: readonly number[] | null;
-  dateFrom: string | null;
-  dateTo: string | null;
-  accountHints: readonly string[];
-  reportContext: NormalizedReportContext | null;
-  maxTerms: number;
-  sourceKinds: ReadonlySet<EvidenceSourceKind>;
-}
 
 function fail(message: string): never {
   throw new AmountOriginQueryError(message);

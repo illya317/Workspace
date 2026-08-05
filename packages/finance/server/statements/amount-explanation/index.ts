@@ -10,7 +10,7 @@ export {
   type ExplainAmountOriginInput,
 } from "./service";
 export { orchestrateAmountOrigin, type OrchestrateInput } from "./orchestrator";
-export { AmountOriginQueryError, normalizeQuery } from "./input";
+export { AmountOriginQueryError, normalizeQuery } from "./query";
 export {
   DecimalNormalizationError,
   currencyScale,

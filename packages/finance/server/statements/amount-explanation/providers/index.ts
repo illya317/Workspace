@@ -3,7 +3,7 @@ import { fxTraceProvider } from "./fx-trace";
 import { reclassLineageProvider } from "./reclass-lineage";
 import { voucherLineProvider } from "./voucher-lines";
 import { workbookCellProvider } from "./workbook-cells";
-import type { AmountEvidenceProvider } from "./types";
+import type { AmountEvidenceProvider } from "./provider";
 
 /**
  * provider 注册顺序即诊断顺序与去重优先顺序（确定性）。
@@ -26,4 +26,4 @@ export {
   voucherLineProvider,
   workbookCellProvider,
 };
-export type { AmountEvidenceProvider, EvidenceCandidate, ProviderContext, ProviderOutcome } from "./types";
+export type { AmountEvidenceProvider, EvidenceCandidate, ProviderContext, ProviderOutcome } from "./provider";

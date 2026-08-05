@@ -5,8 +5,7 @@ import type {
 } from "@workspace/finance/types/statement-explanation";
 
 import type { AmountExplanationDb } from "../db";
-import type { NormalizedQuery } from "../input";
-import type { ExplanationScope } from "../scope";
+import type { ExplanationScope, NormalizedQuery } from "../types";
 
 /** 内部候选：EvidenceRef（公共 DTO）+ 排序用的确定性上下文。不泄漏出 capability。 */
 export interface EvidenceCandidate {

@@ -23,3 +23,12 @@ Owner: Architecture / Operations.
 - 0.20.x 的 ESM 构建（`xlsx.mjs`）不自动绑定 Node `fs`；使用 `readFile`/`writeFile` 等文件级 API 的脚本必须按官方文档显式 `XLSX.set_fs(fs)`。buffer 级 `read`/`write` 不受影响。
 - `hyperformula`（公式重算候选引擎）的锁定与许可边界见 `docs-editor-dependencies.md` 与 Platform formula adapter；SheetJS 只负责解析/生成，不承担公式重算权威。
 - 不使用 GitHub snapshot 同步流获取 SheetJS；CNB 是唯一 source/release 权威。
+
+## 报表对比证据导入的辅助组件（Package 5）
+
+| 组件 | 形态 | 许可 | 用途 | 边界 |
+|---|---|---|---|---|
+| ZIP central-directory 元数据读取 | 自写窄工具 `packages/finance/server/statements/comparison/zip-metadata.ts` | 仓库自有 | 上传 preflight 只读 EOCD/ZIP64/central directory 声明元数据（条目名、声明压缩/解压大小、flags） | 不解压任何条目；不 import 传递依赖（jszip）；畸形/ZIP64/伪造声明大小由 `zip-metadata.test.ts` 覆盖 |
+| 隔离解析 worker | `ingest-worker.cjs`（canonical）+ `ingest-worker-source.ts`（机械内嵌副本） | 仓库自有 | SheetJS parse 在独立 node worker_threads 执行，带 wall-time 与 heap 上限 | eval worker 源码随 server bundle 进入 standalone，不依赖文件 trace；worker 崩溃/超时 fail closed，禁止请求线程回退 |
+
+- 决策依据：`docs/engineering/finance-amount-explanation-platform-adr.md` 决策 2/5；standalone 打包证据见 `worker-packaging.test.ts` 与 `next.config.ts` 的 `serverExternalPackages: ["xlsx"]`。

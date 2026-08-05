@@ -3,8 +3,8 @@ import test from "node:test";
 
 import type { EvidenceRef } from "@workspace/finance/types/statement-explanation";
 
-import { normalizeQuery, type NormalizedQuery } from "./input";
-import type { EvidenceCandidate } from "./providers/types";
+import { normalizeQuery, type NormalizedQuery } from "./query";
+import type { EvidenceCandidate } from "./providers/provider";
 import { rankExplanations } from "./ranker";
 
 function makeCandidate(evidenceId: string, overrides: Partial<EvidenceCandidate> = {}): EvidenceCandidate {

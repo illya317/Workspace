@@ -4,13 +4,13 @@ import test from "node:test";
 import { Prisma } from "@workspace/platform/server/prisma";
 
 import type { AmountExplanationDb } from "./db";
-import { normalizeQuery } from "./input";
+import { normalizeQuery } from "./query";
 import { consolidationMatchProvider } from "./providers/consolidation-matches";
 import { fxTraceProvider } from "./providers/fx-trace";
 import { reclassLineageProvider } from "./providers/reclass-lineage";
 import { voucherLineProvider } from "./providers/voucher-lines";
 import { workbookCellProvider } from "./providers/workbook-cells";
-import type { ProviderContext } from "./providers/types";
+import type { ProviderContext } from "./providers/provider";
 import type { ExplanationScope } from "./scope";
 
 // 匿名化公开夹具：通用公司/科目/凭证号；真实私有夹具（ voucher 2022-12-记-0098 ）
@@ -397,10 +397,10 @@ test("fx trace provider skips entity contexts", async () => {
   assert.equal(outcome.diagnostics.status, "skipped");
 });
 
-test("workbook cell provider port stays unavailable in Package 3", async () => {
+test("workbook cell provider skips without workbookCell context（Package 5 起为真实 provider，详见 providers/workbook-cells.test.ts）", async () => {
   const provider = workbookCellProvider();
   const outcome = await provider.collect(makeContext({ db: fakeDb({}) }));
-  assert.equal(outcome.diagnostics.status, "unavailable");
+  assert.equal(outcome.diagnostics.status, "skipped");
   assert.equal(outcome.candidates.length, 0);
 });
 

@@ -11,7 +11,7 @@ import type { AmountOriginQuery, EvidenceRef } from "@workspace/finance/types/st
 
 import type { AmountExplanationDb } from "./db";
 import { orchestrateAmountOrigin } from "./orchestrator";
-import type { AmountEvidenceProvider, EvidenceCandidate } from "./providers/types";
+import type { AmountEvidenceProvider, EvidenceCandidate } from "./providers/provider";
 
 const ORCHESTRATOR_VERSION = "finance-amount-explanation-orchestrator-v1-test";
 

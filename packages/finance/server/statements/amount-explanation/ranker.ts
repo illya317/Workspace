@@ -1,6 +1,6 @@
 import { absMinor } from "./decimal";
-import type { NormalizedQuery } from "./input";
-import type { EvidenceCandidate } from "./providers/types";
+import type { NormalizedQuery } from "./query";
+import type { EvidenceCandidate } from "./providers/provider";
 
 /**
  * Finance 语义排序（计划 §4.4 第 8 步）：

@@ -7,7 +7,7 @@ import {
   LEDGER_MONEY_SCALE,
 } from "../decimal";
 import { buildEvidenceId, completenessScore, fingerprintSource } from "../evidence";
-import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./types";
+import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from "./provider";
 
 /**
  * 合并抵销匹配事实 provider（计划 §4.4 v1 清单第 2 条）。

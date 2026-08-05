@@ -226,6 +226,12 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "types/consolidated-", "types/consolidation-",
       "types/statement-",
     ],
+    // 组合层（server/index.ts）对外再导出的报表服务入口。
+    interfaceFiles: [
+      "server/statements/amount-explanation/service.ts",
+      "server/statements/comparison/service.ts",
+      "server/statements/comparison/comparison-runs.ts",
+    ],
   }),
   capability("finance", "tax", "税务", {
     prefixes: ["server/tax/", "ui/tax/", "types/tax", "constants/tax", "server/domain/tax-"],
