@@ -27,6 +27,14 @@ const ACCOUNT_CODES: Record<Component, string> = {
   treasuryStock: "4006",
 };
 
+interface ConsolidationCutoverBaseline {
+  baselineDate: string;
+  parentCompanyCode: string;
+  parentLongTermInvestmentAmount: number;
+  historicalDifferenceLineCode: string;
+  components: { lineCode: string; amount: number }[];
+}
+
 function fingerprint(value: unknown) {
   return createHash("sha256").update(JSON.stringify(value)).digest("hex");
 }
@@ -77,7 +85,7 @@ export function monthOpeningEquityAmounts(batch: ConsolidationBatchSnapshot, com
 export function consolidationCutoverBaseline(
   batch: ConsolidationBatchSnapshot,
   entitySnapshotId: number,
-) {
+): ConsolidationCutoverBaseline | null {
   const source = (batch.sources ?? []).find((item) => (
     item.entitySnapshotId === entitySnapshotId && item.reportType === "balanceSheet"
   ));
@@ -97,7 +105,13 @@ export function consolidationCutoverBaseline(
     && typeof baseline.parentLongTermInvestmentAmount === "number"
     && typeof baseline.historicalDifferenceLineCode === "string"
     && components.length > 0
-    ? { ...baseline, components, parentLongTermInvestmentAmount: money(baseline.parentLongTermInvestmentAmount) }
+    ? {
+        baselineDate: baseline.baselineDate,
+        parentCompanyCode: baseline.parentCompanyCode,
+        parentLongTermInvestmentAmount: money(baseline.parentLongTermInvestmentAmount),
+        historicalDifferenceLineCode: baseline.historicalDifferenceLineCode,
+        components,
+      }
     : null;
 }
 

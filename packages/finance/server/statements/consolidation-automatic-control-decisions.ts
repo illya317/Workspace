@@ -11,12 +11,17 @@ export type AutomaticEntryType = typeof AUTOMATIC_ENTRY_TYPES[number];
 
 export function consolidationMatchGroupCoveredByPolicy(
   group: ConsolidationVoucherMatchGroup,
-  policyEntries: readonly { lines: readonly { sourceVoucherItemId?: number | null }[] }[],
+  policyEntries: readonly { lines: readonly object[] }[],
 ) {
   if (group.category !== "investmentEquity") return false;
-  const policyVoucherItemIds = new Set(policyEntries.flatMap((entry) => entry.lines.flatMap((line) => (
-    line.sourceVoucherItemId ? [line.sourceVoucherItemId] : []
-  ))));
+  const policyVoucherItemIds = new Set(policyEntries.flatMap((entry) => entry.lines.flatMap((line) => {
+    const sourceVoucherItemId = "sourceVoucherItemId" in line
+      ? line.sourceVoucherItemId
+      : null;
+    return typeof sourceVoucherItemId === "number" && sourceVoucherItemId > 0
+      ? [sourceVoucherItemId]
+      : [];
+  })));
   return [...group.leftFacts, ...group.rightFacts].some((fact) => policyVoucherItemIds.has(fact.itemId));
 }
 
