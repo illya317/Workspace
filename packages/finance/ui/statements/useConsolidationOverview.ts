@@ -30,7 +30,6 @@ export function useConsolidationOverview(
   const [error, setError] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const resolvedSelectionKeyRef = useRef<string | null>(null);
-  const refreshedSnapshotKeyRef = useRef<string | null>(null);
 
   useEffect(() => {
     const selectionKey = [parentCompanyId, year, month, periodKind, selectedBatchId, includeComparisons, refreshKey].join(":");
@@ -61,40 +60,6 @@ export function useConsolidationOverview(
         if (!consolidationOverviewMatchesSelection(payload, requestedSelection)) {
           throw new Error("合并底稿响应范围与当前选择不一致，请刷新后重试");
         }
-        const snapshotKey = payload.batch
-          ? `${payload.batch.id}:${payload.batch.sourceFingerprint}`
-          : null;
-        if (canUpdate
-          && payload.batch?.status === "draft"
-          && refreshedSnapshotKeyRef.current !== snapshotKey) {
-          const snapshotResponse = await fetch(workspacePath(
-            `/api/modules/finance/statements/consolidation/batches/${payload.batch.id}/sources`,
-          ), {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ expectedRevision: payload.batch.revision, intent: "refresh" }),
-            signal: controller.signal,
-          });
-          const snapshotPayload = await snapshotResponse.json().catch(() => null) as {
-            batch?: NonNullable<ConsolidationOverview["batch"]>;
-            changed?: boolean;
-            error?: string;
-          } | null;
-          if (snapshotResponse.status === 409) {
-            if (!cancelled && !controller.signal.aborted) setRefreshKey((current) => current + 1);
-            return;
-          }
-          if (!snapshotResponse.ok) throw new Error(snapshotPayload?.error || "个别报表快照自动保存失败");
-          if (snapshotPayload?.changed) {
-            const refreshedBatch = snapshotPayload.batch;
-            refreshedSnapshotKeyRef.current = refreshedBatch
-              ? `${refreshedBatch.id}:${refreshedBatch.sourceFingerprint}`
-              : null;
-            if (!cancelled && !controller.signal.aborted) setRefreshKey((current) => current + 1);
-            return;
-          }
-          refreshedSnapshotKeyRef.current = snapshotKey;
-        }
         resolvedSelectionKeyRef.current = [
           payload.scope.parentCompanyId,
           payload.scope.year,
@@ -120,7 +85,7 @@ export function useConsolidationOverview(
       cancelled = true;
       controller.abort();
     };
-  }, [canUpdate, includeComparisons, month, parentCompanyId, periodKind, refreshKey, selectedBatchId, year]);
+  }, [includeComparisons, month, parentCompanyId, periodKind, refreshKey, selectedBatchId, year]);
 
   const invalidate = useCallback(() => {
     resolvedSelectionKeyRef.current = null;
@@ -171,7 +136,6 @@ export function useConsolidationOverview(
       const payload = await response.json().catch(() => null) as EnsureBatchResponse | null;
       if (!response.ok) throw new Error(payload?.error || "新版本创建失败");
       if (!payload?.batch) throw new Error("新版本创建成功，但服务器未返回批次");
-      refreshedSnapshotKeyRef.current = `${payload.batch.id}:${payload.batch.sourceFingerprint}`;
       invalidate();
       setSelectedBatchId(payload.batch.id);
       return { batch: payload.batch, created: payload.created === true };
@@ -179,18 +143,34 @@ export function useConsolidationOverview(
       setCreatingVersion(false);
     }
   }, [invalidate, month, parentCompanyId, periodKind, year]);
-  const refresh = useCallback((freshBatch?: NonNullable<ConsolidationOverview["batch"]>) => {
-    if (freshBatch) {
-      refreshedSnapshotKeyRef.current = `${freshBatch.id}:${freshBatch.sourceFingerprint}`;
-    }
+  const refresh = useCallback((_freshBatch?: NonNullable<ConsolidationOverview["batch"]>) => {
     invalidate();
   }, [invalidate]);
-  const refreshSnapshots = useCallback(() => {
-    refreshedSnapshotKeyRef.current = null;
-    refresh();
-  }, [refresh]);
+  const refreshSnapshots = useCallback(async () => {
+    const batch = data?.batch;
+    if (!canUpdate || !batch || batch.status !== "draft") {
+      refresh();
+      return;
+    }
+    setError(null);
+    try {
+      const response = await fetch(workspacePath(
+        `/api/modules/finance/statements/consolidation/batches/${batch.id}/sources`,
+      ), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ expectedRevision: batch.revision, intent: "refresh" }),
+      });
+      const payload = await response.json().catch(() => null) as { error?: string } | null;
+      if (!response.ok && response.status !== 409) {
+        throw new Error(payload?.error || "个别报表快照刷新失败");
+      }
+      refresh();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "个别报表快照刷新失败");
+    }
+  }, [canUpdate, data?.batch, refresh]);
   const clearBatchAndRefresh = useCallback(() => {
-    refreshedSnapshotKeyRef.current = null;
     invalidate();
     setSelectedBatchId(null);
   }, [invalidate]);

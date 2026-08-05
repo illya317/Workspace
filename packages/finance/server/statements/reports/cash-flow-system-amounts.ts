@@ -73,82 +73,22 @@ function applyDerivedLines(amounts: Map<string, number>) {
   ));
 }
 
-async function cashBalances(
+async function loadCashFlowAllocations(
   companyCode: string,
   year: number,
-  month: number,
-  periodBasis: "yearToDate" | "month",
+  month: number | { lte: number },
 ) {
-  const openingMonth = periodBasis === "month" ? month : 1;
-  const [balances, exclusions] = await Promise.all([
-    prisma.financeAccountBalance.findMany({
-    where: {
-      period: { companyCode, year, month: { in: [...new Set([openingMonth, month])] } },
-      account: { OR: [{ code: { startsWith: "1001" } }, { code: { startsWith: "1002" } }, { code: { startsWith: "1012" } }] },
-    },
-    include: { account: { select: { code: true } }, period: { select: { month: true } } },
-    }),
-    prisma.financeStatementVoucherExclusion.findMany({
-      where: {
-        companyCode,
-        statementType: "cashflow",
-        enabled: true,
-        voucher: { status: "posted", period: { year, month: { lte: month } } },
-      },
-      include: {
-        voucher: {
-          include: {
-            period: { select: { month: true } },
-            items: { include: { account: { select: { code: true } } } },
-          },
-        },
-      },
-    }),
-  ]);
-  const selectCashRoots = (targetMonth: number) => ["1001", "1002", "1012"].flatMap((prefix) => {
-    const candidates = balances.filter((item) => (
-      item.period.month === targetMonth && item.account.code.startsWith(prefix)
-    ));
-    const exact = candidates.find((item) => item.account.code === prefix);
-    if (exact) return [exact];
-    const shortest = Math.min(...candidates.map((item) => item.account.code.length));
-    return candidates.filter((item) => item.account.code.length === shortest);
-  });
-  const opening = selectCashRoots(openingMonth);
-  const ending = selectCashRoots(month);
-  const excludedCashMovement = (throughMonth: number) => exclusions.reduce((sum, exclusion) => {
-    if (exclusion.voucher.period.month > throughMonth) return sum;
-    return sum + exclusion.voucher.items.reduce((voucherSum, item) => (
-      ["1001", "1002", "1012"].some((prefix) => item.account.code.startsWith(prefix))
-        ? voucherSum + item.debit - item.credit
-        : voucherSum
-    ), 0);
-  }, 0);
-  const openingRaw = opening.reduce((sum, item) => sum + item.openingDebit - item.openingCredit, 0);
-  const endingRaw = ending.reduce((sum, item) => sum + item.closingDebit - item.closingCredit, 0);
-  return {
-    opening: roundMoney(openingRaw - excludedCashMovement(openingMonth - 1)),
-    ending: roundMoney(endingRaw - excludedCashMovement(month)),
-  };
-}
-
-export async function computeCashFlowSystemAmounts(
-  companyCode: string,
-  year: number,
-  month: number,
-  config: CashFlowLineRow[],
-  periodBasis: "yearToDate" | "month" = "yearToDate",
-): Promise<CashFlowSystemResult> {
-  const allocations = await prisma.financeCashFlowAllocation.findMany({
+  return prisma.financeCashFlowAllocation.findMany({
     where: {
       companyCode,
-      period: { year, month: periodBasis === "month" ? month : { lte: month } },
+      period: { year, month },
       voucher: {
         status: "posted",
         statementExclusions: { none: { statementType: "cashflow", enabled: true } },
       },
     },
     include: {
+      period: { select: { month: true } },
       cashFlowItem: { select: { sourceName: true } },
       ownerVoucherItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
       counterpartItem: { select: { debit: true, credit: true, account: { select: { code: true } } } },
@@ -157,6 +97,14 @@ export async function computeCashFlowSystemAmounts(
       },
     },
   });
+}
+
+type CashFlowAllocationFact = Awaited<ReturnType<typeof loadCashFlowAllocations>>[number];
+
+function computeAllocationAmounts(
+  config: CashFlowLineRow[],
+  allocations: readonly CashFlowAllocationFact[],
+) {
   const amounts = new Map(config.map((line) => [line.lineCode, 0]));
   const configByCode = new Map(config.map((line) => [line.lineCode, line]));
   const unmapped = new Set<string>();
@@ -191,6 +139,106 @@ export async function computeCashFlowSystemAmounts(
     if (presentation.diagnostic) adjustmentDiagnostics.push(presentation.diagnostic);
   }
   applyDerivedLines(amounts);
+  return { amounts, unmapped, adjustmentDiagnostics };
+}
+
+interface CashBalanceFact {
+  openingDebit: number;
+  openingCredit: number;
+  closingDebit: number;
+  closingCredit: number;
+  account: { code: string };
+  period: { month: number };
+}
+
+interface CashExclusionFact {
+  voucher: {
+    period: { month: number };
+    items: Array<{ debit: number; credit: number; account: { code: string } }>;
+  };
+}
+
+function cashBalancesFromFacts(
+  balances: readonly CashBalanceFact[],
+  exclusions: readonly CashExclusionFact[],
+  openingMonth: number,
+  endingMonth: number,
+) {
+  const selectCashRoots = (targetMonth: number) => ["1001", "1002", "1012"].flatMap((prefix) => {
+    const candidates = balances.filter((item) => (
+      item.period.month === targetMonth && item.account.code.startsWith(prefix)
+    ));
+    const exact = candidates.find((item) => item.account.code === prefix);
+    if (exact) return [exact];
+    const shortest = Math.min(...candidates.map((item) => item.account.code.length));
+    return candidates.filter((item) => item.account.code.length === shortest);
+  });
+  const opening = selectCashRoots(openingMonth);
+  const ending = selectCashRoots(endingMonth);
+  const excludedCashMovement = (throughMonth: number) => exclusions.reduce((sum, exclusion) => {
+    if (exclusion.voucher.period.month > throughMonth) return sum;
+    return sum + exclusion.voucher.items.reduce((voucherSum, item) => (
+      ["1001", "1002", "1012"].some((prefix) => item.account.code.startsWith(prefix))
+        ? voucherSum + item.debit - item.credit
+        : voucherSum
+    ), 0);
+  }, 0);
+  const openingRaw = opening.reduce((sum, item) => sum + item.openingDebit - item.openingCredit, 0);
+  const endingRaw = ending.reduce((sum, item) => sum + item.closingDebit - item.closingCredit, 0);
+  return {
+    opening: roundMoney(openingRaw - excludedCashMovement(openingMonth - 1)),
+    ending: roundMoney(endingRaw - excludedCashMovement(endingMonth)),
+  };
+}
+
+async function cashBalances(
+  companyCode: string,
+  year: number,
+  month: number,
+  periodBasis: "yearToDate" | "month",
+) {
+  const openingMonth = periodBasis === "month" ? month : 1;
+  const [balances, exclusions] = await Promise.all([
+    prisma.financeAccountBalance.findMany({
+    where: {
+      period: { companyCode, year, month: { in: [...new Set([openingMonth, month])] } },
+      account: { OR: [{ code: { startsWith: "1001" } }, { code: { startsWith: "1002" } }, { code: { startsWith: "1012" } }] },
+    },
+    include: { account: { select: { code: true } }, period: { select: { month: true } } },
+    }),
+    prisma.financeStatementVoucherExclusion.findMany({
+      where: {
+        companyCode,
+        statementType: "cashflow",
+        enabled: true,
+        voucher: { status: "posted", period: { year, month: { lte: month } } },
+      },
+      include: {
+        voucher: {
+          include: {
+            period: { select: { month: true } },
+            items: { include: { account: { select: { code: true } } } },
+          },
+        },
+      },
+    }),
+  ]);
+  return cashBalancesFromFacts(balances, exclusions, openingMonth, month);
+}
+
+export async function computeCashFlowSystemAmounts(
+  companyCode: string,
+  year: number,
+  month: number,
+  config: CashFlowLineRow[],
+  periodBasis: "yearToDate" | "month" = "yearToDate",
+): Promise<CashFlowSystemResult> {
+  const allocations = await loadCashFlowAllocations(
+    companyCode,
+    year,
+    periodBasis === "month" ? month : { lte: month },
+  );
+  const { amounts, unmapped, adjustmentDiagnostics } = computeAllocationAmounts(config, allocations);
   const cash = await cashBalances(companyCode, year, month, periodBasis);
   amounts.set("openingCash", cash.opening);
   amounts.set("endingCash", cash.ending);
@@ -203,4 +251,62 @@ export async function computeCashFlowSystemAmounts(
     diagnostics.push(`现金流分配净额 ${allocationChange.toFixed(2)} 与货币资金变动 ${cashChange.toFixed(2)} 相差 ${roundMoney(allocationChange - cashChange).toFixed(2)}`);
   }
   return { amounts, diagnostics, allocationCount: allocations.length };
+}
+
+export async function computeCashFlowMonthlySystemAmounts(
+  companyCode: string,
+  year: number,
+  throughMonth: number,
+  config: CashFlowLineRow[],
+) {
+  const [allocations, balances, exclusions] = await Promise.all([
+    loadCashFlowAllocations(companyCode, year, { lte: throughMonth }),
+    prisma.financeAccountBalance.findMany({
+      where: {
+        period: { companyCode, year, month: { lte: throughMonth } },
+        account: { OR: [{ code: { startsWith: "1001" } }, { code: { startsWith: "1002" } }, { code: { startsWith: "1012" } }] },
+      },
+      include: { account: { select: { code: true } }, period: { select: { month: true } } },
+    }),
+    prisma.financeStatementVoucherExclusion.findMany({
+      where: {
+        companyCode,
+        statementType: "cashflow",
+        enabled: true,
+        voucher: { status: "posted", period: { year, month: { lte: throughMonth } } },
+      },
+      include: {
+        voucher: {
+          include: {
+            period: { select: { month: true } },
+            items: { include: { account: { select: { code: true } } } },
+          },
+        },
+      },
+    }),
+  ]);
+  const allocationsByMonth = new Map<number, CashFlowAllocationFact[]>();
+  for (const allocation of allocations) {
+    const monthAllocations = allocationsByMonth.get(allocation.period.month) ?? [];
+    monthAllocations.push(allocation);
+    allocationsByMonth.set(allocation.period.month, monthAllocations);
+  }
+  return new Map(Array.from({ length: throughMonth }, (_, index) => {
+    const month = index + 1;
+    const monthAllocations = allocationsByMonth.get(month) ?? [];
+    const { amounts, unmapped, adjustmentDiagnostics } = computeAllocationAmounts(config, monthAllocations);
+    const cash = cashBalancesFromFacts(balances, exclusions, month, month);
+    amounts.set("openingCash", cash.opening);
+    amounts.set("endingCash", cash.ending);
+    const cashChange = roundMoney(cash.ending - cash.opening);
+    const allocationChange = amounts.get("netIncrease") ?? 0;
+    const diagnostics = [
+      ...(unmapped.size ? [`有 ${unmapped.size} 个来源现金流项目未映射到法定行`] : []),
+      ...adjustmentDiagnostics,
+      ...(monthAllocations.length > 0 && cashChange !== allocationChange
+        ? [`现金流分配净额 ${allocationChange.toFixed(2)} 与货币资金变动 ${cashChange.toFixed(2)} 相差 ${roundMoney(allocationChange - cashChange).toFixed(2)}`]
+        : []),
+    ];
+    return [month, { amounts, diagnostics, allocationCount: monthAllocations.length }] as const;
+  }));
 }

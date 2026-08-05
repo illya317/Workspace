@@ -7,7 +7,13 @@ import {
   type ConsolidationEntitySourceReadiness,
 } from "./consolidation-source-readiness";
 import { generateFinanceReport } from "./report-generator";
-import { generateDirectStatementReport } from "./reports/direct";
+import {
+  loadCashFlowConfig,
+  loadIncomeStatementConfig,
+} from "./config/load-config-reports";
+import { computeCashFlowMonthlySystemAmounts } from "./reports/cash-flow-system-amounts";
+import { buildIncomeLines } from "./reports/direct";
+import { computeIncomeMonthlySystemAmounts } from "./reports/income-system-amounts";
 import type { StatementPeriodKind } from "@workspace/finance/types/statement-period";
 
 export { consolidationFingerprint } from "./consolidation-fingerprints";
@@ -131,19 +137,34 @@ async function generateMonthlyFlowTranslation(
   month: number,
   reportType: "incomeStatement" | "cashFlow",
 ) {
-  const periodRows = async (targetYear: number) => Promise.all(
-    Array.from({ length: month }, (_, index) => index + 1).map(async (targetMonth) => {
-      const report = await generateDirectStatementReport(companyCode, targetYear, targetMonth, reportType);
+  const periodRows = async (targetYear: number) => {
+    if (reportType === "incomeStatement") {
+      const config = await loadIncomeStatementConfig(companyCode, targetYear);
+      const monthlyAmounts = await computeIncomeMonthlySystemAmounts(companyCode, targetYear, month, config);
+      return Array.from({ length: month }, (_, index) => {
+        const targetMonth = index + 1;
+        const lines = buildIncomeLines(config, new Map(), new Map(), monthlyAmounts.get(targetMonth));
+        return {
+          periodEnd: periodEndDate(targetYear, targetMonth),
+          lines: lines.map((line) => ({ lineCode: line.lineCode, amount: line.currentMonthAmount ?? 0 })),
+        };
+      });
+    }
+    const config = await loadCashFlowConfig(companyCode, targetYear);
+    const monthlyAmounts = await computeCashFlowMonthlySystemAmounts(companyCode, targetYear, month, config);
+    return Array.from({ length: month }, (_, index) => {
+      const targetMonth = index + 1;
+      const amounts = monthlyAmounts.get(targetMonth)?.amounts ?? new Map<string, number>();
       return {
         periodEnd: periodEndDate(targetYear, targetMonth),
-        lines: report.lines.map((line) => ({
-          lineCode: line.lineCode,
-          amount: line.currentMonthAmount ?? 0,
-        })),
+        lines: config.map((line) => ({ lineCode: line.lineCode, amount: amounts.get(line.lineCode) ?? 0 })),
       };
-    }),
-  );
-  const [current, comparative] = await Promise.all([periodRows(year), periodRows(year - 1)]);
+    });
+  };
+  const [current, comparative] = await Promise.all([
+    periodRows(year),
+    periodRows(year - 1),
+  ]);
   return { current, comparative };
 }
 
@@ -359,8 +380,15 @@ async function loadSourceFact(
   periodKind: StatementPeriodKind,
   reportType: StatementReportType,
   readiness: ConsolidationEntitySourceReadiness,
+  existing?: ConsolidationSourceFact,
 ): Promise<ConsolidationSourceFact> {
   const reportReadiness = readiness.reports[reportType];
+  if (readiness.periodClosed
+    && existing
+    && existing.sourceKind !== "missing"
+    && existing.sourceStatus !== "missing") {
+    return existing;
+  }
   const systemCount = reportReadiness.count;
   const baseReportPayload = reportReadiness.ready
     ? await generateFrozenReportPayload(scope.companyCode, year, month, periodKind, reportType)
@@ -412,6 +440,26 @@ async function loadSourceFact(
   return { ...snapshot, fingerprint: consolidationSourceFactFingerprint(snapshot) };
 }
 
+async function mapWithConcurrency<T, R>(
+  items: readonly T[],
+  concurrency: number,
+  mapper: (item: T) => Promise<R>,
+) {
+  const results = new Array<R>(items.length);
+  let nextIndex = 0;
+  await Promise.all(Array.from(
+    { length: Math.min(concurrency, items.length) },
+    async () => {
+      while (nextIndex < items.length) {
+        const index = nextIndex;
+        nextIndex += 1;
+        results[index] = await mapper(items[index]!);
+      }
+    },
+  ));
+  return results;
+}
+
 export async function loadInitialSourceFacts(
   scope: ConsolidationScopeFact[],
   year: number,
@@ -424,9 +472,9 @@ export async function loadInitialSourceFacts(
     month,
     periodKind,
   });
-  return Promise.all(scope.flatMap((entity) => REPORT_TYPES.map((reportType) =>
-    loadSourceFact(entity, year, month, periodKind, reportType, readiness.byCompany.get(entity.companyCode)!),
-  )));
+  const targets = scope.flatMap((entity) => REPORT_TYPES.map((reportType) => ({ entity, reportType })));
+  return mapWithConcurrency(targets, 2, ({ entity, reportType }) =>
+    loadSourceFact(entity, year, month, periodKind, reportType, readiness.byCompany.get(entity.companyCode)!));
 }
 
 export async function loadSelectedSourceFacts(
@@ -434,12 +482,24 @@ export async function loadSelectedSourceFacts(
   year: number,
   month: number,
   periodKind: StatementPeriodKind,
+  existingSources: readonly ConsolidationSourceFact[] = [],
 ) {
   const companyCodes = [...new Set([...scopeBySnapshotId.values()].map((entity) => entity.companyCode))];
   const readiness = await loadConsolidationSourceReadiness({ companyCodes, year, month, periodKind });
-  return Promise.all([...scopeBySnapshotId.values()].flatMap((scope) => REPORT_TYPES.map((reportType) =>
-    loadSourceFact(scope, year, month, periodKind, reportType, readiness.byCompany.get(scope.companyCode)!),
-  )));
+  const existingByCompanyAndType = new Map(
+    existingSources.map((source) => [`${source.companyId}:${source.reportType}`, source]),
+  );
+  const targets = [...scopeBySnapshotId.values()].flatMap((scope) =>
+    REPORT_TYPES.map((reportType) => ({ scope, reportType })));
+  return mapWithConcurrency(targets, 2, ({ scope, reportType }) => loadSourceFact(
+    scope,
+    year,
+    month,
+    periodKind,
+    reportType,
+    readiness.byCompany.get(scope.companyCode)!,
+    existingByCompanyAndType.get(`${scope.companyId}:${reportType}`),
+  ));
 }
 
 export async function loadAvailableRateFacts(

@@ -378,14 +378,13 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
       blockedMessage: "合并准备已配置为必须走流程，请从统一入口提交",
     });
     if (!direct.ok) return direct;
-    const sourceFacts = command.input.intent === "refresh"
-      ? await loadSelectedSourceFacts(
-          scopeFactsBySnapshotId(batch),
-          batch.year,
-          batch.month,
-          batch.periodKind as "year" | "quarter" | "month",
-        )
-      : frozenSourceFacts(batch);
+    const sourceFacts = await loadSelectedSourceFacts(
+      scopeFactsBySnapshotId(batch),
+      batch.year,
+      batch.month,
+      batch.periodKind as "year" | "quarter" | "month",
+      frozenSourceFacts(batch),
+    );
     if (command.input.intent === "completePreparation"
       && !consolidationSourcesReady(batch.entities.length, sourceFacts)) {
       const missingCount = sourceFacts.filter((source) => source.sourceKind === "missing").length;
@@ -399,8 +398,7 @@ export async function prepareConsolidationSources(rawCommand: SaveConsolidationS
     const nextSourceContent = consolidationSourceContentBatchFingerprint(sourceFacts);
     const sourcesChanged = currentSourceContent !== nextSourceContent;
     let preparedRates: ConsolidationRateFact[] | null = null;
-    if (command.input.intent === "refresh"
-      || sourcesChanged
+    if (sourcesChanged
       || !hasCompleteFx(batch, null)
       || !hasMonthlyAverageRateEvidence(batch.exchangeRates)) {
       try {
