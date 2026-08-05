@@ -17,6 +17,7 @@
 | 新模块和现有模块能力 | `new-module-checklist.md`, `new-domain-template.md`, `existing-module-feature-checklist.md` | Architecture / Feature |
 | Schema 和 DB | `schema-governance.md`, `database.md` | Data |
 | RBAC 和权限矩阵 | `security/rbac.md`, `security/permission-matrix.md` | Architecture |
+| Finance 金额来源解释平台决策记录 | `finance-amount-explanation-platform-adr.md` | Architecture / Coordinator |
 | Checks / CI / ops | `checks.md`, `ops/README.md` | Operations |
 | Production/QC 数据参考 | `reference/qc-dev-mode.md` | Data |
 | Docs Editor 模板空间和权限 | `reference/docs-editor-template-spaces.md` | Platform Docs / Feature |
