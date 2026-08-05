@@ -8,6 +8,9 @@ import XLSX from "xlsx";
 
 import { parseDepartmentBudgetWorkbook, parseResearchBudgetWorkbook } from "./finance-budget-source.mjs";
 
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
+
 function workbook(rows) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "workspace-budget-source-"));
   const file = path.join(root, "budget.xlsx");

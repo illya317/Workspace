@@ -10,6 +10,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.filter((id) => id === "api-response-format").length, 1);
   assert.equal(ids.filter((id) => id === "business-code-hardcoding").length, 1);
   assert.equal(ids.filter((id) => id === "history-policy").length, 1);
+  assert.equal(ids.filter((id) => id === "sheetjs-vendor").length, 1);
   assert.equal(ids.filter((id) => id === "business-temporal").length, 1);
   assert.equal(ids.filter((id) => id === "workspace-analysis-sources").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-entrypoints").length, 1);
@@ -18,7 +19,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.includes("domain-changed"), true);
   assert.ok(ids.filter((id) => id.startsWith("domain-architecture.")).length > 1);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(plan.duplicateReferences, 8);
+  assert.equal(plan.duplicateReferences, 9);
   assert.equal(plan.coveredTaskReferences, 0);
 });
 
@@ -167,6 +168,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "business-code-hardcoding",
     "history-policy",
     "import-reference",
+    "sheetjs-vendor",
     "business-temporal",
     "workspace-analysis-sources",
     "typecheck-entrypoints",
@@ -190,6 +192,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "business-code-hardcoding",
     "history-policy",
     "import-reference",
+    "sheetjs-vendor",
     "business-temporal",
     "workspace-analysis-sources",
     "typecheck-entrypoints",

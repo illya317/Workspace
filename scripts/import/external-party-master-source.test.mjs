@@ -15,6 +15,9 @@ import {
   temporaryShipmentIdentity,
 } from "./external-party-master-source.mjs";
 
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
+
 test("normalizes source aliases and produces deterministic namespaced role codes", () => {
   assert.equal(normalizeExternalPartyName(" 广东　医药 有限公司 "), "广东医药有限公司");
   assert.equal(archiveRoleCode("customer", "04", "0012"), "CUS-04-0012");

@@ -8,6 +8,7 @@ RUN apt-get update \
 WORKDIR /opt/workspace-deps
 
 COPY package.json package-lock.json ./
+COPY vendor/sheetjs ./vendor/sheetjs
 RUN npm ci --no-audit --fund=false --loglevel=error
 
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright

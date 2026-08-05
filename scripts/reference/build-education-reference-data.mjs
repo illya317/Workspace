@@ -6,6 +6,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import XLSX from "xlsx";
 
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
+
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const WORKSPACE_DIR = path.resolve(ROOT, "..", ".workspace");
 const CACHE_DIR = path.join(WORKSPACE_DIR, "cache/reference/education");

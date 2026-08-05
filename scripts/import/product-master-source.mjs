@@ -3,6 +3,9 @@ import fs from "node:fs";
 import path from "node:path";
 import XLSX from "xlsx";
 
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
+
 export function normalizeSourceText(value) {
   return String(value ?? "").normalize("NFKC").trim().replace(/\s+/g, "").replace(/[×xX]/g, "*");
 }

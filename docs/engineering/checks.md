@@ -32,6 +32,7 @@ CNB 使用原生并行 jobs 同轮执行全部独立 lane；随后尝试 exact s
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
 | 导入主数据引用 | `npm run import-reference:check` | 要求每个受控 data-release handler 声明引用契约，并阻断新增“已有主数据却仍只存 code/name/裸 ID”的 schema 字段。 |
+| Vendored SheetJS 校验 | `npm run check:sheetjs-vendor` | 重算 `vendor/sheetjs/xlsx-0.20.3.tgz` 的 SHA-256 并断言等于 `vendor/sheetjs/PROVENANCE.md` 记录的固定值，同时锁定 tarball 内包版本与 `package.json` 的 `file:` 引用；由 `check:contracts` / `check:changed` 与 CNB static policy 执行。 |
 | 所有 Node 行为/工具测试 | `npm test` / `npm run test:node` | 自动发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS `.test.*`，是 PR / CI 的标准 Node 测试入口。 |
 | 产品行为测试 | `npm run test:behavior` | 执行 `packages/`、`app/` 和 `scripts/runtime/` 下的行为测试；不包含扫描器自测。 |
 | 工程工具自测 | `npm run test:tooling` | 执行 `scripts/` 与 `ops/` 下的 checker/scanner、CI/CD contract fixture 与测试基础设施安全测试。 |

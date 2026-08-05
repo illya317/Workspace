@@ -2,6 +2,9 @@ import fs from "node:fs";
 
 import XLSX from "xlsx";
 
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
+
 function rowsFromWorkbook(file) {
   if (!fs.existsSync(file)) throw new Error(`预算源文件不存在：${file}`);
   const workbook = XLSX.readFile(file);

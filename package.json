@@ -19,6 +19,7 @@
     "lint": "env NODE_OPTIONS=--max-old-space-size=8192 node scripts/check/with-check-lock.js -- eslint --cache --cache-strategy content --cache-location .cache/eslint/.eslintcache",
     "check:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
     "check:history-policy": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-history-policy-registry.ts",
+    "check:sheetjs-vendor": "node scripts/check/with-check-lock.js -- node scripts/check/check-sheetjs-vendor.mjs",
     "hr:temporal:preflight": "node --conditions=react-server --import tsx scripts/check/hr-business-temporal-preflight.ts",
     "lifecycle:reconcile": "node scripts/check/run-lifecycle-reconciliation.mjs",
     "lifecycle:operations:smoke": "node --conditions=react-server --import tsx scripts/check/organization-lifecycle-operation-smoke.ts",
@@ -250,6 +251,6 @@
     "tailwindcss": "^4",
     "tsx": "^4.22.4",
     "typescript": "^5",
-    "xlsx": "^0.18.5"
+    "xlsx": "file:vendor/sheetjs/xlsx-0.20.3.tgz"
   }
 }

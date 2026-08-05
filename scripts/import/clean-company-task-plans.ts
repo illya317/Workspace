@@ -1,6 +1,10 @@
+import * as fsSync from "node:fs";
 import fs from "node:fs/promises";
 import path from "node:path";
 import * as XLSX from "xlsx";
+
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fsSync);
 
 type GroupedSubTask = {
   index: number;

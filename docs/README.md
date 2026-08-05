@@ -54,6 +54,7 @@
 | Production/QC 数据和 layout 参考 | `docs/engineering/reference/qc-dev-mode.md` | Data |
 | Docs Editor 模板空间和权限 | `docs/engineering/reference/docs-editor-template-spaces.md` | Platform Docs / Feature |
 | Docs Editor 外部依赖 | `docs/engineering/reference/docs-editor-dependencies.md` | Platform Docs / Feature |
+| 电子表格外部依赖（SheetJS） | `docs/engineering/reference/spreadsheet-dependencies.md` | Architecture / Operations |
 
 ## 产品和用户文档入口
 

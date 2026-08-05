@@ -1,5 +1,9 @@
+import fs from "node:fs";
 import path from "node:path";
 import XLSX from "xlsx";
+
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fs);
 
 const MONTHLY_SHEET_NAME = /^(?<shortYear>\d{2})\.(?<month>\d{1,2})月?$/;
 const PRODUCT_STATUSES = new Set(["产成品", "在产品"]);

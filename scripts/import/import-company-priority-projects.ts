@@ -1,5 +1,6 @@
 import "dotenv/config";
 
+import * as fsSync from "node:fs";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -13,6 +14,9 @@ import {
   type BusinessCodeConfig,
 } from "../../packages/platform/business-code-config";
 import { getBusinessCodeConfig } from "../../packages/platform/server/system-config";
+
+// The SheetJS ESM build does not bind Node fs; readFile/writeFile require an explicit binding.
+XLSX.set_fs(fsSync);
 
 type StructuredTask = {
   sortOrder: number;
