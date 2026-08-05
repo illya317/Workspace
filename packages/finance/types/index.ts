@@ -15,3 +15,4 @@ export * from "./operational-analysis";
 export type * from "./statements";
 export type * from "./consolidation-adjustment";
 export * from "./consolidation-scope";
+export type * from "./statement-explanation";

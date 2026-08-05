@@ -88,6 +88,8 @@
 
 系统不提供法定终版三表 Excel 上传、提交、导入或覆盖能力；唯一例外是对比证据导入（comparison evidence import）：上传的 workbook 仅保存为不可变对比证据，禁止覆盖或替代系统报表、禁止过账、禁止生成调整、禁止替代会计来源（决策记录见 `docs/engineering/finance-amount-explanation-platform-adr.md`）。法定资产负债表与系统口径的差异必须通过 ERP 原始账修正或成对的源/目标科目重分类解释，禁止把差额塞入权益。
 
+金额来源解释由 `explainAmountOrigin`（`packages/finance/server/statements/amount-explanation/`，公共类型 `types/statement-explanation.ts`）提供：只读、确定性、不持久化。查询先 fail-closed 归一化十进制金额到签名 minor units，再由有界 provider 取证——凭证明细行（专用 SQL，强制公司/期间/币种/科目提示/非零金额窗口谓词与显式 LIMIT，不复用凭证头关键字列表查询）、合并抵销匹配事实（含 `matchedSignedAmount` 部分分摊语义，只适配不改算法）、重分类血缘（仅 approved/adjusted）、合并输出快照折算血缘；workbook 单元格为 Package 5 预留端口。证据按稳定指纹归一去重并保留来源符号，组合求解只经注入的 Platform `CombinationSolverAdapter`（默认预算：tolerance 0、maxTerms 6、maxSolutions 20、过滤后 ≤40 候选、250,000 visited states、1,000ms deadline），排序按 residual → 更少项 → 上下文接近 → 证据完整度 → 稳定源顺序，平局一律报 `ambiguous`，预算耗尽报 `truncated` 而不得伪装成 `not_found`。结果恒为 `accountingTreatment: "not_evaluated"`：只解释金额来源，不做会计处理判断、不生成调整或过账；LLM 只能叙述已注册结果，不得改变算术、排序、状态或证据。
+
 ### 管理会计 (`/finance/analysis`)
 
 `FinanceAnalysisClient` 将法定报表事实加工为内部管理口径。资金来源与用途分析同时读取三层证据：

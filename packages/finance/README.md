@@ -25,5 +25,6 @@ server/import/ # 总账核对与受控数据导入脚本复用的解析、清洗
 - `server/ledger/`、`server/schedules/`：财务科目、凭证、余额滚动、重分类、重分类规则和调度计算服务；旧 `server/services/finance/{ledger,schedules}` 已收口到财务业务包。
 - `server/cost/`：成本汇总、发货、工资、成本构成、成本分析和导入记录服务；旧 `server/services/finance-cost` 已收口到财务业务包。
 - `server/statements/`：财务报表配置、映射、系统账报表生成和差异计算服务；旧 `server/services/finance/statements` 已收口到财务业务包。
+- `server/statements/amount-explanation/`：金额来源解释引擎（只读、确定性）：fail-closed 十进制归一化、有界证据 provider（凭证明细行/合并抵销匹配事实/重分类血缘/合并输出折算血缘，workbook 单元格为预留端口）、证据归一去重、Finance 排序与编排。公共合同在 `types/statement-explanation.ts`；服务入口 `explainAmountOrigin` 只经 `@workspace/finance/server` curated 导出，恒为 `accountingTreatment: "not_evaluated"`。
 
 旧 `app/finance/components/*`、`app/finance/budget/{components,hooks}` 和 `app/finance/cost/{components,hooks}` 兼容出口已删除。财务页面模板、筛选、分页、表格、预算、成本和重分类共享 UI 必须从 `@workspace/finance/ui` 消费；新增真实实现不得回到 `app/finance/components` 或 route 子目录。
