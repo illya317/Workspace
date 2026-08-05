@@ -105,6 +105,7 @@
     "./server/business-date": "./server/business-date.ts",
     "./server/business-temporal-idempotency": "./server/business-temporal-idempotency.ts",
     "./server/business-temporal-prisma": "./server/business-temporal-prisma.ts",
+    "./server/combination-solver": "./server/combination-solver/index.ts",
     "./server/company-directory": "./server/company-directory.ts",
     "./server/company-documents": "./server/company-documents.ts",
     "./server/crud-factory": "./server/crud-factory.ts",

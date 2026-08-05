@@ -192,7 +192,7 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "server/serializable-transaction.ts", "server/source-code-analysis.ts", "server/system-config.ts",
       "server/tenant-config.ts", "server/week-info.ts", "ui/TenantConfigProvider.tsx", "ui/tenant-config.tsx",
     ],
-    prefixes: ["audit/", "calendar/", "contracts/", "integrations/", "server/api/", "server/open-api/", "types/"],
+    prefixes: ["audit/", "calendar/", "contracts/", "integrations/", "server/api/", "server/combination-solver/", "server/open-api/", "types/"],
   }),
 
   capability("finance", "entry", "L1 接入与组合层", {
