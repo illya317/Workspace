@@ -126,6 +126,28 @@ test("voucher-line provider pushes every mandatory predicate into SQL with expli
   assert.equal(limit, 51);
 });
 
+test("voucher-line provider orders exact signed matches ahead of the bounded fetch window", async () => {
+  const captured: unknown[] = [];
+  const db = fakeDb({
+    $queryRaw: async (sql: unknown) => {
+      captured.push(sql);
+      return [];
+    },
+  });
+  const provider = voucherLineProvider();
+  await provider.collect(makeContext({ db, queryText: "-12,124.40" }));
+
+  const text = sqlText(captured[0]);
+  // 带符号精确命中排第一，其次是目标幅值接近度，最后才是日期确定性顺序：
+  // 窗口内候选超过上限时，direct 精确命中不得被 LIMIT 截出候选集。
+  assert.ok(text.includes(`(i.debit - i.credit) = CAST`));
+  const orderBy = text.slice(text.indexOf("ORDER BY"));
+  assert.ok(orderBy.indexOf(`(i.debit - i.credit) = CAST`) < orderBy.indexOf(`v."date" ASC`));
+  const values = (captured[0] as { values: readonly unknown[] }).values;
+  assert.ok(values.includes("-12124.40"), "signed exact target must be a bound value");
+  assert.ok(values.includes("12124.40"), "target magnitude must be a bound value");
+});
+
 test("voucher-line provider applies account hints as code-prefix predicates", async () => {
   const captured: unknown[] = [];
   const db = fakeDb({

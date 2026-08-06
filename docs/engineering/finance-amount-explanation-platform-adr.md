@@ -71,3 +71,18 @@ dev 库只读盘点（2026-08-05；`workspace-dev-db` 容器、`workspace_dev` �
 - 不用 HyperFormula 重算结果覆盖 workbook 缓存值（mismatch 是证据，不是自动更正）。
 - 不让 LLM 充当算术证明、候选生成器或证据权威。
 - 不支持 `.xls`、`.xlsm`、加密工作簿、宏、OLE/DDE、外部链接或网络公式（v1）。
+
+## 实施状态（2026-08-06，Package 8 收口）
+
+- Package 0–8 全部完成；证据包见 `docs/engineering/finance-amount-explanation-platform-release-handoff.md`（包台账 SHA、迁移/开关状态、私有验收指纹、检查结果、已知限制）。
+- dev 已应用两个对比迁移并开启 `finance.statements.comparison.enabled`（rollout 第 3 步）；生产迁移/开启属单独授权发布。
+
+### 相对本 ADR/计划的偏差清单（以交接记录与各包交接为准）
+
+- `POST /comparisons/:id/runs` 的 `:id` 为 mappingId（非 packageId）：run 由已确认映射创建，rerun 新建不可变记录。
+- 新增只读 `GET /comparisons/target-preview`：把目标选择解析为类型化 `StatementTargetRef` + 可见系统指纹（Package 7 seam，Package 6 交接中已说明）。
+- 证据包 lifecycle 枚举实现为小写 camelCase：`parsed | mappingRequired | ready | failed | archived`（计划文档中的大写写法仅为语义约定）。
+- solver `stopReason` 的 `candidate_limit` 同时覆盖候选硬顶（60）与项数硬顶（>6 钳制）两类 fail-closed 截断。
+- Package 8 集成修正两条（均附测试）：voucher provider 取数顺序改为带符号精确命中优先（避免截断窗口挤出 direct 命中）；映射确认 schema `headerRow` 放宽为 `min(0)`（detection 为 0-based 行索引）。
+- SystemConfig 无任意键的既定管理 API；dev 开关经应用自身 Prisma 运行时（runtime 角色）写入，已记录在交接记录 §3。
+- comparison UI 未新增浏览器 E2E：成本/收益结论与组件测试替代覆盖见交接记录 §7。

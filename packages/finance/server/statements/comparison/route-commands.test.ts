@@ -100,6 +100,15 @@ test("comparisonMappingSaveBodySchema validates shape and strips nothing silentl
   const remapBody = { mappingId: 11, expectedRevision: 2, ...confirmBody };
   assert.equal(comparisonMappingSaveBodySchema.safeParse(remapBody).success, true);
 
+  // 0-based headerRow：detection 允许表头位于首行（索引 0），schema 不得误拒。
+  assert.equal(
+    comparisonMappingSaveBodySchema.safeParse({
+      ...confirmBody,
+      structureMapping: { ...validStructureMapping, headerRow: 0 },
+    }).success,
+    true,
+  );
+
   assert.equal(
     comparisonMappingSaveBodySchema.safeParse({ ...confirmBody, hacker: true }).success,
     false,

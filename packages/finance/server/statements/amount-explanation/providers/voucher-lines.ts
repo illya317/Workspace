@@ -19,6 +19,8 @@ import { diagnostics, type AmountEvidenceProvider, type EvidenceCandidate } from
  * 非零 + 金额窗口（|debit - credit| ≤ |target| + tolerance）、显式 LIMIT。
  * 刻意不复用 header 关键字凭证列表查询（它会按凭证头全量加载后在内存过滤）。
  * 单页有界：取 limit+1 行判定截断，诊断上报 fetched/capped；不做深分页。
+ * 取数顺序：带符号精确命中优先，再按目标幅值接近度，最后日期确定性顺序——
+ * 窗口内行数超过上限时截断绝不允许把 direct 精确命中挤出候选集（计划 §4.4 direct 优先）。
  */
 
 interface VoucherLineRow {
@@ -57,6 +59,11 @@ export function voucherLineProvider(): AmountEvidenceProvider {
     async collect(ctx) {
       const { db, query, scope, windowUpperMinor, candidateLimit } = ctx;
       const windowUpper = formatMinorUnits(windowUpperMinor, LEDGER_MONEY_SCALE);
+      const targetSigned = formatMinorUnits(query.targetMinor, LEDGER_MONEY_SCALE);
+      const targetMagnitude = formatMinorUnits(
+        query.targetMinor < 0n ? -query.targetMinor : query.targetMinor,
+        LEDGER_MONEY_SCALE,
+      );
 
       const predicates: Prisma.Sql[] = [
         Prisma.sql`v."status" = 'posted'`,
@@ -101,7 +108,10 @@ export function voucherLineProvider(): AmountEvidenceProvider {
         INNER JOIN "FinanceVoucher" AS v ON v.id = i."voucherId"
         INNER JOIN "FinanceAccount" AS a ON a.id = i."accountId"
         WHERE ${Prisma.join(predicates, " AND ")}
-        ORDER BY v."date" ASC, v."id" ASC, i."sortOrder" ASC, i."id" ASC
+        ORDER BY
+          (i.debit - i.credit) = CAST(${targetSigned} AS numeric) DESC,
+          ABS(ABS(i.debit - i.credit) - CAST(${targetMagnitude} AS numeric)) ASC,
+          v."date" ASC, v."id" ASC, i."sortOrder" ASC, i."id" ASC
         LIMIT ${candidateLimit + 1}
       `);
 

@@ -141,7 +141,8 @@ const structureMappingSchema = z.object({
   visibility: z.enum(["visible", "hidden", "veryHidden"]),
   reportType: reportTypeSchema,
   score: z.number().int().min(0),
-  headerRow: z.number().int().positive().nullable(),
+  /** 0-based 行索引（与 detection 输出一致），首行即表头时为 0。 */
+  headerRow: z.number().int().min(0).nullable(),
   labelColumn: z.number().int().min(0),
   blockStartRow: z.number().int().positive(),
   blockEndRow: z.number().int().positive(),
