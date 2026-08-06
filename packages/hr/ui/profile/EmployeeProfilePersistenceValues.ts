@@ -1,8 +1,21 @@
-import type { ContractRow } from "@workspace/hr/types";
+import type { ContractRow, ProfileField } from "@workspace/hr/types";
 
 export function normalizeValue(value: unknown) {
   if (value === undefined || value === "") return null;
   return value;
+}
+
+export function normalizeFieldValue(field: ProfileField, value: unknown) {
+  const normalized = normalizeValue(value);
+  if (
+    field.type !== "fk"
+    || field.valueFrom === "name"
+    || field.valueFrom === "subtitle"
+    || normalized === null
+    || typeof normalized !== "string"
+    || !/^\d+$/.test(normalized)
+  ) return normalized;
+  return Number(normalized);
 }
 
 export function valuesEqual(left: unknown, right: unknown) {

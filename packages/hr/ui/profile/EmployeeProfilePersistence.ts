@@ -13,7 +13,7 @@ import type {
 } from "@workspace/hr/types";
 import { validateChineseIdNumber } from "@workspace/hr/utils/identity";
 import {
-  normalizeValue,
+  normalizeFieldValue,
   persistableEdpRows,
   valuesEqual,
   type EditableRecord,
@@ -44,8 +44,8 @@ function collectChangedFields(
   const changes: Array<{ id: number; field: string; value: unknown }> = [];
   for (const field of fields) {
     if (field.readOnly) continue;
-    const next = normalizeValue(draft[field.key]);
-    const prev = normalizeValue(original[field.key]);
+    const next = normalizeFieldValue(field, draft[field.key]);
+    const prev = normalizeFieldValue(field, original[field.key]);
     if (valuesEqual(next, prev)) continue;
     changes.push({ id, field: field.key, value: next });
   }
@@ -115,7 +115,7 @@ export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
       await requestDirectCommandJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/assignments`, {
         method: "POST",
         body: JSON.stringify(Object.fromEntries(
-          edpFields.map((field) => [field.key, normalizeValue(row[field.key as keyof EdpRow])]),
+          edpFields.map((field) => [field.key, normalizeFieldValue(field, row[field.key as keyof EdpRow])]),
         )),
       });
       continue;
