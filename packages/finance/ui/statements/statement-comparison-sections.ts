@@ -267,6 +267,7 @@ export function createComparisonMappingSections(input: {
   proposals: ComparisonMappingProposalDto[];
   selectedProposalIndex: number | null;
   choices: ComparisonMappingChoices;
+  canUpdate: boolean;
   confirming: boolean;
   remapMode: boolean;
   onProposalChange: (index: number) => void;
@@ -340,7 +341,7 @@ export function createComparisonMappingSections(input: {
             key: "confirm",
             action: "save",
             label: input.confirming ? "确认中" : "确认映射",
-            disabled: input.confirming || !confirmable,
+            disabled: input.confirming || !confirmable || !input.canUpdate,
             onClick: input.onConfirm,
           }],
         })] : [createFieldsSection("comparison-mapping-confirm-action", [], {
@@ -349,7 +350,7 @@ export function createComparisonMappingSections(input: {
             key: "confirm",
             action: "save",
             label: input.confirming ? "确认中" : "确认映射",
-            disabled: input.confirming || !confirmable || !proposal,
+            disabled: input.confirming || !confirmable || !proposal || !input.canUpdate,
             onClick: input.onConfirm,
           }],
         })]),
@@ -357,11 +358,14 @@ export function createComparisonMappingSections(input: {
           tone: "warning",
           content: `仍有 ${pending.filter((line) => !input.choices[line.row]).length} 行歧义/重复映射未确认，确认全部处置后才能生成对比。`,
         })] : []),
+        ...(!input.canUpdate ? [createMessageSection("comparison-mapping-no-update", {
+          tone: "muted",
+          content: "当前账号没有确认或修改映射的权限；可查看既有证据包和运行结果。",
+        })] : []),
       ],
     }),
   ];
 }
-
 // ─── 结果汇总与过滤 ─────────────────────────────────────────────────
 
 export function createComparisonSummarySection(
@@ -465,4 +469,3 @@ export function buildComparisonResultColumns(
     { key: "bestSource", label: "最佳来源", width: "xl", cellSelected, cell: (row) => ({ kind: "text", value: comparisonBestSourceLabel(row), tone: row.evidence.length > 0 ? "default" : "muted", maxChars: 60 }) },
   ];
 }
-

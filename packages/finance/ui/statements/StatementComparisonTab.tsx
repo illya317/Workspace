@@ -154,6 +154,7 @@ export default function StatementComparisonTab({
             proposals: comparison.packageDetail?.detection?.proposals ?? [],
             selectedProposalIndex: comparison.selectedProposalIndex,
             choices: comparison.mappingChoices,
+            canUpdate: capabilities.canUpdate,
             confirming: comparison.confirming,
             remapMode: comparison.remapMode,
             onProposalChange: comparison.setSelectedProposalIndex,

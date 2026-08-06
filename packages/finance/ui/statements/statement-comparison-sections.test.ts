@@ -230,6 +230,7 @@ test("歧义映射未确认时确认动作禁用", () => {
     proposals: [proposalWithAmbiguous()],
     selectedProposalIndex: 0,
     choices: {},
+    canUpdate: true,
     confirming: false,
     remapMode: false,
     onProposalChange: () => {},
@@ -248,6 +249,7 @@ test("歧义映射未确认时确认动作禁用", () => {
     proposals: [proposalWithAmbiguous()],
     selectedProposalIndex: 0,
     choices: { 9: "lti" },
+    canUpdate: true,
     confirming: false,
     remapMode: false,
     onProposalChange: () => {},
@@ -257,6 +259,25 @@ test("歧义映射未确认时确认动作禁用", () => {
   const nestedResolved = (resolved.find((section) => section.key === "comparison-mapping-confirm")!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
   const resolvedFields = nestedResolved.find((section) => section.key === "comparison-mapping-choices");
   assert.equal(formActions(resolvedFields!)[0]!.disabled, false);
+});
+
+test("无 update 权限时映射确认禁用并保留只读提示", () => {
+  const sections = createComparisonMappingSections({
+    sheets: [],
+    proposals: [proposalWithAmbiguous()],
+    selectedProposalIndex: 0,
+    choices: { 9: "lti" },
+    canUpdate: false,
+    confirming: false,
+    remapMode: false,
+    onProposalChange: () => {},
+    onChoiceChange: () => {},
+    onConfirm: () => {},
+  });
+  const nested = (sections.find((section) => section.key === "comparison-mapping-confirm")!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
+  const choices = nested.find((section) => section.key === "comparison-mapping-choices");
+  assert.equal(formActions(choices!)[0]!.disabled, true);
+  assert.ok(messageContent(nested.find((section) => section.key === "comparison-mapping-no-update")!).includes("没有确认或修改映射的权限"));
 });
 
 test("ready 面板：stale 禁建 run；无运行且有 update 权限才可归档", () => {
