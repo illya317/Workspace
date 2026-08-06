@@ -43,6 +43,8 @@ export const contractFields: ProfileField[] = [
   { key: "legalRelation", label: "法律关系", type: "select" },
   { key: "contractType", label: "协议类型", type: "select" },
   { key: "employmentForm", label: "用工形式", type: "select" },
+  { key: "confidentialityDate", label: "保密协议", type: "date" },
+  { key: "nonCompeteDate", label: "竞业限制", type: "date" },
   { key: "firstContractStartDate", label: "首签开始", type: "date" },
   { key: "firstContractEndDate", label: "首签到期", type: "date" },
   { key: "secondContractStartDate", label: "续签一开始", type: "date" },
