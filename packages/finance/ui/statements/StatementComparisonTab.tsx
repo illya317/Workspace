@@ -23,7 +23,6 @@ import {
   buildComparisonResultFilterToolbarItems,
   buildComparisonTargetToolbarItems,
   createComparisonMappingSections,
-  createComparisonPackageListSection,
   createComparisonPreviewSections,
   createComparisonSummarySection,
   createComparisonUploadSections,
@@ -32,8 +31,8 @@ import type { ConsolidationCapabilities, StatementComparisonLaunchContext } from
 import { useStatementComparison } from "./useStatementComparison";
 
 /**
- * 差异诊断 tab（Package 7）：实体与合并共用的同页对比工作台。
- * 目标选择 → 上传/选择证据包 → 映射确认 → 版本化 run → 汇总/过滤/结果表 →
+ * 差异诊断 tab：实体与合并共用的 Excel 对系统报表对比页。
+ * 选择系统报表 → 上传 Excel → 开始对比 → 汇总/过滤/结果表 →
  * 整行选中查看结构化证据（master-detail；无 action 列、无调整/过账动作）。
  */
 export default function StatementComparisonTab({
@@ -96,7 +95,7 @@ export default function StatementComparisonTab({
       key: "comparison-back",
       actions: [{
         key: "back",
-        label: "返回证据包",
+        label: "重新对比",
         kind: "view" as const,
         onClick: comparison.closeRun,
       }],
@@ -119,13 +118,15 @@ export default function StatementComparisonTab({
               ?? comparison.packageDetail?.failureMessage
               ?? comparison.runDetail?.failureMessage
               ?? "操作失败",
-            retryHint: "上传/解析失败不会改动任何会计事实；可修正后重新上传（生成新的证据包），或选择既有证据包重试。",
+            retryHint: "请检查 Excel 文件后重新上传。",
           }),
-          createComparisonPackageListSection({
-            packages: comparison.packages,
-            loading: comparison.packagesLoading,
-            selectedPackageId: comparison.selectedPackageId,
-            onSelect: (id) => void comparison.selectPackage(id),
+          ...createComparisonUploadSections({
+            canImport: capabilities.canImport,
+            uploadFile: comparison.uploadFile,
+            uploading: comparison.uploading,
+            uploadError: null,
+            onFileChange: comparison.setUploadFile,
+            onUpload: () => void comparison.upload(),
           }),
         ]);
       case "targetReady":
@@ -139,18 +140,11 @@ export default function StatementComparisonTab({
             onFileChange: comparison.setUploadFile,
             onUpload: () => void comparison.upload(),
           }),
-          createComparisonPackageListSection({
-            packages: comparison.packages,
-            loading: comparison.packagesLoading,
-            selectedPackageId: comparison.selectedPackageId,
-            onSelect: (id) => void comparison.selectPackage(id),
-          }),
         ]);
       case "mappingRequired":
         return createPageBody([
           ...previewSections,
           ...createComparisonMappingSections({
-            sheets: comparison.packageDetail?.sheets ?? [],
             proposals: comparison.packageDetail?.detection?.proposals ?? [],
             selectedProposalIndex: comparison.selectedProposalIndex,
             choices: comparison.mappingChoices,
@@ -159,7 +153,7 @@ export default function StatementComparisonTab({
             remapMode: comparison.remapMode,
             onProposalChange: comparison.setSelectedProposalIndex,
             onChoiceChange: comparison.chooseMapping,
-            onConfirm: () => void comparison.confirmMapping(),
+            onConfirm: () => void comparison.confirmMapping(true),
           }),
         ]);
       case "ready":
@@ -173,7 +167,9 @@ export default function StatementComparisonTab({
             canUpdate: capabilities.canUpdate,
             creatingRun: comparison.creatingRun,
             archiving: comparison.archiving,
-            onCreateRun: () => void comparison.createRun(),
+            onCreateRun: () => void (comparison.activeMapping
+              ? comparison.createRun()
+              : comparison.confirmMapping(true)),
             onRemap: comparison.startRemap,
             onArchive: () => void comparison.archivePackage(),
             onSelectRun: (runId) => void comparison.loadRun(runId),

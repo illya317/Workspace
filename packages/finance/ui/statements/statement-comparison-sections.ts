@@ -3,7 +3,6 @@ import {
   createFieldsSection,
   createMessageSection,
   createMetricsSection,
-  createPageTableSection,
   createPanelSection,
 } from "@workspace/core/ui";
 import type {
@@ -22,7 +21,6 @@ import {
   comparisonBestSourceLabel,
   comparisonExplanationStatusLabel,
   comparisonExplanationStatusTone,
-  comparisonLifecycleLabel,
   comparisonMappingLineStatusLabel,
   comparisonReportTypeLabel,
   comparisonSummaryMetrics,
@@ -33,10 +31,8 @@ import {
 } from "./statement-comparison-model";
 import type {
   ComparisonMappingProposalDto,
-  ComparisonPackageListItemDto,
   ComparisonRunDetailDto,
   ComparisonRunLineDto,
-  ComparisonSheetInventoryItemDto,
   ComparisonTargetPreviewDto,
 } from "./statement-comparison-types";
 
@@ -143,8 +139,8 @@ export function buildComparisonTargetToolbarItems(input: {
       key: "comparison-target-actions",
       actions: [{
         key: "preview",
-        label: input.previewLoading ? "解析中" : "解析系统目标",
-        kind: "view",
+        label: input.previewLoading ? "准备上传中" : "上传 Excel",
+        kind: "import",
         variant: "primary",
         disabled: input.previewLoading || !input.selection,
         onClick: input.onPreview,
@@ -162,22 +158,15 @@ export function createComparisonPreviewSections(input: {
 }): BodySurfaceSectionSpec[] {
   const { preview } = input;
   return [createPanelSection("comparison-target-preview", {
-    title: "系统对比目标",
+    title: "系统报表",
     sections: [
       createMessageSection("comparison-target-preview-meta", {
         tone: "muted",
-        content: [
-          `${preview.targetLabel} · ${comparisonReportTypeLabel(preview.target.reportType)} · ${preview.currencyCode}`,
-          `系统目标行 ${preview.lineCount} 行；对比绑定此不可变目标，之后的数据变化不会自动跟随。`,
-        ].join("　"),
-      }),
-      createMessageSection("comparison-target-preview-fingerprint", {
-        tone: input.staleMapping ? "warning" : "muted",
-        content: `系统目标指纹：${preview.target.targetFingerprint}`,
+        content: `${preview.targetLabel} · ${comparisonReportTypeLabel(preview.target.reportType)} · ${preview.currencyCode} · ${preview.lineCount} 行`,
       }),
       ...(input.staleMapping ? [createMessageSection("comparison-target-preview-stale", {
         tone: "warning",
-        content: "已确认映射绑定的目标指纹与当前系统目标不一致（目标已失效）。请重新确认映射后再生成新的对比运行。",
+        content: "系统报表已经变化，请重新选择 Excel 报表后再开始对比。",
       })] : []),
     ],
   })];
@@ -196,27 +185,23 @@ export function createComparisonUploadSections(input: {
   if (!input.canImport) {
     return [createMessageSection("comparison-upload-denied", {
       tone: "muted",
-      content: "当前账号没有报表对比证据导入权限；可选择既有证据包继续只读对比。",
+      content: "当前账号没有上传 Excel 并发起对比的权限。",
     })];
   }
   const fields: FormSurfaceItemSpec[] = [{
     key: "file",
-    label: "对比证据工作簿（.xlsx，≤ 20 MiB）",
+    label: "Excel 文件（.xlsx，≤ 20 MiB）",
     spec: { valueType: "file", control: "file", state: "required" },
     value: input.uploadFile,
     onChange: (value) => input.onFileChange(value instanceof File ? value : null),
   }];
   return [
-    createMessageSection("comparison-upload-boundary", {
-      tone: "muted",
-      content: "上传的 workbook 只是不可变对比证据：不覆盖系统报表，不生成调整，不过账。",
-    }),
     createFieldsSection("comparison-upload-fields", fields, {
       layout: { columns: 1 },
       actions: [{
         key: "upload",
         action: "save",
-        label: input.uploading ? "解析中（可随时取消等待）" : "上传并解析",
+        label: input.uploading ? "正在读取 Excel" : "上传 Excel",
         disabled: input.uploading || !input.uploadFile,
         onClick: input.onUpload,
       }],
@@ -228,42 +213,9 @@ export function createComparisonUploadSections(input: {
   ];
 }
 
-const PACKAGE_COLUMNS: DataSurfaceColumnSpec<ComparisonPackageListItemDto>[] = [
-  { key: "fileName", label: "证据包", required: true, width: "xl", cell: (row) => ({ kind: "text", value: row.fileName, emphasis: "medium" }) },
-  { key: "lifecycle", label: "状态", width: "md", cell: (row) => ({ kind: "text", value: comparisonLifecycleLabel(row.lifecycle), tone: row.lifecycle === "failed" ? "danger" : row.lifecycle === "ready" ? "success" : "default" }) },
-  { key: "fileSize", label: "大小", width: "sm", align: "right", cell: (row) => `${(row.fileSize / 1024).toFixed(0)} KB` },
-  { key: "sha256", label: "SHA-256", width: "lg", cell: (row) => ({ kind: "text", value: fingerprintText(row.sha256), font: "mono" }) },
-  { key: "counts", label: "映射/运行", width: "sm", align: "right", cell: (row) => `${row.mappingCount} / ${row.runCount}` },
-  { key: "createdAt", label: "上传时间", width: "md", cell: (row) => row.createdAt.slice(0, 19).replace("T", " ") },
-];
-
-export function createComparisonPackageListSection(input: {
-  packages: ComparisonPackageListItemDto[];
-  loading: boolean;
-  selectedPackageId: number | null;
-  onSelect: (packageId: number) => void;
-}): BodySurfaceSectionSpec {
-  return createPageTableSection("comparison-package-list", {
-    rows: input.packages,
-    columns: PACKAGE_COLUMNS,
-    visibleColumns: PACKAGE_COLUMNS.map((column) => column.key),
-    rowKey: (row) => row.id,
-    loading: input.loading,
-    emptyText: "暂无对比证据包",
-    onRowClick: (row) => input.onSelect(row.id),
-  });
-}
-
 // ─── 映射确认 ──────────────────────────────────────────────────────
 
-const SHEET_COLUMNS: DataSurfaceColumnSpec<ComparisonSheetInventoryItemDto>[] = [
-  { key: "name", label: "工作表", required: true, cell: (row) => ({ kind: "text", value: row.name, emphasis: "medium" }) },
-  { key: "visibility", label: "可见性", cell: (row) => ({ kind: "text", value: row.visibility === "visible" ? "可见" : "隐藏", tone: row.visibility === "visible" ? "default" : "warning" }) },
-  { key: "cellCount", label: "单元格数", align: "right", cell: (row) => String(row.cellCount) },
-];
-
 export function createComparisonMappingSections(input: {
-  sheets: ComparisonSheetInventoryItemDto[];
   proposals: ComparisonMappingProposalDto[];
   selectedProposalIndex: number | null;
   choices: ComparisonMappingChoices;
@@ -279,7 +231,7 @@ export function createComparisonMappingSections(input: {
   const confirmable = isComparisonMappingConfirmable(proposal, input.choices);
   const proposalFields: FormSurfaceItemSpec[] = [{
     key: "proposal",
-    label: "检测到的报表 sheet/块",
+    label: "Excel 报表",
     spec: {
       valueType: "string",
       control: "choice",
@@ -288,7 +240,7 @@ export function createComparisonMappingSections(input: {
         source: "static",
         items: input.proposals.map((entry, index) => ({
           value: String(index),
-          label: `${entry.structure.sheetName}（${comparisonReportTypeLabel(entry.structure.reportType)} · 命中 ${entry.structure.score} · 待确认 ${entry.pendingCount}）`,
+          label: `${entry.structure.sheetName} · ${entry.structure.amountColumns.map((column) => column.headerText || `第 ${column.col + 1} 列`).join(" / ")}`,
         })),
       },
     },
@@ -316,31 +268,20 @@ export function createComparisonMappingSections(input: {
     value: input.choices[line.row] ?? "",
     onChange: (value) => input.onChoiceChange(line.row, String(value ?? "")),
   }));
-  return [
-    createPanelSection("comparison-workbook-inventory", {
-      title: "工作簿清单",
-      sections: [createPageTableSection("comparison-sheet-inventory", {
-        rows: input.sheets,
-        columns: SHEET_COLUMNS,
-        visibleColumns: SHEET_COLUMNS.map((column) => column.key),
-        rowKey: (row) => row.name,
-        emptyText: "未解析到工作表",
-      })],
-    }),
-    createPanelSection("comparison-mapping-confirm", {
-      title: input.remapMode ? "重新确认映射" : "结构化映射确认",
+  return [createPanelSection("comparison-mapping-confirm", {
+      title: input.remapMode ? "重新选择 Excel 报表" : "选择 Excel 中要对比的报表",
       sections: [
         createFieldsSection("comparison-proposal-field", proposalFields, { layout: { columns: 1 } }),
         ...(proposal && proposal.missingLines.length > 0 ? [createMessageSection("comparison-missing-lines", {
           tone: "warning",
-          content: `系统报表有 ${proposal.missingLines.length} 行未在 workbook 中匹配：${proposal.missingLines.slice(0, 5).map((line) => line.label).join("、")}${proposal.missingLines.length > 5 ? "…" : ""}`,
+          content: `Excel 中缺少 ${proposal.missingLines.length} 个系统报表项目：${proposal.missingLines.slice(0, 5).map((line) => line.label).join("、")}${proposal.missingLines.length > 5 ? "…" : ""}`,
         })] : []),
         ...(pending.length > 0 ? [createFieldsSection("comparison-mapping-choices", choiceFields, {
           layout: { columns: 1 },
           actions: [{
             key: "confirm",
             action: "save",
-            label: input.confirming ? "确认中" : "确认映射",
+            label: input.confirming ? "正在开始对比" : "开始对比",
             disabled: input.confirming || !confirmable || !input.canUpdate,
             onClick: input.onConfirm,
           }],
@@ -349,22 +290,21 @@ export function createComparisonMappingSections(input: {
           actions: [{
             key: "confirm",
             action: "save",
-            label: input.confirming ? "确认中" : "确认映射",
+            label: input.confirming ? "正在开始对比" : "开始对比",
             disabled: input.confirming || !confirmable || !proposal || !input.canUpdate,
             onClick: input.onConfirm,
           }],
         })]),
         ...(pending.length > 0 && !confirmable ? [createMessageSection("comparison-mapping-blocked", {
           tone: "warning",
-          content: `仍有 ${pending.filter((line) => !input.choices[line.row]).length} 行歧义/重复映射未确认，确认全部处置后才能生成对比。`,
+          content: `仍有 ${pending.filter((line) => !input.choices[line.row]).length} 个 Excel 项目无法自动对应，请先选择对应的系统报表项目。`,
         })] : []),
         ...(!input.canUpdate ? [createMessageSection("comparison-mapping-no-update", {
           tone: "muted",
-          content: "当前账号没有确认或修改映射的权限；可查看既有证据包和运行结果。",
+          content: "当前账号没有选择 Excel 报表项目并开始对比的权限。",
         })] : []),
       ],
-    }),
-  ];
+    })];
 }
 // ─── 结果汇总与过滤 ─────────────────────────────────────────────────
 

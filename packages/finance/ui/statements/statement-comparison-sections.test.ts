@@ -12,6 +12,7 @@ import {
   buildComparisonResultColumns,
   buildComparisonResultFilterToolbarItems,
   createComparisonMappingSections,
+  createComparisonPreviewSections,
   createComparisonSummarySection,
   createComparisonUploadSections,
 } from "./statement-comparison-sections";
@@ -20,6 +21,7 @@ import type {
   ComparisonPackageDetailDto,
   ComparisonRunDetailDto,
   ComparisonRunLineDto,
+  ComparisonTargetPreviewDto,
 } from "./statement-comparison-types";
 
 /**
@@ -184,8 +186,7 @@ test("无 import 权限时上传隐藏且只读路径保留", () => {
     onUpload: () => {},
   });
   assert.equal(denied.length, 1);
-  assert.ok(messageContent(denied[0]!).includes("没有报表对比证据导入权限"));
-  assert.ok(messageContent(denied[0]!).includes("既有证据包"));
+  assert.ok(messageContent(denied[0]!).includes("没有上传 Excel 并发起对比的权限"));
 
   const allowed = createComparisonUploadSections({
     canImport: true,
@@ -198,6 +199,26 @@ test("无 import 权限时上传隐藏且只读路径保留", () => {
   const fields = allowed.find((section) => section.key === "comparison-upload-fields");
   assert.ok(fields);
   assert.equal(formActions(fields!)[0]!.disabled, true);
+});
+
+test("系统报表摘要不暴露指纹或不可变实现细节", () => {
+  const sections = createComparisonPreviewSections({
+    preview: {
+      target: { kind: "entity", companyCode: "630", year: 2026, month: 8, periodKind: "cumulative", reportType: "balance" },
+      targetLabel: "丰华天力通 2026年8月",
+      currencyCode: "CNY",
+      lineCount: 71,
+      targetFingerprint: "secret-fingerprint",
+    } as unknown as ComparisonTargetPreviewDto,
+    staleMapping: false,
+  });
+  const panel = sections[0]!;
+  const body = panel.body as { sections?: BodySurfaceSectionSpec[] };
+  const text = (body.sections ?? []).map(messageContent).join("\n");
+  assert.equal(panel.header?.title, "系统报表");
+  assert.ok(text.includes("丰华天力通 2026年8月"));
+  assert.ok(!text.includes("secret-fingerprint"));
+  assert.ok(!text.includes("不可变"));
 });
 
 function proposalWithAmbiguous(): ComparisonMappingProposalDto {
@@ -226,7 +247,6 @@ function proposalWithAmbiguous(): ComparisonMappingProposalDto {
 
 test("歧义映射未确认时确认动作禁用", () => {
   const sections = createComparisonMappingSections({
-    sheets: [{ name: "资产负债表", visibility: "visible", cellCount: 120 }],
     proposals: [proposalWithAmbiguous()],
     selectedProposalIndex: 0,
     choices: {},
@@ -245,7 +265,6 @@ test("歧义映射未确认时确认动作禁用", () => {
   assert.equal(formActions(choiceFields!)[0]!.disabled, true);
 
   const resolved = createComparisonMappingSections({
-    sheets: [],
     proposals: [proposalWithAmbiguous()],
     selectedProposalIndex: 0,
     choices: { 9: "lti" },
@@ -259,11 +278,11 @@ test("歧义映射未确认时确认动作禁用", () => {
   const nestedResolved = (resolved.find((section) => section.key === "comparison-mapping-confirm")!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
   const resolvedFields = nestedResolved.find((section) => section.key === "comparison-mapping-choices");
   assert.equal(formActions(resolvedFields!)[0]!.disabled, false);
+  assert.equal(formActions(resolvedFields!)[0]!.label, "开始对比");
 });
 
 test("无 update 权限时映射确认禁用并保留只读提示", () => {
   const sections = createComparisonMappingSections({
-    sheets: [],
     proposals: [proposalWithAmbiguous()],
     selectedProposalIndex: 0,
     choices: { 9: "lti" },
@@ -277,10 +296,10 @@ test("无 update 权限时映射确认禁用并保留只读提示", () => {
   const nested = (sections.find((section) => section.key === "comparison-mapping-confirm")!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
   const choices = nested.find((section) => section.key === "comparison-mapping-choices");
   assert.equal(formActions(choices!)[0]!.disabled, true);
-  assert.ok(messageContent(nested.find((section) => section.key === "comparison-mapping-no-update")!).includes("没有确认或修改映射的权限"));
+  assert.ok(messageContent(nested.find((section) => section.key === "comparison-mapping-no-update")!).includes("没有选择 Excel 报表项目"));
 });
 
-test("ready 面板：stale 禁建 run；无运行且有 update 权限才可归档", () => {
+test("ready 面板只显示 Excel 和开始对比，stale 时禁用", () => {
   const detail = {
     id: 5,
     fileName: "对比.xlsx",
@@ -319,7 +338,7 @@ test("ready 面板：stale 禁建 run；无运行且有 update 权限才可归�
   const nested = (summaryPanel!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
   const actions = formActions(nested.find((section) => section.key === "comparison-ready-actions")!);
   assert.equal(actions.find((action) => action.key === "create-run")!.disabled, true);
-  assert.ok(actions.some((action) => action.key === "archive"));
+  assert.ok(!actions.some((action) => action.key === "archive"));
 
   const fresh = createComparisonReadySections({
     packageDetail: {
@@ -340,8 +359,12 @@ test("ready 面板：stale 禁建 run；无运行且有 update 权限才可归�
   const freshNested = (fresh.find((section) => section.key === "comparison-ready-summary")!.body as { sections?: BodySurfaceSectionSpec[] }).sections ?? [];
   const freshActions = formActions(freshNested.find((section) => section.key === "comparison-ready-actions")!);
   assert.equal(freshActions.find((action) => action.key === "create-run")!.disabled, false);
-  // 已有运行引用的证据不提供归档（archive 而非 delete）。
+  assert.equal(freshActions.find((action) => action.key === "create-run")!.label, "开始对比");
   assert.ok(!freshActions.some((action) => action.key === "archive"));
+  const rendered = JSON.stringify(fresh);
+  assert.ok(!rendered.includes("SHA-256"));
+  assert.ok(!rendered.includes("指纹"));
+  assert.ok(!rendered.includes("运行历史"));
 });
 
 test("过滤器工具栏包含仅差异/状态/阈值/查询", () => {

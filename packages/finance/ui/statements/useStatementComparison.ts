@@ -281,39 +281,6 @@ export function useStatementComparison() {
     [activeMapping, preview],
   );
 
-  const confirmMapping = useCallback(async () => {
-    if (!packageDetail || selectedProposalIndex === null) return;
-    const proposal = packageDetail.detection?.proposals[selectedProposalIndex];
-    if (!proposal) return;
-    setConfirming(true);
-    try {
-      const remap = remapMode && activeMapping;
-      const body: Record<string, unknown> = {
-        structureMapping: proposal.structure,
-        lineMapping: resolveComparisonLineMapping(proposal.lines, mappingChoices),
-      };
-      if (remap) {
-        body.mappingId = activeMapping.id;
-        body.expectedRevision = activeMapping.revision;
-      } else {
-        if (!preview) return;
-        body.target = preview.target;
-      }
-      await readApi(
-        await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${packageDetail.id}/mapping`), {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        }),
-        "映射确认失败",
-      );
-      setRemapMode(false);
-      await selectPackage(packageDetail.id);
-    } finally {
-      setConfirming(false);
-    }
-  }, [activeMapping, mappingChoices, packageDetail, preview, remapMode, selectPackage, selectedProposalIndex]);
-
   // ─── 运行 ───
   const loadRun = useCallback(async (runId: number) => {
     const seq = ++runSeqRef.current;
@@ -335,22 +302,66 @@ export function useStatementComparison() {
     }
   }, []);
 
+  const startRunForMapping = useCallback(async (mappingId: number) => {
+    const result = await readApi<{ runId: number }>(
+      await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${mappingId}/runs`), {
+        method: "POST",
+      }),
+      "对比启动失败",
+    );
+    if (selectedPackageId !== null) await selectPackage(selectedPackageId);
+    await loadRun(result.runId);
+  }, [loadRun, selectPackage, selectedPackageId]);
+
+  // 保存 Excel 报表对应关系后可直接开始对比，不向用户暴露两个后端步骤。
+  const confirmMapping = useCallback(async (startRun = false) => {
+    if (!packageDetail || selectedProposalIndex === null) return;
+    const proposal = packageDetail.detection?.proposals[selectedProposalIndex];
+    if (!proposal) return;
+    setConfirming(true);
+    if (startRun) setCreatingRun(true);
+    try {
+      const remap = remapMode && activeMapping;
+      const body: Record<string, unknown> = {
+        structureMapping: proposal.structure,
+        lineMapping: resolveComparisonLineMapping(proposal.lines, mappingChoices),
+      };
+      if (remap) {
+        body.mappingId = activeMapping.id;
+        body.expectedRevision = activeMapping.revision;
+      } else {
+        if (!preview) return;
+        body.target = preview.target;
+      }
+      const saved = await readApi<{ mappingId: number }>(
+        await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${packageDetail.id}/mapping`), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        }),
+        "Excel 报表确认失败",
+      );
+      setRemapMode(false);
+      if (startRun) {
+        await startRunForMapping(saved.mappingId);
+      } else {
+        await selectPackage(packageDetail.id);
+      }
+    } finally {
+      setConfirming(false);
+      if (startRun) setCreatingRun(false);
+    }
+  }, [activeMapping, mappingChoices, packageDetail, preview, remapMode, selectPackage, selectedProposalIndex, startRunForMapping]);
+
   const createRun = useCallback(async () => {
     if (!activeMapping || staleMapping) return;
     setCreatingRun(true);
     try {
-      const result = await readApi<{ runId: number }>(
-        await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${activeMapping.id}/runs`), {
-          method: "POST",
-        }),
-        "对比运行创建失败",
-      );
-      if (selectedPackageId !== null) await selectPackage(selectedPackageId);
-      await loadRun(result.runId);
+      await startRunForMapping(activeMapping.id);
     } finally {
       setCreatingRun(false);
     }
-  }, [activeMapping, loadRun, selectPackage, selectedPackageId, staleMapping]);
+  }, [activeMapping, staleMapping, startRunForMapping]);
 
   const closeRun = useCallback(() => {
     runSeqRef.current += 1;

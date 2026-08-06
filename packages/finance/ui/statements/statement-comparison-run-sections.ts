@@ -14,8 +14,6 @@ import type {
 import {
   comparisonExplanationStatusLabel,
   comparisonExplanationStatusTone,
-  comparisonLifecycleLabel,
-  comparisonReportTypeLabel,
   comparisonRunStatusLabel,
 } from "./statement-comparison-model";
 import { amountCell, fingerprintText } from "./statement-comparison-sections";
@@ -24,7 +22,6 @@ import type {
   ComparisonPackageDetailDto,
   ComparisonRunDetailDto,
   ComparisonRunLineDto,
-  ComparisonRunListItemDto,
 } from "./statement-comparison-types";
 
 // ─── 行 detail 六段 ────────────────────────────────────────────────
@@ -148,14 +145,6 @@ export function createComparisonLineDetailSections(input: {
 
 // ─── 就绪（不可变摘要 + 生成对比 + 运行历史）────────────────────────────
 
-const RUN_COLUMNS: DataSurfaceColumnSpec<ComparisonRunListItemDto>[] = [
-  { key: "id", label: "运行", required: true, width: "sm", align: "right", cell: (row) => `#${row.id}` },
-  { key: "status", label: "状态", width: "md", cell: (row) => ({ kind: "text", value: comparisonRunStatusLabel(row.status), tone: row.status === "failed" ? "danger" : "default" }) },
-  { key: "inputFingerprint", label: "输入指纹", width: "lg", cell: (row) => ({ kind: "text", value: fingerprintText(row.inputFingerprint), font: "mono" }) },
-  { key: "createdAt", label: "创建时间", width: "md", cell: (row) => row.createdAt.slice(0, 19).replace("T", " ") },
-  { key: "completedAt", label: "完成时间", width: "md", cell: (row) => (row.completedAt ? row.completedAt.slice(0, 19).replace("T", " ") : "—") },
-];
-
 export function createComparisonReadySections(input: {
   packageDetail: ComparisonPackageDetailDto | null;
   activeMapping: ComparisonMappingItemDto | null;
@@ -171,76 +160,46 @@ export function createComparisonReadySections(input: {
 }): BodySurfaceSectionSpec[] {
   const detail = input.packageDetail;
   if (!detail) {
-    return [createStatusSection("comparison-ready-loading", { kind: "loading", content: "正在读取证据包" })];
+    return [createStatusSection("comparison-ready-loading", { kind: "loading", content: "正在读取 Excel" })];
   }
   const mapping = input.activeMapping;
-  const runs = mapping?.runs ?? [];
-  const hasReferencedRuns = detail.mappings.some((entry) => entry.runs.length > 0);
-  const runHistory = runs.length > 0 ? [createPageTableSection("comparison-run-history", {
-    rows: [...runs],
-    columns: RUN_COLUMNS,
-    visibleColumns: RUN_COLUMNS.map((column) => column.key),
-    rowKey: (row) => row.id,
-    emptyText: "尚无对比运行",
-    onRowClick: (row) => input.onSelectRun(row.id),
-  })] : [createMessageSection("comparison-run-history-empty", {
-    tone: "muted",
-    content: "尚无对比运行。生成对比会创建新的不可变版本，不会修改历史运行。",
-  })];
-  return [
-    createPanelSection("comparison-ready-summary", {
-      title: "不可变对比输入摘要",
+  const canStart = input.canCreate && !input.staleMapping && Boolean(mapping || (detail.detection && input.canUpdate));
+  return [createPanelSection("comparison-ready-summary", {
+      title: "Excel 报表",
       sections: [
         createMessageSection("comparison-ready-package", {
           tone: "muted",
-          content: [
-            `证据包：${detail.fileName}（${(detail.fileSize / 1024).toFixed(0)} KB · ${comparisonLifecycleLabel(detail.lifecycle)}）`,
-            `workbook SHA-256：${detail.sha256}`,
-          ].join("\n"),
+          content: `${detail.fileName} · ${(detail.fileSize / 1024).toFixed(0)} KB`,
         }),
-        createMessageSection("comparison-ready-mapping", {
-          tone: input.staleMapping ? "warning" : "muted",
-          content: mapping
-            ? `映射 #${mapping.id} · 修订 v${mapping.revision} · ${comparisonReportTypeLabel(mapping.reportType)} · 绑定目标指纹：${fingerprintText(mapping.targetFingerprint)}${input.staleMapping ? "（已失效）" : ""}`
-            : "当前系统目标下尚无已确认映射，请先完成映射确认。",
-        }),
+        ...(input.staleMapping ? [createMessageSection("comparison-ready-stale", {
+          tone: "warning",
+          content: "系统报表已经变化，请重新选择 Excel 报表后再开始对比。",
+        })] : []),
         createFieldsSection("comparison-ready-actions", [], {
           layout: { columns: 1 },
           actions: [
             {
               key: "create-run",
               action: "save",
-              label: input.creatingRun ? "生成中" : "生成对比（新版本）",
-              disabled: input.creatingRun || !mapping || input.staleMapping || !input.canCreate,
+              label: input.creatingRun ? "正在对比" : "开始对比",
+              disabled: input.creatingRun || !canStart,
               onClick: input.onCreateRun,
             },
             {
               key: "remap",
               action: "cancel",
-              label: "重新映射",
+              label: "重新选择 Excel 报表",
               disabled: input.creatingRun || !detail.detection || !input.canUpdate,
               onClick: input.onRemap,
             },
-            ...(!hasReferencedRuns && input.canUpdate ? [{
-              key: "archive",
-              action: "cancel" as const,
-              label: input.archiving ? "归档中" : "归档未用证据",
-              disabled: input.archiving,
-              onClick: input.onArchive,
-            }] : []),
           ],
         }),
         ...(!input.canCreate ? [createMessageSection("comparison-ready-no-create", {
           tone: "muted",
-          content: "当前账号没有创建对比运行的权限；可查看既有运行结果。",
+          content: "当前账号没有开始对比的权限。",
         })] : []),
       ],
-    }),
-    createPanelSection("comparison-run-history-panel", {
-      title: "运行历史",
-      sections: runHistory,
-    }),
-  ];
+    })];
 }
 
 // ─── 失败/失效 ─────────────────────────────────────────────────────
@@ -263,12 +222,12 @@ export function createComparisonFailedSections(input: {
 export function createComparisonEmptySections(): BodySurfaceSectionSpec[] {
   return [
     createEmptySection("comparison-empty", {
-      content: "选择对比对象并解析系统目标后开始差异诊断。",
+      content: "选择系统报表，上传一份 Excel 开始对比。",
       presentation: "card",
     }),
     createMessageSection("comparison-empty-boundary", {
       tone: "muted",
-      content: "差异诊断只解释金额来源：对比绑定不可变系统目标与上传的证据 workbook，不生成调整、不过账、不评估会计处理。",
+      content: "对比只读取 Excel 和系统报表，不会修改数据或生成调整分录。",
     }),
   ];
 }
@@ -276,7 +235,7 @@ export function createComparisonEmptySections(): BodySurfaceSectionSpec[] {
 export function createComparisonParsingSections(): BodySurfaceSectionSpec[] {
   return [createStatusSection("comparison-parsing", {
     kind: "loading",
-    content: "正在解析上传的 workbook（隔离解析，含安全预检）。可切换目标取消等待；服务端证据行保持不可变。",
+    content: "正在读取 Excel 并识别报表内容…",
   })];
 }
 
