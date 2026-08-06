@@ -9,7 +9,9 @@ import {
   deriveComparisonUiState,
   EMPTY_COMPARISON_LINE_FILTER,
   filterComparisonLines,
+  isComparisonMappingConfirmable,
   isComparisonMappingStale,
+  mapEntityPeriodKind,
   resolveComparisonLineMapping,
   selectableComparisonPackages,
   selectionFromLaunchContext,
@@ -28,6 +30,7 @@ import {
   type ComparisonUploadResultDto,
 } from "./statement-comparison-types";
 import type { StatementComparisonLaunchContext } from "./statement-ui-types";
+import type { ConsolidationPeriodKind } from "./consolidation-period";
 
 /**
  * 差异诊断数据 hook（Package 7）。
@@ -53,9 +56,9 @@ export function useStatementComparison() {
   // ─── 目标选择 ───
   const [targetKind, setTargetKind] = useState<"entity" | "consolidated">("entity");
   const [companyCode, setCompanyCode] = useState("");
-  const [year, setYear] = useState(String(new Date().getFullYear()));
-  const [month, setMonth] = useState(String(new Date().getMonth() + 1));
-  const [periodKind, setPeriodKind] = useState<"monthly" | "cumulative">("cumulative");
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [periodKind, setPeriodKind] = useState<ConsolidationPeriodKind>("month");
   const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">("balance");
   const [batchId, setBatchId] = useState<number | null>(null);
   const [batchOptions, setBatchOptions] = useState<BatchOption[]>([]);
@@ -69,7 +72,6 @@ export function useStatementComparison() {
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
   const [packageDetail, setPackageDetail] = useState<ComparisonPackageDetailDto | null>(null);
   const [packageDetailLoading, setPackageDetailLoading] = useState(false);
-  const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
@@ -98,10 +100,8 @@ export function useStatementComparison() {
 
   const selection = useMemo<ComparisonTargetSelection | null>(() => {
     if (targetKind === "entity") {
-      const parsedYear = Number(year);
-      const parsedMonth = Number(month);
-      if (!companyCode || !Number.isInteger(parsedYear) || !Number.isInteger(parsedMonth)) return null;
-      return { kind: "entity", companyCode, year: parsedYear, month: parsedMonth, periodKind, reportType };
+      if (!companyCode || !Number.isInteger(year) || !Number.isInteger(month)) return null;
+      return { kind: "entity", companyCode, year, month, periodKind: mapEntityPeriodKind(periodKind), reportType };
     }
     if (batchId === null) return null;
     return { kind: "consolidated", batchId, reportType };
@@ -120,7 +120,6 @@ export function useStatementComparison() {
     setMappingChoices({});
     setRemapMode(false);
     setUploadError(null);
-    setUploadFile(null);
     setFilter(EMPTY_COMPARISON_LINE_FILTER);
   }, []);
 
@@ -141,21 +140,18 @@ export function useStatementComparison() {
         await fetch(workspacePath(`/api/modules/finance/statements/comparisons/target-preview?${buildTargetPreviewQuery(target)}`)),
         "对比目标预览失败",
       );
-      if (seq !== previewSeqRef.current) return;
+      if (seq !== previewSeqRef.current) return null;
       setPreview(result);
+      return result;
     } catch (cause) {
-      if (seq !== previewSeqRef.current) return;
+      if (seq !== previewSeqRef.current) return null;
       setPreview(null);
       setPreviewError(cause instanceof Error ? cause.message : "对比目标预览失败");
+      return null;
     } finally {
       if (seq === previewSeqRef.current) setPreviewLoading(false);
     }
   }, [resetEvidence]);
-
-  const runPreview = useCallback(async () => {
-    if (!selection) return;
-    await runPreviewFor(selection);
-  }, [runPreviewFor, selection]);
 
   // ─── 合并批次选项（手动选择路径）───
   useEffect(() => {
@@ -164,7 +160,7 @@ export function useStatementComparison() {
       return;
     }
     const controller = new AbortController();
-    const params = new URLSearchParams({ year, month });
+    const params = new URLSearchParams({ year: String(year), month: String(month) });
     fetch(workspacePath(`/api/modules/finance/statements/consolidation?${params}`), { signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json().catch(() => null) as {
@@ -217,28 +213,29 @@ export function useStatementComparison() {
         await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${packageId}`)),
         "对比证据详情读取失败",
       );
-      if (seq !== detailSeqRef.current) return;
+      if (seq !== detailSeqRef.current) return null;
       setPackageDetail(result);
       const proposals = result.detection?.proposals ?? [];
       const bestIndex = result.detection?.best ? proposals.indexOf(result.detection.best) : -1;
       setSelectedProposalIndex(bestIndex >= 0 ? bestIndex : proposals.length > 0 ? 0 : null);
       setMappingChoices({});
+      return result;
     } catch {
-      if (seq !== detailSeqRef.current) return;
+      if (seq !== detailSeqRef.current) return null;
       setPackageDetail(null);
+      return null;
     } finally {
       if (seq === detailSeqRef.current) setPackageDetailLoading(false);
     }
   }, []);
 
   // ─── 上传 ───
-  const upload = useCallback(async () => {
-    const validationError = validateComparisonUploadFile(uploadFile);
+  const uploadPackage = useCallback(async (file: File) => {
+    const validationError = validateComparisonUploadFile(file);
     if (validationError) {
       setUploadError(validationError);
-      return;
+      return null;
     }
-    if (!uploadFile) return;
     const controller = new AbortController();
     uploadAbortRef.current?.abort();
     uploadAbortRef.current = controller;
@@ -246,7 +243,7 @@ export function useStatementComparison() {
     setUploadError(null);
     try {
       const form = new FormData();
-      form.set("file", uploadFile);
+      form.set("file", file);
       const result = await readApi<ComparisonUploadResultDto>(
         await fetch(workspacePath("/api/modules/finance/statements/comparisons"), {
           method: "POST",
@@ -255,16 +252,16 @@ export function useStatementComparison() {
         }),
         "对比证据上传失败",
       );
-      setUploadFile(null);
       void refreshPackages();
-      await selectPackage(result.packageId);
+      return await selectPackage(result.packageId);
     } catch (cause) {
-      if (cause instanceof DOMException && cause.name === "AbortError") return;
+      if (cause instanceof DOMException && cause.name === "AbortError") return null;
       setUploadError(cause instanceof Error ? cause.message : "对比证据上传失败");
+      return null;
     } finally {
       if (!controller.signal.aborted) setUploading(false);
     }
-  }, [refreshPackages, selectPackage, uploadFile]);
+  }, [refreshPackages, selectPackage]);
 
   const cancelUploadWait = useCallback(() => {
     uploadAbortRef.current?.abort();
@@ -302,16 +299,57 @@ export function useStatementComparison() {
     }
   }, []);
 
-  const startRunForMapping = useCallback(async (mappingId: number) => {
+  const startRunForMapping = useCallback(async (mappingId: number, packageId = selectedPackageId) => {
     const result = await readApi<{ runId: number }>(
       await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${mappingId}/runs`), {
         method: "POST",
       }),
       "对比启动失败",
     );
-    if (selectedPackageId !== null) await selectPackage(selectedPackageId);
+    if (packageId !== null) await selectPackage(packageId);
     await loadRun(result.runId);
   }, [loadRun, selectPackage, selectedPackageId]);
+
+  const uploadAndCompare = useCallback(async (file: File, permissions: { canUpdate: boolean; canCreate: boolean }) => {
+    const validationError = validateComparisonUploadFile(file);
+    if (validationError) {
+      setUploadError(validationError);
+      return;
+    }
+    if (!selection) {
+      setUploadError("请先选择要对比的系统报表");
+      return;
+    }
+    const resolvedPreview = preview ?? await runPreviewFor(selection);
+    if (!resolvedPreview) return;
+    const detail = await uploadPackage(file);
+    if (!detail) return;
+    const proposal = detail.detection?.best ?? detail.detection?.proposals[0] ?? null;
+    if (!proposal || !permissions.canUpdate || !permissions.canCreate || !isComparisonMappingConfirmable(proposal, {})) return;
+
+    setConfirming(true);
+    setCreatingRun(true);
+    try {
+      const saved = await readApi<{ mappingId: number }>(
+        await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${detail.id}/mapping`), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            structureMapping: proposal.structure,
+            lineMapping: resolveComparisonLineMapping(proposal.lines, {}),
+            target: resolvedPreview.target,
+          }),
+        }),
+        "Excel 报表确认失败",
+      );
+      await startRunForMapping(saved.mappingId, detail.id);
+    } catch (cause) {
+      setUploadError(cause instanceof Error ? cause.message : "对比启动失败");
+    } finally {
+      setConfirming(false);
+      setCreatingRun(false);
+    }
+  }, [preview, runPreviewFor, selection, startRunForMapping, uploadPackage]);
 
   // 保存 Excel 报表对应关系后可直接开始对比，不向用户暴露两个后端步骤。
   const confirmMapping = useCallback(async (startRun = false) => {
@@ -397,8 +435,8 @@ export function useStatementComparison() {
     if (context.kind === "entity") {
       setTargetKind("entity");
       setCompanyCode(context.companyCode);
-      setYear(String(context.year));
-      setMonth(String(context.month));
+      setYear(context.year);
+      setMonth(context.month);
       setPeriodKind(context.periodKind);
       setReportType(context.reportType);
     } else {
@@ -437,11 +475,11 @@ export function useStatementComparison() {
     companyCode,
     setCompanyCode: (value: string) => { clearPreview(); setCompanyCode(value); },
     year,
-    setYear: (value: string) => { clearPreview(); setYear(value); },
+    setYear: (value: number) => { clearPreview(); setYear(value); },
     month,
-    setMonth: (value: string) => { clearPreview(); setMonth(value); },
+    setMonth: (value: number) => { clearPreview(); setMonth(value); },
     periodKind,
-    setPeriodKind: (value: "monthly" | "cumulative") => { clearPreview(); setPeriodKind(value); },
+    setPeriodKind: (value: ConsolidationPeriodKind) => { clearPreview(); setPeriodKind(value); },
     reportType,
     setReportType: (value: "balance" | "income" | "cashflow") => { clearPreview(); setReportType(value); },
     batchId,
@@ -450,7 +488,6 @@ export function useStatementComparison() {
     preview,
     previewLoading,
     previewError,
-    runPreview,
     packages: selectableComparisonPackages(packages),
     packagesLoading,
     refreshPackages,
@@ -458,11 +495,9 @@ export function useStatementComparison() {
     packageDetail,
     packageDetailLoading,
     selectPackage,
-    uploadFile,
-    setUploadFile,
     uploading,
     uploadError,
-    upload,
+    uploadAndCompare,
     cancelUploadWait,
     selectedProposalIndex,
     setSelectedProposalIndex,

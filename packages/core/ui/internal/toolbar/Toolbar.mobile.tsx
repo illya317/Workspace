@@ -107,6 +107,7 @@ function MobileToolbarCommandButton({
   size: ControlSize;
 }) {
   if (command.type === "lead") return <MobileLeadItem item={command.item} size={size} />;
+  if (command.type === "item") return <AntdToolbarItemRenderer item={command.item} size={size} />;
   return <MobileActionButton action={command.action} />;
 }
 
@@ -165,5 +166,7 @@ function MobileCommandButton({
 function commandKey(command: MobileToolbarCommand, index: number) {
   return command.type === "lead"
     ? `lead-${command.item.key}`
+    : command.type === "item"
+      ? `item-${command.item.key}`
     : `action-${command.action.key ?? `${command.action.kind}-${index}`}`;
 }

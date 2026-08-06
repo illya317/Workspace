@@ -3,7 +3,10 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +",
+    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，多组低频枚举条件可声明为 filter-panel 并在桌面折叠、移动端展开到筛选面板，期间导航可直接选择年、季度或月，file 可从动作区直接打开文件选择器，桌面和移动动作均为纯图标，新增固定为 +",
+    capabilities: [
+      { name: "file", description: "动作区直接文件选择；声明 accept、disabled 与 onChange，不在正文重复渲染上传控件。" },
+    ],
     composes: ["ActionButton", "ActionGlyph", "SearchableOptionInput", "ToolbarFilterPanel", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {

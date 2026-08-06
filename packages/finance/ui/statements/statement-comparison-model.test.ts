@@ -210,14 +210,14 @@ test("launch context 与 target-preview 查询保持类型化映射", () => {
     companyName: "测试公司",
     year: 2026,
     month: 6,
-    periodKind: "monthly",
+    periodKind: "quarter",
     reportType: "income",
   }), {
     kind: "entity",
     companyCode: "02",
     year: 2026,
     month: 6,
-    periodKind: "monthly",
+    periodKind: "cumulative",
     reportType: "income",
   });
   assert.deepEqual(selectionFromLaunchContext({

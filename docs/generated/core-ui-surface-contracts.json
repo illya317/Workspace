@@ -27789,7 +27789,7 @@
 {"name":"mobile","description":"字面量取值。"}
 ]},
 {"name":"key","description":"类型：string。"},
-{"name":"kind","description":"可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / filter-panel / grouped-select / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。","children":[
+{"name":"kind","description":"可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / file / filter-panel / grouped-select / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。","children":[
 {"name":"action-group","description":"action-group 分支声明。","children":[
 {"name":"actions","description":"类型：SurfaceToolbarActionGroupActionSpec[]。","children":[
 {"name":"key","description":"类型：string。"},
@@ -27955,6 +27955,16 @@
 {"name":"placeholder","description":"类型：string。"},
 {"name":"disabled","description":"类型：boolean。"},
 {"name":"referenceEndpoint","description":"类型：string。"}
+]},
+{"name":"file","description":"file 分支声明。","children":[
+{"name":"label","description":"类型：string。"},
+{"name":"accept","description":"类型：string。"},
+{"name":"variant","description":"可选值：primary / secondary。","children":[
+{"name":"primary","description":"字面量取值。"},
+{"name":"secondary","description":"字面量取值。"}
+]},
+{"name":"disabled","description":"类型：boolean。"},
+{"name":"onChange","description":"类型：(file: File) => void | Promise<void>。"}
 ]},
 {"name":"filter-panel","description":"filter-panel 分支声明。","children":[
 {"name":"label","description":"类型：string。"},

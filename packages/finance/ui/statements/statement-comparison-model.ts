@@ -133,7 +133,7 @@ export function selectionFromLaunchContext(
       companyCode: context.companyCode,
       year: context.year,
       month: context.month,
-      periodKind: context.periodKind,
+      periodKind: mapEntityPeriodKind(context.periodKind),
       reportType: context.reportType,
     };
   }

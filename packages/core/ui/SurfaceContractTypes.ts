@@ -126,6 +126,16 @@ export interface SurfaceToolbarIconButtonItem {
   onClick?: () => void;
 }
 
+export interface SurfaceToolbarFileItem {
+  kind: "file";
+  key: string;
+  label: string;
+  accept?: string;
+  variant?: "primary" | "secondary";
+  disabled?: boolean;
+  onChange: (file: File) => void | Promise<void>;
+}
+
 export interface SurfaceToolbarPanelToggleItem {
   kind: "panel-toggle";
   key: string;
@@ -377,6 +387,7 @@ export type SurfaceToolbarItem = {
   visibility?: SurfaceToolbarVisibility;
 } & (
   | SurfaceToolbarIconButtonItem
+  | SurfaceToolbarFileItem
   | SurfaceToolbarPanelToggleItem
   | SurfaceToolbarSearchItem
   | SurfaceToolbarSelectItem

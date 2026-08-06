@@ -27,6 +27,7 @@ function inferSection(item: ToolbarItem): ToolbarSection {
     case "edit-group":
       return "edit";
     case "icon-button":
+    case "file":
     default:
       return "action";
   }
@@ -58,6 +59,7 @@ export function inferZone(item: ToolbarItem): ToolbarZoneKey {
     case "search":
       return "search";
     case "icon-button":
+    case "file":
       return "actions";
     case "select":
     case "grouped-select":

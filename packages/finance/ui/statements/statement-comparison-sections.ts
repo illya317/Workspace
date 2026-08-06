@@ -15,7 +15,6 @@ import type {
 
 import {
   COMPARISON_MAPPING_SKIP,
-  COMPARISON_PERIOD_KIND_OPTIONS,
   COMPARISON_REPORT_TYPE_OPTIONS,
   COMPARISON_TARGET_KIND_OPTIONS,
   comparisonBestSourceLabel,
@@ -35,6 +34,8 @@ import type {
   ComparisonRunLineDto,
   ComparisonTargetPreviewDto,
 } from "./statement-comparison-types";
+import { buildStatementPeriodToolbarItems } from "./consolidation-toolbar";
+import type { ConsolidationPeriodKind } from "./consolidation-period";
 
 /**
  * 差异诊断 Surface builders（Package 7）：全部声明式 PageSurface/BodySurface/
@@ -61,27 +62,19 @@ export function buildComparisonTargetToolbarItems(input: {
   companyOptions: { value: string; label: string }[];
   batchOptions: { value: string; label: string }[];
   reportType: string;
-  periodKind: string;
-  year: string;
-  month: string;
-  previewLoading: boolean;
+  periodKind: ConsolidationPeriodKind;
+  year: number;
+  month: number;
+  loading: boolean;
+  canImport: boolean;
   onTargetKindChange: (kind: string) => void;
   onCompanyChange: (companyCode: string) => void;
-  onYearChange: (year: string) => void;
-  onMonthChange: (month: string) => void;
-  onPeriodKindChange: (periodKind: string) => void;
+  onPeriodChange: (year: number, month: number) => void;
+  onPeriodKindChange: (periodKind: ConsolidationPeriodKind) => void;
   onReportTypeChange: (reportType: string) => void;
   onBatchChange: (batchId: string) => void;
-  onPreview: () => void;
+  onFileChange: (file: File) => void | Promise<void>;
 }): SurfaceToolbarItems {
-  const yearOptions = Array.from({ length: 11 }, (_, index) => {
-    const year = new Date().getFullYear() - 5 + index;
-    return { value: String(year), label: `${year}年` };
-  });
-  const monthOptions = Array.from({ length: 12 }, (_, index) => ({
-    value: String(index + 1),
-    label: `${index + 1}月`,
-  }));
   const items: SurfaceToolbarItems = [
     {
       kind: "select",
@@ -93,8 +86,7 @@ export function buildComparisonTargetToolbarItems(input: {
     },
   ];
   if (input.targetKind === "entity") {
-    items.push(
-      {
+    items.push({
         kind: "select",
         key: "comparison-company",
         label: "公司",
@@ -102,19 +94,17 @@ export function buildComparisonTargetToolbarItems(input: {
         value: input.selection?.kind === "entity" ? input.selection.companyCode : "",
         onChange: input.onCompanyChange,
         placeholder: "选择公司",
-      },
-      { kind: "select", key: "comparison-year", label: "年度", options: yearOptions, value: input.year, onChange: input.onYearChange },
-      { kind: "select", key: "comparison-month", label: "月份", options: monthOptions, value: input.month, onChange: input.onMonthChange },
-      {
-        kind: "select",
-        key: "comparison-period-kind",
-        label: "期间口径",
-        options: [...COMPARISON_PERIOD_KIND_OPTIONS],
-        value: input.periodKind,
-        onChange: input.onPeriodKindChange,
-      },
-    );
-  } else {
+      });
+  }
+  items.push(...buildStatementPeriodToolbarItems({
+    year: input.year,
+    month: input.month,
+    periodKind: input.periodKind,
+    loading: input.loading,
+    onPeriodKindChange: input.onPeriodKindChange,
+    onPeriodChange: input.onPeriodChange,
+  }));
+  if (input.targetKind === "consolidated") {
     items.push({
       kind: "select",
       key: "comparison-batch",
@@ -134,18 +124,15 @@ export function buildComparisonTargetToolbarItems(input: {
       value: input.reportType,
       onChange: input.onReportTypeChange,
     },
-    {
-      kind: "action-group",
-      key: "comparison-target-actions",
-      actions: [{
-        key: "preview",
-        label: input.previewLoading ? "准备上传中" : "上传 Excel",
-        kind: "import",
-        variant: "primary",
-        disabled: input.previewLoading || !input.selection,
-        onClick: input.onPreview,
-      }],
-    },
+    ...(input.canImport ? [{
+      kind: "file" as const,
+      key: "comparison-upload",
+      label: input.loading ? "正在读取 Excel" : "上传 Excel",
+      accept: ".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      variant: "primary" as const,
+      disabled: input.loading || !input.selection,
+      onChange: input.onFileChange,
+    }] : []),
   );
   return items;
 }
@@ -173,45 +160,6 @@ export function createComparisonPreviewSections(input: {
 }
 
 // ─── 上传与既有证据包 ────────────────────────────────────────────────
-
-export function createComparisonUploadSections(input: {
-  canImport: boolean;
-  uploadFile: File | null;
-  uploading: boolean;
-  uploadError: string | null;
-  onFileChange: (file: File | null) => void;
-  onUpload: () => void;
-}): BodySurfaceSectionSpec[] {
-  if (!input.canImport) {
-    return [createMessageSection("comparison-upload-denied", {
-      tone: "muted",
-      content: "当前账号没有上传 Excel 并发起对比的权限。",
-    })];
-  }
-  const fields: FormSurfaceItemSpec[] = [{
-    key: "file",
-    label: "Excel 文件（.xlsx，≤ 20 MiB）",
-    spec: { valueType: "file", control: "file", state: "required" },
-    value: input.uploadFile,
-    onChange: (value) => input.onFileChange(value instanceof File ? value : null),
-  }];
-  return [
-    createFieldsSection("comparison-upload-fields", fields, {
-      layout: { columns: 1 },
-      actions: [{
-        key: "upload",
-        action: "save",
-        label: input.uploading ? "正在读取 Excel" : "上传 Excel",
-        disabled: input.uploading || !input.uploadFile,
-        onClick: input.onUpload,
-      }],
-    }),
-    ...(input.uploadError ? [createMessageSection("comparison-upload-error", {
-      tone: "danger",
-      content: input.uploadError,
-    })] : []),
-  ];
-}
 
 // ─── 映射确认 ──────────────────────────────────────────────────────
 

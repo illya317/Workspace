@@ -65,6 +65,18 @@ test("mobile create active state stays disabled", () => {
   assert.match(markup, /disabled/);
 });
 
+test("mobile keeps a direct file chooser in the command dock", () => {
+  const items: ToolbarItem[] = [
+    { kind: "file", key: "workbook", label: "上传 Excel", accept: ".xlsx", onChange: () => undefined },
+  ];
+  const markup = renderClientSurface(
+    <MobileToolbarContent grouped={groupToolbarItems(items, "mobile")} size="md" />,
+  );
+  assert.match(markup, /data-mobile-toolbar-command-dock="true"/);
+  assert.match(markup, /type="file"/);
+  assert.match(markup, /aria-label="上传 Excel"/);
+});
+
 test("mobile sheets use Ant Drawer focus/mask semantics instead of a handwritten portal", () => {
   const sheet = readFileSync(new URL("./Toolbar.mobile-sheetParts.tsx", import.meta.url), "utf8");
   const toolbar = readFileSync(new URL("./Toolbar.mobile.tsx", import.meta.url), "utf8");

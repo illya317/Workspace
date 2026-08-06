@@ -19,7 +19,7 @@ export type StatementComparisonLaunchContext =
       companyName: string;
       year: number;
       month: number;
-      periodKind: "monthly" | "cumulative";
+      periodKind: "year" | "quarter" | "month";
       reportType: "balance" | "income" | "cashflow";
     }
   | {

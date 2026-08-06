@@ -25,7 +25,6 @@ import {
   createComparisonMappingSections,
   createComparisonPreviewSections,
   createComparisonSummarySection,
-  createComparisonUploadSections,
 } from "./statement-comparison-sections";
 import type { ConsolidationCapabilities, StatementComparisonLaunchContext } from "./statement-ui-types";
 import { useStatementComparison } from "./useStatementComparison";
@@ -68,16 +67,22 @@ export default function StatementComparisonTab({
     periodKind: comparison.periodKind,
     year: comparison.year,
     month: comparison.month,
-    previewLoading: comparison.previewLoading,
+    loading: comparison.previewLoading || comparison.uploading || comparison.creatingRun,
+    canImport: capabilities.canImport,
     onTargetKindChange: (kind) => comparison.setTargetKind(kind === "consolidated" ? "consolidated" : "entity"),
     onCompanyChange: comparison.setCompanyCode,
-    onYearChange: comparison.setYear,
-    onMonthChange: comparison.setMonth,
-    onPeriodKindChange: (value) => comparison.setPeriodKind(value === "monthly" ? "monthly" : "cumulative"),
+    onPeriodChange: (year, month) => {
+      comparison.setYear(year);
+      comparison.setMonth(month);
+    },
+    onPeriodKindChange: comparison.setPeriodKind,
     onReportTypeChange: (value) => comparison.setReportType(value === "income" ? "income" : value === "cashflow" ? "cashflow" : "balance"),
     onBatchChange: (value) => comparison.setBatchId(value ? Number(value) : null),
-    onPreview: () => void comparison.runPreview(),
-  }), [companyOptions, comparison]);
+    onFileChange: (file) => comparison.uploadAndCompare(file, {
+      canUpdate: capabilities.canUpdate,
+      canCreate: capabilities.canCreate,
+    }),
+  }), [capabilities.canCreate, capabilities.canImport, capabilities.canUpdate, companyOptions, comparison]);
 
   const filterToolbar = useMemo(() => [
     ...buildComparisonResultFilterToolbarItems({
@@ -112,35 +117,15 @@ export default function StatementComparisonTab({
       case "parsing":
         return createPageBody(createComparisonParsingSections());
       case "failed":
-        return createPageBody([
-          ...createComparisonFailedSections({
+        return createPageBody(createComparisonFailedSections({
             message: comparison.uploadError
               ?? comparison.packageDetail?.failureMessage
               ?? comparison.runDetail?.failureMessage
               ?? "操作失败",
             retryHint: "请检查 Excel 文件后重新上传。",
-          }),
-          ...createComparisonUploadSections({
-            canImport: capabilities.canImport,
-            uploadFile: comparison.uploadFile,
-            uploading: comparison.uploading,
-            uploadError: null,
-            onFileChange: comparison.setUploadFile,
-            onUpload: () => void comparison.upload(),
-          }),
-        ]);
+          }));
       case "targetReady":
-        return createPageBody([
-          ...previewSections,
-          ...createComparisonUploadSections({
-            canImport: capabilities.canImport,
-            uploadFile: comparison.uploadFile,
-            uploading: comparison.uploading,
-            uploadError: comparison.uploadError,
-            onFileChange: comparison.setUploadFile,
-            onUpload: () => void comparison.upload(),
-          }),
-        ]);
+        return createPageBody(previewSections);
       case "mappingRequired":
         return createPageBody([
           ...previewSections,
@@ -213,7 +198,7 @@ export default function StatementComparisonTab({
         });
       }
     }
-  }, [capabilities.canCreate, capabilities.canImport, capabilities.canUpdate, comparison, state]);
+  }, [capabilities.canCreate, capabilities.canUpdate, comparison, state]);
 
   return (
     <PageSurface

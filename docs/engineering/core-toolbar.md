@@ -46,6 +46,7 @@ Toolbar 只能用标准 item 表达常见能力：
 | 文本元信息 | `text` |
 | 下拉菜单 | `menu` |
 | 单个动作图标 | `icon-button` |
+| 直接选择文件 | `file` |
 | 多个动作图标 | `action-group` |
 | 编辑/保存/取消/下载/历史 | `edit-group` |
 | 日期/期间 | `period` |
@@ -70,7 +71,8 @@ primary -> search -> filter -> edit/action -> meta/view
 - `filter-panel` 的桌面入口只显示筛选图标，生效数量使用角标；字段名称和值只在展开面板和生效条件摘要中显示。
 - `filter-panel` 的桌面弹层使用 intrinsic 宽度随内容收缩，内容过宽时才受统一上限与视口边界约束；业务不得声明或覆盖弹层宽度。
 - `period mode="nav"` 默认提供上一期/下一期；需要跨期跳转时声明 `picker`，中间期间即可按 `year / quarter / month / week` 打开对应选择面板。业务页不得另画年份、季度、月份或周选择弹层。
-- `icon-button`、`action-group`、`edit-group` 自动进入动作区。
+- `icon-button`、`file`、`action-group`、`edit-group` 自动进入动作区。
+- `file` 点击图标后直接打开系统文件选择器；业务声明 `accept / disabled / onChange`，不得再在正文放第二个上传入口或用普通 action 间接显示上传控件。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
 - 列显隐只允许使用 `column-toggle`，不得用 `select`、`menu`、`option-group` 或业务自绘控件代替；结构 gate 会阻断其他声明方式。
 - `column-toggle` 与 `page-size` 的触发器固定宽度为 120px；下拉面板仍按内容和视口自适应。

@@ -11,10 +11,10 @@ import {
 import {
   buildComparisonResultColumns,
   buildComparisonResultFilterToolbarItems,
+  buildComparisonTargetToolbarItems,
   createComparisonMappingSections,
   createComparisonPreviewSections,
   createComparisonSummarySection,
-  createComparisonUploadSections,
 } from "./statement-comparison-sections";
 import type {
   ComparisonMappingProposalDto,
@@ -176,29 +176,53 @@ test("行 detail 为六段结构化证据且含固定会计提示", () => {
   assert.ok(cellText.includes("recalculated_match"));
 });
 
-test("无 import 权限时上传隐藏且只读路径保留", () => {
-  const denied = createComparisonUploadSections({
-    canImport: false,
-    uploadFile: null,
-    uploading: false,
-    uploadError: null,
-    onFileChange: () => {},
-    onUpload: () => {},
-  });
-  assert.equal(denied.length, 1);
-  assert.ok(messageContent(denied[0]!).includes("没有上传 Excel 并发起对比的权限"));
-
-  const allowed = createComparisonUploadSections({
+test("工具栏直接上传并复用标准期间控件", () => {
+  const toolbar = buildComparisonTargetToolbarItems({
+    selection: { kind: "entity", companyCode: "630", year: 2026, month: 8, periodKind: "monthly", reportType: "balance" },
+    targetKind: "entity",
+    companyOptions: [{ value: "630", label: "丰华天力通" }],
+    batchOptions: [],
+    reportType: "balance",
+    periodKind: "month",
+    year: 2026,
+    month: 8,
+    loading: false,
     canImport: true,
-    uploadFile: null,
-    uploading: false,
-    uploadError: null,
+    onTargetKindChange: () => {},
+    onCompanyChange: () => {},
+    onPeriodChange: () => {},
+    onPeriodKindChange: () => {},
+    onReportTypeChange: () => {},
+    onBatchChange: () => {},
     onFileChange: () => {},
-    onUpload: () => {},
   });
-  const fields = allowed.find((section) => section.key === "comparison-upload-fields");
-  assert.ok(fields);
-  assert.equal(formActions(fields!)[0]!.disabled, true);
+  assert.deepEqual(toolbar.map((item) => item.kind), ["select", "select", "option-group", "period", "select", "file"]);
+  const file = toolbar.at(-1);
+  assert.equal(file?.kind, "file");
+  if (file?.kind === "file") assert.match(file.accept ?? "", /\.xlsx/);
+
+  const denied = buildComparisonTargetToolbarItems({
+    ...({
+      selection: null,
+      targetKind: "entity",
+      companyOptions: [],
+      batchOptions: [],
+      reportType: "balance",
+      periodKind: "month",
+      year: 2026,
+      month: 8,
+      loading: false,
+      canImport: false,
+      onTargetKindChange: () => {},
+      onCompanyChange: () => {},
+      onPeriodChange: () => {},
+      onPeriodKindChange: () => {},
+      onReportTypeChange: () => {},
+      onBatchChange: () => {},
+      onFileChange: () => {},
+    } as const),
+  });
+  assert.ok(!denied.some((item) => item.kind === "file"));
 });
 
 test("系统报表摘要不暴露指纹或不可变实现细节", () => {

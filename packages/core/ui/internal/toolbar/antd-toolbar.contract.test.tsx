@@ -48,6 +48,21 @@ test("panel-toggle keeps icon, label and disabled state", () => {
   assert.match(markup, /disabled/);
 });
 
+test("file item renders one direct chooser with accept and upload action semantics", () => {
+  const markup = renderItem({
+    kind: "file",
+    key: "workbook",
+    label: "上传 Excel",
+    accept: ".xlsx",
+    variant: "primary",
+    onChange: () => undefined,
+  });
+  assert.match(markup, /type="file"/);
+  assert.match(markup, /accept="\.xlsx"/);
+  assert.match(markup, /aria-label="上传 Excel"/);
+  assert.equal((markup.match(/type="file"/g) ?? []).length, 1);
+});
+
 test("action-group keeps glyph ordering and per-action variants", () => {
   const markup = renderItem({
     kind: "action-group",

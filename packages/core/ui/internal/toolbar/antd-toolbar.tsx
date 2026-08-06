@@ -1,6 +1,6 @@
 "use client";
 
-import type { ComponentType } from "react";
+import { useRef, type ChangeEvent, type ComponentType } from "react";
 import { Button, Divider, Space } from "antd";
 import { ACTION_GLYPH_ORDER_BY_KIND, ActionGlyph } from "../action/ActionGlyphs";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
@@ -152,6 +152,42 @@ function AntdToolbarCreate({
   );
 }
 
+function AntdToolbarFile({
+  item,
+  size,
+}: {
+  item: Extract<ToolbarItem, { kind: "file" }>;
+  size: ControlSize;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+    if (file) void item.onChange(file);
+  };
+  return (
+    <span className="contents">
+      <input
+        ref={inputRef}
+        type="file"
+        accept={item.accept}
+        aria-label={item.label}
+        className="hidden"
+        disabled={item.disabled}
+        onChange={handleChange}
+      />
+      <AntdToolbarActionButton
+        kind="upload"
+        label={item.label}
+        variant={item.variant}
+        disabled={item.disabled}
+        onClick={() => inputRef.current?.click()}
+        size={size}
+      />
+    </span>
+  );
+}
+
 /**
  * Toolbar total Ant renderer. Dedicated compound controls remain leaf protocols,
  * but no item can delegate to the retired general-purpose renderer.
@@ -170,6 +206,8 @@ export function AntdToolbarItemRenderer({ item, size = "md" }: ToolbarItemRender
           size={size}
         />
       );
+    case "file":
+      return <AntdToolbarFile item={item} size={size} />;
     case "panel-toggle":
       return (
         <AntdToolbarActionButton

@@ -22,7 +22,6 @@ import { REPORT_TYPE_OPTIONS } from "./report-options";
 import type { ConsolidationPeriodKind } from "./consolidation-period";
 import { buildStatementPeriodToolbarItems } from "./consolidation-toolbar";
 import { buildStandaloneStatementAssistantContext } from "./statement-assistant-context";
-import { mapEntityPeriodKind } from "./statement-comparison-model";
 import type { LaunchStatementComparison } from "./statement-ui-types";
 import { downloadFinanceWorkbook } from "../workbook-download";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
@@ -228,7 +227,7 @@ export default function ReportTab({
               companyName,
               year,
               month: monthFilter,
-              periodKind: mapEntityPeriodKind(periodKind),
+              periodKind,
               reportType,
             });
           },

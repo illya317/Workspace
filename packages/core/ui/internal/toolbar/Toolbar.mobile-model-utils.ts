@@ -8,6 +8,7 @@ import type { ToolbarItem } from "./Toolbar.types";
 
 export type MobileToolbarCommand =
   | { type: "lead"; item: ToolbarItem }
+  | { type: "item"; item: ToolbarItem }
   | { type: "action"; action: ToolbarRenderableAction };
 
 export interface MobileToolbarModel {
@@ -23,10 +24,13 @@ const MAX_MOBILE_COMMANDS = 3;
 export function resolveMobileToolbarModel(grouped: ToolbarGroupedItems): MobileToolbarModel {
   const orderedActions = getOrderedActions(grouped.actions.flatMap(getToolbarItemActions));
   const prioritizedLeadItems = prioritizeLeadItems(grouped.lead);
+  const directActionItems = grouped.actions.filter((item) => item.kind === "file");
   const commandCandidates: MobileToolbarCommand[] = [];
 
   if (prioritizedLeadItems[0]) commandCandidates.push({ type: "lead", item: prioritizedLeadItems[0] });
+  if (directActionItems[0]) commandCandidates.push({ type: "item", item: directActionItems[0] });
   if (orderedActions[0]) commandCandidates.push({ type: "action", action: orderedActions[0] });
+  for (const item of directActionItems.slice(1)) commandCandidates.push({ type: "item", item });
   for (const item of prioritizedLeadItems.slice(1)) commandCandidates.push({ type: "lead", item });
 
   const commands = commandCandidates.slice(0, MAX_MOBILE_COMMANDS);

@@ -52,6 +52,16 @@ export interface ToolbarIconButtonItem {
   onClick?: () => void;
 }
 
+export interface ToolbarFileItem {
+  kind: "file";
+  key: string;
+  label: string;
+  accept?: string;
+  variant?: "primary" | "secondary";
+  disabled?: boolean;
+  onChange: (file: File) => void | Promise<void>;
+}
+
 export interface ToolbarPanelToggleItem {
   kind: "panel-toggle";
   key: string;
@@ -296,6 +306,7 @@ export type ToolbarItem = {
   visibility?: ToolbarVisibility;
 } & (
   | ToolbarIconButtonItem
+  | ToolbarFileItem
   | ToolbarPanelToggleItem
   | ToolbarSearchItem
   | ToolbarSelectItem
