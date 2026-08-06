@@ -122,6 +122,7 @@ test("date kind maps value and disabled state; month precision keeps YYYY-MM con
   />);
   assert.ok(day.includes("ant-picker"));
   assert.ok(day.includes("value=\"2026-08-03\""));
+  assert.match(day, /class="(?=[^"]*ant-picker)(?=[^"]*w-full)[^"]*"/);
 
   const month = renderClientSurface(<InputSurface
     spec={{ valueType: "date", control: "temporal", precision: "month" }}

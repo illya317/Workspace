@@ -94,6 +94,7 @@ export function AntdDateField({
         status={visualState === "error" ? "error" : undefined}
         size={antdControlSize(size)}
         aria-label={ariaLabel}
+        className="w-full"
         onChange={(date) => onChange?.(date ? date.format(formatString) : null)}
       />
     </AntdInputMarker>
