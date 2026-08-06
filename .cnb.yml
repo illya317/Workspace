@@ -11,10 +11,14 @@ main:
             - package.json
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
+            - vendor/sheetjs/PROVENANCE.md
+            - vendor/sheetjs/xlsx-0.20.3.tgz
           versionBy:
             - .node-version
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
+            - vendor/sheetjs/PROVENANCE.md
+            - vendor/sheetjs/xlsx-0.20.3.tgz
           sync: "true"
         volumes:
           - main:/workspace/.next/cache:copy-on-write-read-only
@@ -103,10 +107,14 @@ main:
             - package.json
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
+            - vendor/sheetjs/PROVENANCE.md
+            - vendor/sheetjs/xlsx-0.20.3.tgz
           versionBy:
             - .node-version
             - package-lock.json
             - ops/cnb-ci-cache.Dockerfile
+            - vendor/sheetjs/PROVENANCE.md
+            - vendor/sheetjs/xlsx-0.20.3.tgz
           sync: "true"
         volumes:
           - main:/workspace/.next/cache:read-write
