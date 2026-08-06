@@ -149,3 +149,38 @@ test("does not classify a closing-balance difference into retained earnings or o
   assert.equal(workpaper.rollforwardDifference, 20);
   assert.equal(workpaper.status, "difference");
 });
+
+test("uses certified opening-entry NCI lines before the first-consolidation net-assets fallback", () => {
+  const replay = {
+    entities: [
+      { id: 1, companyId: 11, companyCode: "P01", companyName: "母公司", role: "parent", shareRatio: 1 },
+      { id: 2, companyId: 22, companyCode: "S01", companyName: "子公司", role: "subsidiary", shareRatio: 0.75 },
+    ],
+    approvedEntries: [entry({
+      id: 10,
+      key: "policy:remittance-fx:historical-capital:11:22:opening:2026-01-01",
+      date: "2026-01-01",
+      amount: -125,
+      source: "policy:remittance-fx:historical-capital:11:22:opening:2026-01-01:nci:opening:capital",
+    })],
+  } as ConsolidationReplayPackage;
+  const balance: ConsolidatedStatementOutput = {
+    reportType: "balanceSheet",
+    label: "合并资产负债表",
+    totals: {},
+    lines: [
+      outputLine("nonControllingInterests", -125, 100),
+      {
+        ...outputLine("totalEquity", 548, 400),
+        entityAmounts: [{ entitySnapshotId: 2, companyCode: "S01", companyName: "子公司", role: "subsidiary", amount: 548, previousAmount: 400 }],
+      },
+    ],
+  };
+
+  const workpaper = buildNciEquityWorkpaper(replay, [balance]);
+  assert.equal(workpaper.openingBalance, -125);
+  assert.equal(workpaper.calculatedClosingBalance, -125);
+  assert.equal(workpaper.rollforwardDifference, 0);
+  assert.equal(workpaper.movements.length, 1);
+  assert.match(workpaper.movements[0]?.evidence ?? "", /切换期初凭证/);
+});

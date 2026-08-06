@@ -78,6 +78,22 @@ function nciEntryMovements(replay: ConsolidationReplayPackage): NciEquityMovemen
   });
 }
 
+function nciEntryOpening(replay: ConsolidationReplayPackage) {
+  let found = false;
+  const amount = money(replay.approvedEntries.reduce((entrySum, entry) => (
+    entrySum + entry.lines.reduce((lineSum, line) => {
+      const isOpening = line.statementType === "balanceSheet"
+        && line.periodBasis !== "comparative"
+        && line.lineCode === "nonControllingInterests"
+        && (line.sourceId ?? "").includes(":nci:opening:");
+      if (!isOpening) return lineSum;
+      found = true;
+      return lineSum + lineAmount(line);
+    }, 0)
+  ), 0));
+  return { found, amount };
+}
+
 function sumMovements(movements: readonly NciEquityMovement[], type: NciEquityMovementType) {
   return money(movements.filter((movement) => movement.movementType === type)
     .reduce((sum, movement) => sum + movement.amount, 0));
@@ -122,9 +138,12 @@ export function buildNciEquityWorkpaper(
   const nciBalance = reportLine(balance, "nonControllingInterests");
   const hasLockedYearOpening = Boolean(replay.priorReferences?.yearOpening?.groupStatements?.balanceSheet
     ?.some((line) => line.lineCode === "nonControllingInterests"));
+  const entryOpening = nciEntryOpening(replay);
   const openingBalance = hasLockedYearOpening
     ? money(nciBalance?.previousAmount ?? 0)
-    : subsidiaryOpeningNetAssets(replay, balance);
+    : entryOpening.found
+      ? entryOpening.amount
+      : subsidiaryOpeningNetAssets(replay, balance);
   const reportedClosingBalance = money(nciBalance?.amount ?? 0);
   const movements: NciEquityMovement[] = [{
     key: "opening",
@@ -139,7 +158,9 @@ export function buildNciEquityWorkpaper(
     entryNo: null,
     evidence: hasLockedYearOpening
       ? "上期已锁定合并资产负债表少数股东权益期末数"
-      : "首次并表切换日前一日：折算后单体权益组成逐项乘有效少数股东比例",
+      : entryOpening.found
+        ? "首次并表切换期初凭证：按权益组成逐项确认少数股东权益"
+        : "首次并表切换日前一日：折算后单体权益组成逐项乘有效少数股东比例",
   }, ...nciEntryMovements(replay)];
   const entryProfit = sumMovements(movements, "profitLoss");
   const reportedProfit = money(reportLine(income, "netProfitAttributableToNci")?.amount ?? 0);

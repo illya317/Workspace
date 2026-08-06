@@ -129,7 +129,11 @@ function reportContentValue(reportPayload: unknown) {
   }
   const record = reportPayload as Record<string, unknown>;
   return "payload" in record
-    ? { httpStatus: record.httpStatus ?? null, payload: record.payload }
+    ? {
+        httpStatus: record.httpStatus ?? null,
+        payload: record.payload,
+        translationFacts: record.translationFacts ?? null,
+      }
     : reportPayload;
 }
 

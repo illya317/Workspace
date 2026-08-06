@@ -3,9 +3,9 @@ import { createHash } from "node:crypto";
 import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
 import type { ConsolidationVoucherMatchGroup } from "../domain/consolidation-entry-generation";
 import {
+  consolidationCutoverBaseline,
   consolidationCutoverDate,
   openingEquityAmounts,
-  translatedEquityAmounts,
 } from "./consolidation-nci-equity-components";
 import { equityMoney as money } from "./consolidation-equity-continuity-ledger";
 import type { RemittanceFxEntryCandidate, RemittanceFxEntryLine } from "./consolidation-remittance-fx-types";
@@ -23,6 +23,38 @@ function periodEnd(batch: ConsolidationBatchSnapshot) {
   return new Date(Date.UTC(batch.year, batch.month, 0)).toISOString().slice(0, 10);
 }
 
+function capitalMovementFacts(
+  batch: ConsolidationBatchSnapshot,
+  entitySnapshotId: number,
+  cutoverDate: string,
+  end: string,
+) {
+  return batch.exchangeRates.flatMap((rate) => rate.applications.flatMap((application) => {
+    if ((application.applicationType !== "historicalInvestment"
+        && application.applicationType !== "historicalCapital")
+      || application.periodBasis !== "current"
+      || application.entitySnapshotId !== entitySnapshotId) return [];
+    const contributionDate = application.capitalContributionDate ?? application.targetDate;
+    if (!contributionDate || contributionDate < cutoverDate || contributionDate > end) return [];
+    const lineCode = application.voucher?.matchingLineCode ?? application.capitalLineCode;
+    if (lineCode !== "paidInCapital" && lineCode !== "capitalReserve") return [];
+    const originalAmount = application.voucher?.originalAmount ?? application.capitalOriginalAmount;
+    if (!originalAmount || originalAmount <= 0) return [];
+    const amount = application.capitalHistoricalAmountCny
+      ? money(application.capitalHistoricalAmountCny)
+      : money(originalAmount * Number(rate.rate));
+    return [{
+      lineCode,
+      amount,
+      contributionDate,
+      rate: Number(rate.rate),
+      originalAmount,
+      voucherItemId: application.voucherItemId ?? null,
+      evidence: application.evidence,
+    }];
+  }));
+}
+
 export function buildCutoverCapitalMovementEntries(
   batch: ConsolidationBatchSnapshot,
   groups: readonly ConsolidationVoucherMatchGroup[],
@@ -37,23 +69,28 @@ export function buildCutoverCapitalMovementEntries(
     if (shareRatio === null || shareRatio === undefined || shareRatio <= 0 || shareRatio >= 1) return [];
     const cutoverDate = consolidationCutoverDate(batch, investee.id);
     if (!cutoverDate) return [];
-    const current = translatedEquityAmounts(batch, investee.id, investee.functionalCurrency ?? "CNY");
-    if (!current) return [];
+    const baseline = consolidationCutoverBaseline(batch, investee.id);
+    if (!baseline) return [];
     const opening = openingEquityAmounts(batch, investee);
     const end = periodEnd(batch);
     const investmentFacts = group.leftFacts.filter((fact) => (
       fact.currencyCode.toUpperCase() === "CNY"
       && fact.voucherDate >= cutoverDate
       && fact.voucherDate <= end
-    ));
+    )).sort((left, right) => left.voucherDate.localeCompare(right.voucherDate)
+      || left.voucherId - right.voucherId
+      || left.itemId - right.itemId);
+    const movementFacts = capitalMovementFacts(batch, investee.id, cutoverDate, end);
     const componentMovements = CAPITAL_COMPONENTS.map(([lineCode, accountCode]) => ({
       lineCode,
       accountCode,
       openingAmount: money(opening.get(lineCode) ?? 0),
-      closingAmount: money(current.get(lineCode)?.amount ?? 0),
+      movement: money(movementFacts
+        .filter((fact) => fact.lineCode === lineCode)
+        .reduce((sum, fact) => sum + fact.amount, 0)),
     })).map((component) => ({
       ...component,
-      movement: money(component.closingAmount - component.openingAmount),
+      closingAmount: money(component.openingAmount + component.movement),
     }));
     const capitalMovement = money(componentMovements.reduce((sum, component) => sum + component.movement, 0));
     const investmentMovement = money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0));
@@ -61,6 +98,10 @@ export function buildCutoverCapitalMovementEntries(
 
     const minorityRatio = 1 - shareRatio;
     const minorityMovement = money(capitalMovement * minorityRatio);
+    const evidencedVoucherItemIds = new Set(movementFacts.flatMap((fact) => fact.voucherItemId ? [fact.voucherItemId] : []));
+    const fullyEvidenced = investmentFacts.length > 0
+      && investmentFacts.every((fact) => evidencedVoucherItemIds.has(fact.itemId));
+    const parentMovement = money(capitalMovement - investmentMovement - minorityMovement);
     const generationKey = `policy:remittance-fx:capital-movement:${investor.companyId}:${investee.companyId}:${end.slice(0, 7)}`;
     let lineNo = 1;
     const componentLines: RemittanceFxEntryLine[] = componentMovements.flatMap((component) => {
@@ -136,7 +177,29 @@ export function buildCutoverCapitalMovementEntries(
       counterpartyEntitySnapshotId: investor.id,
       counterpartyCompanyId: investor.companyId,
     }];
-    const lines = [...componentLines, ...investmentLines, ...minorityLine]
+    const parentMovementLine: RemittanceFxEntryLine[] = !fullyEvidenced || Math.abs(parentMovement) < 0.005 ? [] : [{
+      lineNo: lineNo++,
+      entitySnapshotId: investor.id,
+      companyId: investor.companyId,
+      companyCode: investor.companyCode,
+      statementType: "balanceSheet",
+      lineCode: baseline.historicalDifferenceLineCode,
+      accountCode: baseline.historicalDifferenceLineCode === "capitalReserve" ? "4002" : "4104",
+      debit: parentMovement < 0 ? Math.abs(parentMovement) : 0,
+      credit: parentMovement > 0 ? parentMovement : 0,
+      currencyCode: "CNY",
+      periodBasis: "current",
+      note: `本期资本变动归母关系差额；按切换政策计入${baseline.historicalDifferenceLineCode === "capitalReserve" ? "资本公积" : "未分配利润"}`,
+      matchSide: null,
+      sourceKind: "workpaper",
+      sourceId: `${generationKey}:parent:capital-difference`,
+      sourceFingerprint: fingerprint({ generationKey, parentMovement, baseline: baseline.historicalDifferenceLineCode }),
+      sourceAmount: Math.abs(parentMovement),
+      sourceCurrency: "CNY",
+      counterpartyEntitySnapshotId: investee.id,
+      counterpartyCompanyId: investee.companyId,
+    }];
+    const lines = [...componentLines, ...investmentLines, ...minorityLine, ...parentMovementLine]
       .map((line, index) => ({ ...line, lineNo: index + 1 }));
     const balanceDifference = money(lines.reduce((sum, line) => sum + line.debit - line.credit, 0));
     return [{
@@ -145,10 +208,10 @@ export function buildCutoverCapitalMovementEntries(
       entryType: "investmentEquity",
       title: `${investor.companyName} → ${investee.companyName} 本期资本变动抵销`,
       description: "按切换日期初至本期末的权益组成变动全额抵销资本项目，逐笔抵销投资方长期股权投资，并确认少数股东对应资本份额。",
-      evidence: `资本项目变动 ${capitalMovement.toFixed(2)} 元；母公司长期股权投资变动 ${investmentMovement.toFixed(2)} 元；少数股东份额 ${minorityMovement.toFixed(2)} 元；来源凭证分录 ${investmentFacts.map((fact) => fact.itemId).join("、") || "无"}`,
+      evidence: `资本项目变动 ${capitalMovement.toFixed(2)} 元；母公司长期股权投资变动 ${investmentMovement.toFixed(2)} 元；少数股东份额 ${minorityMovement.toFixed(2)} 元；归母资本关系变动 ${parentMovement.toFixed(2)} 元；来源凭证分录 ${investmentFacts.map((fact) => fact.itemId).join("、") || "无"}；逐笔折算 ${movementFacts.map((fact) => `${fact.contributionDate} ${fact.originalAmount} CAD × ${fact.rate} = ${fact.amount.toFixed(2)} CNY`).join("；") || "无"}`,
       matchDifference: Math.abs(balanceDifference),
       differenceResolution: Math.abs(balanceDifference) < 0.005
-        ? "资本项目、长期股权投资与少数股东份额一致"
+        ? "资本项目、长期股权投资、归母资本关系变动与少数股东份额一致"
         : `待分类差额 ${Math.abs(balanceDifference).toFixed(2)} 元；需根据本期增资和购买日后权益变动依据分类`,
       generationKey,
       postingDate: end,

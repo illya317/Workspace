@@ -86,9 +86,12 @@ function historicalCapitalEntries(
         || left.rate.id - right.rate.id
         || left.applicationIndex - right.applicationIndex);
     const investmentFacts = group.leftFacts.filter((fact) => (
-      fact.currencyCode.toUpperCase() === "CNY" && !excludedVoucherItemIds.has(fact.itemId)
+      fact.currencyCode.toUpperCase() === "CNY"
+      && (Boolean(baseline) || !excludedVoucherItemIds.has(fact.itemId))
       && (!cutoverDate || fact.voucherDate < cutoverDate)
-    ));
+    )).sort((left, right) => left.voucherDate.localeCompare(right.voucherDate)
+      || left.voucherId - right.voucherId
+      || left.itemId - right.itemId);
     const investmentAmount = baseline?.parentLongTermInvestmentAmount
       ?? money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0));
     if ((!cutoverDate && capitalBindings.length === 0)
@@ -193,29 +196,17 @@ function historicalCapitalEntries(
     const translatedCapital = money(capitalLines.reduce((sum, line) => sum + line.debit - line.credit, 0));
     const minorityRatio = 1 - parentShareRatio;
     const minorityCapital = allocateEquityAmount(translatedCapital, parentShareRatio).nci;
-    const investmentLines: RemittanceFxEntryLine[] = baseline ? [{
-      lineNo: lineNo++,
-      entitySnapshotId: investor.id,
-      companyId: investor.companyId,
-      companyCode: investor.companyCode,
-      statementType: "balanceSheet",
-      lineCode: "longTermInvest",
-      accountCode: "1511",
-      debit: 0,
-      credit: investmentAmount,
-      currencyCode: "CNY",
-      periodBasis: "current",
-      note: `${baseline.baselineDate} 经财务确认的母公司长期股权投资期末余额`,
-      matchSide: "left",
-      sourceKind: "workpaper",
-      sourceId: `${generationKey}:cutover:parent-investment`,
-      sourceFingerprint: fingerprint({ generationKey, baseline }),
-      sourceAmount: investmentAmount,
-      sourceCurrency: "CNY",
-      counterpartyEntitySnapshotId: investee.id,
-      counterpartyCompanyId: investee.companyId,
-    }] : investmentFacts.map((fact) => {
+    const exactOpeningInvestmentFacts = Boolean(baseline)
+      && Math.abs(money(investmentFacts.reduce((sum, fact) => sum + fact.signedAmount, 0)) - investmentAmount) < 0.005;
+    const certifiedEvidenceByVoucherItem = new Map(
+      (baseline?.amountExplanations ?? []).flatMap((explanation) => explanation.evidence.flatMap((evidence) => {
+        const match = /^voucherItem:(\d+)$/.exec(evidence.sourceRecordId);
+        return match ? [[Number(match[1]), { explanation, evidence }] as const] : [];
+      })),
+    );
+    const investmentFactLines = investmentFacts.map((fact): RemittanceFxEntryLine => {
       const amount = money(Math.abs(fact.signedAmount));
+      const certified = certifiedEvidenceByVoucherItem.get(fact.itemId);
       return {
         lineNo: lineNo++,
         entitySnapshotId: investor.id,
@@ -228,7 +219,9 @@ function historicalCapitalEntries(
         credit: fact.signedAmount > 0 ? amount : 0,
         currencyCode: "CNY",
         periodBasis: "current",
-        note: `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
+        note: certified
+          ? `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}；金额引擎精确命中 ${certified.explanation.targetAmount}（${certified.evidence.evidenceId}）`
+          : `${fact.voucherDate} ${fact.voucherNo} · ${fact.accountCode} ${fact.accountName}`,
         matchSide: "left",
         sourceKind: "voucher",
         sourceId: `voucher:${fact.itemId}`,
@@ -240,6 +233,32 @@ function historicalCapitalEntries(
         sourceVoucherItemId: fact.itemId,
       };
     });
+    const investmentLines: RemittanceFxEntryLine[] = baseline
+      ? exactOpeningInvestmentFacts
+        ? investmentFactLines
+        : [{
+            lineNo: lineNo++,
+            entitySnapshotId: investor.id,
+            companyId: investor.companyId,
+            companyCode: investor.companyCode,
+            statementType: "balanceSheet",
+            lineCode: "longTermInvest",
+            accountCode: "1511",
+            debit: 0,
+            credit: investmentAmount,
+            currencyCode: "CNY",
+            periodBasis: "current",
+            note: `${baseline.baselineDate} 经财务确认的母公司长期股权投资期末余额`,
+            matchSide: "left",
+            sourceKind: "workpaper",
+            sourceId: `${generationKey}:cutover:parent-investment`,
+            sourceFingerprint: fingerprint({ generationKey, baseline }),
+            sourceAmount: investmentAmount,
+            sourceCurrency: "CNY",
+            counterpartyEntitySnapshotId: investee.id,
+            counterpartyCompanyId: investee.companyId,
+          }]
+      : investmentFactLines;
     const difference = money(translatedCapital - investmentAmount - minorityCapital);
     const historicalDifferenceLines: RemittanceFxEntryLine[] = baseline && Math.abs(difference) >= 0.005 ? [{
       lineNo: lineNo++,
@@ -314,7 +333,7 @@ function historicalCapitalEntries(
       description: cutoverDate
         ? "首次并表期初凭证逐项抵销子公司期初权益、母公司期初长期股权投资，并分别承接归母权益和少数股东权益。"
         : "在同一张完整抵销凭证中抵销子公司资本全额、母公司长期股权投资，并确认少数股东对应资本份额。",
-      evidence: `加拿大资本历史汇率：${capitalEvidence.join("；")}；母公司份额 ${(parentShareRatio * 100).toFixed(2)}%；少数股东份额 ${((1 - parentShareRatio) * 100).toFixed(2)}%；投资方凭证分录：${investmentFacts.map((fact) => fact.itemId).join("、")}`,
+      evidence: `加拿大资本历史汇率：${capitalEvidence.join("；")}；母公司份额 ${(parentShareRatio * 100).toFixed(2)}%；少数股东份额 ${((1 - parentShareRatio) * 100).toFixed(2)}%；投资方凭证分录：${investmentFacts.map((fact) => fact.itemId).join("、")}；金额引擎认证：${(baseline?.amountExplanations ?? []).map((item) => `${item.key}=${item.targetAmount} exact ${item.outputFingerprint}`).join("；") || "无配置项"}`,
       matchDifference: Math.abs(balanceDifference),
       differenceResolution: Math.abs(balanceDifference) < 0.005
         ? "投资成本与历史汇率折算权益一致"

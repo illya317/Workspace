@@ -33,6 +33,18 @@ interface ConsolidationCutoverBaseline {
   parentLongTermInvestmentAmount: number;
   historicalDifferenceLineCode: string;
   components: { lineCode: string; amount: number }[];
+  amountExplanations: Array<{
+    key: string;
+    classification: "parentInvestmentOpeningAdjustment";
+    targetAmount: string;
+    outputFingerprint: string;
+    evidence: Array<{
+      evidenceId: string;
+      sourceRecordId: string;
+      sourceFingerprint: string;
+      label: string;
+    }>;
+  }>;
 }
 
 function fingerprint(value: unknown) {
@@ -100,6 +112,40 @@ export function consolidationCutoverBaseline(
           : [];
       })
     : [];
+  const amountExplanations = Array.isArray(baseline?.amountExplanations)
+    ? baseline.amountExplanations.flatMap((value) => {
+        const item = record(value);
+        const evidence = Array.isArray(item?.evidence)
+          ? item.evidence.flatMap((candidate) => {
+              const ref = record(candidate);
+              return typeof ref?.evidenceId === "string"
+                && typeof ref.sourceRecordId === "string"
+                && typeof ref.sourceFingerprint === "string"
+                && typeof ref.label === "string"
+                ? [{
+                    evidenceId: ref.evidenceId,
+                    sourceRecordId: ref.sourceRecordId,
+                    sourceFingerprint: ref.sourceFingerprint,
+                    label: ref.label,
+                  }]
+                : [];
+            })
+          : [];
+        return typeof item?.key === "string"
+          && item.classification === "parentInvestmentOpeningAdjustment"
+          && typeof item.targetAmount === "string"
+          && typeof item.outputFingerprint === "string"
+          && evidence.length > 0
+          ? [{
+              key: item.key,
+              classification: "parentInvestmentOpeningAdjustment" as const,
+              targetAmount: item.targetAmount,
+              outputFingerprint: item.outputFingerprint,
+              evidence,
+            }]
+          : [];
+      })
+    : [];
   return typeof baseline?.baselineDate === "string"
     && typeof baseline.parentCompanyCode === "string"
     && typeof baseline.parentLongTermInvestmentAmount === "number"
@@ -111,6 +157,7 @@ export function consolidationCutoverBaseline(
         parentLongTermInvestmentAmount: money(baseline.parentLongTermInvestmentAmount),
         historicalDifferenceLineCode: baseline.historicalDifferenceLineCode,
         components,
+        amountExplanations,
       }
     : null;
 }
@@ -175,7 +222,16 @@ function openingAllocationLines(input: {
     amount,
     1 - input.minorityRatio,
   );
-  const sourceFingerprint = fingerprint({ ...input, entity: input.entity.id, investor: input.investor.id });
+  const sourceFingerprint = fingerprint({
+    version: "opening-equity-component-v1",
+    amount,
+    lineCode: input.lineCode,
+    entitySnapshotId: input.entity.id,
+    investorSnapshotId: input.investor.id,
+    minorityRatio: input.minorityRatio,
+    generationKey: input.generationKey,
+    note: input.note,
+  });
   const common = {
     entitySnapshotId: input.entity.id,
     companyId: input.entity.companyId,

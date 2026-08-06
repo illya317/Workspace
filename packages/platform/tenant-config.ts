@@ -121,6 +121,17 @@ export type TenantProfile = {
         lineCode: "paidInCapital" | "otherEquityInstruments" | "capitalReserve" | "treasuryStock" | "otherComprehensiveIncome" | "surplusReserve" | "undistributedProfit";
         amount: number;
       }>;
+      amountExplanationQueries?: Array<{
+        key: string;
+        classification: "parentInvestmentOpeningAdjustment";
+        sourceCompanyCode: string;
+        targetAmount: string;
+        currencyCode: string;
+        dateFrom?: string;
+        dateTo?: string;
+        accountHints: string[];
+        evidence: string;
+      }>;
       historicalDifferenceLineCode: "capitalReserve" | "undistributedProfit";
       evidence: string;
     }>;

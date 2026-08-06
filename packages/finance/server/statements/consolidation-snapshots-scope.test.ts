@@ -42,6 +42,7 @@ const relations = [
 
 mock.module("@workspace/platform/server/prisma", {
   namedExports: {
+    Prisma: {},
     prisma: {
       company: {
         findUnique: async () => ({ id: 1, code: "P", party: { name: "P", fullName: "P公司" } }),

@@ -29,6 +29,7 @@ import { loadConsolidationCompanyDirectory } from "./consolidation-company-direc
 import { loadConsolidationSourceReadiness } from "./consolidation-source-readiness";
 import { loadFinanceConsolidationScope } from "./consolidation-scope-selections";
 import { consolidationReadinessResolution } from "./consolidation-readiness-resolution";
+import { consolidationEntryHasIncompleteMatchingEvidence } from "./consolidation-entry-readiness";
 import {
   consolidationEntitySourceStatus,
   frozenSourceCoverage,
@@ -450,21 +451,8 @@ export async function loadConsolidationOverview(
   });
   const partialOwnershipEntities = includedEntities.filter((entity) => entity.role === "子公司" && entity.shareRatio !== null && entity.shareRatio < 1);
   const partialOwnershipCount = partialOwnershipEntities.length;
-  const incompleteMatchingEntries = requestedBatch?.entries.filter((entry) => (
-    ["investmentEquity", "intercompanyBalance"].includes(entry.entryType)
-    && (entry.lines.some((line) => (
-      line.lineCode !== "otherComprehensiveIncome"
-      && (
-      !line.matchSide
-      || !line.sourceKind
-      || !line.sourceId
-      || !line.sourceFingerprint
-      || line.sourceAmount === null
-      || !line.sourceCurrency
-      || !line.counterpartyCompanyId
-      )
-    )) || Number(entry.matchDifference ?? 0) > 0 && !entry.differenceResolution?.trim())
-  )).length ?? 0;
+  const incompleteMatchingEntries = requestedBatch?.entries
+    .filter(consolidationEntryHasIncompleteMatchingEvidence).length ?? 0;
   const checks: ConsolidationReadinessCheck[] = [
     { key: "scope", label: "合并范围", status: includedEntities.length > 1 ? "ready" : "blocked", detail: scopeError ?? (includedEntities.length > 1 ? `已识别 ${includedEntities.length} 个合并实体` : "尚无完整合并范围"), facts: { parentCompanyId, entityCount: includedEntities.length, batchId: requestedBatch?.id ?? null, scopeAsOf }, evidence: scopeError ? [scopeError] : includedEntities.map((entity) => `${entity.code} ${entity.name}`), dependencyKeys: [], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "scope") },
     { key: "ownership", label: "股权比例", status: invalidOwnership > 0 ? "blocked" : includedEntities.length > 1 ? "ready" : "blocked", detail: invalidOwnership > 0 ? `${invalidOwnership} 条直接持股比例缺失或超出0至1` : partialOwnershipCount > 0 ? "持股比例有效；生成工作底稿时自动分配少数股东权益及损益" : "批次范围内直接持股比例有效", facts: { invalidOwnership, partialOwnershipCount, subsidiaryCount: includedEntities.filter((entity) => entity.role === "子公司").length }, evidence: includedEntities.filter((entity) => entity.role === "子公司").map((entity) => `${entity.parentName ?? "待确认母公司"} → ${entity.name} ${entity.shareRatio ?? "未填"}`), dependencyKeys: ["scope"], resolution: consolidationReadinessResolution(requestedBatch?.id ?? null, "ownership") },

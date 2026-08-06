@@ -82,9 +82,19 @@ test("source content freshness ignores capture time but detects report changes",
     ...source,
     reportPayload: { httpStatus: 200, capturedAt: "2026-07-22T00:00:00.000Z", payload: { totalAssets: 101 } },
   });
+  const changedTranslationFacts = consolidationSourceContentFingerprint({
+    ...source,
+    reportPayload: {
+      httpStatus: 200,
+      capturedAt: "2026-07-22T00:00:00.000Z",
+      payload: { totalAssets: 100 },
+      translationFacts: { consolidationCutoverBaseline: { key: "canada-2025-12-opening" } },
+    },
+  });
 
   assert.equal(recaptured, first);
   assert.notEqual(changed, first);
+  assert.notEqual(changedTranslationFacts, first);
 });
 
 test("rate fingerprints ignore application order and jsonb key order", () => {

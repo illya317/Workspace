@@ -120,7 +120,7 @@ test("CNY partial ownership produces one complete investment, capital, and NCI v
   assert.equal(consolidationMatchGroupCoveredByPolicy(group, entry ? [entry] : []), true);
 });
 
-test("cutover capital movement uses the frozen equity-component delta instead of remittance totals", () => {
+test("cutover capital movement accumulates only post-cutover rate applications", () => {
   const input = {
     year: 2026,
     month: 6,
@@ -132,14 +132,44 @@ test("cutover capital movement uses the frozen equity-component delta instead of
       entitySnapshotId: 2,
       reportType: "balanceSheet",
       reportPayload: {
-        translationFacts: { retainedEarningsOpening: { openingDate: "2025-12-31" } },
+        translationFacts: { consolidationCutoverBaseline: {
+          key: "canada-2025-12-opening",
+          baselineDate: "2025-12-31",
+          parentCompanyCode: "P01",
+          parentLongTermInvestmentAmount: 5_876_692.60,
+          equityComponents: [
+            { lineCode: "paidInCapital", amount: 505_060 },
+            { lineCode: "capitalReserve", amount: 5_806_818.04 },
+          ],
+          historicalDifferenceLineCode: "capitalReserve",
+        } },
         payload: { assets: [], liabilities: [], equity: [
           { lineCode: "paidInCapital", label: "实收资本", section: "equity", side: "credit", amount: 505_060, previousAmount: 505_060 },
           { lineCode: "capitalReserve", label: "资本公积", section: "equity", side: "credit", amount: 5_978_910.03, previousAmount: 5_818_290.84 },
         ] },
       },
     }],
-    exchangeRates: [], entries: [], controlDecisions: [], events: [],
+    exchangeRates: [{
+      id: 1, exchangeRateId: 101, exchangeRateVersion: 1, baseCurrency: "CAD", quoteCurrency: "CNY",
+      rateKind: "centralParity", rateDate: "2026-02-13", rate: 5.0865, sourceUrl: "https://example.test/feb",
+      publishedAt: null, recordedBy: 9, recordedAt: "2026-02-14T00:00:00.000Z",
+      applications: [{
+        applicationType: "historicalInvestment", periodBasis: "current", entitySnapshotId: 2,
+        targetDate: "2026-02-14", voucherItemId: 1, capitalContributionDate: "2026-02-14",
+        capitalOriginalAmount: null, capitalHistoricalAmountCny: null, capitalLineCode: null,
+        voucher: { originalAmount: 19_865.61, matchingLineCode: "capitalReserve" }, evidence: "2月逐笔证据",
+      }],
+    }, {
+      id: 2, exchangeRateId: 102, exchangeRateVersion: 1, baseCurrency: "CAD", quoteCurrency: "CNY",
+      rateKind: "centralParity", rateDate: "2026-06-25", rate: 4.7853, sourceUrl: "https://example.test/jun",
+      publishedAt: null, recordedBy: 9, recordedAt: "2026-06-26T00:00:00.000Z",
+      applications: [{
+        applicationType: "historicalInvestment", periodBasis: "current", entitySnapshotId: 2,
+        targetDate: "2026-06-25", voucherItemId: 2, capitalContributionDate: "2026-06-25",
+        capitalOriginalAmount: null, capitalHistoricalAmountCny: null, capitalLineCode: null,
+        voucher: { originalAmount: 14_846.63, matchingLineCode: "capitalReserve" }, evidence: "6月逐笔证据",
+      }],
+    }], entries: [], controlDecisions: [], events: [],
   } as unknown as ConsolidationBatchSnapshot;
   const fact = (itemId: number, signedAmount: number) => ({
     itemId, voucherId: itemId + 100, voucherNo: `记-${itemId}`, voucherDate: itemId === 1 ? "2026-02-14" : "2026-06-25",
@@ -157,15 +187,16 @@ test("cutover capital movement uses the frozen equity-component delta instead of
   const movement = buildRemittanceFxEntries(input, [group])
     .find((entry) => entry.generationKey.includes(":capital-movement:"));
   assert.deepEqual(movement?.lines.map((line) => [line.lineCode, line.debit, line.credit]), [
-    ["capitalReserve", 160_619.19, 0],
+    ["capitalReserve", 172_092.01, 0],
     ["longTermInvest", 0, 103_929],
     ["longTermInvest", 0, 73_629],
-    ["nonControllingInterests", 0, 40_154.8],
+    ["nonControllingInterests", 0, 43_023],
+    ["capitalReserve", 48_488.99, 0],
   ]);
-  assert.equal(movement?.matchDifference, 57_093.61);
+  assert.equal(movement?.matchDifference, 0);
   const generated = buildRemittanceFxEntryPackage(input, [group]);
-  assert.equal(generated.entries.some((entry) => entry.generationKey.includes(":capital-movement:")), false);
-  assert.equal(generated.issues.find((issue) => issue.generationKey.includes(":capital-movement:"))?.differenceAmount, 57_093.61);
+  assert.equal(generated.entries.some((entry) => entry.generationKey.includes(":capital-movement:")), true);
+  assert.equal(generated.issues.some((issue) => issue.generationKey.includes(":capital-movement:")), false);
 });
 
 test("voucher-level capital reserve can coexist with historical paid-in capital without duplicate investment elimination", () => {

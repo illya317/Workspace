@@ -32,6 +32,30 @@ mock.module("./consolidation-source-readiness", {
 mock.module("@workspace/platform/server/prisma", {
   namedExports: { Prisma: {}, prisma: {} },
 } as never);
+mock.module("@workspace/platform/server/tenant-config", {
+  namedExports: {
+    getTenantProfile: () => ({
+      financeConsolidationPolicies: {
+        retainedEarningsOpeningBalances: [],
+        cutoverBaselines: [{
+          key: "canada-2025-12-opening",
+          foreignCompanyCode: "C01",
+          baselineDate: "2025-12-31",
+          parentCompanyCode: "P01",
+          parentLongTermInvestmentAmount: 100,
+          presentationCurrencyCode: "CNY",
+          equityComponents: [{ lineCode: "capitalReserve", amount: 100 }],
+          amountExplanationQueries: [],
+          historicalDifferenceLineCode: "capitalReserve",
+          evidence: "fixture",
+        }],
+      },
+    }),
+  },
+} as never);
+mock.module("./consolidation-cutover-amount-explanations", {
+  namedExports: { certifyCutoverAmountExplanations: async () => [] },
+} as never);
 
 const { loadSelectedSourceFacts } = await import("./consolidation-snapshots");
 
@@ -93,4 +117,24 @@ test("closed periods reuse complete frozen statement sources without regeneratio
 
   assert.deepEqual(result, existing);
   assert.equal(reportGenerations, 0);
+});
+
+test("a newly configured prior-year cutover baseline refreshes only the CAD balance source", async () => {
+  reportGenerations = 0;
+  const existing = [source("balanceSheet"), source("incomeStatement"), source("cashFlow")];
+  const result = await loadSelectedSourceFacts(
+    new Map([[1, { ...scope, functionalCurrency: "CAD" }]]),
+    2026,
+    6,
+    "month",
+    existing,
+  );
+
+  assert.equal(reportGenerations, 1);
+  const balance = result.find((item) => item.reportType === "balanceSheet");
+  assert.equal(
+    (balance?.reportPayload as { translationFacts?: { consolidationCutoverBaseline?: { key?: string } } })
+      .translationFacts?.consolidationCutoverBaseline?.key,
+    "canada-2025-12-opening",
+  );
 });

@@ -3,6 +3,11 @@ import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { consolidationSourceFactFingerprint } from "./consolidation-fingerprints";
 import {
+  consolidationCutoverBaselineFact,
+  frozenCutoverBaselineKey,
+  selectedConsolidationCutoverBaseline,
+} from "./consolidation-cutover-baseline";
+import {
   loadConsolidationSourceReadiness,
   type ConsolidationEntitySourceReadiness,
 } from "./consolidation-source-readiness";
@@ -175,19 +180,6 @@ function retainedEarningsOpeningFact(companyCode: string, year: number) {
     && item.openingDate === openingDate
     && item.presentationCurrencyCode.toUpperCase() === "CNY"
   )) ?? null;
-}
-
-function consolidationCutoverBaselineFact(companyCode: string, year: number, month: number) {
-  const periodEnd = periodEndDate(year, month);
-  return [...(getTenantProfile().financeConsolidationPolicies?.cutoverBaselines ?? [])]
-    .filter((item) => (
-      item.foreignCompanyCode === companyCode
-      && item.baselineDate.slice(0, 4) === String(year)
-      && item.baselineDate < periodEnd
-      && item.presentationCurrencyCode.toUpperCase() === "CNY"
-    ))
-    .sort((left, right) => right.baselineDate.localeCompare(left.baselineDate))
-    .at(0) ?? null;
 }
 
 interface ConsolidationRelationshipLoadOptions {
@@ -383,10 +375,16 @@ async function loadSourceFact(
   existing?: ConsolidationSourceFact,
 ): Promise<ConsolidationSourceFact> {
   const reportReadiness = readiness.reports[reportType];
+  const selectedCutoverBaseline = reportType === "balanceSheet"
+    && scope.functionalCurrency?.toUpperCase() === "CAD"
+    ? selectedConsolidationCutoverBaseline(scope.companyCode, year, month)
+    : null;
+  const cutoverBaselineChanged = (selectedCutoverBaseline?.key ?? null) !== frozenCutoverBaselineKey(existing);
   if (readiness.periodClosed
     && existing
     && existing.sourceKind !== "missing"
-    && existing.sourceStatus !== "missing") {
+    && existing.sourceStatus !== "missing"
+    && !cutoverBaselineChanged) {
     return existing;
   }
   const systemCount = reportReadiness.count;
@@ -403,7 +401,7 @@ async function loadSourceFact(
           ...(reportType === "balanceSheet" && scope.functionalCurrency?.toUpperCase() === "CAD"
             ? {
                 retainedEarningsOpening: retainedEarningsOpeningFact(scope.companyCode, year),
-                consolidationCutoverBaseline: consolidationCutoverBaselineFact(
+                consolidationCutoverBaseline: await consolidationCutoverBaselineFact(
                   scope.companyCode, year, month,
                 ),
               }
