@@ -154,6 +154,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "singleRecord",
     description: "单次对比运行的逐行比对结果与金额解释快照只服务运行详情与证据回放，不是稳定分页分析数据集。",
   },
+  "/api/modules/finance/statements/comparisons/target-preview": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "对比目标预览把选择字段解析为类型化目标引用与系统指纹，是目标选择的即时计算结果；被对比的报表事实由各报表数据源承载。",
+  },
   "/api/modules/finance/tax": {
     disposition: "excluded",
     reason: "unstableComposite",

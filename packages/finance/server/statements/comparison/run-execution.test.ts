@@ -395,3 +395,50 @@ test("entity target fingerprint is deterministic and amount-sensitive", () => {
   assert.equal(base, again);
   assert.notEqual(base, changed);
 });
+
+// ─── Package 7：目标预览 + 合并快照词表兼容 ────────────────────────────────
+
+test("consolidated comparison accepts the snapshot payload report-type vocabulary", async () => {
+  const { db, mappings, runs, lines } = makeFakeDb();
+  (db as any).financeConsolidationOutputSnapshot.findUnique = async () => ({
+    id: 5,
+    batchId: 22,
+    outputFingerprint: "fp-consolidated-output",
+    reportPayload: {
+      batch: { presentationCurrency: "CNY" },
+      // 真实快照 payload 使用合并词表（balanceSheet/incomeStatement/cashFlow）。
+      statements: [{
+        reportType: "balanceSheet",
+        lines: [{ lineCode: "cash", label: "货币资金", amount: 90 }],
+      }],
+    },
+  });
+  mappings.push({
+    id: 12,
+    revision: 1,
+    status: "confirmed",
+    targetKind: "consolidated",
+    targetCompanyId: null,
+    targetParentCompanyId: 1,
+    targetBatchId: 22,
+    targetOutputSnapshotId: 5,
+    year: null,
+    month: null,
+    periodKind: "cumulative",
+    reportType: "balance",
+    targetFingerprint: "fp-consolidated-output",
+    workbookSha256: "sha-workbook",
+    structureMapping: structureMapping(),
+    lineMapping: lineMapping(),
+    package: { sha256: "sha-workbook", workbookSnapshot: workbookSnapshot() },
+  });
+
+  const result = await executeComparisonRun({
+    mappingId: 12, createdBy: 3, db, solver: FAKE_SOLVER as any,
+    explain: async () => fakeExplainResult(),
+  });
+
+  assert.equal(result.status, "completed");
+  assert.equal(runs[0].targetFingerprint, "fp-consolidated-output");
+  assert.equal(lines[0].systemAmount, "90.00");
+});

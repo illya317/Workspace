@@ -22,6 +22,8 @@ import { REPORT_TYPE_OPTIONS } from "./report-options";
 import type { ConsolidationPeriodKind } from "./consolidation-period";
 import { buildStatementPeriodToolbarItems } from "./consolidation-toolbar";
 import { buildStandaloneStatementAssistantContext } from "./statement-assistant-context";
+import { mapEntityPeriodKind } from "./statement-comparison-model";
+import type { LaunchStatementComparison } from "./statement-ui-types";
 import { downloadFinanceWorkbook } from "../workbook-download";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
 
@@ -54,9 +56,12 @@ interface ReportData {
 export default function ReportTab({
   navigation,
   canExport,
+  onLaunchComparison,
 }: {
   navigation?: PageSurfaceTabBarSpec;
   canExport: boolean;
+  /** 差异诊断 context-launch（Package 7）；缺省则不展示入口。 */
+  onLaunchComparison?: LaunchStatementComparison;
 }) {
   const searchParams = useSearchParams();
   const feedback = useFeedback();
@@ -209,6 +214,24 @@ export default function ReportTab({
           kind: "export" as const,
           disabled: downloading || !companyFilter || !year || !monthFilter,
           onClick: () => void downloadWorkbook(),
+        }] : []),
+        ...(onLaunchComparison ? [{
+          key: "comparison",
+          label: "差异诊断",
+          kind: "view" as const,
+          disabled: !companyFilter || !year || !monthFilter,
+          onClick: () => {
+            if (!companyFilter || !year || !monthFilter) return;
+            onLaunchComparison({
+              kind: "entity",
+              companyCode: companyFilter,
+              companyName,
+              year,
+              month: monthFilter,
+              periodKind: mapEntityPeriodKind(periodKind),
+              reportType,
+            });
+          },
         }] : []),
         {
           key: "assistant",

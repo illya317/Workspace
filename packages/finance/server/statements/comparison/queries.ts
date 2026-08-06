@@ -1,11 +1,12 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
+import { detectStatementMapping, type StatementMappingDetection } from "./mapping";
 import {
   assertStatementComparisonEnabled,
   StatementComparisonStateError,
   type StatementComparisonDb,
 } from "./service";
-import type { WorkbookAnalysisSnapshot } from "./workbook-dto";
+import { cellChannelKey, type WorkbookAnalysisSnapshot } from "./workbook-dto";
 
 /**
  * 对比证据只读查询（计划 §7 API 矩阵的 GET 行；Package 6）。
@@ -111,6 +112,8 @@ export interface ComparisonPackageDetail {
   createdAt: string;
   scanSummary: unknown;
   sheets: ComparisonSheetInventoryItem[];
+  /** 由归一化快照重新检测的映射提案（Package 7 结构化映射确认；failed/archived 为 null）。 */
+  detection: StatementMappingDetection | null;
   mappings: ComparisonMappingDto[];
 }
 
@@ -189,6 +192,7 @@ export async function getComparisonPackageDetail(
     createdAt: row.createdAt.toISOString(),
     scanSummary: row.scanSummary,
     sheets,
+    detection: snapshot ? detectStatementMapping(snapshot.dto) : null,
     mappings: row.mappings.map((mapping) => ({
       id: mapping.id,
       revision: mapping.revision,
@@ -213,6 +217,21 @@ export async function getComparisonPackageDetail(
   };
 }
 
+export interface ComparisonRunExternalCellDto {
+  sheet: string;
+  a1: string;
+  type: string;
+  /** 原始值（JSON-safe scalar）。 */
+  value: unknown;
+  /** SheetJS 格式化文本，仅展示用途。 */
+  text: string | null;
+  formula: string | null;
+  cachedValue: unknown;
+  recalculatedValue: unknown;
+  /** 独立重算通道的 trust 状态；未参与重算时为 null。 */
+  trust: string | null;
+}
+
 export interface ComparisonRunLineDto {
   lineCode: string;
   lineLabel: string;
@@ -229,6 +248,8 @@ export interface ComparisonRunLineDto {
   evidence: unknown;
   alternatives: unknown;
   diagnostics: unknown;
+  /** 来源 workbook 单元格富化（raw/formatted/cached/formula/recalc/trust）；无来源单元格为 null。 */
+  externalCell: ComparisonRunExternalCellDto | null;
 }
 
 export interface ComparisonRunDetail extends ComparisonRunListItem {
@@ -273,6 +294,9 @@ export async function getComparisonRunDetail(
       createdBy: true,
       createdAt: true,
       completedAt: true,
+      mapping: {
+        select: { package: { select: { workbookSnapshot: true } } },
+      },
       lines: {
         orderBy: { sortOrder: "asc" },
         select: {
@@ -296,6 +320,28 @@ export async function getComparisonRunDetail(
     },
   });
   if (!run) throw new StatementComparisonStateError(`对比运行 ${runId} 不存在`);
+  const snapshot = run.mapping.package.workbookSnapshot as WorkbookAnalysisSnapshot | null;
+  const externalCellOf = (
+    sourceSheet: string | null,
+    sourceCell: string | null,
+  ): ComparisonRunExternalCellDto | null => {
+    if (!snapshot || !sourceSheet || !sourceCell) return null;
+    const sheet = snapshot.dto.sheets.find((entry) => entry.name === sourceSheet);
+    const cell = sheet?.cells.find((entry) => entry.a1 === sourceCell);
+    if (!cell) return null;
+    const recalculated = snapshot.recalculation.cells[cellChannelKey(sourceSheet, sourceCell)];
+    return {
+      sheet: sourceSheet,
+      a1: sourceCell,
+      type: cell.type,
+      value: cell.value,
+      text: cell.text,
+      formula: cell.formula,
+      cachedValue: cell.cachedValue ?? null,
+      recalculatedValue: recalculated ? recalculated.recalculatedValue : null,
+      trust: recalculated ? recalculated.trust : null,
+    };
+  };
   return {
     id: run.id,
     mappingId: run.mappingId,
@@ -332,6 +378,7 @@ export async function getComparisonRunDetail(
       evidence: line.evidence,
       alternatives: line.alternatives,
       diagnostics: line.diagnostics,
+      externalCell: externalCellOf(line.sourceSheet, line.sourceCell),
     })),
   };
 }

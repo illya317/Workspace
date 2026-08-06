@@ -68,6 +68,7 @@ const clientReactTests = new Set([
   "packages/core/ui/internal/form/FormStyles.test.ts",
   "packages/core/ui/internal/input/input-surface-textarea.test.ts",
   "packages/finance/ui/assets/asset-location.test.ts",
+  "packages/finance/ui/statements/statement-comparison-sections.test.ts",
   "packages/finance/ui/tax/tax-ui-sections.test.ts",
   "packages/platform/ui/category-item-detail-workspace.test.ts",
   "packages/platform/ui/PermissionActionMatrixGrid.test.ts",

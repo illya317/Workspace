@@ -8,4 +8,5 @@ export const WORKPAPER_TABS = [
 ] satisfies PageSurfaceTabBarItemSpec[];
 export const STATEMENT_TABS: PageSurfaceTabBarItemSpec[] = [{ key: "consolidation", label: "合并报表", children: WORKPAPER_TABS },
   { key: "statements", label: "单体报表" },
+  { key: "comparison", label: "差异诊断" },
 ];

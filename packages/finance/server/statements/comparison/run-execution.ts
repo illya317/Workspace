@@ -50,7 +50,7 @@ export type ComparisonRunExecutionDb = StatementComparisonDb &
 
 export type ComparisonLineExplainFn = (query: AmountOriginQuery) => Promise<AmountOriginResult>;
 
-interface EntityReportLinePayload {
+export interface EntityReportLinePayload {
   lineCode: string;
   label: string;
   amount?: unknown;
@@ -64,12 +64,12 @@ export type EntityReportLinesLoader = (input: {
   reportType: "balance" | "income" | "cashflow";
 }) => Promise<readonly EntityReportLinePayload[]>;
 
-const FALLBACK_CURRENCY_CODE = "CNY";
+export const FALLBACK_CURRENCY_CODE = "CNY";
 
 // ─── 系统目标解析（entity=确定性报表输入；consolidated=绑定的输出快照）────────
 
 /** 默认 entity 报表加载：复用与页面一致的确定性报表生成器（只读）。 */
-const defaultLoadEntityReportLines: EntityReportLinesLoader = async (input) => {
+export const defaultLoadEntityReportLines: EntityReportLinesLoader = async (input) => {
   const response = await generateFinanceReport({
     companyCode: input.companyCode,
     year: input.year,
@@ -99,7 +99,7 @@ function flowAmountMinor(line: EntityReportLinePayload, periodKind: string | nul
   return numberToMinorUnits(raw, LEDGER_MONEY_SCALE);
 }
 
-function entitySystemLines(
+export function entitySystemLines(
   lines: readonly EntityReportLinePayload[],
   reportType: string,
   periodKind: string | null,
@@ -220,11 +220,31 @@ async function resolveEntityTarget(
   };
 }
 
-interface ConsolidatedOutputLinePayload {
+export interface ConsolidatedOutputLinePayload {
   lineCode: string;
   label: string;
   amount?: unknown;
   currentMonthAmount?: unknown;
+}
+
+/**
+ * 合并输出快照 payload 的 statements[].reportType 使用合并词表
+ * （balanceSheet/incomeStatement/cashFlow），对比目标使用对比词表
+ * （balance/income/cashflow）。查找时两种都接受，保证 run 解析与目标预览一致。
+ */
+const CONSOLIDATED_PAYLOAD_REPORT_TYPES: Record<string, string> = {
+  balance: "balanceSheet",
+  income: "incomeStatement",
+  cashflow: "cashFlow",
+};
+
+export function findConsolidatedPayloadStatement(
+  statements: readonly { reportType: string; lines?: ConsolidatedOutputLinePayload[] }[] | undefined,
+  reportType: string,
+) {
+  const payloadType = CONSOLIDATED_PAYLOAD_REPORT_TYPES[reportType];
+  return statements?.find((entry) => entry.reportType === reportType)
+    ?? (payloadType ? statements?.find((entry) => entry.reportType === payloadType) : undefined);
 }
 
 async function resolveConsolidatedTarget(
@@ -249,7 +269,7 @@ async function resolveConsolidatedTarget(
       lines?: ConsolidatedOutputLinePayload[];
     }>;
   };
-  const statement = payload.statements?.find((entry) => entry.reportType === target.reportType);
+  const statement = findConsolidatedPayloadStatement(payload.statements, target.reportType);
   if (!statement || !Array.isArray(statement.lines)) {
     throw new StatementComparisonStateError("合并输出快照缺少目标报表类型的行数据");
   }

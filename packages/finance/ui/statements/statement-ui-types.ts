@@ -7,6 +7,33 @@ import type { ConsolidationOverview, StatementReportType } from "@workspace/fina
 
 export type ConsolidationWorkpaperView = "preparation" | "fxWorkpaper" | "nciWorkpaper" | "workpaper" | "report";
 
+/**
+ * 差异诊断 context-launch（Package 7）：实体/合并报表 tab 的类型化预填载荷。
+ * 只携带选择字段；系统 targetFingerprint 由差异诊断 tab 经只读 target-preview
+ * 解析为完整 StatementTargetRef（无导航/remount，客户端状态传递）。
+ */
+export type StatementComparisonLaunchContext =
+  | {
+      kind: "entity";
+      companyCode: string;
+      companyName: string;
+      year: number;
+      month: number;
+      periodKind: "monthly" | "cumulative";
+      reportType: "balance" | "income" | "cashflow";
+    }
+  | {
+      kind: "consolidated";
+      parentCompanyId: number;
+      parentName: string;
+      batchId: number;
+      batchLabel: string;
+      reportType: "balance" | "income" | "cashflow";
+    };
+
+/** 实体/合并报表 tab 的差异诊断入口回调：切换顶层 tab 并预填类型化目标上下文。 */
+export type LaunchStatementComparison = (context: StatementComparisonLaunchContext) => void;
+
 export interface ConsolidationCapabilities {
   canCreate: boolean;
   canUpdate: boolean;
@@ -34,4 +61,6 @@ export interface ConsolidationTabProps {
   onStartWorkpaper: () => void;
   onWorkpaperConfirmed: () => void;
   navigation: PageSurfaceTabBarSpec;
+  /** 差异诊断 context-launch（Package 7）；缺省则不展示入口。 */
+  onLaunchComparison?: LaunchStatementComparison;
 }

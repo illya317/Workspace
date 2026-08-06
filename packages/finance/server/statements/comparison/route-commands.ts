@@ -30,6 +30,11 @@ import {
 } from "./queries";
 import { executeComparisonRun, type ExecutedComparisonRun } from "./run-execution";
 import {
+  previewStatementComparisonTarget,
+  type ComparisonTargetPreview,
+  type ComparisonTargetPreviewSelection,
+} from "./target-preview";
+import {
   archiveComparisonPackage,
   assertStatementComparisonEnabled,
   confirmComparisonMapping,
@@ -265,6 +270,38 @@ export async function executeGetComparisonRunCommand(
     return serviceOk(await getComparisonRunDetail(runId));
   } catch (error) {
     return comparisonServiceError(error, "对比运行读取失败");
+  }
+}
+
+// ─── 目标预览（GET /comparisons/target-preview，只读）────────────────────
+
+export const comparisonTargetPreviewQuerySchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("entity"),
+    companyCode: z.string().trim().min(1),
+    year: z.coerce.number().int().min(2000).max(2100),
+    month: z.coerce.number().int().min(1).max(12),
+    periodKind: z.enum(["monthly", "cumulative"]),
+    reportType: reportTypeSchema,
+  }).strict(),
+  z.object({
+    kind: z.literal("consolidated"),
+    batchId: z.coerce.number().int().positive(),
+    reportType: reportTypeSchema,
+  }).strict(),
+]);
+
+/**
+ * 目标选择预览（Package 7）：把选择字段解析为类型化 StatementTargetRef +
+ * 可见系统指纹/版本。只读；功能开关关闭时同样拒绝。
+ */
+export async function executeComparisonTargetPreviewCommand(
+  selection: ComparisonTargetPreviewSelection,
+): Promise<ServiceResult<ComparisonTargetPreview>> {
+  try {
+    return serviceOk(await previewStatementComparisonTarget(selection));
+  } catch (error) {
+    return comparisonServiceError(error, "对比目标预览失败");
   }
 }
 

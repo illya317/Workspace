@@ -13,18 +13,24 @@ import { ConsolidationWorksheetTab } from "./ConsolidationWorksheetTab";
 import { FxTranslationWorksheetTab } from "./FxTranslationWorksheetTab";
 import { NciEquityWorksheetTab } from "./NciEquityWorksheetTab";
 import ReportTab from "./ReportTab";
+import StatementComparisonTab from "./StatementComparisonTab";
 import { CONSOLIDATED_REPORT_TYPE_OPTIONS } from "./consolidated-report-model";
 import { type ConsolidationPeriodKind } from "./consolidation-period";
 import { buildConsolidationToolbarItems } from "./consolidation-toolbar";
-import type { ConsolidationCapabilities, ConsolidationWorkpaperView } from "./statement-ui-types";
+import type {
+  ConsolidationCapabilities,
+  ConsolidationWorkpaperView,
+  StatementComparisonLaunchContext,
+} from "./statement-ui-types";
 import { STATEMENT_TABS } from "./statement-navigation";
 import { useConsolidationOverview } from "./useConsolidationOverview";
 
-type StatementsView = "consolidation" | "statements";
+type StatementsView = "consolidation" | "statements" | "comparison";
 
 export default function StatementsClient({ capabilities }: { capabilities: ConsolidationCapabilities }) {
   const [view, setView] = useState<StatementsView>("consolidation");
   const [workpaperView, setWorkpaperView] = useState<ConsolidationWorkpaperView>("preparation");
+  const [comparisonLaunch, setComparisonLaunch] = useState<StatementComparisonLaunchContext | null>(null);
   const [periodKind, setPeriodKind] = useState<ConsolidationPeriodKind>("month");
   const [reportType, setReportType] = useState<StatementReportType>("balanceSheet");
   const feedback = useFeedback();
@@ -41,6 +47,10 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
   }, [invalidate, setBatchId]);
   const handleStartWorkpaper = useCallback(() => setWorkpaperView("fxWorkpaper"), []);
   const handleWorkpaperConfirmed = useCallback(() => setWorkpaperView("report"), []);
+  const handleLaunchComparison = useCallback((context: StatementComparisonLaunchContext) => {
+    setComparisonLaunch(context);
+    setView("comparison");
+  }, []);
   const navigation = useMemo(() => createPageTabBar({
     items: STATEMENT_TABS,
     active: view,
@@ -121,6 +131,7 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
     onBatchDeleted: consolidation.clearBatchAndRefresh,
     onStartWorkpaper: handleStartWorkpaper,
     onWorkpaperConfirmed: handleWorkpaperConfirmed,
+    onLaunchComparison: handleLaunchComparison,
     navigation,
   };
   return (
@@ -130,7 +141,15 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
       {view === "consolidation" && workpaperView === "nciWorkpaper" ? <NciEquityWorksheetTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "workpaper" ? <ConsolidationWorksheetTab {...consolidationProps} /> : null}
       {view === "consolidation" && workpaperView === "report" ? <ConsolidatedReportTab {...consolidationProps} /> : null}
-      {view === "statements" ? <ReportTab navigation={navigation} canExport={capabilities.canExport} /> : null}
+      {view === "statements" ? <ReportTab navigation={navigation} canExport={capabilities.canExport} onLaunchComparison={handleLaunchComparison} /> : null}
+      {view === "comparison" ? (
+        <StatementComparisonTab
+          navigation={navigation}
+          capabilities={capabilities}
+          launchContext={comparisonLaunch}
+          onLaunchHandled={() => setComparisonLaunch(null)}
+        />
+      ) : null}
     </Suspense>
   );
 }

@@ -107,6 +107,12 @@ export {
   type ResolvedComparisonTarget,
 } from "./run-execution";
 export {
+  previewStatementComparisonTarget,
+  type ComparisonTargetPreview,
+  type ComparisonTargetPreviewDb,
+  type ComparisonTargetPreviewSelection,
+} from "./target-preview";
+export {
   getComparisonPackageDetail,
   getComparisonRunDetail,
   listComparisonPackages,
@@ -114,6 +120,7 @@ export {
   type ComparisonPackageDetail,
   type ComparisonPackageListItem,
   type ComparisonRunDetail,
+  type ComparisonRunExternalCellDto,
   type ComparisonRunLineDto,
   type ComparisonRunListItem,
   type ComparisonSheetInventoryItem,

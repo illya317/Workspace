@@ -17,6 +17,7 @@ import type { ConsolidatedEquityChangesRow } from "@workspace/finance/types";
 import {
   createConsolidatedReportSection,
 } from "./consolidated-report-model";
+import { mapConsolidatedReportType } from "./statement-comparison-model";
 import type { ConsolidationTabProps } from "./statement-ui-types";
 import { useConsolidatedReport } from "./useConsolidatedReport";
 import { buildConsolidatedStatementAssistantContext } from "./statement-assistant-context";
@@ -38,6 +39,9 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   const feedback = useFeedback();
   const pageAssistant = usePageAssistant();
   const reportType = props.reportType;
+  const onLaunchComparison = props.onLaunchComparison;
+  const sharedToolbarItems = props.sharedToolbarItems;
+  const reportTypeToolbarItem = props.reportTypeToolbarItem;
   const [downloading, setDownloading] = useState(false);
   const batchStatus = data?.batch?.status ?? null;
   const batchId = data?.batch?.id ?? null;
@@ -70,8 +74,8 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
   }, [batchId, canExport, feedback, parentName, scopeMonth, scopeYear]);
   const toolbar = useMemo(() => ({
     items: [
-      ...props.sharedToolbarItems,
-      props.reportTypeToolbarItem,
+      ...sharedToolbarItems,
+      reportTypeToolbarItem,
       {
         kind: "action-group" as const,
         key: "report-actions",
@@ -82,6 +86,25 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
             kind: "export" as const,
             disabled: downloading || !output.report,
             onClick: () => void downloadWorkbook(),
+          }] : []),
+          ...(onLaunchComparison ? [{
+            key: "comparison",
+            label: "差异诊断",
+            kind: "view" as const,
+            disabled: !isOfficial || !batchId || !data?.scope.parentCompanyId,
+            onClick: () => {
+              const batch = data?.batch;
+              const parentCompanyId = data?.scope.parentCompanyId;
+              if (!onLaunchComparison || !batchId || !parentCompanyId || !batch) return;
+              onLaunchComparison({
+                kind: "consolidated",
+                parentCompanyId,
+                parentName,
+                batchId,
+                batchLabel: `批次 #${batchId}（V${batch.version} · ${batchStatus}）`,
+                reportType: mapConsolidatedReportType(reportType),
+              });
+            },
           }] : []),
           {
             key: "assistant",
@@ -100,7 +123,7 @@ export function ConsolidatedReportTab(props: ConsolidationTabProps) {
         ],
       },
     ],
-  }), [assistantContext, canExport, downloadWorkbook, downloading, output.report, pageAssistant, parentName, props.reportTypeToolbarItem, props.sharedToolbarItems]);
+  }), [assistantContext, batchId, batchStatus, canExport, data?.batch, data?.scope, downloadWorkbook, downloading, isOfficial, onLaunchComparison, output.report, pageAssistant, parentName, reportType, reportTypeToolbarItem, sharedToolbarItems]);
 
   let sections: BodySurfaceSectionSpec[];
   if (!data) {
