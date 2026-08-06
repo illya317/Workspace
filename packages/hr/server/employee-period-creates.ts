@@ -17,6 +17,7 @@ import {
   type EmployeeAssignmentCreateInput,
   type EmploymentPeriodCreateInput,
 } from "./domain/employee-period-create-validation";
+import { normalizeTargetAssignment } from "./domain/employee-lifecycle-validation";
 
 type CreateResult = { success: true; id: number; version: number; changed: boolean };
 
@@ -65,28 +66,43 @@ export async function createEmployeeAssignment(
   input: EmployeeAssignmentCreateInput,
   userId: number,
 ): Promise<DomainServiceResult<CreateResult>> {
-  const command = mapValidationToServiceResult(buildEmployeeAssignmentCreateCommand(employeeId, input, userId));
-  if (!command.ok) return command;
-  const access = await allowDirectWrite("hr.roster.employeeAssignment.create", userId, "任职记录");
+  const parsed = mapValidationToServiceResult(buildEmployeeAssignmentCreateCommand(employeeId, input, userId));
+  if (!parsed.ok) return parsed;
+  const access = await allowDirectWrite("hr.roster.employeeAssignment.create", parsed.data.userId, "任职记录");
   if (!access.ok) return access;
+  if (!parsed.data.startDate) return serviceError("任职开始日期必填", 400);
+  const placement = mapValidationToServiceResult(await normalizeTargetAssignment(
+    parsed.data.employeeId,
+    parsed.data,
+    parsed.data.startDate,
+  ));
+  if (!placement.ok) return placement;
+  const command = {
+    ...parsed.data,
+    reportingCompanyId: placement.data.reportingCompanyId,
+    departmentId: placement.data.departmentId,
+    positionId: placement.data.positionId,
+    positionReportOverrideId: placement.data.positionReportOverrideId,
+    reportToPositionId: parsed.data.reportToPositionId ?? placement.data.reportToPositionId,
+  };
   try {
     const persisted = await runSerializableTransaction(async (tx) => {
-      const state = mapValidationToServiceResult(await validateEmployeeAssignmentCreateState(tx, command.data));
+      const state = mapValidationToServiceResult(await validateEmployeeAssignmentCreateState(tx, command));
       if (!state.ok) return state;
       if (state.data.replayId !== null) return serviceOk({ success: true as const, id: state.data.replayId, version: state.data.replayVersion, changed: false });
       const now = new Date();
       const created = await tx.eDP.create({
         data: {
-          employeeId: command.data.employeeId,
-          reportingCompanyId: command.data.reportingCompanyId,
-          departmentId: command.data.departmentId,
-          positionId: command.data.positionId,
-          positionReportOverrideId: command.data.positionReportOverrideId,
-          isPrimary: command.data.isPrimary,
-          startDate: command.data.startDate,
-          endDate: command.data.endDate,
-          reportToPositionId: command.data.reportToPositionId,
-          allocationWeight: command.data.allocationWeight,
+          employeeId: command.employeeId,
+          reportingCompanyId: command.reportingCompanyId,
+          departmentId: command.departmentId,
+          positionId: command.positionId,
+          positionReportOverrideId: command.positionReportOverrideId,
+          isPrimary: command.isPrimary,
+          startDate: command.startDate,
+          endDate: command.endDate,
+          reportToPositionId: command.reportToPositionId,
+          allocationWeight: command.allocationWeight,
           editedBy: userId,
           editedAt: now,
         },

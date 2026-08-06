@@ -172,7 +172,7 @@ function normalizeEmploymentFields(input: EmployeeLifecycleInput) {
   return okCommand(values);
 }
 
-async function normalizeTargetAssignment(
+export async function normalizeTargetAssignment(
   employeeId: number,
   input: EmployeeLifecycleInput,
   effectiveDate: string,
