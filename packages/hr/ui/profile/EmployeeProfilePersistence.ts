@@ -12,8 +12,8 @@ import type {
   ProfileField,
 } from "@workspace/hr/types";
 import { validateChineseIdNumber } from "@workspace/hr/utils/identity";
+import { normalizeFieldValue } from "./EmployeeProfilePersistenceValues";
 import {
-  normalizeFieldValue,
   persistableEdpRows,
   valuesEqual,
   type EditableRecord,
