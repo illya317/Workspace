@@ -9,6 +9,7 @@ const financeBudgetValidation = (name: string) => `packages/finance/server/budge
 const financeLedgerRouteCommand = (name: string) => `packages/finance/server/ledger/route-commands.${name}`;
 const financeCostRouteCommand = (name: string) => `packages/finance/server/cost/route-commands.${name}`;
 const consolidationRouteCommand = (name: string) => `packages/finance/server/statements/consolidation-route-commands.${name}`;
+const comparisonRouteCommand = (name: string) => `packages/finance/server/statements/comparison/route-commands.${name}`;
 
 export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   registeredWrite({ key: "finance.ledger.account.create", activeEntity: "FinanceAccount", domain: d(financeLedgerValidation("buildFinanceAccountCreateCommand"), "packages/finance/server/ledger/accounts.createFinanceAccount"), shape: "full_record", target: "new_record", commitMode: "activate" }),
@@ -130,6 +131,37 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   registeredLifecycle({ key: "finance.statements.consolidationBatch.review", activeEntity: "FinanceConsolidationBatch", operation: "approve", targetIdKey: "batchId", versionKey: "expectedRevision", domain: d(consolidationRouteCommand("buildReviewConsolidationBatchRouteCommand"), consolidationRouteCommand("executeConsolidationBatchLifecycleRouteCommand")), auditPolicy: "history" }),
   registeredLifecycle({ key: "finance.statements.consolidationBatch.lock", activeEntity: "FinanceConsolidationBatch", operation: "custom", targetIdKey: "batchId", versionKey: "expectedRevision", domain: d(consolidationRouteCommand("buildLockConsolidationBatchRouteCommand"), consolidationRouteCommand("executeConsolidationBatchLifecycleRouteCommand")), auditPolicy: "history" }),
   registeredLifecycle({ key: "finance.statements.consolidationBatch.publish", activeEntity: "FinanceConsolidationBatch", operation: "custom", targetIdKey: "batchId", versionKey: "expectedRevision", domain: d(consolidationRouteCommand("buildPublishConsolidationBatchRouteCommand"), consolidationRouteCommand("executeConsolidationBatchLifecycleRouteCommand")), auditPolicy: "history" }),
+  {
+    // Same shape registeredImport produces, written literally so `exchange.notes` stays type-checked
+    // (registeredImport's ActionContractMetadata return type omits `exchange` from typing).
+    ...registeredActionFacts("finance.statements.comparison.import"),
+    kind: "exchange",
+    payload: {
+      cardinality: "batch",
+      shape: "full_record",
+      target: "mixed",
+      batch: { itemKey: "items", atomicity: "all_or_nothing" },
+    },
+    exchange: {
+      direction: "import",
+      transport: "file",
+      result: "records",
+      atomicity: "all_or_nothing",
+      partialFailurePolicy: "reject_all",
+      notes: "Only .xlsx OOXML uploads at most 20 MiB (enforced at the route before reading bytes and again in preflight). Validation stages: request envelope -> ZIP/archive preflight -> isolated worker parse -> normalized DTO -> mapping detection. Atomicity: preflight rejection persists nothing; a parse failure persists only a failed evidence row with a safe failureCode. Audit: uploader FK plus timestamps; unsafe content is never echoed. The upload creates and updates no accounting fact (no voucher/statement/consolidation/reclass/FX writes).",
+    },
+    persistence: {
+      strategy: "active_table_state",
+      activeEntity: "FinanceStatementComparisonPackage",
+      supportedPersistenceModes: ["active"],
+      defaultMode: "active",
+      commitMode: "native_transition",
+    },
+    domain: d(comparisonRouteCommand("buildImportComparisonWorkbookRouteCommand"), comparisonRouteCommand("executeImportComparisonWorkbookRouteCommand")),
+  },
+  registeredWrite({ key: "finance.statements.comparisonMapping.save", activeEntity: "FinanceStatementComparisonMapping", domain: d(comparisonRouteCommand("buildSaveComparisonMappingRouteCommand"), comparisonRouteCommand("executeSaveComparisonMappingRouteCommand")), shape: "change_set", target: "mixed", targetIdKey: "mappingId", commitMode: "native_transition" }),
+  registeredWrite({ key: "finance.statements.comparisonRun.create", activeEntity: "FinanceStatementComparisonRun", domain: d(comparisonRouteCommand("buildCreateComparisonRunRouteCommand"), comparisonRouteCommand("executeCreateComparisonRunRouteCommand")), shape: "full_record", target: "new_record", commitMode: "native_transition" }),
+  registeredLifecycle({ key: "finance.statements.comparison.archive", activeEntity: "FinanceStatementComparisonPackage", operation: "archive", targetIdKey: "packageId", domain: d(comparisonRouteCommand("buildArchiveComparisonPackageRouteCommand"), comparisonRouteCommand("executeArchiveComparisonPackageRouteCommand")), referencePolicy: "domain", auditPolicy: "none" }),
 
   registeredWrite({ key: "finance.budget.version.create", activeEntity: "BudgetVersion", domain: d(financeBudgetValidation("buildBudgetVersionCreateCommand"), "packages/finance/server/budget/budget-version.createBudgetVersion"), shape: "full_record", target: "new_record", commitMode: "activate" }),
   registeredLifecycle({ key: "finance.budget.version.activate", activeEntity: "BudgetVersion", operation: "activate", domain: d(financeSharedValidation("buildFinanceIdCommand"), "packages/finance/server/budget/budget-version.activateBudgetVersion"), auditPolicy: "event" }),

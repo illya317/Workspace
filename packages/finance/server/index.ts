@@ -27,3 +27,13 @@ export {
   createComparisonRun,
   failComparisonRun,
 } from "./statements/comparison/comparison-runs";
+export {
+  executeComparisonRun,
+  type ExecuteComparisonRunInput,
+  type ExecutedComparisonRun,
+} from "./statements/comparison/run-execution";
+export {
+  getComparisonPackageDetail,
+  getComparisonRunDetail,
+  listComparisonPackages,
+} from "./statements/comparison/queries";

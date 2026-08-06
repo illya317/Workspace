@@ -222,7 +222,8 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
   capability("finance", "statements", "报表与合并", {
     prefixes: [
       "server/statements/", "ui/statements/", "types/statements", "constants/statements",
-      "server/domain/statement-", "server/domain/consolidation-", "server/group-policy-",
+      "server/domain/statement-", "server/domain/consolidation-", "server/domain/comparison-",
+      "server/group-policy-",
       "types/consolidated-", "types/consolidation-",
       "types/statement-",
     ],
@@ -231,6 +232,8 @@ export const SOURCE_CAPABILITY_DECLARATIONS: readonly SourceCapabilityDeclaratio
       "server/statements/amount-explanation/service.ts",
       "server/statements/comparison/service.ts",
       "server/statements/comparison/comparison-runs.ts",
+      "server/statements/comparison/run-execution.ts",
+      "server/statements/comparison/queries.ts",
     ],
   }),
   capability("finance", "tax", "税务", {

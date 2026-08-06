@@ -194,6 +194,8 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/modules/finance/assets/policies", ["DELETE"]),
       ...apiResourceGuards("/api/modules/finance/treasury", ["GET", "POST", "PUT"]), ...apiResourceGuards("/api/modules/finance/tax", ["GET", "POST", "PUT"]),
       ...apiResourceGuards("/api/modules/finance/statements"),
+      // Explicit guard so Agent discovery resolves the read-only POST exception policy (notes flow from the API action policy).
+      ...apiResourceGuards("/api/modules/finance/statements/amount-explanations/query", ["POST"]),
       ...apiResourceGuards("/api/modules/finance/budget", ["GET", "POST"]),
       ...apiResourceGuards("/api/modules/finance/analysis", ["GET"]),
       ...apiResourceGuards("/api/modules/finance/cost", ["GET", "DELETE"]),

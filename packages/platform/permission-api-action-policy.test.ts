@@ -5,6 +5,7 @@ import { getActionContractMetadata } from "./action-contract-registry";
 import { getBusinessActionRegistration } from "./business-action-registry";
 import { FINANCE_ASSET_CANONICAL_ACTION_DEFINITIONS } from "./business-action-finance-assets-interface";
 import { resolvePermissionApiActionPolicy } from "./permission-api-action-policy";
+import { getPermissionResourceActionPolicy } from "./permission-resource-policy";
 
 function resolve(apiPath: string) {
   return resolvePermissionApiActionPolicy({
@@ -395,4 +396,117 @@ test("SQL setting operations require governance configure", () => {
   assert.deepEqual(policy.requiredActions, ["configure"]);
   assert.equal(policy.runtimeEnforcement, "serviceDelegated");
   assert.match(policy.notes ?? "", /never executes privileged SQL/);
+});
+
+test("Finance statement comparison upload requires explicit import plus create, never broad POST create", () => {
+  const upload = resolvePermissionApiActionPolicy({
+    method: "POST",
+    apiPath: "/api/modules/finance/statements/comparisons",
+    resourceKey: "finance.statements",
+  });
+  assert.equal(upload.resourceKey, "finance.statements");
+  assert.deepEqual(upload.requiredActions, ["import", "create"]);
+  assert.equal(upload.runtimeEnforcement, "gateway");
+  assert.match(upload.notes ?? "", /import/);
+
+  // The precise pattern wins over the broad POST=create default: without the
+  // explicit-only import grant the gateway must not let upload through, and
+  // ordinary statement POSTs keep their default create requirement.
+  const otherStatementsPost = resolvePermissionApiActionPolicy({
+    method: "POST",
+    apiPath: "/api/modules/finance/statements/consolidation/scope-selections",
+    resourceKey: "finance.statements",
+  });
+  assert.deepEqual(otherStatementsPost.requiredActions, ["create"]);
+});
+
+test("Finance statement comparison mutation matrix maps to update/create actions", () => {
+  const cases = [
+    ["PUT", "/api/modules/finance/statements/comparisons/9/mapping", ["update"]],
+    ["POST", "/api/modules/finance/statements/comparisons/9/runs", ["create"]],
+    ["POST", "/api/modules/finance/statements/comparisons/9/archive", ["update"]],
+  ] as const;
+  for (const [method, apiPath, requiredActions] of cases) {
+    const policy = resolvePermissionApiActionPolicy({ method, apiPath, resourceKey: "finance.statements" });
+    assert.equal(policy.resourceKey, "finance.statements");
+    assert.deepEqual(policy.requiredActions, requiredActions, `${method} ${apiPath}`);
+    assert.equal(policy.runtimeEnforcement, "gateway");
+  }
+});
+
+test("Finance statement comparison reads stay on the default read action", () => {
+  for (const apiPath of [
+    "/api/modules/finance/statements/comparisons",
+    "/api/modules/finance/statements/comparisons/9",
+    "/api/modules/finance/statements/comparisons/runs/21",
+  ]) {
+    const policy = resolveGet(apiPath, "finance.statements");
+    assert.equal(policy.resourceKey, "finance.statements");
+    assert.deepEqual(policy.requiredActions, ["read"], apiPath);
+    assert.equal(policy.runtimeEnforcement, "gateway");
+  }
+});
+
+test("Amount explanation query is a registered read-only POST exception and Agent-discoverable", async () => {
+  const policy = resolvePermissionApiActionPolicy({
+    method: "POST",
+    apiPath: "/api/modules/finance/statements/amount-explanations/query",
+    resourceKey: "finance.statements",
+  });
+  assert.equal(policy.resourceKey, "finance.statements");
+  assert.deepEqual(policy.requiredActions, ["read"]);
+  assert.equal(policy.runtimeEnforcement, "gateway");
+  assert.match(policy.notes ?? "", /read-only POST exception/);
+  assert.match(policy.notes ?? "", /accountingTreatment: not_evaluated/);
+
+  const { buildPersonalApiCatalog } = await import("./server/personal-api-catalog");
+  const catalog = buildPersonalApiCatalog();
+  const contract = catalog.contracts.find(
+    (item) => item.method === "POST" && item.pathPrefix === "/api/modules/finance/statements/amount-explanations/query",
+  );
+  assert.ok(contract, "query endpoint must be registered in the protected business API discovery catalog");
+  assert.deepEqual(contract.requiredActions, ["read"]);
+  assert.match(contract.notes ?? "", /not_evaluated/);
+});
+
+test("finance.statements import is supported, explicit-only and never ancestor-inherited", () => {
+  const policy = getPermissionResourceActionPolicy("finance.statements");
+  assert.ok(policy);
+  assert.equal(policy.supportedActions.includes("import"), true);
+  assert.equal(policy.explicitOnlyActions.includes("import"), true);
+  assert.equal(policy.ancestorInheritedActions.includes("import"), false);
+});
+
+test("Finance statement comparison commands have BusinessAction and ActionContract registrations", () => {
+  const upload = getBusinessActionRegistration("finance.statements.comparison.import");
+  assert.equal(upload?.resourceKey, "finance.statements");
+  assert.equal(upload?.directPermissionAction, "import");
+  assert.equal(upload?.writeKind, "import");
+  assert.deepEqual(
+    upload?.apiRoutes?.map((route) => `${route.method} ${route.path}`),
+    ["POST /api/modules/finance/statements/comparisons"],
+  );
+
+  const uploadContract = getActionContractMetadata("finance.statements.comparison.import");
+  assert.equal(uploadContract?.kind, "exchange");
+  assert.equal(uploadContract?.exchange?.direction, "import");
+  assert.equal(uploadContract?.exchange?.transport, "file");
+  assert.equal(uploadContract?.exchange?.atomicity, "all_or_nothing");
+  assert.equal(uploadContract?.persistence?.activeEntity, "FinanceStatementComparisonPackage");
+  assert.match(uploadContract?.exchange?.notes ?? "", /20 MiB/);
+  assert.match(uploadContract?.exchange?.notes ?? "", /no accounting fact|creates and updates no accounting fact/);
+
+  const expectations = [
+    ["finance.statements.comparisonMapping.save", "update", "FinanceStatementComparisonMapping", "PUT /api/modules/finance/statements/comparisons/:id/mapping"],
+    ["finance.statements.comparisonRun.create", "create", "FinanceStatementComparisonRun", "POST /api/modules/finance/statements/comparisons/:id/runs"],
+    ["finance.statements.comparison.archive", "update", "FinanceStatementComparisonPackage", "POST /api/modules/finance/statements/comparisons/:id/archive"],
+  ] as const;
+  for (const [key, permissionAction, activeEntity, route] of expectations) {
+    const action = getBusinessActionRegistration(key);
+    assert.equal(action?.resourceKey, "finance.statements", key);
+    assert.equal(action?.directPermissionAction, permissionAction, key);
+    assert.deepEqual(action?.apiRoutes?.map((item) => `${item.method} ${item.path}`), [route], key);
+    const contract = getActionContractMetadata(key);
+    assert.equal(contract?.persistence?.activeEntity, activeEntity, key);
+  }
 });

@@ -139,6 +139,21 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     reason: "controlPlane",
     description: "余额切换重放是受控迁移预览和维护诊断，不是持续经营分析数据集。",
   },
+  "/api/modules/finance/statements/comparisons": {
+    disposition: "excluded",
+    reason: "controlPlane",
+    description: "对比证据包清单是导入预检、映射确认与归档的证据治理记录，用于证据回溯与审计界面；被对比的报表事实由各报表数据源承载。",
+  },
+  "/api/modules/finance/statements/comparisons/[id]": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单个对比证据包的映射定义、工作表清单与版本时间线只服务详情页与证据回溯，不是有界分页分析数据集。",
+  },
+  "/api/modules/finance/statements/comparisons/runs/[runId]": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单次对比运行的逐行比对结果与金额解释快照只服务运行详情与证据回放，不是稳定分页分析数据集。",
+  },
   "/api/modules/finance/tax": {
     disposition: "excluded",
     reason: "unstableComposite",

@@ -29,6 +29,9 @@ export interface CreateComparisonRunInput {
   mappingId: number;
   createdBy: number;
   db?: StatementComparisonDb;
+  /** Package 6 run 执行接线注入；创建时冻结 solver adapter 身份与版本。 */
+  solverAdapterId?: string | null;
+  solverAdapterVersion?: string | null;
 }
 
 export interface CreatedComparisonRun {
@@ -91,8 +94,8 @@ export async function createComparisonRun(input: CreateComparisonRunInput): Prom
       orchestratorVersion: AMOUNT_EXPLANATION_ORCHESTRATOR_VERSION,
       formulaAdapterId: snapshot?.recalculation?.adapterId ?? null,
       formulaAdapterVersion: snapshot?.recalculation?.adapterVersion ?? null,
-      solverAdapterId: null,
-      solverAdapterVersion: null,
+      solverAdapterId: input.solverAdapterId ?? null,
+      solverAdapterVersion: input.solverAdapterVersion ?? null,
       configFingerprint,
       status: "running",
       inputFingerprint,

@@ -93,3 +93,28 @@ export {
   type ComparisonRunLineInput,
   type SystemStatementLine,
 } from "./comparison-lines";
+export {
+  comparisonTargetFromMapping,
+  computeEntityComparisonTargetFingerprint,
+  executeComparisonRun,
+  resolveComparisonTarget,
+  type ComparisonLineExplainFn,
+  type ComparisonRunExecutionDb,
+  type ComparisonRunSummary,
+  type EntityReportLinesLoader,
+  type ExecuteComparisonRunInput,
+  type ExecutedComparisonRun,
+  type ResolvedComparisonTarget,
+} from "./run-execution";
+export {
+  getComparisonPackageDetail,
+  getComparisonRunDetail,
+  listComparisonPackages,
+  type ComparisonMappingDto,
+  type ComparisonPackageDetail,
+  type ComparisonPackageListItem,
+  type ComparisonRunDetail,
+  type ComparisonRunLineDto,
+  type ComparisonRunListItem,
+  type ComparisonSheetInventoryItem,
+} from "./queries";
