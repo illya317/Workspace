@@ -10,12 +10,16 @@ const cnb = read("../../.cnb.yml");
 const cnbDeploy = read("../../.cnb/tag_deploy.yml");
 const cnbCi = read("../../ops/cnb-ci.sh");
 const cnbCiCache = read("../../ops/cnb-ci-cache.Dockerfile");
+const cnbTypeCache = read("../../ops/cnb-type-cache.sh");
+const cnbTypeCacheDockerfile = read("../../ops/cnb-type-cache.Dockerfile");
 const cnbRelease = read("../../ops/cnb-release.sh");
 const imageDockerfile = read("../../ops/image.Dockerfile");
 const deployImage = read("../../ops/deploy-image.sh");
 const packageJson = JSON.parse(read("../../package.json"));
 const packager = read("../../ops/build-standalone-artifact.sh");
 const nodeVersion = read("../../.node-version").trim();
+const pullRequestPipeline = cnb.match(/  pull_request:[\s\S]*?\n  push:/)?.[0] ?? "";
+const pushPipeline = cnb.match(/\n  push:[\s\S]*?\n  api_trigger_deploy:/)?.[0] ?? "";
 
 function git(cwd, args) {
   const result = spawnSync("git", args, { cwd, encoding: "utf8" });
@@ -71,7 +75,7 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.equal((cnb.match(/cnb-ci\.sh setup/g) ?? []).length, 2);
   assert.equal((cnb.match(/cnb-ci\.sh lane/g) ?? []).length, 24);
   assert.equal((cnb.match(/cnb-ci\.sh summary/g) ?? []).length, 2);
-  assert.equal((cnb.match(/allowFailure: true/g) ?? []).length, 24);
+  assert.equal((cnb.match(/allowFailure: true/g) ?? []).length, 26);
   assert.doesNotMatch(cnbCi, /npm ci|playwright install/);
   assert.equal((cnbCiCache.match(/npm ci --no-audit/g) ?? []).length, 1);
   assert.match(cnbCiCache, /PLAYWRIGHT_BROWSERS_PATH=\/ms-playwright/);
@@ -87,6 +91,24 @@ test("PR and main restore the versioned dependency image and aggregate native pa
   assert.match(cnb, /main:\/workspace\/\.cache\/types:read-write/);
   assert.match(cnb, /main:\/workspace\/\.cache\/tsbuild:read-write/);
   assert.match(cnb, /key: main-cnb-delivery-cache[\s\S]*wait: true/);
+  assert.match(cnb, /restore-dependencies[\s\S]*restore-cross-runner-type-cache[\s\S]*setup-ci-services/);
+  assert.match(cnb, /required-summary[\s\S]*publish-cross-runner-type-cache[\s\S]*publish-cnb-image-once/);
+  assert.equal((cnb.match(/cnb-type-cache\.sh restore/g) ?? []).length, 1);
+  assert.equal((cnb.match(/cnb-type-cache\.sh publish/g) ?? []).length, 1);
+  assert.doesNotMatch(pullRequestPipeline, /cnb-type-cache\.sh/);
+  assert.match(pushPipeline, /cnb-type-cache\.sh restore/);
+  assert.match(pushPipeline, /cnb-type-cache\.sh publish/);
+  assert.match(cnbTypeCache, /:typecache-main/);
+  assert.match(cnbTypeCache, /node-local cache present; cross-runner restore skipped/);
+  assert.match(cnbTypeCache, /docker pull "\$CACHE_REF"/);
+  assert.match(cnbTypeCache, /docker buildx build[\s\S]*--platform linux\/amd64[\s\S]*--push/);
+  assert.match(cnbTypeCache, /cp -a \.cache\/types\/[.] "\$context\/types\/"/);
+  assert.match(cnbTypeCache, /cp -a \.cache\/tsbuild\/[.] "\$context\/tsbuild\/"/);
+  assert.doesNotMatch(`${cnbTypeCache}\n${cnbTypeCacheDockerfile}`, /\.env|DATABASE_URL|DIRECT_URL|WORKSPACE_CONFIG_DIR/);
+  assert.match(cnbTypeCacheDockerfile, /FROM scratch/);
+  assert.match(cnbTypeCacheDockerfile, /COPY types\/ \/workspace\/\.cache\/types\//);
+  assert.match(cnbTypeCacheDockerfile, /COPY tsbuild\/ \/workspace\/\.cache\/tsbuild\//);
+  assert.match(cnbTypeCacheDockerfile, /CMD \["\/cache-only"\]/);
   assert.match(cnb, /ln -s \/opt\/workspace-deps\/node_modules node_modules/);
   assert.match(cnbCi, /run-node-tests\.mjs bucket/);
   assert.match(cnbCi, /suite="cnb-\$\{LANE\}"/);
@@ -146,6 +168,32 @@ test("CNB accepts only a clean event checkout and handles PR source or pre-merge
   });
   assert.equal(unexpected.status, 1);
   assert.match(unexpected.stderr, /CNB PR checkout SHA 不匹配/);
+});
+
+test("cross-runner type cache preserves a complete node-local cache", (t) => {
+  const cwd = fs.mkdtempSync(path.join(os.tmpdir(), "cnb-type-cache-"));
+  t.after(() => fs.rmSync(cwd, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(cwd, ".cache/types"), { recursive: true });
+  fs.mkdirSync(path.join(cwd, ".cache/tsbuild"), { recursive: true });
+  fs.writeFileSync(path.join(cwd, ".cache/types/example.d.ts"), "export {};\n");
+  fs.writeFileSync(path.join(cwd, ".cache/tsbuild/example.tsbuildinfo"), "{}\n");
+
+  const result = spawnSync("bash", [new URL("../../ops/cnb-type-cache.sh", import.meta.url).pathname, "restore"], {
+    cwd,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      CNB_COMMIT: "a".repeat(40),
+      CNB_DOCKER_REGISTRY: "docker.cnb.cool",
+      CNB_REPO_SLUG_LOWERCASE: "example/workspace",
+      CNB_EVENT: "push",
+      CNB_BRANCH: "main",
+    },
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /node-local cache present; cross-runner restore skipped/);
+  assert.equal(fs.existsSync(path.join(cwd, ".cache/types/example.d.ts")), true);
+  assert.equal(fs.existsSync(path.join(cwd, ".cache/tsbuild/example.tsbuildinfo")), true);
 });
 
 test("main packages and publishes one linux amd64 application image", () => {

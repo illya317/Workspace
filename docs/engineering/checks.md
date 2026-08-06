@@ -153,7 +153,7 @@ CNB 使用原生并行 jobs 同轮执行全部独立 lane；随后尝试 exact s
 - PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
 - 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
 
-CNB 是唯一 CI/CD 平台。版本化的 `ops/cnb-ci-cache.Dockerfile` 一次安装 `node_modules` 与 Chromium，Pipeline 通过软链复用；`ops/cnb-ci.sh` 不执行 `npm ci`。CNB 原生并行 jobs 跑四个 static bucket、四个 Node bucket、type、唯一 Next+standalone 和 PostgreSQL，最终汇总全部 lane 失败；Playwright 只启动 exact archive。main 的 `.next/cache` 和 TypeScript 产物卷在 Pipeline 锁保护下直接读写，不因后续 CD 失败而丢弃；PR 只读这些缓存。
+CNB 是唯一 CI/CD 平台。版本化的 `ops/cnb-ci-cache.Dockerfile` 一次安装 `node_modules` 与 Chromium，Pipeline 通过软链复用；`ops/cnb-ci.sh` 不执行 `npm ci`。CNB 原生并行 jobs 跑四个 static bucket、四个 Node bucket、type、唯一 Next+standalone 和 PostgreSQL，最终汇总全部 lane 失败；Playwright 只启动 exact archive。main 的 `.next/cache` 和 TypeScript 产物卷在 Pipeline 锁保护下直接读写，不因后续 CD 失败而丢弃；锁保护的 `main push` 在节点 TypeScript 卷为空时还会从同仓库 `:typecache-main` 恢复 `.cache/types` 与 `.cache/tsbuild`，required 通过后再更新该缓存镜像。PR 只读节点缓存，所有缓存失败都只影响耗时。
 
 受保护 `main` 成功后，`ops/cnb-release.sh` 只把该 standalone 包装为一个 `linux/amd64` OCI 应用镜像并直接推送 CNB Registry。`release.json` 绑定 commit、tree、content digest、artifact digest、migration set、CNB Build ID 和 image digest。演练与生产只消费该 digest。详见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 

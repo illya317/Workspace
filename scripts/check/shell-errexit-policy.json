@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
   "diagnosticPolicy": "prohibited",
-  "expectedOccurrenceCount": 46,
+  "expectedOccurrenceCount": 47,
   "entries": [
     { "path": "ops/build-standalone-artifact.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "Standalone artifact construction writes governed output." },
     { "path": "ops/cnb-ci.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "CNB required CI, exact build packaging, database tests, and E2E run as one fail-closed pipeline." },
     { "path": "ops/cnb-release.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "CNB image publish, digest verification, rehearsal, and production deployment fail before partial continuation." },
+    { "path": "ops/cnb-type-cache.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "CNB TypeScript cache restore and publish must not continue after a partial cache transfer." },
     { "path": "ops/deploy-image.sh", "command": "set -euo", "counts": { "execution": 2 }, "reason": "Local validation and the remote lock-backup-migration-cutover transaction both fail closed." },
     { "path": "ops/install-kimi-agent-runtime.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "Kimi runtime installation mutates runtime files." },
     { "path": "ops/install-library-embedding-model.sh", "command": "set -euo", "counts": { "execution": 1 }, "reason": "Embedding model installation mutates runtime files." },

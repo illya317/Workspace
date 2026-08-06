@@ -143,6 +143,9 @@ main:
             ln -s /opt/workspace-deps/node_modules node_modules
             test -x node_modules/.bin/next
             test -x node_modules/.bin/playwright
+        - name: restore-cross-runner-type-cache
+          allowFailure: true
+          script: bash ./ops/cnb-type-cache.sh restore
         - name: setup-ci-services
           script: bash ./ops/cnb-ci.sh setup
         - name: collect-all-independent-errors
@@ -185,6 +188,9 @@ main:
           script: bash ./ops/cnb-ci.sh lane e2e
         - name: required-summary
           script: bash ./ops/cnb-ci.sh summary
+        - name: publish-cross-runner-type-cache
+          allowFailure: true
+          script: bash ./ops/cnb-type-cache.sh publish
         - name: publish-cnb-image-once
           script: bash ./ops/cnb-release.sh build
         - name: verify-cnb-image-digest

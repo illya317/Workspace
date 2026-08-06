@@ -34,11 +34,13 @@ remote authoritative main -> Mac read-only exact-ref transport
 1. Pipeline 首先拒绝不匹配本次事件 SHA 或含 tracked/untracked 变化的 checkout；此检查只针对 CNB 临时工作区，不读取 Mac 或调试服务器工作区。
 2. `ops/cnb-ci-cache.Dockerfile` 只随 `.node-version`、package manifests 或 Dockerfile 变化而重建；镜像内一次性安装 Node 依赖和 Chromium。
 3. Pipeline 把 `/opt/workspace-deps/node_modules` 软链到 checkout；`ops/cnb-ci.sh` 不运行 `npm ci`、不复制依赖、不下载浏览器。
-4. setup 先生成一次 Prisma Client 并准备 PostgreSQL，结果也写成独立状态；即使数据库准备失败，源码类 lane 仍继续执行。
-5. CNB 原生并行 jobs 同轮运行四个 static bucket、四个 Node test bucket、完整 type、唯一 Next build+standalone 和 PostgreSQL；随后对 exact standalone 运行 E2E。每个 job 写独立状态，最终 summary 一次列出所有失败 lane。
-6. `STANDALONE_SKIP_NEXT_BUILD=1` 把该 exact build 打包为 `workspace-standalone.tgz`，不重新编译。
-7. PostgreSQL lane 使用 disposable `*_ci` 数据库执行数据 gate、migration、seed 和 integration。
-8. Playwright 始终尝试启动 exact archive；build 失败导致 archive 不存在时，E2E 记录为同轮独立失败，最终与其余错误一起汇总。
+4. `main push` 在节点卷没有完整 TypeScript 增量产物时，从同一 CNB Registry 仓库的 `:typecache-main` 恢复 `.cache/types` 与 `.cache/tsbuild`；同节点已有缓存时不覆盖。缓存镜像拉取失败只按 miss 处理。
+5. setup 先生成一次 Prisma Client 并准备 PostgreSQL，结果也写成独立状态；即使数据库准备失败，源码类 lane 仍继续执行。
+6. CNB 原生并行 jobs 同轮运行四个 static bucket、四个 Node test bucket、完整 type、唯一 Next build+standalone 和 PostgreSQL；随后对 exact standalone 运行 E2E。每个 job 写独立状态，最终 summary 一次列出所有失败 lane。
+7. required summary 通过后，`main push` 把本轮 TypeScript 增量产物更新到 `:typecache-main`；发布缓存失败不阻断唯一应用镜像和部署链。
+8. `STANDALONE_SKIP_NEXT_BUILD=1` 把该 exact build 打包为 `workspace-standalone.tgz`，不重新编译。
+9. PostgreSQL lane 使用 disposable `*_ci` 数据库执行数据 gate、migration、seed 和 integration。
+10. Playwright 始终尝试启动 exact archive；build 失败导致 archive 不存在时，E2E 记录为同轮独立失败，最终与其余错误一起汇总。
 
 PR 到此结束，不导入生产环境、不构建镜像、不部署。
 
@@ -116,9 +118,9 @@ cnb-release.sh verify
 - deploy-unit graph、生成 App、独立 unit 编译/导航/控制面；
 - 生产源码 checkout、现场依赖安装或现场构建。
 
-保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
+保留的最小 CI/CD 代码只有 `.cnb.yml`、`.cnb/tag_deploy.yml`、`ops/cnb-ci-cache.Dockerfile`、`ops/cnb-ci.sh`、`ops/cnb-type-cache.Dockerfile`、`ops/cnb-type-cache.sh`、`ops/cnb-release.sh`、`ops/build-standalone-artifact.sh`、`ops/image.Dockerfile`、`ops/image-release-manifest.mjs`、`ops/deploy-image.sh` 和 `ops/rollback-image.sh`。
 
-缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用，其版本只由 `.node-version`、`package-lock.json` 和缓存 Dockerfile 决定；`package.json` 仅作为构建输入，改脚本而 lockfile 未变时不重建依赖镜像。main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；ESLint 使用 content strategy，不依赖干净 checkout 每次改变的文件时闳戳；TypeScript 另以实际受管源码、JSON/Prisma 输入、lockfile/Node 版本和检查入口的 Git blob 集合作为内容键，相同输入可直接复用已成功结果，任一相关输入变更都会产生新键并重跑；PR 只读 main 缓存；应用镜像使用 Registry BuildKit cache。CNB Volume 不是跨节点保证，缓存未命中只影响耗时，不改变 required CI、制品身份或部署结果。
+缓存镜像与缓存卷禁止包含 `.env`、密钥、生产数据库连接和租户配置。工具链、`node_modules` 与 Chromium 由 CNB 版本镜像跨节点复用，其版本只由 `.node-version`、`package-lock.json` 和缓存 Dockerfile 决定；`package.json` 仅作为构建输入，改脚本而 lockfile 未变时不重建依赖镜像。main 受 Pipeline 锁串行保护，使用 read-write 节点卷即时保留 `.next/cache`、`.cache/eslint`、`.cache/types` 和 `.cache/tsbuild`，即时保留 Next、ESLint 与 TypeScript 增量状态，即使后续部署失败也不丢弃已完成的检查缓存；ESLint 使用 content strategy，不依赖干净 checkout 每次改变的文件时间戳；TypeScript 另以实际受管源码、JSON/Prisma 输入、lockfile/Node 版本和检查入口的 Git blob 集合作为内容键，相同输入可直接复用已成功结果，任一相关输入变更都会产生新键并重跑。为补足 CNB Volume 不保证跨节点的问题，`main push` 只把 `.cache/types` 和 `.cache/tsbuild` 复制到同仓库 `:typecache-main` 缓存镜像；它不包含源码、Next 输出、环境文件或业务数据，且只在节点卷为空时恢复。PR 仍只读 main 节点缓存；应用镜像继续使用独立的 Registry BuildKit cache。所有缓存 miss 或缓存阶段失败都只影响耗时，不改变 required CI、制品身份或部署结果。
 
 ## Agent 闭环
 
