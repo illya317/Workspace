@@ -6,6 +6,7 @@ import { readFileSync } from "node:fs";
 
 import MobileToolbarContent from "./Toolbar.mobile";
 import { groupToolbarItems } from "./Toolbar.layout";
+import { resolveMobileToolbarModel } from "./Toolbar.mobile-model-utils";
 import { executeMobileToolbarAction } from "./Toolbar.mobile-sheetParts";
 import type { ToolbarItem } from "./Toolbar.types";
 
@@ -75,6 +76,19 @@ test("mobile keeps a direct file chooser in the command dock", () => {
   assert.match(markup, /data-mobile-toolbar-command-dock="true"/);
   assert.match(markup, /type="file"/);
   assert.match(markup, /aria-label="上传 Excel"/);
+});
+
+test("mobile keeps file items beyond command capacity in more", () => {
+  const files: ToolbarItem[] = Array.from({ length: 4 }, (_, index) => ({
+    kind: "file" as const,
+    key: `workbook-${index}`,
+    label: `上传 Excel ${index}`,
+    onChange: () => undefined,
+  }));
+  const model = resolveMobileToolbarModel(groupToolbarItems(files, "mobile"));
+  assert.equal(model.commands.length, 3);
+  assert.equal(model.overflowDirectItems.length, 1);
+  assert.equal(model.hasMore, true);
 });
 
 test("mobile sheets use Ant Drawer focus/mask semantics instead of a handwritten portal", () => {

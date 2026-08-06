@@ -53,7 +53,6 @@ async function readApi<T>(response: Response, fallback: string): Promise<T> {
 }
 
 export function useStatementComparison() {
-  // ─── 目标选择 ───
   const [targetKind, setTargetKind] = useState<"entity" | "consolidated">("entity");
   const [companyCode, setCompanyCode] = useState("");
   const [year, setYear] = useState(new Date().getFullYear());
@@ -66,7 +65,6 @@ export function useStatementComparison() {
   const [previewLoading, setPreviewLoading] = useState(false);
   const [previewError, setPreviewError] = useState<string | null>(null);
 
-  // ─── 证据包 ───
   const [packages, setPackages] = useState<ComparisonPackageListItemDto[]>([]);
   const [packagesLoading, setPackagesLoading] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState<number | null>(null);
@@ -75,28 +73,25 @@ export function useStatementComparison() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
 
-  // ─── 映射 ───
   const [selectedProposalIndex, setSelectedProposalIndex] = useState<number | null>(null);
   const [mappingChoices, setMappingChoices] = useState<ComparisonMappingChoices>({});
   const [remapMode, setRemapMode] = useState(false);
   const [confirming, setConfirming] = useState(false);
 
-  // ─── 运行 ───
   const [runDetail, setRunDetail] = useState<ComparisonRunDetailDto | null>(null);
   const [runLoading, setRunLoading] = useState(false);
   const [creatingRun, setCreatingRun] = useState(false);
   const [archiving, setArchiving] = useState(false);
 
-  // ─── 过滤与行选中 ───
   const [filter, setFilter] = useState<ComparisonLineFilter>(EMPTY_COMPARISON_LINE_FILTER);
   const [selectedLineCode, setSelectedLineCode] = useState<string | null>(null);
 
-  // stale 防护：每类资源的最新请求序号。
   const previewSeqRef = useRef(0);
   const packagesSeqRef = useRef(0);
   const detailSeqRef = useRef(0);
   const runSeqRef = useRef(0);
   const uploadAbortRef = useRef<AbortController | null>(null);
+  const operationSeqRef = useRef(0);
 
   const selection = useMemo<ComparisonTargetSelection | null>(() => {
     if (targetKind === "entity") {
@@ -124,6 +119,7 @@ export function useStatementComparison() {
   }, []);
 
   const clearPreview = useCallback(() => {
+    operationSeqRef.current += 1;
     previewSeqRef.current += 1;
     setPreview(null);
     setPreviewError(null);
@@ -153,14 +149,13 @@ export function useStatementComparison() {
     }
   }, [resetEvidence]);
 
-  // ─── 合并批次选项（手动选择路径）───
   useEffect(() => {
     if (targetKind !== "consolidated") {
       setBatchOptions([]);
       return;
     }
     const controller = new AbortController();
-    const params = new URLSearchParams({ year: String(year), month: String(month) });
+    const params = new URLSearchParams({ year: String(year), month: String(month), periodKind });
     fetch(workspacePath(`/api/modules/finance/statements/consolidation?${params}`), { signal: controller.signal })
       .then(async (response) => {
         const payload = await response.json().catch(() => null) as {
@@ -174,9 +169,8 @@ export function useStatementComparison() {
       })
       .catch(() => {});
     return () => controller.abort();
-  }, [month, targetKind, year]);
+  }, [month, periodKind, targetKind, year]);
 
-  // ─── 证据包列表 ───
   const refreshPackages = useCallback(async () => {
     const seq = ++packagesSeqRef.current;
     setPackagesLoading(true);
@@ -199,7 +193,6 @@ export function useStatementComparison() {
     void refreshPackages();
   }, [refreshPackages]);
 
-  // ─── 证据包详情 ───
   const selectPackage = useCallback(async (packageId: number) => {
     const seq = ++detailSeqRef.current;
     runSeqRef.current += 1;
@@ -229,7 +222,6 @@ export function useStatementComparison() {
     }
   }, []);
 
-  // ─── 上传 ───
   const uploadPackage = useCallback(async (file: File) => {
     const validationError = validateComparisonUploadFile(file);
     if (validationError) {
@@ -268,7 +260,6 @@ export function useStatementComparison() {
     setUploading(false);
   }, []);
 
-  // ─── 映射确认/重确认 ───
   const activeMapping = useMemo<ComparisonMappingItemDto | null>(
     () => confirmedMappingForTarget(packageDetail, preview),
     [packageDetail, preview],
@@ -278,7 +269,6 @@ export function useStatementComparison() {
     [activeMapping, preview],
   );
 
-  // ─── 运行 ───
   const loadRun = useCallback(async (runId: number) => {
     const seq = ++runSeqRef.current;
     setRunLoading(true);
@@ -299,14 +289,20 @@ export function useStatementComparison() {
     }
   }, []);
 
-  const startRunForMapping = useCallback(async (mappingId: number, packageId = selectedPackageId) => {
+  const startRunForMapping = useCallback(async (
+    mappingId: number,
+    packageId = selectedPackageId,
+    isCurrent: () => boolean = () => true,
+  ) => {
     const result = await readApi<{ runId: number }>(
       await fetch(workspacePath(`/api/modules/finance/statements/comparisons/${mappingId}/runs`), {
         method: "POST",
       }),
       "对比启动失败",
     );
+    if (!isCurrent()) return;
     if (packageId !== null) await selectPackage(packageId);
+    if (!isCurrent()) return;
     await loadRun(result.runId);
   }, [loadRun, selectPackage, selectedPackageId]);
 
@@ -320,10 +316,12 @@ export function useStatementComparison() {
       setUploadError("请先选择要对比的系统报表");
       return;
     }
+    const operation = ++operationSeqRef.current;
+    const isCurrent = () => operation === operationSeqRef.current;
     const resolvedPreview = preview ?? await runPreviewFor(selection);
-    if (!resolvedPreview) return;
+    if (!resolvedPreview || !isCurrent()) return;
     const detail = await uploadPackage(file);
-    if (!detail) return;
+    if (!detail || !isCurrent()) return;
     const proposal = detail.detection?.best ?? detail.detection?.proposals[0] ?? null;
     if (!proposal || !permissions.canUpdate || !permissions.canCreate || !isComparisonMappingConfirmable(proposal, {})) return;
 
@@ -342,7 +340,8 @@ export function useStatementComparison() {
         }),
         "Excel 报表确认失败",
       );
-      await startRunForMapping(saved.mappingId, detail.id);
+      if (!isCurrent()) return;
+      await startRunForMapping(saved.mappingId, detail.id, isCurrent);
     } catch (cause) {
       setUploadError(cause instanceof Error ? cause.message : "对比启动失败");
     } finally {
@@ -358,6 +357,8 @@ export function useStatementComparison() {
     if (!proposal) return;
     setConfirming(true);
     if (startRun) setCreatingRun(true);
+    const operation = operationSeqRef.current;
+    const isCurrent = () => operation === operationSeqRef.current;
     try {
       const remap = remapMode && activeMapping;
       const body: Record<string, unknown> = {
@@ -380,8 +381,9 @@ export function useStatementComparison() {
         "Excel 报表确认失败",
       );
       setRemapMode(false);
+      if (!isCurrent()) return;
       if (startRun) {
-        await startRunForMapping(saved.mappingId);
+        await startRunForMapping(saved.mappingId, selectedPackageId, isCurrent);
       } else {
         await selectPackage(packageDetail.id);
       }
@@ -389,17 +391,19 @@ export function useStatementComparison() {
       setConfirming(false);
       if (startRun) setCreatingRun(false);
     }
-  }, [activeMapping, mappingChoices, packageDetail, preview, remapMode, selectPackage, selectedProposalIndex, startRunForMapping]);
+  }, [activeMapping, mappingChoices, packageDetail, preview, remapMode, selectPackage, selectedPackageId, selectedProposalIndex, startRunForMapping]);
 
   const createRun = useCallback(async () => {
     if (!activeMapping || staleMapping) return;
     setCreatingRun(true);
+    const operation = operationSeqRef.current;
+    const isCurrent = () => operation === operationSeqRef.current;
     try {
-      await startRunForMapping(activeMapping.id);
+      await startRunForMapping(activeMapping.id, selectedPackageId, isCurrent);
     } finally {
       setCreatingRun(false);
     }
-  }, [activeMapping, staleMapping, startRunForMapping]);
+  }, [activeMapping, selectedPackageId, staleMapping, startRunForMapping]);
 
   const closeRun = useCallback(() => {
     runSeqRef.current += 1;
@@ -408,7 +412,6 @@ export function useStatementComparison() {
     setFilter(EMPTY_COMPARISON_LINE_FILTER);
   }, []);
 
-  // ─── 归档 ───
   const archivePackage = useCallback(async () => {
     if (selectedPackageId === null) return;
     setArchiving(true);
@@ -429,7 +432,6 @@ export function useStatementComparison() {
     }
   }, [refreshPackages, selectedPackageId]);
 
-  // ─── context-launch 预填（立即解析系统目标，不依赖 render 时序）───
   const applyLaunchContext = useCallback((context: StatementComparisonLaunchContext) => {
     clearPreview();
     if (context.kind === "entity") {
@@ -452,7 +454,6 @@ export function useStatementComparison() {
     void runPreviewFor(selectionFromLaunchContext(context));
   }, [clearPreview, runPreviewFor]);
 
-  // ─── 派生 ───
   const filteredLines = useMemo(
     () => (runDetail ? filterComparisonLines(runDetail.lines, filter) : []),
     [filter, runDetail],
@@ -470,16 +471,32 @@ export function useStatementComparison() {
     setTargetKind: (kind: "entity" | "consolidated") => {
       clearPreview();
       setTargetKind(kind);
+      setBatchId(null);
+      if (kind === "consolidated") setBatchOptions([]);
     },
     selection,
     companyCode,
     setCompanyCode: (value: string) => { clearPreview(); setCompanyCode(value); },
     year,
-    setYear: (value: number) => { clearPreview(); setYear(value); },
     month,
-    setMonth: (value: number) => { clearPreview(); setMonth(value); },
+    setPeriod: (nextYear: number, nextMonth: number) => {
+      clearPreview();
+      setYear(nextYear);
+      setMonth(nextMonth);
+      if (targetKind === "consolidated") {
+        setBatchId(null);
+        setBatchOptions([]);
+      }
+    },
     periodKind,
-    setPeriodKind: (value: ConsolidationPeriodKind) => { clearPreview(); setPeriodKind(value); },
+    setPeriodKind: (value: ConsolidationPeriodKind) => {
+      clearPreview();
+      setPeriodKind(value);
+      if (targetKind === "consolidated") {
+        setBatchId(null);
+        setBatchOptions([]);
+      }
+    },
     reportType,
     setReportType: (value: "balance" | "income" | "cashflow") => { clearPreview(); setReportType(value); },
     batchId,
@@ -524,6 +541,7 @@ export function useStatementComparison() {
     selectedLineCode,
     setSelectedLineCode,
     uiState,
+    operationBusy: previewLoading || uploading || packageDetailLoading || confirming || creatingRun || runLoading,
   };
 }
 

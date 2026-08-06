@@ -66,7 +66,7 @@ export function buildComparisonTargetToolbarItems(input: {
   year: number;
   month: number;
   loading: boolean;
-  canImport: boolean;
+  canUploadAndCompare: boolean;
   onTargetKindChange: (kind: string) => void;
   onCompanyChange: (companyCode: string) => void;
   onPeriodChange: (year: number, month: number) => void;
@@ -124,7 +124,7 @@ export function buildComparisonTargetToolbarItems(input: {
       value: input.reportType,
       onChange: input.onReportTypeChange,
     },
-    ...(input.canImport ? [{
+    ...(input.canUploadAndCompare ? [{
       kind: "file" as const,
       key: "comparison-upload",
       label: input.loading ? "正在读取 Excel" : "上传 Excel",

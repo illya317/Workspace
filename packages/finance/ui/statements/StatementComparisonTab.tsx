@@ -68,13 +68,10 @@ export default function StatementComparisonTab({
     year: comparison.year,
     month: comparison.month,
     loading: comparison.previewLoading || comparison.uploading || comparison.creatingRun,
-    canImport: capabilities.canImport,
+    canUploadAndCompare: capabilities.canImport && capabilities.canCreate && capabilities.canUpdate,
     onTargetKindChange: (kind) => comparison.setTargetKind(kind === "consolidated" ? "consolidated" : "entity"),
     onCompanyChange: comparison.setCompanyCode,
-    onPeriodChange: (year, month) => {
-      comparison.setYear(year);
-      comparison.setMonth(month);
-    },
+    onPeriodChange: comparison.setPeriod,
     onPeriodKindChange: comparison.setPeriodKind,
     onReportTypeChange: (value) => comparison.setReportType(value === "income" ? "income" : value === "cashflow" ? "cashflow" : "balance"),
     onBatchChange: (value) => comparison.setBatchId(value ? Number(value) : null),
@@ -204,7 +201,7 @@ export default function StatementComparisonTab({
     <PageSurface
       kind="standard"
       tabbar={navigation}
-      toolbar={{ items: state === "completed" ? filterToolbar : targetToolbar }}
+      toolbar={{ items: state === "completed" ? filterToolbar : comparison.operationBusy ? [] : targetToolbar }}
       body={body}
     />
   );

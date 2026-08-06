@@ -14,6 +14,7 @@ export type MobileToolbarCommand =
 export interface MobileToolbarModel {
   commands: MobileToolbarCommand[];
   overflowLeadItems: ToolbarItem[];
+  overflowDirectItems: ToolbarItem[];
   overflowActions: ToolbarRenderableAction[];
   hasFilters: boolean;
   hasMore: boolean;
@@ -40,12 +41,16 @@ export function resolveMobileToolbarModel(grouped: ToolbarGroupedItems): MobileT
   const visibleActions = new Set(
     commands.filter((command) => command.type === "action").map((command) => command.action),
   );
+  const visibleDirectItems = new Set(
+    commands.filter((command) => command.type === "item").map((command) => command.item),
+  );
   const overflowLeadItems = prioritizedLeadItems.filter((item) => !visibleLeadItems.has(item));
   const overflowActions = orderedActions.filter((action) => !visibleActions.has(action));
+  const overflowDirectItems = directActionItems.filter((item) => !visibleDirectItems.has(item));
   const hasFilters = grouped.filter.length > 0;
-  const hasMore = overflowLeadItems.length > 0 || overflowActions.length > 0 || grouped.trailing.length > 0;
+  const hasMore = overflowLeadItems.length > 0 || overflowDirectItems.length > 0 || overflowActions.length > 0 || grouped.trailing.length > 0;
 
-  return { commands, overflowLeadItems, overflowActions, hasFilters, hasMore };
+  return { commands, overflowLeadItems, overflowDirectItems, overflowActions, hasFilters, hasMore };
 }
 
 function prioritizeLeadItems(items: ToolbarItem[]) {

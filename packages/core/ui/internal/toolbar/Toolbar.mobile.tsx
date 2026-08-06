@@ -86,6 +86,13 @@ export default function MobileToolbarContent({
               onSubmit={onSubmit}
             />
             <MobileToolbarControlList
+              title="文件操作"
+              items={model.overflowDirectItems}
+              size={size}
+              onClose={closeSheet}
+              renderItem={RenderItem}
+            />
+            <MobileToolbarControlList
               title="显示与设置"
               items={grouped.trailing}
               size={size}
