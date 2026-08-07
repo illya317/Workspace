@@ -6,6 +6,7 @@ import {
   createStatusSection,
   createVisualizationSection,
   PageSurface,
+  useFeedback,
 } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 
@@ -14,6 +15,7 @@ import {
   buildOrganizationChartVisual,
   type OrganizationChartDepartment,
 } from "./organization-chart";
+import { downloadOrganizationChartPdf } from "./organization-chart-pdf";
 import type { OrganizationCodeConfig } from "../tabs/department-position/types";
 
 const ORGANIZATION_CHART_COPY = {
@@ -22,10 +24,12 @@ const ORGANIZATION_CHART_COPY = {
 };
 
 export default function OrganizationChartTab({ surface }: { surface: RosterSurfaceTabBarProps }) {
+  const feedback = useFeedback();
   const [departments, setDepartments] = useState<OrganizationChartDepartment[]>([]);
   const [functionalPrefix, setFunctionalPrefix] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -54,6 +58,19 @@ export default function OrganizationChartTab({ surface }: { surface: RosterSurfa
     () => buildOrganizationChartVisual(departments, ORGANIZATION_CHART_COPY, functionalPrefix ?? ""),
     [departments, functionalPrefix],
   );
+
+  async function handleDownload() {
+    setExporting(true);
+    try {
+      await downloadOrganizationChartPdf(visual);
+      feedback.success("组织架构图 PDF 已下载");
+    } catch (cause: unknown) {
+      feedback.error(cause instanceof Error ? cause.message : "组织架构图 PDF 下载失败");
+    } finally {
+      setExporting(false);
+    }
+  }
+
   const body = loading
     ? createPageBody([createStatusSection("organization-loading", {
       kind: "loading",
@@ -77,5 +94,24 @@ export default function OrganizationChartTab({ surface }: { surface: RosterSurfa
         }),
       ]);
 
-  return <PageSurface kind="standard" tabbar={surface.tabbar} body={body} />;
+  return (
+    <PageSurface
+      kind="standard"
+      tabbar={surface.tabbar}
+      toolbar={{
+        items: [{
+          kind: "action-group",
+          key: "chart-actions",
+          actions: [{
+            key: "export",
+            kind: "export",
+            label: "下载 PDF",
+            disabled: loading || error !== null || exporting || visual.nodes.length === 0,
+            onClick: () => { void handleDownload(); },
+          }],
+        }],
+      }}
+      body={body}
+    />
+  );
 }

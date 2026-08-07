@@ -111,6 +111,8 @@ export type {
   SelectorSurfaceStructuredTreeItemSpec,
 } from "./SelectorSurface.types";
 export { default as VisualizationSurface } from "./VisualizationSurface";
+export { renderVisualizationNetworkImage } from "./internal/visualization/VisualizationNetworkExport";
+export type { VisualizationNetworkImageOptions } from "./internal/visualization/VisualizationNetworkExport";
 export type {
   VisualizationBarChartSpec,
   VisualizationBarSpec,

@@ -82,6 +82,7 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "createSelectorTreeExpandedIds",
   "createVisualizationSection",
   "getFloatingOverlayOpenDetail",
+  "renderVisualizationNetworkImage",
   "setSelectorTreeNodeExpanded",
   "useFeedback",
   "usePageAssistant",

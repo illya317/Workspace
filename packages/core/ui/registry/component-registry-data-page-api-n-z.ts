@@ -188,6 +188,16 @@ export const page_api_registry_entries = [
     composes: ["ActionGlyph"],
   },
   {
+    name: "renderVisualizationNetworkImage",
+    description: "关系图离屏高分辨率渲染 helper；按 visual 声明以高像素密度重建 diagram 画布并合成 PNG Blob，供业务侧封装图片或 PDF 下载；map 呈现不支持导出。",
+    capabilities: [
+      { name: "pixelRatio", description: "离屏画布像素密度倍数，默认 3。" },
+      { name: "width", description: "离屏画布 CSS 宽度，默认 2400。" },
+      { name: "height", description: "离屏画布 CSS 高度，默认取 max(960, visual.height)。" },
+    ],
+    composes: ["VisualizationNetwork"],
+  },
+  {
     name: "VisualizationGantt",
     description: "VisualizationSurface 甘特图 typed spec renderer；移动端提供全屏横屏专注视图并保留不支持锁屏浏览器的旋转设备回退。",
     composes: ["ActionGlyph", "VisualizationGanttUtils"],
