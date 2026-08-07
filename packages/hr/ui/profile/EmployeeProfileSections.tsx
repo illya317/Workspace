@@ -83,6 +83,9 @@ export function EmploymentSection(props: EmploymentSectionProps) {
   return <BodySurface {...createPageBody(useEmploymentSections(props))} />;
 }
 
+const PRIMARY_CONTRACT_FIELD_KEY = "primaryContractCompany";
+const PRIMARY_CONTRACT_FLAG_FIELD: ProfileField = { key: "isPrimary", label: "主合同", type: "boolean" };
+
 export function useEmploymentSections({
   employment,
   contracts,
@@ -97,6 +100,26 @@ export function useEmploymentSections({
   const tenantConfig = useTenantConfig();
   const fields = withTenantProfileFieldOptions(employmentFields, tenantConfig).filter(field => !["currentCompany", "leaveNote"].includes(field.key));
   const virtualPersonnelType = tenantConfig.hr.options.virtualEmployeePersonnelType;
+  // 主合同按用工主体选择，覆盖该任职下全部合同（含已失效），命中的第一条置为主合同
+  const contractCompanies = [...new Set(contracts.map((row) => row.company).filter(Boolean))];
+  const statusFields = contractCompanies.length > 0
+    ? [...fields, { key: PRIMARY_CONTRACT_FIELD_KEY, label: "主合同", type: "select" as const, options: contractCompanies }]
+    : fields;
+  const employmentRecord = employment
+    ? {
+      ...employment,
+      [PRIMARY_CONTRACT_FIELD_KEY]: contracts.find((row) => row.isPrimary)?.company ?? "",
+    } as unknown as EditableRecord
+    : null;
+  function changePrimaryContract(value: unknown) {
+    const company = typeof value === "string" ? value : "";
+    let assigned = false;
+    contracts.forEach((row, index) => {
+      const next = Boolean(company) && !assigned && row.company === company;
+      if (next) assigned = true;
+      if (Boolean(row.isPrimary) !== next) onChangeContract(index, PRIMARY_CONTRACT_FLAG_FIELD, next);
+    });
+  }
   const contractSections = useContractSections({
     rows: contracts,
     canEdit,
@@ -111,8 +134,12 @@ export function useEmploymentSections({
         createFieldRegionSection({
           key: "employment-status",
           title: "任职状态",
-          sections: [createFieldGridSection(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
-          const field = fields.find(item => item.key === key);
+          sections: [createFieldGridSection(statusFields, employmentRecord as EditableRecord, !canEdit, (key, value, option) => {
+          if (key === PRIMARY_CONTRACT_FIELD_KEY) {
+            changePrimaryContract(value);
+            return;
+          }
+          const field = statusFields.find(item => item.key === key);
           if (field) onChange(field, value, option);
           }, (field, record) => (
             field.key === "personnelType"
