@@ -12,6 +12,7 @@ import SelectionGrid from "../selection/SelectionGrid";
 import { joinClassNames } from "../common/card-utils";
 import { renderAntdDataValue } from "./antd-data-value";
 import { workspaceButtonToneClassName } from "../common/workspace-colors";
+import { badgeToneClassName } from "../common/Badge";
 
 const CELL_KINDS = new Set([
   "text", "empty", "stack", "disclosure", "link", "badge", "number", "amount", "meter",
@@ -29,6 +30,13 @@ function labelText(label: ReactNode) {
 
 function AntdCellAction({ action }: { action: DataSurfaceCellActionSpec }) {
   const label = labelText(action.label) || action.key;
+  const glyph = action.presentation === "glyph";
+  const toneClassName = action.tone && action.variant !== "primary"
+    ? glyph
+      // glyph 状态点恢复迁移前的填充染色，描边样式在小尺寸下无法区分授权状态
+      ? `!h-7 !w-7 !min-w-7 !p-0 rounded-md ${badgeToneClassName(action.tone, true)}`
+      : workspaceButtonToneClassName(action.tone)
+    : undefined;
   return (
     <span
       className="inline-flex"
@@ -37,18 +45,18 @@ function AntdCellAction({ action }: { action: DataSurfaceCellActionSpec }) {
       onMouseLeave={action.onMouseLeave}
     >
       <Button
-        aria-label={action.presentation === "glyph" ? label : undefined}
-        className={action.tone && action.variant !== "primary" ? workspaceButtonToneClassName(action.tone) : undefined}
-        danger={action.variant === "danger" || action.tone === "red"}
+        aria-label={glyph ? label : undefined}
+        className={toneClassName}
+        danger={action.variant === "danger" || (!glyph && action.tone === "red")}
         disabled={action.disabled}
         htmlType={action.type === "submit" && !action.onClick ? "submit" : "button"}
         icon={action.icon ? <ActionGlyph kind={action.icon} className="size-4" /> : undefined}
         onClick={action.onClick}
         size={action.size === "lg" ? "large" : action.size === "sm" ? "small" : "middle"}
         title={action.title ?? label}
-        type={action.variant === "primary" ? "primary" : action.presentation === "glyph" ? "text" : "default"}
+        type={action.variant === "primary" ? "primary" : glyph ? "text" : "default"}
       >
-        {action.presentation === "glyph" ? null : <span className={action.truncate ? "block max-w-40 truncate" : undefined}>{action.label}</span>}
+        {glyph ? null : <span className={action.truncate ? "block max-w-40 truncate" : undefined}>{action.label}</span>}
       </Button>
     </span>
   );
